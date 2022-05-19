@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack --mode development ./leadmanager/frontend/src/index.js --output-path ./leadmanager/frontend/static/frontend",
+    "dev": "webpack --mode development --watch ./leadmanager/frontend/src/index.js --output-path ./leadmanager/frontend/static/frontend",
     "build": "webpack --mode production ./leadmanager/frontend/src/index.js --output-path ./leadmanager/frontend/static/frontend"
   },
   "keywords": [],
@@ -25,6 +25,10 @@
     "prop-types": "^15.8.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "react-router-dom": "^6.3.0"
+    "react-redux": "^8.0.1",
+    "react-router-dom": "^6.3.0",
+    "redux": "^4.2.0",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-thunk": "^2.4.1"
   }
 }
