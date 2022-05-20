@@ -11,7 +11,7 @@ static propTypes = {
 
   render() {
     return (
-      <div>Leads List </div>
+      <div>Leads List</div>
     )
   }
 }
