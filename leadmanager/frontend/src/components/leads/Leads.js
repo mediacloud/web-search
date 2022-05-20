@@ -9,6 +9,10 @@ static propTypes = {
   leads: PropTypes.array.isRequired
 }
 
+  componentDidMount() {
+    this.props.getLeads();
+  }
+
   render() {
     return (
       <div>Leads List</div>
@@ -20,4 +24,4 @@ const mapStateToProps = state => ({
   leads: state.leads.leads
 });
   
-export default connect(mapStateToProps)(Leads);
+export default connect(mapStateToProps, {getLeads})(Leads);
