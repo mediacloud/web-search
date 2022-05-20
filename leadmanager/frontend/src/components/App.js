@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import ReactDOM from 'react-dom';
+import * as ReactDOMClient from 'react-dom/client';
 
 import Header from './layout/Header';
 import Dashboard from './leads/Dashboard';
 
 import { Provider } from 'react-redux';
 import store from '../store';
+import reactDom from 'react-dom';
 
 
 class App extends Component {
@@ -23,4 +24,10 @@ class App extends Component {
     }
 }
 
-ReactDOM.render(<App />, document.getElementById('app'));
+// solved and upgraded 
+const container = document.getElementById('app');
+const root = ReactDOMClient.createRoot(container);
+root.render(<App tab="home" />);
+root.render(<App tab="profile" />);
+
+
