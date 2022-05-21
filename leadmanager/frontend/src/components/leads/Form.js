@@ -11,21 +11,19 @@ export class Form extends Component {
   };
 
   static propTypes = {
-    addLead: PropTypes.func.isRequired,
+    addLead: PropTypes.func.isRequired
   };
 
-  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
+  onChange = e => this.setState({
+    [e.target.name]:
+    e.target.value
+  });
 
-  onSubmit = (e) => {
+  onSubmit = e => {
     e.preventDefault();
     const { name, email, message } = this.state;
     const lead = { name, email, message };
     this.props.addLead(lead);
-    this.setState({
-      name: '',
-      email: '',
-      message: '',
-    });
   };
 
   render() {
