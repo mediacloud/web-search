@@ -17,7 +17,7 @@ export default function (state = initialState, action) {
                 // filters through all the data and if there is a similiar id it will delete 
                 //(ex. searching for id 1, in (1,2,3), the first user will be deleted 
                 ...state,
-                leads: state.leads.filter(lead => lead.id !== action.payload)
+                leads: state.leads.filter((lead) => lead.id !== action.payload),            
             };
         case ADD_LEAD:
             return {

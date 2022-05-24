@@ -10,14 +10,12 @@ import Alerts from './layout/Alerts';
 
 import { Provider } from 'react-redux';
 import store from '../store';
-import reactDom from 'react-dom';
 
 // Alert Options 
 const alertOptions = {
     timeout: 3000,
-    position: 'top center'
-}
-
+    position: 'top center',
+};
 
 class App extends Component {
     render() {
@@ -34,7 +32,7 @@ class App extends Component {
                     </Fragment>
                 </AlertProvider>
             </Provider>
-        )
+        );
     }
 }
 

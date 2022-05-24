@@ -1,17 +1,15 @@
 import React, { Component, Fragment} from 'react';
 import { withAlert } from 'react-alert';
 
+
 export class Alerts extends Component {
     componentDidMount() {
-        this.props.alerts.show("It Works");
+        this.props.alert.show("It works");
     }
 
-
     render() {
-        return
-        <Fragment />;
-
+        return <Fragment />;
     }
 }
 
-export default withAlert()(Alerts)
+export default withAlert()(Alerts);

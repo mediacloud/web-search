@@ -10,7 +10,7 @@ export class Leads extends Component {
     getLeads: PropTypes.func.isRequired,
     deleteLead: PropTypes.func.isRequired,
 
-  }
+  };
 
   componentDidMount() {
     this.props.getLeads();
@@ -54,8 +54,8 @@ export class Leads extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  leads: state.leads.leads
+const mapStateToProps = (state) => ({
+  leads: state.leads.leads,
 });
 
 export default connect(mapStateToProps, { getLeads, deleteLead })(Leads);

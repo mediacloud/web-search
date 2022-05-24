@@ -15,7 +15,7 @@ export const getLeads = () => dispatch => {
                 payload: res.data
             });
         })
-        .catch(err => console.log(err));
+        .catch((err) => dispatch(returnErrors(err.response.data, err.response.status)));
 };
 
 
@@ -42,5 +42,5 @@ export const addLead = (lead) => dispatch => {
                 payload: res.data,
             });
         })
-        .catch((err) => console.log(err));
+        .catch((err) => dispatch(returnErrors(err.response.data, err.response.status)));
 };

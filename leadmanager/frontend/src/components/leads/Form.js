@@ -11,7 +11,7 @@ export class Form extends Component {
   };
 
   static propTypes = {
-    addLead: PropTypes.func.isRequired
+    addLead: PropTypes.func.isRequired,
   };
 
   onChange = e => this.setState({
@@ -24,6 +24,11 @@ export class Form extends Component {
     const { name, email, message } = this.state;
     const lead = { name, email, message };
     this.props.addLead(lead);
+    this.setState({
+      name: '',
+      email: '',
+      message: '',
+    });
   };
 
   render() {
