@@ -1,2 +1,13 @@
-node_modules
+
+# MacOS
 .DS_Store
+
+# Node
+node_modules
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.idea
