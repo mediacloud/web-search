@@ -11,3 +11,7 @@ __pycache__/
 
 # IDE
 .idea
+
+# generated files
+*.sqlite3
+leadmanager/frontend/static/frontend/main.js
