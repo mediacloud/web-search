@@ -7,8 +7,8 @@ export class Alerts extends Component {
         this.props.alert.show("It works");
     }
 
-    render() {
-        return <Fragment />;
+    render(){
+        return <Fragment />
     }
 }
 

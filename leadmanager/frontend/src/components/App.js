@@ -12,10 +12,14 @@ import { Provider } from 'react-redux';
 import store from '../store';
 
 // Alert Options 
-// const alertOptions = {
-//     timeout: 3000,
-//     position: 'top center',
-// };
+ const alertOptions = {
+     timeout: 3000,
+     position: 'top center',
+ };
+
+
+ //               <AlertProvider template = {AlertTemplate} {...alertOptions}>
+              //  </AlertProvider>
 
 class App extends Component {
     render() {
