@@ -8,6 +8,13 @@ Installation
 2. Python: `pip install requirements.txt` or `conda install --file requirements.txt`
 3. Node: `npm install`
 
+
+Running Database: 
+----------------
+1. Database: 'python leadmanager/manage.py migrate'
+2. In Postman: http://localhost:8000/api/leads/ 
+  - Allows for 
+
 Running
 -------
 
