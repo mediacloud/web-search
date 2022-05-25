@@ -5,11 +5,8 @@ Installation
 ------------
 
 1. Clone this repository
-2. Python:
-   1. Install pipenv - `pip install pipenv` or `conda install pipenv`
-   2. Install the dependencies: `pipenv install Pipfile`
-3. Node:
-   1. Install the dependencies: `npm install`
+2. Python: `pip install requirements.txt` or `conda install --file requirements.txt`
+3. Node: `npm install`
 
 Running
 -------
