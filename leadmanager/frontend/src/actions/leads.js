@@ -15,7 +15,7 @@ export const getLeads = () => dispatch => {
                 payload: res.data
             });
         })
-        .catch(err => console.log(err));
+        // .catch(err => console.log(err));
 };
 
 
@@ -29,7 +29,7 @@ export const deleteLead = id => dispatch => {
                 payload: id,
             });
         })
-        .catch((err) => console.log(err));
+        // .catch((err) => console.log(err));
 };
 
 // ADD LEAD 
