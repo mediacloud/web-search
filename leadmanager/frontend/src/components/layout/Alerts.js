@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Stack, Alert } from '@mui/material';
+import { Stack, Alert, AlertTitle } from '@mui/material';
 import { connect } from "react-redux"; // work with redux inside of a component 
 import PropTypes from 'prop-types' // errors are going to come in as props 
 
@@ -33,7 +33,8 @@ export class Alerts extends Component {
     render() {
         return (
             // A common pattern in React is for a component to return multiple elements. 
-            <Fragment />
+            <Alert severity="warning">
+                <AlertTitle>Warning</AlertTitle>Warning</Alert>
             )
     }
 }

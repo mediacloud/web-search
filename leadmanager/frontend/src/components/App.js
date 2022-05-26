@@ -9,6 +9,7 @@ import { Provider } from 'react-redux';
 import store from '../store';
 
 
+
 class App extends Component {
     render() {
         return (
@@ -18,6 +19,7 @@ class App extends Component {
                     <div className="container">
                         <Dashboard />
                         <Alerts />
+
                     </div>
                 </Fragment>
             </Provider>
