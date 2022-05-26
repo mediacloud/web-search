@@ -18,8 +18,6 @@ class App extends Component {
                     <Header />
                     <div className="container">
                         <Dashboard />
-                        <Alerts />
-
                     </div>
                 </Fragment>
             </Provider>

@@ -23,13 +23,11 @@
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@mui/material": "^5.8.1",
-<<<<<<< HEAD
     "@mui/styled-engine-sc": "^5.8.0",
-=======
->>>>>>> 691e6c0efce022f9c8375ac21215fe6427c0abb3
     "axios": "^0.27.2",
     "bootstrap": "^5.2.0-beta1",
     "jquery": "^3.6.0",
+    "package.json": "^2.0.1",
     "prop-types": "^15.8.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
@@ -37,11 +35,7 @@
     "react-router-dom": "^6.3.0",
     "redux": "^4.2.0",
     "redux-devtools-extension": "^2.13.9",
-<<<<<<< HEAD
     "redux-thunk": "^2.4.1",
     "styled-components": "^5.3.5"
-=======
-    "redux-thunk": "^2.4.1"
->>>>>>> 691e6c0efce022f9c8375ac21215fe6427c0abb3
   }
 }

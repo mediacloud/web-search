@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Stack, Alert, AlertTitle } from '@mui/material';
+import { Alert, AlertTitle } from '@mui/material';
 import { connect } from "react-redux"; // work with redux inside of a component 
 import PropTypes from 'prop-types' // errors are going to come in as props 
 
@@ -14,8 +14,9 @@ export class Alerts extends Component {
     // whenever getError is run
     componentDidUpdate(prevProps) {
         //destructuring
-
         const { error } = this.props;
+
+
         if (error !== prevProps.error) {
             if (error.msg.name) { // join is used because it's an array 
                 console.log(`Name: ${error.msg.name.join()}`);
@@ -33,10 +34,15 @@ export class Alerts extends Component {
     render() {
         return (
             // A common pattern in React is for a component to return multiple elements. 
-            <Alert severity="warning">
-                <AlertTitle>Warning</AlertTitle>Warning</Alert>
-            )
+            <Fragment>
+                 <Alert severity="warning">
+                    <AlertTitle>Warning</AlertTitle>Warning</Alert>
+                <Alert severity="info">
+                    <AlertTitle>Warning</AlertTitle>Warning</Alert> 
+            </Fragment>
+        )
     }
+
 }
 
 
