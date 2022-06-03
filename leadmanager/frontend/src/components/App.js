@@ -1,24 +1,28 @@
 import React, { Component, Fragment } from 'react';
-import * as ReactDOMClient from 'react-dom/client';
+import ReactDom from 'react-dom/client';
 
+// Header is the navbar 
 import Header from './layout/Header';
+
+//  Dashboard: Alerts />, <Form />, <Leads />
 import Dashboard from './leads/Dashboard';
-import Alerts from './layout/Alerts';
 
 import { Provider } from 'react-redux';
 import store from '../store';
 
 
 
+
+
 class App extends Component {
     render() {
         return (
+            // Provider componenet makes the Redux store available to any 
+            // nested componenet that needs to access the  Redux Store 
             <Provider store={store}>
                 <Fragment>
                     <Header />
-                    <div className="container">
-                        <Dashboard />
-                    </div>
+                    <Dashboard />
                 </Fragment>
             </Provider>
         );
