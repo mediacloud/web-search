@@ -3,43 +3,45 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3500' }),
-    tagTypes: ['Todos'],
+    tagTypes: ['Leads'],
     endpoints: (builder) => ({
-        getTodos: builder.query({
-            query: () => '/todos',
+
+        getLeads: builder.query({
+            query: () => '/leads',
             transformResponse: res => res.sort((a, b) => b.id - a.id),
-            providesTags: ['Todos']
-        }),
-        addTodo: builder.mutation({
-            query: (todo) => ({
-                url: '/todos',
+            providesTags: ['Leads']
+        }), 
+
+        addLead: builder.mutation({
+            query: (lead) => ({
+                url: '/leads',
                 method: 'POST',
-                body: todo
+                body: lead
             }),
-            invalidatesTags: ['Todos']
+            invalidatesTags: ['Leads']
         }),
-        updateTodo: builder.mutation({
-            query: (todo) => ({
-                url: `/todos/${todo.id}`,
+        updateLead: builder.mutation({
+            query: (lead) => ({
+                url: `/leads/${lead.id}`,
                 method: 'PATCH',
-                body: todo
+                body: lead
             }),
-            invalidatesTags: ['Todos']
+            invalidatesTags: ['Leads']
         }),
-        deleteTodo: builder.mutation({
+        deleteLead: builder.mutation({
             query: ({ id }) => ({
-                url: `/todos/${id}`,
+                url: `/leads/${id}`,
                 method: 'DELETE',
                 body: id
             }),
-            invalidatesTags: ['Todos']
+            invalidatesTags: ['Leads']
         }),
     })
 })
 
 export const {
-    useGetTodosQuery,
-    useAddTodoMutation,
-    useUpdateTodoMutation,
-    useDeleteTodoMutation
+    useGetLeadsQuery,
+    useAddLeadMutation, 
+    useUpdateLeadMutation, 
+    useDeleteLeadMutation
 } = apiSlice
