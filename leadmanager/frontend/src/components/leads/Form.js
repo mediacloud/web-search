@@ -30,17 +30,69 @@ const TodoList = () => {
   }
 
 
-  render() {
-    const{first_name, last_name, email, message} = this.state; 
+  const newItemSection =
+    { first_name, last_name, email, message } = this.state;
+    
+  <div className="card card-body mt-4 mb-4">
+    <h2>Add Lead</h2>
+    <form onSubmit={this.onSubmit}>
+      <div className="form-group">
+        <label>First Name</label>
+        <input
+          className="form-control"
+          type="text"
+          name="First Name"
+          onChange={this.onChange}
+          value={first_name}
+        />
+      </div>
+      <div className="form-group">
+        <label>Last Name</label>
+        <input
+          className="form-control"
+          type="text"
+          name="Last Name"
+          onChange={this.onChange}
+          value={last_name}
+        />
+      </div>
+      <div className="form-group">
+        <label>Email</label>
+        <input
+          className="form-control"
+          type="email"
+          name="email"
+          onChange={this.onChange}
+          value={email}
+        />
+      </div>
+      <div className="form-group">
+        <label>Message</label>
+        <textarea
+          className="form-control"
+          type="text"
+          name="message"
+          onChange={this.onChange}
+          value={message}
+        />
+      </div>
+      <div className="form-group">
+        <button type="submit" className="btn btn-primary">
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
 
-    return(
-      
+
+  return (
+    <main>
+      <h1>Form</h1>
+      {newItemSection}
+    </main>
+  
     )
-  }
-
-
-
-
 
 }
 
+export default Form
