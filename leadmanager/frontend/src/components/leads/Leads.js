@@ -24,7 +24,8 @@ export class Leads extends Component {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Name</th>
+              <th>First name</th>
+              <th>Last name</th>
               <th>Email</th>
               <th>Message</th>
               <th />
@@ -33,8 +34,9 @@ export class Leads extends Component {
           <tbody>
             {this.props.leads.map(lead => (
               <tr key={lead.id}>
-                <td>{lead.id}</td>
-                <td>{lead.name}</td>
+                <td>{lead.id}</td> 
+                <td>{lead.first_name}</td>
+                <td>{lead.last_name}</td>
                 <td>{lead.email}</td>
                 <td>{lead.message}</td>
                 <td><button
