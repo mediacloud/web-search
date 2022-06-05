@@ -1,38 +1,19 @@
-import React, { Component, Fragment } from 'react';
-import ReactDom from 'react-dom/client';
-
-// Header is the navbar 
-import Header from './layout/Header';
-
-//  Dashboard: Alerts />, <Form />, <Leads />
-import Dashboard from './leads/Dashboard';
-
-import { Provider } from 'react-redux';
-import store from '../store';
-
-import { ApiProvider } from "@reduxjs/toolkit/query/react";
-import { apiSlice } from "../features/api/apiSlice";
-
-
-
+import React, { Component } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Fragment } from 'react';
 
 class App extends Component {
     render() {
         return (
-            // Provider componenet makes the Redux store available to any 
-            // nested componenet that needs to access the  Redux Store 
-            <Provider store={store}>
-                <Fragment>
-                    <Header />
-                    <Dashboard />
-                </Fragment>
-            </Provider>
+            <Fragment>
+         
+            </Fragment>
         );
+
     }
 }
 
-// solved and upgraded 
-const container = document.getElementById('app');
-const root = ReactDOMClient.createRoot(container);
-root.render(<App tab="home" />);
-root.render(<App tab="profile" />);
+createRoot(document.getElementById('app')).render(<App tab="home" />);
+
+
+
