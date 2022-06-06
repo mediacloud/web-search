@@ -2,19 +2,19 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const apiSlice = createApi({
     reducerPath: 'api',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8000/api/leads' }),
+    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8000/api/' }),
     tagTypes: ['Leads'],
     endpoints: (builder) => ({
 
         getLeads: builder.query({
-            query: () => '/leads',
+            query: () => 'leads',
             transformResponse: res => res.sort((a, b) => b.id - a.id),
             providesTags: ['Leads']
         }),
 
         addLead: builder.mutation({
             query: (lead) => ({
-                url: '/leads',
+                url: 'leads',
                 method: 'POST',
                 body: lead
             }),
@@ -22,7 +22,7 @@ export const apiSlice = createApi({
         }),
         updateLead: builder.mutation({
             query: (lead) => ({
-                url: `/leads/${lead.id}`,
+                url: `leads/${lead.id}`,
                 method: 'PATCH',
                 body: lead
             }),
@@ -30,7 +30,7 @@ export const apiSlice = createApi({
         }),
         deleteLead: builder.mutation({
             query: ({ id }) => ({
-                url: `/leads/${id}`,
+                url: `leads/${id}`,
                 method: 'DELETE',
                 body: id
             }),
