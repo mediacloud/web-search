@@ -3,14 +3,14 @@ import {
     useDeleteLeadMutation,
     useUpdateLeadMutation,
     useAddLeadMutation
-} from '../api/ApiSlice'; 
+} from "../api/apiSlice";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
 import { useState } from "react"
 
 const LeadList = () => {
-    //const [newLead, setNewLead] = useState('')
+    const [newLead, setNewLead] = useState('')
 
 
     // this custom hook is being created for us 
@@ -29,9 +29,9 @@ const LeadList = () => {
 
 
     // define conditional content 
-    let content; 
+    let content;
 
-    if(isLoading) {
+    if (isLoading) {
         content = <p>Loading...</p>
     } else if (isSuccess) {
         content = leads.map(lead => { //JSON.stringify(leads)
@@ -58,19 +58,17 @@ const LeadList = () => {
     } else if (isError) {
         content = <p>{error}</p>
     }
-
     return (
-        <main> 
+        <main>
             <h1>Leads</h1>
             {content}
         </main>
     )
 }
-
 export default Profiles
 
-    
-    
-    
+
+
+
 
 
