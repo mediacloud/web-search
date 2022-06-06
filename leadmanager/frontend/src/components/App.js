@@ -5,13 +5,21 @@ import Header from './layout/Header';
 import Profiles from '../features/profiles/Profiles';
 
 
+import { ApiProvider } from '@reduxjs/toolkit/query/react';
+import { apiSlice } from '../features/api/apiSlice';
+
+
+
 class App extends Component {
     render() {
         return (
-            <Fragment>
-                <Header />
-                <div>hello</div>
-            </Fragment>
+            <ApiProvider api= {apiSlice}>
+                <Fragment>
+                    <Header />
+                    <Profiles />
+                </Fragment>
+            </ApiProvider>
+
         );
 
     }
