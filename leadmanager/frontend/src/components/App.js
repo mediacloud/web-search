@@ -1,12 +1,17 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Fragment } from 'react';
+
+import Header from './layout/Header';
+import Profiles from '../features/profiles/Profiles';
+
+import ApiSlice from '../features/api/ApiSlice';
 
 class App extends Component {
     render() {
         return (
             <Fragment>
-                <h1> hello </h1>
+                <Header />
+                <Profiles />
             </Fragment>
         );
 
