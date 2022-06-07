@@ -7,14 +7,12 @@ import {
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
-import  React, { useState } from "react"
+import React, { useState } from "react"
 
 
 const Profiles = () => {
     const [newLead, setNewLead] = useState('')
 
-
-    // this custom hook is being created for us 
     const {
         data: leads,
         isLoading,
@@ -23,22 +21,29 @@ const Profiles = () => {
         error
     } = useGetLeadsQuery()
 
-    //const [addLead] = useAddLeadMutation();
+    const [addLead] = useAddLeadMutation();
     const [updateLead] = useUpdateLeadMutation();
-    //const [deleteLead] = useDeleteLeadMutation();
+    const [deleteLead] = useDeleteLeadMutation();
+
+    const val = 1;
+
+    const handleSubmit = (e) => {
+        val++;
+        e.preventDefault();
+        // addTodo
+        addTodo({ "id": val, "first_name": newTodo, "last_name": newTodo, completed: false })
+        setNewTodo('')
+    }
 
 
 
-    // define conditional content 
+
     let content;
 
     if (isLoading) {
         content = <p>Loading...</p>
     } else if (isSuccess) {
-        content = leads.map(lead => { //JSON.stringify(leads)
-            // returning an article which will have an article and each artciel is going to have a key
-            // that matches the lead.id 
-            // lots of artciles will be run 
+        content = leads.map(lead => {
             return (
                 <article key={lead.id}>
                     <div className="lead">
