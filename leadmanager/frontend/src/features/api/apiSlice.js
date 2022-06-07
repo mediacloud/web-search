@@ -3,6 +3,11 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8000/api/' }),
+    prepareHeaders: (headers, { getState }) => {
+        // Django requires this for security (cross-site forgery protection) once logged in
+        headers.set(' X-CSRFToken', window.CSRF_TOKEN);
+        return headers;
+    },
     tagTypes: ['Leads'],
     endpoints: (builder) => ({
 

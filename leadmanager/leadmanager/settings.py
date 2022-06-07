@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "leads",
     "rest_framework",
-    "frontend"
+    "frontend",
+    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -81,6 +82,10 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
+    #"default": {
+    #    "ENGINE": "django.db.backends.postgresql",
+    #    "NAME": "django-react"
+    #}
 }
 
 
@@ -118,3 +123,11 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+}

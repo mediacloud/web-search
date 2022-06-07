@@ -7,7 +7,8 @@ Installation
 1. Clone this repository
 2. Python: `pip install requirements.txt` or `conda install --file requirements.txt`
 3. Node: `npm install`
-
+4. python manage.py createsuperuser
+5. login to `http://localhost:8000/admin` to administer users and groups
 
 Running Database: 
 ----------------

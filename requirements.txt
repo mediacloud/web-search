@@ -2,3 +2,4 @@ django==4.0.*
 djangorestframework==3.13.*
 django-rest-knox==4.2.*
 psycopg2==2.9.*
+djangorestframework-simplejwt[crypto]==5.2.*
