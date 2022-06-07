@@ -68,25 +68,25 @@ const Profiles = () => {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>First name</th>
-                            <th>Last name</th>
-                            <th>Email</th>
-                            <th>Message</th>
+                            <td>ID</td>
+                            <td>First name</td>
+                            <td>Last name</td>
+                            <td>Email</td>
+                            <td>Message</td>
                         </tr>
                     </thead>
                     <tbody>
-                        {leads.map(lead => {
-
+                        {leads.map((lead) => {
                             return (
-                            <article key={lead.id}>
-                                <td>{lead.id}</td>
-                                <td>{lead.first_name}</td>
-                                <td>{lead.last_name}</td>
-                                <td>{lead.email}</td>
-                                <td>{lead.message}</td>
-                            </article>
-                        )})};
+                                <tr key= {lead.id}>
+                                    <td>{lead.id}</td>
+                                    <td>{lead.first_name}</td>
+                                    <td>{lead.last_name}</td>
+                                    <td>{lead.email}</td>
+                                    <td>{lead.message}</td>
+                                </tr>
+                            )
+                        })}
                     </tbody>
                 </table>
             </Fragment>
