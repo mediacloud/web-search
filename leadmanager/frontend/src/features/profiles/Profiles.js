@@ -8,6 +8,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
 import React, { Fragment, useState } from "react"
+import { Table } from "@mui/material";
 
 
 const Profiles = () => {
@@ -74,40 +75,24 @@ const Profiles = () => {
                             <th>Message</th>
                         </tr>
                     </thead>
-                    <tbidy>
-                        {leads.map(lead => { //JSON.stringify(leads)
-                            // returning an article which will have an article and each artciel is going to have a key
-                            // that matches the lead.id 
-                            // lots of artciles will be run 
+                    <tbody>
+                        {leads.map(lead => {
+
                             return (
-                                <article key={lead.id}>
-                                    <div className="lead">
-                                        <input
-                                            type="checkbox"
-                                            checked={lead.completed}
-                                            id={lead.id}
-                                            onChange={() => updateLead({ ...lead, completed: !lead.completed })}
-                                        />
-                                        <label htmlFor={lead.id}>{lead.title}</label>
-                                        <td>{lead.id}</td>
-                                        <td>{lead.first_name}</td>
-                                        <td>{lead.last_name}</td>
-                                        <td>{lead.email}</td>
-                                        <td>{lead.message}</td>
-
-
-                                    </div>
-                                    <button className="trash" onClick={() => ({ id: lead.id })}>
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
-                                </article>
-                            )
-                        })}
-                    </tbidy>
+                            <article key={lead.id}>
+                                <td>{lead.id}</td>
+                                <td>{lead.first_name}</td>
+                                <td>{lead.last_name}</td>
+                                <td>{lead.email}</td>
+                                <td>{lead.message}</td>
+                            </article>
+                        )})};
+                    </tbody>
                 </table>
             </Fragment>
-
     }
+
+
     else if (isError) {
         content = <p>{error}</p>
     }
