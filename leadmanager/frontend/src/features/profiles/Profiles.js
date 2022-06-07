@@ -25,16 +25,33 @@ const Profiles = () => {
     const [updateLead] = useUpdateLeadMutation();
     const [deleteLead] = useDeleteLeadMutation();
 
-    const val = 1;
+    let val = 1;
 
     const handleSubmit = (e) => {
         val++;
         e.preventDefault();
         // addTodo
-        addTodo({ "id": val, "first_name": newTodo, "last_name": newTodo, completed: false })
-        setNewTodo('')
+        setNewLead({ "id": val, "first_name": newLead, "last_name": newLead, "email": newLead, "message": newLead, completed: false })
+        setNewLead('')
     }
 
+
+    const newItemSection =
+        <form onSubmit={handleSubmit}>
+           
+            <div className="new-lead">
+                <input
+                    type="text"
+                    id="new-lead"
+                    value={newLead}
+                    onChange={(e) => setNewLead(e.target.value)}
+                    placeholder="Enter new lead"
+                />
+            </div>
+            <button className="submit">
+                <FontAwesomeIcon icon={faUpload} />
+            </button>
+        </form>
 
 
 
@@ -67,6 +84,7 @@ const Profiles = () => {
     return (
         <main>
             <h1>Leads</h1>
+            {newItemSection}
             {content}
         </main>
     )
