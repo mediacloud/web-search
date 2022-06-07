@@ -1,32 +1,31 @@
 import React, { Component, Fragment } from 'react';
-import * as ReactDOMClient from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 
 import Header from './layout/Header';
-import Dashboard from './leads/Dashboard';
-import Alerts from './layout/Alerts';
+import Profiles from '../features/profiles/Profiles';
 
-import { Provider } from 'react-redux';
-import store from '../store';
+
+import { ApiProvider } from '@reduxjs/toolkit/query/react';
+import { apiSlice } from '../features/api/apiSlice';
 
 
 
 class App extends Component {
     render() {
         return (
-            <Provider store={store}>
+            <ApiProvider api= {apiSlice}>
                 <Fragment>
                     <Header />
-                    <div className="container">
-                        <Dashboard />
-                    </div>
+                    <Profiles />
                 </Fragment>
-            </Provider>
+            </ApiProvider>
+
         );
+
     }
 }
 
-// solved and upgraded 
-const container = document.getElementById('app');
-const root = ReactDOMClient.createRoot(container);
-root.render(<App tab="home" />);
-root.render(<App tab="profile" />);
+createRoot(document.getElementById('app')).render(<App tab="home" />);
+
+
+
