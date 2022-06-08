@@ -11,7 +11,7 @@ import React, { Fragment, useState } from "react"
 import { Table } from "@mui/material";
 
 
-const Profiles = () => {
+const UserList = () => {
     const [newLead, setNewLead] = useState('')
 
     const {
@@ -104,7 +104,7 @@ const Profiles = () => {
         </main>
     )
 }
-export default Profiles
+export default UserList
 
 
 

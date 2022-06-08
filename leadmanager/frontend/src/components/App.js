@@ -12,7 +12,7 @@ import { Outlet, Link } from 'react-router-dom';
 
 
 import Header from './layout/Header';
-import Profiles from '../features/profiles/Profiles';
+import UserList from '../features/profiles/UserList';
 import Homepage from './layout/Homepage';
 
 import { ApiProvider } from '@reduxjs/toolkit/query/react';
@@ -27,7 +27,7 @@ class App extends Component {
             <ApiProvider api={apiSlice}>
                 {/* <Fragment>
                     <Header />
-                    <Profiles />
+                    <UserList />
 
                 </Fragment>
 
@@ -66,7 +66,7 @@ createRoot(document.getElementById('app')).
             <Routes>
                 <Route path="/" element={<App />}>
                     <Route path="header" element={<Header />} />
-                    <Route path="users" element={<Profiles />} />
+                    <Route path="users" element={<UserList />} />
                 </Route>
             </Routes>
         </BrowserRouter>);

@@ -1,6 +1,9 @@
 import React, { Component, Fragment } from 'react'
 import Header from './Header';
+import UserList from '../../features/profiles/UserList';
 import { Outlet, Link } from 'react-router-dom';
+
+
 
 
 export class Homepage extends Component {
@@ -25,6 +28,14 @@ export class Homepage extends Component {
 
                     <h1 style={h1Style}>
                         Welcome to Media Cloud
+                        <h2>
+                            <Link to="/header">Header</Link>
+                        </h2>
+
+                        <h2>
+                            <Link to="/profiles">Profiles</Link >
+                        </h2>
+
                     </h1>
 
                 </div>
