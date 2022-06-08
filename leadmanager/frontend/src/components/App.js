@@ -22,6 +22,7 @@ import { apiSlice } from '../features/api/apiSlice';
 
 class App extends Component {
     render() {
+
         return (
             <ApiProvider api={apiSlice}>
                 {/* <Fragment>
@@ -35,10 +36,12 @@ class App extends Component {
 
 
             <Outlet /> */}
+
+            <Homepage />
           
-            console.log("hello");
             </ApiProvider >
         );
+
 
 
 
