@@ -8,12 +8,12 @@ import {
     Route,
 } from 'react-router-dom';
 
-import { Link } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 
 
 import Header from './layout/Header';
 import Profiles from '../features/profiles/Profiles';
-
+import Homepage from './layout/Homepage';
 
 import { ApiProvider } from '@reduxjs/toolkit/query/react';
 import { apiSlice } from '../features/api/apiSlice';
@@ -24,7 +24,7 @@ class App extends Component {
     render() {
         return (
             <ApiProvider api={apiSlice}>
-                <Fragment>
+                {/* <Fragment>
                     <Header />
                     <Profiles />
 
@@ -34,6 +34,9 @@ class App extends Component {
                 <Link to="/profiles">Profiles</Link >
 
 
+            <Outlet /> */}
+          
+            console.log("hello");
             </ApiProvider >
         );
 
