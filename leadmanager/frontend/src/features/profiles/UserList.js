@@ -76,10 +76,10 @@ const UserList = () => {
                     <thead>
                         <tr>
                             <td>ID</td>
-                            <td>First name</td>
-                            <td>Last name</td>
+                            <td>Username</td>
                             <td>Email</td>
-                            <td>Message</td>
+                            <td>Admin?</td>
+                            <td>Superuser?</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,10 +87,10 @@ const UserList = () => {
                             return (
                                 <tr key= {lead.id}>
                                     <td>{lead.id}</td>
-                                    <td>{lead.first_name}</td>
-                                    <td>{lead.last_name}</td>
+                                    <td>{lead.username}</td>
                                     <td>{lead.email}</td>
-                                    <td>{lead.message}</td>
+                                    <td>{lead.is_staff.toString()}</td>
+                                    <td>{lead.is_superuser.toString()}</td>
                                 </tr>
                             )
                         })}
