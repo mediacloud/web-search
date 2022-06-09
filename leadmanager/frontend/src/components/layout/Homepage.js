@@ -18,6 +18,11 @@ export class Homepage extends Component {
             padding: "30px",
         }
 
+        const linkStyle = {
+            color: "black",
+            padding: "30px"
+        }
+
 
 
 
@@ -26,20 +31,11 @@ export class Homepage extends Component {
                 <Header />
                 <div style={divStyle} >
 
-                    <h1 style={h1Style}>
-                        Welcome to Media Cloud
-                        <h2>
-                            <Link to="/header">Header</Link>
-                        </h2>
-
-                        <h2>
-                            <Link to="/profiles">Profiles</Link >
-                        </h2>
-
-                    </h1>
-
+                    <h1 style={h1Style}>Welcome to Media Cloud</h1>
+                    <Link to="/header" style={linkStyle}>Header</Link>
+                    <Link to="/profiles" style={linkStyle}>Profiles</Link >
                 </div>
-            </Fragment>
+            </Fragment >
 
         )
     }
