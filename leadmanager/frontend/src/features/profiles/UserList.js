@@ -6,7 +6,7 @@ import {
 } from "../api/apiSlice";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
+import { faAlignCenter, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
 import React, { Fragment, useState } from "react"
 import { Table } from "@mui/material";
 
@@ -38,25 +38,32 @@ const UserList = () => {
     }
 
 
+    const inputStyle = {
+        paddingLeft: "20px",
+    }
+
+
     const newItemSection =
         <form onSubmit={handleSubmit}>
 
-            <div className="new-lead">
+            <div className="new-lead" style={inputStyle}>
                 <input
                     type="text"
                     id="new-lead"
                     value={newLead}
                     onChange={(e) => setNewLead(e.target.value)}
-                    placeholder="Enter new lead"
+                    placeholder="Enter a new lead"
                 />
 
                 <button className="submit">
                     <FontAwesomeIcon icon={faUpload} />
                 </button>
+
             </div>
         </form>
 
 
+  
 
     let content;
 
@@ -96,9 +103,14 @@ const UserList = () => {
     else if (isError) {
         content = <p>{error}</p>
     }
+
+    const usersStyle = {
+        fontSize: "50px",
+        textAlign: "center"
+    }
     return (
         <main>
-            <h1>Leads</h1>
+            <h1 style={usersStyle}>Leads</h1>
             {newItemSection}
             {content}
         </main>
