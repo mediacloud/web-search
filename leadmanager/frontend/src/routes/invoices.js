@@ -1,11 +1,11 @@
 import React from "react";
 
-import { Link } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { getInvoices } from "../data";
 
 export default function Invoices() {
     let invoices = getInvoices();
-
+    
 
     const divStyle = {
         display: "flex",
@@ -25,14 +25,22 @@ export default function Invoices() {
         <div style={divStyle}>
             <nav style={navStyle}>
                 {invoices.map((invoice => (
-                    <Link
-                        style={linkStyle}
+                    <NavLink
+                        style={({ isActive }) => {
+                            return {
+                                display: "block",
+                                margin: "1rem 0",
+                                color: isActive ? "red" : "",
+                            };
+                        }}
                         to={`/invoices/${invoice.number}`}
-                        key={invoice.number}>
+                        key={invoice.number}
+                    >
                         {invoice.name}
-                    </Link>
+                    </NavLink>
                 )))}
             </nav>
+            <Outlet />
         </div>
     );
 }
