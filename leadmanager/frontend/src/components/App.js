@@ -12,7 +12,7 @@ import { Outlet, Link } from 'react-router-dom';
 
 import Expenses from '../routes/expenses';
 import Invoices from '../routes/invoices';
-
+import Invoice from '../routes/Invoice';
 import { ApiProvider } from '@reduxjs/toolkit/query/react';
 import { apiSlice } from '../features/api/apiSlice';
 
@@ -46,7 +46,7 @@ createRoot(document.getElementById('app')).
                 <Route path='/' element={<App />}>
                     <Route path='expenses' element={<Expenses />} />
                     <Route path="invoices" element={<Invoices />}>
-                        <Route path=":invoiceId" element={<Invoices />} />
+                        <Route path=":invoiceId" element={<Invoice />} />
                     </Route>
                     <Route
                         path="*"
