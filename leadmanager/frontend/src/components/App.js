@@ -4,10 +4,14 @@ import { createRoot } from 'react-dom/client';
 
 import {
     BrowserRouter,
+    Routes,
+    Route
 } from 'react-router-dom';
 
 import { Link } from 'react-router-dom';
 
+import Expenses from '../routes/expenses';
+import Invoices from '../routes/invoices';
 
 import { ApiProvider } from '@reduxjs/toolkit/query/react';
 import { apiSlice } from '../features/api/apiSlice';
@@ -37,8 +41,14 @@ class App extends Component {
 createRoot(document.getElementById('app')).
     render(
         <BrowserRouter>
-            <App />
-        </BrowserRouter>);
+            <Routes>
+                <Route path='/' element={<App />} />
+                <Route path='expenses' element={<Expenses />} />
+                <Route path='invoices' element={<Invoices />} />
+
+            </Routes>
+        </BrowserRouter>
+    );
 
 
 
