@@ -8,7 +8,7 @@ import {
     Route
 } from 'react-router-dom';
 
-import { Link } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 
 import Expenses from '../routes/expenses';
 import Invoices from '../routes/invoices';
@@ -30,6 +30,7 @@ class App extends Component {
                     <Link to="/invoices">Invoices</Link>|{" "}
                     <Link to="/expenses">Expenses</Link>
                 </nav>
+                <Outlet />
             </div>
         );
 
@@ -42,12 +43,12 @@ createRoot(document.getElementById('app')).
     render(
         <BrowserRouter>
             <Routes>
-                <Route path='/' element={<App />} />
-                <Route path='expenses' element={<Expenses />} />
-                <Route path='invoices' element={<Invoices />} />
-
+                <Route path='/' element={<App />}>
+                    <Route path='expenses' element={<Expenses />} />
+                    <Route path='invoices' element={<Invoices />} />
+                </Route>
             </Routes>
-        </BrowserRouter>
+        </BrowserRouter >
     );
 
 
