@@ -4,22 +4,35 @@ import { Link } from "react-router-dom";
 import { getInvoices } from "../data";
 
 export default function Invoices() {
-    let invoices = getInvoices(); 
+    let invoices = getInvoices();
 
-    for (const element of invoices) {
-        console.log(element)
+
+    const divStyle = {
+        display: "flex",
+    };
+
+    const navStyle = {
+        borderRight: "solid 1px",
+        padding: "1rem"
     }
 
-
-    
-    const mainStyle = {
-        padding: "1rem 0"
+    const linkStyle = {
+        display: "block",
+        margin: "1rem 0",
     }
 
     return (
-        
-        <main style={mainStyle}>
-            <h2>Invoices</h2>
-        </main>
+        <div style={divStyle}>
+            <nav style={navStyle}>
+                {invoices.map((invoice => (
+                    <Link
+                        style={linkStyle}
+                        to={`/invoices/${invoice.number}`}
+                        key={invoice.number}>
+                        {invoice.name}
+                    </Link>
+                )))}
+            </nav>
+        </div>
     );
 }
