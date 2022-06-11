@@ -1,40 +1,53 @@
 import React, { Component, Fragment } from 'react'
-import Header from './Header';
-import UserList from '../../features/profiles/UserList';
 
+
+import {
+    BrowserRouter,
+    Routes,
+    Route
+} from 'react-router-dom';
+
+import { Outlet, Link } from 'react-router-dom';
+
+import UserList from '../../features/profiles/UserList';
+import ResponsiveAppBar from './ResponsiveAppBar';
 
 
 
 export class Homepage extends Component {
     render() {
+       
+       
         const divStyle = {
             backgroundColor: "orange",
-            height: "700px"
+            height: "700px",
+
         };
 
         const h1Style = {
             color: "blue",
-            padding: "30px",
+            padding: "20px",
+            fontFamily: "Courier"
         }
 
         const linkStyle = {
-            color: "black",
-            padding: "30px"
+            color: "white",
+            padding: "100px"
         }
 
-        const userListStyle = {
-            backgroundColor: "white",
-            padding: "40px", 
-            color: "black"
-        }
+       
 
         return (
             <Fragment>
-                <Header />
+                <ResponsiveAppBar />
                 <div style={divStyle} >
-                    <h1 style={h1Style}>Welcome to Media Cloud</h1>
+                    <h1 style={h1Style}>Admin</h1>
+                    <nav>
+                        <Link to="/UserList" style={linkStyle}> UserList </Link>
+                    </nav>
+                    <Outlet />
                 </div>
-                <UserList style={userListStyle}></UserList>
+
             </Fragment >
 
         )
