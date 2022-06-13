@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-export const apiSlice = createApi({
+export const leadsApi = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8000/api/' }),
     prepareHeaders: (headers, { getState }) => {
@@ -49,4 +49,4 @@ export const {
     useAddLeadMutation,
     useUpdateLeadMutation,
     useDeleteLeadMutation
-} = apiSlice
+} = leadsApi

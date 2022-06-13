@@ -18,7 +18,7 @@ import Homepage from './layout/Homepage';
 import UserList from '../features/profiles/UserList';
 
 import { ApiProvider } from '@reduxjs/toolkit/query/react';
-import { apiSlice } from '../features/api/apiSlice';
+import { leadsApi } from '../features/api/leads';
 
 
 
@@ -26,7 +26,7 @@ import { apiSlice } from '../features/api/apiSlice';
 class App extends Component {
     render() {
         return (
-            <ApiProvider api={apiSlice}>
+            <ApiProvider api={leadsApi}>
                 <Homepage />
             </ApiProvider >
         );
@@ -34,17 +34,15 @@ class App extends Component {
     }
 }
 
-
-createRoot(document.getElementById('app')).
-    render(
-        <BrowserRouter>
-            <Routes>
-                <Route path='/' element={<App />}>
-                    <Route path='userlist' element={<UserList />} />
-                </Route>
-            </Routes>
-        </BrowserRouter >
-    );
-
-
-
+export const renderApp = () => {
+  createRoot(document.getElementById('app')).
+      render(
+          <BrowserRouter>
+              <Routes>
+                  <Route path='/' element={<App />}>
+                      <Route path='userlist' element={<UserList />} />
+                  </Route>
+              </Routes>
+          </BrowserRouter >
+      );
+}

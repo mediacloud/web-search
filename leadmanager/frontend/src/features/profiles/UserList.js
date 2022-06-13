@@ -3,7 +3,7 @@ import {
     useDeleteLeadMutation,
     useUpdateLeadMutation,
     useAddLeadMutation
-} from "../api/apiSlice";
+} from "../api/leads";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAlignCenter, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
@@ -123,9 +123,3 @@ const UserList = () => {
     )
 }
 export default UserList
-
-
-
-
-
-
