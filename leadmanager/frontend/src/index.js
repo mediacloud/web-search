@@ -1,4 +1,4 @@
-import renderApp from './components/App';
+import { renderApp } from './components/App';
 
 // First check if they are logged in already
   // dispatch a Redux action that calls /server/login-with-cookie
