@@ -26,6 +26,8 @@ export const userApiSlice = createApi({
   })
 })
 
+export const selectCurrentUser = (state) => userApiSlice.endpoints.current.select()(state).data;
+
 export const {
   useProfileQuery,
   useLogoutQuery,
