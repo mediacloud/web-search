@@ -1,6 +1,9 @@
 import { renderApp } from './components/App';
-import { store } from './store'; 
+import { getStore } from './store';
+import { userApiSlice } from './services/userApi';
 
+//import { currentUserProfileAction } from './actions/user';
+//import { useProfileQuery }
 // First check if they are logged in already
 // dispatch a Redux action that calls /server/login-with-cookie
 // on server: check if a user is logged in, if so then return user object, if not then return 401
@@ -8,13 +11,19 @@ import { store } from './store';
 // then call renderApp
 
 
-//store.dispath(loginWithCookie()).then(() => renderApp());
-//loginWithCookie is a redux 
+//store.dispath(currentUserProfile()).then(() => renderApp());
+//currentUserProfile is a redux
 
 
-// const loginWithCookie = () => { return fetch(‘/auth/login-with-cookie’).then(res => res.json())}
+// const currentUserProfile = () => { return fetch(‘/auth/login-with-cookie’).then(res => res.json())}
 //fetch(url, credentials:’include’)
 
+const initializeApp = () => {
+  const store = getStore();
+  //store.dispatch(currentUserProfileAction());
+  store.dispatch(
+     userApiSlice.endpoints.current.initiate()
+  ).then(() => renderApp());
+}
 
-
-renderApp();
+initializeApp();

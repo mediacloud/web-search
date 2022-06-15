@@ -3,11 +3,11 @@ import {
     useDeleteLeadMutation,
     useUpdateLeadMutation,
     useAddLeadMutation
-} from "../api/leads";
+} from "../../services/leadsApi";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAlignCenter, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
-import React, { Fragment, useState } from "react"
+import React, { useState } from "react"
 import { Table } from "@mui/material";
 
 
@@ -67,20 +67,14 @@ const UserList = () => {
 
     let content;
 
-    const trStyle = {
-        fontSize: "20px"
-    }
-
     if (isLoading) {
         content = <p>Loading...</p>
-    }
-
-    else if (isSuccess) {
+    } else if (isSuccess) {
         content =
-            <Fragment>
+            <>
                 <table className="table table-striped">
                     <thead>
-                        <tr style={trStyle}>
+                        <tr>
                             <td>ID</td>
                             <td>Username</td>
                             <td>Email</td>
@@ -91,7 +85,7 @@ const UserList = () => {
                     <tbody>
                         {leads.map((lead) => {
                             return (
-                                <tr key={lead.id}>
+                                <tr key= {lead.id}>
                                     <td>{lead.id}</td>
                                     <td>{lead.username}</td>
                                     <td>{lead.email}</td>
@@ -102,7 +96,7 @@ const UserList = () => {
                         })}
                     </tbody>
                 </table>
-            </Fragment>
+            </>
     }
 
 
