@@ -41,13 +41,15 @@ INSTALLED_APPS = [
     "rest_framework",
     "frontend",
     "rest_framework_simplejwt",
+
+
 ]
 
 MIDDLEWARE = [
-    "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -74,7 +76,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "leadmanager.wsgi.application"
 
 
-# AUTH_USER_MODEL = 'leads.User'
 
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
@@ -120,6 +121,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = "static/"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field

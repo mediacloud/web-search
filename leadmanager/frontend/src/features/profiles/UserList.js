@@ -3,11 +3,7 @@ import {
     useDeleteLeadMutation,
     useUpdateLeadMutation,
     useAddLeadMutation
-<<<<<<< HEAD
 } from "../../services/leadsApi";
-=======
-} from "../api/leads";
->>>>>>> 9309a066aeb15de4337e581541dce9c4854c8517
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAlignCenter, faTrash, faUpload } from '@fortawesome/free-solid-svg-icons'
@@ -71,20 +67,14 @@ const UserList = () => {
 
     let content;
 
-    const trStyle = {
-        fontSize: "20px"
-    }
-
     if (isLoading) {
         content = <p>Loading...</p>
-    }
-
-    else if (isSuccess) {
+    } else if (isSuccess) {
         content =
             <>
                 <table className="table table-striped">
                     <thead>
-                        <tr style={trStyle}>
+                        <tr>
                             <td>ID</td>
                             <td>Username</td>
                             <td>Email</td>
@@ -95,7 +85,7 @@ const UserList = () => {
                     <tbody>
                         {leads.map((lead) => {
                             return (
-                                <tr key={lead.id}>
+                                <tr key= {lead.id}>
                                     <td>{lead.id}</td>
                                     <td>{lead.username}</td>
                                     <td>{lead.email}</td>

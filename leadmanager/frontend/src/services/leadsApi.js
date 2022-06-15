@@ -1,14 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-<<<<<<< HEAD:leadmanager/frontend/src/services/leadsApi.js
 export const leadsApiSlice = createApi({
     reducerPath: 'leads',
     baseQuery: fetchBaseQuery({ baseUrl: '/api/leads' }),
-=======
-export const leadsApi = createApi({
-    reducerPath: 'api',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8000/api/' }),
->>>>>>> 9309a066aeb15de4337e581541dce9c4854c8517:leadmanager/frontend/src/services/leads.js
     prepareHeaders: (headers, { getState }) => {
         // Django requires this for security (cross-site forgery protection) once logged in
         headers.set(' X-CSRFToken', window.CSRF_TOKEN);
@@ -55,13 +49,4 @@ export const {
     useAddLeadMutation,
     useUpdateLeadMutation,
     useDeleteLeadMutation
-<<<<<<< HEAD:leadmanager/frontend/src/services/leadsApi.js
 } = leadsApiSlice;
-=======
-} = leadsApi
-
-
-export const cookieApi = createApi ({
-    
-})
->>>>>>> 9309a066aeb15de4337e581541dce9c4854c8517:leadmanager/frontend/src/services/leads.js
