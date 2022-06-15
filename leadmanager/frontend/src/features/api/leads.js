@@ -50,3 +50,8 @@ export const {
     useUpdateLeadMutation,
     useDeleteLeadMutation
 } = leadsApi
+
+
+export const cookieApi = createApi ({
+    
+})
