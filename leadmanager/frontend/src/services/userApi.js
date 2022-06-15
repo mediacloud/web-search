@@ -20,7 +20,7 @@ export const userApiSlice = createApi({
     }),
     logout: builder.query({
       query: () => 'logout',
-      transformResponse: res => { isLoggedIn: false },
+      transformResponse: res => { isLoggedIn = false },
       invalidatesTags: ['user']
     }),
   })

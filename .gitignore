@@ -7,7 +7,7 @@ node_modules
 
 # Python
 __pycache__/
-*.pyc
+*.pyc 
 
 # IDE
 .idea
