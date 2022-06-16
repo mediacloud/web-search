@@ -43,7 +43,6 @@ const Homepage = () => {
               <Link to="/profiles" style={linkStyle}>Profiles</Link >
 
           </div>
-          <UserList style={userListStyle}></UserList>
       </Fragment >
 
   );
