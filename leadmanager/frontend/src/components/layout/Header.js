@@ -1,24 +1,46 @@
-import React, { Component } from 'react'
+import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Menu from '@mui/material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import MenuItem from '@mui/material/MenuItem';
+import AdbIcon from '@mui/icons-material/Adb';
 
-export class Header extends Component {
-  render() {
-    return (
-      <nav className="navbar navbar-expand-sm bg-light">
-        <div className="container-fluid">
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarTogglerDemo01">
-            <a className="navbar-brand" href="#">Proof-of-Concept</a>
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              
-            </ul>
-           
-          </div>
-        </div>
-      </nav>
-    );
-  }
-}
+const ResponsiveAppBar = () => {
 
-export default Header
+  return (
+    <AppBar position="static">
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+
+          <Typography
+            variant="h6"
+            noWrap
+            component="a"
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: 'none', md: 'flex' },
+              fontFamily: 'Courier',
+              fontWeight: 300,
+              letterSpacing: '.2rem',
+              color: 'orange',
+              textDecoration: 'none',
+            }}
+          >
+            Media Cloud Proof-of-Concept
+          </Typography>
+
+        </Toolbar>
+      </Container>
+    </AppBar>
+  );
+};
+export default ResponsiveAppBar;

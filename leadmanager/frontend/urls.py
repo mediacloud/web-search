@@ -4,6 +4,9 @@ from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshVie
 
 from . import views
 
+
+# tells django to search for URL patterns 
+# responsible for mapping the routes and paths in your project 
 urlpatterns = [
     path('', views.index),
     path('accounts/', include("django.contrib.auth.urls")),  # new
