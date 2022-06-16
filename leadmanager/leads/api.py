@@ -1,16 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, serializers
 from .serializers import UserSerializer
-from .serializers import LeadSerializer
 
-
-class LeadViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    permission_classes = [
-        permissions.AllowAny
-        # wide open right now
-    ]
-    serializer_class = LeadSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
