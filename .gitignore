@@ -14,4 +14,3 @@ __pycache__/
 # generated files
 *.sqlite3
 leadmanager/frontend/static/frontend/main.js
-leadmanager/frontend/static/frontend/main.js.map
