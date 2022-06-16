@@ -31,7 +31,7 @@ const Homepage = () => {
 
   const currentUser = useSelector(selectCurrentUser);
   console.log(currentUser);
-
+ // on removing-lead branch
   return (
       <Fragment>
           <Header />
