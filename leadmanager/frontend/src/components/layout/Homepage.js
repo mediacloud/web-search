@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react'
 import { Outlet, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Header from './Header';
-import UserList from '../../features/profiles/UserList';
 import { selectCurrentUser } from '../../services/userApi';
 
 
