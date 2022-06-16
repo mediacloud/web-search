@@ -1,4 +1,3 @@
-
 # MacOS
 .DS_Store
 
@@ -7,7 +6,7 @@ node_modules
 
 # Python
 __pycache__/
-*.pyc
+*.pyc 
 
 # IDE
 .idea
@@ -15,3 +14,4 @@ __pycache__/
 # generated files
 *.sqlite3
 leadmanager/frontend/static/frontend/main.js
+leadmanager/frontend/static/frontend/main.js.map
