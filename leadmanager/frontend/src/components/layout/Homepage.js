@@ -22,11 +22,6 @@ const Homepage = () => {
       padding: "30px"
   }
 
-  const userListStyle = {
-      backgroundColor: "white",
-      padding: "40px",
-      color: "black"
-  }
 
   const currentUser = useSelector(selectCurrentUser);
   console.log(currentUser);
@@ -40,7 +35,6 @@ const Homepage = () => {
               {!currentUser.isLoggedIn && (<h3>You're not logged in</h3>)}
               <Link to="/header" style={linkStyle}>Header</Link>
               <Link to="/profiles" style={linkStyle}>Profiles</Link >
-
           </div>
       </Fragment >
 
