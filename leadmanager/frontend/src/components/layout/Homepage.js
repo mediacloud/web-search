@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react'
 import { Outlet, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Header from './Header';
-import UserList from '../../features/profiles/UserList';
 import { selectCurrentUser } from '../../services/userApi';
 
 
@@ -23,11 +22,6 @@ const Homepage = () => {
       padding: "30px"
   }
 
-  const userListStyle = {
-      backgroundColor: "white",
-      padding: "40px",
-      color: "black"
-  }
 
   const currentUser = useSelector(selectCurrentUser);
   console.log(currentUser);
@@ -41,9 +35,7 @@ const Homepage = () => {
               {!currentUser.isLoggedIn && (<h3>You're not logged in</h3>)}
               <Link to="/header" style={linkStyle}>Header</Link>
               <Link to="/profiles" style={linkStyle}>Profiles</Link >
-
           </div>
-          <UserList style={userListStyle}></UserList>
       </Fragment >
 
   );
