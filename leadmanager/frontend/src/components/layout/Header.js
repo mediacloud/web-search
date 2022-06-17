@@ -13,34 +13,67 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 
+
+
+const loginButtonStyle = {
+  leftPadding: "500px",
+  backgroundColor: "orange",
+}
+
+const signOutButtonStyle = {
+  backgroundColor: "green",
+}
+
+function handleSubmitLogin(e) {
+  e.preventDefault();
+  console.log('Login');
+}
+
+
+function handleSubmitSignOut(e) {
+  e.preventDefault();
+  console.log('Sign Out');
+}
 const ResponsiveAppBar = () => {
 
   return (
-    <AppBar position="static">
+    <AppBar position="fixed">
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
+        <div>
+          <Toolbar>
+            <Typography
+              variant="h6"
+              noWrap
+              component="a"
+              href="/"
+              sx={{
+                mr: 2,
+                display: { xs: 'none', md: 'flex' },
+                fontFamily: 'Courier',
+                fontWeight: 300,
+                letterSpacing: '.2rem',
+                color: 'white',
+                textDecoration: 'none',
+              }}
+            >
+              Media Cloud Proof-of-Concept
+            </Typography>
 
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="/"
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'Courier',
-              fontWeight: 300,
-              letterSpacing: '.2rem',
-              color: 'orange',
-              textDecoration: 'none',
-            }}
-          >
-            Media Cloud Proof-of-Concept
-          </Typography>
+            <form onSubmit={handleSubmitLogin}>
+              <Button variant="contained" type="submit" style={loginButtonStyle}>Login</Button>
+            </form>
 
-        </Toolbar>
+            <form onSubmit={handleSubmitSignOut}>
+              <Button variant="contained" type="submit" style={signOutButtonStyle}>Sign Out</Button>
+            </form>
+          </Toolbar>
+
+        </div>
+
       </Container>
-    </AppBar>
+
+
+    </AppBar >
   );
 };
 export default ResponsiveAppBar;
