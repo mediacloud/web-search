@@ -81,59 +81,70 @@ const ResponsiveAppBar = () => {
               }}
             >
               Media Cloud Proof-of-Concept
+
             </Typography>
 
 
+            <div style={{
+              display: "flex",
 
-              <div style={{display: "inline"}}>
-                <Button>Hello</Button>
-              <Button>Welcome</Button>
-              <Button>Hello</Button>
-
-              </div>
-
-            <span>
+            }}>
               <form>
                 <Button variant="contained"
-                  type="submit" style={{ backgroundColor: "orange" }}
+                  type="submit" style={{
+                    backgroundColor: "orange", fontFamily: 'Courier',
+                    fontWeight: 300,
+                    letterSpacing: '.2rem',
+                    color: 'white',
+                    textDecoration: 'none'
+                  }}
                   className="explorer"
                   onClick={handleSubmitLogin}
                 >
                   Explorer
                 </Button>
               </form>
-            </span>
 
-
-
-
-            <span style={{display: {}}}>
               <form>
                 <Button variant="contained"
                   type="submit"
-                  style={{ backgroundColor: "green" }}
+                  style={{
+                    backgroundColor: "green", fontFamily: 'Courier',
+                    fontWeight: 300,
+                    letterSpacing: '.2rem',
+                    color: 'white',
+                    textDecoration: 'none'
+                  }}
                   className="topicMapper"
                   onClick={handleSubmitLogin}
                 >
                   Topic Mapper
                 </Button>
               </form>
-            </span>
 
-
-
-            <span>
               <form>
+
+
                 <Button
                   variant="contained"
-                  type="submit" style={{ backgroundColor: "blue" }}
+                  type="submit" style={{
+                    backgroundColor: "blue", fontFamily: 'Courier',
+                    fontWeight: 300,
+                    letterSpacing: '.2rem',
+                    color: 'white',
+                    textDecoration: 'none'
+                  }}
                   className="sourceManager"
                   onClick={handleSubmitLogin}
                 >
                   Source Manager
                 </Button>
               </form>
-            </span>
+
+            </div>
+
+
+
 
 
           </Toolbar>
