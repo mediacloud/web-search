@@ -9,8 +9,8 @@ import { selectCurrentUser } from '../../services/userApi';
 
 const Homepage = () => {
     const divStyle = {
-        backgroundColor: "orange",
-        height: "300px"
+        paddingTop: "200px",
+        paddingBotton: "200px",
     };
 
     const h1Style = {
@@ -23,6 +23,23 @@ const Homepage = () => {
         padding: "30px"
     }
 
+    const statusStyle = {
+        paddingLeft: "100px",
+    }
+
+    function status(currentUser) {
+        if(currentUser.isLoggedIn) {
+            return (<h2 style = { statusStyle }>Welcome back {currentUser.username}</h2>)
+        }
+        else {
+            return (<h2 style = { statusStyle }>You're not logged in :(</h2>)
+        }
+
+        // {currentUser.isLoggedIn && (<h3>Welcome back {currentUser.username}</h3>)}
+        //{ !currentUser.isLoggedIn && (<h3>You're not logged in</h3>) }
+
+    }
+
 
     const currentUser = useSelector(selectCurrentUser);
     console.log(currentUser);
@@ -30,13 +47,10 @@ const Homepage = () => {
     return (
         <>
             <Header />
-            {/* <div style={divStyle} >
+             <div style={divStyle} >
                 <h1 style={h1Style}>Welcome to Media Cloud</h1>
-                {currentUser.isLoggedIn && (<h3>Welcome back {currentUser.username}</h3>)}
-                {!currentUser.isLoggedIn && (<h3>You're not logged in</h3>)}
-                <Link to="/header" style={linkStyle}>Header</Link>
-                <Link to="/profiles" style={linkStyle}>Profiles</Link >
-            </div> */}
+                {status(currentUser)} 
+            </div> 
 
             <Login />
         </>
