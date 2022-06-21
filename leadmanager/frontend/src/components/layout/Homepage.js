@@ -18,9 +18,9 @@ const Homepage = () => {
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
                 <Header />
-                <div style={{paddingTop: "100px", paddingBottom: "100px"}}>
+                {/* <div style={{paddingTop: "100px", paddingBottom: "100px"}}>
                     <Login />
-                </div>
+                </div> */}
 
             </Container>
         </ThemeProvider>
