@@ -13,16 +13,13 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 
+// getting currentUser
+import { selectCurrentUser } from '../../services/userApi';
+import { useSelector } from 'react-redux';
 
 
-const loginButtonStyle = {
-  leftPadding: "500px",
-  backgroundColor: "orange",
-}
 
-const signOutButtonStyle = {
-  backgroundColor: "green",
-}
+
 
 function handleSubmitLogin(e) {
   e.preventDefault();
@@ -30,22 +27,49 @@ function handleSubmitLogin(e) {
 }
 
 
-function handleSubmitSignOut(e) {
-  e.preventDefault();
-  console.log('Sign Out');
+
+
+
+
+
+// what will be shown if the user is logged in? 
+// There name in the headbar, "hello ..."
+// logout button
+
+
+// else, if they're not logged in: 
+// sign in
+// create an account under sign in 
+
+// implementing router 
+
+// prints out the status of the user 
+function status(currentUser) {
+  if (currentUser.isLoggedIn) {
+    return (<h2 style={statusStyle}>Welcome back {currentUser.username}</h2>)
+  }
+  else {
+    return (<h2 style={statusStyle}>You're not logged in :(</h2>)
+  }
 }
+
+
+
+
 const ResponsiveAppBar = () => {
+
+  const currentUser = useSelector(selectCurrentUser);
+
+  console.log(currentUser.isLoggedIn)
 
   return (
     <AppBar position="fixed">
       <Container maxWidth="xl">
         <div>
           <Toolbar>
+
+
             <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="/"
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
@@ -59,18 +83,66 @@ const ResponsiveAppBar = () => {
               Media Cloud Proof-of-Concept
             </Typography>
 
-            <form onSubmit={handleSubmitLogin}>
-              <Button variant="contained" type="submit" style={loginButtonStyle}>Login</Button>
-            </form>
 
-            <form onSubmit={handleSubmitSignOut}>
-              <Button variant="contained" type="submit" style={signOutButtonStyle}>Sign Out</Button>
-            </form>
+
+              <div style={{display: "inline"}}>
+                <Button>Hello</Button>
+              <Button>Welcome</Button>
+              <Button>Hello</Button>
+
+              </div>
+
+            <span>
+              <form>
+                <Button variant="contained"
+                  type="submit" style={{ backgroundColor: "orange" }}
+                  className="explorer"
+                  onClick={handleSubmitLogin}
+                >
+                  Explorer
+                </Button>
+              </form>
+            </span>
+
+
+
+
+            <span style={{display: {}}}>
+              <form>
+                <Button variant="contained"
+                  type="submit"
+                  style={{ backgroundColor: "green" }}
+                  className="topicMapper"
+                  onClick={handleSubmitLogin}
+                >
+                  Topic Mapper
+                </Button>
+              </form>
+            </span>
+
+
+
+            <span>
+              <form>
+                <Button
+                  variant="contained"
+                  type="submit" style={{ backgroundColor: "blue" }}
+                  className="sourceManager"
+                  onClick={handleSubmitLogin}
+                >
+                  Source Manager
+                </Button>
+              </form>
+            </span>
+
+
           </Toolbar>
 
         </div>
-        
-      </Container>
+
+      </Container >
+
+
     </AppBar >
   );
 };
