@@ -63,19 +63,17 @@ const ResponsiveAppBar = () => {
   console.log(currentUser.isLoggedIn)
 
   return (
-    <AppBar position="fixed">
+    <AppBar position="fixed" style={{backgroundColor: "purple"}}>
       <Container maxWidth="xl">
         <div>
           <Toolbar>
-
-
             <Typography
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
                 fontFamily: 'Courier',
-                fontWeight: 300,
-                letterSpacing: '.2rem',
+                fontWeight: 500,
+                letterSpacing: '.05rem',
                 color: 'white',
                 textDecoration: 'none',
               }}
@@ -94,7 +92,7 @@ const ResponsiveAppBar = () => {
                   type="submit" style={{
                     backgroundColor: "orange", fontFamily: 'Courier',
                     fontWeight: 300,
-                    letterSpacing: '.2rem',
+                    letterSpacing: '.025rem',
                     color: 'white',
                     textDecoration: 'none'
                   }}
@@ -111,7 +109,7 @@ const ResponsiveAppBar = () => {
                   style={{
                     backgroundColor: "green", fontFamily: 'Courier',
                     fontWeight: 300,
-                    letterSpacing: '.2rem',
+                    letterSpacing: '.025rem',
                     color: 'white',
                     textDecoration: 'none'
                   }}
@@ -124,13 +122,12 @@ const ResponsiveAppBar = () => {
 
               <form>
 
-
                 <Button
                   variant="contained"
                   type="submit" style={{
                     backgroundColor: "blue", fontFamily: 'Courier',
                     fontWeight: 300,
-                    letterSpacing: '.2rem',
+                    letterSpacing: '.025rem',
                     color: 'white',
                     textDecoration: 'none'
                   }}
@@ -142,6 +139,9 @@ const ResponsiveAppBar = () => {
               </form>
 
             </div>
+
+
+            
 
 
 
