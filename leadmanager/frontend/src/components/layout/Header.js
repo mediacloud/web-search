@@ -28,11 +28,6 @@ function handleSubmitLogin(e) {
 }
 
 
-
-
-
-
-
 // what will be shown if the user is logged in? 
 // There name in the headbar, "hello ..."
 // logout button
@@ -47,10 +42,10 @@ function handleSubmitLogin(e) {
 // prints out the status of the user 
 function status(currentUser) {
   if (currentUser.isLoggedIn) {
-    return (<h2 style={statusStyle}>Welcome back {currentUser.username}</h2>)
+    return ("Welcome back " + currentUser.username)
   }
   else {
-    return (<h2 style={statusStyle}>You're not logged in :(</h2>)
+    return ("You're not logged in")
   }
 }
 
@@ -61,33 +56,10 @@ const ResponsiveAppBar = () => {
 
 
 
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-
-
-
   const pages = ['Explorer', 'Topic Mapper', 'Source Manager'];
-  const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
   const currentUser = useSelector(selectCurrentUser);
 
-  console.log(currentUser.isLoggedIn)
 
   return (
     <AppBar position="fixed" style={{ backgroundColor: "purple" }}>
@@ -111,7 +83,7 @@ const ResponsiveAppBar = () => {
 
 
 
-        {/*Button Display of Explorer, Topic Mapper, and Source Manager */}
+          {/*Button Display of Explorer, Topic Mapper, and Source Manager */}
 
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
@@ -119,7 +91,6 @@ const ResponsiveAppBar = () => {
                 style={{ backgroundColor: "white" }}
                 variant='contained'
                 key={page}
-                onClick={handleCloseNavMenu}
                 sx={{ my: 2.25, color: 'black', display: 'block' }
 
                 }
@@ -127,7 +98,7 @@ const ResponsiveAppBar = () => {
                 {page}
               </Button>
             ))}
-            
+
           </Box>
 
 
@@ -135,31 +106,24 @@ const ResponsiveAppBar = () => {
           {/*Display of Account */}
 
           <Box sx={{ flexGrow: 0 }}>
-            <Typography
-              sx={{
+            <h1
+              style={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
                 fontFamily: 'Courier',
-                fontWeight: 100,
+                fontSize: "20px",
                 letterSpacing: '.05rem',
                 color: 'white',
                 textDecoration: 'none',
               }}
             >
-              Account
 
-            </Typography>
+              {status(currentUser)}
+            </h1>
           </Box>
 
-
-
-
         </Toolbar>
-
-
       </Container >
-
-
     </AppBar >
   );
 };
