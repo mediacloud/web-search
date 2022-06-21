@@ -27,6 +27,8 @@ const Homepage = () => {
         paddingLeft: "100px",
     }
 
+
+    // prints out the status of the user 
     function status(currentUser) {
         if(currentUser.isLoggedIn) {
             return (<h2 style = { statusStyle }>Welcome back {currentUser.username}</h2>)
@@ -34,10 +36,6 @@ const Homepage = () => {
         else {
             return (<h2 style = { statusStyle }>You're not logged in :(</h2>)
         }
-
-        // {currentUser.isLoggedIn && (<h3>Welcome back {currentUser.username}</h3>)}
-        //{ !currentUser.isLoggedIn && (<h3>You're not logged in</h3>) }
-
     }
 
 
