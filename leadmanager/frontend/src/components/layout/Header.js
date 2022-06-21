@@ -16,6 +16,7 @@ import AdbIcon from '@mui/icons-material/Adb';
 // getting currentUser
 import { selectCurrentUser } from '../../services/userApi';
 import { useSelector } from 'react-redux';
+import { style } from '@mui/system';
 
 
 
@@ -58,98 +59,103 @@ function status(currentUser) {
 
 const ResponsiveAppBar = () => {
 
+
+
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
+
+
+
+
+  const pages = ['Explorer', 'Topic Mapper', 'Source Manager'];
+  const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+
   const currentUser = useSelector(selectCurrentUser);
 
   console.log(currentUser.isLoggedIn)
 
   return (
-    <AppBar position="fixed" style={{backgroundColor: "purple"}}>
+    <AppBar position="fixed" style={{ backgroundColor: "purple" }}>
       <Container maxWidth="xl">
-        <div>
-          <Toolbar>
+
+        <Toolbar>
+          <Typography
+            sx={{
+              mr: 2,
+              display: { xs: 'none', md: 'flex' },
+              fontFamily: 'Courier',
+              fontWeight: 500,
+              letterSpacing: '.05rem',
+              color: 'white',
+              textDecoration: 'none',
+            }}
+          >
+            Media Cloud Proof-of-Concept
+
+          </Typography>
+
+
+
+        {/*Button Display of Explorer, Topic Mapper, and Source Manager */}
+
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            {pages.map((page) => (
+              <Button
+                style={{ backgroundColor: "white" }}
+                variant='contained'
+                key={page}
+                onClick={handleCloseNavMenu}
+                sx={{ my: 2.25, color: 'black', display: 'block' }
+
+                }
+              >
+                {page}
+              </Button>
+            ))}
+            
+          </Box>
+
+
+
+          {/*Display of Account */}
+
+          <Box sx={{ flexGrow: 0 }}>
             <Typography
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
                 fontFamily: 'Courier',
-                fontWeight: 500,
+                fontWeight: 100,
                 letterSpacing: '.05rem',
                 color: 'white',
                 textDecoration: 'none',
               }}
             >
-              Media Cloud Proof-of-Concept
+              Account
 
             </Typography>
-
-
-            <div style={{
-              display: "flex",
-
-            }}>
-              <form>
-                <Button variant="contained"
-                  type="submit" style={{
-                    backgroundColor: "orange", fontFamily: 'Courier',
-                    fontWeight: 300,
-                    letterSpacing: '.025rem',
-                    color: 'white',
-                    textDecoration: 'none'
-                  }}
-                  className="explorer"
-                  onClick={handleSubmitLogin}
-                >
-                  Explorer
-                </Button>
-              </form>
-
-              <form>
-                <Button variant="contained"
-                  type="submit"
-                  style={{
-                    backgroundColor: "green", fontFamily: 'Courier',
-                    fontWeight: 300,
-                    letterSpacing: '.025rem',
-                    color: 'white',
-                    textDecoration: 'none'
-                  }}
-                  className="topicMapper"
-                  onClick={handleSubmitLogin}
-                >
-                  Topic Mapper
-                </Button>
-              </form>
-
-              <form>
-
-                <Button
-                  variant="contained"
-                  type="submit" style={{
-                    backgroundColor: "blue", fontFamily: 'Courier',
-                    fontWeight: 300,
-                    letterSpacing: '.025rem',
-                    color: 'white',
-                    textDecoration: 'none'
-                  }}
-                  className="sourceManager"
-                  onClick={handleSubmitLogin}
-                >
-                  Source Manager
-                </Button>
-              </form>
-
-            </div>
-
-
-            
+          </Box>
 
 
 
 
+        </Toolbar>
 
-          </Toolbar>
-
-        </div>
 
       </Container >
 

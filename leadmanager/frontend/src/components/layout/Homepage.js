@@ -18,7 +18,10 @@ const Homepage = () => {
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
                 <Header />
-                <Login />
+                <div style={{paddingTop: "100px", paddingBottom: "100px"}}>
+                    <Login />
+                </div>
+
             </Container>
         </ThemeProvider>
 
