@@ -100,13 +100,15 @@ const ResponsiveAppBar = () => {
               Hello {currentUser.first_name}!
             </h1>
 
+
+            {/* Changing button to and impleneting navigate() from Router */}
             <Button
               style={{ backgroundColor: "white", }}
               variant='contained'
               sx={{ my: 2.25, color: 'black', display: 'block' }
               }
             >
-              <Link to ="/Account">Account</Link>
+              <Link to="/Account">Account</Link>
             </Button>
           </Box>
 
