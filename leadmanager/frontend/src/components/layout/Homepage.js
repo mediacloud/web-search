@@ -1,17 +1,24 @@
 import React, { Component, Fragment } from 'react'
 import { Outlet, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import Header from './Header';
 import Login from './Login'
-import { selectCurrentUser } from '../../services/userApi';
-
+import Account from './Account';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 
 const theme = createTheme();
 
+
+// Get user information 
+import { useSelector } from 'react-redux';
+import { selectCurrentUser } from '../../services/userApi';
+
+
+
+
 const Homepage = () => {
 
+    const currentUser = useSelector(selectCurrentUser);
 
     return (
 
@@ -23,6 +30,13 @@ const Homepage = () => {
                 </div> */}
 
             </Container>
+
+            <h1 style={{paddingTop: "200px"}}>
+                {currentUser.isLoggedIn.toString()}
+            </h1>
+
+
+
         </ThemeProvider>
 
 
