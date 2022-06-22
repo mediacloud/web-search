@@ -25,20 +25,16 @@ const Homepage = () => {
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
                 <Header />
-                {/* <div style={{paddingTop: "100px", paddingBottom: "100px"}}>
-                    <Login />
-                </div> */}
+
+                <div style={{ paddingTop: "200px" }}>
+                    <Account />
+                </div>
 
             </Container>
-
-            <h1 style={{paddingTop: "200px"}}>
-                {currentUser.isLoggedIn.toString()}
-            </h1>
 
 
 
         </ThemeProvider>
-
 
     );
 }

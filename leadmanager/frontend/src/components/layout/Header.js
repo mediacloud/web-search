@@ -18,6 +18,7 @@ import { selectCurrentUser } from '../../services/userApi';
 import { useSelector } from 'react-redux';
 import { style } from '@mui/system';
 
+import { Link } from 'react-router-dom';
 
 
 
@@ -27,27 +28,6 @@ function handleSubmitLogin(e) {
   console.log('Login');
 }
 
-
-// what will be shown if the user is logged in? 
-// There name in the headbar, "hello ..."
-// logout button
-
-
-// else, if they're not logged in: 
-// sign in
-// create an account under sign in 
-
-// implementing router 
-
-// prints out the status of the user 
-function status(currentUser) {
-  if (currentUser.isLoggedIn) {
-    return ("Welcome back " + currentUser.username)
-  }
-  else {
-    return ("You're not logged in")
-  }
-}
 
 
 
@@ -104,23 +84,32 @@ const ResponsiveAppBar = () => {
 
 
           {/*Display of Account */}
-
           <Box sx={{ flexGrow: 0 }}>
             <h1
               style={{
-                mr: 2,
+                paddingTop: "10px",
+                mr: 1,
                 display: { xs: 'none', md: 'flex' },
                 fontFamily: 'Courier',
-                fontSize: "20px",
-                letterSpacing: '.05rem',
+                fontSize: "16px",
+                letterSpacing: '.06rem',
                 color: 'white',
                 textDecoration: 'none',
               }}
             >
-
-              {status(currentUser)}
+              Hello {currentUser.first_name}!
             </h1>
+
+            <Button
+              style={{ backgroundColor: "white", }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }
+              }
+            >
+              <Link to ="/Account">Account</Link>
+            </Button>
           </Box>
+
 
         </Toolbar>
       </Container >

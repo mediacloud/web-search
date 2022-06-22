@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 const Account = () => {
     const currentUser = useSelector(selectCurrentUser);
 
+
     const fontStyle = {
         fontFamily: 'Courier',
     }

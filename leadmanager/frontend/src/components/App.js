@@ -10,20 +10,22 @@ import Homepage from './layout/Homepage';
 import { getStore } from '../store';
 
 const App = () => (
-  <Provider store={getStore()}>
-     <Homepage />
-  </Provider >
+    <Provider store={getStore()}>
+        <Homepage />
+    </Provider >
 );
 
 export const renderApp = () => {
-  createRoot(document.getElementById('app')).
-    render(
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<App />}>
-                    <Route path="header" element={<Header />} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
-    );
+    createRoot(document.getElementById('app')).
+        render(
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<App />}>
+                        <Route path=":invoiceId" element={<Homepage />}>
+
+                        </Route>
+                    </Route>
+                </Routes>
+            </BrowserRouter >
+        );
 };
