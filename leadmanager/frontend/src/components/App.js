@@ -21,9 +21,8 @@ export const renderApp = () => {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<App />}>
-                        <Route path=":invoiceId" element={<Homepage />}>
+                        <Route path="" element={<Homepage />}> </Route>
 
-                        </Route>
                     </Route>
                 </Routes>
             </BrowserRouter >
