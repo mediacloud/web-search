@@ -23,9 +23,9 @@ import { Link } from 'react-router-dom';
 
 
 
-function handleSubmitLogin(e) {
+function handleAccount(e) {
   e.preventDefault();
-  console.log('Login');
+  console.log("Hello")
 }
 
 
@@ -102,14 +102,16 @@ const ResponsiveAppBar = () => {
 
 
             {/* Changing button to and impleneting navigate() from Router */}
-            <Button
-              style={{ backgroundColor: "white", }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }
-              }
-            >
-              <Link to="/Account">Account</Link>
-            </Button>
+            <form onSubmit={handleAccount}>
+              <Button
+                type='submit'
+                style={{ backgroundColor: "white"}}
+                variant='contained'
+                sx={{ my: 2.25, color: 'black', display: 'block' }}
+              >
+                Account
+              </Button>
+            </form>
           </Box>
 
 
