@@ -1,12 +1,18 @@
-import React, { Component, Fragment } from 'react';
+// React 
+import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Provider } from 'react-redux'
-import { Outlet, Link } from 'react-router-dom';
-import { ApiProvider } from '@reduxjs/toolkit/query/react';
 
+// Router 
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+
+// Componenets
 import Header from './layout/Header';
 import Homepage from './layout/Homepage';
+import Account from './layout/Account';
+
+// Store 
 import { getStore } from '../store';
 
 const App = () => (
@@ -21,8 +27,7 @@ export const renderApp = () => {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<App />}>
-                        <Route path="" element={<Homepage />}> </Route>
-
+                            <Route path = "/Account" element= {<Account />} />
                     </Route>
                 </Routes>
             </BrowserRouter >
