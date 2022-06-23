@@ -27,7 +27,7 @@ function handleAccount(e) {
 const ResponsiveAppBar = () => {
 
   // all pages 
-  const pages = ['Explorer', 'Topic Mapper', 'Source Manager'];
+  const pages = ['Explorer', 'TopicMapper', 'SourceManager'];
 
   // currentUser 
   const currentUser = useSelector(selectCurrentUser);
@@ -53,8 +53,6 @@ const ResponsiveAppBar = () => {
 
             </Typography>
 
-
-
             {/*Button Display of Explorer, Topic Mapper, and Source Manager */}
 
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
@@ -63,6 +61,9 @@ const ResponsiveAppBar = () => {
                   style={{ backgroundColor: "white" }}
                   variant='contained'
                   key={page}
+                  component={Link}
+                  to= {page}
+
                   sx={{ my: 2.25, color: 'black', display: 'block' }
                   }
                 >
@@ -113,8 +114,8 @@ const ResponsiveAppBar = () => {
         </Container >
       </AppBar >
       <Outlet />
-      </div>
+    </div>
 
-      );
+  );
 };
-      export default ResponsiveAppBar;
+export default ResponsiveAppBar;
