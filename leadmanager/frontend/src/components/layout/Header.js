@@ -24,6 +24,17 @@ function handleAccount(e) {
   e.preventDefault();
 }
 
+
+function userStatus(user) {
+  // if user is logged in display account 
+  if (user.isLoggedIn) {
+    return "Hello " + user.first_name + "!" 
+  }
+  else {
+    return "Sign in"
+  }
+}
+
 const ResponsiveAppBar = () => {
 
   // all pages 
@@ -32,6 +43,18 @@ const ResponsiveAppBar = () => {
   // currentUser 
   const currentUser = useSelector(selectCurrentUser);
 
+
+  const typographyStyle = {
+    mr: 2,
+    display: { xs: 'none', md: 'flex' },
+    fontFamily: 'Courier',
+    fontWeight: 500,
+    letterSpacing: '.05rem',
+    color: 'white',
+    textDecoration: 'none',
+  }
+
+
   return (
     <div>
       <AppBar position="fixed" style={{ backgroundColor: "purple" }}>
@@ -39,18 +62,9 @@ const ResponsiveAppBar = () => {
 
           <Toolbar>
             <Typography
-              sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'flex' },
-                fontFamily: 'Courier',
-                fontWeight: 500,
-                letterSpacing: '.05rem',
-                color: 'white',
-                textDecoration: 'none',
-              }}
+              sx={typographyStyle}
             >
               Media Cloud Proof-of-Concept
-
             </Typography>
 
             {/*Button Display of Explorer, Topic Mapper, and Source Manager */}
@@ -62,7 +76,7 @@ const ResponsiveAppBar = () => {
                   variant='contained'
                   key={page}
                   component={Link}
-                  to= {page}
+                  to={page}
 
                   sx={{ my: 2.25, color: 'black', display: 'block' }
                   }
@@ -89,7 +103,8 @@ const ResponsiveAppBar = () => {
                   textDecoration: 'none',
                 }}
               >
-                Hello {currentUser.first_name}!
+                {/* Changing this so when the user is not logged in they will see a sign in button */}
+                {userStatus(currentUser)}
               </h1>
 
 
