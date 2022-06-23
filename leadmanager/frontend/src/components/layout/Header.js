@@ -17,6 +17,10 @@ import { useSelector } from 'react-redux';
 
 
 
+// componenets 
+import Login from './Login'
+
+
 
 // Router 
 import { useParams, useNavigate, NavLink, Outlet, Link } from 'react-router-dom'
@@ -45,6 +49,7 @@ function userStatus(user) {
 
 // user account status (login, account info ...)
 function userButtonStatus(user) {
+  // if user is logged in display account information 
   if (user.isLoggedIn) {
     return (
       <Button
@@ -57,6 +62,8 @@ function userButtonStatus(user) {
       >
         Account
       </Button>)
+  } else { // if user is not logged in show login button 
+    return (<Login />)
   }
 
 }
