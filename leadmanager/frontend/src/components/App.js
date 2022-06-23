@@ -9,7 +9,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Componenets
 import Homepage from './layout/Homepage';
-import Account from './layout/Account';
+import Account from './layout/Account'
+import Header from './layout/Header'
 
 import Explorer from './pages/Explorer'
 import SourceMananger from './pages/SourceManager'
