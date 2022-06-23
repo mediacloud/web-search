@@ -9,9 +9,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Componenets
 import Homepage from './layout/Homepage';
-import Account from './layout/Account'
-import Header from './layout/Header'
 
+
+// user status 
+import Account from './layout/Account'
+import Login from './layout/Login'
+
+// pages 
 import Explorer from './pages/Explorer'
 import SourceMananger from './pages/SourceManager'
 import TopicMapper from './pages/TopicMapper'
@@ -35,6 +39,8 @@ export const renderApp = () => {
                         <Route path="Explorer" element={<Explorer />} />
                         <Route path="TopicMapper" element={<TopicMapper />} />
                         <Route path="SourceManager" element={<SourceMananger />} />
+                        
+                        <Route path="Login" element={<Login />} />
                         <Route path="Account" element={<Account />} />
                     </Route>
                 </Routes>
