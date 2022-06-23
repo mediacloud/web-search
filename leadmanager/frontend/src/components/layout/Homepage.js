@@ -11,14 +11,9 @@ import Container from '@mui/material/Container';
 const theme = createTheme();
 
 
-
-
-
 const Homepage = () => {
 
-
     return (
-
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
 
@@ -26,7 +21,6 @@ const Homepage = () => {
 
             </Container>
         </ThemeProvider>
-
     );
 }
 
