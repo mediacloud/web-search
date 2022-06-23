@@ -32,8 +32,6 @@ const ResponsiveAppBar = () => {
   // currentUser 
   const currentUser = useSelector(selectCurrentUser);
 
-  let navigate = useNavigate();
-
   return (
     <div>
       <AppBar position="fixed" style={{ backgroundColor: "purple" }}>
