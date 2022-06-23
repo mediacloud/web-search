@@ -13,7 +13,7 @@ import Homepage from './layout/Homepage';
 
 // user status 
 import Account from './layout/Account'
-import Login from './layout/Login'
+import Login from './layout/SignIn'
 import SignUp from './SignUp';
 
 // pages 
@@ -34,15 +34,14 @@ import { getStore } from '../store';
 const App = () => (
     <Provider store={getStore()}>
 
-        {/* <Homepage /> */}
+         <Homepage /> 
 
-        <ThemeProvider theme={theme}>
+        {/* <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
 
-                <SignUp />
                 
             </Container>
-        </ThemeProvider>
+        </ThemeProvider> */}
 
     </Provider >
 );
