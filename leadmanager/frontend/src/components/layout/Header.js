@@ -17,6 +17,7 @@ import { useSelector } from 'react-redux';
 
 
 
+
 // Router 
 import { useParams, useNavigate, NavLink, Outlet, Link } from 'react-router-dom'
 
@@ -25,14 +26,39 @@ function handleAccount(e) {
 }
 
 
+
+// future thoughts: might want to collapse these two functions into one
+// why? userStatus and the userButtonStatus are in the same 
+
+
+
+// printing out name 
 function userStatus(user) {
   // if user is logged in display account 
   if (user.isLoggedIn) {
-    return "Hello " + user.first_name + "!" 
+    return "Hello " + user.first_name + "!"
   }
   else {
     return "Sign in"
   }
+}
+
+// user account status (login, account info ...)
+function userButtonStatus(user) {
+  if (user.isLoggedIn) {
+    return (
+      <Button
+        type='submit'
+        style={{ backgroundColor: "white" }}
+        variant='contained'
+        sx={{ my: 2.25, color: 'black', display: 'block' }}
+        component={Link}
+        to="/Account"
+      >
+        Account
+      </Button>)
+  }
+
 }
 
 const ResponsiveAppBar = () => {
@@ -110,16 +136,7 @@ const ResponsiveAppBar = () => {
 
               {/* Changing button to and impleneting navigate() from Router */}
               <form onSubmit={handleAccount}>
-                <Button
-                  type='submit'
-                  style={{ backgroundColor: "white" }}
-                  variant='contained'
-                  sx={{ my: 2.25, color: 'black', display: 'block' }}
-                  component={Link}
-                  to="/Account"
-                >
-                  Account
-                </Button>
+                {userButtonStatus(currentUser)}
               </form>
 
             </Box>
