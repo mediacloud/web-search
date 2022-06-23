@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 export class Explorer extends Component {
   render() {
     return (
-      <div>Explorer</div>
+      <h1 style={{paddingTop: "200px"}}>Explorer</h1>
     )
   }
 }

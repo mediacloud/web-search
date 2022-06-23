@@ -3,8 +3,7 @@ import React, { Component } from 'react'
 export class SourceManager extends Component {
   render() {
     return (
-      <div>Source Manager</div>
-    )
+      <h1 style={{ paddingTop: "200px" }}>Source Manager</h1>    )
   }
 }
 
