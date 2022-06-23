@@ -63,7 +63,19 @@ function userButtonStatus(user) {
         Account
       </Button>)
   } else { // if user is not logged in show login button 
-    return (<Login />)
+    return (
+      <Button
+        type='submit'
+        style={{ backgroundColor: "white" }}
+        variant='contained'
+        sx={{ my: 2.25, color: 'black', display: 'block' }}
+        component={Link}
+        to="/Login"
+      >
+        Login
+      </Button>
+    )
+
   }
 
 }
