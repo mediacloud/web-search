@@ -19,7 +19,7 @@ import { useSelector } from 'react-redux';
 
 // componenets 
 import SignIn from './SignIn'
-
+import SignUp from './SignUp'
 
 
 // Router 
@@ -64,16 +64,30 @@ function userButtonStatus(user) {
       </Button>)
   } else { // if user is not logged in show sign in button 
     return (
-      <Button
-        type='submit'
-        style={{ backgroundColor: "white" }}
-        variant='contained'
-        sx={{ my: 2.25, color: 'black', display: 'block' }}
-        component={Link}
-        to="/SignIn"
-      >
-        Sign In
-      </Button>
+
+      <div>
+        <Button
+          type='submit'
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          component={Link}
+          to="/SignIn"
+        >
+          Sign In
+        </Button>
+
+        <Button
+          type='submit'
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          component={Link}
+          to="/SignUp"
+        >
+          Sign Up
+        </Button>
+      </div>
     )
 
   }
