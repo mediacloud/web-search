@@ -25,8 +25,10 @@ import SignUp from './SignUp'
 // Router 
 import { useParams, useNavigate, NavLink, Outlet, Link } from 'react-router-dom'
 
-function handleAccount(e) {
+function handleLogout(e) {
   e.preventDefault();
+
+  console.log("Logout")
 }
 
 
@@ -42,16 +44,31 @@ function userButtonStatus(user) {
   // if user is logged in display account information 
   if (user.isLoggedIn) {
     return (
-      <Button
-        type='submit'
-        style={{ backgroundColor: "white" }}
-        variant='contained'
-        sx={{ my: 2.25, color: 'black', display: 'block' }}
-        component={Link}
-        to="/Account"
-      >
-        Account
-      </Button>)
+      <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+
+        <form onSubmit={handleLogout}>
+          <Button
+            type='submit'
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+          >
+            Logout
+          </Button>
+        </form>
+
+        <Button
+          type='submit'
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          component={Link}
+          to="/Account"
+        >
+          Account
+        </Button>
+      </Box >
+    )
   } else { // if user is not logged in show sign in button 
     return (
 
@@ -142,11 +159,7 @@ const ResponsiveAppBar = () => {
             <Box sx={{ flexGrow: 0 }}>
 
               {/* Changing button to and impleneting navigate() from Router */}
-              <form onSubmit={handleAccount}>
-
                 {userButtonStatus(currentUser)}
-              </form>
-
             </Box>
 
 
