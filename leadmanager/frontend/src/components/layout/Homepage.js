@@ -3,6 +3,7 @@ import React from 'react'
 
 // Componenets 
 import Header from './Header';
+import SignUp from './SignUp';
 
 // MUI styling 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -17,7 +18,8 @@ const Homepage = () => {
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
 
-                <Header />
+                {/* <Header /> */}
+                <SignUp />
 
             </Container>
         </ThemeProvider>

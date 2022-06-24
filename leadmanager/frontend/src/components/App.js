@@ -14,7 +14,6 @@ import Homepage from './layout/Homepage';
 // user status 
 import Account from './layout/Account'
 import Login from './layout/SignIn'
-import SignUp from './SignUp';
 
 // pages 
 import Explorer from './pages/Explorer'
