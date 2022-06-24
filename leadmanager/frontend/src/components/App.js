@@ -58,9 +58,9 @@ export const renderApp = () => {
                         <Route path="SourceManager" element={<SourceMananger />} />
 
 
-                        <Route path="SignIn" element={<SignIn />}>
-                            <Route index path= "SignUp" element = {<SignUp />}/>
-                        </Route>
+                        <Route path="SignIn" element={<SignIn />} />
+                        <Route path="SignUp" element={<SignUp />} />
+
 
                         <Route path="Account" element={<Account />} />
                     </Route>
