@@ -26,7 +26,8 @@ export default function SignUp() {
     };
 
     return (
-        <>
+        <div style={{ paddingTop: "100px" }}>
+
             <CssBaseline />
             <Box
                 sx={{
@@ -86,7 +87,7 @@ export default function SignUp() {
                                 autoComplete="new-password"
                             />
                         </Grid>
-                       
+
                     </Grid>
                     <Button
                         type="submit"
@@ -102,12 +103,12 @@ export default function SignUp() {
                                 Already have an account? Sign in
                             </Link> */}
 
-                            <Link to="SignIn">Already have an account? Sign in</Link>
+                            {/* <Link to="SignIn">Already have an account? Sign in</Link> */}
 
                         </Grid>
                     </Grid>
                 </Box>
             </Box>
-        </>
+        </div>
     );
 }

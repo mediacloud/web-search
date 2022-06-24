@@ -66,10 +66,10 @@ export default function SignIn() {
                         id="password"
                         autoComplete="current-password"
                     />
-                    <FormControlLabel
+                    {/* <FormControlLabel
                         control={<Checkbox value="remember" color="primary" />}
                         label="Remember me"
-                    />
+                    /> */}
                     <Button
                         type="submit"
                         fullWidth
@@ -89,7 +89,7 @@ export default function SignIn() {
                                 {"Don't have an account? Sign Up"}
                             </Link> */}
 
-                            <Link to="SignUp">Don't have an account? Sign Up</Link>
+                            {/* <Link to="SignUp">Don't have an account? Sign Up</Link> */}
                             
                         </Grid>
                     </Grid>
