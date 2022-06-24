@@ -26,7 +26,7 @@ export const userApiSlice = createApi({
       transformResponse: res => { isLoggedIn = false },
       invalidatesTags: ['user']
     }),
-    
+
   })
 })
 

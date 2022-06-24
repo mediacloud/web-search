@@ -23,20 +23,22 @@ import SignUp from './SignUp'
 
 
 // Router 
-import { useParams, useNavigate, NavLink, Outlet, Link } from 'react-router-dom'
+import { Outlet, Link } from 'react-router-dom'
+
+
+// API 
+import { 
+  useLogoutQuery
+} from "../../services/userApi"
 
 function handleLogout(e) {
   e.preventDefault();
 
+// beginnning to implement hooks from api 
+
+  // useLogoutQuery();
   console.log("Logout")
 }
-
-
-
-// future thoughts: might want to collapse these two functions into one
-// why? userStatus and the userButtonStatus are in the same 
-
-
 
 
 // user account status (login, account info ...)
@@ -152,7 +154,6 @@ const ResponsiveAppBar = () => {
               ))}
 
             </Box>
-
 
 
             {/*Display of Account */}
