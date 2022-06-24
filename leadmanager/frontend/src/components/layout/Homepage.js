@@ -18,8 +18,8 @@ const Homepage = () => {
         <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
 
-                {/* <Header /> */}
-                <SignUp />
+                <Header />
+                {/* <SignUp /> */}
 
             </Container>
         </ThemeProvider>

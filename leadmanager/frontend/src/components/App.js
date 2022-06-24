@@ -13,7 +13,9 @@ import Homepage from './layout/Homepage';
 
 // user status 
 import Account from './layout/Account'
-import Login from './layout/SignIn'
+import SignIn from './layout/SignIn'
+import SignUp from './layout/SignUp';
+
 
 // pages 
 import Explorer from './pages/Explorer'
@@ -33,7 +35,7 @@ import { getStore } from '../store';
 const App = () => (
     <Provider store={getStore()}>
 
-         <Homepage /> 
+        <Homepage />
 
         {/* <ThemeProvider theme={theme}>
             <Container component="main" maxWidth="xs">
@@ -55,7 +57,11 @@ export const renderApp = () => {
                         <Route path="TopicMapper" element={<TopicMapper />} />
                         <Route path="SourceManager" element={<SourceMananger />} />
 
-                        <Route path="Login" element={<Login />} />
+
+                        <Route path="SignIn" element={<SignIn />}>
+                            <Route index path= "SignUp" element = {<SignUp />}/>
+                        </Route>
+
                         <Route path="Account" element={<Account />} />
                     </Route>
                 </Routes>

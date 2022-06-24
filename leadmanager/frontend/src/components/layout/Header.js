@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux';
 
 
 // componenets 
-import Login from './SignIn'
+import SignIn from './SignIn'
 
 
 
@@ -62,7 +62,7 @@ function userButtonStatus(user) {
       >
         Account
       </Button>)
-  } else { // if user is not logged in show login button 
+  } else { // if user is not logged in show sign in button 
     return (
       <Button
         type='submit'
@@ -70,9 +70,9 @@ function userButtonStatus(user) {
         variant='contained'
         sx={{ my: 2.25, color: 'black', display: 'block' }}
         component={Link}
-        to="/Login"
+        to="/SignIn"
       >
-        Login
+        Sign In
       </Button>
     )
 
