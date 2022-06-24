@@ -36,16 +36,6 @@ function handleAccount(e) {
 
 
 
-// printing out name 
-function userStatus(user) {
-  // if user is logged in display account 
-  if (user.isLoggedIn) {
-    return "Hello " + user.first_name + "!"
-  }
-  else {
-    return "Sign in"
-  }
-}
 
 // user account status (login, account info ...)
 function userButtonStatus(user) {
@@ -65,7 +55,7 @@ function userButtonStatus(user) {
   } else { // if user is not logged in show sign in button 
     return (
 
-      <div>
+      <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
         <Button
           type='submit'
           style={{ backgroundColor: "white" }}
@@ -87,7 +77,7 @@ function userButtonStatus(user) {
         >
           Sign Up
         </Button>
-      </div>
+      </Box>
     )
 
   }
@@ -116,7 +106,7 @@ const ResponsiveAppBar = () => {
 
   return (
     <div>
-      <AppBar position="fixed" style={{ backgroundColor: "purple" }}>
+      <AppBar position="absolute" style={{ backgroundColor: "purple" }}>
         <Container maxWidth="xl">
 
           <Toolbar>
@@ -150,25 +140,10 @@ const ResponsiveAppBar = () => {
 
             {/*Display of Account */}
             <Box sx={{ flexGrow: 0 }}>
-              <h1
-                style={{
-                  paddingTop: "10px",
-                  mr: 1,
-                  display: { xs: 'none', md: 'flex' },
-                  fontFamily: 'Courier',
-                  fontSize: "16px",
-                  letterSpacing: '.06rem',
-                  color: 'white',
-                  textDecoration: 'none',
-                }}
-              >
-                {/* Changing this so when the user is not logged in they will see a sign in button */}
-                {userStatus(currentUser)}
-              </h1>
-
 
               {/* Changing button to and impleneting navigate() from Router */}
               <form onSubmit={handleAccount}>
+
                 {userButtonStatus(currentUser)}
               </form>
 
