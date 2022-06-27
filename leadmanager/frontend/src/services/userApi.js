@@ -15,6 +15,7 @@ export const userApiSlice = createApi({
   tagTypes: ['user'],
 
   endpoints: (builder) => ({
+    // current user 
     current: builder.query({
       query: () => 'current',
       transformResponse: res => ({ ...res, isLoggedIn: res.is_authenticated }),
