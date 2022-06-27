@@ -18,10 +18,8 @@ import SignUp from './layout/SignUp';
 
 
 // pages 
-import Explorer from './pages/Explorer'
-import SourceMananger from './pages/SourceManager'
-import TopicMapper from './pages/TopicMapper'
-
+import Collection from './pages/Collection'
+import Search from './pages/Search'
 
 
 // MUI Styling 
@@ -53,13 +51,12 @@ export const renderApp = () => {
             <BrowserRouter>
                 <Routes>
                     <Route path="/" element={<App />}>
-                        <Route path="Explorer" element={<Explorer />} />
-                        <Route path="TopicMapper" element={<TopicMapper />} />
-                        <Route path="SourceManager" element={<SourceMananger />} />
+                        <Route path="Collection" element={<Collection />} />
+                        <Route path="Search" element={<Search />} />
 
 
-                        <Route path="SignIn" element={<SignIn />} />
-                        <Route path="SignUp" element={<SignUp />} />
+                        <Route path="Sign-In" element={<SignIn />} />
+                        <Route path="Sign-Up" element={<SignUp />} />
 
 
                         <Route path="Account" element={<Account />} />
