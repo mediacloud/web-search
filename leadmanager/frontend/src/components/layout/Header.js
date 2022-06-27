@@ -17,10 +17,6 @@ import { useSelector } from 'react-redux';
 
 
 
-// componenets 
-import SignIn from './SignIn'
-import SignUp from './SignUp'
-
 
 // Router 
 import { Outlet, Link } from 'react-router-dom'
@@ -81,7 +77,7 @@ function userButtonStatus(user) {
           variant='contained'
           sx={{ my: 2.25, color: 'black', display: 'block' }}
           component={Link}
-          to="/SignIn"
+          to="/Sign-In"
         >
           Sign In
         </Button>
@@ -92,7 +88,7 @@ function userButtonStatus(user) {
           variant='contained'
           sx={{ my: 2.25, color: 'black', display: 'block' }}
           component={Link}
-          to="/SignUp"
+          to="/Sign-Up"
         >
           Sign Up
         </Button>
@@ -106,7 +102,7 @@ function userButtonStatus(user) {
 const ResponsiveAppBar = () => {
 
   // all pages 
-  const pages = ['Explorer', 'TopicMapper', 'SourceManager'];
+  const pages = ['Collection', 'Search'];
 
   // currentUser 
   const currentUser = useSelector(selectCurrentUser);
@@ -135,7 +131,7 @@ const ResponsiveAppBar = () => {
               Media Cloud Proof-of-Concept
             </Typography>
 
-            {/*Button Display of Explorer, Topic Mapper, and Source Manager */}
+            {/*Button Display of Search and Collection */}
 
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {pages.map((page) => (
