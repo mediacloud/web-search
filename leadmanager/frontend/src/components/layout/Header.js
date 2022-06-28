@@ -1,6 +1,7 @@
 
 // React 
-import * as React from 'react';
+import React from 'react'
+import { useState } from 'react';
 
 // Mui
 import AppBar from '@mui/material/AppBar';
@@ -23,18 +24,22 @@ import { Outlet, Link } from 'react-router-dom'
 
 
 // API 
-import { 
+import {
   useLogoutQuery,
   useProfileQuery
 } from "../../services/userApi"
 
+// const [login, setLogin] = useLogoutQuery();
+
+
 function handleLogout(e) {
+
   e.preventDefault();
 
-// beginnning to implement hooks from api 
-
+  // beginnning to implement hooks from api 
   // useLogoutQuery();
   console.log("Logout")
+  // setLogin(login === true);
 }
 
 
@@ -69,6 +74,7 @@ function userButtonStatus(user) {
       </Box >
     )
   } else { // if user is not logged in show sign in button 
+     
     return (
 
       <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
@@ -79,6 +85,9 @@ function userButtonStatus(user) {
           sx={{ my: 2.25, color: 'black', display: 'block' }}
           component={Link}
           to="/Sign-In"
+          onClick={() => {
+            console.log('signin');
+          }}
         >
           Sign In
         </Button>
@@ -90,6 +99,9 @@ function userButtonStatus(user) {
           sx={{ my: 2.25, color: 'black', display: 'block' }}
           component={Link}
           to="/Sign-Up"
+          onClick={() => {
+            console.log('signup');
+          }}
         >
           Sign Up
         </Button>
@@ -155,9 +167,8 @@ const ResponsiveAppBar = () => {
 
             {/*Display of Account */}
             <Box sx={{ flexGrow: 0 }}>
-
               {/* Changing button to and impleneting navigate() from Router */}
-                {userButtonStatus(currentUser)}
+              {userButtonStatus(currentUser)}
             </Box>
 
 
