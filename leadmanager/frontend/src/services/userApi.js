@@ -15,6 +15,7 @@ export const userApiSlice = createApi({
   tagTypes: ['user'],
 
   endpoints: (builder) => ({
+
     // current user 
     current: builder.query({
       query: () => 'current',
@@ -24,7 +25,7 @@ export const userApiSlice = createApi({
 
     logout: builder.query({
       query: () => 'logout',
-      transformResponse: res => { isLoggedIn = false },
+      transformResponse: res => ({ isLoggedIn : false }),
       invalidatesTags: ['user']
     }),
 
@@ -32,6 +33,7 @@ export const userApiSlice = createApi({
 })
 
 export const selectCurrentUser = (state) => userApiSlice.endpoints.current.select()(state).data;
+export const setLogin = (state) => userApiSlice.endpoints.logout.select()(state);
 
 export const {
   useProfileQuery,
