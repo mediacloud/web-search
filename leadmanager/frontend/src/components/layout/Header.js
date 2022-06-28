@@ -24,7 +24,8 @@ import { Outlet, Link } from 'react-router-dom'
 
 // API 
 import { 
-  useLogoutQuery
+  useLogoutQuery,
+  useProfileQuery
 } from "../../services/userApi"
 
 function handleLogout(e) {
