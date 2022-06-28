@@ -19,7 +19,6 @@ const Homepage = () => {
             <Container component="main" maxWidth="xs">
 
                 <Header />
-                {/* <SignUp /> */}
 
             </Container>
         </ThemeProvider>
