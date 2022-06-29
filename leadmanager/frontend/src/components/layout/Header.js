@@ -13,7 +13,7 @@ import Button from '@mui/material/Button';
 
 
 // getting currentUser, setLogin
-import { selectCurrentUser, setLogin, useLogoutQuery } from '../../services/userApi';
+import { selectCurrentUser } from '../../services/userApi';
 import { useSelector } from 'react-redux';
 
 
@@ -23,47 +23,27 @@ import { useSelector } from 'react-redux';
 import { Outlet, Link } from 'react-router-dom'
 
 
-// API 
-import {
-  useLogoutMutation
-} from "../../services/userApi"
-
-// const [login, setLogin] = useLogoutQuery();
-
-
-
-
 
 // if you use a query, you would use lcoal compenent state to set the query parameter 
 
 
 // user account status (login, account info ...)
 function userButtonStatus(user) {
-  const login = useSelector(setLogin);
-  const status = useSelector(selectCurrentUser)
-  
-  const [isLoggedin, setIsLoggedin] = useState(false);
-
-
+ 
   // if user is logged in display account information 
   if (user.isLoggedIn) {
     return (
       <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
 
-          <Button
-            type='submit'
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-          onClick={() => {
-            console.log('logout')
-            console.log(login);
-            console.log(status);
-
-          }}
-          >
-            Logout
-          </Button>
+        <Button
+          type='submit'
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          href= "accounts/logout"
+        >
+          Logout
+        </Button>
 
         <Button
           type='submit'
@@ -77,8 +57,7 @@ function userButtonStatus(user) {
         </Button>
       </Box >
     )
-  } else { // if user is not logged in show sign in button 
-    
+  } else {
     return (
 
       <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
@@ -110,6 +89,7 @@ function userButtonStatus(user) {
           Sign Up
         </Button>
       </Box>
+      
     )
 
   }
@@ -140,7 +120,7 @@ const ResponsiveAppBar = () => {
     <div>
       <AppBar position="absolute" style={{ backgroundColor: "purple" }}>
         <Container maxWidth="xl">
-
+    
           <Toolbar>
             <Typography
               sx={typographyStyle}
