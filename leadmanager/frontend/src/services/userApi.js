@@ -1,5 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+
+// Plan: 
+
+// When user clicks logout, it hits the userApi.js
+// calls urls.py to talk to django admin 
+
+
 const initialState = { isLoggedIn: false };
 
 export const userApiSlice = createApi({
@@ -15,25 +22,25 @@ export const userApiSlice = createApi({
   tagTypes: ['user'],
 
   endpoints: (builder) => ({
-
-    // current user 
+    // current user
     current: builder.query({
       query: () => 'current',
-      transformResponse: res => ({ ...res, isLoggedIn: res.is_authenticated }),
+       transformResponse: res => ({ ...res, isLoggedIn: res.is_authenticated}),
       providesTags: ['user']
     }),
 
-    logout: builder.query({
-      query: () => 'logout',
-      transformResponse: res => ({ isLoggedIn : false }),
-      invalidatesTags: ['user']
-    }),
+    // logout: builder.query({
+    //   query: () => 'logout',
+    //   transformResponse: res => { isLoggedIn : false },
+    //   invalidatesTags: ['user']
+    // }),
+
+    // making a mutation
 
   })
 })
 
 export const selectCurrentUser = (state) => userApiSlice.endpoints.current.select()(state).data;
-export const setLogin = (state) => userApiSlice.endpoints.logout.select()(state);
 
 export const {
   useProfileQuery,
