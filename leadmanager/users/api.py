@@ -1,12 +1,7 @@
 from django.contrib.auth.models import User
 
-from django.contrib.auth import logout
-
-
 from rest_framework import viewsets, permissions, serializers
 from .serializers import UserSerializer
-
-
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -19,6 +14,3 @@ class UserViewSet(viewsets.ModelViewSet):
         if pk == "current":
             return self.request.user
         return super().get_object()
-
-    def logout_view(request):
-        logout(request)
