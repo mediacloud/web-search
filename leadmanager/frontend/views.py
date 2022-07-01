@@ -12,3 +12,6 @@ def index(request):
 def logout(request):
   auth.logout(request);
   return redirect('/')
+
+def login(request):
+  pass
