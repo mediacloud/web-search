@@ -16,6 +16,9 @@ import { Link } from 'react-router-dom';
 
 const theme = createTheme();
 
+// import cookie from '../../services/csrfToken';
+import CsrfToken from '../../services/CsrfToken';
+
 export default function SignIn() {
 
     const handleSubmit = (event) => {
@@ -27,35 +30,25 @@ export default function SignIn() {
         });
     };
 
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
+   
 
     return (
 
         <div style={{ paddingTop: "100px" }}>
-            <form
+            
+            <CsrfToken />
+            {/* {cookie} */}
+
+            {/* <form
                  action='accounts/login'
                  method='post'
                  href='accounts/login'
-            
                 >
                 <input type="text" name='username' placeholder='username' />
                 <input type="password" name='password' placeholder='password' />
                 <input type="Submit"></input>
 
-            </form>
+            </form> */}
         </div >
 
         // <div style={{ paddingTop: "100px" }}>
