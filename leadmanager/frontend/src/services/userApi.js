@@ -25,17 +25,22 @@ export const userApiSlice = createApi({
     // current user
     current: builder.query({
       query: () => 'current',
-       transformResponse: res => ({ ...res, isLoggedIn: res.is_authenticated}),
+      transformResponse: res => ({ ...res, isLoggedIn: res.is_authenticated }),
       providesTags: ['user']
     }),
 
-    // logout: builder.query({
-    //   query: () => 'logout',
-    //   transformResponse: res => { isLoggedIn : false },
-    //   invalidatesTags: ['user']
-    // }),
+    login: builder.mutation({
+      query: (login) => ({
+        method: 'POST',
+        body: login
+      }),
+      invalidateTags: ['user']
 
-    // making a mutation
+    }),
+
+    
+
+
 
   })
 })
@@ -44,5 +49,5 @@ export const selectCurrentUser = (state) => userApiSlice.endpoints.current.selec
 
 export const {
   useProfileQuery,
-  useLogoutQuery,
+  useLoginMutation,
 } = userApiSlice;
