@@ -1,3 +1,4 @@
+from unicodedata import name
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
@@ -11,7 +12,8 @@ urlpatterns = [
     path('', views.index, name="home"),
     path('admin', admin.site.urls),
     path('accounts/', include("django.contrib.auth.urls")),
-    path('accounts/logout', views.logout, name='logout')
+    path('accounts/logout', views.logout, name='logout'),
+    path('accounts/login',views.login, name = 'login')
     # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
