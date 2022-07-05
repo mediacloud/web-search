@@ -1,6 +1,5 @@
 
-import React, { Component } from 'react'
-
+import React from 'react'
 
 function getCookie(name) {
     let cookieValue = null;
@@ -13,22 +12,13 @@ function getCookie(name) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 console.log('hello')
                 break;
-                
+
             }
         }
     }
     return cookieValue;
 }
 
-export class CsrfToken extends Component {
-  render() {
-    const csrftoken = getCookie('csrftoken');
-    return (
-        <div> {csrftoken} </div>
-    )
-  }
-}
-
-export default CsrfToken
+export const CsrfToken = getCookie('csrftoken')
 
 
