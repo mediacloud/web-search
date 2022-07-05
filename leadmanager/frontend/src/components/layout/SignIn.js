@@ -16,9 +16,9 @@ import { Link } from 'react-router-dom';
 
 const theme = createTheme();
 
-// import cookie from '../../services/csrfToken';
-
 import { CsrfToken } from '../../services/csrfToken';
+
+
 export default function SignIn() {
 
     const handleSubmit = (event) => {
@@ -36,7 +36,7 @@ export default function SignIn() {
 
         <div style={{ paddingTop: "200px" }}>
 
-            {CsrfToken}
+            
             
             
 
@@ -45,6 +45,7 @@ export default function SignIn() {
                  method='post'
                  href='accounts/login'
                 >
+                <CsrfToken />
                 <input type="text" name='username' placeholder='username' />
                 <input type="password" name='password' placeholder='password' />
                 <input type="Submit"></input>
