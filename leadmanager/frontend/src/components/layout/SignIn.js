@@ -34,10 +34,11 @@ export default function SignIn() {
 
     return (
 
-        <div style={{ paddingTop: "100px" }}>
-            
+        <div style={{ paddingTop: "200px" }}>
+
             <CsrfToken />
-            {/* {cookie} */}
+            
+            
 
             {/* <form
                  action='accounts/login'
