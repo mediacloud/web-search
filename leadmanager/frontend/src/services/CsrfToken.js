@@ -3,29 +3,32 @@ import React, { Component } from 'react'
 
 
 function getCookie(name) {
-    var cookieValue = null;
+    let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                console.log('hello')
                 break;
+                
             }
         }
     }
     return cookieValue;
 }
 
-export class csrfToken extends Component {
+export class CsrfToken extends Component {
   render() {
+    const csrftoken = getCookie('csrftoken');
     return (
-      <div> Hello
-      </div>
+        <div> {csrftoken} </div>
     )
   }
 }
 
-export default csrfToken
+export default CsrfToken
 
 
