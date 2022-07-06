@@ -27,16 +27,16 @@ def register(request):
                 return redirect('register')
             elif User.objects.filter(email=email).exists():
                 messages.info(request, 'Email Taken')
-                return redirect('register')
+                return redirect('')
             else:
-                user = User.objects.create_user(username=username, password=password1, email=email, first_name=first_name, last_name=last_name)
+                user = User.objects.create_user(
+                    username=username, password=password1, email=email, first_name=first_name, last_name=last_name)
                 user.save()
         else:
             messages.info(request, 'password not matching')
             return redirect('register')
-        redirect('/')
-    else:
-        return render('register')
+        return redirect('/')
+    return render(request, 'frontend/index.html')
 
 
 def logout(request):
