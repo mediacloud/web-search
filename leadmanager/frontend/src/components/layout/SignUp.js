@@ -45,9 +45,6 @@ export default function SignUp() {
                 
                 <input type="Submit"></input>
 
-
-
-                
             </form>
         </div>
 
