@@ -69,7 +69,6 @@ function userButtonStatus(user) {
           component={Link}
           to="/Sign-In"
           onClick={() => {
-            console.log('signin');
           }}
         >
           Sign In
@@ -83,7 +82,6 @@ function userButtonStatus(user) {
           component={Link}
           to="/Sign-Up"
           onClick={() => {
-            console.log('signup');
           }}
         >
           Sign Up
