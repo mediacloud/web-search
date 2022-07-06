@@ -14,17 +14,18 @@ import { Link } from 'react-router-dom';
 
 
 const theme = createTheme();
+
 import { CsrfToken } from '../../services/csrfToken';
 
 export default function SignUp() {
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
-    };
+    // const handleSubmit = (event) => {
+    //     event.preventDefault();
+    //     const data = new FormData(event.currentTarget);
+    //     console.log({
+    //         email: data.get('email'),
+    //         password: data.get('password'),
+    //     });
+    // };
 
     return (
         <div style={{ paddingTop: "100px" }}>
@@ -41,6 +42,7 @@ export default function SignUp() {
                 <input type='email' name='email' placeholder='email' /> <br />
                 <input type='password' name='password1' placeholder='Password' /> <br />
                 <input type='password' name='password2' placeholder='Confirm Password' /> <br />
+                
                 <input type="Submit"></input>
 
 
@@ -48,6 +50,8 @@ export default function SignUp() {
                 
             </form>
         </div>
+
+        
     );
 }
 
