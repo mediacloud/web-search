@@ -36,10 +36,6 @@ export default function SignIn() {
 
         <div style={{ paddingTop: "200px" }}>
 
-            
-            
-            
-
             <form
                  action='accounts/login'
                  method='post'
