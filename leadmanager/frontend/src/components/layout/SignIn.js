@@ -21,14 +21,14 @@ import { CsrfToken } from '../../services/csrfToken';
 
 export default function SignIn() {
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
-    };
+    // const handleSubmit = (event) => {
+    //     event.preventDefault();
+    //     const data = new FormData(event.currentTarget);
+    //     console.log({
+    //         email: data.get('email'),
+    //         password: data.get('password'),
+    //     });
+    // };
 
    
 
@@ -45,6 +45,10 @@ export default function SignIn() {
                 <input type="text" name='username' placeholder='username' />
                 <input type="password" name='password' placeholder='password' />
                 <input type="Submit"></input>
+
+            
+
+
 
             </form> 
         </div >
