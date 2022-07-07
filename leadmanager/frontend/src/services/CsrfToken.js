@@ -18,9 +18,8 @@ function getCookie(name) {
     return cookieValue;
 }
 
-export const CsrfToken = () => {
-    return (
-        <input type="hidden" name="csrfmiddlewaretoken" value={getCookie('csrftoken')} />
-    );
-};
+
+export const CsrfToken = getCookie('csrftoken')
+    
+
 
