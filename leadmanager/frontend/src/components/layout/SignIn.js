@@ -9,14 +9,12 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 
-const theme = createTheme();
-
 import { CsrfToken } from '../../services/CsrfToken'
 
 export default function SignIn() {
 
     return (
-        <>
+        
             <div style={{ paddingTop: "100px" }}>
                 <CssBaseline />
 
@@ -32,9 +30,11 @@ export default function SignIn() {
                     <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
                         <LockOutlinedIcon />
                     </Avatar>
+
                     <Typography component="h1" variant="h5">
                         Sign in
                     </Typography>
+
                     <Box
                         component="form"
                         action='accounts/login'
@@ -43,14 +43,11 @@ export default function SignIn() {
                         noValidate sx={{ mt: 1 }}
                     >
 
-
-
                         {/* Token  */}
                         <CsrfToken />
 
 
                         {/* Username  */}
-
                         <TextField
                             margin="normal"
                             required
@@ -63,7 +60,6 @@ export default function SignIn() {
                         />
 
                         {/* Password  */}
-
                         <TextField
                             margin="normal"
                             required
@@ -87,7 +83,6 @@ export default function SignIn() {
                     </Box>
                 </Box>
             </div>
-        </>
 
     );
 }
