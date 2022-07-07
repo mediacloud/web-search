@@ -22,15 +22,16 @@ def register(request):
         password2 = request.POST['password2']
         email = request.POST['email']
 
+        
         if password1 == password2:
             if User.objects.filter(username=username).exists():
                 messages.info(request, 'Username taken')
                 print('Username taken')
-                return redirect('register')
+                return redirect('/')
             elif User.objects.filter(email=email).exists():
                 print('Email Exists')
                 messages.info(request, 'Email Taken')
-                return redirect('register')
+                return redirect('/')
             else:
                 print('User Created')
                 user = User.objects.create_user(
@@ -60,5 +61,6 @@ def login(request):
             auth.login(request, user)
             return redirect("/")
         else:
+            print('user does not exist')
             messages.info(request, 'invalid credentials')
             return redirect('/')
