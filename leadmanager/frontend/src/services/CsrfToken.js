@@ -1,4 +1,3 @@
-
 import React from 'react'
 
 function getCookie(name) {
@@ -11,15 +10,14 @@ function getCookie(name) {
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
-
             }
         }
     }
     return cookieValue;
 }
 
-
-export const CsrfToken = getCookie('csrftoken')
-    
-
-
+export const CsrfToken = () => {
+    return (
+        <input type="hidden" name="csrfmiddlewaretoken" value={ getCookie('csrftoken') } />
+    );
+};
