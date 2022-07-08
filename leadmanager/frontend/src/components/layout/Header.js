@@ -29,7 +29,7 @@ import { Outlet, Link } from 'react-router-dom'
 
 // user account status (login, account info ...)
 function userButtonStatus(user) {
- 
+
   // if user is logged in display account information 
   if (user.isLoggedIn) {
     return (
@@ -40,7 +40,7 @@ function userButtonStatus(user) {
           style={{ backgroundColor: "white" }}
           variant='contained'
           sx={{ my: 2.25, color: 'black', display: 'block' }}
-          href= "accounts/logout"
+          href="accounts/logout"
         >
           Logout
         </Button>
@@ -87,7 +87,7 @@ function userButtonStatus(user) {
           Sign Up
         </Button>
       </Box>
-      
+
     )
 
   }
@@ -103,30 +103,29 @@ const ResponsiveAppBar = () => {
   const currentUser = useSelector(selectCurrentUser);
 
 
-  const typographyStyle = {
-    mr: 2,
-    display: { xs: 'none', md: 'flex' },
-    fontFamily: 'Courier',
-    fontWeight: 500,
-    letterSpacing: '.05rem',
-    color: 'white',
-    textDecoration: 'none',
-  }
+
 
 
   return (
     <div>
       <AppBar position="absolute" style={{ backgroundColor: "purple" }}>
         <Container maxWidth="">
-    
-          <Toolbar>
+          <Toolbar disableGutters>
+
             <Typography
-              sx={typographyStyle}
+              sx={{
+                mr: 2,
+                display: { xs: 'none', md: 'flex' },
+                fontFamily: 'Courier',
+                letterSpacing: '.05rem',
+                color: 'white',
+                textDecoration: 'none',
+              }}
             >
               Media Cloud Proof-of-Concept
             </Typography>
 
-            {/*Button Display of Search and Collection */}
+            {/* Search and Collection */}
 
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {pages.map((page) => (
@@ -147,18 +146,39 @@ const ResponsiveAppBar = () => {
             </Box>
 
 
-            {/*Display of Account */}
+
+
+            {/* Account */}
+
             <Box sx={{ flexGrow: 0 }}>
-              {/* Changing button to and impleneting navigate() from Router */}
               {userButtonStatus(currentUser)}
             </Box>
 
+
+
+            {/* Display is xs  */}
+
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} />
+
+            <Typography
+              sx={{
+                mr: 2,
+                display: { xs: 'flex', md: 'none' },
+                flexGrow: 1,
+                fontFamily: 'Courier',
+                letterSpacing: '.05rem',
+                color: 'white',
+                textDecoration: 'none',
+              }}
+            >
+              Media Cloud
+            </Typography>
 
           </Toolbar>
         </Container >
       </AppBar >
       <Outlet />
-    </div>
+    </div >
 
   );
 };
