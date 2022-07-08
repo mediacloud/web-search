@@ -117,7 +117,7 @@ const ResponsiveAppBar = () => {
   return (
     <div>
       <AppBar position="absolute" style={{ backgroundColor: "purple" }}>
-        <Container maxWidth="xl">
+        <Container maxWidth="">
     
           <Toolbar>
             <Typography
