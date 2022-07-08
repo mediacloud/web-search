@@ -12,7 +12,6 @@ def index(request):
 
 
 def register(request):
-    print('hello world')
 
     if(request.method == 'POST'):
         first_name = request.POST['first_name']
@@ -24,14 +23,17 @@ def register(request):
 
         
         if password1 == password2:
+            
             if User.objects.filter(username=username).exists():
-                messages.info(request, 'Username taken')
                 print('Username taken')
+                messages.info(request, 'Username taken')
                 return redirect('/')
+            
             elif User.objects.filter(email=email).exists():
                 print('Email Exists')
                 messages.info(request, 'Email Taken')
                 return redirect('/')
+            
             else:
                 print('User Created')
                 user = User.objects.create_user(
@@ -46,6 +48,7 @@ def register(request):
 
 
 def logout(request):
+    print('logout success')
     auth.logout(request)
     return redirect('/')
 
@@ -56,6 +59,8 @@ def login(request):
         password = request.POST['password']
 
         user = auth.authenticate(username=username, password=password)
+
+        print('logged in success')
 
         if user is not None:
             auth.login(request, user)
