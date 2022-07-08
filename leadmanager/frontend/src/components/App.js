@@ -50,7 +50,7 @@ export const renderApp = () => {
         render(
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<App />}>
+                    <Route exact path="/" element={<App />}>
                         <Route path="Collection" element={<Collection />} />
                         <Route path="Search" element={<Search />} />
 
