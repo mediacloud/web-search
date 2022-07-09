@@ -1,6 +1,7 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query/react';
-import { userApiSlice } from './services/userApi';
+import { api as authApi } from './services/authApi';
+import authReducer from '../features/auth/authSlice';
 
 let store; // singleton store
 
@@ -16,14 +17,14 @@ const setupStore = () => {
   const theStore = configureStore({
     reducer: {
       // Add the generated reducer as a specific top-level slice
-      [userApiSlice.reducerPath]: userApiSlice.reducer,
-
+      [authApi.reducerPath]: authApi.reducer,
+      auth: authReducer,
     },
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
     middleware: [
       ...getDefaultMiddleware(),
-      userApiSlice.middleware,
+      //userApiSlice.middleware,
     ],
   });
   // optional, but required for refetchOnFocus/refetchOnReconnect behaviors

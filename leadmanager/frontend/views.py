@@ -1,10 +1,14 @@
-
+import logging
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User, auth
 
+
 # views are python functions or classes that
 # recieve a web request and return a web response
+
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -25,47 +29,23 @@ def register(request):
         if password1 == password2:
             
             if User.objects.filter(username=username).exists():
-                print('Username taken')
+                logging.debug('Username taken')
                 messages.info(request, 'Username taken')
                 return redirect('/')
             
             elif User.objects.filter(email=email).exists():
-                print('Email Exists')
+                logging.debug('Email Exists')
                 messages.info(request, 'Email Taken')
                 return redirect('/')
             
             else:
-                print('User Created')
+                logging.debug('User Created')
                 user = User.objects.create_user(
                     username=username, password=password1, email=email, first_name=first_name, last_name=last_name)
                 user.save()
         else:
-            print('password not matching')
+            logging.debug('password not matching')
             messages.info(request, 'password not matching')
             return redirect('/')
         return redirect('/')
     return render(request, 'frontend/index.html')
-
-
-def logout(request):
-    print('logout success')
-    auth.logout(request)
-    return redirect('/')
-
-
-def login(request):
-    if(request.method == 'POST'):
-        username = request.POST['username']
-        password = request.POST['password']
-
-        user = auth.authenticate(username=username, password=password)
-
-        print('logged in success')
-
-        if user is not None:
-            auth.login(request, user)
-            return redirect("/")
-        else:
-            print('user does not exist')
-            messages.info(request, 'invalid credentials')
-            return redirect('/')
