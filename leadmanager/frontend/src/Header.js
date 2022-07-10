@@ -20,62 +20,62 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
 
   // if user is logged in display account information
   if (isLoggedIn) {
-  return (
-    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+    return (
+      <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
 
-    <Button
-      style={{ backgroundColor: "white" }}
-      variant='contained'
-      sx={{ my: 2.25, color: 'black', display: 'block' }}
-      disabled={isLoading}
-      onClick={async () => {
-        const result = await logout().unwrap();
-        dispatch(setCredentials(null));
-        navigate("/");
-      }}
-    >
-      Logout
-    </Button>
+        <Button
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          disabled={isLoading}
+          onClick={async () => {
+            const result = await logout().unwrap();
+            dispatch(setCredentials(null));
+            navigate("/");
+          }}
+        >
+          Logout
+        </Button>
 
-    <Button
-      type='submit'
-      style={{ backgroundColor: "white" }}
-      variant='contained'
-      sx={{ my: 2.25, color: 'black', display: 'block' }}
-      component={Link}
-      to="/account"
-    >
-      Account
-    </Button>
-    </Box >
-  )
+        <Button
+          type='submit'
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          component={Link}
+          to="/account"
+        >
+          Account
+        </Button>
+      </Box >
+    )
   } else {
-  return (
+    return (
 
-    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-      <Button
-        type='submit'
-        style={{ backgroundColor: "white" }}
-        variant='contained'
-        sx={{ my: 2.25, color: 'black', display: 'block' }}
-        component={Link}
-        to="/sign-in"
-      >
-        Sign-In
-      </Button>
-      <Button
-        type='submit'
-        style={{ backgroundColor: "white" }}
-        variant='contained'
-        sx={{ my: 2.25, color: 'black', display: 'block' }}
-        component={Link}
-        to="/sign-up"
-      >
-        Sign Up
-      </Button>
-    </Box>
+      <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+        <Button
+          type='submit'
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          component={Link}
+          to="/sign-in"
+        >
+          Sign-In
+        </Button>
+        <Button
+          type='submit'
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          component={Link}
+          to="/sign-up"
+        >
+          Sign Up
+        </Button>
+      </Box>
 
-  )
+    )
 
   }
 
@@ -91,59 +91,75 @@ const ResponsiveAppBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const typographyStyle = {
-    mr: 2,
-    display: { xs: 'none', md: 'flex' },
-    fontFamily: 'Courier',
-    fontWeight: 500,
-    letterSpacing: '.05rem',
-    color: 'white',
-    textDecoration: 'none',
-  }
+
 
   return (
-  <div>
-    <AppBar position="absolute" style={{ backgroundColor: "purple" }}>
-    <Container maxWidth="xl">
+    <div>
+      <AppBar position="absolute" style={{ backgroundColor: "purple" }}>
+        <Container maxWidth="">
 
-      <Toolbar>
-      <Typography
-        sx={typographyStyle}
-      >
-        Media Cloud Proof-of-Concept
-      </Typography>
+          <Toolbar>
+            <Typography
+              sx={{
+                mr: 2,
+                display: { xs: 'none', md: 'flex' },
+                fontFamily: 'Courier',
+                letterSpacing: '.05rem',
+                color: 'white',
+                textDecoration: 'none',
+              }}
+            >
+              Media Cloud Proof-of-Concept
+            </Typography>
 
-      {/*Button Display of Search and Collection */}
+            {/* Search and Collection */}
+            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+              {pages.map((page) => (
+                <Button
+                  style={{ backgroundColor: "white" }}
+                  variant='contained'
+                  key={page}
+                  component={Link}
+                  to={page}
+                  sx={{ my: 2.25, color: 'black', display: 'block' }}
+                >
+                  {page}
+                </Button>
+              ))}
 
-      <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-        {pages.map((page) => (
-          <Button
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            key={page}
-            component={Link}
-            to={page}
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-          >
-            {page}
-          </Button>
-        ))}
-
-      </Box>
-
-
-      {/*Display of Account */}
-      <Box sx={{ flexGrow: 0 }}>
-        {/* Changing button to and impleneting navigate() from Router */}
-        {userButtonStatus(isLoggedIn, currentUser, logout, isLoading, dispatch, navigate)}
-      </Box>
+            </Box>
 
 
-      </Toolbar>
-    </Container >
-    </AppBar >
-    <Outlet />
-  </div>
+            {/* Account */}
+            <Box sx={{ flexGrow: 0 }}>
+              {/* Changing button to and impleneting navigate() from Router */}
+              {userButtonStatus(isLoggedIn, currentUser, logout, isLoading, dispatch, navigate)}
+            </Box>
+
+            {/* Display is xs  */}
+
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} />
+
+            <Typography
+              sx={{
+                mr: 2,
+                display: { xs: 'flex', md: 'none' },
+                flexGrow: 1,
+                fontFamily: 'Courier',
+                letterSpacing: '.05rem',
+                color: 'white',
+                textDecoration: 'none',
+              }}
+            >
+              Media Cloud
+            </Typography>
+
+
+          </Toolbar>
+        </Container >
+      </AppBar >
+      <Outlet />
+    </div>
 
   );
 };
