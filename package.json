@@ -30,6 +30,7 @@
     "@mui/styled-engine-sc": "^5.8.0",
     "@reduxjs/toolkit": "^1.8.2",
     "css": "^3.0.0",
+    "humps": "^2.0.1",
     "prop-types": "^15.8.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
