@@ -1,16 +1,19 @@
-import { renderApp } from './components/App';
-import { getStore } from './store';
-import { userApiSlice } from './services/userApi';
+import { renderApp } from './App';
+import { getStore } from './app/store';
+import { api as authApi } from './app/services/authApi';
+import { getCookie } from './services/CsrfToken';
+import { setCredentials } from './features/auth/authSlice';
 
-// gets the store from store.js 
+// gets the store from store.js
 // dispatches the current query from userApi
 // renders app from App.js (holds all the routing)
 
-const initializeApp = () => {
+async function initializeApp() {
   const store = getStore();
-  store.dispatch(
-     userApiSlice.endpoints.current.initiate(),
-  ).then(() => renderApp());
+  window.CSRF_TOKEN = getCookie('csrftoken');
+  const response = await store.dispatch(authApi.endpoints.profile.initiate());
+  await store.dispatch(setCredentials(response.data));
+  renderApp();
 }
 
 initializeApp();
