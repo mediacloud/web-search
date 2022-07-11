@@ -25,11 +25,11 @@ export default function SignIn() {
   
   // username and password
   const [formState, setFormState] = React.useState({ username: '', password: '' });
-  
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+
   // errors 
   const [errorState, setErrorState] = React.useState();
 
-  const handleChange = ({ target: { name, value }}) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   return (
 
@@ -55,9 +55,6 @@ export default function SignIn() {
 
           <Box
             component="form"
-            action='accounts/login'
-            method='post'
-            href='accounts/login'
             noValidate sx={{ mt: 1 }}
           >
 
