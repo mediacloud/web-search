@@ -48,4 +48,5 @@ export const {
   useProfileQuery,
   useLogoutMutation,
   useLoginMutation,
+  useRegisterMutation
 } = api;
