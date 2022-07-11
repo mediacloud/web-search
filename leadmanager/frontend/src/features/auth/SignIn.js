@@ -18,8 +18,15 @@ import { setCredentials } from './authSlice';
 export default function SignIn() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  
+  
+  // formstate -> login  
   const [login, { isLoading }] = useLoginMutation();
+  
+  // username and password
   const [formState, setFormState] = React.useState({ username: '', password: '' });
+  
+  // errors 
   const [errorState, setErrorState] = React.useState();
 
   const handleChange = ({ target: { name, value }}) => setFormState((prev) => ({ ...prev, [name]: value }))
