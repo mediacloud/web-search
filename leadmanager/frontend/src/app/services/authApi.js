@@ -34,6 +34,13 @@ export const api = createApi({
         body: { ...credentials, csrfmiddlewaretoken: window.CSRF_TOKEN }
       }),
     }),
+    register: builder.mutation({
+      query: (credentials) => ({
+        url: 'register',
+        method: 'POST',
+        body: { ...credentials, csrfmiddlewaretoken: window.CSRF_TOKEN }
+      }),
+    }),
   })
 })
 
