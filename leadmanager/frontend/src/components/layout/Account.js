@@ -16,7 +16,7 @@ function display(user) {
   }
   else {
     return (
-      <h1>Logged o</h1>
+      <h1>Logged out</h1>
     )
   }
 }
