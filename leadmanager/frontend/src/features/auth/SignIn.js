@@ -12,9 +12,10 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
 import { useSnackbar } from 'notistack';
 
-import { CsrfToken } from '../../services/CsrfToken';
+import { saveCsrfToken } from '../../services/CsrfToken';
 import { useLoginMutation } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
+
 
 export default function SignIn() {
   const dispatch = useDispatch();
@@ -61,10 +62,6 @@ export default function SignIn() {
 
             {errorState && <Alert severity="error">Failed to sign in</Alert>}
 
-            {/* Token  */}
-            <CsrfToken />
-
-
             {/* Username  */}
             <TextField
               margin="normal"
@@ -103,6 +100,8 @@ export default function SignIn() {
                   dispatch(setCredentials(user));
                   navigate("/");
                   enqueueSnackbar("You are now signed in", { variant: 'success'});
+                  // the CSRF token changes because we've launched a new session - save the new one
+                  saveCsrfToken();
                 } catch (err) {
                   console.log(err);
                   setErrorState(err.data.message);

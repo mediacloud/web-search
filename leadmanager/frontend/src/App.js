@@ -32,9 +32,9 @@ import { getStore } from './app/store';
 const App = () => (
   <Provider store={getStore()}>
     <ThemeProvider theme={theme}>
-      <SnackbarProvider maxSnack={3}>
+      <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
         <Homepage />
-      </SnackbarProvider>  
+      </SnackbarProvider>
     </ThemeProvider>
   </Provider >
 );
