@@ -13,6 +13,7 @@ import { useSnackbar } from 'notistack';
 import { useLogoutMutation } from './app/services/authApi';
 import { selectCurrentUser, selectIsLoggedIn, setCredentials } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
+import { saveCsrfToken } from './services/CsrfToken';
 
 // if you use a query, you would use lcoal compenent state to set the query parameter
 
@@ -34,6 +35,8 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
             dispatch(setCredentials(null));
             navigate("/");
             enqueueSnackbar("You've been logged out", { variant: 'success'});
+            // need to save the new csrf Token
+            saveCsrfToken();
           }}
         >
           Logout
