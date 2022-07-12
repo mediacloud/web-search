@@ -8,21 +8,21 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Alert from '@mui/material/Alert';
+import { useSnackbar } from 'notistack';
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom';
 
 import { CsrfToken } from '../../services/csrfToken';
 import { useRegisterMutation } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
 
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom';
-
-
 export default function SignUp() {
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
-  // formstate -> login  
+  // formstate -> login
   const [register, { isLoading }] = useRegisterMutation();
 
   // username and password
@@ -33,8 +33,9 @@ export default function SignUp() {
     password1: '',
     password2: '',
   });
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
-  // errors 
+  // errors
   const [errorState, setErrorState] = React.useState();
 
   return (
@@ -61,7 +62,7 @@ export default function SignUp() {
           sx={{ mt: 3 }}
         >
 
-          {errorState && <Alert severity="error">Failed to sign in</Alert>}
+          {errorState && <Alert severity="error">Failed to register</Alert>}
 
 
           <Grid container spacing={2}>
@@ -79,6 +80,7 @@ export default function SignUp() {
                 name="first_name"
                 autoComplete="given-name"
                 autoFocus
+                onChange={handleChange}
               />
             </Grid>
 
@@ -91,6 +93,7 @@ export default function SignUp() {
                 name="last_name"
                 type="name"
                 autoComplete="family-name"
+                onChange={handleChange}
               />
             </Grid>
 
@@ -103,18 +106,7 @@ export default function SignUp() {
                 name="email"
                 type="email"
                 autoComplete="email"
-              />
-            </Grid>
-
-            {/* Username */}
-            <Grid item xs={12}>
-              <TextField
-                required
-                fullWidth
-                label="Username"
-                name="username"
-                type="text"
-                autoComplete="username"
+                onChange={handleChange}
               />
             </Grid>
 
@@ -127,6 +119,7 @@ export default function SignUp() {
                 label="Password"
                 type="password"
                 autoComplete="new-password"
+                onChange={handleChange}
               />
             </Grid>
 
@@ -139,6 +132,7 @@ export default function SignUp() {
                 label="Confirm Password"
                 type="password"
                 autoComplete="new-password"
+                onChange={handleChange}
               />
             </Grid>
 
@@ -154,9 +148,11 @@ export default function SignUp() {
                 const user = await register(formState).unwrap();
                 dispatch(setCredentials(user));
                 navigate("/")
+                enqueueSnackbar("We created an account for you.", { variant: 'success'});
               } catch (err) {
-                console.log(err);
-                setErrorState(err.data.message);
+                const errorMsg = `Failed - ${err.data.message}`;
+                setErrorState(errorMsg);
+                enqueueSnackbar(errorMsg, { variant: 'error'});
               }
             }}
           >

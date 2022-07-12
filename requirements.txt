@@ -4,3 +4,9 @@ django-rest-knox==4.2.*
 psycopg2==2.9.*
 djangorestframework-simplejwt[crypto]==5.2.*
 pyhumps==3.7.*
+django-environ==0.9.*
+dj-database-url==0.5.*
+mediacloud==3.13.*
+python-dateutil==2.8.*
+dateparser==1.1.*
+pymemcache==3.5.*

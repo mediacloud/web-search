@@ -21,3 +21,8 @@ export const CsrfToken = () => {
         <input type="hidden" name="csrfmiddlewaretoken" value={ getCookie('csrftoken') } />
     );
 };
+
+export function saveCsrfToken() {
+  // centralize the logic for saving the CSRF Token so we can change it later in one easy place
+  window.CSRF_TOKEN = getCookie('csrftoken');
+}

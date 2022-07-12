@@ -10,23 +10,31 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
+import { useSnackbar } from 'notistack';
 
-import { CsrfToken } from '../../services/CsrfToken';
+import { saveCsrfToken } from '../../services/CsrfToken';
 import { useLoginMutation } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
+
 
 export default function SignIn() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  
-  // formstate -> login  
+  const { enqueueSnackbar } = useSnackbar();
+
+  // formstate -> login
   const [login, { isLoading }] = useLoginMutation();
-  
+
   // username and password
   const [formState, setFormState] = React.useState({ username: '', password: '' });
+<<<<<<< HEAD
   
   // errors 
+=======
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+
+  // errors
+>>>>>>> dc2294916445868265f7f070d39d46ccc39fa328
   const [errorState, setErrorState] = React.useState();
 
   const handleChange = ({ target: { name, value }}) => setFormState((prev) => ({ ...prev, [name]: value }))
@@ -62,10 +70,6 @@ export default function SignIn() {
           >
 
             {errorState && <Alert severity="error">Failed to sign in</Alert>}
-
-            {/* Token  */}
-            <CsrfToken />
-
 
             {/* Username  */}
             <TextField
@@ -104,9 +108,13 @@ export default function SignIn() {
                   const user = await login(formState).unwrap();
                   dispatch(setCredentials(user));
                   navigate("/");
+                  enqueueSnackbar("You are now signed in", { variant: 'success'});
+                  // the CSRF token changes because we've launched a new session - save the new one
+                  saveCsrfToken();
                 } catch (err) {
                   console.log(err);
                   setErrorState(err.data.message);
+                  enqueueSnackbar("Login failed", { variant: 'error'});
                 }
               }}
             >

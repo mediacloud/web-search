@@ -8,15 +8,17 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 import { useLogoutMutation } from './app/services/authApi';
 import { selectCurrentUser, selectIsLoggedIn, setCredentials } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
+import { saveCsrfToken } from './services/CsrfToken';
 
 // if you use a query, you would use lcoal compenent state to set the query parameter
 
 // user account status (login, account info ...)
-function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigate) {
+function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigate, enqueueSnackbar) {
 
   // if user is logged in display account information
   if (isLoggedIn) {
@@ -32,6 +34,9 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
             const result = await logout().unwrap();
             dispatch(setCredentials(null));
             navigate("/");
+            enqueueSnackbar("You've been logged out", { variant: 'success'});
+            // need to save the new csrf Token
+            saveCsrfToken();
           }}
         >
           Logout
@@ -90,8 +95,7 @@ const ResponsiveAppBar = () => {
   const [logout, { isLoading }] = useLogoutMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-
+  const { enqueueSnackbar } = useSnackbar();
 
   return (
     <div>
@@ -133,7 +137,7 @@ const ResponsiveAppBar = () => {
             {/* Account */}
             <Box sx={{ flexGrow: 0 }}>
               {/* Changing button to and impleneting navigate() from Router */}
-              {userButtonStatus(isLoggedIn, currentUser, logout, isLoading, dispatch, navigate)}
+              {userButtonStatus(isLoggedIn, currentUser, logout, isLoading, dispatch, navigate, enqueueSnackbar)}
             </Box>
 
             {/* Display is xs  */}
