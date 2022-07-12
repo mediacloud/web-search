@@ -6,20 +6,31 @@ import { selectCurrentUser } from '../../services/userApi';
 import { useSelector } from 'react-redux';
 
 
+function display(user) {
+  if (user.isLoggedIn) {
+    return (
+      <>
+        <h1> Account Username: {currentUser.username} </h1>
+      </>
+    )
+  }
+  else {
+    return (
+      <h1>Logged o</h1>
+    )
+  }
+}
+
+
 const Account = () => {
   const currentUser = useSelector(selectCurrentUser);
 
 
-  const fontStyle = {
-    fontFamily: 'Courier',
-  }
   return (
 
     <div style={{ paddingTop: "200px" }}>
-      <h1 style={fontStyle}>Account Username: {currentUser.username} </h1>
-      <h2 style={fontStyle}>Email: {currentUser.email}</h2>
-      <h2 style={fontStyle}>isStaff: {currentUser.is_staff.toString()}</h2>
-      <h2 style={fontStyle}>isSuperUser: {currentUser.is_superuser.toString()}</h2>
+      {/* {display(user.isLoggedIn)} */}
+      <h1>hello</h1>
     </div>
 
   );
