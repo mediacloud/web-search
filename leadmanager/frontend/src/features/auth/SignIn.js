@@ -10,6 +10,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Alert from '@mui/material/Alert';
+import { useSnackbar } from 'notistack';
 
 import { CsrfToken } from '../../services/CsrfToken';
 import { useLoginMutation } from '../../app/services/authApi';
@@ -18,16 +19,16 @@ import { setCredentials } from './authSlice';
 export default function SignIn() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
-  
-  // formstate -> login  
+  const { enqueueSnackbar } = useSnackbar();
+
+  // formstate -> login
   const [login, { isLoading }] = useLoginMutation();
-  
+
   // username and password
   const [formState, setFormState] = React.useState({ username: '', password: '' });
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
-  // errors 
+  // errors
   const [errorState, setErrorState] = React.useState();
 
 
@@ -101,9 +102,11 @@ export default function SignIn() {
                   const user = await login(formState).unwrap();
                   dispatch(setCredentials(user));
                   navigate("/");
+                  enqueueSnackbar("You are now signed in", { variant: 'success'});
                 } catch (err) {
                   console.log(err);
                   setErrorState(err.data.message);
+                  enqueueSnackbar("Login failed", { variant: 'error'});
                 }
               }}
             >

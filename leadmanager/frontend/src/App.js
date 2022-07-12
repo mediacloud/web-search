@@ -2,6 +2,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux'
+import { SnackbarProvider } from 'notistack';
 
 // Router
 import { HashRouter, Routes, Route } from 'react-router-dom';
@@ -31,7 +32,9 @@ import { getStore } from './app/store';
 const App = () => (
   <Provider store={getStore()}>
     <ThemeProvider theme={theme}>
-      <Homepage />
+      <SnackbarProvider maxSnack={3}>
+        <Homepage />
+      </SnackbarProvider>  
     </ThemeProvider>
   </Provider >
 );
