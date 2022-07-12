@@ -15,3 +15,6 @@ __pycache__/
 *.sqlite3
 leadmanager/frontend/static/frontend/main.js
 leadmanager/frontend/static/frontend/
+
+# local configuration files
+leadmanager/.env
