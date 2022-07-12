@@ -62,7 +62,7 @@ export default function SignUp() {
           sx={{ mt: 3 }}
         >
 
-          {errorState && <Alert severity="error">Failed to sign in</Alert>}
+          {errorState && <Alert severity="error">Failed to register</Alert>}
 
 
           <Grid container spacing={2}>
@@ -150,9 +150,9 @@ export default function SignUp() {
                 navigate("/")
                 enqueueSnackbar("We created an account for you.", { variant: 'success'});
               } catch (err) {
-                console.log(err);
-                setErrorState(err.data.message);
-                enqueueSnackbar("Signup failed.", { variant: 'error'});
+                const errorMsg = `Failed - ${err.data.message}`;
+                setErrorState(errorMsg);
+                enqueueSnackbar(errorMsg, { variant: 'error'});
               }
             }}
           >
