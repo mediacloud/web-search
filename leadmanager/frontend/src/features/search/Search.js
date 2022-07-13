@@ -7,10 +7,17 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
 
 export default function MaterialUIPickers() {
-  const [value, setValue] = React.useState();
+  
+  const [fromValue, setFromValue] = React.useState();
+  const [toValue, setToValue] = React.useState();
 
-  const handleChange = (newValue) => {
-    setValue(newValue);
+
+  const handleChangeFromDate = (newValue) => {
+    setFromValue(newValue);
+  };
+
+  const handleChangeToDate = (newValue) => {
+    setToValue(newValue);
   };
 
   return (
@@ -25,8 +32,8 @@ export default function MaterialUIPickers() {
           <DesktopDatePicker
             label="From"
             inputFormat="MM/dd/yyyy"
-            value={value}
-            onChange={handleChange}
+            value={fromValue}
+            onChange={handleChangeFromDate}
             renderInput={(params) => <TextField {...params} />}
           />
 
@@ -34,8 +41,8 @@ export default function MaterialUIPickers() {
           <DesktopDatePicker
             label="To"
             inputFormat="MM/dd/yyyy"
-            value={value}
-            onChange={handleChange}
+            value={toValue}
+            onChange={handleChangeToDate}
             renderInput={(params) => <TextField {...params} />}
           />
 
@@ -43,7 +50,7 @@ export default function MaterialUIPickers() {
           <Button
             variant="outlined"
             onClick={async () => {
-              console.log('Submit')
+              console.log(fromValue + " " + " " + toValue)
             }}
           >
             Submit
