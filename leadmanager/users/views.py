@@ -51,6 +51,7 @@ def register(request):
             logging.debug('password not matching')
             data = json.dumps({'message': "Passwords don't match"})
             return HttpResponse(data, content_type='application/json', status=403)
+        
         # next verify email is new
         try:
             user = User.objects.get(email__exact=email)
@@ -63,6 +64,7 @@ def register(request):
         created_user = User.objects.create_user(username=username, password=password1, email=email,
                                                 first_name=first_name, last_name=last_name)
         created_user.save()
+        logging.debug('new user created')
         data = json.dumps({'message': "new user created"})
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
