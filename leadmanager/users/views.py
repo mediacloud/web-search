@@ -42,10 +42,11 @@ def register(request):
         first_name = payload.get('first_name', None)
         last_name = payload.get('last_name', None)
         email = payload.get('email', None)
-        username = payload.get('email', None)
+        username = payload.get('username', None)
         password1 = payload.get('password1', None)
-        password2 = payload.get('password1', None)
-        # first verify passwords match
+        password2 = payload.get('password2', None)
+       
+        # first verify passwords match        
         if password1 != password2:
             logging.debug('password not matching')
             data = json.dumps({'message': "Passwords don't match"})
