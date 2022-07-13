@@ -3,10 +3,8 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker';
+import { Button } from '@mui/material';
 
 export default function MaterialUIPickers() {
   const [value, setValue] = React.useState();
@@ -16,11 +14,14 @@ export default function MaterialUIPickers() {
   };
 
   return (
-    <div style={{paddingTop : "200px"}}>
+    <div style={{ paddingTop: "200px" }}>
 
 
       <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <Stack spacing={2}>
+        <Stack spacing={2} direction="row">
+
+
+          {/* From Date */}
           <DesktopDatePicker
             label="From"
             inputFormat="MM/dd/yyyy"
@@ -28,6 +29,8 @@ export default function MaterialUIPickers() {
             onChange={handleChange}
             renderInput={(params) => <TextField {...params} />}
           />
+
+          {/* To Date */}
           <DesktopDatePicker
             label="To"
             inputFormat="MM/dd/yyyy"
@@ -35,8 +38,18 @@ export default function MaterialUIPickers() {
             onChange={handleChange}
             renderInput={(params) => <TextField {...params} />}
           />
+
+          {/* Submit */}
+          <Button
+            variant="outlined"
+            onClick={async () => {
+              console.log('Submit')
+            }}
+          >
+            Submit
+          </Button>
         </Stack>
       </LocalizationProvider>
-    </div>
+    </div >
   );
 }
