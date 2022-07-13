@@ -5,7 +5,7 @@ Installation
 ------------
 
 1. Clone this repository
-2. Python: `pip install requirements.txt` or `conda install --file requirements.txt`
+2. Python: `pip install -r requirements.txt` or `conda install --file requirements.txt`
 3. Node: `npm install`
 4. Copy `.env.template` to `.env` and edit that one to enter in all your secret configuration variables
 5. python manage.py createsuperuser
