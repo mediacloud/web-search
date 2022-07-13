@@ -62,7 +62,6 @@ export default function SignUp() {
           sx={{ mt: 3 }}
         >
 
-          {errorState && <Alert severity="error">Failed to register</Alert>}
 
 
           <Grid container spacing={2}>
@@ -97,6 +96,8 @@ export default function SignUp() {
               />
             </Grid>
 
+         
+
             {/* Email */}
             <Grid item xs={12}>
               <TextField
@@ -106,6 +107,19 @@ export default function SignUp() {
                 name="email"
                 type="email"
                 autoComplete="email"
+                onChange={handleChange}
+              />
+            </Grid>
+
+            {/* Username */}
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                label="Username"
+                name="username"
+                type="text"
+                autoComplete="username"
                 onChange={handleChange}
               />
             </Grid>
