@@ -1,5 +1,7 @@
 from django.core.cache import cache
 
+# not integrated yet: super useful (we keep results of api) (lasts for 24 hours)
+
 # provide helpers for working with Django's caching
 # adapted from https://james.lin.net.nz/2011/09/08/python-decorator-caching-your-functions/
 
