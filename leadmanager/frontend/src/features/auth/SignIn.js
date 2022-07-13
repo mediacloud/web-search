@@ -27,17 +27,13 @@ export default function SignIn() {
 
   // username and password
   const [formState, setFormState] = React.useState({ username: '', password: '' });
-<<<<<<< HEAD
-  
-  // errors 
-=======
+
+
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // errors
->>>>>>> dc2294916445868265f7f070d39d46ccc39fa328
   const [errorState, setErrorState] = React.useState();
 
-  const handleChange = ({ target: { name, value }}) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   return (
 
