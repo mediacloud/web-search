@@ -65,7 +65,7 @@ export default function SignIn() {
             noValidate sx={{ mt: 1 }}
           >
 
-            {errorState && <Alert severity="error">Failed to sign in</Alert>}
+            {/* {errorState && <Alert severity="error">Failed to sign in</Alert>} */}
 
             {/* Username  */}
             <TextField
