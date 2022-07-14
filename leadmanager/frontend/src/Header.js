@@ -142,6 +142,10 @@ const ResponsiveAppBar = () => {
               {userButtonStatus(isLoggedIn, currentUser, logout, isLoading, dispatch, navigate, enqueueSnackbar)}
             </Box>
 
+            
+            
+            
+            
             {/* Display is xs  */}
 
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} />
