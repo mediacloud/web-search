@@ -27,7 +27,7 @@ export default function MaterialUIPickers() {
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Stack spacing={2} >
 
-          Search Feature
+
 
           {/* terms */}
           <TextField
