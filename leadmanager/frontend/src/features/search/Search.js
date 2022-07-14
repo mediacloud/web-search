@@ -5,11 +5,22 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
+import { useSnackbar } from 'notistack';
+
+
+// information from store
+import { selectCurrentUser, selectIsLoggedIn } from '../../features/auth/authSlice';
+import { useSelector } from 'react-redux';
+
 
 export default function MaterialUIPickers() {
 
   const [fromValue, setFromValue] = React.useState();
   const [toValue, setToValue] = React.useState();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+
 
 
   const handleChangeFromDate = (newValue) => {
@@ -20,56 +31,66 @@ export default function MaterialUIPickers() {
     setToValue(newValue);
   };
 
+
+
+
+
+
+
   return (
     <div style={{ paddingTop: "200px" }}>
-
 
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Stack spacing={2} >
 
+          {isLoggedIn &&
+            <>
+              {/* terms */}
+              <TextField
+                required
+                id="standard-multiline-static"
+                label="Terms"
+                name="terms"
+                multiline
+                rows={4}
+              />
 
+              {/* From Date */}
+              <DesktopDatePicker
+                required
+                label="From"
+                inputFormat="MM/dd/yyyy"
+                value={fromValue}
+                onChange={handleChangeFromDate}
+                renderInput={(params) => <TextField {...params} />}
+              />
 
-          {/* terms */}
-          <TextField
-            required
-            id="standard-multiline-static"
-            label="Terms"
-            name="terms"
-            multiline
-            rows={4}
+              {/* To Date */}
+              <DesktopDatePicker
+                required
+                label="To"
+                inputFormat="MM/dd/yyyy"
+                value={toValue}
+                onChange={handleChangeToDate}
+                renderInput={(params) => <TextField {...params} />}
+              />
 
-          />
+              {/* Submit */}
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={async () => {
+                  console.log(fromValue + " " + " " + toValue)
+                }}
+              >
+                Submit
+              </Button>
+            </>
 
-          {/* From Date */}
-          <DesktopDatePicker
-            required
-            label="From"
-            inputFormat="MM/dd/yyyy"
-            value={fromValue}
-            onChange={handleChangeFromDate}
-            renderInput={(params) => <TextField {...params} />}
-          />
+          }
+          
+         {!isLoggedIn && <h2>Must be logged in for this feature</h2>}
 
-          {/* To Date */}
-          <DesktopDatePicker
-            required
-            label="To"
-            inputFormat="MM/dd/yyyy"
-            value={toValue}
-            onChange={handleChangeToDate}
-            renderInput={(params) => <TextField {...params} />}
-          />
-
-          {/* Submit */}
-          <Button
-            fullWidth
-            variant="outlined"
-            onClick={async () => {
-              console.log(fromValue + " " + " " + toValue)
-            }}
-          >
-            Submit
-          </Button>
         </Stack>
       </LocalizationProvider>
     </div >
