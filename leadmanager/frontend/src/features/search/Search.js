@@ -7,7 +7,7 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
 
 export default function MaterialUIPickers() {
-  
+
   const [fromValue, setFromValue] = React.useState();
   const [toValue, setToValue] = React.useState();
 
@@ -25,11 +25,24 @@ export default function MaterialUIPickers() {
 
 
       <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <Stack spacing={2} direction="row">
+        <Stack spacing={2} >
 
+          Search Feature
+
+          {/* terms */}
+          <TextField
+            required
+            id="standard-multiline-static"
+            label="Terms"
+            name="terms"
+            multiline
+            rows={4}
+
+          />
 
           {/* From Date */}
           <DesktopDatePicker
+            required
             label="From"
             inputFormat="MM/dd/yyyy"
             value={fromValue}
@@ -39,6 +52,7 @@ export default function MaterialUIPickers() {
 
           {/* To Date */}
           <DesktopDatePicker
+            required
             label="To"
             inputFormat="MM/dd/yyyy"
             value={toValue}
@@ -48,6 +62,7 @@ export default function MaterialUIPickers() {
 
           {/* Submit */}
           <Button
+            fullWidth
             variant="outlined"
             onClick={async () => {
               console.log(fromValue + " " + " " + toValue)
