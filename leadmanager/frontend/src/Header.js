@@ -34,7 +34,7 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
             const result = await logout().unwrap();
             dispatch(setCredentials(null));
             navigate("/");
-            enqueueSnackbar("You've been logged out", { variant: 'success'});
+            enqueueSnackbar("You've been logged out", { variant: 'success' });
             // need to save the new csrf Token
             saveCsrfToken();
           }}
@@ -112,6 +112,8 @@ const ResponsiveAppBar = () => {
                 color: 'white',
                 textDecoration: 'none',
               }}
+              component={Link}
+              to="/"
             >
               Media Cloud Proof-of-Concept
             </Typography>
