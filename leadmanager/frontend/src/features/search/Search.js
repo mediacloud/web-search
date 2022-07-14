@@ -9,20 +9,20 @@ import { useSnackbar } from 'notistack';
 
 
 // information from store
-import { selectCurrentUser, selectIsLoggedIn } from '../../features/auth/authSlice';
+import { selectIsLoggedIn } from '../../features/auth/authSlice';
 import { useSelector } from 'react-redux';
 
 
-export default function MaterialUIPickers() {
+export default function Search() {
+  
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+
 
   const [fromValue, setFromValue] = React.useState();
   const [toValue, setToValue] = React.useState();
 
 
   const { enqueueSnackbar } = useSnackbar();
-
-  const isLoggedIn = useSelector(selectIsLoggedIn);
-
 
 
   const handleChangeFromDate = (newValue) => {
@@ -32,11 +32,6 @@ export default function MaterialUIPickers() {
   const handleChangeToDate = (newValue) => {
     setToValue(newValue);
   };
-
-
-
-
-
 
 
   return (
@@ -59,6 +54,7 @@ export default function MaterialUIPickers() {
               {/* From Date */}
               <DesktopDatePicker
                 required
+                type='date'
                 label="From"
                 inputFormat="MM/dd/yyyy"
                 value={fromValue}
