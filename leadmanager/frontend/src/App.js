@@ -21,7 +21,7 @@ import SignUp from './features/auth/SignUp';
 import Homepage from './Homepage';
 
 // pages
-import Collection from './features/collections/Collection'
+import Collections from './features/collections/Collections';
 import Search from './features/search/Search'
 
 
@@ -45,7 +45,7 @@ export const renderApp = () => {
       <HashRouter>
         <Routes>
           <Route path="/" element={<App />}>
-            <Route path="collections" element={<Collection />} />
+            <Route path="collections" element={<Collections />} />
             <Route path="search" element={<Search />} />
             <Route path="sign-in" element={<SignIn />} />
             <Route path="sign-up" element={<SignUp />} />
