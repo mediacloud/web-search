@@ -17,6 +17,8 @@ export default function MaterialUIPickers() {
 
   const [fromValue, setFromValue] = React.useState();
   const [toValue, setToValue] = React.useState();
+
+
   const { enqueueSnackbar } = useSnackbar();
 
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -50,7 +52,6 @@ export default function MaterialUIPickers() {
                 required
                 id="standard-multiline-static"
                 label="Terms"
-                name="terms"
                 multiline
                 rows={4}
               />
@@ -88,8 +89,8 @@ export default function MaterialUIPickers() {
             </>
 
           }
-          
-         {!isLoggedIn && <h2>Must be logged in for this feature</h2>}
+
+          {!isLoggedIn && <h2>Must be logged in for this feature</h2>}
 
         </Stack>
       </LocalizationProvider>
