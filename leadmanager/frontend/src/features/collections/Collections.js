@@ -140,7 +140,8 @@ const rows = [
   createData('Gingerbread', 356, 16.0, 49, 3.9, 1.5),
 ];
 
-export default function CollapsibleTable() {
+function CollapsibleTable() {
+
   return (
     <div style={{ paddingTop: "200px" }}>
       <TableContainer component={Paper}>
@@ -164,4 +165,17 @@ export default function CollapsibleTable() {
       </TableContainer>
     </div>
   );
+}
+
+export default function Collection() {
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+
+  return (
+    <div style={{ paddingTop: "200px" }} >
+      {isLoggedIn && <h1>Logged In</h1>}
+      {!isLoggedIn && <h1>Logged Out</h1>}
+
+    </div>
+  )
+
 }
