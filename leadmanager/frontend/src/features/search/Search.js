@@ -34,6 +34,7 @@ export default function Search() {
   const handleChange = ({ target: { date, value } }) => setFormState((prev) => ({ ...prev, [date]: value }))
 
 
+  // converts the MUI date picker date to a usable date for server 
   function dateConverter(date) {
     var months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
@@ -101,7 +102,10 @@ export default function Search() {
                 fullWidth
                 variant="outlined"
                 onClick={async () => {
-                  console.log(dateConverter(toValue.toString()))
+                  const fromValueDate = dateConverter(fromValue.toString())
+                  const toValueDate = dateConverter(toValue.toString())
+
+                  console.log(fromValueDate + " " + toValueDate)
 
                 }}
               >
