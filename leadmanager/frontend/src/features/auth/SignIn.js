@@ -28,7 +28,6 @@ export default function SignIn() {
   // username and password
   const [formState, setFormState] = React.useState({ username: '', password: '' });
 
-
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // errors
@@ -37,89 +36,88 @@ export default function SignIn() {
 
   return (
 
-      <div style={{ paddingTop: "100px" }}>
-        <CssBaseline />
+    <div style={{ paddingTop: "100px" }}>
+      <CssBaseline />
+
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
 
         <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
+          component="form"
+          method='post'
+
+          noValidate sx={{ mt: 1 }}
+        >
+
+          {/* {errorState && <Alert severity="error">Failed to sign in</Alert>} */}
+
+          {/* Username  */}
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="text"
+            label="Username"
+            name="username"
+            autoComplete="Username"
+            autoFocus
+            onChange={handleChange}
+          />
+
+          {/* Password  */}
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="password"
+            name="password"
+            label="Password"
+            type="password"
+            autoComplete="current-password"
+            onChange={handleChange}
+          />
+
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            disabled={isLoading}
+            onClick={async () => {
+              try {
+                setErrorState(null);
+                const user = await login(formState).unwrap();
+                dispatch(setCredentials(user));
+                navigate("/");
+                enqueueSnackbar("You are now signed in", { variant: 'success' });
+                // the CSRF token changes because we've launched a new session - save the new one
+                saveCsrfToken();
+              } catch (err) {
+                console.log(err);
+                setErrorState(err.data.message);
+                enqueueSnackbar("Login failed", { variant: 'error' });
+              }
+            }}
           >
+            Sign In
+          </Button>
 
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-
-          <Box
-            component="form"
-            action='accounts/login'
-            method='post'
-            href='accounts/login'
-            noValidate sx={{ mt: 1 }}
-          >
-
-            {/* {errorState && <Alert severity="error">Failed to sign in</Alert>} */}
-
-            {/* Username  */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="text"
-              label="Username"
-              name="username"
-              autoComplete="Username"
-              autoFocus
-              onChange={handleChange}
-            />
-
-            {/* Password  */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              onChange={handleChange}
-            />
-
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={ isLoading }
-              onClick={async () => {
-                try {
-                  setErrorState(null);
-                  const user = await login(formState).unwrap();
-                  dispatch(setCredentials(user));
-                  navigate("/");
-                  enqueueSnackbar("You are now signed in", { variant: 'success'});
-                  // the CSRF token changes because we've launched a new session - save the new one
-                  saveCsrfToken();
-                } catch (err) {
-                  console.log(err);
-                  setErrorState(err.data.message);
-                  enqueueSnackbar("Login failed", { variant: 'error'});
-                }
-              }}
-            >
-              Sign In
-            </Button>
-
-          </Box>
         </Box>
-      </div>
+      </Box>
+    </div>
 
   );
 }
