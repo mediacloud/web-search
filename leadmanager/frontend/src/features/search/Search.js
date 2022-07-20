@@ -14,24 +14,24 @@ import { useSelector } from 'react-redux';
 
 
 export default function Search() {
-  
-  const isLoggedIn = useSelector(selectIsLoggedIn);
 
+  const isLoggedIn = useSelector(selectIsLoggedIn);
 
   const [fromValue, setFromValue] = React.useState();
   const [toValue, setToValue] = React.useState();
 
-
-  // integrate soon 
-  const { enqueueSnackbar } = useSnackbar();
-
   const handleChangeFromDate = (newValue) => {
     setFromValue(newValue);
   };
-
   const handleChangeToDate = (newValue) => {
     setToValue(newValue);
   };
+
+  // username and password
+  const [formState, setFormState] = React.useState();
+
+  const handleChange = ({ target: { date, value } }) => setFormState((prev) => ({ ...prev, [date]: value }))
+
 
 
   return (
@@ -47,8 +47,9 @@ export default function Search() {
                 required
                 id="standard-multiline-static"
                 label="Terms"
-                multiline
                 rows={4}
+                name="terms"
+                onChange={handleChange}
               />
 
               {/* From Date */}
@@ -77,7 +78,7 @@ export default function Search() {
                 fullWidth
                 variant="outlined"
                 onClick={async () => {
-                  console.log(fromValue + " " + " " + toValue)
+                  console.log(terms)
                 }}
               >
                 Submit
