@@ -11,6 +11,7 @@ import { useSnackbar } from 'notistack';
 // information from store
 import { selectIsLoggedIn } from '../../features/auth/authSlice';
 import { useSelector } from 'react-redux';
+import { yearsToMonths } from 'date-fns';
 
 
 export default function Search() {
@@ -33,6 +34,28 @@ export default function Search() {
   const handleChange = ({ target: { date, value } }) => setFormState((prev) => ({ ...prev, [date]: value }))
 
 
+  function dateConverter(date) {
+    var months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+
+    let firstSpace = date.indexOf(' ') + 1
+    let secondSpace = date.substring(firstSpace + 1).indexOf(' ') + firstSpace + 1
+    let thirdSpace = date.substring(secondSpace + 1).indexOf(' ') + secondSpace + 1
+    let fourthSpace = date.substring(thirdSpace + 1).indexOf(' ') + thirdSpace + 1
+
+    let month = date.substring(firstSpace, secondSpace)
+    secondSpace++
+    
+    let day = date.substring(secondSpace, thirdSpace)
+    thirdSpace++
+    
+    let year = date.substring(thirdSpace, fourthSpace)
+
+    month = months.indexOf(month.toLowerCase()) + 1;
+
+   return year + "-" + month + "-" + day
+
+  }
 
   return (
     <div style={{ paddingTop: "200px" }}>
@@ -78,7 +101,8 @@ export default function Search() {
                 fullWidth
                 variant="outlined"
                 onClick={async () => {
-                  console.log(terms)
+                  console.log(dateConverter(toValue.toString()))
+
                 }}
               >
                 Submit
