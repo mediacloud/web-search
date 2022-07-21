@@ -6,7 +6,25 @@ from django.contrib.auth.models import auth, User
 from django.core import serializers
 import humps
 
+# from leadmanager.platforms.onlinenews import provider_for, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD
+
+
 logger = logging.getLogger(__name__)
+
+
+# search tool
+@require_http_methods(["POST"])
+def search(request):
+    payload = json.loads(request.body)
+
+    query_str = payload.get('query', None)
+    start_date = payload.get('start', None)
+    end_date = payload.get('end', None)
+
+    provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
+    total_articles = provider.count(query_str, start_date, end_date)
+    
+    return HttpResponse(json.dumps({"count": total_articles}), content_type="application/json")
 
 
 @require_http_methods(["GET"])
@@ -45,13 +63,13 @@ def register(request):
         username = payload.get('username', None)
         password1 = payload.get('password1', None)
         password2 = payload.get('password2', None)
-       
-        # first verify passwords match        
+
+        # first verify passwords match
         if password1 != password2:
             logging.debug('password not matching')
             data = json.dumps({'message': "Passwords don't match"})
             return HttpResponse(data, content_type='application/json', status=403)
-        
+
         # next verify email is new
         try:
             user = User.objects.get(email__exact=email)
