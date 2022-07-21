@@ -25,36 +25,39 @@ export default function Search() {
     query_str: '',
   });
 
-  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
-
-
   const [fromValue, setFromValue] = React.useState(() => {
     if (fromValue === undefined) {
       return createDate()
     }
-
   });
 
   const [toValue, setToValue] = React.useState(() => {
     if (toValue === undefined) {
       return createDate()
     }
-
   });
 
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+
   const handleChangeFromDate = (newValue) => {
-    setFromValue(newValue);
+    if (fromValue === undefined) {
+      setFromValue(newValue);
+    } else {
+      setFromValue(dateConverter(newValue.toString()))
+    }
   };
+
   const handleChangeToDate = (newValue) => {
-    setToValue(newValue);
+    if (toValue === undefined) {
+      setToValue(newValue);
+    } else {
+      setToValue(dateConverter(newValue.toString()))
+    }
   };
-
-
 
   // converts the MUI date picker date to a usable date for server 
   function dateConverter(date) {
     var months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-
 
     let firstSpace = date.indexOf(' ') + 1
     let secondSpace = date.substring(firstSpace + 1).indexOf(' ') + firstSpace + 1
@@ -130,9 +133,9 @@ export default function Search() {
                 fullWidth
                 variant="outlined"
                 onClick={async () => {
-
-                  console.log(fromValue)
-
+                  console.log("Query : " + formState.query_str)
+                  console.log("From: " + fromValue)
+                  console.log("To: " + toValue)
                 }}
               >
                 Submit
