@@ -32,10 +32,6 @@ export default function SignIn() {
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
-  // errors
-  const [errorState, setErrorState] = React.useState();
-
-
   return (
 
     <div style={{ paddingTop: "100px" }}>
@@ -65,7 +61,6 @@ export default function SignIn() {
           noValidate sx={{ mt: 1 }}
         >
 
-          {/* {errorState && <Alert severity="error">Failed to sign in</Alert>} */}
 
           {/* Username  */}
           <TextField
@@ -99,11 +94,7 @@ export default function SignIn() {
             sx={{ mt: 3, mb: 2 }}
             disabled={isLoading}
             onClick={async () => {
-              console.log(formState.username)
-              console.log(formState.password)
-
               try {
-                setErrorState(null);
                 const user = await login(formState).unwrap();
                 dispatch(setCredentials(user));
                 navigate("/");
@@ -111,8 +102,6 @@ export default function SignIn() {
                 // the CSRF token changes because we've launched a new session - save the new one
                 saveCsrfToken();
               } catch (err) {
-                console.log(err);
-                setErrorState(err.data.message);
                 enqueueSnackbar("Login failed", { variant: 'error' });
               }
             }}
