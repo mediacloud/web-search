@@ -26,7 +26,9 @@ export default function SignIn() {
   const [login, { isLoading }] = useLoginMutation();
 
   // username and password
-  const [formState, setFormState] = React.useState({ username: '', password: '' });
+  const [formState, setFormState] = React.useState({
+    username: '', password: ''
+  });
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
@@ -97,6 +99,9 @@ export default function SignIn() {
             sx={{ mt: 3, mb: 2 }}
             disabled={isLoading}
             onClick={async () => {
+              console.log(formState.username)
+              console.log(formState.password)
+
               try {
                 setErrorState(null);
                 const user = await login(formState).unwrap();
