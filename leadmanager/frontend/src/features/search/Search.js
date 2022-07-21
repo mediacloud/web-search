@@ -11,7 +11,6 @@ import { useSnackbar } from 'notistack';
 // information from store
 import { selectIsLoggedIn } from '../../features/auth/authSlice';
 import { useSelector } from 'react-redux';
-import { yearsToMonths } from 'date-fns';
 
 
 export default function Search() {
@@ -19,16 +18,36 @@ export default function Search() {
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
 
-  // query_str (string of queries)
-  // start_date 
-  // end_date
+
+
+  // MUI does not handle "name" with a DatePicker (massive bug)
   const [formState, setFormState] = React.useState({
     query_str: '',
-    start_date: '',
-    end_date: ''
   });
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+
+
+  const [fromValue, setFromValue] = React.useState(() => {
+    if (fromValue === undefined) {
+      return createDate()
+    }
+
+  });
+
+  const [toValue, setToValue] = React.useState(() => {
+    if (toValue === undefined) {
+      return createDate()
+    }
+
+  });
+
+  const handleChangeFromDate = (newValue) => {
+    setFromValue(newValue);
+  };
+  const handleChangeToDate = (newValue) => {
+    setToValue(newValue);
+  };
 
 
 
@@ -56,6 +75,12 @@ export default function Search() {
 
   }
 
+  // YYYY - MM - DD
+  function createDate() {
+    var today = new Date()
+    return today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate()
+  }
+
   return (
     <div style={{ paddingTop: "200px" }}>
 
@@ -64,15 +89,17 @@ export default function Search() {
 
           {isLoggedIn &&
             <>
+
+
               {/* Query */}
               <TextField
+                fullWidth
                 required
                 id="standard-multiline-static"
                 label="Query"
+                name="query_str"
                 rows={4}
-                name="query"
                 onChange={handleChange}
-              // renderInput={(params) => <TextField {...params} />}
 
               />
 
@@ -82,7 +109,8 @@ export default function Search() {
                 type='date'
                 label="From"
                 inputFormat="MM/dd/yyyy"
-                onChange={handleChange}
+                value={fromValue}
+                onChange={handleChangeFromDate}
                 renderInput={(params) => <TextField {...params} />}
               />
 
@@ -91,21 +119,20 @@ export default function Search() {
                 required
                 label="To"
                 inputFormat="MM/dd/yyyy"
-                onChange={handleChange}
+                value={toValue}
+                onChange={handleChangeToDate}
                 renderInput={(params) => <TextField {...params} />}
               />
+
 
               {/* Submit */}
               <Button
                 fullWidth
                 variant="outlined"
                 onClick={async () => {
-                  // const fromValueDate = dateConverter(fromValue.toString())
-                  // const toValueDate = dateConverter(toValue.toString())
 
-                  // console.log(fromValueDate + " " + toValueDate)
+                  console.log(fromValue)
 
-                  console.log(formState.query_str)
                 }}
               >
                 Submit
