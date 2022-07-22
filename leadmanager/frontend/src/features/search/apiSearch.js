@@ -13,12 +13,12 @@ export const searchApi = createApi({
   endpoints: (builder) => ({
     getSearch: builder.mutation({
       query: (credentials) => ({
-        url: 'search',
-        method: 'POST',
-        body: { ...credentials }
-      }),
+          url: 'search',
+          method: 'POST',
+          body: { ...credentials }
+        }),
     }),
-  }),
+  })
 })
 
 
