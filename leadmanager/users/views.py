@@ -6,7 +6,9 @@ from django.contrib.auth.models import auth, User
 from django.core import serializers
 import humps
 
-# from leadmanager.platforms.onlinenews import provider_for, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD
+import datetime as dt
+
+from leadmanager.platforms import provider_for, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD
 
 
 logger = logging.getLogger(__name__)
@@ -18,8 +20,12 @@ def search(request):
     payload = json.loads(request.body)
 
     query_str = payload.get('query', None)
+
     start_date = payload.get('start', None)
+    start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
+
     end_date = payload.get('end', None)
+    end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
 
     provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
     total_articles = provider.count(query_str, start_date, end_date)
