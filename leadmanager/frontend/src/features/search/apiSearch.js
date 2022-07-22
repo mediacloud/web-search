@@ -1,4 +1,4 @@
-import { createApi, fakeBaseQuery, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
@@ -11,9 +11,20 @@ export const api = createApi({
   }),
 
   endpoints: (builder) => ({
-    getSearch: builder.query({
-      query: () => 'search',
+    getSearch: builder.mutation({
+      query: (credentials) => ({
+        url: 'search',
+        method: 'POST',
+        body: { ...credentials }
+      }),
     }),
-
   })
 })
+
+
+// search/attentionOverTime 
+// search
+// action: get back Json. Save it to searchResults
+export const {
+useGetSearchMutation,
+} = api
