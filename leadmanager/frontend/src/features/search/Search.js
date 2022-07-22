@@ -133,29 +133,22 @@ export default function Search() {
                 renderInput={(params) => <TextField {...params} />}
               />
 
-
               {/* Submit */}
               <Button
                 fullWidth
                 variant="outlined"
                 disabled={isSearching}
                 onClick={async () => {
-                
+                 
                   const user = await search({
                     query: formState.query_str,
                     start: fromValue,
                     end: toValue,
                   }).unwrap();
+
                   dispatch(setSearch(user));
 
-                }
-
-
-                  // add to Store 
-                  // dispatch(GetDATA)
-                  // dispatch(saveDataToStore)
-                }
-
+                }}
               >
                 Submit
               </Button>
