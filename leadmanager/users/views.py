@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 # search tool
 @require_http_methods(["POST"])
 def search(request):
+
     payload = json.loads(request.body)
 
     query_str = payload.get('query', None)
@@ -29,7 +30,7 @@ def search(request):
 
     provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
     total_articles = provider.count(query_str, start_date, end_date)
-    
+
     return HttpResponse(json.dumps({"count": total_articles}), content_type="application/json")
 
 
