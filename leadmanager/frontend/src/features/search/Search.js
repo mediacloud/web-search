@@ -138,6 +138,13 @@ export default function Search() {
                   console.log("Query : " + formState.query_str)
                   console.log("From: " + fromValue)
                   console.log("To: " + toValue)
+
+
+                  const search = await search({credentials: formState.query_str,fromValue,toValue})
+
+                  // add to Store 
+                  // dispatch(GetDATA)
+                  // dispatch(saveDataToStore)
                 }}
               >
                 Submit
