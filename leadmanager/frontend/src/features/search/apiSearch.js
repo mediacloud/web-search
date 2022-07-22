@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-export const api = createApi({
+export const searchApi = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/search',
+    baseUrl: '/api/auth/',
     prepareHeaders: (headers, { getState }) => {
       // Django requires this for security (cross-site forgery protection) once logged in
       headers.set('X-Csrftoken', window.CSRF_TOKEN);
@@ -18,7 +18,7 @@ export const api = createApi({
         body: { ...credentials }
       }),
     }),
-  })
+  }),
 })
 
 
@@ -26,5 +26,5 @@ export const api = createApi({
 // search
 // action: get back Json. Save it to searchResults
 export const {
-useGetSearchMutation,
-} = api
+  useGetSearchMutation,
+} = searchApi

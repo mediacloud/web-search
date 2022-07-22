@@ -5,7 +5,7 @@ const initialState = { isLoggedIn: false };
 export const api = createApi({
   //baseQuery: fetchBaseQuery({ baseUrl: '/api/auth' }),
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/auth',
+    baseUrl: '/api/auth/',
     prepareHeaders: (headers, { getState }) => {
       // Django requires this for security (cross-site forgery protection) once logged in
       headers.set('X-Csrftoken', window.CSRF_TOKEN);

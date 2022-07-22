@@ -6,19 +6,23 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
 import { useSnackbar } from 'notistack';
-
+import { useDispatch } from 'react-redux';
 
 // information from store
-import { selectIsLoggedIn } from '../../features/auth/authSlice';
+import { selectIsLoggedIn, setSearch } from '../../features/auth/authSlice';
 import { useSelector } from 'react-redux';
+
+import { useGetSearchMutation } from './apiSearch';
 
 
 export default function Search() {
 
+
+  const [search, { isSearching }] = useGetSearchMutation();
+
   const isLoggedIn = useSelector(selectIsLoggedIn);
 
-
-
+  const dispatch = useDispatch();
 
   // MUI does not handle "name" with a DatePicker (massive bug)
   const [formState, setFormState] = React.useState({
@@ -88,10 +92,10 @@ export default function Search() {
     <div style={{ paddingTop: "200px" }}>
 
       <LocalizationProvider dateAdapter={AdapterDateFns}>
-        
-        <Stack 
-        spacing={2} 
-        method="post"
+
+        <Stack
+          spacing={2}
+          method="post"
         >
 
           {isLoggedIn &&
@@ -134,18 +138,24 @@ export default function Search() {
               <Button
                 fullWidth
                 variant="outlined"
+                disabled={isSearching}
                 onClick={async () => {
-                  console.log("Query : " + formState.query_str)
-                  console.log("From: " + fromValue)
-                  console.log("To: " + toValue)
+                
+                  const user = await search({
+                    query: formState.query_str,
+                    start: fromValue,
+                    end: toValue,
+                  }).unwrap();
+                  dispatch(setSearch(user));
 
+                }
 
-                  const search = await search({credentials: formState.query_str,fromValue,toValue})
 
                   // add to Store 
                   // dispatch(GetDATA)
                   // dispatch(saveDataToStore)
-                }}
+                }
+
               >
                 Submit
               </Button>
