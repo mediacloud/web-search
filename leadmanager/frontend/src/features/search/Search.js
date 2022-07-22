@@ -88,12 +88,14 @@ export default function Search() {
     <div style={{ paddingTop: "200px" }}>
 
       <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <Stack spacing={2} >
+        
+        <Stack 
+        spacing={2} 
+        method="post"
+        >
 
           {isLoggedIn &&
             <>
-
-
               {/* Query */}
               <TextField
                 fullWidth
