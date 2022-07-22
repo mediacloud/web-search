@@ -1,12 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-
-// Plan:
-
-// When user clicks logout, it hits the userApi.js
-// calls urls.py to talk to django admin
-
-
 const initialState = { isLoggedIn: false };
 
 export const api = createApi({
