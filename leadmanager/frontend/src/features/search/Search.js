@@ -151,7 +151,7 @@ export default function Search() {
                 Submit
               </Button>
 
-              <h1>{totalAttention}</h1>
+              <h1>Total Attention: {totalAttention}</h1>
 
 
             </>
