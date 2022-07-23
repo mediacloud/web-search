@@ -9,7 +9,7 @@ import { useSnackbar } from 'notistack';
 import { useDispatch } from 'react-redux';
 
 // information from store
-import { selectIsLoggedIn, setSearch } from '../../features/auth/authSlice';
+import { selectIsLoggedIn, setSearch, selectTotalAttention } from '../../features/auth/authSlice';
 import { useSelector } from 'react-redux';
 
 import { useGetSearchMutation } from './apiSearch';
@@ -21,6 +21,7 @@ export default function Search() {
   const [search, { isSearching }] = useGetSearchMutation();
 
   const isLoggedIn = useSelector(selectIsLoggedIn);
+  const totalAttention = useSelector(selectTotalAttention)
 
   const dispatch = useDispatch();
 
@@ -137,21 +138,22 @@ export default function Search() {
               <Button
                 fullWidth
                 variant="outlined"
-                disabled={isSearching}
                 onClick={async () => {
-                 
-                  const user = await search({
+                  const count = await search({
                     query: formState.query_str,
                     start: fromValue,
                     end: toValue,
                   }).unwrap();
-
-                  dispatch(setSearch(user));
-
+                  // console.log(setSearch(count).payload)
+                  dispatch(setSearch(count));
                 }}
               >
                 Submit
               </Button>
+
+              <h1>{totalAttention}</h1>
+
+
             </>
 
           }
