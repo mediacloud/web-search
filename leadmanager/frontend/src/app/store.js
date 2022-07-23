@@ -24,7 +24,7 @@ const setupStore = () => {
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
     middleware: (getDefaultMiddleWare) => 
-    getDefaultMiddleWare()
+    getDefaultMiddleWare().concat(searchApi.middleware)
     //userApiSlice.middleware,
 
   });
