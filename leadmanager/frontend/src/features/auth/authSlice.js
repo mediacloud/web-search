@@ -9,7 +9,7 @@ const slice = createSlice({
       state.isLoggedIn = state.user && state.user.isActive;
     },
     setSearch: (state, { payload }) => {
-      state.search = payload;
+      state.search = payload.count;
     }
   },
 });
@@ -21,5 +21,7 @@ export const setSearch = slice.actions.setSearch
 export const selectCurrentUser = (state) => state.auth.user;
 
 export const selectIsLoggedIn = (state) => state.auth.isLoggedIn;
+
+export const selectTotalAttention = (state) => state.auth.search;
 
 export default slice.reducer;
