@@ -24,6 +24,11 @@ import Homepage from './Homepage';
 import Collections from './features/collections/Collections';
 import Search from './features/search/Search'
 
+import { selectIsLoggedIn } from './features/auth/authSlice';
+import { useSelector } from 'react-redux';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+
 
 const theme = createTheme();
 // Store
@@ -45,7 +50,13 @@ export const renderApp = () => {
       <HashRouter>
         <Routes>
           <Route path="/" element={<App />}>
-            <Route path="collections" element={<Collections />} />
+            {/* 
+            <Route path="collections" element={<PrivateOutlet />}>
+              <Route element={<Collections />} />
+            </Route> */}
+
+            <Route path="collections" element={<Collections />} /> 
+
             <Route path="search" element={<Search />} />
             <Route path="sign-in" element={<SignIn />} />
             <Route path="sign-up" element={<SignUp />} />
@@ -55,3 +66,18 @@ export const renderApp = () => {
       </HashRouter >
     );
 };
+
+function PrivateOutlet({ children }) {
+  const auth = useSelector(selectIsLoggedIn);
+  return auth ? <Outlet /> : <Navigate to="/sign-in" />;
+}
+
+
+function ProvideAuth({ children }) {
+  const isLoggedIn = useSelector(selectIsLoggedIn);
+  return (
+    <authContext.Provider value={isLoggedIn}>
+      {children}
+    </authContext.Provider>
+  );
+}
