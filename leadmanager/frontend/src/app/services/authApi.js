@@ -3,7 +3,6 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const initialState = { isLoggedIn: false };
 
 export const api = createApi({
-  //baseQuery: fetchBaseQuery({ baseUrl: '/api/auth' }),
   baseQuery: fetchBaseQuery({
     baseUrl: '/api/auth/',
     prepareHeaders: (headers, { getState }) => {
