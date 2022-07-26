@@ -50,13 +50,20 @@ export const renderApp = () => {
       <HashRouter>
         <Routes>
           <Route path="/" element={<App />}>
-            {/* 
+
+            {/*
             <Route path="collections" element={<PrivateOutlet />}>
               <Route element={<Collections />} />
-            </Route> */}
+            </Route> 
+            */}
 
-            <Route path="collections" element={<Collections />} /> 
+            {/*
+            <Route path="search" element={<PrivateOutlet />}>
+              <Route element={<Search />} />
+            </Route> 
+            */}
 
+            <Route path="collections" element={<Collections />} />
             <Route path="search" element={<Search />} />
             <Route path="sign-in" element={<SignIn />} />
             <Route path="sign-up" element={<SignUp />} />
