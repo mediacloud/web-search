@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const searchApi = createApi({
   reducerPath: 'searchApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/auth/',
+    baseUrl: '/api/search/',
     prepareHeaders: (headers, { getState }) => {
       // Django requires this for security (cross-site forgery protection) once logged in
       headers.set('X-Csrftoken', window.CSRF_TOKEN);
