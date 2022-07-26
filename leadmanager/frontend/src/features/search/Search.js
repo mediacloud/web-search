@@ -62,7 +62,7 @@ export default function Search() {
 
   // converts the MUI date picker date to a usable date for server 
   function dateConverter(date) {
-    var months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+    const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
     let firstSpace = date.indexOf(' ') + 1
     let secondSpace = date.substring(firstSpace + 1).indexOf(' ') + firstSpace + 1
@@ -85,7 +85,7 @@ export default function Search() {
 
   // YYYY - MM - DD
   function createDate() {
-    var today = new Date()
+    const today = new Date()
     return today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate()
   }
 
