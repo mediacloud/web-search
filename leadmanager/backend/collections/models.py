@@ -1,8 +1,7 @@
-from dataclasses import field 
-from rest_framework import serializers
-from collections.models import Collection 
+from django.db import models 
 
-class CollectionSerializer(serializers.ModelSerializer):
-    class Meta: 
-        model = Collection
-        feilds = '__all__'
+class Collection(models.Model):
+    id = models.IntegerField()
+    name = models.CharField()
+    notes = models.CharField()
+    mc_tags_id = models.IntegerField()
