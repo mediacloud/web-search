@@ -14,9 +14,6 @@ Installation
 Running Database: 
 ----------------
 1. Database: 'python leadmanager/manage.py migrate'
-2. In Postman: http://localhost:8000/api/leads/ 
-  - Allows for 
-
 Running
 -------
 
