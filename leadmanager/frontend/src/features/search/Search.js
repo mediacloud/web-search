@@ -11,8 +11,7 @@ import { useDispatch } from 'react-redux';
 import { selectIsLoggedIn, setSearch, selectTotalAttention } from '../../features/auth/authSlice';
 import { useSelector } from 'react-redux';
 
-import { useGetSearchMutation } from './apiSearch';
-
+import { useGetSearchMutation } from '../../../src/app/services/searchApi';
 
 export default function Search() {
 
