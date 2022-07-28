@@ -8,9 +8,6 @@ import humps
 
 import datetime as dt
 
-from leadmanager.platforms import provider_for, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD
-
-
 logger = logging.getLogger(__name__)
 
 @require_http_methods(["GET"])
