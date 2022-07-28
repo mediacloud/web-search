@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.core import serializers
-import humps
 
 import datetime as dt
 
@@ -12,7 +11,6 @@ from leadmanager.platforms import provider_for, PLATFORM_ONLINE_NEWS, PLATFORM_S
 
 
 logger = logging.getLogger(__name__)
-
 
 # search tool
 @require_http_methods(["POST"])
