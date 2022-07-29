@@ -34,6 +34,9 @@ const theme = createTheme();
 // Store
 import { getStore } from './app/store';
 
+
+// commit
+
 const App = () => (
   <Provider store={getStore()}>
     <ThemeProvider theme={theme}>
