@@ -15,7 +15,7 @@ __pycache__/
 *.sqlite3
 web-search/frontend/static/frontend/main.js
 web-search/frontend/static/frontend/
- db.sqlite
+web-search/db.sqlite
 
 # local configuration files
 web-search/.env
