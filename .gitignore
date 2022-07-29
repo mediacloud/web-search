@@ -13,9 +13,9 @@ __pycache__/
 
 # generated files
 *.sqlite3
-leadmanager/frontend/static/frontend/main.js
-leadmanager/frontend/static/frontend/
+web-search/frontend/static/frontend/main.js
+web-search/frontend/static/frontend/
  db.sqlite
 
 # local configuration files
-leadmanager/.env
+web-search/.env
