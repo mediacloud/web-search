@@ -1,4 +1,4 @@
-from collections.models import Feeds
+from feeds.models import Feeds
 from rest_framework import viewsets, permissions
 from .serializers import FeedsSerializer
 
