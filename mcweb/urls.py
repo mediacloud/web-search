@@ -8,4 +8,3 @@ urlpatterns = [
     path('api/search/', include('backend.search.urls')),
     path('api/sources/', include('backend.sources.urls')),
 ]
-

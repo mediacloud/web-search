@@ -2,7 +2,7 @@
 import React from "react";
 
 // information from store
-import { selectCurrentUser } from '../../features/auth/authSlice';
+import { selectCurrentUser } from './authSlice';
 import { useSelector } from 'react-redux';
 
 

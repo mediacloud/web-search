@@ -21,8 +21,8 @@ Helpful Tips
 ------------
 
 Other useful commands:
+* import collection/source/feed data (from a folder on your computer): `python mcweb/manage.py importdata path/to/folder/with/data-files`
 * login to `http://localhost:8000/admin` to administer users and groups
-* import collection/source/feed data: `python mcweb/manage.py importdata import-data`
 * Two running terminals (1) django "backend" and (2) react "frontend"
 * Two running websites (1) http://localhost:8000/admin for administer users and groups and (2) http://localhost:8000/#/ for Media Cloud "Proof of Concept"
 * Redux Dev Tools (Google Chrome Extension) to see the live store 
@@ -30,3 +30,9 @@ Other useful commands:
 Releasing
 ---------
 `npm run build` 
+
+Helpeful Tips: 
+---------
+1. Two running terminals (1) django "backend" and (2) react "frontend"
+2. Two running websites (1) http://localhost:8000/admin for administer users and groups and (2) http://localhost:8000/#/ for Media Cloud "Proof of Concept"
+3. Redux Dev Tools (Google Chrome Extension) to see the live store 

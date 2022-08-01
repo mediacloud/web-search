@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 
 // information from store
-import { selectIsLoggedIn } from '../../features/auth/authSlice';
+import { selectIsLoggedIn } from '../auth/authSlice';
 import { useSelector } from 'react-redux';
 
 // export default function Collections() {

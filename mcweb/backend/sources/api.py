@@ -1,4 +1,4 @@
-from .models import Collection, Feeds, Sources
+from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer
 
@@ -12,7 +12,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
-    queryset = Feeds.objects.all()
+    queryset = Feed.objects.all()
     permission_classes = [
         permissions.AllowAny
     ]
@@ -20,7 +20,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
 
 
 class SourcesViewSet(viewsets.ModelViewSet):
-    queryset = Sources.objects.all()
+    queryset = Source.objects.all()
     permission_classes = [
         permissions.AllowAny
     ]

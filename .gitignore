@@ -14,9 +14,13 @@ __pycache__/
 # generated files
 *.sqlite3
 *.sqlite
-mediacloud/frontend/static/frontend/main.js
-mediacloud/frontend/static/frontend/
- db.sqlite
+mcweb/frontend/static/frontend/main.js
+mcweb/frontend/static/frontend/
+mcweb/db.sqlite
+db.sqlite
 
 # local configuration files
 mcweb/.env
+
+# import directory
+import-data

@@ -8,10 +8,10 @@ import { Button } from '@mui/material';
 import { useDispatch } from 'react-redux';
 
 // information from store
-import { selectIsLoggedIn, setSearch, selectTotalAttention } from '../../features/auth/authSlice';
+import { selectIsLoggedIn, setSearch, selectTotalAttention } from '../auth/authSlice';
 import { useSelector } from 'react-redux';
 
-import { useGetSearchMutation } from '../../../src/app/services/searchApi';
+import { useGetSearchMutation } from '../../app/services/searchApi';
 
 export default function Search() {
 
