@@ -54,10 +54,10 @@ export const renderApp = () => {
         <Routes>
           <Route path="/" element={<App />}>
 
-
+            {/* 
             <Route path="collections" element={<PrivateOutlet />}>
               <Route element={<Collections />} />
-            </Route>
+            </Route> */}
 
 
             {/*
@@ -78,7 +78,7 @@ export const renderApp = () => {
 };
 
 function PrivateOutlet({ children }) {
-  console.log("private outlet")
   const auth = useSelector(selectIsLoggedIn);
+  console.log(auth)
   return auth ? children : <Navigate to="/sign-in" />;
 }

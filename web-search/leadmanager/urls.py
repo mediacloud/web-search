@@ -5,8 +5,9 @@ urlpatterns = [
     path('', include('frontend.urls')),
     path('admin', admin.site.urls),
     path('api/auth/', include('backend.users.urls')),
-    path('api/search/', include('backend.search.urls')),
     path('api/collections/', include('backend.collections.urls')),
+    path('api/feeds/', include('backend.feeds.urls')),
+    path('api/search/', include('backend.search.urls')),
+    path('api/sources/', include('backend.sources.urls')),
 
 ]
-
