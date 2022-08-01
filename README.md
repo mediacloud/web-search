@@ -6,7 +6,7 @@ Installation
 1. Clone this repository
 2. Python: `pip install -r requirements.txt` or `conda install --file requirements.txt` 
 3. Node: `npm install` in base folder 
-4. Copy `.env.template` to `.env` and edit that one to enter in all your secret configuration variables
+4. Copy `mcweb/.env.template` to `mcweb/.env` and edit that one to enter in all your secret configuration variables
 5. `python mcweb/manage.py migrate` to create all the database tables needed
 6. `python mcweb/manage.py createsuperuser` to create a Django superuser for administration
 
