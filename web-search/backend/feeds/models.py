@@ -1,9 +1,11 @@
-from django.db import models 
+from django.db import models
 
-class Collection(models.Model):
-    # big int 
-    id = models.IntegerField() 
-    name = models.CharField()
-    notes = models.CharField()
-    created_at = models.DateTimeField(auto_now_add= True)
-    modified_at = models.DateTimeField(modified_at= True)
+
+class Feeds(models.Model):
+    # big int
+    id = models.BigIntegerField()
+    url = models.TextField()
+    sources_id = models.BigIntegerField()
+    admin_rss_enabled = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(modified_at=True)

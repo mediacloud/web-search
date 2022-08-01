@@ -1,11 +1,11 @@
-from collections.models import Collection
+from collections.models import Feeds
 from rest_framework import viewsets, permissions
-from .serializers import CollectionSerializer
+from .serializers import FeedsSerializer
 
 
-class CollectionViewSet(viewsets.ModelViewSet):
-    queryset = Collection.objects.all()
+class FeedsViewSet(viewsets.ModelViewSet):
+    queryset = Feeds.objects.all()
     permission_classes = [
         permissions.AllowAny
     ]
-    serializer_class = CollectionSerializer
+    serializer_class = FeedsSerializer
