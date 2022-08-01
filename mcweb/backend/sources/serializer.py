@@ -1,6 +1,5 @@
-from dataclasses import field 
 from rest_framework import serializers
-from .models import Collection
+from .models import Collection, Feeds, Sources
 
 
 # Serializers in Django REST Framework are responsible for converting objects 
@@ -12,4 +11,16 @@ from .models import Collection
 class CollectionSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Collection
+        feilds = '__all__'
+
+
+class FeedsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feeds
+        feilds = '__all__'
+
+
+class SourcesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sources
         feilds = '__all__'

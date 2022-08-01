@@ -17,12 +17,15 @@ Running
 2. Run the frontend: `npm run dev`
 3. Then visit http://127.0.0.1:8000/.
 
-Notes
------
+Helpful Tips
+------------
 
 Other useful commands:
 * login to `http://localhost:8000/admin` to administer users and groups
 * import collection/source/feed data: `python mcweb/manage.py importdata import-data`
+* Two running terminals (1) django "backend" and (2) react "frontend"
+* Two running websites (1) http://localhost:8000/admin for administer users and groups and (2) http://localhost:8000/#/ for Media Cloud "Proof of Concept"
+* Redux Dev Tools (Google Chrome Extension) to see the live store 
 
 Releasing
 ---------
