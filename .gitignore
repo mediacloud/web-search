@@ -13,9 +13,14 @@ __pycache__/
 
 # generated files
 *.sqlite3
-web-search/frontend/static/frontend/main.js
-web-search/frontend/static/frontend/
-web-search/db.sqlite
+*.sqlite
+mcweb/frontend/static/frontend/main.js
+mcweb/frontend/static/frontend/
+mcweb/db.sqlite
+db.sqlite
 
 # local configuration files
-web-search/.env
+mcweb/.env
+
+# import directory
+import-data
