@@ -5,25 +5,24 @@ Installation
 ------------
 1. Clone this repository
 2. Python: `pip install -r requirements.txt` or `conda install --file requirements.txt` 
- a. in root folder (web-search) 
 3. Node: `npm install` in base folder 
- a. in root folder (web-search)
 4. Copy `.env.template` to `.env` and edit that one to enter in all your secret configuration variables
- a. in 'leadmanager' folder (name will be changed soon)
-5. `python manage.py createsuperuser` to create a Django superuser for administration
-6. login to `http://localhost:8000/admin` to administer users and groups
+5. `python mcweb/manage.py migrate` to create all the database tables needed
+6. `python mcweb/manage.py createsuperuser` to create a Django superuser for administration
 
-Running Database: 
-----------------
-1. Database: 'python leadmanager/manage.py migrate'
- a. or if you're in leadmanager folder run 'python manage.py migrate (applies all the migrations)
 Running
 -------
 
-1. Run the backend: `python leadmanager/manage.py runserver`
- a. or if you're in leadmanager folder run 'python manage.py runserver (applies all the migrations)
+1. Run the backend: `python mcweb/manage.py runserver`
 2. Run the frontend: `npm run dev`
 3. Then visit http://127.0.0.1:8000/.
+
+Notes
+-----
+
+Other useful commands:
+* login to `http://localhost:8000/admin` to administer users and groups
+* import collection/source/feed data: `python mcweb/manage.py importdata import-data`
 
 Releasing
 ---------
