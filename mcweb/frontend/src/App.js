@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import { SnackbarProvider } from 'notistack';
 
 // Router
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // MUI Styling
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -50,21 +50,9 @@ const App = () => (
 export const renderApp = () => {
   createRoot(document.getElementById('app')).
     render(
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />}>
-
-            {/* 
-            <Route path="collections" element={<PrivateOutlet />}>
-              <Route element={<Collections />} />
-            </Route> */}
-
-
-            {/*
-            <Route path="search" element={<PrivateOutlet />}>
-              <Route element={<Search />} />
-            </Route> 
-            */}
 
             <Route path="collections" element={<Collections />} />
             <Route path="search" element={<Search />} />
@@ -73,7 +61,7 @@ export const renderApp = () => {
             <Route path="account" element={<Account />} />
           </Route>
         </Routes>
-      </HashRouter >
+      </BrowserRouter >
     );
 };
 

@@ -88,7 +88,7 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
 
 const ResponsiveAppBar = () => {
   // all pages
-  const pages = ['sources', 'search'];
+  const pages = ['collections', 'search'];
   // currentUser
   const currentUser = useSelector(selectCurrentUser);
   const isLoggedIn = useSelector(selectIsLoggedIn);
