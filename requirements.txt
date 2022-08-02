@@ -11,3 +11,4 @@ python-dateutil==2.8.*
 dateparser==1.1.*
 pymemcache==3.5.*
 django-redis==5.2.*
+requests  # let the other dependencies sort out which is the right version

@@ -7,7 +7,7 @@ import logging
 from .provider import ContentProvider, MC_DATE_FORMAT
 from util.cache import cache_by_kwargs
 
-REDDIT_PUSHSHIFT_URL = "https://beta.pushshift.io"
+REDDIT_PUSHSHIFT_URL = "https://api.pushshift.io"
 SUBMISSION_SEARCH_URL = "{}/reddit/search/submissions".format(REDDIT_PUSHSHIFT_URL)
 
 NEWS_SUBREDDITS = ['politics', 'worldnews', 'news', 'conspiracy', 'Libertarian', 'TrueReddit', 'Conservative', 'offbeat']

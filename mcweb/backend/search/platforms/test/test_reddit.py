@@ -1,10 +1,10 @@
-import unittest
+from django.test import TestCase
 import datetime as dt
 
-from server.platforms.reddit import RedditPushshiftProvider
+from ..reddit import RedditPushshiftProvider
 
 
-class RedditPushshiftProviderTest(unittest.TestCase):
+class RedditPushshiftProviderTest(TestCase):
 
     def setUp(self):
         self._provider = RedditPushshiftProvider()
@@ -13,7 +13,7 @@ class RedditPushshiftProviderTest(unittest.TestCase):
         results = self._provider.count("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
                                         dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
         assert results > 0
-
+    """
     def test_sample(self):
         results = self._provider.sample("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
                                         dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
@@ -37,3 +37,4 @@ class RedditPushshiftProviderTest(unittest.TestCase):
         assert 'total' in results
         assert results['total'] > 0
         assert 'normalized_total' in results
+    """
