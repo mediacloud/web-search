@@ -26,8 +26,8 @@ import Search from './features/search/Search'
 
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
+
 
 
 const theme = createTheme();
@@ -54,19 +54,36 @@ export const renderApp = () => {
         <Routes>
           <Route path="/" element={<App />}>
 
-            <Route path="collections" element={<Collections />} />
-            <Route path="search" element={<Search />} />
+            <Route path="collections" element={
+              <RequireAuth>
+                 <Collections />
+              </RequireAuth>} 
+            />
+            <Route path="search" element={
+              <RequireAuth>
+                <Search />
+              </RequireAuth>} />
             <Route path="sign-in" element={<SignIn />} />
             <Route path="sign-up" element={<SignUp />} />
-            <Route path="account" element={<Account />} />
+            <Route path="account" element={
+              <RequireAuth>
+                <Account />
+              </RequireAuth>} />
           </Route>
         </Routes>
       </BrowserRouter >
     );
 };
 
-function PrivateOutlet({ children }) {
+function RequireAuth({children}){
   const auth = useSelector(selectIsLoggedIn);
-  console.log(auth)
-  return auth ? children : <Navigate to="/sign-in" />;
+  const location = useLocation();
+
+  if (!auth){
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+  }
+
+  return children;
 }
+
+
