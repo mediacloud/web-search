@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -20,8 +20,9 @@ import { setCredentials } from './authSlice';
 export default function SignIn() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { enqueueSnackbar } = useSnackbar();
-
+  const from = location.state?.from?.pathname || "/";
   // formstate -> login
   const [login, { isLoading }] = useLoginMutation();
 
@@ -95,7 +96,7 @@ export default function SignIn() {
               try {
                 const user = await login(formState).unwrap();
                 dispatch(setCredentials(user));
-                navigate("/");
+                navigate(from, {replace: true});
                 enqueueSnackbar("You are now signed in", { variant: 'success' });
                 // the CSRF token changes because we've launched a new session - save the new one
                 saveCsrfToken();
