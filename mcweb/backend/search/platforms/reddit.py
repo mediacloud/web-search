@@ -5,7 +5,7 @@ from typing import List, Dict
 import logging
 
 from .provider import ContentProvider, MC_DATE_FORMAT
-#from ..util.cache import cache_by_kwargs
+from util.cache import cache_by_kwargs
 
 REDDIT_PUSHSHIFT_URL = "https://beta.pushshift.io"
 SUBMISSION_SEARCH_URL = "{}/reddit/search/submissions".format(REDDIT_PUSHSHIFT_URL)
@@ -72,7 +72,7 @@ class RedditPushshiftProvider(ContentProvider):
             })
         return {'counts': results}
 
-    #@cache_by_kwargs()
+    @cache_by_kwargs()
     def _cached_submission_search(self, query: str = None, start_date: dt.datetime = None, end_date: dt.datetime = None,
                                   **kwargs) -> Dict:
         """
@@ -131,3 +131,6 @@ class RedditPushshiftProvider(ContentProvider):
     def _everything_query(self) -> str:
         return ''
 
+    def __repr__(self):
+        # important to keep this unique among platforms so that the caching works right
+        return "RedditPushshiftProvider"

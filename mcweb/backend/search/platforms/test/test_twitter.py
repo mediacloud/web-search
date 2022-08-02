@@ -1,8 +1,8 @@
 import unittest
 import datetime as dt
 
-from leadmanager.leadmanager.platforms import TWITTER_API_BEARER_TOKEN
-from ..twitter import TwitterTwitterProvider
+from server import TWITTER_API_BEARER_TOKEN
+from server.platforms.twitter import TwitterTwitterProvider
 
 TERM = "robots"
 

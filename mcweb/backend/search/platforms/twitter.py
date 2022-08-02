@@ -5,8 +5,8 @@ from typing import List, Dict
 import logging
 
 from .provider import ContentProvider
-#from ..util.cache import cache_by_kwargs
 from .exceptions import UnsupportedOperationException
+from util.cache import cache_by_kwargs
 
 
 TWITTER_API_URL = 'https://api.twitter.com/2/'
@@ -90,7 +90,7 @@ class TwitterTwitterProvider(ContentProvider):
             })
         return {'counts': to_return}
 
-    #@cache_by_kwargs()
+    @cache_by_kwargs()
     def _cached_query(self, endpoint: str, params: Dict = None) -> Dict:
         """
         Run a generic query agains the Twitter historical search API
@@ -139,3 +139,7 @@ class TwitterTwitterProvider(ContentProvider):
     def normalized_count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime,
                                    **kwargs) -> Dict:
         raise UnsupportedOperationException("Can't search twitter for all tweets in a timeframe")
+
+    def __repr__(self):
+        # important to keep this unique among platforms so that the caching works right
+        return "TwitterTwitterProvider"

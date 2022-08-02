@@ -1,7 +1,7 @@
 import unittest
 import datetime as dt
 
-from ..reddit import RedditPushshiftProvider
+from server.platforms.reddit import RedditPushshiftProvider
 
 
 class RedditPushshiftProviderTest(unittest.TestCase):
