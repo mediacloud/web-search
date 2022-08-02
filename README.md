@@ -1,5 +1,14 @@
-django-react-app
-================
+Media Cloud Web Search and Source Management App
+================================================
+
+🚧 **under construction** 🚧
+
+This is the new Media Cloud search application. It is intended to support online media research across platforms such
+as online news, Twitter, Reddit, and other social media (via 3rd party APIs). We also use it to manage a large set of 
+geographical and topical content collections, supporting reseearch into specific sub-corpora of content on those
+platforms.
+
+_Expected to launch publicly in early 2023_
 
 Installation
 ------------
