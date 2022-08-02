@@ -13,11 +13,12 @@ _Expected to launch publicly in early 2023_
 Installation
 ------------
 1. Clone this repository
-2. Python: `pip install -r requirements.txt` or `conda install --file requirements.txt` 
-3. Node: `npm install` in base folder 
-4. Copy `mcweb/.env.template` to `mcweb/.env` and edit that one to enter in all your secret configuration variables
-5. `python mcweb/manage.py migrate` to create all the database tables needed
-6. `python mcweb/manage.py createsuperuser` to create a Django superuser for administration
+2. Install python, npm, postgres and redis
+3. Python: `pip install -r requirements.txt` or `conda install --file requirements.txt` 
+4. Node: `npm install` in base folder 
+5. Copy `mcweb/.env.template` to `mcweb/.env` and edit that one to enter in all your secret configuration variables
+6. `python mcweb/manage.py migrate` to create all the database tables needed
+7. `python mcweb/manage.py createsuperuser` to create a Django superuser for administration
 
 Running
 -------

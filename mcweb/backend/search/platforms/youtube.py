@@ -4,9 +4,9 @@ import logging
 import dateutil.parser
 import requests
 
-#from ..util.cache import cache_by_kwargs
 from .provider import ContentProvider, MC_DATE_FORMAT
 from .exceptions import UnsupportedOperationException
+from util.cache import cache_by_kwargs
 
 # 2014-09-21T00:00:00Z
 YT_DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
@@ -86,7 +86,7 @@ class YouTubeYouTubeProvider(ContentProvider):
             'url': "https://www.youtube.com/watch?v={}".format(item['id']['videoId'])
         }
 
-    #@cache_by_kwargs()
+    @cache_by_kwargs()
     def _fetch_results_from_api(self, query: str, start_date: dt.datetime, end_date: dt.datetime,
                                 limit: int = 20, order: str = "relevance", page_token: str = None) -> dict:
         params = {
@@ -102,3 +102,7 @@ class YouTubeYouTubeProvider(ContentProvider):
         }
         response = requests.get(YT_SEARCH_API_URL, headers=YT_SEARCH_HEADERS, params=params)
         return response.json()
+
+    def __repr__(self):
+        # important to keep this unique among platforms so that the caching works right
+        return "YouTubeYouTubeProvider"
