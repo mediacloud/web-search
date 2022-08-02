@@ -39,9 +39,3 @@ Other useful commands:
 Releasing
 ---------
 `npm run build` 
-
-Helpeful Tips: 
----------
-1. Two running terminals (1) django "backend" and (2) react "frontend"
-2. Two running websites (1) http://localhost:8000/admin for administer users and groups and (2) http://localhost:8000/#/ for Media Cloud "Proof of Concept"
-3. Redux Dev Tools (Google Chrome Extension) to see the live store 
