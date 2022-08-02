@@ -35,12 +35,15 @@ class Command(BaseCommand):
             raise CommandError("Can't find file %s" % coll_src_links_path)
 
         # wipe and import Sources
+        """
         self.stdout.write(self.style.SUCCESS('Importing sources'))
         Source.objects.all().delete()
-        cmd = "\\copy sources_source (id, name, url_search_string, label, homepage, notes, service) from " \
+        cmd = "\\copy sources_source (id, name, url_search_string, label, homepage, notes, service, pub_country," \
+              "pub_state, primary_language, media_type) from " \
               "'import-data/sources.csv' CSV QUOTE '\"' HEADER".format(sources_path)
         self._run_command(cmd)
         self._run_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW()")
+        self._run_command("UPDATE sources_source SET primary_language=NULL WHERE primary_language='none'")
 
         # wipe and import Feeds
         self.stdout.write(self.style.SUCCESS('Importing feeds'))
@@ -49,21 +52,20 @@ class Command(BaseCommand):
             format(feeds_path)
         self._run_command(cmd)
         self._run_command("UPDATE sources_feed SET created_at=NOW(), modified_at=NOW(), admin_rss_enabled=True, "
-                          "service={}".format(ServiceNames.OnlineNews))
+                          "service={}".format(ServiceNames.ONLINE_NEWS))
 
         # wipe and import Collections
         self.stdout.write(self.style.SUCCESS('Importing collections'))
-        db_uri = os.getenv('DATABASE_URI')
         Collection.objects.all().delete()
         cmd = "\\copy sources_collection (id, name, notes) from 'import-data/coll.csv' CSV QUOTE '\"' HEADER".format(collection_path)
         self._run_command(cmd)
         self._run_command("UPDATE sources_collection SET created_at=NOW(), modified_at=NOW()")
-
+        """
         # wipe and import source-collection links
         self.stdout.write(self.style.SUCCESS('Importing source-collections links'))
-        db_uri = os.getenv('DATABASE_URI')
         self._run_command("DELETE from sources_source_collections")
-        cmd = "\\copy sources_source_collections from 'import-data/coll-sources.csv' CSV QUOTE '\"' HEADER".format(coll_src_links_path)
+        cmd = "\\copy sources_source_collections (collection_id,source_id) from 'import-data/coll-sources.csv' " \
+              "CSV QUOTE '\"' HEADER".format(coll_src_links_path)
         self._run_command(cmd)
 
         self.stdout.write(self.style.SUCCESS('Done from "%s"' % file_dir))

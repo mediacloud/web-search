@@ -10,8 +10,16 @@ class Collection(models.Model):
 
 
 class ServiceNames(Enum):
-    OnlineNews = "online_news"
-    YouTube = "youtube"
+    ONLINE_NEWS = "online_news"
+    YOU_TUBE = "youtube"
+
+
+class MediaTypes(Enum):
+    AUDIO_BROADCAST = "audio_broadcast"
+    DIGITAL_NATIVE = "digital_native"
+    PRINT_NATIVE = "print_native"
+    OTHER = "other"
+    VIDEO_BROADCAST = "video_broadcast"
 
 
 class Source(models.Model):
@@ -24,10 +32,10 @@ class Source(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
     stories_per_week = models.IntegerField(default=0, null=True)
-    #pub_country (enum)
-    #pub_state (enum)
-    #primary_language (enum)
-    #media_type (enum)
+    pub_country = models.CharField(max_length=5, null=True, blank=True)
+    pub_state = models.CharField(max_length=200, null=True, blank=True)
+    primary_language = models.CharField(max_length=5, null=True, blank=True)
+    media_type = models.CharField(max_length=100, choices=[(tag, tag.value) for tag in MediaTypes], null=True)
 
     collections = models.ManyToManyField(Collection)
 

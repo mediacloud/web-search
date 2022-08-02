@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='source',
             name='service',
-            field=models.CharField(choices=[(backend.sources.models.ServiceNames['OnlineNews'], 'online_news'), (backend.sources.models.ServiceNames['YouTube'], 'youtube')], max_length=100, null=True),
+            field=models.CharField(choices=[(backend.sources.models.ServiceNames['ONLINE_NEWS'], 'online_news'), (backend.sources.models.ServiceNames['YOU_TUBE'], 'youtube')], max_length=100, null=True),
         ),
         migrations.AlterField(
             model_name='source',
