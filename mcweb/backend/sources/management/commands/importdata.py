@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
 import os
-from ...models import Collection, Source, Feed, ServiceNames
 from subprocess import call
+
+from ...models import Collection, Source, Feed, ServiceNames
 
 
 class Command(BaseCommand):
