@@ -53,7 +53,7 @@ class Command(BaseCommand):
         Source.objects.all().delete()
         cmd = "\\copy sources_source (id, name, url_search_string, label, homepage, notes, service, pub_country," \
               "pub_state, primary_language, media_type) from " \
-              "'import-data/sources.csv' CSV QUOTE '\"' HEADER".format(sources_path)
+              "'{}' CSV QUOTE '\"' HEADER".format(sources_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW(), service='{}'".format(
             ServiceNames.ONLINE_NEWS))
@@ -62,7 +62,7 @@ class Command(BaseCommand):
         # wipe and import Feeds
         self.stdout.write(self.style.SUCCESS('Importing feeds'))
         Feed.objects.all().delete()
-        cmd = "\\copy sources_feed (id,source_id,name,url) from 'import-data/feeds.csv' CSV QUOTE '\"' HEADER".\
+        cmd = "\\copy sources_feed (id,source_id,name,url) from '{}' CSV QUOTE '\"' HEADER".\
             format(feeds_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_feed SET created_at=NOW(), modified_at=NOW(), admin_rss_enabled=True")
@@ -70,7 +70,7 @@ class Command(BaseCommand):
         # wipe and import Collections
         self.stdout.write(self.style.SUCCESS('Importing collections'))
         Collection.objects.all().delete()
-        cmd = "\\copy sources_collection (id, name, notes) from 'import-data/coll.csv' CSV QUOTE '\"' HEADER".format(
+        cmd = "\\copy sources_collection (id, name, notes) from '{}' CSV QUOTE '\"' HEADER".format(
             collection_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_collection SET created_at=NOW(), modified_at=NOW()")
@@ -78,7 +78,7 @@ class Command(BaseCommand):
         # wipe and import source-collection links
         self.stdout.write(self.style.SUCCESS('Importing source-collections links'))
         _run_psql_command("DELETE from sources_source_collections")
-        cmd = "\\copy sources_source_collections (collection_id,source_id) from 'import-data/coll-sources.csv' " \
+        cmd = "\\copy sources_source_collections (collection_id,source_id) from '{}' " \
               "CSV QUOTE '\"' HEADER".format(coll_src_links_path)
         _run_psql_command(cmd)
 

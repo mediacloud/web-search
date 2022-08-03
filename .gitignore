@@ -22,5 +22,3 @@ db.sqlite
 # local configuration files
 mcweb/.env
 
-# import directory
-import-data
