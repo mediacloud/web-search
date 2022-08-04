@@ -3,7 +3,8 @@ from enum import Enum
 
 
 class Collection(models.Model):
-    name = models.CharField(max_length=255, null=False, blank=False)  # UI should verify uniqueness
+    # UI should verify uniqueness
+    name = models.CharField(max_length=255, null=False, blank=False)
     notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
@@ -20,7 +21,8 @@ class Source(models.Model):
     label = models.CharField(max_length=255, null=True, blank=True)
     homepage = models.CharField(max_length=4000, null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
-    service = models.CharField(max_length=100, choices=[(tag, tag.value) for tag in ServiceNames], null=True)
+    service = models.CharField(max_length=100, choices=[(
+        tag, tag.value) for tag in ServiceNames], null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
     stories_per_week = models.IntegerField(default=0, null=True)
@@ -40,3 +42,8 @@ class Feed(models.Model):
     name = models.TextField(null=True, blank=True)
 
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
+
+    # Create / Insert / Add - POST
+    # Retrieve / Fetch - GET
+    # Update / Edit - PUT
+    # Delete / Remove - DELETE 

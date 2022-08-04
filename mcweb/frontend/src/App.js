@@ -59,10 +59,12 @@ export const renderApp = () => {
                  <Collections />
               </RequireAuth>} 
             />
+            
             <Route path="search" element={
               <RequireAuth>
                 <Search />
               </RequireAuth>} />
+
             <Route path="sign-in" element={<SignIn />} />
             <Route path="sign-up" element={<SignUp />} />
             <Route path="account" element={
