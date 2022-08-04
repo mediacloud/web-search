@@ -1,9 +1,10 @@
-from django.urls import path
+from django.urls import URLPattern
+from rest_framework import routers 
+from .api import FeedsViewSet, SourcesViewSet, CollectionViewSet
 
-from . import views
+router = routers.DefaultRouter() 
+router.resgister('api/sources/feeds', FeedsViewSet, 'feeds')
+router.resgister('api/sources/sources', SourcesViewSet, 'sources')
+router.resgister('api/sources/collections', CollectionViewSet, 'collections')
 
-# responsible for mapping the routes and paths in your project
-
-urlpatterns = [
-  path('', views.ApiOverview, name="home")
-]
+urlpatterns = router.urls
