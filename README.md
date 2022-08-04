@@ -21,7 +21,7 @@ Helpful Tips
 ------------
 
 Other useful commands:
-* import collection/source/feed data (from a folder on your computer): `python mcweb/manage.py importdata path/to/folder/with/data-files`
+* import collection/source/feed data (from a folder on your computer): `python mcweb/manage.py importdata`
 * login to `http://localhost:8000/admin` to administer users and groups
 * Two running terminals (1) django "backend" and (2) react "frontend"
 * Two running websites (1) http://localhost:8000/admin for administer users and groups and (2) http://localhost:8000/#/ for Media Cloud "Proof of Concept"
