@@ -5,5 +5,5 @@ from . import views
 # responsible for mapping the routes and paths in your project
 
 urlpatterns = [
-
+  path('', views.ApiOverview, name="home")
 ]
