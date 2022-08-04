@@ -47,3 +47,7 @@ class Feed(models.Model):
     # Retrieve / Fetch - GET
     # Update / Edit - PUT
     # Delete / Remove - DELETE 
+<<<<<<< HEAD
+=======
+    # Crud Api
+>>>>>>> crudApi
