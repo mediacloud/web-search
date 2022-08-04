@@ -3,8 +3,8 @@ from rest_framework import routers
 from .api import FeedsViewSet, SourcesViewSet, CollectionViewSet
 
 router = routers.DefaultRouter() 
-router.register('api/sources/feeds', FeedsViewSet, 'feeds')
-router.register('api/sources/sources', SourcesViewSet, 'sources')
-router.register('api/sources/collections', CollectionViewSet, 'collections')
+router.register('feeds', FeedsViewSet, 'feeds')
+router.register('sources', SourcesViewSet, 'sources')
+router.register('collections', CollectionViewSet, 'collections')
 
 urlpatterns = router.urls
