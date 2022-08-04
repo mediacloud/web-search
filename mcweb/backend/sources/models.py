@@ -9,7 +9,7 @@ class Collection(models.Model):
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
 
-class ServiceNames(Enum):
+class ServiceNames(Enum):  # call something like ServiceNames.ONLINE_NEWS.value to get the string you really want
     ONLINE_NEWS = "online_news"
     YOU_TUBE = "youtube"
 

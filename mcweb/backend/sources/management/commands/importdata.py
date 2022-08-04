@@ -56,7 +56,7 @@ class Command(BaseCommand):
               "'{}' CSV QUOTE '\"' HEADER".format(sources_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW(), service='{}'".format(
-            ServiceNames.ONLINE_NEWS))
+            ServiceNames.ONLINE_NEWS.value))
         _run_psql_command("UPDATE sources_source SET primary_language=NULL WHERE primary_language='none'")
 
         # wipe and import Feeds
