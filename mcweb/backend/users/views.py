@@ -13,19 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 @require_http_methods(['POST'])
-def email(request):
+def resetPassword(request):
     payload = json.loads(request.body)
-    user = auth.authenticate(email=payload.get('email', None))
 
-    if user is not None:
-        logger.debug('Email exists')
-        data = json.dumps({'message': "Email exists"})
-    else:
-        logger.debug('Email does not exist')
-        data = json.dumps({'message': "Email does not exist"})
+    email = payload.get('email', None)
+
+    data = json.dumps({'message': email})
     
     return HttpResponse(data, content_type='application/json')
-
 
 
 @require_http_methods(["GET"])
