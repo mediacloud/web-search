@@ -4,11 +4,29 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.core import serializers
+from django.core.mail import send_mail
 import humps
 
 import datetime as dt
 
 logger = logging.getLogger(__name__)
+
+
+@require_http_methods(['POST'])
+def email(request):
+    payload = json.loads(request.body)
+    user = auth.authenticate(email=payload.get('email', None))
+
+    if user is not None:
+        logger.debug('Email exists')
+        data = json.dumps({'message': "Email exists"})
+    else:
+        logger.debug('Email does not exist')
+        data = json.dumps({'message': "Email does not exist"})
+    
+    return HttpResponse(data, content_type='application/json')
+
+
 
 @require_http_methods(["GET"])
 def profile(request):
