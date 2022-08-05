@@ -5,7 +5,7 @@ import { Provider } from 'react-redux'
 import { SnackbarProvider } from 'notistack';
 
 // Router
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // MUI Styling
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -26,8 +26,8 @@ import Search from './features/search/Search'
 
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
+
 
 
 const theme = createTheme();
@@ -50,35 +50,42 @@ const App = () => (
 export const renderApp = () => {
   createRoot(document.getElementById('app')).
     render(
-      <HashRouter>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />}>
 
-            {/* 
-            <Route path="collections" element={<PrivateOutlet />}>
-              <Route element={<Collections />} />
-            </Route> */}
+            <Route path="collections" element={
+              <RequireAuth>
+                 <Collections />
+              </RequireAuth>} 
+            />
+            
+            <Route path="search" element={
+              <RequireAuth>
+                <Search />
+              </RequireAuth>} />
 
-
-            {/*
-            <Route path="search" element={<PrivateOutlet />}>
-              <Route element={<Search />} />
-            </Route> 
-            */}
-
-            <Route path="collections" element={<Collections />} />
-            <Route path="search" element={<Search />} />
             <Route path="sign-in" element={<SignIn />} />
             <Route path="sign-up" element={<SignUp />} />
-            <Route path="account" element={<Account />} />
+            <Route path="account" element={
+              <RequireAuth>
+                <Account />
+              </RequireAuth>} />
           </Route>
         </Routes>
-      </HashRouter >
+      </BrowserRouter >
     );
 };
 
-function PrivateOutlet({ children }) {
+function RequireAuth({children}){
   const auth = useSelector(selectIsLoggedIn);
-  console.log(auth)
-  return auth ? children : <Navigate to="/sign-in" />;
+  const location = useLocation();
+
+  if (!auth){
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+  }
+
+  return children;
 }
+
+
