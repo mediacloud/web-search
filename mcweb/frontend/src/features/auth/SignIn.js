@@ -16,6 +16,9 @@ import { saveCsrfToken } from '../../services/CsrfToken';
 import { useLoginMutation } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
 
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+
 
 export default function SignIn() {
   const dispatch = useDispatch();
@@ -108,8 +111,20 @@ export default function SignIn() {
             Sign In
           </Button>
 
-
           {/* Reset Password */}
+
+          <Grid container>
+            <Grid item xs>
+              <Link href="#" variant="body2">
+                Forgot password?
+              </Link>
+            </Grid>
+            <Grid item>
+              <Link href="#" variant="body2">
+                {"Don't have an account? Sign Up"}
+              </Link>
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </div>
