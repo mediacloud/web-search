@@ -96,7 +96,7 @@ export default function SignIn() {
               try {
                 const user = await login(formState).unwrap();
                 dispatch(setCredentials(user));
-                navigate(from, {replace: true});
+                navigate(from, { replace: true });
                 enqueueSnackbar("You are now signed in", { variant: 'success' });
                 // the CSRF token changes because we've launched a new session - save the new one
                 saveCsrfToken();
@@ -108,6 +108,8 @@ export default function SignIn() {
             Sign In
           </Button>
 
+
+          {/* Reset Password */}
         </Box>
       </Box>
     </div>
