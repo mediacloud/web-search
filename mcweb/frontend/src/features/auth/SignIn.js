@@ -112,10 +112,9 @@ export default function SignIn() {
 
           <Typography
             sx={{
-              mr: 1,
-              // display: { xs: 'none', md: 'flex' },
+              mr: 2,
               letterSpacing: '.02rem',
-              color: 'blue',
+              color: 'light-blue',
               textDecoration: 'none',
             }}
             component={Link}
