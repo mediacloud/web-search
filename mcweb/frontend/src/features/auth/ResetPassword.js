@@ -11,23 +11,15 @@ import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 import { Grid } from '@mui/material/Grid';
 
-import { saveCsrfToken } from '../../services/CsrfToken';
-import { useLoginMutation } from '../../app/services/authApi';
-import { setCredentials } from './authSlice';
-
+import { useResetPasswordMutation } from '../../app/services/authApi';
 
 export default function SignIn() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { enqueueSnackbar } = useSnackbar();
-  const from = location.state?.from?.pathname || "/";
   // formstate -> login
-  const [login, { isLoading }] = useLoginMutation();
+  const [reset, { isResetting }] = useResetPasswordMutation();
 
   // username and password
   const [formState, setFormState] = React.useState({
-    username: '', password: '', 
+    username: ''
   });
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
@@ -73,31 +65,18 @@ export default function SignIn() {
             onChange={handleChange}
           />
 
-         
+
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            disabled={isLoading}
+            disabled={isResetting}
             onClick={async () => {
-              try {
-                const user = await login(formState).unwrap();
-                dispatch(setCredentials(user));
-                navigate(from, { replace: true });
-                enqueueSnackbar("You are now signed in", { variant: 'success' });
-                // the CSRF token changes because we've launched a new session - save the new one
-                saveCsrfToken();
-              } catch (err) {
-                enqueueSnackbar("Login failed", { variant: 'error' });
-              }
+              await reset(formState).unwrap();
             }}
           >
             Send Login Link
           </Button>
-
-
-      
-
         </Box>
       </Box>
     </div>
