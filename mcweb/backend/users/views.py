@@ -1,3 +1,5 @@
+import string
+import random
 import json
 import logging
 from django.forms import EmailField
@@ -13,14 +15,23 @@ import datetime as dt
 logger = logging.getLogger(__name__)
 
 
+# random key generator
+def randomKeyGenerator():
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
+
+
 @require_http_methods(['POST'])
 def resetPassword(request):
+
+    key = randomKeyGenerator()
+    logger.debug(key)
+
     payload = json.loads(request.body)
     email = payload.get('email', None)
 
-    try: 
+    try:
         User.objects.get(email=email)
-        data = json.dumps({'message': "Email Exists"})
+        data = json.dumps({'message': "Email Exists" + key})
     except User.DoesNotExist:
         data = json.dumps({'message': "Email does not exist"})
 
