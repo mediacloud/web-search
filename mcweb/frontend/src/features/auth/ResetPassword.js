@@ -74,6 +74,12 @@ export default function SignIn() {
             onClick={async () => {
               const response = await reset(formState).unwrap();
               console.log(response)
+              // validate email 
+              // create token 
+              // send token to user's email 
+              // if user recieved that token in their email 
+              // type in their token and it'll allow them to reset password 
+              
             }}
           >
             Send Login Link
