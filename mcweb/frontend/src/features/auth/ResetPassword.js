@@ -17,9 +17,9 @@ export default function SignIn() {
   // formstate -> login
   const [reset, { isResetting }] = useResetPasswordMutation();
 
-  // username and password
+  // email
   const [formState, setFormState] = React.useState({
-    username: ''
+    email: ''
   });
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
@@ -60,7 +60,7 @@ export default function SignIn() {
             id="text"
             label="Email"
             name="email"
-            autoComplete="Username"
+            autoComplete="Email"
             autoFocus
             onChange={handleChange}
           />
@@ -72,7 +72,8 @@ export default function SignIn() {
             sx={{ mt: 3, mb: 2 }}
             disabled={isResetting}
             onClick={async () => {
-              await reset(formState).unwrap();
+              const response = await reset(formState).unwrap();
+              console.log(response)
             }}
           >
             Send Login Link
