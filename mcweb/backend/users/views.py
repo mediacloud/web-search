@@ -18,13 +18,11 @@ def resetPassword(request):
     payload = json.loads(request.body)
     email = payload.get('email', None)
 
-
     try: 
         User.objects.get(email=email)
         data = json.dumps({'message': "Email Exists"})
     except User.DoesNotExist:
         data = json.dumps({'message': "Email does not exist"})
-
 
     return HttpResponse(data, content_type='application/json')
 
