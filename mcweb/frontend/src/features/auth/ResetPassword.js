@@ -11,11 +11,13 @@ import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 import { Grid } from '@mui/material/Grid';
 
-import { useResetPasswordMutation } from '../../app/services/authApi';
+import { useResetPasswordMutation,useEmailExistsMutation } from '../../app/services/authApi';
 
 export default function SignIn() {
   // formstate -> login
   const [reset, { isResetting }] = useResetPasswordMutation();
+  const [email, { isEmail }] = useEmailExistsMutation();
+
 
   // email
   const [formState, setFormState] = React.useState({
@@ -72,13 +74,12 @@ export default function SignIn() {
             sx={{ mt: 3, mb: 2 }}
             disabled={isResetting}
             onClick={async () => {
-              const response = await reset(formState).unwrap();
-              console.log(response)
-              // validate email 
-              // create token 
-              // send token to user's email 
-              // if user recieved that token in their email 
-              // type in their token and it'll allow them to reset password 
+              const response = await email(formState).unwrap();
+              if(response) {
+                console.log("YES")
+              }
+              // const response = await reset(formState).unwrap();
+              // console.log(response)
               
             }}
           >
