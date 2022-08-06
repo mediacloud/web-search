@@ -1,3 +1,4 @@
+from pickle import FALSE
 import string
 import random
 import json
@@ -19,6 +20,21 @@ logger = logging.getLogger(__name__)
 def randomKeyGenerator():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
 
+
+
+@require_http_methods(['POST'])
+def emailExists(request):
+    payload = json.loads(request.body)
+    email = payload.get('email', None)
+    
+    try:
+        User.objects.get(email=email)
+        data = json.dumps({'Exists': True})
+    except User.DoesNotExist:
+        data = json.dumps({'Exists': False})
+
+    return HttpResponse(data, content_type='application/json')
+    
 
 @require_http_methods(['POST'])
 def resetPassword(request):
