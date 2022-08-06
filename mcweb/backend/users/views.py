@@ -1,5 +1,6 @@
 import json
 import logging
+from django.forms import EmailField
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
@@ -15,11 +16,16 @@ logger = logging.getLogger(__name__)
 @require_http_methods(['POST'])
 def resetPassword(request):
     payload = json.loads(request.body)
-
     email = payload.get('email', None)
 
-    data = json.dumps({'message': email})
-    
+
+    try: 
+        User.objects.get(email=email)
+        data = json.dumps({'message': "Email Exists"})
+    except User.DoesNotExist:
+        data = json.dumps({'message': "Email does not exist"})
+
+
     return HttpResponse(data, content_type='application/json')
 
 
