@@ -12,12 +12,12 @@ import { useSnackbar } from 'notistack';
 import { Grid } from '@mui/material/Grid';
 
 import Redirect from 'react-router'
-import { useResetPasswordMutation, useEmailExistsMutation } from '../../app/services/authApi';
+import { useSendEmailMutation, useEmailExistsMutation } from '../../app/services/authApi';
 
 export default function SignIn() {
   // formstate -> login
-  const [reset, { isResetting }] = useResetPasswordMutation();
-  const [email, { isEmail }] = useEmailExistsMutation();
+  const [send, { isSend }] = useSendEmailMutation();
+  const [exists, { isEmail }] = useEmailExistsMutation();
 
 
   // email
@@ -97,12 +97,12 @@ export default function SignIn() {
             onClick={async () => {
 
               // does the email exist? 
-              const response = await email(formState).unwrap();
+              const response = await exists(formState).unwrap();
 
               console.log(response)
               if(response) {
                 console.log("sending email")
-                await reset(formState).unwrap();
+                await send(formState).unwrap();
               }
 
 
