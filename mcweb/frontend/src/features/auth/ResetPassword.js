@@ -9,12 +9,14 @@ import { useDispatch } from 'react-redux'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
-import { Grid } from '@mui/material/Grid';
+
+import { useState } from 'react';
 
 import Redirect from 'react-router'
+import { Navigate } from 'react-router';
 import { useSendEmailMutation, useEmailExistsMutation } from '../../app/services/authApi';
 
-export default function SignIn() {
+export default function ResetPassword() {
   // formstate -> login
   const [send, { isSend }] = useSendEmailMutation();
   const [exists, { isEmail }] = useEmailExistsMutation();
@@ -27,22 +29,12 @@ export default function SignIn() {
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
+  const [isShown, setIsShown] = useState(false);
 
+  // const handleClick = event => {
+  //   setIsShown(current => !current);
+  // }
 
-  function verification() {
-    {/* Verification  */ }
-    <TextField
-      margin="normal"
-      required
-      fullWidth
-      id="text"
-      label="Verification"
-      name="verification"
-      autoFocus
-      onChange={handleChange}
-    />
-
-  }
 
   return (
 
@@ -85,26 +77,34 @@ export default function SignIn() {
             onChange={handleChange}
           />
 
-
-          {verification()}
+          {isShown && (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="text"
+              label="Verification Code"
+              name="verification"
+              autoFocus
+              onChange={handleChange}
+            />
+          )}
 
 
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
-            disabled={isResetting}
             onClick={async () => {
 
               // does the email exist? 
-              const response = await exists(formState).unwrap();
+              const emailExists = await exists(formState).unwrap();
 
-              console.log(response)
-              if(response) {
-                console.log("sending email")
-                await send(formState).unwrap();
+              if (emailExists) {
+                setIsShown(true)
+                const key = await send(formState).unwrap();
+
               }
-
 
 
 
