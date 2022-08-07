@@ -8,8 +8,11 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.core import serializers
-from django.core.mail import send_mail
 import humps
+
+
+from django.core.mail import send_mail
+import settings
 
 import datetime as dt
 
@@ -21,12 +24,12 @@ def randomKeyGenerator():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
 
 
-
+# does the email exist?
 @require_http_methods(['POST'])
 def emailExists(request):
     payload = json.loads(request.body)
     email = payload.get('email', None)
-    
+
     try:
         User.objects.get(email=email)
         data = json.dumps({'Exists': True})
@@ -34,22 +37,20 @@ def emailExists(request):
         data = json.dumps({'Exists': False})
 
     return HttpResponse(data, content_type='application/json')
-    
+
 
 @require_http_methods(['POST'])
-def resetPassword(request):
+def sendEmail(request):
 
     key = randomKeyGenerator()
-    logger.debug(key)
 
-    payload = json.loads(request.body)
-    email = payload.get('email', None)
+    send_mail(
+        subject='Verification',
+        message=key,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[settings.RECIPIENT_ADDRESS])
 
-    try:
-        User.objects.get(email=email)
-        data = json.dumps({'message': "Email Exists" + key})
-    except User.DoesNotExist:
-        data = json.dumps({'message': "Email does not exist"})
+    data = json.dumps({'message': "Sent"})
 
     return HttpResponse(data, content_type='application/json')
 
