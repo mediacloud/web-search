@@ -42,15 +42,18 @@ def emailExists(request):
 @require_http_methods(['POST'])
 def sendEmail(request):
 
-    key = randomKeyGenerator()
+    key = randomKeyGenerator() 
+
+    message = "Hello, please use this verification code to reset your password! Thank you! \n\n" + key
 
     send_mail(
-        subject='Verification',
-        message=key,
+        subject='Reset Password',
+        message=message,
         from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[settings.RECIPIENT_ADDRESS])
+        recipient_list=[settings.RECIPIENT_ADDRESS]
+    )
 
-    data = json.dumps({'message': "Sent"})
+    data = json.dumps({'Key': key})
 
     return HttpResponse(data, content_type='application/json')
 
