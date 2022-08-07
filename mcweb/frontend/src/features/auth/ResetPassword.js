@@ -10,13 +10,21 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 
+import { useSelector } from 'react-redux';
+
 import { useState } from 'react';
 
-import Redirect from 'react-router'
-import { Navigate } from 'react-router';
+
+import { setVerification } from './authSlice';
+
 import { useSendEmailMutation, useEmailExistsMutation } from '../../app/services/authApi';
 
+
+import { selectVerificationKey } from './authSlice';
+
 export default function ResetPassword() {
+  const dispatch = useDispatch();
+
   // formstate -> login
   const [send, { isSend }] = useSendEmailMutation();
   const [exists, { isEmail }] = useEmailExistsMutation();
@@ -24,16 +32,15 @@ export default function ResetPassword() {
 
   // email
   const [formState, setFormState] = React.useState({
-    email: '', verification: ''
+    email: '', verification: '',
   });
+
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   const [isShown, setIsShown] = useState(false);
 
-  // const handleClick = event => {
-  //   setIsShown(current => !current);
-  // }
+  const verificationKey = useSelector(selectVerificationKey);
 
 
   return (
@@ -63,19 +70,20 @@ export default function ResetPassword() {
           method='post'
           noValidate sx={{ mt: 1 }}
         >
-
           {/* Email  */}
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="text"
-            label="Email"
-            name="email"
-            autoComplete="Email"
-            autoFocus
-            onChange={handleChange}
-          />
+          {!isShown && (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="text"
+              label="Email"
+              name="email"
+              autoComplete="Email"
+              autoFocus
+              onChange={handleChange}
+            />
+          )}
 
           {isShown && (
             <TextField
@@ -90,28 +98,41 @@ export default function ResetPassword() {
             />
           )}
 
+          {!isShown && (
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={async () => {
 
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={async () => {
+                // does the email exist? 
+                const emailExists = await exists(formState).unwrap();
 
-              // does the email exist? 
-              const emailExists = await exists(formState).unwrap();
+                if (emailExists) {
+                  setIsShown(true)
+                  const key = await send(formState).unwrap();
+                  console.log(key)
+                  dispatch(setVerification(key));
+                }
+              }}
+            >
+              Send Login Link
+            </Button>
+          )}
+         
+          {isShown && (
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={async () => {
+                console.log(verificationKey)
+              }}
+            >
+              Verify
+            </Button>
+          )}
 
-              if (emailExists) {
-                setIsShown(true)
-                const key = await send(formState).unwrap();
-
-              }
-
-
-
-            }}
-          >
-            Send Login Link
-          </Button>
         </Box>
       </Box>
     </div>
