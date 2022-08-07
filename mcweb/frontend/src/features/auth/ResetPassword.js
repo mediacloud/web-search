@@ -11,7 +11,8 @@ import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 import { Grid } from '@mui/material/Grid';
 
-import { useResetPasswordMutation,useEmailExistsMutation } from '../../app/services/authApi';
+import Redirect from 'react-router'
+import { useResetPasswordMutation, useEmailExistsMutation } from '../../app/services/authApi';
 
 export default function SignIn() {
   // formstate -> login
@@ -21,10 +22,27 @@ export default function SignIn() {
 
   // email
   const [formState, setFormState] = React.useState({
-    email: ''
+    email: '', verification: ''
   });
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+
+
+
+  function verification() {
+    {/* Verification  */ }
+    <TextField
+      margin="normal"
+      required
+      fullWidth
+      id="text"
+      label="Verification"
+      name="verification"
+      autoFocus
+      onChange={handleChange}
+    />
+
+  }
 
   return (
 
@@ -68,19 +86,28 @@ export default function SignIn() {
           />
 
 
+          {verification()}
+
+
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             disabled={isResetting}
             onClick={async () => {
+
+              // does the email exist? 
               const response = await email(formState).unwrap();
+
+              console.log(response)
               if(response) {
-                console.log("YES")
+                console.log("sending email")
+                await reset(formState).unwrap();
               }
-              // const response = await reset(formState).unwrap();
-              // console.log(response)
-              
+
+
+
+
             }}
           >
             Send Login Link
