@@ -16,6 +16,7 @@ import Account from './features/auth/Account'
 import SignIn from './features/auth/SignIn'
 import SignUp from './features/auth/SignUp';
 import ResetPassword from './features/auth/ResetPassword';
+import ConfirmedReset from './features/auth/ConfirmedReset'
 
 // Componenets
 import Homepage from './Homepage';
@@ -67,6 +68,8 @@ export const renderApp = () => {
 
             <Route path="sign-in" element={<SignIn />} />
             <Route path="reset-password" element={<ResetPassword/>} />
+            <Route path="reset-password/confirmed" element={<ConfirmedReset />} />
+
             <Route path="sign-up" element={<SignUp />} />
             <Route path="account" element={
               <RequireAuth>
