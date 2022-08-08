@@ -97,9 +97,9 @@ export default function ResetPassword() {
 
                 // does the email exist? 
                 const emailExists = await exists(formState).unwrap();
-                const emailBoolean = JSON.stringify(emailExists).substring(10,14)
+                const emailBoolean = JSON.stringify(emailExists.Exists)
 
-                if (emailBoolean === "true") {
+                if (emailBoolean) {
                   enqueueSnackbar("Email Sent", { variant: 'success' });
                   // send email and store the returned key 
                   const code = await send(formState).unwrap();
@@ -126,8 +126,7 @@ export default function ResetPassword() {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
               onClick={async () => {
-                const stringVerification = JSON.stringify(isShown.key).substring(8, 16)
-    
+                const stringVerification = isShown.key.Key;
                 if (formState.verification === stringVerification) {
                    enqueueSnackbar("Verified", { variant: 'success' });
                    navigate('confirmed')
