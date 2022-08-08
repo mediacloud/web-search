@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -8,9 +8,8 @@ import Box from '@mui/material/Box';
 import { useDispatch } from 'react-redux'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Alert from '@mui/material/Alert';
 import { useSnackbar } from 'notistack';
+import { Grid } from '@mui/material/Grid';
 
 import { saveCsrfToken } from '../../services/CsrfToken';
 import { useLoginMutation } from '../../app/services/authApi';
@@ -96,7 +95,7 @@ export default function SignIn() {
               try {
                 const user = await login(formState).unwrap();
                 dispatch(setCredentials(user));
-                navigate(from, {replace: true});
+                navigate(from, { replace: true });
                 enqueueSnackbar("You are now signed in", { variant: 'success' });
                 // the CSRF token changes because we've launched a new session - save the new one
                 saveCsrfToken();
@@ -107,6 +106,22 @@ export default function SignIn() {
           >
             Sign In
           </Button>
+
+
+          {/* Reset Password */}
+
+          <Typography
+            sx={{
+              mr: 2,
+              letterSpacing: '.02rem',
+              color: 'light-blue',
+              textDecoration: 'none',
+            }}
+            component={Link}
+            to="/reset-password"
+          >
+            Forgot password?
+          </Typography>
 
         </Box>
       </Box>

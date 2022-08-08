@@ -8,5 +8,10 @@ urlpatterns = [
     path('api/auth/', include('backend.users.urls')),
     path('api/search/', include('backend.search.urls')),
     path('api/sources/', include('backend.sources.urls')),
+<<<<<<< HEAD
+    re_path(r'^(?:.*)/?$', include('frontend.urls'))
+    
+=======
     re_path(r'^(?:.*)/?', include('frontend.urls'))
+>>>>>>> main
 ]

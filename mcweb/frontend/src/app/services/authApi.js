@@ -36,6 +36,27 @@ export const api = createApi({
         body: { ...credentials }
       }),
     }),
+    sendEmail: builder.mutation({
+      query: (credentials) => ({
+        url: 'send-email',
+        method: 'POST',
+        body: { ...credentials }
+      }),
+    }),
+    emailExists: builder.mutation({
+      query: (credentials) => ({
+        url: 'email-exists',
+        method: 'POST',
+        body: { ...credentials }
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: (credentials) => ({
+        url: 'reset-password',
+        method: 'POST',
+        body: { ...credentials }
+      }),
+    }),
   })
 })
 
@@ -43,5 +64,9 @@ export const {
   useProfileQuery,
   useLogoutMutation,
   useLoginMutation,
-  useRegisterMutation
+  useRegisterMutation,
+  useSendEmailMutation,
+  useEmailExistsMutation,
+  useResetPasswordMutation
+
 } = api;
