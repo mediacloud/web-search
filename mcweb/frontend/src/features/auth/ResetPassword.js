@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -9,38 +9,35 @@ import { useDispatch } from 'react-redux'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
-
-import { useSelector } from 'react-redux';
-
 import { useState } from 'react';
 
 
-import { setVerification } from './authSlice';
 
 import { useSendEmailMutation, useEmailExistsMutation } from '../../app/services/authApi';
 
 
-import { selectVerificationKey } from './authSlice';
 
 export default function ResetPassword() {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
 
   // formstate -> login
   const [send, { isSend }] = useSendEmailMutation();
   const [exists, { isEmail }] = useEmailExistsMutation();
 
 
+
   // email
   const [formState, setFormState] = React.useState({
-    email: '', verification: '',
+    email: '', verification: '', 
   });
-
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
-  const [isShown, setIsShown] = useState(false);
-
-  const verificationKey = useSelector(selectVerificationKey);
+  const [isShown, setIsShown] = useState({
+    show: false,
+    key: null
+  });
 
 
   return (
@@ -71,7 +68,7 @@ export default function ResetPassword() {
           noValidate sx={{ mt: 1 }}
         >
           {/* Email  */}
-          {!isShown && (
+          {!isShown.show && (
             <TextField
               margin="normal"
               required
@@ -85,7 +82,7 @@ export default function ResetPassword() {
             />
           )}
 
-          {isShown && (
+          {isShown.show && (
             <TextField
               margin="normal"
               required
@@ -98,7 +95,7 @@ export default function ResetPassword() {
             />
           )}
 
-          {!isShown && (
+          {!isShown.show && (
             <Button
               fullWidth
               variant="contained"
@@ -109,24 +106,34 @@ export default function ResetPassword() {
                 const emailExists = await exists(formState).unwrap();
 
                 if (emailExists) {
-                  setIsShown(true)
-                  const key = await send(formState).unwrap();
-                  console.log(key)
-                  dispatch(setVerification(key));
+                  const code = await send(formState).unwrap();
+                  
+                  console.log(code)
+
+                  setIsShown({
+                    show: true,
+                    key: code,
+                  })
+
+
                 }
               }}
             >
               Send Login Link
             </Button>
           )}
-         
-          {isShown && (
+
+          {isShown.show && (
             <Button
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
               onClick={async () => {
-                console.log(verificationKey)
+                const stringVerification = JSON.stringify(isShown.key).substring(8, 16)
+                 if (formState.verification === stringVerification) {
+                   console.log("Verified")
+                   navigate('confirmed')
+                 }
               }}
             >
               Verify
