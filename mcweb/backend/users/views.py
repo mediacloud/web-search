@@ -8,20 +8,14 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.core import serializers
 import humps
-
-
 from django.core.mail import send_mail
 import settings
-
 import datetime as dt
-
 logger = logging.getLogger(__name__)
-
 
 # random key generator
 def randomKeyGenerator():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
-
 
 # does the email exist?
 @require_http_methods(['POST'])
@@ -67,10 +61,6 @@ def resetPassword(request):
     username = payload.get('username', None)
     password1 = payload.get('password1', None)
     password2 = payload.get('password2', None)
-
-    logger.debug(username)
-    logger.debug(password1)
-    logger.debug(password2)
 
     if password1 != password2:
         logging.debug('password not matching')

@@ -52,7 +52,6 @@ export default function ConfirmedPassword() {
           noValidate sx={{ mt: 1 }}
         >
 
-
           {/* Username */}
           <TextField
             margin="normal"
