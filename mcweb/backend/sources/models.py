@@ -32,6 +32,7 @@ class Source(models.Model):
     service = models.CharField(max_length=100, choices=[(
         tag, tag.value) for tag in ServiceNames], null=True)
     stories_per_week = models.IntegerField(default=0, null=True)
+    first_story = models.DateTimeField(null=True)
     collections = models.ManyToManyField(Collection)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
