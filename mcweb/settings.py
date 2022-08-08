@@ -164,7 +164,7 @@ EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_USER = "mcwebauthentication@outlook.com"
 # EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_HOST_PASSWORD = "mxbbugsudfpldwta"
+EMAIL_HOST_PASSWORD = "doixlvpyejhzxrck"
 
 # Custom setting. To email
 # RECIPIENT_ADDRESS = env('RECIPIENT_ADDRESS')
