@@ -103,18 +103,22 @@ export default function ResetPassword() {
 
                 // does the email exist? 
                 const emailExists = await exists(formState).unwrap();
+                const emailBoolean = JSON.stringify(emailExists).substring(10,14)
 
-                if (emailExists) {
+                if (emailBoolean === "true") {
                   enqueueSnackbar("Email Sent", { variant: 'success' });
-
+                  // send email and store the returned key 
                   const code = await send(formState).unwrap();
-                  
+                
+                  // set show to true to change scene 
+                  // set key to the code returned 
                   setIsShown({
                     show: true,
                     key: code,
                   })
-
-
+                  }
+                else {
+                  enqueueSnackbar("Email does not exist", { variant: 'error' });
                 }
               }}
             >
@@ -129,10 +133,14 @@ export default function ResetPassword() {
               sx={{ mt: 3, mb: 2 }}
               onClick={async () => {
                 const stringVerification = JSON.stringify(isShown.key).substring(8, 16)
-                 if (formState.verification === stringVerification) {
+    
+                if (formState.verification === stringVerification) {
                    enqueueSnackbar("Verified", { variant: 'success' });
                    navigate('confirmed')
+                 } else {
+                   enqueueSnackbar("Incorrect Verification", { variant: 'error' });
                  }
+
               }}
             >
               Verify
