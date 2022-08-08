@@ -93,9 +93,13 @@ export default function ConfirmedPassword() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              const response = await reset(formState).unwrap();
-              enqueueSnackbar("Password Reset!", { variant: 'success' });
-              navigate('/sign-in')
+              try {
+                const response = await reset(formState).unwrap();
+                enqueueSnackbar("Password Reset!", { variant: 'success' });
+                navigate('/sign-in')
+              } catch(err) {
+                enqueueSnackbar("Reset Failed", { variant: 'error' });
+              }
             }
             }
           >
@@ -104,7 +108,7 @@ export default function ConfirmedPassword() {
 
         </Box>
       </Box>
-    </div>
+    </div >
 
   );
 }
