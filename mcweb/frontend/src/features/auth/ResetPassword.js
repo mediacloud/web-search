@@ -5,7 +5,6 @@ import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useDispatch } from 'react-redux'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
@@ -19,7 +18,7 @@ import { useSendEmailMutation, useEmailExistsMutation } from '../../app/services
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-
+  const { enqueueSnackbar } = useSnackbar();
 
   // formstate -> login
   const [send, { isSend }] = useSendEmailMutation();
@@ -106,10 +105,10 @@ export default function ResetPassword() {
                 const emailExists = await exists(formState).unwrap();
 
                 if (emailExists) {
+                  enqueueSnackbar("Email Sent", { variant: 'success' });
+
                   const code = await send(formState).unwrap();
                   
-                  console.log(code)
-
                   setIsShown({
                     show: true,
                     key: code,
@@ -131,7 +130,7 @@ export default function ResetPassword() {
               onClick={async () => {
                 const stringVerification = JSON.stringify(isShown.key).substring(8, 16)
                  if (formState.verification === stringVerification) {
-                   console.log("Verified")
+                   enqueueSnackbar("Verified", { variant: 'success' });
                    navigate('confirmed')
                  }
               }}

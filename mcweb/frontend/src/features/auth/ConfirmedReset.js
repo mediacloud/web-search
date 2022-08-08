@@ -1,20 +1,19 @@
 import * as React from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import { useDispatch } from 'react-redux'
+import { useSnackbar } from 'notistack';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import { useSnackbar } from 'notistack';
 
 import { useResetPasswordMutation } from '../../app/services/authApi';
-import { HubSharp } from '@mui/icons-material';
 
 export default function ConfirmedPassword() {
-
+  const navigate = useNavigate()
+  const { enqueueSnackbar } = useSnackbar();
 
   const [formState, setFormState] = React.useState({
     username: '', password1: '', password2: '',
@@ -89,15 +88,14 @@ export default function ConfirmedPassword() {
             onChange={handleChange}
           />
 
-
-
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              const huh = await reset(formState).unwrap();
-              console.log(huh)
+              const response = await reset(formState).unwrap();
+              enqueueSnackbar("Password Reset!", { variant: 'success' });
+              navigate('/sign-in')
             }
             }
           >
