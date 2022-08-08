@@ -62,7 +62,7 @@ class Command(BaseCommand):
         # wipe and import Feeds
         self.stdout.write(self.style.SUCCESS('Importing feeds'))
         Feed.objects.all().delete()
-        cmd = "\\copy sources_feed (id,source_id,name,url) from '{}' CSV QUOTE '\"' HEADER".\
+        cmd = "\\copy sources_feed (id,source_id,name,admin_rss_enabled,url) from '{}' CSV QUOTE '\"' HEADER".\
             format(feeds_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_feed SET created_at=NOW(), modified_at=NOW(), admin_rss_enabled=True")
