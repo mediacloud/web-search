@@ -48,8 +48,15 @@ export const api = createApi({
         url: 'email-exists',
         method: 'POST',
         body: { ...credentials }
-      })
-    })
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: (credentials) => ({
+        url: 'reset-password',
+        method: 'POST',
+        body: { ...credentials }
+      }),
+    }),
   })
 })
 
@@ -60,5 +67,6 @@ export const {
   useRegisterMutation,
   useSendEmailMutation,
   useEmailExistsMutation,
+  useResetPasswordMutation
 
 } = api;
