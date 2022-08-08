@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('label', models.CharField(max_length=255)),
                 ('homepage', models.CharField(max_length=1000)),
                 ('notes', models.TextField()),
-                ('service', models.CharField(choices=[(ServiceNames['OnlineNews'], 'online_news'), (ServiceNames['YouTube'], 'youtube')], max_length=100)),
+                ('service', models.CharField(choices=[(ServiceNames['ONLINE_NEWS'], 'online_news'), (ServiceNames['YOU_TUBE'], 'youtube')], max_length=100)),
                 ('created_at', models.DateTimeField(auto_now_add=True, null=True)),
                 ('modified_at', models.DateTimeField(auto_now=True, null=True)),
                 ('stories_per_week', models.IntegerField(default=0, null=True)),
