@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // MUI Styling
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Box } from '@mui/material';
 
 // user status
 import Account from './features/auth/Account'
@@ -37,7 +38,9 @@ const App = () => (
   <Provider store={getStore()}>
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
-        <Homepage />
+        <Box sx={{ bgcolor: 'primary.main', width: '100%', height: '100vh' }}>
+          <Homepage />
+        </Box>
       </SnackbarProvider>
     </ThemeProvider>
   </Provider >
