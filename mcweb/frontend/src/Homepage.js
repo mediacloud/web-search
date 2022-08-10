@@ -7,7 +7,7 @@ import Header from './Header';
 
 const Homepage = () => {
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="xl">
       <Header />
     </Container>
   );
