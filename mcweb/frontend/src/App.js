@@ -38,7 +38,7 @@ const App = () => (
   <Provider store={getStore()}>
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
-        <Box sx={{ bgcolor: 'primary.main', width: '100%', height: '100vh' }}>
+        <Box sx={{ bgcolor: '#B0DFEB', width: '100%', height: '100vh' }}>
           <Homepage />
         </Box>
       </SnackbarProvider>
