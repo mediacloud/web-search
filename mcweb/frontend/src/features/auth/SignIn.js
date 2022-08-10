@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
-import { Grid } from '@mui/material/Grid';
+import { Container } from '@mui/material';
 
 import { saveCsrfToken } from '../../services/CsrfToken';
 import { useLoginMutation } from '../../app/services/authApi';
@@ -33,10 +33,9 @@ export default function SignIn() {
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   return (
-
-    <div style={{ paddingTop: "100px" }}>
+    <div style={{ paddingTop: "50px" }}>
       <CssBaseline />
-
+      <Container maxWidth="xs">
       <Box
         sx={{
           marginTop: 8,
@@ -107,9 +106,7 @@ export default function SignIn() {
             Sign In
           </Button>
 
-
           {/* Reset Password */}
-
           <Typography
             sx={{
               mr: 2,
@@ -122,10 +119,9 @@ export default function SignIn() {
           >
             Forgot password?
           </Typography>
-
         </Box>
       </Box>
+      </Container>
     </div>
-
   );
 }

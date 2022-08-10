@@ -8,10 +8,11 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Alert from '@mui/material/Alert';
+import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom';
+
 
 import { CsrfToken } from '../../services/csrfToken';
 import { useRegisterMutation } from '../../app/services/authApi';
@@ -40,7 +41,8 @@ export default function SignUp() {
 
   return (
 
-    <div style={{ paddingTop: "100px" }}>
+    <div style={{ paddingTop: "50px" }}>
+      <Container maxWidth="xs">
       <CssBaseline />
       <Box
         sx={{
@@ -52,23 +54,23 @@ export default function SignUp() {
       >
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
+
         </Avatar>
+
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
+
         <Box
           component="form"
           noValidate
           sx={{ mt: 3 }}
         >
 
-
-
           <Grid container spacing={2}>
 
             {/* Token  */}
             <CsrfToken />
-
 
             {/* First Name */}
             <Grid item xs={12} sm={6}>
@@ -95,8 +97,6 @@ export default function SignUp() {
                 onChange={handleChange}
               />
             </Grid>
-
-         
 
             {/* Email */}
             <Grid item xs={12}>
@@ -162,11 +162,11 @@ export default function SignUp() {
                 const user = await register(formState).unwrap();
                 dispatch(setCredentials(user));
                 navigate("/")
-                enqueueSnackbar("We created an account for you.", { variant: 'success'});
+                enqueueSnackbar("We created an account for you.", { variant: 'success' });
               } catch (err) {
                 const errorMsg = `Failed - ${err.data.message}`;
                 setErrorState(errorMsg);
-                enqueueSnackbar(errorMsg, { variant: 'error'});
+                enqueueSnackbar(errorMsg, { variant: 'error' });
               }
             }}
           >
@@ -174,7 +174,7 @@ export default function SignUp() {
           </Button>
         </Box>
       </Box>
+    </Container>
     </div >
-
   );
 }
