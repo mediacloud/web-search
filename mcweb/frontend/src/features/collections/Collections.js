@@ -17,24 +17,49 @@ export default function Width() {
   return (
     <div style={{ paddingTop: "100px" }}>
       <Box sx={{
-        width: '100%', height: '100vh', bgcolor: 'primary.main' }}>
+        width: '100%', height: '80vh', bgcolor: 'primary.main'
+      }}>
 
         <Grid container spacing={2}>
-          <Grid item md={8}>
-            <Item>Item 1</Item>
+          <Grid item md={2}>
+            <Item>Total Stories: </Item>
           </Grid>
-          <Grid item md={4}>
-            <Item>Item 2</Item>
+          <Grid item md={2}>
+            <Item>Covered Since: </Item>
           </Grid>
-          <Grid item md={4}>
-            <Item>Item 3</Item>
+          <Grid item md={2}>
+            <Item>Collections: </Item>
           </Grid>
-          <Grid item md={8}>
-            <Item>Item 4</Item>
+          <Grid item md={2}>
+            <Item>Stories per Day: </Item>
           </Grid>
+          <Grid item md={2}>
+            <Item>With Entities: </Item>
+          </Grid>
+          <Grid item md={2}>
+            <Item>With Themes: </Item>
+          </Grid>
+
+
+          <Grid item md={2.4}>
+            <Item>Publication Country: </Item>
+          </Grid>
+          <Grid item md={2.4}>
+            <Item>Publication State: </Item>
+          </Grid>
+          <Grid item md={2.4}>
+            <Item>Detected Primary Language: </Item>
+          </Grid>
+          <Grid item md={2.4}>
+            <Item>Detected Subject State: </Item>
+          </Grid>
+          <Grid item md={2.4}>
+            <Item>Media Type: </Item>
+          </Grid>
+    
         </Grid>
-        
-        
+
+
       </Box>
     </div>
   );
