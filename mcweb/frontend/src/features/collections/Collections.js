@@ -6,59 +6,80 @@ import Grid from '@mui/material/Grid';
 import { palette } from '@mui/system';
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
   ...theme.typography.body2,
   padding: theme.spacing(1),
   textAlign: 'center',
-  color: theme.palette.text.secondary,
+  color: theme.palette.text.primary
 }));
 
 export default function Width() {
   return (
     <div style={{ paddingTop: "100px" }}>
-      <Box sx={{
-        width: '100%', height: '80vh', bgcolor: 'primary.main'
-      }}>
+      <Box sx={{width: '100%'}}>
 
         <Grid container spacing={2}>
-          <Grid item md={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
             <Item>Total Stories: </Item>
           </Grid>
-          <Grid item md={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
             <Item>Covered Since: </Item>
           </Grid>
-          <Grid item md={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
             <Item>Collections: </Item>
           </Grid>
-          <Grid item md={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
             <Item>Stories per Day: </Item>
           </Grid>
-          <Grid item md={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Item>With Entities: </Item>
           </Grid>
-          <Grid item md={2}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Item>With Themes: </Item>
           </Grid>
 
 
-          <Grid item md={2.4}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Item>Publication Country: </Item>
           </Grid>
-          <Grid item md={2.4}>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
             <Item>Publication State: </Item>
           </Grid>
-          <Grid item md={2.4}>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
             <Item>Detected Primary Language: </Item>
           </Grid>
-          <Grid item md={2.4}>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
             <Item>Detected Subject State: </Item>
           </Grid>
-          <Grid item md={2.4}>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
             <Item>Media Type: </Item>
           </Grid>
     
         </Grid>
 
+        <Box sx={{ display: { xs: 'block', sm: 'none' }}}>
+          Visible only on xs
+        </Box>
+        <Box sx={{ display: { xs: 'none', sm: 'block', md: 'none' }}}>
+          Visible only on sm
+        </Box>
+
+        <Box sx={{ display: { xs: 'none', md: 'block', lg: 'none' }}}>
+          Visible only on md
+        </Box>
+
+        <Box sx={{ display: { xs: 'none', lg: 'block', xl: 'none' }}}>
+          Visible only on lg
+        </Box>
+
+        <Box sx={{ display: { xs: 'none', xl: 'block' } }}>
+        Visible only on xl
+        </Box>
+
+        
+        
+              
+       
 
       </Box>
     </div>
