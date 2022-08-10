@@ -9,7 +9,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // MUI Styling
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Container from '@mui/material/Container';
 
 // user status
 import Account from './features/auth/Account'
@@ -29,14 +28,10 @@ import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
 import { useLocation, Navigate } from 'react-router-dom';
 
-
-
 const theme = createTheme();
 // Store
 import { getStore } from './app/store';
 
-
-// commit
 
 const App = () => (
   <Provider store={getStore()}>
@@ -57,17 +52,17 @@ export const renderApp = () => {
 
             <Route path="collections" element={
               <RequireAuth>
-                 <Collections />
-              </RequireAuth>} 
+                <Collections />
+              </RequireAuth>}
             />
-            
+
             <Route path="search" element={
               <RequireAuth>
                 <Search />
               </RequireAuth>} />
 
             <Route path="sign-in" element={<SignIn />} />
-            <Route path="reset-password" element={<ResetPassword/>} />
+            <Route path="reset-password" element={<ResetPassword />} />
             <Route path="reset-password/confirmed" element={<ConfirmedReset />} />
 
             <Route path="sign-up" element={<SignUp />} />
@@ -81,14 +76,13 @@ export const renderApp = () => {
     );
 };
 
-function RequireAuth({children}){
+function RequireAuth({ children }) {
   const auth = useSelector(selectIsLoggedIn);
   const location = useLocation();
 
-  if (!auth){
+  if (!auth) {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
-
   return children;
 }
 
