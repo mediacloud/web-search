@@ -24,6 +24,7 @@ import Homepage from './Homepage';
 // pages
 import Collections from './features/collections/Collections';
 import Search from './features/search/Search'
+import Sources from './features/sources/Sources';
 
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
@@ -62,6 +63,11 @@ export const renderApp = () => {
             <Route path="search" element={
               <RequireAuth>
                 <Search />
+              </RequireAuth>} />
+
+            <Route path="sources" element={
+              <RequireAuth>
+                <Sources />
               </RequireAuth>} />
 
             <Route path="sign-in" element={<SignIn />} />
