@@ -12,6 +12,6 @@ const slice = createSlice({
 
 export const setSearch = slice.actions.setSearch
 
-export const selectTotalAttention = (state) => state.auth.search;
+export const selectTotalAttention = (state) => state.search.search;
 
 export default slice.reducer;
