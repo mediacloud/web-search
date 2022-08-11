@@ -12,7 +12,7 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.primary
 }));
 
-export default function Width() {
+export default function Collection() {
   return (
     <div style={{ paddingTop: "100px" }}>
       <Box sx={{width: '100%'}}>
