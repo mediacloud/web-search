@@ -76,7 +76,7 @@ def resetPassword(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
-
+@login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 def profile(request):
     if request.user.id is not None:
