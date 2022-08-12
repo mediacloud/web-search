@@ -10,14 +10,14 @@ import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import { useSendEmailMutation, useEmailExistsMutation } from '../../app/services/authApi';
+import { useResetPasswordSendEmailMutation, useEmailExistsMutation } from '../../app/services/authApi';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   // formstate -> login
-  const [send, { isSend }] = useSendEmailMutation();
+  const [send, { isSend }] = useResetPasswordSendEmailMutation();
   const [exists, { isEmail }] = useEmailExistsMutation();
 
   // email

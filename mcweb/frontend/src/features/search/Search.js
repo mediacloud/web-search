@@ -8,7 +8,7 @@ import { Button } from '@mui/material';
 import { useDispatch } from 'react-redux';
 
 // information from store
-import { selectIsLoggedIn, setSearch, selectTotalAttention } from '../auth/authSlice';
+import { setSearch, selectTotalAttention } from '../search/searchSlice';
 import { useSelector } from 'react-redux';
 
 import { useGetSearchMutation } from '../../app/services/searchApi';
@@ -18,7 +18,6 @@ export default function Search() {
 
   const [search, { isSearching }] = useGetSearchMutation();
 
-  const isLoggedIn = useSelector(selectIsLoggedIn);
   const totalAttention = useSelector(selectTotalAttention)
 
   const dispatch = useDispatch();
@@ -97,7 +96,6 @@ export default function Search() {
           method="post"
         >
 
-          {isLoggedIn &&
             <>
               {/* Query */}
               <TextField
@@ -154,10 +152,7 @@ export default function Search() {
 
             </>
 
-          }
-
-          {!isLoggedIn && <h2>Must be logged in for this feature</h2>}
-
+  
         </Stack>
       </LocalizationProvider>
     </div >

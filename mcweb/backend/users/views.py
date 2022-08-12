@@ -11,6 +11,7 @@ import humps
 from django.core.mail import send_mail
 import settings
 import datetime as dt
+from django.contrib.auth.decorators import login_required
 logger = logging.getLogger(__name__)
 
 # random key generator
@@ -75,7 +76,7 @@ def resetPassword(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
-
+@login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 def profile(request):
     if request.user.id is not None:
@@ -139,6 +140,7 @@ def register(request):
         return HttpResponse(data, content_type='application/json', status=400)
 
 
+@login_required(redirect_field_name='/auth/login')
 @require_http_methods(["POST"])
 def logout(request):
     logging.debug('logout success')
