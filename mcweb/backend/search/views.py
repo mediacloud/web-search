@@ -14,27 +14,21 @@ logger = logging.getLogger(__name__)
 @require_http_methods(["POST"])
 def search(request):
 
-    payload = json.loads(request.body)
+  payload = json.loads(request.body)
 
-    query_str = payload.get('query', None)
+  query_str = payload.get('query', None)
 
-    logger.debug("pls work")
-    logger.debug(len(query_str))
+  logger.debug("pls work")
 
-    start_date = payload.get('start', None)
-    start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
+  logger.debug(len(query_str))
 
-    end_date = payload.get('end', None)
-    end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
+  start_date = payload.get('start', None)
+  start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
 
-    provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
-    total_articles = provider.count(query_str, start_date, end_date)
+  end_date = payload.get('end', None)
+  end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
 
-    try:
-        if(len(query_str) == 0):
-            logger.debug("query string is empty ")
-            data = json.dumps({'message': "Empty Query"})
-            return HttpResponse(data, content_type='application/json', status=200)
-
-    except:
-        return HttpResponse(json.dumps({"count": total_articles}), content_type="application/json", status=200)
+  provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
+  total_articles = provider.count(query_str, start_date, end_date)
+ 
+  return HttpResponse(json.dumps({"count": total_articles}), content_type="application/json", status=200)
