@@ -9,6 +9,10 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     current_user = serializers.SerializerMethodField('_user')
 
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+
     # TO DO: restrict list and get of non-current to admins only
     def get_object(self):
         pk = self.kwargs.get('pk')

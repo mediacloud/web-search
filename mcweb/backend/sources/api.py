@@ -6,7 +6,7 @@ from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
     permission_classes = [
-        permissions.AllowAny
+        permissions.IsAuthenticated
     ]
     serializer_class = CollectionSerializer
 
@@ -14,7 +14,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
     permission_classes = [
-        permissions.AllowAny
+        permissions.IsAuthenticated
     ]
     serializer_class = FeedsSerializer
 
@@ -22,6 +22,6 @@ class FeedsViewSet(viewsets.ModelViewSet):
 class SourcesViewSet(viewsets.ModelViewSet):
     queryset = Source.objects.all()
     permission_classes = [
-        permissions.AllowAny
+        permissions.IsAuthenticated
     ]
     serializer_class = SourcesSerializer
