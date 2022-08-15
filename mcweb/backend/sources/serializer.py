@@ -29,3 +29,11 @@ class SourcesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Source
         fields = '__all__'
+
+class SourcesCollectionsSerializer(serializers.Serializer):
+    collections = CollectionSerializer()
+    sources = SourcesSerializer(many=True)
+
+class CollectionsSourcesSerializer(serializers.Serializer):
+    collections = CollectionSerializer(many=True)
+    sources = SourcesSerializer()
