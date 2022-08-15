@@ -98,8 +98,8 @@ export default function ResetPassword() {
                   // does the email exist? 
                   const emailExists = await exists(formState).unwrap();
                   const emailBoolean = JSON.stringify(emailExists.Exists)
-
-                  if (emailBoolean) {
+              
+                  if (emailBoolean === "true") {
                     enqueueSnackbar("Email Sent", { variant: 'success' });
                     // send email and store the returned key 
                     const code = await send(formState).unwrap();

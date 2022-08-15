@@ -14,6 +14,7 @@ import { useResetPasswordMutation } from '../../app/services/authApi';
 export default function ConfirmedPassword() {
   const navigate = useNavigate()
   const { enqueueSnackbar } = useSnackbar();
+  const [errorState, setErrorState] = React.useState();
 
   const [formState, setFormState] = React.useState({
     username: '', password1: '', password2: '',
@@ -93,11 +94,14 @@ export default function ConfirmedPassword() {
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
               try {
+                setErrorState(null);
                 const response = await reset(formState).unwrap();
                 enqueueSnackbar("Password Reset!", { variant: 'success' });
                 navigate('/sign-in')
-              } catch(err) {
-                enqueueSnackbar("Reset Failed", { variant: 'error' });
+              } catch (err) {
+                const errorMsg = `Failed - ${err.data.message}`;
+                setErrorState(errorMsg);
+                enqueueSnackbar(errorMsg, { variant: 'error' });
               }
             }
             }
