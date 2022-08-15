@@ -18,6 +18,9 @@ def search(request):
 
     query_str = payload.get('query', None)
 
+    logger.debug("pls work")
+    logger.debug(len(query_str))
+
     start_date = payload.get('start', None)
     start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
 
@@ -27,5 +30,11 @@ def search(request):
     provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
     total_articles = provider.count(query_str, start_date, end_date)
 
-    return HttpResponse(json.dumps({"count": total_articles}), content_type="application/json")
+    try:
+        if(len(query_str) == 0):
+            logger.debug("query string is empty ")
+            data = json.dumps({'message': "Empty Query"})
+            return HttpResponse(data, content_type='application/json', status=200)
 
+    except:
+        return HttpResponse(json.dumps({"count": total_articles}), content_type="application/json", status=200)
