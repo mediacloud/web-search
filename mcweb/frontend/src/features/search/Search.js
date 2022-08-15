@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import Container from '@mui/material/Container';
 
 // information from store
-import { selectIsLoggedIn, setSearch, selectTotalAttention } from '../auth/authSlice';
+import { setSearch, selectTotalAttention } from '../search/searchSlice';
 import { useSelector } from 'react-redux';
 
 import { useGetSearchMutation } from '../../app/services/searchApi';
@@ -19,7 +19,6 @@ export default function Search() {
 
   const [search, { isSearching }] = useGetSearchMutation();
 
-  const isLoggedIn = useSelector(selectIsLoggedIn);
   const totalAttention = useSelector(selectTotalAttention)
 
   const dispatch = useDispatch();

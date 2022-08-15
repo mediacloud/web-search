@@ -11,6 +11,9 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Box } from '@mui/material';
 
+import Container from '@mui/material/Container';
+// Import our style sheet
+import '../../frontend/src/styles/Application.scss'
 // user status
 import Account from './features/auth/Account'
 import SignIn from './features/auth/SignIn'
