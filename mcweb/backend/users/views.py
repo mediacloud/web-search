@@ -23,7 +23,7 @@ def randomKeyGenerator():
 def emailExists(request):
     payload = json.loads(request.body)
     email = payload.get('email', None)
-
+    
     try:
         User.objects.get(email=email)
         data = json.dumps({'Exists': True})
@@ -62,6 +62,13 @@ def resetPassword(request):
     username = payload.get('username', None)
     password1 = payload.get('password1', None)
     password2 = payload.get('password2', None)
+    try:
+        User.objects.get(username=username)
+        logger.debug("Username found")
+    except User.DoesNotExist:
+        logger.debug("Username not found")
+        data = json.dumps({'message': "Username Not Found"})
+        return HttpResponse(data, content_type='application/json', status=403)
 
     if password1 != password2:
         logging.debug('password not matching')
