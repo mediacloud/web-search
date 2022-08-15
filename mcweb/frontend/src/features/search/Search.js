@@ -147,6 +147,8 @@ export default function Search() {
                 >
                   Submit
                 </Button>
+
+                <h1>Total Attention: {totalAttention} </h1>
           </Stack>
         </LocalizationProvider>
       </Container>
