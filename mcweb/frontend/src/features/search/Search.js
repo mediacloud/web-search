@@ -6,6 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
 import { useDispatch } from 'react-redux';
+import Container from '@mui/material/Container';
 
 // information from store
 import { setSearch, selectTotalAttention } from '../search/searchSlice';
@@ -88,73 +89,72 @@ export default function Search() {
 
   return (
     <div style={{ paddingTop: "200px" }}>
+      <Container maxWidth="xs">
 
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Stack
+            spacing={2}
+            method="post"
+          >
+            {isLoggedIn &&
+              <>
 
-        <Stack
-          spacing={2}
-          method="post"
-        >
+                {/* Query */}
+                <TextField
+                  fullWidth
+                  required
+                  id="standard-multiline-static"
+                  label="Query"
+                  name="query_str"
+                  rows={4}
+                  onChange={handleChange}
 
-            <>
-              {/* Query */}
-              <TextField
-                fullWidth
-                required
-                id="standard-multiline-static"
-                label="Query"
-                name="query_str"
-                rows={4}
-                onChange={handleChange}
+                />
 
-              />
+                {/* From Date */}
+                <DesktopDatePicker
+                  required
+                  type='date'
+                  label="From"
+                  inputFormat="MM/dd/yyyy"
+                  value={fromValue}
+                  onChange={handleChangeFromDate}
+                  renderInput={(params) => <TextField {...params} />}
+                />
 
-              {/* From Date */}
-              <DesktopDatePicker
-                required
-                type='date'
-                label="From"
-                inputFormat="MM/dd/yyyy"
-                value={fromValue}
-                onChange={handleChangeFromDate}
-                renderInput={(params) => <TextField {...params} />}
-              />
+                {/* To Date */}
+                <DesktopDatePicker
+                  required
+                  label="To"
+                  inputFormat="MM/dd/yyyy"
+                  value={toValue}
+                  onChange={handleChangeToDate}
+                  renderInput={(params) => <TextField {...params} />}
+                />
 
-              {/* To Date */}
-              <DesktopDatePicker
-                required
-                label="To"
-                inputFormat="MM/dd/yyyy"
-                value={toValue}
-                onChange={handleChangeToDate}
-                renderInput={(params) => <TextField {...params} />}
-              />
+                {/* Submit */}
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  onClick={async () => {
+                    const count = await search({
+                      query: formState.query_str,
+                      start: fromValue,
+                      end: toValue,
+                    }).unwrap();
+                    // console.log(setSearch(count).payload)
+                    dispatch(setSearch(count));
+                  }}
+                >
+                  Submit
+                </Button>
 
-              {/* Submit */}
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={async () => {
-                  const count = await search({
-                    query: formState.query_str,
-                    start: fromValue,
-                    end: toValue,
-                  }).unwrap();
-                  // console.log(setSearch(count).payload)
-                  dispatch(setSearch(count));
-                }}
-              >
-                Submit
-              </Button>
-
-              <h1>Total Attention: {totalAttention}</h1>
-
-
-            </>
-
-  
-        </Stack>
-      </LocalizationProvider>
+                <h1>Total Attention: {totalAttention}</h1>
+              </>
+            }
+          </Stack>
+        </LocalizationProvider>
+      </Container>
     </div >
   );
 }

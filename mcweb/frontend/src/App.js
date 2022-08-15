@@ -9,6 +9,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // MUI Styling
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Box } from '@mui/material';
+
 import Container from '@mui/material/Container';
 // Import our style sheet
 import '../../frontend/src/styles/Application.scss'
@@ -25,25 +27,24 @@ import Homepage from './Homepage';
 // pages
 import Collections from './features/collections/Collections';
 import Search from './features/search/Search'
+import Sources from './features/sources/Sources';
 
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
 import { useLocation, Navigate } from 'react-router-dom';
-
-
 
 const theme = createTheme();
 // Store
 import { getStore } from './app/store';
 
 
-// commit
-
 const App = () => (
   <Provider store={getStore()}>
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
-        <Homepage />
+        <Box sx={{ bgcolor: '#B0DFEB', width: '100%', height: '100vh' }}>
+          <Homepage />
+        </Box>
       </SnackbarProvider>
     </ThemeProvider>
   </Provider >
@@ -58,17 +59,22 @@ export const renderApp = () => {
 
             <Route path="collections" element={
               <RequireAuth>
-                 <Collections />
-              </RequireAuth>} 
+                <Collections />
+              </RequireAuth>}
             />
-            
+
             <Route path="search" element={
               <RequireAuth>
                 <Search />
               </RequireAuth>} />
 
+            <Route path="sources" element={
+              <RequireAuth>
+                <Sources />
+              </RequireAuth>} />
+
             <Route path="sign-in" element={<SignIn />} />
-            <Route path="reset-password" element={<ResetPassword/>} />
+            <Route path="reset-password" element={<ResetPassword />} />
             <Route path="reset-password/confirmed" element={<ConfirmedReset />} />
 
             <Route path="sign-up" element={<SignUp />} />
@@ -82,14 +88,13 @@ export const renderApp = () => {
     );
 };
 
-function RequireAuth({children}){
+function RequireAuth({ children }) {
   const auth = useSelector(selectIsLoggedIn);
   const location = useLocation();
 
-  if (!auth){
+  if (!auth) {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
-
   return children;
 }
 

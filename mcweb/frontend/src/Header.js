@@ -1,5 +1,4 @@
 import React from 'react'
-import { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -56,7 +55,6 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
     )
   } else {
     return (
-
       <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
         <Button
           type='submit'
@@ -79,16 +77,13 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
           Sign Up
         </Button>
       </Box>
-
     )
-
   }
-
 }
 
 const ResponsiveAppBar = () => {
   // all pages
-  const pages = ['collections', 'search'];
+  const pages = ['collections', 'sources', 'search'];
   // currentUser
   const currentUser = useSelector(selectCurrentUser);
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -100,8 +95,7 @@ const ResponsiveAppBar = () => {
   return (
     <div>
       <AppBar position="absolute" style={{ backgroundColor: "purple" }}>
-        <Container maxWidth="">
-
+        <Container maxWidth="xl">
           <Toolbar>
             <Typography
               sx={{
@@ -132,7 +126,6 @@ const ResponsiveAppBar = () => {
                   {page}
                 </Button>
               ))}
-
             </Box>
 
 
@@ -142,14 +135,8 @@ const ResponsiveAppBar = () => {
               {userButtonStatus(isLoggedIn, currentUser, logout, isLoading, dispatch, navigate, enqueueSnackbar)}
             </Box>
 
-            
-            
-            
-            
             {/* Display is xs  */}
-
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} />
-
             <Typography
               sx={{
                 mr: 2,
@@ -163,7 +150,6 @@ const ResponsiveAppBar = () => {
             >
               Media Cloud
             </Typography>
-
 
           </Toolbar>
         </Container >
