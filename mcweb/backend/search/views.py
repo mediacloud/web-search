@@ -18,8 +18,6 @@ def search(request):
 
   query_str = payload.get('query', None)
 
-  logger.debug("pls work")
-
   logger.debug(len(query_str))
 
   start_date = payload.get('start', None)
