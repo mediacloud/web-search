@@ -6,6 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
 import { useDispatch } from 'react-redux';
+import { useSnackbar } from 'notistack';
 import Container from '@mui/material/Container';
 
 // information from store
@@ -16,7 +17,8 @@ import { useGetSearchMutation } from '../../app/services/searchApi';
 
 export default function Search() {
 
-
+  const { enqueueSnackbar } = useSnackbar();
+ 
   const [search, { isSearching }] = useGetSearchMutation();
 
   const totalAttention = useSelector(selectTotalAttention)
@@ -96,59 +98,64 @@ export default function Search() {
             spacing={2}
             method="post"
           >
-        
 
-                {/* Query */}
-                <TextField
-                  fullWidth
-                  required
-                  id="standard-multiline-static"
-                  label="Query"
-                  name="query_str"
-                  rows={4}
-                  onChange={handleChange}
 
-                />
+            {/* Query */}
+            <TextField
+              fullWidth
+              required
+              id="standard-multiline-static"
+              label="Query"
+              name="query_str"
+              rows={4}
+              onChange={handleChange}
 
-                {/* From Date */}
-                <DesktopDatePicker
-                  required
-                  type='date'
-                  label="From"
-                  inputFormat="MM/dd/yyyy"
-                  value={fromValue}
-                  onChange={handleChangeFromDate}
-                  renderInput={(params) => <TextField {...params} />}
-                />
+            />
 
-                {/* To Date */}
-                <DesktopDatePicker
-                  required
-                  label="To"
-                  inputFormat="MM/dd/yyyy"
-                  value={toValue}
-                  onChange={handleChangeToDate}
-                  renderInput={(params) => <TextField {...params} />}
-                />
+            {/* From Date */}
+            <DesktopDatePicker
+              required
+              type='date'
+              label="From"
+              inputFormat="MM/dd/yyyy"
+              value={fromValue}
+              onChange={handleChangeFromDate}
+              renderInput={(params) => <TextField {...params} />}
+            />
 
-                {/* Submit */}
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={async () => {
-                    const count = await search({
-                      query: formState.query_str,
-                      start: fromValue,
-                      end: toValue,
-                    }).unwrap();
-                    // console.log(setSearch(count).payload)
-                    dispatch(setSearch(count));
-                  }}
-                >
-                  Submit
-                </Button>
+            {/* To Date */}
+            <DesktopDatePicker
+              required
+              label="To"
+              inputFormat="MM/dd/yyyy"
+              value={toValue}
+              onChange={handleChangeToDate}
+              renderInput={(params) => <TextField {...params} />}
+            />
 
-                <h1>Total Attention: {totalAttention} </h1>
+            {/* Submit */}
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={async () => {
+                try {
+                  const count = await
+                   search({
+                    query: formState.query_str,
+                    start: fromValue,
+                    end: toValue,
+                  }).unwrap();
+                  dispatch(setSearch(count));
+                  enqueueSnackbar("Total Attention Discovered", { variant: 'success' });
+                } catch {
+                  enqueueSnackbar("Query is empty", { variant: 'error' });
+                }
+              }}
+            >
+              Submit
+            </Button>
+
+            <h1>Total Attention: {totalAttention} </h1>
           </Stack>
         </LocalizationProvider>
       </Container>

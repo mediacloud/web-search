@@ -158,14 +158,12 @@ export default function SignUp() {
             disabled={isLoading}
             onClick={async () => {
               try {
-                setErrorState(null);
                 const user = await register(formState).unwrap();
                 dispatch(setCredentials(user));
                 navigate("/")
                 enqueueSnackbar("We created an account for you.", { variant: 'success' });
               } catch (err) {
                 const errorMsg = `Failed - ${err.data.message}`;
-                setErrorState(errorMsg);
                 enqueueSnackbar(errorMsg, { variant: 'error' });
               }
             }}
