@@ -1,0 +1,14 @@
+ul {
+  display: block; 
+  list-style-type: none;
+  
+  li {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+
+    h5 {
+      padding-right: 20px;
+    }
+  }
+}
