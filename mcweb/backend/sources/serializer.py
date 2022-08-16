@@ -30,10 +30,10 @@ class SourcesSerializer(serializers.ModelSerializer):
         model = Source
         fields = '__all__'
 
-class SourcesCollectionsSerializer(serializers.Serializer):
+class SourcesCollectionSerializer(serializers.Serializer): 
     collections = CollectionSerializer()
     sources = SourcesSerializer(many=True)
 
-class CollectionsSourcesSerializer(serializers.Serializer):
+class CollectionsSourceSerializer(serializers.Serializer):
     collections = CollectionSerializer(many=True)
     sources = SourcesSerializer()
