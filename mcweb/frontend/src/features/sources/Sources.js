@@ -17,7 +17,39 @@ export default function Source() {
     <div style={{ paddingTop: "100px" }}>
       <Box sx={{ width: '100%' }}>
         <Grid container spacing={2}>
-          <Item> Hello </Item>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
+            <Item>Total Stories: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
+            <Item>Covered Since: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
+            <Item>Collections: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
+            <Item>Stories per Day: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Item>With Entities: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Item>With Themes: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Item>Publication Country: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
+            <Item>Publication State: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
+            <Item>Detected Primary Language: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
+            <Item>Detected Subject State: </Item>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4} lg={3} >
+            <Item>Media Type: </Item>
+          </Grid>
         </Grid>
       </Box>
     </div>
