@@ -1,0 +1,50 @@
+.container {
+  background-color: white;
+  box-sizing: border-box;
+  height: 600px;
+  padding-top: 75px;
+  color: white;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  
+  .collection-header {
+    background: #3C96bd;
+  }
+  
+  .source-list-collection-content {
+    background: rgb(227, 222, 222);
+    
+    ul {
+      display: flex; 
+      list-style-type: none;
+      
+      li {
+        padding: 15px;
+      }
+    }
+  }
+  
+  .content {
+    background: rgb(123, 222, 222);
+    padding: 5px;
+    outline: 5px;
+    color: black;
+    
+    table {
+      background:white;
+      border: 1px solid rgb(190, 190, 190);
+      
+      
+      th {
+        border: 1px solid rgb(190, 190, 190);
+        padding-left: 75px;
+        padding-right: 75px;
+      }
+      
+      td {
+        border: 1px solid rgb(190, 190, 190);
+        text-align: center;
+        
+      }
+    }
+  }
+}

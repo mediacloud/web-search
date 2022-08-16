@@ -1,57 +1,61 @@
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.primary
-}));
+import { Button } from '@mui/material';
 
 export default function Collection() {
   return (
-    <div style={{ paddingTop: "100px" }}>
-      <Box sx={{width: '100%'}}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Total Stories: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Covered Since: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Collections: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Stories per Day: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Item>With Entities: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Item>With Themes: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Item>Publication Country: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Publication State: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Detected Primary Language: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Detected Subject State: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Media Type: </Item>
-          </Grid>
-        </Grid>
-      </Box>
-    </div>
+    <div className="container">
+      <div className="collection-header">
+        <h2 className="title">U.S. Top Digital Native Sources</h2>
+        <h5>Collection #186572515 - Public - Dynamic</h5>
+      </div>
+
+      <div className="source-list-collection-content">
+
+        <ul>
+          <li> <Button variant='outlined' color="secondary">Source List</Button> </li>
+          <li> <Button variant='outlined' color="secondary">Collection Content</Button> </li>
+        </ul>
+      </div>
+
+
+      {/* 
+      Recent Source Representation Metadata Coverage and Similar Collections will be implemented   
+     */}
+
+      <div className='content'>
+        <div className='sources'>
+          <h3>Sources</h3>
+          <h6>This collection includes 37 media sources </h6>
+          <table>
+            <tbody>
+              <tr>
+                <th>Media Source</th>
+                <th>Stories Per Day</th>
+                <th>First Story</th>
+              </tr>
+
+              <tr>
+                <th >247sports.com</th>
+                <td>29</td>
+                <td>6/25/2018</td>
+              </tr>
+              
+              <tr>
+                <th>90min.com</th>
+                <td>43</td>
+                <td>9/23/2019</td>
+              </tr>
+
+              <tr>
+                <th>bgr.com</th>
+                <td>16</td>
+                <td>9/23/2019</td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div >
+    </div >
   );
 }
