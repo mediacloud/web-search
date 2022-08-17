@@ -1,8 +1,19 @@
 import * as React from 'react';
-import { Button, Box } from '@mui/material';
+import { Button, Box, TextField } from '@mui/material';
 import { Link } from 'react-router-dom';
 
+import { useState } from 'react';
+
 export default function Collection() {
+
+
+  const [id, setID] = useState(10)
+
+  const handlechange = (event) => {
+    setID(event.target.value);
+  };
+
+
   return (
     <div className="container">
       <div className="collection-header">
@@ -55,19 +66,43 @@ export default function Collection() {
             </tbody>
           </table>
         </div>
-      
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-              component={Link}
-              to="modify-collection"
-            >
-              Modify this Collection
-            </Button>
-          </Box>
+
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            component={Link}
+            to="modify-collection"
+          >
+            Modify this Collection
+          </Button>
+        </Box>
+
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}>
+
+          <TextField
+              id="text"
+              label="ID"
+              defaultValue={id}
+              onChange={handlechange}
+            />
+
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            onClick={async () => {
+              console.log("id" + id)
+            }}
+          >
+            Get Information
+          </Button>
+        </Box>
       </div >
+
+
+
 
     </div >
   );
