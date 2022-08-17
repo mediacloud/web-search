@@ -56,7 +56,7 @@ class OnlineNewsWaybackMachineProviderTest(TestCase):
         assert results > 0
 
     def test_no_results(self):
-        results = self._provider.count("coronavirus", dt.datetime(2022, 3, 1), dt.datetime(2022, 4, 1))
+        results = self._provider.count("madeupword", dt.datetime(2022, 3, 1), dt.datetime(2022, 4, 1))
         assert results == 0
 
     def test_count_over_time(self):
