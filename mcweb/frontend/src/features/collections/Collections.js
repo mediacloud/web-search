@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Button } from '@mui/material';
+import { Button, Box } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 export default function Collection() {
   return (
@@ -16,7 +17,6 @@ export default function Collection() {
           <li> <Button variant='outlined' color="secondary">Collection Content</Button> </li>
         </ul>
       </div>
-
 
       {/* 
       Recent Source Representation Metadata Coverage and Similar Collections will be implemented   
@@ -39,7 +39,7 @@ export default function Collection() {
                 <td>29</td>
                 <td>6/25/2018</td>
               </tr>
-              
+
               <tr>
                 <th>90min.com</th>
                 <td>43</td>
@@ -55,7 +55,20 @@ export default function Collection() {
             </tbody>
           </table>
         </div>
+      
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            <Button
+              style={{ backgroundColor: "white" }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }}
+              component={Link}
+              to="modify-collection"
+            >
+              Modify this Collection
+            </Button>
+          </Box>
       </div >
+
     </div >
   );
 }

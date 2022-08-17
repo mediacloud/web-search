@@ -29,6 +29,9 @@ import Collections from './features/collections/Collections';
 import Search from './features/search/Search'
 import Sources from './features/sources/Sources';
 
+//modify pages
+import ModifyCollection from './features/collections/ModifyCollection';
+
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
 import { useLocation, Navigate } from 'react-router-dom';
@@ -71,6 +74,11 @@ export const renderApp = () => {
             <Route path="sources" element={
               <RequireAuth>
                 <Sources />
+              </RequireAuth>} />
+
+            <Route path="collections/modify-collection" element={
+              <RequireAuth>
+                <ModifyCollection />
               </RequireAuth>} />
 
             <Route path="sign-in" element={<SignIn />} />
