@@ -22,7 +22,6 @@ export const collectionsApi = createApi({
     }),
     postCollection: builder.mutation({
       query: (collection) => ({
-        // url is already '/api/sources-collections/'
         method: 'POST',
         body: { ...collection }
       })
