@@ -1,45 +1,42 @@
 import * as React from 'react';
 import { TextField, MenuItem, Box, FormControlLabel, Button, Checkbox } from '@mui/material';
 import { useState } from 'react';
-import { PublishedWithChanges } from '@mui/icons-material';
 
 export default function ModifyCollection() {
-  
+
   // menu options
   const services = ["Online News", "Youtube"]
-  
+
   // original values 
   const name = "U.S. Top Digital Native Sources"
   const notes = "Collection #186572515 - Public - Dynamic"
   const service = "Online News"
 
   // form state for text fields 
-  const [formState, setFormState] = React.useState({
+  const [formState, setFormState] = useState({
     name: name, notes: notes, service: service,
   });
 
 
-  // I'd really like to refactor this to the formState, however I keep getting errors 
-  const [stat, setStatic] = React.useState(false)
-  const [pub, setPublic] = React.useState(false)
+  // represents the static and public check boxes
+  const [checkState, setCheckState] = useState({
+    pub: true,
+    stat: false,
+  });
 
-  const handleStatic = (event) => {
-    setStatic(event.target.checked);
+  const handleCheck = (event) => {
+    setCheckState({
+      ...checkState,
+      [event.target.name]: event.target.checked,
+    });
   };
-  const handlePublic = (event) => {
-    setPublic(event.target.checked);
-  };
-
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
-
-
 
   return (
     <div className='container'>
       <div className="collection-header">
         <h2 className="title">Modify this Collection</h2>
-
         <ul>
 
           {/* Name */}
@@ -68,7 +65,6 @@ export default function ModifyCollection() {
             />
           </li>
 
-
           {/* Service */}
           <li>
             <h5>Service</h5>
@@ -80,6 +76,7 @@ export default function ModifyCollection() {
               noValidate
               autoComplete="off"
             >
+
               <TextField
                 select
                 names="service"
@@ -102,17 +99,14 @@ export default function ModifyCollection() {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={formState.stat}
-                  onChange={handleStatic}
-                  name="static"
-                  defaultValue={formState.stat}
-                  inputProps={{ 'aria-label': 'controlled' }}
+                  checked={checkState.stat}
+                  onChange={handleCheck}
+                  name="stat"
                 />
               }
             />
 
           </li>
-
 
           {/* Public Button */}
           <li>
@@ -120,11 +114,9 @@ export default function ModifyCollection() {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={pub}
-                  onChange={handlePublic}
-                  name="public"
-                  defaultValue={pub}
-                  inputProps={{ 'aria-label': 'controlled' }}
+                  checked={checkState.pub}
+                  onChange={handleCheck}
+                  name="pub"
                 />
               }
             />
@@ -138,10 +130,8 @@ export default function ModifyCollection() {
               console.log("Name: " + formState.name)
               console.log("Notes: " + formState.notes)
               console.log("Service: " + formState.service)
-              console.log("Static: " + stat)
-              console.log("Public: " + pub)
-
-
+              console.log("Static: " + checkState.stat)
+              console.log("Public: " + checkState.pub)
             }}
           >
             Save
