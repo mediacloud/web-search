@@ -3,21 +3,9 @@ import { TextField, MenuItem, Box, FormControlLabel, Button, Checkbox } from '@m
 import { useState } from 'react';
 import { PublishedWithChanges } from '@mui/icons-material';
 
+import { useGetCollectionQuery } from '../../app/services/collectionsApi';
+
 export default function ModifyCollection() {
-  
-  // menu options
-  const services = ["Online News", "Youtube"]
-  
-  // original values 
-  const name = "U.S. Top Digital Native Sources"
-  const notes = "Collection #186572515 - Public - Dynamic"
-  const service = "Online News"
-
-  // form state for text fields 
-  const [formState, setFormState] = React.useState({
-    name: name, notes: notes, service: service,
-  });
-
 
   // I'd really like to refactor this to the formState, however I keep getting errors 
   const [stat, setStatic] = React.useState(false)
@@ -33,6 +21,36 @@ export default function ModifyCollection() {
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
+  // menu options
+  const services = ["Online News", "Youtube"]
+
+  // original values 
+  const name = ""
+  const notes = ""
+  const service = ""
+
+  // form state for text fields 
+  const [formState, setFormState] = React.useState({
+    name: name, notes: notes, service: service, id: 1,
+  });
+
+
+  const {
+    data,
+    isLoading,
+    isSuccess,
+    isError,
+    error
+  } = useGetCollectionQuery(formState.id)
+
+
+  
+
+
+  
+
+
+
 
 
   return (
@@ -41,6 +59,35 @@ export default function ModifyCollection() {
         <h2 className="title">Modify this Collection</h2>
 
         <ul>
+
+          <TextField
+            id="text"
+            label="ID"
+            name="id"
+            defaultValue={formState.id}
+            onChange={handleChange}
+          />
+
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            onClick={async () => {
+
+              console.log(data)
+
+             console.log(data.notes)
+             console.log(data.name)
+
+           
+
+            
+
+
+            }}
+          >
+            ID
+          </Button>
 
           {/* Name */}
           <li>
