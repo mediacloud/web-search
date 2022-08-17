@@ -4,13 +4,14 @@ import datetime as dt
 import datetime
 from operator import itemgetter
 import dateutil
+from abc import ABC
 import mediacloud.api
 
 # helpful for turning any date into the standard Media Cloud date format
 MC_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
-class ContentProvider:
+class ContentProvider(ABC):
     """
     An abstract wrapper to be implemented for each platform we want to preview content from.
     Any unimplemented methods raise an Exception
@@ -53,7 +54,8 @@ class ContentProvider:
         """
         matching_content_counts = self.count_over_time(query, start_date, end_date, **kwargs)['counts']
         matching_total = sum([d['count'] for d in matching_content_counts])
-        no_query_content_counts = self.count_over_time(self._everything_query(), start_date, end_date, **kwargs)['counts']
+        no_query_content_counts = self.count_over_time(self._everything_query(), start_date, end_date,
+                                                       **kwargs)['counts']
         no_query_total = sum([d['count'] for d in no_query_content_counts])
         return {
             'counts': _combined_split_and_normalized_counts(matching_content_counts, no_query_content_counts),
@@ -66,10 +68,6 @@ class ContentProvider:
         :return: a query string that can be used to capture matching "everything" 
         """
         return '*'
-
-
-def _trim_solr_date(date_str):
-    return dateutil.parser.parse(date_str).strftime("%Y-%m-%d")
 
 
 def add_missing_dates_to_split_story_counts(counts, start, end, period="day"):
