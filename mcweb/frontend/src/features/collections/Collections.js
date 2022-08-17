@@ -22,8 +22,6 @@ export default function Collection() {
   } = useGetCollectionQuery(id)
 
 
-
-
   return (
     <div className="container">
       <div className="collection-header">
@@ -104,7 +102,6 @@ export default function Collection() {
             sx={{ my: 2.25, color: 'black', display: 'block' }}
             onClick={async () => {
               console.log(data)
-              
             }}
           >
             Get Information
