@@ -4,8 +4,11 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import {useSelector} from 'react-redux'
+import {useSelector, useDispatch} from 'react-redux'
 import { useGetSourceAndAssociationsQuery } from '../../app/services/sourceApi';
+import { setSource } from './sourceSlice';
+
+
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
@@ -16,7 +19,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function Source() {
-  const {source} = useSelector((store) => store);
+  const store = useSelector((store) => store);
   const {
     data,
     isLoading,
@@ -24,7 +27,7 @@ export default function Source() {
     isError,
     error,
   } = useGetSourceAndAssociationsQuery(1089);
-  
+  const dispatch = useDispatch();
   return (
     <div style={{ paddingTop: "100px" }}>
       <Box sx={{ width: '100%' }}>
@@ -64,9 +67,11 @@ export default function Source() {
           </Grid>
         </Grid>
         <button onClick={()=>(
-         console.log(source),
-         console.log(data)
-        )}>Click Me</button>
+        //  console.log(store),
+        //  console.log(data),
+         dispatch(setSource(data)),
+         console.log(store)
+      )}>Click Me</button>
       </Box>
     </div>
   );

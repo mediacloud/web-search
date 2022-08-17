@@ -5,7 +5,7 @@ import { searchApi } from './services/searchApi';
 import { sourceApi } from './services/sourceApi';
 import authReducer from '../features/auth/authSlice';
 import searchReducer from '../features/search/searchSlice';
-import sourceReducer from '../features/sources/sourceSlice'
+import sourcesReducer from '../features/sources/sourceSlice';
 
 let store; // singleton store
 
@@ -28,7 +28,7 @@ const setupStore = () => {
       search: searchReducer,
 
       [sourceApi.reducerPath]: sourceApi.reducer,
-      source: sourceReducer,
+      sources: sourcesReducer,
 
     },
     // Adding the api middleware enables caching, invalidation, polling,

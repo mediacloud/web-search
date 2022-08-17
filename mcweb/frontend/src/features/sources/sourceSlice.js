@@ -15,19 +15,24 @@ const initialState = {
     media_type: null
 }
 const sourceSlice = createSlice({
-    name: 'source',
-    initialState,
+    name: 'sources',
+    initialState: {},
     reducers: {
-        // setSource: (state, { payload }) => {
-        //     payload.map(source => (
-        //         console.log(source)
-        //     ))
+        setSource: (state, { payload }) => {
+            // console.log(state)
+            console.log(payload)
+            // state = payload;
+            state.sources = {...payload} 
+            // state.sources = payload.sources.id
+            // payload.map(source => (
+            //     console.log(source)
+            // ))
             // state.source = payload;
-    // }
+    }
     },
 });
 
-// export const setSource = sourceSlice.actions.setSource
+export const setSource = sourceSlice.actions.setSource
 
 // export const selectTotalAttention = (state) => state.search.search;
 
