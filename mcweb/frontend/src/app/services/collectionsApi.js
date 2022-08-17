@@ -12,10 +12,13 @@ export const collectionsApi = createApi({
   }),
 
   endpoints: (builder) => ({
-
+    
+  
     getCollection: builder.query({
-      query: (collectionID) =>
-        '/${collectionID}'
+      query: (id) => ({
+        url: `${id}/`,
+        method: 'GET'
+      }),
     }),
     postCollection: builder.mutation({
       query: (collection) => ({
