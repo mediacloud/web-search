@@ -10,10 +10,9 @@ export const collectionsApi = createApi({
       return headers;
     },
   }),
-
+  
   endpoints: (builder) => ({
     
-  
     getCollection: builder.query({
       query: (id) => ({
         url: `${id}/`,
@@ -28,17 +27,17 @@ export const collectionsApi = createApi({
       })
     }),
     updateCollection: builder.mutation({
-      query: (collectionID) => ({
-        url: '/${collectionID}',
+      query: (id, collection) => ({
+        url: `${id}/`,
         method: 'PATCH',
-        body: { ...collectionID }
+        body: { ...id, collection }
       })
     }),
     deleteCollection: builder.mutation({
-      query: (collectionID) => ({
-        url: '/${collectionID}/',
+      query: ({id}) => ({
+        url: `/${id}/`,
         method: 'DELETE',
-        body: { collectionID }
+        body: {... id}
       }),
     }),
   })
