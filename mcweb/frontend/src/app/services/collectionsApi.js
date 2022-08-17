@@ -46,5 +46,4 @@ export const {
   usePostCollectionMutation,
   useUpdateCollectionMutation,
   useDeleteCollectionMutation
-
 } = collectionsApi
