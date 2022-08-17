@@ -16,7 +16,7 @@ export default function ModifyCollection() {
 
   // form state for text fields 
   const [formState, setFormState] = React.useState({
-    id: 1, name: "", notes: "",
+    id: 117, name: "", notes: "",
   });
 
 
@@ -40,7 +40,7 @@ export default function ModifyCollection() {
 
 
   return (
-    <div className='container'>
+    <div className='container'> 
       <div className="collection-header">
         <h2 className="title">Modify this Collection</h2>
 
@@ -112,7 +112,11 @@ export default function ModifyCollection() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-
+              console.log(formState.id)
+              const deleteCollection = await remove({
+                id: formState.id
+              }).unwrap()
+              console.log(deleteCollection)
             }}
           >
             Delete
@@ -123,11 +127,11 @@ export default function ModifyCollection() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-
               const createCollection = await post({
                 name:formState.name,
                 notes: formState.notes
               }).unwrap()
+              // null == deleted 
               console.log(createCollection)
             }}
           >
