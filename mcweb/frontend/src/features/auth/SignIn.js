@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import { useSnackbar } from 'notistack';
 import { Container } from '@mui/material';
 
-import { saveCsrfToken } from '../../services/CsrfToken';
+import { saveCsrfToken } from '../../services/csrfToken';
 import { useLoginMutation } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
 
