@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const collectionsApi = createApi({
   reducerPath: 'collectionsApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: '/api/sources-collections/',
+    baseUrl: '/api/sources/collections/',
     prepareHeaders: (headers, { getState }) => {
       // Django requires this for security (cross-site forgery protection) once logged in
       headers.set('X-Csrftoken', window.CSRF_TOKEN);
@@ -15,7 +15,7 @@ export const collectionsApi = createApi({
 
     getCollection: builder.query({
       query: (collectionID) =>
-        '/${collectionID}/?collection=true'
+        '/${collectionID}'
     }),
     postCollection: builder.mutation({
       query: (collection) => ({
@@ -26,16 +26,16 @@ export const collectionsApi = createApi({
     }),
     updateCollection: builder.mutation({
       query: (collectionID) => ({
-        url: '/${collectionID}/?collection=true',
+        url: '/${collectionID}',
         method: 'PATCH',
         body: { ...collectionID }
       })
     }),
     deleteCollection: builder.mutation({
-      query: (collectionID, sourceID) => ({
-        url: '/${collectionID}/collection=true&source_id=${sourceID}/',
+      query: (collectionID) => ({
+        url: '/${collectionID}/',
         method: 'DELETE',
-        body: { collectionID, sourceID }
+        body: { collectionID }
       }),
     }),
   })
