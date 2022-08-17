@@ -7,12 +7,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://bootswatch.com/4/cosmo/bootstrap.min.css">
     <title>Media Cloud</title>
+    <script>
+        settings = {};
+        settings.appVersion = "{{ version }}";
+    </script>
 </head>
 
 <body>
     <div id="app"></div>
     {% load static %}
-    
 
     <script src="{% static "frontend/main.js" %}"></script>
 </body>
