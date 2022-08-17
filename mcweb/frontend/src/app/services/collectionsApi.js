@@ -9,39 +9,42 @@ export const collectionsApi = createApi({
       headers.set('X-Csrftoken', window.CSRF_TOKEN);
       return headers;
     },
+  }),
 
-    endpoints: (builder) => ({
+  endpoints: (builder) => ({
 
-      getCollection: builder.query({
-        query: (collection) =>
-          '/${collection.id}/?collection=true'
-      }),
-
-      postCollection: builder.mutation({
-        query: (collection) => ({
-          // url is already '/api/sources-collections/'
-          method: 'POST',
-          body: {...collection}
-        })
-      }),
-
-      updateCollection: builder.mutation({
-        query: (collection) => ({
-          url: '/${collection.id}/?collection=true',
-          method: 'PATCH', 
-          body: {... collection}
-        })
-      }), 
-
-      deleteCollection: builder.mutation({
-        query: (sources) => ({
-
-        })
+    getCollection: builder.query({
+      query: (collectionID) =>
+        '/${collectionID}/?collection=true'
+    }),
+    postCollection: builder.mutation({
+      query: (collection) => ({
+        // url is already '/api/sources-collections/'
+        method: 'POST',
+        body: { ...collection }
       })
-
-    })
-
-
+    }),
+    updateCollection: builder.mutation({
+      query: (collectionID) => ({
+        url: '/${collectionID}/?collection=true',
+        method: 'PATCH',
+        body: { ...collectionID }
+      })
+    }),
+    deleteCollection: builder.mutation({
+      query: (collectionID, sourceID) => ({
+        url: '/${collectionID}/collection=true&source_id=${sourceID}/',
+        method: 'DELETE',
+        body: { collectionID, sourceID }
+      }),
+    }),
   })
-
 })
+
+export const {
+  useGetCollectionQuery,
+  usePostCollectionMutation,
+  useUpdateCollectionMutation,
+  useDeleteCollectionMutation
+
+} = collectionsApi
