@@ -1,8 +1,11 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import {useSelector} from 'react-redux'
+import { useGetSourceAndAssociationsQuery } from '../../app/services/sourceApi';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
@@ -13,6 +16,15 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function Source() {
+  const {source} = useSelector((store) => store);
+  const {
+    data,
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetSourceAndAssociationsQuery(1089);
+  
   return (
     <div style={{ paddingTop: "100px" }}>
       <Box sx={{ width: '100%' }}>
@@ -51,6 +63,10 @@ export default function Source() {
             <Item>Media Type: </Item>
           </Grid>
         </Grid>
+        <button onClick={()=>(
+         console.log(source),
+         console.log(data)
+        )}>Click Me</button>
       </Box>
     </div>
   );
