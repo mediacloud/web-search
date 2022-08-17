@@ -22,6 +22,7 @@ export const collectionsApi = createApi({
     }),
     postCollection: builder.mutation({
       query: (collection) => ({
+        url: '',
         method: 'POST',
         body: { ...collection }
       })
