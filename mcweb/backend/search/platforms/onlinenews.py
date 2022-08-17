@@ -113,11 +113,11 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         if len(media_ids) > 0 or (len(tag_ids) > 0):
             clauses = []
             # add in the media sources they specified
-            if len(media_ids) > 0: # this format is a string of media_ids
+            if len(media_ids) > 0:  # this format is a string of media_ids
                 query_clause = "media_id:({})".format(" ".join([str(m) for m in media_ids]))
                 clauses.append(query_clause)
             # add in the collections they specified
-            if len(tag_ids) > 0: # this format is a string of tags_id_medias
+            if len(tag_ids) > 0:  # this format is a string of tags_id_medias
                 query_clause = "tags_id_media:({})".format(" ".join([str(m) for m in tag_ids]))
                 clauses.append(query_clause)
             # now add in any addition media query clauses (get OR'd together)
@@ -132,7 +132,15 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
 
 class OnlineNewsWaybackMachineProvider(ContentProvider):
 
-    API_BASE_URL = "http://mcapi.sawood-dev.us.archive.org:8000/v1/"
+    VERSION = "v1"
+    DEFAULT_COLLECTION = "mediacloud"
+    API_BASE_URL = "http://colsearch.sawood-dev.us.archive.org:8000/{}/".format(VERSION)
+
+    TERM_FIELD_TITLE = "title"
+    TERM_FIELD_SNIPPET = "snippet"
+    TERM_AGGREGATION_TOP = "top"
+    TERM_AGGREGATION_SIGNIFICANT = "significant"
+    TERM_AGGREGATION_RARE = "rare"
 
     def __init__(self):
         super(OnlineNewsWaybackMachineProvider, self).__init__()
@@ -191,21 +199,24 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
     def _date_query_clause(start_date: dt.datetime, end_date: dt.datetime) -> str:
         return "publication_date:[{} TO {}]".format(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
 
-    def _overview_query(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
+    def _overview_query(self, query: str, start_date: dt.datetime, end_date: dt.datetime,
+                        collection: str = DEFAULT_COLLECTION, **kwargs) -> Dict:
         params = {"q": "{} AND {}".format(query, self._date_query_clause(start_date, end_date))}
-        results, response = self._query("search/overview", params, method='POST')
+        params.update(kwargs)
+        results, response = self._query("{}/search/overview".format(collection), params, method='POST')
         return results
 
-    def item(self, item_id: str) -> Dict:
-        results, _ = self._query("article/{}".format(item_id), method='GET')
+    def item(self, item_id: str, collection: str = DEFAULT_COLLECTION) -> Dict:
+        results, _ = self._query("{}/article/{}".format(item_id, collection), method='GET')
         return results
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
-                  **kwargs):
+                  collection: str = DEFAULT_COLLECTION, **kwargs):
         params = {"q": "{} AND {}".format(query, self._date_query_clause(start_date, end_date))}
+        params.update(kwargs)
         more_pages = True
         while more_pages:
-            page, response = self._query("search/result", params, method='POST')
+            page, response = self._query("{}/search/result".format(collection), params, method='POST')
             yield page
             # check if there is a link to the next page
             more_pages = False
@@ -213,6 +224,14 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
             if next_link_token:
                 params['resume'] = next_link_token
                 more_pages = True
+
+    def terms(self, query: str, start_date: dt.datetime, end_date: dt.datetime, field: str, aggregation: str,
+              collection: str = DEFAULT_COLLECTION, **kwargs) -> Dict:
+        params = {"q": "{} AND {}".format(query, self._date_query_clause(start_date, end_date))}
+        params.update(kwargs)
+        results, response = self._query("{}/terms/{}/{}".format(collection, field, aggregation), params,
+                                        method='GET')
+        return results
 
     @cache_by_kwargs()
     def _query(self, endpoint: str, params: Dict = None, method: str = 'GET'):
