@@ -1,7 +1,7 @@
 import { renderApp } from './App';
 import { getStore } from './app/store';
 import { api as authApi } from './app/services/authApi';
-import { saveCsrfToken } from './services/CsrfToken';
+import { saveCsrfToken } from './services/csrfToken';
 import { setCredentials } from './features/auth/authSlice';
 
 // gets the store from store.js

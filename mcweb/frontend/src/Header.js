@@ -12,7 +12,7 @@ import { useSnackbar } from 'notistack';
 import { useLogoutMutation } from './app/services/authApi';
 import { selectCurrentUser, selectIsLoggedIn, setCredentials } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
-import { saveCsrfToken } from './services/CsrfToken';
+import { saveCsrfToken } from './services/csrfToken';
 
 // if you use a query, you would use lcoal compenent state to set the query parameter
 
