@@ -65,7 +65,7 @@ export default function ModifyCollection() {
               })
             }}
           >
-            Edit
+            Get
           </Button>
 
           {/* Name */}
@@ -76,7 +76,6 @@ export default function ModifyCollection() {
               id="text"
               name="name"
               value={formState.name}
-              defaultValue={formState.name}
               onChange={handleChange}
             />
           </li>
@@ -91,7 +90,6 @@ export default function ModifyCollection() {
               multiline
               rows={4}
               value={formState.notes}
-              defaultValue={formState.notes}
               onChange={handleChange}
             />
           </li>
@@ -126,6 +124,11 @@ export default function ModifyCollection() {
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
 
+              const createCollection = await post({
+                name:formState.name,
+                notes: formState.notes
+              }).unwrap()
+              console.log(createCollection)
             }}
           >
             Create
