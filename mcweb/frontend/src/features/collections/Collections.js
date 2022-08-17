@@ -3,11 +3,22 @@ import { Button, Box, TextField } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 import { useState } from 'react';
+import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
 export default function Collection() {
+ 
+  const [id, setID] = useState(1)
+
+  const {
+    data, 
+    isLoading, 
+    isSuccess,
+    isError,
+    error
+  } = useGetCollectionQuery(id)
 
 
-  const [id, setID] = useState(10)
+
 
   const handlechange = (event) => {
     setID(event.target.value);
@@ -93,7 +104,7 @@ export default function Collection() {
             variant='contained'
             sx={{ my: 2.25, color: 'black', display: 'block' }}
             onClick={async () => {
-              console.log("id" + id)
+              console.log(data)
             }}
           >
             Get Information
