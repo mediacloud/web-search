@@ -32,6 +32,7 @@ import SourceShow from './features/sources/SourceShow';
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
+import ModifySource from './features/sources/ModifySource';
 
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
@@ -87,6 +88,12 @@ export const renderApp = () => {
             <Route path="collections/modify-collection" element={
               <RequireAuth>
                 <ModifyCollection />
+              </RequireAuth>} />
+
+
+            <Route path="collections/modify-source" element={
+              <RequireAuth>
+                <ModifySource />
               </RequireAuth>} />
 
             <Route path="sign-in" element={<SignIn />} />

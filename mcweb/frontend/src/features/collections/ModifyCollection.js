@@ -6,6 +6,7 @@ import { useDeleteCollectionMutation, useGetCollectionQuery, usePostCollectionMu
 
 export default function ModifyCollection() {
 
+<<<<<<< HEAD
   // menu options
   const services = ["Online News", "Youtube"]
 
@@ -34,6 +35,37 @@ export default function ModifyCollection() {
   };
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+=======
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+
+  // menu options
+  const services = ["Online News", "Youtube"]
+
+
+
+  // form state for text fields 
+  const [formState, setFormState] = React.useState({
+    id: 6, name: "", notes: "",
+  });
+
+
+  const {
+    data,
+    isLoading,
+    isSuccess,
+    isError,
+    error
+  } = useGetCollectionQuery(formState.id)
+
+  // create 
+  const [createCollection, { setPost }] = usePostCollectionMutation();
+
+  // update 
+  const [updateCollection, { setUpdate }] = useUpdateCollectionMutation();
+
+  // delete 
+  const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
+>>>>>>> 5ea79715ef36d9fe9c5e48cd94bca2e18a6337ca
 
   return (
     <div className='container'>
@@ -89,6 +121,7 @@ export default function ModifyCollection() {
             />
           </li>
 
+<<<<<<< HEAD
           {/* Service */}
           <li>
             <h5>Service</h5>
@@ -131,31 +164,66 @@ export default function ModifyCollection() {
             />
 
           </li>
+=======
+>>>>>>> 5ea79715ef36d9fe9c5e48cd94bca2e18a6337ca
 
-          {/* Public Button */}
-          <li>
-            <h5>Public</h5>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checkState.pub}
-                  onChange={handleCheck}
-                  name="pub"
-                />
-              }
-            />
-          </li>
 
+<<<<<<< HEAD
+=======
+          {/* Update */}
+>>>>>>> 5ea79715ef36d9fe9c5e48cd94bca2e18a6337ca
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
+<<<<<<< HEAD
               console.log("Name: " + formState.name)
               console.log("Notes: " + formState.notes)
               console.log("Service: " + formState.service)
               console.log("Static: " + checkState.stat)
               console.log("Public: " + checkState.pub)
+=======
+              const updatedCollection = await updateCollection({
+                id: formState.id,
+                name: formState.name,
+                notes: formState.notes
+              }).unwrap();
+              console.log(updatedCollection)
+            }}
+          >
+            Update
+          </Button>
+
+          {/* Delete */}
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            onClick={async () => {
+              console.log(formState.id)
+              const deletedCollection = await deleteCollection({
+                id: formState.id
+              }).unwrap()
+              console.log(deletedCollection)
+            }}
+          >
+            Delete
+          </Button>
+
+          {/* Create */}
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            onClick={async () => {
+              const createdCollection = await createCollection({
+                name: formState.name,
+                notes: formState.notes
+              }).unwrap()
+              // null == deleted 
+              console.log(createdCollection)
+>>>>>>> 5ea79715ef36d9fe9c5e48cd94bca2e18a6337ca
             }}
           >
             Create

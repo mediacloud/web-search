@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+<<<<<<< HEAD
 const initialState = {
     id: null,
     name: null,
@@ -37,3 +38,13 @@ export const setSource = sourceSlice.actions.setSource
 // export const selectTotalAttention = (state) => state.search.search;
 
 export default sourceSlice.reducer;
+=======
+const slice = createSlice({
+  name: 'sources',
+
+  initialState: { id: null, name: null, label: null, url: null}
+
+})
+
+export default slice.reducer
+>>>>>>> 5ea79715ef36d9fe9c5e48cd94bca2e18a6337ca
