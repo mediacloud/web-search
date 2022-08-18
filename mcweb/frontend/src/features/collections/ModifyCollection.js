@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { TextField, MenuItem, Box, FormControlLabel, Button, Checkbox } from '@mui/material';
 import { useState } from 'react';
-import { PublishedWithChanges } from '@mui/icons-material';
 
 import { useDeleteCollectionMutation, useGetCollectionQuery, usePostCollectionMutation, useUpdateCollectionMutation } from '../../app/services/collectionsApi';
 
@@ -37,13 +36,10 @@ export default function ModifyCollection() {
   // delete 
   const [remove, { setRemove }] = useDeleteCollectionMutation();
 
-
-
   return (
     <div className='container'>
       <div className="collection-header">
         <h2 className="title">Modify this Collection</h2>
-
         <ul>
           <TextField
             id="text"
