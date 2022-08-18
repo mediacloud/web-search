@@ -5,8 +5,18 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import {useSelector, useDispatch} from 'react-redux'
-import { useGetSourceAndAssociationsQuery } from '../../app/services/sourceApi';
-import { setSource } from './sourceSlice';
+//rtk api operations...corresponding with API calls to the backend
+import { useCreateSourceCollectionAssociationMutation, 
+  useGetSourceAndAssociationsQuery,
+  useGetCollectionAndAssociationsQuery,
+  useCreateSourceCollectionAssociation,
+  useDeleteSourceCollectionAssociationMutation
+} from '../../app/services/sourcesCollectionsApi';
+//rtk actions to change state
+import { setCollectionSourcesAssociations, 
+  setSourceCollectionsAssociations, 
+  setSourceCollectionAssociation,
+ } from '../sources_collections/sourcesCollectionsSlice';
 
 
 
@@ -26,8 +36,30 @@ export default function Source() {
     isSuccess,
     isError,
     error,
-  } = useGetSourceAndAssociationsQuery(1089);
+  } = useGetSourceAndAssociationsQuery(1);
+
+  // const {
+  //   data,
+  //   isLoading,
+  //   isSuccess,
+  //   isError,
+  //   error,
+  // } = useGetCollectionAndAssociationsQuery(1);
+  const newAssoc = {
+    'source_id': 1,
+    'collection_id': 9357186
+  }
+  const [makeSourceCollectionAssociation, createResult] = useCreateSourceCollectionAssociationMutation();
+  
+  const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
+ 
+ 
   const dispatch = useDispatch();
+  useEffect(() => {
+    console.log('Hello')
+    // makeSourceCollectionAssociation(newAssoc)
+    //   .then(dispatch(setSourceCollectionAssociation(newAssoc)))
+  }, []);
   return (
     <div style={{ paddingTop: "100px" }}>
       <Box sx={{ width: '100%' }}>
@@ -69,9 +101,23 @@ export default function Source() {
         <button onClick={()=>(
         //  console.log(store),
         //  console.log(data),
-         dispatch(setSource(data)),
-         console.log(store)
-      )}>Click Me</button>
+        //  dispatch(setSourcesCollections(data)),
+          makeSourceCollectionAssociation(newAssoc)
+            .then(results => dispatch(setSourceCollectionAssociation(results.data))),
+            // .then(dispatch(setSourceCollectionAssociation(newAssoc))),
+        console.log(createResult),
+        console.log(store)
+        // console.log(data)
+        // dispatch(setSourceCollectionAssociation(data))
+        //  console.log(store)
+      )}>Click Me to make new association</button>
+
+      <button onClick={() =>(
+          dispatch(setSourceCollectionsAssociations(data)),
+          console.log(store)
+      )}>
+        Get associations
+      </button>
       </Box>
     </div>
   );
