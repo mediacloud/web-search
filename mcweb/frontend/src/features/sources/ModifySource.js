@@ -22,7 +22,7 @@ export default function ModifySource() {
 
   // form state for text fields 
   const [formState, setFormState] = React.useState({
-    id: 577, name: "", notes: "", homepage: "", label: "", serivce: ""
+    id: 571, name: "", notes: "", homepage: "", label: "", service: ""
   });
 
   const {
@@ -54,7 +54,7 @@ export default function ModifySource() {
             id="text"
             label="ID"
             name="id"
-            defaultValue={formState.id}
+            value={formState.id}
             onChange={handleChange}
           />
           <Button
@@ -62,12 +62,12 @@ export default function ModifySource() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
+              console.log(data)
               setFormState({
-                id: data.id, 
+                id: data.id,
                 name: data.name,
-                notes: data.id,
-                homepage: data.name, 
-                label: data.service,
+                homepage: data.homepage,
+                label: data.label,
               })
             }}
           >
@@ -119,22 +119,11 @@ export default function ModifySource() {
               fullWidth
               id="text"
               name="label"
-              value={formState.label}
               onChange={handleChange}
             />
           </li>
 
-          {/* Service */}
-          <li>
-            <h5>Service</h5>
-            <TextField
-              fullWidth
-              id="text"
-              name="service"
-              value={formState.name}
-              onChange={handleChange}
-            />
-          </li>
+
 
 
           <Button
@@ -160,6 +149,7 @@ export default function ModifySource() {
               const deleteCollection = await remove({
                 id: formState.id
               }).unwrap()
+              // deleted == null
               console.log(deleteCollection)
             }}
           >
@@ -172,10 +162,9 @@ export default function ModifySource() {
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
               const createCollection = await post({
-                name: formState.name,
-                notes: formState.notes
+                formState
+
               }).unwrap()
-              // null == deleted 
               console.log(createCollection)
             }}
           >
