@@ -1,8 +1,12 @@
 import * as React from 'react';
-import { Button, Box } from '@mui/material';
+import { Button, Box, TextField } from '@mui/material';
 import { Link } from 'react-router-dom';
 
+import { useState } from 'react';
+import { useGetCollectionQuery } from '../../app/services/collectionsApi';
+
 export default function Collection() {
+
   return (
     <div className="container">
       <div className="collection-header">
@@ -55,20 +59,21 @@ export default function Collection() {
             </tbody>
           </table>
         </div>
-      
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-              component={Link}
-              to="modify-collection"
-            >
-              Modify this Collection
-            </Button>
-          </Box>
-      </div >
 
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            component={Link}
+            to="modify-collection"
+          >
+            Modify this Collection
+          </Button>
+        </Box>
+
+        
+      </div >
     </div >
   );
 }

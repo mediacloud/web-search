@@ -8,7 +8,7 @@ from collections import namedtuple
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
     permission_classes = [
-        permissions.IsAuthenticated
+        permissions.AllowAny
     ]
     serializer_class = CollectionSerializer
 
@@ -16,7 +16,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
     permission_classes = [
-        permissions.IsAuthenticated
+        permissions.AllowAny
+
     ]
     serializer_class = FeedsSerializer
 
@@ -24,7 +25,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
 class SourcesViewSet(viewsets.ModelViewSet):
     queryset = Source.objects.all()
     permission_classes = [
-        permissions.IsAuthenticated
+        permissions.AllowAny
     ]
     serializer_class = SourcesSerializer 
 
