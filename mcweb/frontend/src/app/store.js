@@ -1,11 +1,14 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query/react';
-import { api as authApi } from './services/authApi';
+import {  api as authApi } from './services/authApi';
 import { searchApi } from './services/searchApi';
 import { sourcesCollectionsApi } from './services/sourcesCollectionsApi';
 import authReducer from '../features/auth/authSlice';
 import searchReducer from '../features/search/searchSlice';
 import sourcesCollectionsReducer from '../features/sources_collections/sourcesCollectionsSlice'
+import { collectionsApi } from './services/collectionsApi';
+
+import collectionsRedcuer from '../features/collections/collectionsSlice'
 
 let store; // singleton store
 
@@ -29,6 +32,12 @@ const setupStore = () => {
 
       [sourcesCollectionsApi.reducerPath]: sourcesCollectionsApi.reducer,
       sourcesCollections: sourcesCollectionsReducer,
+      
+      [collectionsApi.reducerPath]: collectionsApi.reducer,
+      collections: collectionsRedcuer
+
+
+
 
     },
     // Adding the api middleware enables caching, invalidation, polling,
