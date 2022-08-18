@@ -16,7 +16,7 @@ export default function ModifyCollection() {
 
   // form state for text fields 
   const [formState, setFormState] = React.useState({
-    id: 118, name: "", notes: "",
+    id: 6, name: "", notes: "",
   });
 
 
@@ -29,13 +29,13 @@ export default function ModifyCollection() {
   } = useGetCollectionQuery(formState.id)
 
   // create 
-  const [post, { setPost }] = usePostCollectionMutation();
+  const [createCollection, { setPost }] = usePostCollectionMutation();
 
   // update 
-  const [update, { setUpdate }] = useUpdateCollectionMutation();
+  const [updateCollection, { setUpdate }] = useUpdateCollectionMutation();
 
   // delete 
-  const [remove, { setRemove }] = useDeleteCollectionMutation();
+  const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
 
 
 
@@ -94,46 +94,53 @@ export default function ModifyCollection() {
             />
           </li>
 
+
+
+          {/* Update */}
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              const updateCollection = await update({
-                ...formState
+              const updatedCollection = await updateCollection({
+                id: formState.id,
+                name: formState.name,
+                notes: formState.notes
               }).unwrap();
-              console.log(updateCollection)
+              console.log(updatedCollection)
             }}
           >
             Update
           </Button>
 
+          {/* Delete */}
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
               console.log(formState.id)
-              const deleteCollection = await remove({
+              const deletedCollection = await deleteCollection({
                 id: formState.id
               }).unwrap()
-              console.log(deleteCollection)
+              console.log(deletedCollection)
             }}
           >
             Delete
           </Button>
 
+          {/* Create */}
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              const createCollection = await post({
+              const createdCollection = await createCollection({
                 name: formState.name,
                 notes: formState.notes
               }).unwrap()
               // null == deleted 
-              console.log(createCollection)
+              console.log(createdCollection)
             }}
           >
             Create
