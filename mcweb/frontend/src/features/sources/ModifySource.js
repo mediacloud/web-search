@@ -22,7 +22,7 @@ export default function ModifySource() {
 
   // form state for text fields 
   const [formState, setFormState] = React.useState({
-    id: 118, name: "", notes: "",
+    id: 577, name: "", notes: "", homepage: "", label: "", serivce: ""
   });
 
   const {
@@ -63,10 +63,11 @@ export default function ModifySource() {
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
               setFormState({
+                id: data.id, 
                 name: data.name,
-                notes: data.notes,
-                id: data.id
-
+                notes: data.id,
+                homepage: data.name, 
+                label: data.service,
               })
             }}
           >
@@ -98,6 +99,43 @@ export default function ModifySource() {
               onChange={handleChange}
             />
           </li>
+
+          {/* Homepage */}
+          <li>
+            <h5>Homepage</h5>
+            <TextField
+              fullWidth
+              id="text"
+              name="homepage"
+              value={formState.homepage}
+              onChange={handleChange}
+            />
+          </li>
+
+          {/* Label */}
+          <li>
+            <h5>Label</h5>
+            <TextField
+              fullWidth
+              id="text"
+              name="label"
+              value={formState.label}
+              onChange={handleChange}
+            />
+          </li>
+
+          {/* Service */}
+          <li>
+            <h5>Service</h5>
+            <TextField
+              fullWidth
+              id="text"
+              name="service"
+              value={formState.name}
+              onChange={handleChange}
+            />
+          </li>
+
 
           <Button
             fullWidth
