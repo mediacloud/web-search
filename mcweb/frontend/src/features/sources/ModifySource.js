@@ -1,10 +1,17 @@
 import * as React from 'react';
 import { TextField, MenuItem, Box, FormControlLabel, Button, Checkbox } from '@mui/material';
 import { useState } from 'react';
+import { PublishedWithChanges } from '@mui/icons-material';
 
-import { useDeleteCollectionMutation, useGetCollectionQuery, usePostCollectionMutation, useUpdateCollectionMutation } from '../../app/services/collectionsApi';
+import {
+  useGetSourceQuery,
+  useUpdateSourceMutation,
+  useDeleteSourceMutation,
+  usePostSourceMutation
+}
+  from '../../app/services/sourceApi';
 
-export default function ModifyCollection() {
+export default function ModifySource() {
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
@@ -15,9 +22,8 @@ export default function ModifyCollection() {
 
   // form state for text fields 
   const [formState, setFormState] = React.useState({
-    id: 6, name: "", notes: "",
+    id: 571, name: "", notes: "", homepage: "", label: "", service: ""
   });
-
 
   const {
     data,
@@ -25,27 +31,30 @@ export default function ModifyCollection() {
     isSuccess,
     isError,
     error
-  } = useGetCollectionQuery(formState.id)
+  } = useGetSourceQuery(formState.id)
 
   // create 
-  const [createCollection, { setPost }] = usePostCollectionMutation();
+  const [post, { setPost }] = usePostSourceMutation();
 
   // update 
-  const [updateCollection, { setUpdate }] = useUpdateCollectionMutation();
+  const [update, { setUpdate }] = useUpdateSourceMutation();
 
   // delete 
-  const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
+  const [remove, { setRemove }] = useDeleteSourceMutation();
+
+
 
   return (
     <div className='container'>
       <div className="collection-header">
-        <h2 className="title">Modify this Collection</h2>
+        <h2 className="title">Modify this Source</h2>
+
         <ul>
           <TextField
             id="text"
             label="ID"
             name="id"
-            defaultValue={formState.id}
+            value={formState.id}
             onChange={handleChange}
           />
           <Button
@@ -53,11 +62,12 @@ export default function ModifyCollection() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
+              console.log(data)
               setFormState({
+                id: data.id,
                 name: data.name,
-                notes: data.notes,
-                id: data.id
-
+                homepage: data.homepage,
+                label: data.label,
               })
             }}
           >
@@ -90,53 +100,72 @@ export default function ModifyCollection() {
             />
           </li>
 
+          {/* Homepage */}
+          <li>
+            <h5>Homepage</h5>
+            <TextField
+              fullWidth
+              id="text"
+              name="homepage"
+              value={formState.homepage}
+              onChange={handleChange}
+            />
+          </li>
+
+          {/* Label */}
+          <li>
+            <h5>Label</h5>
+            <TextField
+              fullWidth
+              id="text"
+              name="label"
+              onChange={handleChange}
+            />
+          </li>
 
 
-          {/* Update */}
+
+
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              const updatedCollection = await updateCollection({
-                id: formState.id,
-                name: formState.name,
-                notes: formState.notes
+              const updateCollection = await update({
+                ...formState
               }).unwrap();
-              console.log(updatedCollection)
+              console.log(updateCollection)
             }}
           >
             Update
           </Button>
 
-          {/* Delete */}
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
               console.log(formState.id)
-              const deletedCollection = await deleteCollection({
+              const deleteCollection = await remove({
                 id: formState.id
               }).unwrap()
-              console.log(deletedCollection)
+              // deleted == null
+              console.log(deleteCollection)
             }}
           >
             Delete
           </Button>
 
-          {/* Create */}
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              const createdCollection = await createCollection({
-                name: formState.name,
-                notes: formState.notes
+              const createCollection = await post({
+                formState
+
               }).unwrap()
-              // null == deleted 
-              console.log(createdCollection)
+              console.log(createCollection)
             }}
           >
             Create

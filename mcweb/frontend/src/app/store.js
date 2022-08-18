@@ -1,12 +1,14 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query/react';
-import {  api as authApi } from './services/authApi';
+import { api as authApi } from './services/authApi';
 import { searchApi } from './services/searchApi';
- import { collectionsApi } from './services/collectionsApi';
+import { collectionsApi } from './services/collectionsApi';
+import { sourcesApi } from './services/sourceApi'
 
 import authReducer from '../features/auth/authSlice';
 import searchReducer from '../features/search/searchSlice';
-import collectionsRedcuer from '../features/collections/collectionsSlice'
+import collectionReducer from '../features/collections/collectionsSlice'
+import sourcesReducer from '../features/sources/sourceSlice'
 
 let store; // singleton store
 
@@ -29,9 +31,10 @@ const setupStore = () => {
       search: searchReducer,
 
       [collectionsApi.reducerPath]: collectionsApi.reducer,
-      collections: collectionsRedcuer
+      collections: collectionReducer,
 
-
+      [sourcesApi.reducerPath]: sourcesApi.reducer,
+      sources: sourcesReducer,
 
 
     },
