@@ -72,7 +72,18 @@ export default function Collection() {
           </Button>
         </Box>
 
-        
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            component={Link}
+            to="modify-source"
+          >
+            Modify this Source
+          </Button>
+        </Box>
+
       </div >
     </div >
   );
