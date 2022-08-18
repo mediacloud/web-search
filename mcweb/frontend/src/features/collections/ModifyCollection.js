@@ -6,7 +6,6 @@ import { useDeleteCollectionMutation, useGetCollectionQuery, usePostCollectionMu
 
 export default function ModifyCollection() {
 
-<<<<<<< HEAD
   // menu options
   const services = ["Online News", "Youtube"]
 
@@ -35,37 +34,6 @@ export default function ModifyCollection() {
   };
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
-=======
-  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
-
-  // menu options
-  const services = ["Online News", "Youtube"]
-
-
-
-  // form state for text fields 
-  const [formState, setFormState] = React.useState({
-    id: 118, name: "", notes: "",
-  });
-
-
-  const {
-    data,
-    isLoading,
-    isSuccess,
-    isError,
-    error
-  } = useGetCollectionQuery(formState.id)
-
-  // create 
-  const [post, { setPost }] = usePostCollectionMutation();
-
-  // update 
-  const [update, { setUpdate }] = useUpdateCollectionMutation();
-
-  // delete 
-  const [remove, { setRemove }] = useDeleteCollectionMutation();
->>>>>>> c696c555aac9a1c8a2747541e0a70a051aaf0393
 
   return (
     <div className='container'>
@@ -121,7 +89,6 @@ export default function ModifyCollection() {
             />
           </li>
 
-<<<<<<< HEAD
           {/* Service */}
           <li>
             <h5>Service</h5>
@@ -179,56 +146,16 @@ export default function ModifyCollection() {
             />
           </li>
 
-=======
->>>>>>> c696c555aac9a1c8a2747541e0a70a051aaf0393
           <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-<<<<<<< HEAD
               console.log("Name: " + formState.name)
               console.log("Notes: " + formState.notes)
               console.log("Service: " + formState.service)
               console.log("Static: " + checkState.stat)
               console.log("Public: " + checkState.pub)
-=======
-              const updateCollection = await update({
-                ...formState
-              }).unwrap();
-              console.log(updateCollection)
-            }}
-          >
-            Update
-          </Button>
-
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={async () => {
-              console.log(formState.id)
-              const deleteCollection = await remove({
-                id: formState.id
-              }).unwrap()
-              console.log(deleteCollection)
-            }}
-          >
-            Delete
-          </Button>
-
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={async () => {
-              const createCollection = await post({
-                name: formState.name,
-                notes: formState.notes
-              }).unwrap()
-              // null == deleted 
-              console.log(createCollection)
->>>>>>> c696c555aac9a1c8a2747541e0a70a051aaf0393
             }}
           >
             Create

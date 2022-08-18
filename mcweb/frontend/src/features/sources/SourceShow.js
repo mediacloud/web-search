@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import {useSelector, useDispatch} from 'react-redux'
+import { useParams } from 'react-router-dom';
 //rtk api operations...corresponding with API calls to the backend
 import { useCreateSourceCollectionAssociationMutation, 
   useGetSourceAndAssociationsQuery,
@@ -16,6 +17,7 @@ import { useCreateSourceCollectionAssociationMutation,
 import { setCollectionSourcesAssociations, 
   setSourceCollectionsAssociations, 
   setSourceCollectionAssociation,
+  dropSourceCollectionAssociation
  } from '../sources_collections/sourcesCollectionsSlice';
 
 
@@ -28,15 +30,17 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.primary
 }));
 
-export default function Source() {
+export default function SourceShow() {
   const store = useSelector((store) => store);
+  const {source_id} = useParams()
+  console.log(source_id)
   const {
     data,
     isLoading,
     isSuccess,
     isError,
     error,
-  } = useGetSourceAndAssociationsQuery(1);
+  } = useGetSourceAndAssociationsQuery(Number(source_id));
 
   // const {
   //   data,
@@ -45,10 +49,17 @@ export default function Source() {
   //   isError,
   //   error,
   // } = useGetCollectionAndAssociationsQuery(1);
+  
   const newAssoc = {
     'source_id': 1,
     'collection_id': 9357186
   }
+
+  const deleteAssoc = {
+    'source_id': 1,
+    'collection_id': 9357186
+  }
+
   const [makeSourceCollectionAssociation, createResult] = useCreateSourceCollectionAssociationMutation();
   
   const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
@@ -56,12 +67,12 @@ export default function Source() {
  
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log('Hello')
-    // makeSourceCollectionAssociation(newAssoc)
-    //   .then(dispatch(setSourceCollectionAssociation(newAssoc)))
-  }, []);
+    console.log(data)
+    // dispatch(setSourceCollectionsAssociations(data))
+  }, [data]);
   return (
     <div style={{ paddingTop: "100px" }}>
+      <h1>I AM THE SOURCE SHOW COMPONENT</h1>
       <Box sx={{ width: '100%' }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4} lg={3} >
@@ -99,25 +110,25 @@ export default function Source() {
           </Grid>
         </Grid>
         <button onClick={()=>(
-        //  console.log(store),
-        //  console.log(data),
-        //  dispatch(setSourcesCollections(data)),
           makeSourceCollectionAssociation(newAssoc)
-            .then(results => dispatch(setSourceCollectionAssociation(results.data))),
-            // .then(dispatch(setSourceCollectionAssociation(newAssoc))),
-        console.log(createResult),
-        console.log(store)
-        // console.log(data)
-        // dispatch(setSourceCollectionAssociation(data))
-        //  console.log(store)
+            .then(results => dispatch(setSourceCollectionAssociation(results.data)))
       )}>Click Me to make new association</button>
 
       <button onClick={() =>(
-          dispatch(setSourceCollectionsAssociations(data)),
-          console.log(store)
+          dispatch(setSourceCollectionsAssociations(data))
+          // console.log(store)
       )}>
         Get associations
       </button>
+
+        <button onClick={() => (
+          deleteSourceCollectionAssociation(deleteAssoc)
+            .then(results => dispatch(dropSourceCollectionAssociation(results)))
+          // dispatch(setSourceCollectionsAssociations(data)),
+          
+        )}>
+          Delete associations
+        </button>
       </Box>
     </div>
   );

@@ -21,13 +21,14 @@ import SignUp from './features/auth/SignUp';
 import ResetPassword from './features/auth/ResetPassword'
 import ConfirmedReset from './features/auth/ConfirmedReset'
 
-// Componenets
+// Components
 import Homepage from './Homepage';
 
 // pages
 import Collections from './features/collections/Collections';
 import Search from './features/search/Search'
-import Sources from './features/sources/Sources';
+import SourceHome from './features/sources/SourceHome';
+import SourceShow from './features/sources/SourceShow';
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -71,10 +72,17 @@ export const renderApp = () => {
                 <Search />
               </RequireAuth>} />
 
+            <Route path="sources/:source_id" element={
+              <RequireAuth>
+                <SourceShow />
+              </RequireAuth>} /> 
+
             <Route path="sources" element={
               <RequireAuth>
-                <Sources />
-              </RequireAuth>} />
+                <SourceHome />
+              </RequireAuth>} /> 
+                
+              
 
             <Route path="collections/modify-collection" element={
               <RequireAuth>
@@ -91,6 +99,7 @@ export const renderApp = () => {
                 <Account />
               </RequireAuth>} />
           </Route>
+
         </Routes>
       </BrowserRouter >
     );
