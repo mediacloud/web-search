@@ -7,21 +7,6 @@ import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
 export default function Collection() {
 
-  const [id, setID] = useState(1)
-
-  const handlechange = (event) => {
-    setID(event.target.value);
-  };
-
-  const {
-    data,
-    isLoading,
-    isSuccess,
-    isError,
-    error
-  } = useGetCollectionQuery(id)
-
-
   return (
     <div className="container">
       <div className="collection-header">
@@ -87,31 +72,8 @@ export default function Collection() {
           </Button>
         </Box>
 
-        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}>
-
-          <TextField
-            id="text"
-            label="ID"
-            defaultValue={id}
-            onChange={handlechange}
-          />
-
-          <Button
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            onClick={async () => {
-              console.log(data)
-            }}
-          >
-            Get Information
-          </Button>
-        </Box>
+        
       </div >
-
-
-
-
     </div >
   );
 }
