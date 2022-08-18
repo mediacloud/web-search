@@ -27,10 +27,10 @@ export const collectionsApi = createApi({
       })
     }),
     updateCollection: builder.mutation({
-      query: (id, collection) => ({
-        url: `${id}/`,
+      query: (collection) => ({
+        url: `/${collection.id}/`,
         method: 'PATCH',
-        body: { ...id, collection }
+        body: { ... collection }
       })
     }),
     deleteCollection: builder.mutation({
