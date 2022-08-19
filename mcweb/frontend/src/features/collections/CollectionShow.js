@@ -43,7 +43,14 @@ export default function CollectionShow() {
   }, [data]);
 
   const collection = useSelector(state => state.collections[collectionId]);
-  const sources = useSelector(state => state.sources);
+
+  const sources = useSelector(state => {
+    return state.sourcesCollections.map(assoc => {
+      return state.sources[assoc.source_id]
+    })
+  })
+
+
 
   if (!collection){
     return (<></>)
@@ -84,7 +91,7 @@ export default function CollectionShow() {
           <ul>
           {
             Object.values(sources).map(source => {
-              return  <SourceItem key={source.id} source={source} />
+              return  <SourceItem key={`source${source.id}`} source={source} />
             })
           }
           </ul>

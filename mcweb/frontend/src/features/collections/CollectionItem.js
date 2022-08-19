@@ -26,7 +26,7 @@ export default function CollectionItem (props) {
                     "collection_id": collection.id
                 })
                     .then(results => dispatch(dropSourceCollectionAssociation(results)))
-            }}>Delete Association</button>
+            }}>Remove</button>
         </li>
     )
 }

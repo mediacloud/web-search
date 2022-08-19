@@ -84,7 +84,13 @@ export default function SourceShow() {
   //   media_type 
   // } = 
   const source = useSelector(state => state.sources[sourceId]);
-  const collections = useSelector(state => state.collections)
+  const collections = useSelector(state => {
+   return state.sourcesCollections.map(assoc => {
+      return state.collections[assoc.collection_id]
+    })
+  })
+
+  
   
   if (!source){
     return (<></>)
@@ -128,32 +134,12 @@ export default function SourceShow() {
             <Item>Media Type: {source.media_type} </Item>
           </Grid>
         </Grid>
-        <button onClick={()=>(
-          makeSourceCollectionAssociation(newAssoc)
-            .then(results => dispatch(setSourceCollectionAssociation(results.data)))
-      )}>Click Me to make new association</button>
-
-      <button onClick={() =>(
-          dispatch(setSourceCollectionsAssociations(data)),
-            dispatch(setSource(data)),
-            dispatch(setCollections(data))
-      )}>
-        Get associations
-      </button>
-
-        <button onClick={() => (
-          deleteSourceCollectionAssociation(deleteAssoc)
-            .then(results => dispatch(dropSourceCollectionAssociation(results)))
-        )}>
-          Delete associations
-        </button>
-
       </Box>
       <h3>Collections</h3>
       <h4>This Source has {Object.values(collections).length} Collections</h4>
       <ul>
         {Object.values(collections).map(collection => {
-          return <Link key={collection.id} to={`/collections/${collection.id}`} > <CollectionItem collection={collection} /> </Link>
+          return <CollectionItem key={`collection${collection.id}`} collection={collection} /> 
         })}
       </ul>
      
