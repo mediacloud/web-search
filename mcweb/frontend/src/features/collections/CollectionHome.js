@@ -5,23 +5,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import { useSelector, useDispatch } from 'react-redux'
-import { Link, Outlet } from 'react-router-dom';
-//rtk api operations...corresponding with API calls to the backend
-import {
-    useCreateSourceCollectionAssociationMutation,
-    useGetSourceAndAssociationsQuery,
-    useGetCollectionAndAssociationsQuery,
-    useCreateSourceCollectionAssociation,
-    useDeleteSourceCollectionAssociationMutation
-} from '../../app/services/sourcesCollectionsApi';
-//rtk actions to change state
-import {
-    setCollectionSourcesAssociations,
-    setSourceCollectionsAssociations,
-    setSourceCollectionAssociation,
-    dropSourceCollectionAssociation
-} from '../sources_collections/sourcesCollectionsSlice';
-
+import { Link } from 'react-router-dom';
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -33,12 +17,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function CollectionHome() {
-    const store = useSelector((store) => store);
-    const dispatch = useDispatch();
 
-    useEffect(() => {
-        console.log("CollectionHome")
-    }, []);
     return (
         <div style={{ paddingTop: "100px" }}>
 
@@ -49,13 +28,13 @@ export default function CollectionHome() {
                         <Link to={"/collections/1"}><Item>First Collection </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3} >
-                        <Link to={"/sources/2"}><Item>Washington Post </Item></Link>
+                        <Link to={"/collections/2"}><Item>Second Collection </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3} >
-                        <Link to={"/sources/3"}><Item>CS Monitor </Item></Link>
+                        <Link to={"/collections/117"}><Item>Collection 117 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3} >
-                        <Link to={"/sources/4"}><Item>USA Today </Item></Link>
+                        <Link to={"/collections/118"}><Item>Collection 118 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3}>
                         <Item>With Entities: </Item>

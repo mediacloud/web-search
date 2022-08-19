@@ -25,7 +25,7 @@ import ConfirmedReset from './features/auth/ConfirmedReset'
 import Homepage from './Homepage';
 
 // pages
-import Collections from './features/collections/Collections';
+import Collections from './features/collections/CollectionShow';
 import CollectionHome from './features/collections/CollectionHome';
 import Search from './features/search/Search'
 import SourceHome from './features/sources/SourceHome';

@@ -14,6 +14,7 @@ const initialState = {
     primary_language: null,
     media_type: null
 }
+
 const sourceSlice = createSlice({
     name: 'sources',
     initialState: {},

@@ -20,11 +20,8 @@ import {
   setSourceCollectionAssociation,
   dropSourceCollectionAssociation
  } from '../sources_collections/sourcesCollectionsSlice';
-
 import { setSource } from './sourceSlice';
-
 import { setCollections } from '../collections/collectionsSlice';
-import { LabelImportant } from '@mui/icons-material';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
@@ -70,8 +67,6 @@ export default function SourceShow() {
       dispatch(setCollections(data))
     }
   }, [data]);
-
- 
 
   // const { 
   //   name,
