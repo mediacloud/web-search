@@ -150,10 +150,9 @@ export default function SourceShow() {
 
       </Box>
       <h3>Collections</h3>
-      {console.log(Object.values(collections))}
       <ul>
         {Object.values(collections).map(collection => {
-          return <Link to={`/collections/${collection.id}`} > <CollectionItem key={collection.id} collection={collection} /> </Link>
+          return <Link key={collection.id} to={`/collections/${collection.id}`} > <CollectionItem collection={collection} /> </Link>
         })}
       </ul>
      
