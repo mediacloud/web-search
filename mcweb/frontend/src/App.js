@@ -26,6 +26,7 @@ import Homepage from './Homepage';
 
 // pages
 import Collections from './features/collections/Collections';
+import CollectionHome from './features/collections/CollectionHome';
 import Search from './features/search/Search'
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
@@ -62,9 +63,15 @@ export const renderApp = () => {
         <Routes>
           <Route path="/" element={<App />}>
 
-            <Route path="collections" element={
+            <Route path="collections/:collectionId" element={
               <RequireAuth>
                 <Collections />
+              </RequireAuth>}
+            />
+
+            <Route path="collections" element={
+              <RequireAuth>
+                <CollectionHome />
               </RequireAuth>}
             />
 
@@ -73,7 +80,7 @@ export const renderApp = () => {
                 <Search />
               </RequireAuth>} />
 
-            <Route path="sources/:source_id" element={
+            <Route path="sources/:sourceId" element={
               <RequireAuth>
                 <SourceShow />
               </RequireAuth>} /> 

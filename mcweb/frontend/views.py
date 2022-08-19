@@ -1,7 +1,7 @@
 import logging
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
-from mcweb.settings import VERSION
+from settings import VERSION
 
 logger = logging.getLogger(__name__)
 

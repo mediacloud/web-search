@@ -1,6 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, current } from '@reduxjs/toolkit';
 
-<<<<<<< HEAD
 const initialState = {
     id: null,
     name: null,
@@ -20,31 +19,17 @@ const sourceSlice = createSlice({
     initialState: {},
     reducers: {
         setSource: (state, { payload }) => {
-            // console.log(state)
-            console.log(payload)
-            // state = payload;
-            state.sources = {...payload} 
-            // state.sources = payload.sources.id
-            // payload.map(source => (
-            //     console.log(source)
-            // ))
-            // state.source = payload;
-    }
+            state[payload.sources.id] = payload.sources;
+        },
+        setSources: (state, { payload }) => {
+            payload.sources.forEach(source => {
+                state[source.id] = source;
+            })
+        }
     },
 });
 
 export const setSource = sourceSlice.actions.setSource
-
-// export const selectTotalAttention = (state) => state.search.search;
+export const setSources = sourceSlice.actions.setSources
 
 export default sourceSlice.reducer;
-=======
-const slice = createSlice({
-  name: 'sources',
-
-  initialState: { id: null, name: null, label: null, url: null}
-
-})
-
-export default slice.reducer
->>>>>>> 5ea79715ef36d9fe9c5e48cd94bca2e18a6337ca

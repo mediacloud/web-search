@@ -6,21 +6,25 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import {useSelector, useDispatch} from 'react-redux'
 import { useParams } from 'react-router-dom';
+
 //rtk api operations...corresponding with API calls to the backend
-import { useCreateSourceCollectionAssociationMutation, 
+import { 
+  useCreateSourceCollectionAssociationMutation, 
   useGetSourceAndAssociationsQuery,
-  useGetCollectionAndAssociationsQuery,
-  useCreateSourceCollectionAssociation,
   useDeleteSourceCollectionAssociationMutation
 } from '../../app/services/sourcesCollectionsApi';
+
 //rtk actions to change state
-import { setCollectionSourcesAssociations, 
+import {
   setSourceCollectionsAssociations, 
   setSourceCollectionAssociation,
   dropSourceCollectionAssociation
  } from '../sources_collections/sourcesCollectionsSlice';
 
+import { setSource } from './sourceSlice';
 
+import { setCollections } from '../collections/collectionsSlice';
+import { LabelImportant } from '@mui/icons-material';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
@@ -31,25 +35,17 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function SourceShow() {
-  const store = useSelector((store) => store);
-  const {source_id} = useParams()
-  console.log(source_id)
+  const params = useParams()
+  const sourceId = Number(params.sourceId);
+  
   const {
     data,
     isLoading,
     isSuccess,
     isError,
     error,
-  } = useGetSourceAndAssociationsQuery(Number(source_id));
-
-  // const {
-  //   data,
-  //   isLoading,
-  //   isSuccess,
-  //   isError,
-  //   error,
-  // } = useGetCollectionAndAssociationsQuery(1);
-  
+  } = useGetSourceAndAssociationsQuery(sourceId);
+ 
   const newAssoc = {
     'source_id': 1,
     'collection_id': 9357186
@@ -66,47 +62,73 @@ export default function SourceShow() {
  
  
   const dispatch = useDispatch();
+  
   useEffect(() => {
-    console.log(data)
-    // dispatch(setSourceCollectionsAssociations(data))
+    if (data){
+      dispatch(setSourceCollectionsAssociations(data))
+      dispatch(setSource(data))
+      dispatch(setCollections(data))
+    }
   }, [data]);
-  return (
+
+ 
+
+  // const { 
+  //   name,
+  //   url_search_string,
+  //   label,
+  //   homepage,
+  //   notes,
+  //   service,
+  //   stories_per_week,
+  //   pub_country,
+  //   pub_state,
+  //   primary_language,
+  //   media_type 
+  // } = 
+  const source = useSelector(state => state.sources[sourceId]);
+
+  console.log(source)
+  if (!source){
+    return (<></>)
+  }
+  else {return (
     <div style={{ paddingTop: "100px" }}>
-      <h1>I AM THE SOURCE SHOW COMPONENT</h1>
+      <h1>{source.label}</h1>
       <Box sx={{ width: '100%' }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Total Stories: </Item>
+            <Item>Name: {source.name}  </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Covered Since: </Item>
+            <Item>Covered Since: {source.first_story} </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Collections: </Item>
+            <Item>Homepage: {source.homepage} </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Stories per Day: </Item>
+            <Item>Stories per week: {source.stories_per_week} </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Item>With Entities: </Item>
+            <Item>Notes: {source.notes} </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3}>
             <Item>With Themes: </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Item>Publication Country: </Item>
+            <Item>Publication Country: {source.pub_country} </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Publication State: </Item>
+            <Item>Publication State: {source.pub_state} </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Detected Primary Language: </Item>
+            <Item>Detected Primary Language: {source.primary_language} </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Detected Subject State: </Item>
+            <Item>Detected Subject State:  </Item>
           </Grid>
           <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Media Type: </Item>
+            <Item>Media Type: {source.media_type} </Item>
           </Grid>
         </Grid>
         <button onClick={()=>(
@@ -115,8 +137,9 @@ export default function SourceShow() {
       )}>Click Me to make new association</button>
 
       <button onClick={() =>(
-          dispatch(setSourceCollectionsAssociations(data))
-          // console.log(store)
+          dispatch(setSourceCollectionsAssociations(data)),
+            dispatch(setSource(data)),
+            dispatch(setCollections(data))
       )}>
         Get associations
       </button>
@@ -124,12 +147,10 @@ export default function SourceShow() {
         <button onClick={() => (
           deleteSourceCollectionAssociation(deleteAssoc)
             .then(results => dispatch(dropSourceCollectionAssociation(results)))
-          // dispatch(setSourceCollectionsAssociations(data)),
-          
         )}>
           Delete associations
         </button>
       </Box>
     </div>
-  );
+  )};
 }

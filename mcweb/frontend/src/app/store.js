@@ -1,24 +1,19 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query/react';
+
+//rtk apis
 import { api as authApi } from './services/authApi';
 import { searchApi } from './services/searchApi';
-<<<<<<< HEAD
 import { sourcesCollectionsApi } from './services/sourcesCollectionsApi';
-import authReducer from '../features/auth/authSlice';
-import searchReducer from '../features/search/searchSlice';
-import sourcesCollectionsReducer from '../features/sources_collections/sourcesCollectionsSlice'
-import { collectionsApi } from './services/collectionsApi';
-
-import collectionsRedcuer from '../features/collections/collectionsSlice'
-=======
 import { collectionsApi } from './services/collectionsApi';
 import { sourcesApi } from './services/sourceApi'
 
+//reducers
 import authReducer from '../features/auth/authSlice';
 import searchReducer from '../features/search/searchSlice';
-import collectionReducer from '../features/collections/collectionsSlice'
+import sourcesCollectionsReducer from '../features/sources_collections/sourcesCollectionsSlice'
+import collectionsReducer from '../features/collections/collectionsSlice'
 import sourcesReducer from '../features/sources/sourceSlice'
->>>>>>> 5ea79715ef36d9fe9c5e48cd94bca2e18a6337ca
 
 let store; // singleton store
 
@@ -44,7 +39,7 @@ const setupStore = () => {
       sourcesCollections: sourcesCollectionsReducer,
       
       [collectionsApi.reducerPath]: collectionsApi.reducer,
-      collections: collectionReducer,
+      collections: collectionsReducer,
 
       [sourcesApi.reducerPath]: sourcesApi.reducer,
       sources: sourcesReducer,
