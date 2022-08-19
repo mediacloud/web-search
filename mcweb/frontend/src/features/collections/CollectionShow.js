@@ -84,7 +84,7 @@ export default function CollectionShow() {
           <ul>
           {
             Object.values(sources).map(source => {
-              return <Link key={source.id} to={`/sources/${source.id}`} > <SourceItem source={source} /> </Link>
+              return  <SourceItem key={source.id} source={source} />
             })
           }
           </ul>
