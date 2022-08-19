@@ -28,19 +28,25 @@ export const getStore = () => {
 const setupStore = () => {
   const theStore = configureStore({
     reducer: {
-      // Add the generated reducer as a specific top-level slice
+
+      // authentication api responsible for getting profile, logging out 
+      // logging in, registering a user, resseting password 
       [authApi.reducerPath]: authApi.reducer,
       auth: authReducer,
 
+      // search api responsible for totalAttention 
       [searchApi.reducerPath]: searchApi.reducer,
       search: searchReducer,
 
+      // sourcesCollection api responsible for associations' CRUD 
       [sourcesCollectionsApi.reducerPath]: sourcesCollectionsApi.reducer,
       sourcesCollections: sourcesCollectionsReducer,
-      
+
+      // collection api responsible for collections' CRUD 
       [collectionsApi.reducerPath]: collectionsApi.reducer,
       collections: collectionsReducer,
 
+      // sources api responsible for collections' CRUD 
       [sourcesApi.reducerPath]: sourcesApi.reducer,
       sources: sourcesReducer,
 
