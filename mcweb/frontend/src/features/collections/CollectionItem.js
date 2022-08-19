@@ -10,7 +10,6 @@ export default function CollectionItem (props) {
                 <h5>{collection.name}</h5>
                 <h5>{collection.notes}</h5>
             </Link>
-
         </li>
     )
 }
