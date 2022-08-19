@@ -4,14 +4,12 @@ import { Link, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 
-
 import SourceItem from '../sources/SourceItem';
 
 //rtk api operations
 import {
   useGetCollectionAndAssociationsQuery,
 } from '../../app/services/sourcesCollectionsApi';
-import { useUpdateCollectionMutation } from '../../app/services/collectionsApi';
 
 //rtk actions to change state
 import {
@@ -50,8 +48,6 @@ export default function CollectionShow() {
     })
   })
 
-
-
   if (!collection){
     return (<></>)
   }
@@ -60,7 +56,18 @@ export default function CollectionShow() {
       <div className="collection-header">
         <h2 className="title">{collection.name}</h2>
         <h3> Notes: {collection.notes}</h3>
-        <h5>Collection #186572515 - Public - Dynamic</h5>
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            component={Link}
+            to="modify-collection"
+          >
+            Modify this Collection
+          </Button>
+        </Box>
+        {/* <h5>Collection #186572515 - Public - Dynamic</h5> */}
       </div>
 {/* 
       <div className="source-list-collection-content">
@@ -91,36 +98,11 @@ export default function CollectionShow() {
           <ul>
           {
             Object.values(sources).map(source => {
-              return  <SourceItem key={`source${source.id}`} source={source} />
+              return  <SourceItem key={`source-item-${source.id}`} source={source} />
             })
           }
           </ul>
         </div>
-
-        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-          <Button
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            component={Link}
-            to="modify-collection"
-          >
-            Modify this Collection
-          </Button>
-        </Box>
-
-        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-          <Button
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            component={Link}
-            to="modify-source"
-          >
-            Modify this Source
-          </Button>
-        </Box>
-
       </div >
     </div >
   )};

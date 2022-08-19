@@ -1,27 +1,17 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
+import { Box, Paper, Grid, Button } from '@mui/material';
 import {useSelector, useDispatch} from 'react-redux'
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import CollectionItem from '../collections/CollectionItem';
 
 //rtk api operations...corresponding with API calls to the backend
-import { 
-  useCreateSourceCollectionAssociationMutation, 
-  useGetSourceAndAssociationsQuery,
-  useDeleteSourceCollectionAssociationMutation
-} from '../../app/services/sourcesCollectionsApi';
+import { useGetSourceAndAssociationsQuery } from '../../app/services/sourcesCollectionsApi';
 
 //rtk actions to change state
-import {
-  setSourceCollectionsAssociations, 
-  setSourceCollectionAssociation,
-  dropSourceCollectionAssociation
- } from '../sources_collections/sourcesCollectionsSlice';
+import { setSourceCollectionsAssociations } from '../sources_collections/sourcesCollectionsSlice';
 import { setSource } from './sourceSlice';
 import { setCollections } from '../collections/collectionsSlice';
 
@@ -44,22 +34,7 @@ export default function SourceShow() {
     isError,
     error,
   } = useGetSourceAndAssociationsQuery(sourceId);
- 
-  const newAssoc = {
-    'source_id': 1,
-    'collection_id': 9357186
-  }
-
-  const deleteAssoc = {
-    'source_id': 1,
-    'collection_id': 9357186
-  }
-
-  const [makeSourceCollectionAssociation, createResult] = useCreateSourceCollectionAssociationMutation();
   
-  const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
- 
- 
   const dispatch = useDispatch();
   
   useEffect(() => {
@@ -70,19 +45,6 @@ export default function SourceShow() {
     }
   }, [data]);
 
-  // const { 
-  //   name,
-  //   url_search_string,
-  //   label,
-  //   homepage,
-  //   notes,
-  //   service,
-  //   stories_per_week,
-  //   pub_country,
-  //   pub_state,
-  //   primary_language,
-  //   media_type 
-  // } = 
   const source = useSelector(state => state.sources[sourceId]);
   const collections = useSelector(state => {
    return state.sourcesCollections.map(assoc => {
@@ -90,14 +52,26 @@ export default function SourceShow() {
     })
   })
 
-  
-  
   if (!source){
     return (<></>)
   }
-  else {return (
+  else { return (
     <div style={{ paddingTop: "100px" }}>
       <h1>{source.label}</h1>
+
+      <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+        <Button
+          style={{ backgroundColor: "white" }}
+          variant='contained'
+          sx={{ my: 2.25, color: 'black', display: 'block' }}
+          component={Link}
+          to="modify-source"
+          state={collections}
+        >
+          Modify this Source
+        </Button>
+        {/* <Link to={"modify-source"} collections={collections}><h3>Modify This Source</h3></Link> */}
+      </Box>
       <Box sx={{ width: '100%' }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={4} lg={3} >

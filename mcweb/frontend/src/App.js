@@ -63,6 +63,11 @@ export const renderApp = () => {
         <Routes>
           <Route path="/" element={<App />}>
 
+            <Route path="collections/:collectionId/modify-collection" element={
+              <RequireAuth>
+                <ModifyCollection />
+              </RequireAuth>} />
+
             <Route path="collections/:collectionId" element={
               <RequireAuth>
                 <Collections />
@@ -80,6 +85,11 @@ export const renderApp = () => {
                 <Search />
               </RequireAuth>} />
 
+            <Route path="sources/:sourceId/modify-source" element={
+              <RequireAuth>
+                <ModifySource />
+              </RequireAuth>} />
+
             <Route path="sources/:sourceId" element={
               <RequireAuth>
                 <SourceShow />
@@ -89,19 +99,6 @@ export const renderApp = () => {
               <RequireAuth>
                 <SourceHome />
               </RequireAuth>} /> 
-                
-              
-
-            <Route path="collections/modify-collection" element={
-              <RequireAuth>
-                <ModifyCollection />
-              </RequireAuth>} />
-
-
-            <Route path="collections/modify-source" element={
-              <RequireAuth>
-                <ModifySource />
-              </RequireAuth>} />
 
             <Route path="sign-in" element={<SignIn />} />
             <Route path="reset-password" element={<ResetPassword />} />

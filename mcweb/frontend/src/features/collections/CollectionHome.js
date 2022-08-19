@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom';
 
 
@@ -37,25 +35,25 @@ export default function CollectionHome() {
                         <Link to={"/collections/118"}><Item>Collection 118 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3}>
-                        <Item>With Entities: </Item>
+                        <Link to={"/collections/125"}><Item>Collection 125 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3}>
-                        <Item>With Themes: </Item>
+                        <Link to={"/collections/129"}><Item>Collection 129 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3}>
-                        <Item>Publication Country: </Item>
+                        <Link to={"/collections/142001"}><Item>Collection 142001 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3} >
-                        <Item>Publication State: </Item>
+                        <Link to={"/collections/2453107"}><Item>Collection 2453107 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3} >
-                        <Item>Detected Primary Language: </Item>
+                        <Link to={"/collections/7796878"}><Item>Collection 7796878 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3} >
-                        <Item>Detected Subject State: </Item>
+                        <Link to={"/collections/8875024"}><Item>Collection 8875024 </Item></Link>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={3} >
-                        <Item>Media Type: </Item>
+                        <Link to={"/collections/8875027"}><Item>Collection 8875027 </Item></Link>
                     </Grid>
                 </Grid>
             </Box>
