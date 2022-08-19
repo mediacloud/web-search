@@ -6,6 +6,8 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import {useSelector, useDispatch} from 'react-redux'
 import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import CollectionItem from '../collections/CollectionItem';
 
 //rtk api operations...corresponding with API calls to the backend
 import { 
@@ -82,8 +84,8 @@ export default function SourceShow() {
   //   media_type 
   // } = 
   const source = useSelector(state => state.sources[sourceId]);
-
-  console.log(source)
+  const collections = useSelector(state => state.collections)
+  
   if (!source){
     return (<></>)
   }
@@ -145,7 +147,16 @@ export default function SourceShow() {
         )}>
           Delete associations
         </button>
+
       </Box>
+      <h3>Collections</h3>
+      {console.log(Object.values(collections))}
+      <ul>
+        {Object.values(collections).map(collection => {
+          return <Link to={`/collections/${collection.id}`} > <CollectionItem key={collection.id} collection={collection} /> </Link>
+        })}
+      </ul>
+     
     </div>
   )};
 }
