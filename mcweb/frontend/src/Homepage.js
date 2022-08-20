@@ -6,8 +6,11 @@ import Footer from './Footer';
 const Homepage = () => {
   return (
     <Container component="main" maxWidth="xl">
+
       <Header />
-      <Footer />
+      <div style={{paddingTop: "25px"}}>
+        <Footer />
+      </div>
     </Container>
   );
 }
