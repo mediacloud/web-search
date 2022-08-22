@@ -130,7 +130,7 @@ export default function ModifyCollection() {
           </Button>
 
           {/* Delete */}
-          <Button
+          {/* <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
@@ -143,10 +143,10 @@ export default function ModifyCollection() {
             }}
           >
             Delete
-          </Button>
+          </Button> */}
 
           {/* Create */}
-          <Button
+          {/* <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
@@ -160,8 +160,8 @@ export default function ModifyCollection() {
             }}
           >
             Create
-          </Button>
-
+          </Button> */}
+          <h5>Sources</h5>
           <ul>
             {
               Object.values(sources).map(source => {

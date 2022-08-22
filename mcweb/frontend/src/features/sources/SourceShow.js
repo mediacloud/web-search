@@ -52,7 +52,7 @@ export default function SourceShow() {
     })
   })
 
-  if (!source){
+  if (!source || collections[0] === collections[1]){
     return (<></>)
   }
   else { return (

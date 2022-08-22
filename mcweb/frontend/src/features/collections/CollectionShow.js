@@ -30,8 +30,9 @@ export default function CollectionShow() {
     isError,
     error,
   } = useGetCollectionAndAssociationsQuery(collectionId);
-  
+
   const dispatch = useDispatch();
+
   useEffect(() => {
     if (data) {
       dispatch(setCollectionSourcesAssociations(data))
@@ -48,7 +49,7 @@ export default function CollectionShow() {
     })
   })
 
-  if (!collection){
+  if (!collection || sources[0] === sources[1]){
     return (<></>)
   }
   else { return (
@@ -96,7 +97,7 @@ export default function CollectionShow() {
             </tbody>
           </table> */}
           <ul>
-          {
+          { 
             Object.values(sources).map(source => {
               return  <SourceItem key={`source-item-${source.id}`} source={source} />
             })

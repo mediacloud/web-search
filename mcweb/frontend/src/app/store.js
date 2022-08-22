@@ -54,9 +54,14 @@ const setupStore = () => {
     },
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
-    middleware: [
-      ...getDefaultMiddleware(),
-    ],
+    middleware: (getDefaultMiddleware) => 
+      getDefaultMiddleware().concat(authApi.middleware, 
+        searchApi.middleware, 
+        sourcesCollectionsApi.middleware,
+        collectionsApi.middleware,
+        sourcesApi.middleware
+        ),
+    
   });
   // optional, but required for refetchOnFocus/refetchOnReconnect behaviors
   // see `setupListeners` docs - takes an optional callback as the 2nd arg for customization
