@@ -16,7 +16,7 @@ import dj_database_url
 import environ
 
 # The static version of the app
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
