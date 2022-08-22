@@ -1,4 +1,4 @@
-import { createSlice, current } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 
 const sourcesCollectionsSlice = createSlice({
@@ -24,10 +24,13 @@ const sourcesCollectionsSlice = createSlice({
     },
 });
 
-export const setSourceCollectionsAssociations = sourcesCollectionsSlice.actions.setSourceCollectionsAssociations
-export const setCollectionSourcesAssociations = sourcesCollectionsSlice.actions.setCollectionSourcesAssociations
-export const setSourceCollectionAssociation = sourcesCollectionsSlice.actions.setSourceCollectionAssociation
-export const dropSourceCollectionAssociation = sourcesCollectionsSlice.actions.dropSourceCollectionAssociation
 
+//export actions
+export const { 
+    setSourceCollectionsAssociations, 
+    setCollectionSourcesAssociations,
+    setSourceCollectionAssociation,
+    dropSourceCollectionAssociation } = sourcesCollectionsSlice.actions
 
+//export reducer
 export default sourcesCollectionsSlice.reducer;

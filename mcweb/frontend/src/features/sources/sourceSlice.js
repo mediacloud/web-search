@@ -30,7 +30,6 @@ const sourceSlice = createSlice({
     },
 });
 
-export const setSource = sourceSlice.actions.setSource
-export const setSources = sourceSlice.actions.setSources
+export const { setSource, setSources} = sourceSlice.actions
 
 export default sourceSlice.reducer;

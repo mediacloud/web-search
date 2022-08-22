@@ -101,8 +101,8 @@ export default function ModifySource() {
         <h2 className="title">Modify this Source</h2>
 
         <ul>
-          <h2>{source.id}</h2>
-          <Button
+          <h2>{source.id} - {source.label}</h2>
+          {/* <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
@@ -117,7 +117,7 @@ export default function ModifySource() {
             }}
           >
             Get
-          </Button>
+          </Button> */}
 
           {/* Name */}
           <li>
@@ -182,7 +182,7 @@ export default function ModifySource() {
             Update
           </Button>
 
-          <Button
+          {/* <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
@@ -196,9 +196,9 @@ export default function ModifySource() {
             }}
           >
             Delete
-          </Button>
+          </Button> */}
 
-          <Button
+          {/* <Button
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
@@ -211,7 +211,7 @@ export default function ModifySource() {
             }}
           >
             Create
-          </Button>
+          </Button> */}
         </ul>
       </div>
       <div>
