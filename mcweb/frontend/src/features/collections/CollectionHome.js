@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import { Link } from 'react-router-dom';
-
+import { Button } from '@mui/material';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
@@ -57,6 +57,19 @@ export default function CollectionHome() {
                     </Grid>
                 </Grid>
             </Box>
+
+            {/* Update */}
+            <Button
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+                component={Link}
+                to="/collections/test-collection"
+            >
+                Test
+            </Button>
+
+
         </div>
     );
 }
