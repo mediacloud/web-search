@@ -15,10 +15,8 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function CollectionHome() {
-
     return (
         <div style={{ paddingTop: "100px" }}>
-
             <h1>Collections Home</h1>
             <Box sx={{ width: '100%' }}>
                 <Grid container spacing={2}>
@@ -57,19 +55,6 @@ export default function CollectionHome() {
                     </Grid>
                 </Grid>
             </Box>
-
-            {/* Update */}
-            <Button
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                component={Link}
-                to="/collections/test-collection"
-            >
-                Test
-            </Button>
-
-
         </div>
     );
 }
