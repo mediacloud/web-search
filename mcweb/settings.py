@@ -16,7 +16,7 @@ import dj_database_url
 import environ
 
 # The static version of the app
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -30,7 +30,7 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = environ.Env(DEBUG=(bool, False))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['search.mediacloud.org']
 
 # Application definition
 
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -114,6 +115,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = "static/"
+
+STATIC_ROOT="mcweb/static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field
