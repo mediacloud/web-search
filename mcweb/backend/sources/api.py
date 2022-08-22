@@ -64,7 +64,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             sources_queryset = Source.objects.all() # make source queryset
             source = get_object_or_404(sources_queryset, pk=source_id) #find source
             collection.source_set.remove(source) #remove association from collection
-            return Response("deleted")
+            return Response({'collection_id': pk, 'source_id': source_id})
         else :
             sources_queryset = Source.objects.all()
             source = get_object_or_404(sources_queryset, pk=pk)
@@ -72,9 +72,11 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collections_queryset= Collection.objects.all()
             collection = get_object_or_404(collections_queryset, pk=collection_id)
             source.collections.remove(collection)
-            return Response("deleted")
+            return Response({'collection_id': collection_id, 'source_id': pk})
 
     def create(self,request):
+        print(request)
+        print(request.data)
         source_id = request.data['source_id']
         sources_queryset = Source.objects.all()
         source = get_object_or_404(sources_queryset, pk=source_id)
@@ -82,7 +84,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collections_queryset = Collection.objects.all()
         collection = get_object_or_404(collections_queryset, pk=collection_id)
         source.collections.add(collection)
-        return Response("success")
+        return Response({'source_id': source_id, 'collection_id': collection_id})
 
 
 

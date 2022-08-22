@@ -21,13 +21,15 @@ import SignUp from './features/auth/SignUp';
 import ResetPassword from './features/auth/ResetPassword'
 import ConfirmedReset from './features/auth/ConfirmedReset'
 
-// Componenets
+// Components
 import Homepage from './Homepage';
 
 // pages
-import Collections from './features/collections/Collections';
+import Collections from './features/collections/CollectionShow';
+import CollectionHome from './features/collections/CollectionHome';
 import Search from './features/search/Search'
-import Sources from './features/sources/Sources';
+import SourceHome from './features/sources/SourceHome';
+import SourceShow from './features/sources/SourceShow';
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -61,9 +63,20 @@ export const renderApp = () => {
         <Routes>
           <Route path="/" element={<App />}>
 
-            <Route path="collections" element={
+            <Route path="collections/:collectionId/modify-collection" element={
+              <RequireAuth>
+                <ModifyCollection />
+              </RequireAuth>} />
+
+            <Route path="collections/:collectionId" element={
               <RequireAuth>
                 <Collections />
+              </RequireAuth>}
+            />
+
+            <Route path="collections" element={
+              <RequireAuth>
+                <CollectionHome />
               </RequireAuth>}
             />
 
@@ -72,21 +85,20 @@ export const renderApp = () => {
                 <Search />
               </RequireAuth>} />
 
-            <Route path="sources" element={
-              <RequireAuth>
-                <Sources />
-              </RequireAuth>} />
-
-            <Route path="collections/modify-collection" element={
-              <RequireAuth>
-                <ModifyCollection />
-              </RequireAuth>} />
-
-
-            <Route path="collections/modify-source" element={
+            <Route path="sources/:sourceId/modify-source" element={
               <RequireAuth>
                 <ModifySource />
               </RequireAuth>} />
+
+            <Route path="sources/:sourceId" element={
+              <RequireAuth>
+                <SourceShow />
+              </RequireAuth>} /> 
+
+            <Route path="sources" element={
+              <RequireAuth>
+                <SourceHome />
+              </RequireAuth>} /> 
 
             <Route path="sign-in" element={<SignIn />} />
             <Route path="reset-password" element={<ResetPassword />} />
@@ -98,6 +110,7 @@ export const renderApp = () => {
                 <Account />
               </RequireAuth>} />
           </Route>
+
         </Routes>
       </BrowserRouter >
     );

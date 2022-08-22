@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, current } from '@reduxjs/toolkit';
 
 
 // Most of the operations will automatically fetched and managed 
@@ -11,12 +11,23 @@ import { createSlice } from '@reduxjs/toolkit';
 // Selected: if the user is on a collection or source page, this 
 // ID is filled in (probably this should be parsed and set from the URL)
 
-
-const slice = createSlice({
+const collectionsSlice = createSlice({
   name: 'collections',
-  
-  initialState: { featured: null, selected: null }
+  initialState: {},
+  reducers: {
+    setCollections: (state, { payload }) => {
+      payload.collections.forEach(collection => {
+        state[collection.id] = collection;
+      })
+    },
+    setCollection: (state, { payload }) => {
+      state[payload.collections.id] = payload.collections;
+    }
+  },
+});
 
-})
+export const setCollections = collectionsSlice.actions.setCollections
+export const setCollection = collectionsSlice.actions.setCollection
 
-export default slice.reducer
+
+export default collectionsSlice.reducer;
