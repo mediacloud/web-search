@@ -27,11 +27,13 @@ export const sourcesApi = createApi({
       })
     }),
     updateSource: builder.mutation({
-      query: (source) => ({
+      query: (source) => {
+        console.log(source)
+        return {
         url: `/${source.id}/`,
         method: 'PATCH',
-        body: { ...source }
-      })
+        body:  {...source}
+      }}
     }),
     deleteSource: builder.mutation({
       query: ({ id }) => ({
