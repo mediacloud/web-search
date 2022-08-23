@@ -14,6 +14,8 @@ import {
   useDeleteSourceCollectionAssociationMutation
 } from '../../app/services/sourcesCollectionsApi';
 
+import { useGetCollectionQuery } from '../../app/services/collectionsApi';
+
 //rtk actions to change state
 import {
   setSourceCollectionsAssociations,
@@ -21,7 +23,7 @@ import {
   dropSourceCollectionAssociation
 } from '../sources_collections/sourcesCollectionsSlice';
 import { setSource } from './sourceSlice';
-import { setCollections } from '../collections/collectionsSlice';
+import { setCollections, setCollection } from '../collections/collectionsSlice';
 
 import {
   useGetSourceQuery,
@@ -37,6 +39,7 @@ export default function ModifySource() {
   const sourceId = params.sourceId;
 
   const source = useSelector(state => state.sources[sourceId]);
+  
   const collections = useSelector(state => {
     return state.sourcesCollections.map(assoc => {
       return state.collections[assoc.collection_id]
@@ -56,19 +59,13 @@ export default function ModifySource() {
     id: 571, name: "", notes: "", homepage: "", label: "", service: ""
   });
 
-  // const {
-  //   data,
-  //   isLoading,
-  //   isSuccess,
-  //   isError,
-  //   error
-  // } = useGetSourceQuery(formState.id)
+
 
   // create 
   const [post, { setPost }] = usePostSourceMutation();
 
   // update 
-  const [update, { setUpdate }] = useUpdateSourceMutation();
+  const [updateSource, updateSourceResult] = useUpdateSourceMutation();
 
   // delete 
   const [remove, { setRemove }] = useDeleteSourceMutation();
@@ -88,8 +85,23 @@ export default function ModifySource() {
       dispatch(setSourceCollectionsAssociations(data))
       dispatch(setSource(data))
       dispatch(setCollections(data))
+      
     }
   }, [data]);
+
+  useEffect(() => {
+    if (data){
+      setFormState(source)
+    }
+  }, [source])
+
+
+
+  //patch for now, this should be fixed by a collections search feature, could also consider a debounce or throttle
+  const [collectionId, setCollectionId] = useState(1);
+  const collectionData = useGetCollectionQuery(collectionId)
+  const [createSourceCollectionAssociation, associationResult] = useCreateSourceCollectionAssociationMutation();
+
 
   if (!source){
     return <></>
@@ -126,7 +138,7 @@ export default function ModifySource() {
               fullWidth
               id="text"
               name="name"
-              value={source.name}
+              value={formState.name ? formState.name : "enter name"}
               onChange={handleChange}
             />
           </li>
@@ -140,7 +152,7 @@ export default function ModifySource() {
               name="notes"
               multiline
               rows={4}
-              value={formState.notes}
+              value={formState.notes === null ? "" : formState.notes}
               onChange={handleChange}
             />
           </li>
@@ -164,6 +176,7 @@ export default function ModifySource() {
               fullWidth
               id="text"
               name="label"
+              value={formState.label ? formState.label : "enter or edit label"}
               onChange={handleChange}
             />
           </li>
@@ -173,10 +186,10 @@ export default function ModifySource() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              const updateCollection = await update({
-                ...formState
-              }).unwrap();
-              console.log(updateCollection)
+              console.log(formState)
+              // updateSource(formState)
+              const updateCollection = await updateSource(formState).unwrap();
+              console.log(updateSourceResult)
             }}
           >
             Update
@@ -216,6 +229,18 @@ export default function ModifySource() {
       </div>
       <div>
         <h3>Collections</h3>
+
+        <label> Add Collection to Source (enter the collection ID):
+          <input type="text" onChange={e => setCollectionId(Number(e.target.value))} />
+        </label>
+
+        <button onClick={() => {
+          const assoc = { 'source_id': sourceId, 'collection_id': collectionId }
+          const collection = collectionData.data;
+          dispatch(setCollection({ 'collections': collection }))
+          createSourceCollectionAssociation(assoc)
+            .then(() => dispatch(setSourceCollectionAssociation(assoc)))
+        }}>Add Source</button>
 
         <ul>
           {Object.values(collections).map(collection => {

@@ -10,30 +10,29 @@ import SourceItem from '../sources/SourceItem';
 //rtk api operations
 import {
   useGetCollectionAndAssociationsQuery,
-  useDeleteSourceCollectionAssociationMutation
+  useDeleteSourceCollectionAssociationMutation,
+  useCreateSourceCollectionAssociationMutation
 } from '../../app/services/sourcesCollectionsApi';
+
+import { useGetSourceQuery } from '../../app/services/sourceApi';
+
 
 
 //rtk actions to change state
 import {
   setCollectionSourcesAssociations,
-  dropSourceCollectionAssociation
+  dropSourceCollectionAssociation,
+  setSourceCollectionAssociation
 } from '../sources_collections/sourcesCollectionsSlice';
 import { setCollection } from './collectionsSlice';
-import { setSources } from '../sources/sourceSlice';
+import { setSources, setSource } from '../sources/sourceSlice';
 
 export default function ModifyCollection() {
   const params = useParams()
   const collectionId = Number(params.collectionId); //get collection id from wildcard
 
   //send get query and associations
-  const {
-    data,
-    isLoading,
-    isSuccess,
-    isError,
-    error,
-  } = useGetCollectionAndAssociationsQuery(collectionId);
+  const { data } = useGetCollectionAndAssociationsQuery(collectionId);
 
   const dispatch = useDispatch();
   //update redux store if there is data, or data changes
@@ -63,12 +62,18 @@ export default function ModifyCollection() {
 
 
   // form state for text fields 
-  const [formState, setFormState] = React.useState({
+  const [formState, setFormState] = useState({
     id: 6, name: "", notes: "",
   });
 
+//patch for now, sources in the future will be uploadable only by csv
+  const [sourceId, setSourceId] = useState(1);
+  const sourceData = useGetSourceQuery(sourceId)
+
   // create 
   const [createCollection, { setPost }] = usePostCollectionMutation();
+
+  const [createSourceCollectionAssociation, associationResult] = useCreateSourceCollectionAssociationMutation();
 
   // update 
   const [updateCollection, { setUpdate }] = useUpdateCollectionMutation();
@@ -145,22 +150,19 @@ export default function ModifyCollection() {
             Delete
           </Button> */}
 
-          {/* Create */}
-          {/* <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={async () => {
-              const createdCollection = await createCollection({
-                name: formState.name,
-                notes: formState.notes
-              }).unwrap()
-              // null == deleted 
-              console.log(createdCollection)
-            }}
-          >
-            Create
-          </Button> */}
+
+          <label> Add Source to Collection (enter the source ID): 
+            <input type="text" onChange={e => setSourceId(Number(e.target.value)) } />
+          </label>
+
+          <button onClick={() => {
+            const assoc = {'source_id': sourceId, 'collection_id': collectionId}
+            const source = sourceData.data;
+            dispatch(setSource({'sources': source}))
+            createSourceCollectionAssociation(assoc)
+              .then(() => dispatch(setSourceCollectionAssociation(assoc)))
+          }}>Add Source</button>
+
           <h5>Sources</h5>
           <ul>
             {
