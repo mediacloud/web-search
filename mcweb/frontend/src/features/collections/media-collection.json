@@ -1,0 +1,72 @@
+{
+  "_comment": "This file lists useful tag-sets. You should edit it to change the ids to match your system.",
+  "defaultCollection": {
+    "tagsId": 34412234,
+    "_comment": "This collection id (ie. `tags_id`) is used in various places as the default collection for searches"
+  },
+  "featuredCollections": {
+    "_comment": "The list shown in the UI of featured collections",
+    "entries": [
+      {
+        "tags": [
+          186572515,
+          186572435,
+          186572516
+        ],
+        "_comment": "pew 2018"
+      },
+      {
+        "tags": [
+          200363048,
+          200363049,
+          200363050,
+          200363061,
+          200363062
+        ],
+        "_comment": "Berkman Klein partisanship quintiles from 2019"
+      },
+      {
+        "tags": [
+          34412118
+        ],
+        "_comment": "India national"
+      },
+      {
+        "tags": [
+          34412232
+        ],
+        "_comment": "Russia national"
+      },
+      {
+        "tags": [
+          38379799
+        ],
+        "_comment": "France - State & Local"
+      },
+      {
+        "tags": [
+          9272347
+        ],
+        "_comment": "ABYZ Global English"
+      },
+      {
+        "tags": [
+          34412476
+        ],
+        "_comment": "UK National"
+      },
+      {
+        "tags": [
+          34412202
+        ],
+        "_comment": "Ghana National"
+      },
+      {
+        "tags": [
+          38381372
+        ],
+        "_comment": "US Massachusetts State/Local"
+      }
+    ]
+  }
+}
