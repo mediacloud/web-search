@@ -56,7 +56,7 @@ export default function SourceShow() {
     return (<></>)
   }
   else { return (
-    <div style={{ paddingTop: "100px" }}>
+    <div>
       <h1>{source.label}</h1>
 
       <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>

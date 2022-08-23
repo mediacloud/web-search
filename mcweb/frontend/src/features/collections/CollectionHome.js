@@ -16,7 +16,7 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function CollectionHome() {
     return (
-        <div style={{ paddingTop: "100px" }}>
+        <div>
             <h1>Collections Home</h1>
             <Box sx={{ width: '100%' }}>
                 <Grid container spacing={2}>

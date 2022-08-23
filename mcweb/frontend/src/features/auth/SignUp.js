@@ -40,8 +40,7 @@ export default function SignUp() {
   const [errorState, setErrorState] = React.useState();
 
   return (
-
-    <div style={{ paddingTop: "50px" }}>
+    <div>
       <Container maxWidth="xs">
       <CssBaseline />
       <Box

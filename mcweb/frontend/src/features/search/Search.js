@@ -90,15 +90,13 @@ export default function Search() {
   }
 
   return (
-    <div style={{ paddingTop: "200px" }}>
+    <div style={{ paddingTop: "75px" }}>
       <Container maxWidth="xs">
-
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Stack
             spacing={2}
             method="post"
           >
-
 
             {/* Query */}
             <TextField
