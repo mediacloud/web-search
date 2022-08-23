@@ -54,20 +54,30 @@ export default function ModifyCollection() {
     })
   })
 
+  // form state for text fields 
+  const [formState, setFormState] = useState({
+    id: 0, name: "", notes: "",
+  });
+
+  useEffect(() => {
+    if (data) {
+      const formData = {
+        id: collection.id,
+        name: collection.name,
+        notes: collection.notes
+      }
+      setFormState(formData)
+    }
+  }, [collection])
+
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // menu options
   const services = ["Online News", "Youtube"]
 
 
-
-  // form state for text fields 
-  const [formState, setFormState] = useState({
-    id: 6, name: "", notes: "",
-  });
-
 //patch for now, sources in the future will be uploadable only by csv
-  const [sourceId, setSourceId] = useState(1);
+  const [sourceId, setSourceId] = useState("");
   const sourceData = useGetSourceQuery(sourceId)
 
   // create 
@@ -98,7 +108,7 @@ export default function ModifyCollection() {
               fullWidth
               id="text"
               name="name"
-              value={collection.name}
+              value={formState.name}
               onChange={handleChange}
             />
           </li>
@@ -112,7 +122,7 @@ export default function ModifyCollection() {
               name="notes"
               multiline
               rows={4}
-              value={collection.notes}
+              value={formState.notes}
               onChange={handleChange}
             />
           </li>
@@ -152,7 +162,7 @@ export default function ModifyCollection() {
 
 
           <label> Add Source to Collection (enter the source ID): 
-            <input type="text" onChange={e => setSourceId(Number(e.target.value)) } />
+            <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value)) } />
           </label>
 
           <button onClick={() => {
@@ -161,6 +171,7 @@ export default function ModifyCollection() {
             dispatch(setSource({'sources': source}))
             createSourceCollectionAssociation(assoc)
               .then(() => dispatch(setSourceCollectionAssociation(assoc)))
+            setSourceId("")
           }}>Add Source</button>
 
           <h5>Sources</h5>

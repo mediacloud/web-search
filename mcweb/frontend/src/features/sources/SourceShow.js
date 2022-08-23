@@ -110,7 +110,7 @@ export default function SourceShow() {
         </Grid>
       </Box>
       <h3>Collections</h3>
-      <h4>This Source has {Object.values(collections).length} Collections</h4>
+      <h4>This Source is in {Object.values(collections).length} Collections</h4>
       <ul>
         {Object.values(collections).map(collection => {
           return <CollectionItem key={`collection${collection.id}`} collection={collection} /> 

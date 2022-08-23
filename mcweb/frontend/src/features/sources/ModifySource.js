@@ -56,10 +56,8 @@ export default function ModifySource() {
 
   // form state for text fields 
   const [formState, setFormState] = React.useState({
-    id: 571, name: "", notes: "", homepage: "", label: "", service: ""
+    id: "", name: "", notes: "", homepage: "", label: "", service: ""
   });
-
-
 
   // create 
   const [post, { setPost }] = usePostSourceMutation();
@@ -91,15 +89,18 @@ export default function ModifySource() {
 
   useEffect(() => {
     if (data){
-      setFormState(source)
+      const formData = {
+        id: source.id, name: source.name, notes: source.notes, homepage: source.homepage, label: source.label
+      }
+      setFormState(formData)
     }
   }, [source])
 
-
-
   //patch for now, this should be fixed by a collections search feature, could also consider a debounce or throttle
-  const [collectionId, setCollectionId] = useState(1);
+  const [collectionId, setCollectionId] = useState("");
+
   const collectionData = useGetCollectionQuery(collectionId)
+
   const [createSourceCollectionAssociation, associationResult] = useCreateSourceCollectionAssociationMutation();
 
 
@@ -114,22 +115,6 @@ export default function ModifySource() {
 
         <ul>
           <h2>{source.id} - {source.label}</h2>
-          {/* <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={async () => {
-              console.log(data)
-              setFormState({
-                id: data.id,
-                name: data.name,
-                homepage: data.homepage,
-                label: data.label,
-              })
-            }}
-          >
-            Get
-          </Button> */}
 
           {/* Name */}
           <li>
@@ -187,9 +172,7 @@ export default function ModifySource() {
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
               console.log(formState)
-              // updateSource(formState)
               const updateCollection = await updateSource(formState).unwrap();
-              console.log(updateSourceResult)
             }}
           >
             Update
@@ -211,35 +194,22 @@ export default function ModifySource() {
             Delete
           </Button> */}
 
-          {/* <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={async () => {
-              const createCollection = await post({
-                formState
-
-              }).unwrap()
-              console.log(createCollection)
-            }}
-          >
-            Create
-          </Button> */}
         </ul>
       </div>
       <div>
         <h3>Collections</h3>
 
         <label> Add Collection to Source (enter the collection ID):
-          <input type="text" onChange={e => setCollectionId(Number(e.target.value))} />
+          <input type="text" value={collectionId} onChange={e => setCollectionId(Number(e.target.value))} />
         </label>
 
         <button onClick={() => {
-          const assoc = { 'source_id': sourceId, 'collection_id': collectionId }
-          const collection = collectionData.data;
+          const assoc = { 'source_id': sourceId, 'collection_id': collectionId } //setup payload
+          const collection = collectionData.data; //get the collection data from query
           dispatch(setCollection({ 'collections': collection }))
           createSourceCollectionAssociation(assoc)
             .then(() => dispatch(setSourceCollectionAssociation(assoc)))
+          setCollectionId("")
         }}>Add Source</button>
 
         <ul>
