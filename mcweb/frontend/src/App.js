@@ -30,6 +30,7 @@ import CollectionHome from './features/collections/CollectionHome';
 import Search from './features/search/Search'
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
+import TestCollections from './features/collections/TestCollections'
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -48,7 +49,7 @@ const App = () => (
   <Provider store={getStore()}>
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
-        <Box sx={{ bgcolor: '#B0DFEB', width: '100%', height: '100vh' }}>
+        <Box>
           <Homepage />
         </Box>
       </SnackbarProvider>
@@ -98,6 +99,11 @@ export const renderApp = () => {
             <Route path="sources" element={
               <RequireAuth>
                 <SourceHome />
+              </RequireAuth>} /> 
+
+            <Route path="collections/test-collection" element={
+              <RequireAuth>
+                <TestCollections />
               </RequireAuth>} /> 
 
             <Route path="sign-in" element={<SignIn />} />

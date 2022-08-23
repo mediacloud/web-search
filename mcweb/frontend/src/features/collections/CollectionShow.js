@@ -68,21 +68,7 @@ export default function CollectionShow() {
             Modify this Collection
           </Button>
         </Box>
-        {/* <h5>Collection #186572515 - Public - Dynamic</h5> */}
       </div>
-{/* 
-      <div className="source-list-collection-content">
-
-        <ul>
-          <li> <Button variant='outlined' color="secondary">Source List</Button> </li>
-          <li> <Button variant='outlined' color="secondary">Collection Content</Button> </li>
-        </ul>
-      </div> */}
-
-      {/* 
-      Recent Source Representation Metadata Coverage and Similar Collections will be implemented   
-     */}
-
       <div className='content'>
         <div className='sources'>
           <h3>Sources</h3>
