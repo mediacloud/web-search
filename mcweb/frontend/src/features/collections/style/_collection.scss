@@ -1,0 +1,34 @@
+.collection-show-container {
+  box-sizing: border-box;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  width: 100%;
+  
+  .collection-header {
+    background: white;
+  }
+  
+  .source-list-collection-content {
+    background: rgb(227, 222, 222);
+    
+    ul {
+      display: flex; 
+      list-style-type: none;
+      
+      li {
+        padding: 20px;
+      }
+    }
+  }
+  
+  .content {
+    padding: 5px;
+    outline: 5px;
+    margin-bottom: 200px;
+    
+  }
+}
+
+.collection-show-source-list {
+  margin-bottom: 100px;
+}
+
