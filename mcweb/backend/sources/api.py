@@ -13,16 +13,16 @@ class CollectionViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = CollectionSerializer
     def list(self, request):
-        queryset = Collection.objects.all()
-        json_data = open('mcweb/static/backend/media-collection.json')
-        deserial_data = json.load(json_data)
-        collection_return = []
-        for collection in deserial_data['featuredCollections']['entries']:
-           for id in collection['tags']:
-            featured_collection = get_object_or_404(queryset, pk=id)
-            collection_return.append(featured_collection)
-        serializer = FeaturedCollectionsSerializer({'collections':collection_return})
-        return Response(serializer.data)
+        queryset = Collection.objects.all() 
+        json_data = open('mcweb/static/backend/media-collection.json') # open json file
+        deserial_data = json.load(json_data) # deserialize the data
+        collection_return = [] # create return array
+        for collection in deserial_data['featuredCollections']['entries']: #first iterate through the featuredCollections entries
+           for id in collection['tags']: #next iterate through all the tags(ids) for any given featuredCollection 
+            featured_collection = get_object_or_404(queryset, pk=id) # get the object or 404
+            collection_return.append(featured_collection) #add object to return array
+        serializer = FeaturedCollectionsSerializer({'collections':collection_return}) #add it through new serializer
+        return Response(serializer.data) 
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
