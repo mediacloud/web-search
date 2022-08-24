@@ -1,0 +1,14 @@
+// collection styling
+@import '../features/collections/style/collection';
+@import '../features/collections/style/modify-collection';
+@import '../features/collections/style/collection-item';
+
+// source styling
+@import '../features/sources/style/source-item';
+@import '../features/sources/style/modify-source';
+@import '../features/sources/style/source';
+
+// componenets
+@import '../style/header';
+@import '../style/homepage';
+@import '../../templates/frontend/footer.scss';

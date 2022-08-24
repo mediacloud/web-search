@@ -60,9 +60,13 @@ export default function SourceShow() {
   else {
     return (
       <div>
-        <h1>{source.label}</h1>
 
+        <div>
+          <h1>{source.label}</h1>
+        </div>
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+
+          {/*  */}
           <Button
             style={{ backgroundColor: "white" }}
             variant='contained'
@@ -84,12 +88,11 @@ export default function SourceShow() {
           >
             {source.label}'s Collections
           </Button>
-          {/* <Link to={"modify-source"} collections={collections}><h3>Modify This Source</h3></Link> */}
         </Box>
         <Box sx={{ width: '100%' }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Name: {source.name}  </Item>
+              <Item>Name: {source.name} </Item>
             </Grid>
             <Grid item xs={12} sm={6} md={4} lg={3} >
               <Item>Covered Since: {source.first_story} </Item>
