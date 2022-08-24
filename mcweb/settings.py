@@ -30,7 +30,7 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = environ.Env(DEBUG=(bool, False))
 
-ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost']
+ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', '127.0.0.1']
 
 # Application definition
 

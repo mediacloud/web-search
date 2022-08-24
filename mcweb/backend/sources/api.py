@@ -4,6 +4,7 @@ from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesCollectionSerializer, CollectionsSourceSerializer
 from rest_framework.response import Response
 from collections import namedtuple
+import json
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
@@ -11,6 +12,20 @@ class CollectionViewSet(viewsets.ModelViewSet):
         permissions.AllowAny
     ]
     serializer_class = CollectionSerializer
+    def list(self, request):
+        json_data = open('mcweb/static/backend/media-collection.json')
+        deserial_data = json.load(json_data)
+        format_data = json.dumps(deserial_data)
+        print(format_data)
+        collection_return = []
+        for collection in deserial_data:
+            if collection == 'featuredCollection':
+                for tag in featuredCollection.tags:
+                    print(tag)
+            # featured_collection = get_object_or_404()
+            print(collection)
+        # serializer = CollectionSerializer(collection_return)
+        return Response("hello")
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
