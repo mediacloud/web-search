@@ -28,7 +28,6 @@ export const sourcesApi = createApi({
     }),
     updateSource: builder.mutation({
       query: (source) => {
-        console.log(source)
         return {
         url: `/${source.id}/`,
         method: 'PATCH',
