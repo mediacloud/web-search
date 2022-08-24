@@ -1,10 +1,10 @@
-.container {
+.collection-show-container {
   box-sizing: border-box;
-  padding-top: 75px;
-  color: rgb(75, 72, 72);
   font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  width: 100%;
+  
   .collection-header {
-    background: #bcdeec;
+    background: white;
   }
   
   .source-list-collection-content {
@@ -23,27 +23,12 @@
   .content {
     padding: 5px;
     outline: 5px;
-  
+    margin-bottom: 200px;
     
-    table {
-      background:white;
-      border: 1px solid rgb(190, 190, 190);
-      
-      th {
-        border: 1px solid rgb(190, 190, 190);
-        padding-left: 75px;
-        padding-right: 75px;
-      }
-      
-      td {
-        border: 1px solid rgb(190, 190, 190);
-        text-align: center;
-        
-      }
-    }
   }
 }
 
-.modify {
-  color:blue;
+.collection-show-source-list {
+  margin-bottom: 100px;
 }
+

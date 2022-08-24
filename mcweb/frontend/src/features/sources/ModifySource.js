@@ -109,7 +109,7 @@ export default function ModifySource() {
   }
   else {
   return (
-    <div className='container'>
+    <div className='modify-source-container'>
       <div className="collection-header">
         <h2 className="title">Modify this Source</h2>
 
@@ -171,7 +171,7 @@ export default function ModifySource() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              console.log(formState)
+              // console.log(formState)
               const updateCollection = await updateSource(formState).unwrap();
             }}
           >
@@ -212,7 +212,7 @@ export default function ModifySource() {
           setCollectionId("")
         }}>Add Source</button>
 
-        <ul>
+        <ul className='collection-list'>
           {Object.values(collections).map(collection => {
             return (
               <div className='collection-item-modify-source-div' key={`collection-item-modify-source-${collection.id}`}>

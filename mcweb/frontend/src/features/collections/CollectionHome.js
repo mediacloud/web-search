@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 

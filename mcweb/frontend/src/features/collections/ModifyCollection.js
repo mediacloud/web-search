@@ -97,7 +97,7 @@ export default function ModifyCollection() {
     return (<></>)
   }
   else {return (
-    <div className='container'>
+    <div className='modify-collection-container'>
       <div className="collection-header">
         <h2 className="title">Modify this Collection</h2>
         <ul>
@@ -138,7 +138,6 @@ export default function ModifyCollection() {
                 name: formState.name,
                 notes: formState.notes
               }).unwrap();
-              console.log(updatedCollection)
             }}
           >
             Update
@@ -175,7 +174,7 @@ export default function ModifyCollection() {
           }}>Add Source</button>
 
           <h5>Sources</h5>
-          <ul>
+          <ul className='modify-collection-source-list'>
             {
               Object.values(sources).map(source => {
                 return(
