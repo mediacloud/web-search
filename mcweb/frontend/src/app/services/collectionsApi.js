@@ -12,7 +12,7 @@ export const collectionsApi = createApi({
   }),
   
   endpoints: (builder) => ({
-    getHomeCollections: builder.query({
+    getFeaturedCollections: builder.query({
       query: () => ({
         url:'',
         method: 'GET'
@@ -49,7 +49,7 @@ export const collectionsApi = createApi({
 })
 
 export const {
-  useGetHomeCollectionsQuery,
+  useGetFeaturedCollectionsQuery,
   useGetCollectionQuery,
   usePostCollectionMutation,
   useUpdateCollectionMutation,
