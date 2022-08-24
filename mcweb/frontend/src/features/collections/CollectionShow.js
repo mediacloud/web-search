@@ -3,6 +3,7 @@ import { Button, Box } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
+import { useState } from 'react';
 
 import SourceItem from '../sources/SourceItem';
 
@@ -19,9 +20,12 @@ import { setCollection } from './collectionsSlice';
 import { setSources } from '../sources/sourceSlice';
 
 
+
 export default function CollectionShow() {
   const params = useParams()
   const collectionId = Number(params.collectionId);
+  const [isShown, setIsShown] = useState(false)
+
 
   const {
     data,
@@ -49,48 +53,58 @@ export default function CollectionShow() {
     })
   })
 
-  if (!collection || sources[0] === sources[1]){
+  if (!collection || sources[0] === sources[1]) {
     return (<></>)
   }
-  else { return (
-    <div className="collection-show-container">
-      <div className="collection-header">
-        <h2 className="title">{collection.name}</h2>
-        <h3> Notes: {collection.notes}</h3>
-        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', backgroundColor:'white' } }}>
-          <Button
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            component={Link}
-            to="modify-collection"
-          >
-            Modify this Collection
-          </Button>
-        </Box>
-      </div>
-      <div className='content'>
-        <div className='sources'>
-          <h3>Sources</h3>
-          <h6>This collection includes {Object.values(sources).length} media sources </h6>
-          {/* <table>
-            <tbody>
-              <tr>
-                <th>Media Source</th>
-                <th>Stories Per Day</th>
-                <th>First Story</th>
-              </tr>
-            </tbody>
-          </table> */}
-          <ul>
-          { 
-            Object.values(sources).map(source => {
-              return  <SourceItem key={`source-item-${source.id}`} source={source} />
-            })
-          }
-          </ul>
+  else {
+    return (
+      <div className="container">
+        <div className="collection-header">
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            <Button
+              style={{ backgroundColor: "white" }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }}
+              component={Link}
+              to="modify-collection"
+            >
+              Modify this Collection
+            </Button>
+
+            <Button
+              style={{ backgroundColor: "white" }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }}
+              onClick={async () => {
+                setIsShown(!isShown)
+              }}
+            >
+              Sources
+            </Button>
+          </Box>
+
+          <h2 className="title">{collection.name}</h2>
+          <h3> Notes: {collection.notes}</h3>
+
         </div>
+        
+        {isShown && ( 
+        <div className='content'>
+          <div className='sources'>
+            <h3>Sources</h3>
+            <h6>This collection includes {Object.values(sources).length} media sources </h6>
+
+            <ul>
+              {
+                Object.values(sources).map(source => {
+                  return <SourceItem key={`source-item-${source.id}`} source={source} />
+                })
+              }
+            </ul>
+          </div>
+        </div>
+        )}
       </div >
-    </div >
-  )};
+    )
+  };
 }

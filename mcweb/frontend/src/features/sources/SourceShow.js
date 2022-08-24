@@ -2,11 +2,11 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Paper, Grid, Button } from '@mui/material';
-import {useSelector, useDispatch} from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import CollectionItem from '../collections/CollectionItem';
-
+import { useState } from 'react';
 //rtk api operations...corresponding with API calls to the backend
 import { useGetSourceAndAssociationsQuery } from '../../app/services/sourcesCollectionsApi';
 
@@ -24,9 +24,11 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function SourceShow() {
+  const [isShown, setIsShown] = useState(false)
+
   const params = useParams()
   const sourceId = Number(params.sourceId);
-  
+
   const {
     data,
     isLoading,
@@ -34,11 +36,11 @@ export default function SourceShow() {
     isError,
     error,
   } = useGetSourceAndAssociationsQuery(sourceId);
-  
+
   const dispatch = useDispatch();
-  
+
   useEffect(() => {
-    if (data){
+    if (data) {
       dispatch(setSourceCollectionsAssociations(data))
       dispatch(setSource(data))
       dispatch(setCollections(data))
@@ -47,76 +49,95 @@ export default function SourceShow() {
 
   const source = useSelector(state => state.sources[sourceId]);
   const collections = useSelector(state => {
-   return state.sourcesCollections.map(assoc => {
+    return state.sourcesCollections.map(assoc => {
       return state.collections[assoc.collection_id]
     })
   })
 
-  if (!source || collections[0] === collections[1]){
+  if (!source || collections[0] === collections[1]) {
     return (<></>)
   }
-  else { return (
-    <div>
-      <h1>{source.label}</h1>
+  else {
+    return (
+      <div>
+        <h1>{source.label}</h1>
 
-      <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-        <Button
-          style={{ backgroundColor: "white" }}
-          variant='contained'
-          sx={{ my: 2.25, color: 'black', display: 'block' }}
-          component={Link}
-          to="modify-source"
-          state={collections}
-        >
-          Modify this Source
-        </Button>
-        {/* <Link to={"modify-source"} collections={collections}><h3>Modify This Source</h3></Link> */}
-      </Box>
-      <Box sx={{ width: '100%' }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Name: {source.name}  </Item>
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            component={Link}
+            to="modify-source"
+            state={collections}
+          >
+            Modify this Source
+          </Button>
+
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            onClick={async () => {
+              setIsShown(!isShown)
+            }}
+          >
+            {source.label}'s Collections
+          </Button>
+          {/* <Link to={"modify-source"} collections={collections}><h3>Modify This Source</h3></Link> */}
+        </Box>
+        <Box sx={{ width: '100%' }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={4} lg={3} >
+              <Item>Name: {source.name}  </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3} >
+              <Item>Covered Since: {source.first_story} </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3} >
+              <Item>Homepage: {source.homepage} </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3} >
+              <Item>Stories per week: {source.stories_per_week} </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <Item>Notes: {source.notes} </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <Item>With Themes: </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <Item>Publication Country: {source.pub_country} </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3} >
+              <Item>Publication State: {source.pub_state} </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3} >
+              <Item>Detected Primary Language: {source.primary_language} </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3} >
+              <Item>Detected Subject State:  </Item>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3} >
+              <Item>Media Type: {source.media_type} </Item>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Covered Since: {source.first_story} </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Homepage: {source.homepage} </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Stories per week: {source.stories_per_week} </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Item>Notes: {source.notes} </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Item>With Themes: </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3}>
-            <Item>Publication Country: {source.pub_country} </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Publication State: {source.pub_state} </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Detected Primary Language: {source.primary_language} </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Detected Subject State:  </Item>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4} lg={3} >
-            <Item>Media Type: {source.media_type} </Item>
-          </Grid>
-        </Grid>
-      </Box>
-      <h3>Collections</h3>
-      <h4>This Source is in {Object.values(collections).length} Collections</h4>
-      <ul className='collection-list'>
-        {Object.values(collections).map(collection => {
-          return <CollectionItem key={`collection${collection.id}`} collection={collection} /> 
-        })}
-      </ul>
-     
-    </div>
-  )};
+        </Box>
+
+        {isShown && (
+          <div>
+            <h3>Collections</h3>
+            <h4>This Source has {Object.values(collections).length} Collections</h4>
+            <ul>
+              {Object.values(collections).map(collection => {
+                return <CollectionItem key={`collection${collection.id}`} collection={collection} />
+              })}
+            </ul>
+          </div>
+        )}
+
+
+      </div>
+    )
+  };
 }
