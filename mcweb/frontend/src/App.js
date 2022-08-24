@@ -30,7 +30,6 @@ import CollectionHome from './features/collections/CollectionHome';
 import Search from './features/search/Search'
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
-import TestCollections from './features/collections/TestCollections'
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -99,11 +98,6 @@ export const renderApp = () => {
             <Route path="sources" element={
               <RequireAuth>
                 <SourceHome />
-              </RequireAuth>} /> 
-
-            <Route path="collections/test-collection" element={
-              <RequireAuth>
-                <TestCollections />
               </RequireAuth>} /> 
 
             <Route path="sign-in" element={<SignIn />} />

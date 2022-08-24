@@ -1,3 +1,4 @@
+
 import React from 'react'
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -15,7 +16,6 @@ import { useSelector } from 'react-redux';
 import { saveCsrfToken } from './services/csrfToken';
 
 // if you use a query, you would use lcoal compenent state to set the query parameter
-
 // user account status (login, account info ...)
 function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigate, enqueueSnackbar) {
 
@@ -81,7 +81,8 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
   }
 }
 
-const ResponsiveAppBar = () => {
+export default function Header() {
+
   // all pages
   const pages = ['collections', 'sources', 'search'];
   // currentUser
@@ -94,69 +95,64 @@ const ResponsiveAppBar = () => {
 
   return (
     <div>
-      <AppBar position="absolute" style={{ backgroundColor: "purple" }}>
-        <Container maxWidth="xl">
-          <Toolbar>
-            <Typography
-              sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'flex' },
-                fontFamily: 'Courier',
-                letterSpacing: '.05rem',
-                color: 'white',
-                textDecoration: 'none',
-              }}
-              component={Link}
-              to="/"
-            >
-              Media Cloud Proof-of-Concept
-            </Typography>
+      <div className="header">
+        <Toolbar>
+          <Typography
+            sx={{
+              mr: 2,
+              display: { xs: 'none', md: 'flex' },
+              fontFamily: 'Courier',
+              letterSpacing: '.05rem',
+              color: 'white',
+              textDecoration: 'none',
+            }}
+            component={Link}
+            to="/"
+          >
+            Media Cloud Proof-of-Concept
+          </Typography>
 
-            {/* Search and Collection */}
-            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-              {pages.map((page) => (
-                <Button
-                  style={{ backgroundColor: "white" }}
-                  variant='contained'
-                  key={page}
-                  component={Link}
-                  to={page}
-                  sx={{ my: 2.25, color: 'black', display: 'block' }}
-                >
-                  {page}
-                </Button>
-              ))}
-            </Box>
+          {/* Search and Collection */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            {pages.map((page) => (
+              <Button
+                style={{ backgroundColor: "white" }}
+                variant='contained'
+                key={page}
+                component={Link}
+                to={page}
+                sx={{ my: 2.25, color: 'black', display: 'block' }}
+              >
+                {page}
+              </Button>
+            ))}
+          </Box>
 
 
-            {/* Account */}
-            <Box sx={{ flexGrow: 0 }}>
-              {/* Changing button to and impleneting navigate() from Router */}
-              {userButtonStatus(isLoggedIn, currentUser, logout, isLoading, dispatch, navigate, enqueueSnackbar)}
-            </Box>
+          {/* Account */}
+          <Box sx={{ flexGrow: 0 }}>
+            {/* Changing button to and impleneting navigate() from Router */}
+            {userButtonStatus(isLoggedIn, currentUser, logout, isLoading, dispatch, navigate, enqueueSnackbar)}
+          </Box>
 
-            {/* Display is xs  */}
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} />
-            <Typography
-              sx={{
-                mr: 2,
-                display: { xs: 'flex', md: 'none' },
-                flexGrow: 1,
-                fontFamily: 'Courier',
-                letterSpacing: '.05rem',
-                color: 'white',
-                textDecoration: 'none',
-              }}
-            >
-              Media Cloud
-            </Typography>
-
-          </Toolbar>
-        </Container >
-      </AppBar >
+          {/* Display is xs  */}
+          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} />
+          <Typography
+            sx={{
+              mr: 2,
+              display: { xs: 'flex', md: 'none' },
+              flexGrow: 1,
+              fontFamily: 'Courier',
+              letterSpacing: '.05rem',
+              color: 'white',
+              textDecoration: 'none',
+            }}
+          >
+            Media Cloud
+          </Typography>
+        </Toolbar>
+      </div>
       <Outlet />
     </div>
-
-  );
-};
-export default ResponsiveAppBar;
+  )
+}
