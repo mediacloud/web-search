@@ -3,7 +3,13 @@
   left: 0;
   bottom: 0;
   width: 100%;
-  background-color: white;
-  color: grey;
+  background-color: rgb(187, 180, 180);
+  color: black;
   text-align: center;
+  font-family: "Source Sans Pro",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+
+  a {
+    font-size: 13px;
+  }
+  
 }

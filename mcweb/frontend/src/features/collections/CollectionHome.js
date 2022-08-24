@@ -4,8 +4,6 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import { Link } from 'react-router-dom';
-import collections from './media-collection.json'
-
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
@@ -20,7 +18,6 @@ export default function CollectionHome() {
 
     return (
         <div style={{ paddingTop: "100px" }}>
-
             <h1>Collections Home</h1>
             <Box sx={{ width: '100%' }}>
                 <Grid container spacing={2}>
