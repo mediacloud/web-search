@@ -33,7 +33,7 @@ export default function SignIn() {
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   return (
-    <div style={{ paddingTop: "50px" }}>
+    <div>
       <CssBaseline />
       <Container maxWidth="xs">
       <Box
