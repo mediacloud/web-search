@@ -1,6 +1,8 @@
 li {
+    border-style: solid;
     display: flex;
     justify-content: space-between;
+    margin: 5px
 }
 
 .source-link{
@@ -9,5 +11,5 @@ li {
 }
 
 h6 {
-    margin:20px;
+    margin: 20px;
 }

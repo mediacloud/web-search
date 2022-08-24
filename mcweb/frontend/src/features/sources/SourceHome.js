@@ -16,9 +16,12 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function SourceHome() {
 
     return (
-        <div>
-            <h1>Sources Home</h1>
-            <Box sx={{ width: '100%' }}>
+        <div className='sourceHome'>
+            <div>
+                <h1>Sources Home</h1>
+            </div>
+
+            <div className="sourceList">
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={4} lg={3} >
                         <Link to={"/sources/1"}><Item>NYT </Item></Link>
@@ -54,7 +57,7 @@ export default function SourceHome() {
                         <Link to={"/sources/13"}><Item>Newsday </Item></Link>
                     </Grid>
                 </Grid>
-            </Box>
+            </div>
         </div>
     );
 }

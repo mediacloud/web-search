@@ -60,86 +60,87 @@ export default function SourceShow() {
   else {
     return (
       <div>
-
-        <div>
+        <div className="sourceTitle">
           <h1>{source.label}</h1>
-        </div>
-        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <div className="buttons">
 
-          {/*  */}
-          <Button
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            component={Link}
-            to="modify-source"
-            state={collections}
-          >
-            Modify this Source
-          </Button>
+            {/* Update Source */}
+            <Button
+              style={{ backgroundColor: "white" }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }}
+              component={Link}
+              to="modify-source"
+              state={collections}
+            >
+              Modify this Source
+            </Button>
 
-          <Button
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            onClick={async () => {
-              setIsShown(!isShown)
-            }}
-          >
-            {source.label}'s Collections
-          </Button>
-        </Box>
-        <Box sx={{ width: '100%' }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Name: {source.name} </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Covered Since: {source.first_story} </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Homepage: {source.homepage} </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Stories per week: {source.stories_per_week} </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3}>
-              <Item>Notes: {source.notes} </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3}>
-              <Item>With Themes: </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3}>
-              <Item>Publication Country: {source.pub_country} </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Publication State: {source.pub_state} </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Detected Primary Language: {source.primary_language} </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Detected Subject State:  </Item>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3} >
-              <Item>Media Type: {source.media_type} </Item>
-            </Grid>
-          </Grid>
-        </Box>
-
-        {isShown && (
-          <div className="collection-list">
-            <h3>Collections</h3>
-            <h4>This Source has {Object.values(collections).length} Collections</h4>
-            <ul>
-              {Object.values(collections).map(collection => {
-                return <CollectionItem key={`collection${collection.id}`} collection={collection} />
-              })}
-            </ul>
+            { /* Shows the Source's Collections */}
+            <Button
+              style={{ backgroundColor: "white" }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }}
+              onClick={async () => {
+                setIsShown(!isShown)
+              }}
+            >
+              {source.label}'s Collections
+            </Button>
           </div>
-        )}
+        </div>
 
+        <div className="sourceList">
+          <Box sx={{ width: '100%' }}>
 
+            <h1 className='aboutThisSource'>About this Source</h1>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4} lg={3} >
+                <Item>Name: {source.name} </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3} >
+                <Item>Covered Since: {source.first_story} </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3} >
+                <Item>Homepage: {source.homepage} </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3} >
+                <Item>Stories per week: {source.stories_per_week} </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Item>Notes: {source.notes} </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Item>With Themes: </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3}>
+                <Item>Publication Country: {source.pub_country} </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3} >
+                <Item>Publication State: {source.pub_state} </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3} >
+                <Item>Detected Primary Language: {source.primary_language} </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3} >
+                <Item>Detected Subject State:  </Item>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4} lg={3} >
+                <Item>Media Type: {source.media_type} </Item>
+              </Grid>
+            </Grid>
+          </Box>
+        </div>
+
+        <div className="sourcesCollections">
+          <h4 className="sourceCollectionInformation">{source.name} has assocations with {Object.values(collections).length} collections </h4>
+          <ul>
+            {Object.values(collections).map(collection => {
+              return <CollectionItem key={`collection${collection.id}`} collection={collection} />
+            })}
+          </ul>
+        </div>
       </div>
     )
   };
