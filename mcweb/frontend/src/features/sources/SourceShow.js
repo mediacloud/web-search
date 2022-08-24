@@ -125,7 +125,7 @@ export default function SourceShow() {
         </Box>
 
         {isShown && (
-          <div>
+          <div className="collection-list">
             <h3>Collections</h3>
             <h4>This Source has {Object.values(collections).length} Collections</h4>
             <ul>
