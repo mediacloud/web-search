@@ -53,11 +53,11 @@ export default function CollectionShow() {
     return (<></>)
   }
   else { return (
-    <div className="container">
+    <div className="collection-show-container">
       <div className="collection-header">
         <h2 className="title">{collection.name}</h2>
         <h3> Notes: {collection.notes}</h3>
-        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+        <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex', backgroundColor:'white' } }}>
           <Button
             style={{ backgroundColor: "white" }}
             variant='contained'

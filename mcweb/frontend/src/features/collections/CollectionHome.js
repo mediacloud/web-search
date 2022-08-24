@@ -58,7 +58,7 @@ export default function CollectionHome() {
                 </Grid>
             </Box>
 
-            {/* Update */}
+            {/* Update
             <Button
                 fullWidth
                 variant="contained"
@@ -67,7 +67,7 @@ export default function CollectionHome() {
                 to="/collections/test-collection"
             >
                 Test
-            </Button>
+            </Button> */}
 
 
         </div>

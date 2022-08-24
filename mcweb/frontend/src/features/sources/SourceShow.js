@@ -16,7 +16,7 @@ import { setSource } from './sourceSlice';
 import { setCollections } from '../collections/collectionsSlice';
 
 const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
+  backgroundColor: theme.palette.mode === 'dark' ? '#bcdeec' : '#fff',
   ...theme.typography.body2,
   padding: theme.spacing(1),
   textAlign: 'center',
@@ -111,7 +111,7 @@ export default function SourceShow() {
       </Box>
       <h3>Collections</h3>
       <h4>This Source is in {Object.values(collections).length} Collections</h4>
-      <ul>
+      <ul className='collection-list'>
         {Object.values(collections).map(collection => {
           return <CollectionItem key={`collection${collection.id}`} collection={collection} /> 
         })}
