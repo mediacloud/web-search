@@ -133,14 +133,17 @@ export default function SourceShow() {
           </Box>
         </div>
 
-        <div className="sourcesCollections">
-          <h4 className="sourceCollectionInformation">{source.name} has assocations with {Object.values(collections).length} collections </h4>
-          <ul>
-            {Object.values(collections).map(collection => {
-              return <CollectionItem key={`collection${collection.id}`} collection={collection} />
-            })}
-          </ul>
-        </div>
+
+        {isShown &&
+          <div className="sourcesCollections">
+            <h4 className="sourceCollectionInformation">{source.name} has assocations with {Object.values(collections).length} collections </h4>
+            <ul>
+              {Object.values(collections).map(collection => {
+                return <CollectionItem key={`collection${collection.id}`} collection={collection} />
+              })}
+            </ul>
+          </div>
+        }
       </div>
     )
   };
