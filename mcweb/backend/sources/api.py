@@ -1,9 +1,10 @@
 from django.shortcuts import get_object_or_404
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesCollectionSerializer, CollectionsSourceSerializer
+from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesCollectionSerializer, CollectionsSourceSerializer, FeaturedCollectionsSerializer
 from rest_framework.response import Response
 from collections import namedtuple
+import json
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
@@ -11,6 +12,17 @@ class CollectionViewSet(viewsets.ModelViewSet):
         permissions.AllowAny
     ]
     serializer_class = CollectionSerializer
+    def list(self, request):
+        queryset = Collection.objects.all() 
+        json_data = open('mcweb/static/backend/media-collection.json') # open json file
+        deserial_data = json.load(json_data) # deserialize the data
+        collection_return = [] # create return array
+        for collection in deserial_data['featuredCollections']['entries']: #first iterate through the featuredCollections entries
+           for id in collection['tags']: #next iterate through all the tags(ids) for any given featuredCollection 
+            featured_collection = get_object_or_404(queryset, pk=id) # get the object or 404
+            collection_return.append(featured_collection) #add object to return array
+        serializer = FeaturedCollectionsSerializer({'collections':collection_return}) #add it through new serializer
+        return Response(serializer.data) 
 
 
 class FeedsViewSet(viewsets.ModelViewSet):

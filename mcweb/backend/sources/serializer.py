@@ -37,3 +37,6 @@ class SourcesCollectionSerializer(serializers.Serializer):
 class CollectionsSourceSerializer(serializers.Serializer):
     collections = CollectionSerializer(many=True)
     sources = SourcesSerializer()
+
+class FeaturedCollectionsSerializer(serializers.Serializer):
+    collections = CollectionSerializer(many=True)
