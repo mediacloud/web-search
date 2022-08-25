@@ -21,23 +21,15 @@ const Item = styled(Paper)(({ theme }) => ({
 
 export default function CollectionHome() {
     const {data} = useGetFeaturedCollectionsQuery();
-    const dispatch = useDispatch();
-
-    useEffect(() => {
-        if (data){
-            dispatch(setCollections(data))
-        } 
-    }, [data])
-
-    const featuredCollections = useSelector(state => state.collections)
-
+    const featuredCollections = data;
     if (!featuredCollections){
-        return <></>
+        return (<></>)
     } else {
     return (
         <div>
             <h1>Featured Collections</h1>
-            {(Object.values(featuredCollections).map((collection) => 
+            {console.log(featuredCollections['collections'])}
+            {(featuredCollections['collections'].map((collection) => 
                 <Grid key={`featured-collection-${collection.id}`} item xs={12} sm={6} md={4} lg={3}>
                     <Link to={`/collections/${collection.id}`}>
                         <Item>{collection.name}</Item>
