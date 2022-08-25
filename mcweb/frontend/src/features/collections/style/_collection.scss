@@ -1,34 +1,18 @@
-.collection-show-container {
-  box-sizing: border-box;
-  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  width: 100%;
+
+.collectionTitle { 
+  background-color: red;
+  color: white;
+  display: flex; 
+  justify-content: space-between;
+  padding: 10px;
   
-  .collection-header {
-    background: white;
-  }
-  
-  .source-list-collection-content {
-    background: rgb(227, 222, 222);
-    
-    ul {
-      display: flex; 
-      list-style-type: none;
-      
-      li {
-        padding: 20px;
-      }
-    }
-  }
-  
-  .content {
+  h1 {
     padding: 5px;
-    outline: 5px;
-    margin-bottom: 200px;
-    
+    font-weight: 600;
   }
 }
 
-.collection-show-source-list {
-  margin-bottom: 100px;
+.collectionList {
+  padding: 50px;
+  background-color:rgb(86, 86, 184);
 }
-
