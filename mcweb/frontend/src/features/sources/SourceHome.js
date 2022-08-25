@@ -16,8 +16,8 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function SourceHome() {
 
     return (
-        <div className='sourceHome'>
-            <div>
+        <>
+            <div className="sourceTitle">
                 <h1>Sources Home</h1>
             </div>
 
@@ -58,6 +58,6 @@ export default function SourceHome() {
                     </Grid>
                 </Grid>
             </div>
-        </div>
+        </>
     );
 }
