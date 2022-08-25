@@ -1,0 +1,24 @@
+
+
+.searchTitle { 
+  background-color: green;
+  color: white;
+  display: flex; 
+  justify-content: space-between;
+  padding: 10px;
+  
+  h1 {
+    padding: 5px;
+    font-weight: 600;
+  }
+}
+
+.searchContainer {
+  background-color:blue;
+  
+  .searchFeature {
+    background-color:white;
+    display: flex;
+    justify-content: center;
+  }
+}
