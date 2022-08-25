@@ -18,7 +18,7 @@ import { useGetSearchMutation } from '../../app/services/searchApi';
 export default function Search() {
 
   const { enqueueSnackbar } = useSnackbar();
- 
+
   const [search, { isSearching }] = useGetSearchMutation();
 
   const totalAttention = useSelector(selectTotalAttention)
@@ -90,73 +90,81 @@ export default function Search() {
   }
 
   return (
-    <div>
-      <Container maxWidth="xs">
+    <>
+
+      <div className="searchTitle">
+        <h1>Featured Collections</h1>
+      </div>
+
+
+      <div className="searchContainer">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <h1>Search</h1>
-          <Stack
-            spacing={2}
-            method="post"
-          >
-            {/* Query */}
-            <TextField
-              fullWidth
-              required
-              id="standard-multiline-static"
-              label="Query"
-              name="query_str"
-              rows={4}
-              onChange={handleChange}
 
-            />
-
-            {/* From Date */}
-            <DesktopDatePicker
-              required
-              type='date'
-              label="From"
-              inputFormat="MM/dd/yyyy"
-              value={fromValue}
-              onChange={handleChangeFromDate}
-              renderInput={(params) => <TextField {...params} />}
-            />
-
-            {/* To Date */}
-            <DesktopDatePicker
-              required
-              label="To"
-              inputFormat="MM/dd/yyyy"
-              value={toValue}
-              onChange={handleChangeToDate}
-              renderInput={(params) => <TextField {...params} />}
-            />
-
-            {/* Submit */}
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={async () => {
-                try {
-                  const count = await
-                   search({
-                    query: formState.query_str,
-                    start: fromValue,
-                    end: toValue,
-                  }).unwrap();
-                  dispatch(setSearch(count));
-                  enqueueSnackbar("Total Attention Discovered", { variant: 'success' });
-                } catch {
-                  enqueueSnackbar("Query is empty", { variant: 'error' });
-                }
-              }}
+          <div className="searchFeature">
+            <Stack
+              spacing={2}
+              method="post"
             >
-              Submit
-            </Button>
+              {/* Query */}
+              <TextField
+                fullWidth
+                required
+                id="standard-multiline-static"
+                label="Query"
+                name="query_str"
+                rows={4}
+                onChange={handleChange}
 
-            <h1>Total Attention: {totalAttention} </h1>
-          </Stack>
+              />
+
+              {/* From Date */}
+              <DesktopDatePicker
+                required
+                type='date'
+                label="From"
+                inputFormat="MM/dd/yyyy"
+                value={fromValue}
+                onChange={handleChangeFromDate}
+                renderInput={(params) => <TextField {...params} />}
+              />
+
+              {/* To Date */}
+              <DesktopDatePicker
+                required
+                label="To"
+                inputFormat="MM/dd/yyyy"
+                value={toValue}
+                onChange={handleChangeToDate}
+                renderInput={(params) => <TextField {...params} />}
+              />
+
+              {/* Submit */}
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={async () => {
+                  try {
+                    const count = await
+                      search({
+                        query: formState.query_str,
+                        start: fromValue,
+                        end: toValue,
+                      }).unwrap();
+                    dispatch(setSearch(count));
+                    enqueueSnackbar("Total Attention Discovered", { variant: 'success' });
+                  } catch {
+                    enqueueSnackbar("Query is empty", { variant: 'error' });
+                  }
+                }}
+              >
+                Submit
+              </Button>
+
+              <h1>Total Attention: {totalAttention} </h1>
+            </Stack>
+          </div>
         </LocalizationProvider>
-      </Container>
-    </div >
+      </div>
+    </>
   );
 }
