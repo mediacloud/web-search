@@ -9,30 +9,38 @@ import { setCollections } from './collectionsSlice';
 
 
 const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.primary
+  backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(2),
+  textAlign: 'center',
+  color: theme.palette.text.primary
 }));
 
 
 export default function CollectionHome() {
-    const {data} = useGetFeaturedCollectionsQuery();
-    const featuredCollections = data;
-    if (!featuredCollections){
-        return (<></>)
-    } else {
+  const { data } = useGetFeaturedCollectionsQuery();
+  const featuredCollections = data;
+  if (!featuredCollections) {
+    return (<></>)
+  } else {
     return (
-        <div>
-            <h1>Featured Collections</h1>
-            {(featuredCollections['collections'].map((collection) => 
-                <Grid key={`featured-collection-${collection.id}`} item xs={12} sm={6} md={4} lg={3}>
-                    <Link to={`/collections/${collection.id}`}>
-                        <Item>{collection.name}</Item>
-                    </Link>
-                </Grid>     
-            ))}
-        </div >
-    )};
+      <>
+        <div className="collectionTitle">
+          <h1>Featured Collections</h1>
+        </div>
+
+        <div className="collectionList">
+          {
+            (featuredCollections['collections'].map((collection) =>
+              <Grid key={`featured-collection-${collection.id}`}>
+                <Link to={`/collections/${collection.id}`}>
+                  <Item>{collection.name}</Item>
+                </Link>
+              </Grid>
+            ))
+          }
+        </div>
+      </>
+    )
+  };
 }
