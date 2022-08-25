@@ -3,7 +3,7 @@ import { TextField, MenuItem, Box, FormControlLabel, Button, Checkbox } from '@m
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { useDeleteCollectionMutation, useGetCollectionQuery, usePostCollectionMutation, useUpdateCollectionMutation } from '../../app/services/collectionsApi';
+import { useDeleteCollectionMutation, useUpdateCollectionMutation } from '../../app/services/collectionsApi';
 
 import SourceItem from '../sources/SourceItem';
 
@@ -15,8 +15,6 @@ import {
 } from '../../app/services/sourcesCollectionsApi';
 
 import { useGetSourceQuery } from '../../app/services/sourceApi';
-
-
 
 //rtk actions to change state
 import {
@@ -35,10 +33,10 @@ export default function ModifyCollection() {
   const { data } = useGetCollectionAndAssociationsQuery(collectionId);
 
   const dispatch = useDispatch();
-  //update redux store if there is data, or data changes
-  useEffect(() => {
+  //update redux store if there is data, or data changes, data is from useGetCollectionAndAssociationsQuery, with id from url
+  useEffect(() => { // data comes in as (in this case, sourceModify is opposite): {collections:{id:1, name:newspapers}, sources:[{source1}, {source2}]}, can check redux state
     if (data) {
-      dispatch(setCollectionSourcesAssociations(data))
+      dispatch(setCollectionSourcesAssociations(data)) //slice actions to update redux store
       dispatch(setSources(data))
       dispatch(setCollection(data))
     }
@@ -48,17 +46,18 @@ export default function ModifyCollection() {
   const collection = useSelector(state => state.collections[collectionId]);
 
   //get sources
-  const sources = useSelector(state => {
-    return state.sourcesCollections.map(assoc => {
-      return state.sources[assoc.source_id]
-    })
-  })
+  const sources = useSelector(state => { 
+    return state.sourcesCollections.map(assoc => { //map the sources from sourcesCollections slice because that is where we have the associations kept
+      return state.sources[assoc.source_id] //grab the source from state that matches the source_id, sourcesCollections state looks like {'source_id': 1, 'collection_id':1}
+    }) //mapping first from the associations because if we remove or add an association we need it to update and rerender, also possibility there is a source in state that is not associated
+  }) //ex. a recently deleted association would linger if we were only mapping the sources in our state (alternatively, can delete the source from state as well when deleting association (?))
 
   // form state for text fields 
   const [formState, setFormState] = useState({
     id: 0, name: "", notes: "",
   });
 
+  //set form data to the collection specified in url
   useEffect(() => {
     if (data) {
       const formData = {
@@ -70,6 +69,7 @@ export default function ModifyCollection() {
     }
   }, [collection])
 
+  //formState declaration
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // menu options
@@ -80,9 +80,8 @@ export default function ModifyCollection() {
   const [sourceId, setSourceId] = useState("");
   const sourceData = useGetSourceQuery(sourceId)
 
-  // create 
-  const [createCollection, { setPost }] = usePostCollectionMutation();
-
+  //RTK QUERY OPERATIONS
+  //create association
   const [createSourceCollectionAssociation, associationResult] = useCreateSourceCollectionAssociationMutation();
 
   // update 
@@ -91,12 +90,13 @@ export default function ModifyCollection() {
   // delete 
   const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
 
+  // delete association
   const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
 
   if (!collection){
     return (<></>)
   }
-  else {return (
+  else { return (
     <div className='modify-collection-container'>
       <div className="collection-header">
         <h2 className="title">Modify this Collection</h2>
@@ -165,18 +165,18 @@ export default function ModifyCollection() {
           </label>
 
           <button onClick={() => {
-            const assoc = {'source_id': sourceId, 'collection_id': collectionId}
-            const source = sourceData.data;
-            dispatch(setSource({'sources': source}))
-            createSourceCollectionAssociation(assoc)
-              .then(() => dispatch(setSourceCollectionAssociation(assoc)))
-            setSourceId("")
+            const assoc = {'source_id': sourceId, 'collection_id': collectionId} //get assoc data and package
+            const source = sourceData.data; //data from getSource with entered id
+            dispatch(setSource({'sources': source})) // put the source in the redux state
+            createSourceCollectionAssociation(assoc) //create association
+              .then(() => dispatch(setSourceCollectionAssociation(assoc))) //if success update redux store
+            setSourceId("") //reset id input field
           }}>Add Source</button>
 
           <h5>Sources</h5>
           <ul className='modify-collection-source-list'>
             {
-              Object.values(sources).map(source => {
+              Object.values(sources).map(source => { // sources object {1: {id: 1, name: etc}}
                 return(
                   <div key={`source-item-modify-collection-${source.id}`} className="modify-collection-source-item-div">
                     <SourceItem  source={source} />
@@ -184,8 +184,8 @@ export default function ModifyCollection() {
                       deleteSourceCollectionAssociation({
                         "source_id": source.id,
                         "collection_id": collectionId
-                      })
-                        .then(results => dispatch(dropSourceCollectionAssociation(results)))
+                      }) //onClick send rtk mutation
+                        .then(results => dispatch(dropSourceCollectionAssociation(results))) //with results update redux store (only doing sourceCollections at this point)
                     }}>Remove</button>
                   </div>
                 ) 
