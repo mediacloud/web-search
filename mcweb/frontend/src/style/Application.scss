@@ -13,5 +13,8 @@
 @import '../style/homepage';
 @import '../../templates/frontend/footer.scss';
 
+// search styling 
+@import '../features/search/styles/search.scss';
+
 // text styling 
-@import '../style/text'
+@import '../style/text';
