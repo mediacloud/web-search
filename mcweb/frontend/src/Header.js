@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
+import styled from "styled-components"
 
 import { useLogoutMutation } from './app/services/authApi';
 import { selectCurrentUser, selectIsLoggedIn, setCredentials } from './features/auth/authSlice';
@@ -81,6 +82,17 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
   }
 }
 
+
+
+const linkStyle = {
+  margin: "1rem",
+  textDecoration: "none", 
+  color: "white",
+  fontSize: "35px",
+  fontWeight: "400",
+  
+}
+
 export default function Header() {
 
   // all pages
@@ -97,20 +109,11 @@ export default function Header() {
     <div>
       <div className="header">
         <Toolbar>
-          <Typography
-            sx={{
-              mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'Courier',
-              letterSpacing: '.05rem',
-              color: 'white',
-              textDecoration: 'none',
-            }}
-            component={Link}
-            to="/"
-          >
-            Media Cloud Proof-of-Concept
-          </Typography>
+          
+
+            <Link to="/" style={linkStyle}>
+              Media Cloud
+              </Link>
 
           {/* Search and Collection */}
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>

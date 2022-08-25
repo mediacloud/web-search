@@ -13,7 +13,7 @@ import { Box } from '@mui/material';
 
 import Container from '@mui/material/Container';
 // Import our style sheet
-import '../../frontend/src/styles/Application.scss'
+import '../../frontend/src/style/Application.scss'
 // user status
 import Account from './features/auth/Account'
 import SignIn from './features/auth/SignIn'

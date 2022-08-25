@@ -1,0 +1,55 @@
+.sourceHome {
+  h1 {
+    padding: 20px;
+    font-size: 40px;
+    background-color: purple;
+    color: white;
+  }
+}
+
+.aboutThisSource {
+  font-weight: 600;
+  color: white;
+
+}
+
+.sourceTitle { 
+  h1 {
+    padding: 5px;
+    font-weight: 600;
+  }
+
+  background-color: purple;
+  color: white;
+  display: flex; 
+  justify-content: space-between;
+  padding: 10px;
+
+  .buttons {
+    display: flex;
+  }
+
+  Button {
+    margin-left: 10px;
+  }
+}
+
+.sourceList {
+  padding: 75px;
+  background-color:rgb(86, 86, 184);
+}
+
+.sourcesCollections {
+  padding-top: 50px;
+  padding: 50px;
+  background-color: rgb(235, 166, 102);
+
+  .sourceCollectionInformation {
+    color: black;
+    display: flex; 
+    justify-content: space-between;
+    padding: 10px;
+    font-weight: 500;
+  }
+  
+}

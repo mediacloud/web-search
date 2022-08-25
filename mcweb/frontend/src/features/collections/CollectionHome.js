@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Paper, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
+
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useGetFeaturedCollectionsQuery } from '../../app/services/collectionsApi';
