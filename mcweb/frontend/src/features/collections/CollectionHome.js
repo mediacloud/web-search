@@ -3,9 +3,7 @@ import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Paper, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
-
 import { useDispatch, useSelector } from 'react-redux';
-
 import { useGetFeaturedCollectionsQuery } from '../../app/services/collectionsApi';
 import { setCollections } from './collectionsSlice';
 
@@ -28,7 +26,6 @@ export default function CollectionHome() {
     return (
         <div>
             <h1>Featured Collections</h1>
-            {console.log(featuredCollections['collections'])}
             {(featuredCollections['collections'].map((collection) => 
                 <Grid key={`featured-collection-${collection.id}`} item xs={12} sm={6} md={4} lg={3}>
                     <Link to={`/collections/${collection.id}`}>
