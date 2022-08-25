@@ -14,7 +14,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     def list(self, request):
         queryset = Collection.objects.all() 
-        json_data = open('mcweb/static/backend/media-collection.json') # open json file
+        json_data = open('mcweb/backend/sources/media-collection.json') # open json file
         deserial_data = json.load(json_data) # deserialize the data
         collection_return = [] # create return array
         for collection in deserial_data['featuredCollections']['entries']: #first iterate through the featuredCollections entries
