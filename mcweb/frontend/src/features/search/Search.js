@@ -100,69 +100,68 @@ export default function Search() {
       <div className="searchContainer">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
 
-          <div className="searchFeature">
-            <Stack
-              spacing={2}
-              method="post"
+          <Stack
+            spacing={2}
+            method="post"
+            sx={{backgroundColor: "white", padding: "25px"}}
+          >
+            {/* Query */}
+            <TextField
+              fullWidth
+              required
+              id="standard-multiline-static"
+              label="Query"
+              name="query_str"
+              rows={4}
+              onChange={handleChange}
+
+            />
+
+            {/* From Date */}
+            <DesktopDatePicker
+              required
+              type='date'
+              label="From"
+              inputFormat="MM/dd/yyyy"
+              value={fromValue}
+              onChange={handleChangeFromDate}
+              renderInput={(params) => <TextField {...params} />}
+            />
+
+            {/* To Date */}
+            <DesktopDatePicker
+              required
+              label="To"
+              inputFormat="MM/dd/yyyy"
+              value={toValue}
+              onChange={handleChangeToDate}
+              renderInput={(params) => <TextField {...params} />}
+            />
+
+            {/* Submit */}
+            <Button
+              fullWidth
+              variant="outlined"
+              onClick={async () => {
+                try {
+                  const count = await
+                    search({
+                      query: formState.query_str,
+                      start: fromValue,
+                      end: toValue,
+                    }).unwrap();
+                  dispatch(setSearch(count));
+                  enqueueSnackbar("Total Attention Discovered", { variant: 'success' });
+                } catch {
+                  enqueueSnackbar("Query is empty", { variant: 'error' });
+                }
+              }}
             >
-              {/* Query */}
-              <TextField
-                fullWidth
-                required
-                id="standard-multiline-static"
-                label="Query"
-                name="query_str"
-                rows={4}
-                onChange={handleChange}
+              Submit
+            </Button>
 
-              />
-
-              {/* From Date */}
-              <DesktopDatePicker
-                required
-                type='date'
-                label="From"
-                inputFormat="MM/dd/yyyy"
-                value={fromValue}
-                onChange={handleChangeFromDate}
-                renderInput={(params) => <TextField {...params} />}
-              />
-
-              {/* To Date */}
-              <DesktopDatePicker
-                required
-                label="To"
-                inputFormat="MM/dd/yyyy"
-                value={toValue}
-                onChange={handleChangeToDate}
-                renderInput={(params) => <TextField {...params} />}
-              />
-
-              {/* Submit */}
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={async () => {
-                  try {
-                    const count = await
-                      search({
-                        query: formState.query_str,
-                        start: fromValue,
-                        end: toValue,
-                      }).unwrap();
-                    dispatch(setSearch(count));
-                    enqueueSnackbar("Total Attention Discovered", { variant: 'success' });
-                  } catch {
-                    enqueueSnackbar("Query is empty", { variant: 'error' });
-                  }
-                }}
-              >
-                Submit
-              </Button>
-
-              <h1>Total Attention: {totalAttention} </h1>
-            </Stack>
-          </div>
+            <h1>Total Attention: {totalAttention} </h1>
+          </Stack>
         </LocalizationProvider>
       </div>
     </>
