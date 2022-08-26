@@ -5,6 +5,8 @@ from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer
 from rest_framework.response import Response
 from collections import namedtuple
 import json
+import os 
+from settings import BASE_DIR
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
@@ -14,7 +16,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     def list(self, request):
         queryset = Collection.objects.all() 
-        json_data = open('mcweb/backend/sources/media-collection.json') # open json file
+        file_path = os.path.join(BASE_DIR, 'backend/sources/media-collection.json')
+        json_data = open(file_path) # open json file
         deserial_data = json.load(json_data) # deserialize the data
         collection_return = [] # create return array
         for collection in deserial_data['featuredCollections']['entries']: #first iterate through the featuredCollections entries
