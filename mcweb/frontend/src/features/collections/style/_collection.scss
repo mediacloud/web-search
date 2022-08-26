@@ -10,9 +10,44 @@
     padding: 5px;
     font-weight: 600;
   }
+  
+  
+  
 }
 
 .collectionList {
   padding: 50px;
   background-color:rgb(86, 86, 184);
 }
+
+
+// Collection Show 
+
+.collectionContainer {
+  background-color: navy;
+  color: white;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  
+  .collectionInformation {
+    h2 {
+      font-size: 26px;
+      font-weight: 500;
+    }
+    
+    h3 {
+      font-size: 14px;
+      font-weight: 400;
+    }
+  }
+  
+  .buttons {
+    display: flex;
+  }
+  
+  Button {
+    margin-left: 10px;
+  }
+}
+
