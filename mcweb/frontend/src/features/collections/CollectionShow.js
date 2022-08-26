@@ -58,52 +58,54 @@ export default function CollectionShow() {
   }
   else {
     return (
-      <div className="container">
-        <div className="collection-header">
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-              component={Link}
-              to="modify-collection"
-            >
-              Modify this Collection
-            </Button>
+      <div className="collectionContainer">
 
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-              onClick={async () => {
-                setIsShown(!isShown)
-              }}
-            >
-              Sources
-            </Button>
-          </Box>
-
+        <div className="collectionInformation">
           <h2 className="title">{collection.name}</h2>
           <h3> Notes: {collection.notes}</h3>
-
         </div>
-        
-        {isShown && ( 
-        <div className='content'>
-          <div className='sources'>
-            <h3>Sources</h3>
-            <h6>This collection includes {Object.values(sources).length} media sources </h6>
 
-            <ul className="collection-show-source-list">
-              {
-                Object.values(sources).map(source => {
-                  return <SourceItem key={`source-item-${source.id}`} source={source} />
-                })
-              }
-            </ul>
-          </div>
+        <div className="buttons">
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            component={Link}
+            to="modify-collection"
+          >
+            Modify this Collection
+          </Button>
+
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            onClick={async () => {
+              setIsShown(!isShown)
+            }}
+          >
+            Sources
+          </Button>
         </div>
-        )}
+
+        {
+          isShown && (
+            <div className='content'>
+              <div className='sources'>
+                <h3>Sources</h3>
+                <h6>This collection includes {Object.values(sources).length} media sources </h6>
+
+                <ul className="collection-show-source-list">
+                  {
+                    Object.values(sources).map(source => {
+                      return <SourceItem key={`source-item-${source.id}`} source={source} />
+                    })
+                  }
+                </ul>
+              </div>
+            </div>
+          )
+        }
       </div >
     )
   };
