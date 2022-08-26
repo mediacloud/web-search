@@ -22,13 +22,12 @@
 
 
 // Collection Show 
-
-.collectionContainer {
+.collectonTitle {
   background-color: navy;
   color: white;
-  padding: 10px;
   display: flex;
   justify-content: space-between;
+  padding: 10px;
   
   .collectionInformation {
     h2 {
@@ -37,15 +36,14 @@
     }
     
     h3 {
-      font-size: 14px;
+      font-size: 12px;
       font-weight: 400;
     }
   }
-  
-  .buttons {
-    display: flex;
-  }
-  
+}
+
+.buttons {
+  display: flex;
   Button {
     margin-left: 10px;
   }
