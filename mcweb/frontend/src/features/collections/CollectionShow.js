@@ -59,7 +59,7 @@ export default function CollectionShow() {
   else {
     return (
       <>
-        <div className="collectonTitle">
+        <div className="collectionTitle">
 
           <div className="collectionInformation">
             <h2 className="title">{collection.name}</h2>
