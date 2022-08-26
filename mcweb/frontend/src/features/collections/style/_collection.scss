@@ -1,4 +1,4 @@
-// Collection Show 
+// Collection Header 
 .collectionTitle {
   background-color: navy;
   color: white;
@@ -6,42 +6,50 @@
   justify-content: space-between;
   padding: 10px;
   
+  // Collection Title for CollectionHome
+  h1 {
+    padding: 5px;
+    font-weight: 600;
+  }
+  
+  // Collection Title for CollectionShow 
   .collectionInformation {
     h2 {
       font-size: 26px;
       font-weight: 500;
     }
-    
     h3 {
       font-size: 12px;
       font-weight: 400;
     }
   }
+  
+  // buttons in CollectionSHow
+  .buttons {
+    display: flex;
+    Button {
+      margin-left: 10px;
+    }
+  }
 }
 
-// Collection content 
-.collectionHome {
+// Featured Collection Contents 
+.featuredCollection {
   padding: 50px;
   background-color:rgb(86, 86, 184);
 }
 
-.buttons {
-  display: flex;
-  Button {
-    margin-left: 10px;
-  }
-}
-
+// All sources to the collection 
 .collectionSources {
   padding-top: 50px;
   padding: 50px;
   background-color: rgb(235, 166, 102);
-  
-  .sourceCollectionInformation {
+
+  // information for the collections' sources 
+  .collectionSourcesInformation {
     color: black;
-    display: flex; 
     justify-content: space-between;
-    padding: 10px;
-    font-weight: 500;
+    margin-left: 50px;
+    font-weight: 550;
   }
 }
