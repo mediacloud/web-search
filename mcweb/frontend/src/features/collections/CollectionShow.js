@@ -24,7 +24,7 @@ import { setSources } from '../sources/sourceSlice';
 export default function CollectionShow() {
   const params = useParams()
   const collectionId = Number(params.collectionId);
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
 
 
   const {
@@ -90,28 +90,18 @@ export default function CollectionShow() {
           </div>
         </div>
 
-
-
-        <div className="collecitonList">
-          {
-            isShown && (
-              <div className='content'>
-                <div className='sources'>
-                  <h3>Sources</h3>
-                  <h6>This collection includes {Object.values(sources).length} media sources </h6>
-                  <ul className="collection-show-source-list">
-                    {
-                      Object.values(sources).map(source => {
-                        return <SourceItem key={`source-item-${source.id}`} source={source} />
-                      })
-                    }
-                  </ul>
-                </div>
-              </div>
-            )
-          }
-        </div>
+        {isShown &&
+          <div className="collectionSources">
+            <h3 className='sourceCollectionInformation'>{collection.name} contains {Object.values(sources).length} media sources </h3>
+            <ul>
+              {Object.values(sources).map(source => {
+                return <SourceItem key={`source-item-${source.id}`} source={source} />
+              })
+              }
+            </ul>
+          </div>
+        }
       </>
     )
-  };
+  }
 }

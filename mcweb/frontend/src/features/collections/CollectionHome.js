@@ -29,7 +29,7 @@ export default function CollectionHome() {
           <h1>Featured Collections</h1>
         </div>
 
-        <div className="collectionList">
+        <div className="collectionHome">
           {
             (featuredCollections['collections'].map((collection) =>
               <Grid key={`featured-collection-${collection.id}`}>
