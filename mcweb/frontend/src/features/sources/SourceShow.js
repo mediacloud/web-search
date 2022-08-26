@@ -59,11 +59,11 @@ export default function SourceShow() {
   }
   else {
     return (
-      <div>
+      <>
         <div className="sourceTitle">
           <h1>{source.label}</h1>
-          <div className="buttons">
 
+          <div className="buttons">
             {/* Update Source */}
             <Button
               style={{ backgroundColor: "white" }}
@@ -144,7 +144,7 @@ export default function SourceShow() {
             </ul>
           </div>
         }
-      </div>
+      </>
     )
   };
 }
