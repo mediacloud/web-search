@@ -6,9 +6,9 @@ export default function SourceItem(props) {
     return (
         <li>
             <Link className="source-collection-item" to={`/sources/${source.id}`}>
-                <h6>{source.id}</h6>
-                <h6>{source.label}</h6>
-                <h6>{source.name}</h6>
+                <h5>{source.id}</h5>
+                <h5>{source.label}</h5>
+                <h5>{source.name}</h5>
             </Link>
         </li>
     )
