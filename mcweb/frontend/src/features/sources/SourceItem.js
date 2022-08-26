@@ -5,7 +5,7 @@ export default function SourceItem(props) {
     const source = props.source
     return (
         <li>
-            <Link className="collectionItem" to={`/sources/${source.id}`}>
+            <Link className="source-collection-item" to={`/sources/${source.id}`}>
                 <h6>{source.id}</h6>
                 <h6>{source.label}</h6>
                 <h6>{source.name}</h6>
