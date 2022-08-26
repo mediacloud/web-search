@@ -1,5 +1,5 @@
 .sourceHome {
-      background-color: purple;
+  background-color: purple;
   h1 {
     padding: 20px;
     font-size: 40px;
@@ -18,16 +18,16 @@
   display: flex; 
   justify-content: space-between;
   padding: 10px;
-
+  
   h1 {
     padding: 5px;
     font-weight: 600;
   }
-
+  
   .buttons {
     display: flex;
   }
-
+  
   Button {
     margin-left: 10px;
   }
@@ -42,7 +42,7 @@
   padding-top: 50px;
   padding: 50px;
   background-color: rgb(235, 166, 102);
-
+  
   .sourceCollectionInformation {
     color: black;
     justify-content: space-between;
@@ -53,9 +53,9 @@
 
 .source-collection-item {
   display: flex;
-  color: white;
-  h5 { 
-    font-size: 16px;
-    font-weight: 400;
+  h5 {
+    color: white;
+    padding: 10px;
+    font-weight: 500;
   }
 }
