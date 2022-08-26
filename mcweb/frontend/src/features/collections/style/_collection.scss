@@ -1,26 +1,5 @@
-
-// Collection 
-
-.collectionTitle { 
-  background-color: red;
-  color: white;
-  display: flex; 
-  justify-content: space-between;
-  padding: 10px;
-  
-  h1 {
-    padding: 5px;
-    font-weight: 600;
-  }
-}
-
-.collectionHome {
-  padding: 50px;
-  background-color:rgb(86, 86, 184);
-}
-
 // Collection Show 
-.collectonTitle {
+.collectionTitle {
   background-color: navy;
   color: white;
   display: flex;
@@ -38,6 +17,12 @@
       font-weight: 400;
     }
   }
+}
+
+// Collection content 
+.collectionHome {
+  padding: 50px;
+  background-color:rgb(86, 86, 184);
 }
 
 .buttons {
