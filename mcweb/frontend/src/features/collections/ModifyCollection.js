@@ -97,7 +97,7 @@ export default function ModifyCollection() {
     return (<></>)
   }
   else { return (
-    <div className='modify-collection-container'>
+    <div className='modify-collection-'>
       <div className="collection-header">
         <h2 className="title">Modify this Collection</h2>
         <ul>
