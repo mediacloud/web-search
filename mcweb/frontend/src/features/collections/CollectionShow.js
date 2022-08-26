@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 
 import SourceItem from '../sources/SourceItem';
+import CollectionHeader from './CollectionHeader';
+import SourceList from '../sources/SourceList';
 
 //rtk api operations
 import {
@@ -27,39 +29,40 @@ export default function CollectionShow() {
   const [isShown, setIsShown] = useState(false)
 
 
-  const {
-    data,
-    isLoading,
-    isSuccess,
-    isError,
-    error,
-  } = useGetCollectionAndAssociationsQuery(collectionId);
+  // const {
+  //   data,
+  //   isLoading,
+  //   isSuccess,
+  //   isError,
+  //   error,
+  // } = useGetCollectionAndAssociationsQuery(collectionId);
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (data) {
-      dispatch(setCollectionSourcesAssociations(data))
-      dispatch(setSources(data))
-      dispatch(setCollection(data))
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data) {
+  //     dispatch(setCollectionSourcesAssociations(data))
+  //     dispatch(setSources(data))
+  //     dispatch(setCollection(data))
+  //   }
+  // }, [data]);
 
-  const collection = useSelector(state => state.collections[collectionId]);
+  // const collection = useSelector(state => state.collections[collectionId]);
 
-  const sources = useSelector(state => {
-    return state.sourcesCollections.map(assoc => {
-      return state.sources[assoc.source_id]
-    })
-  })
+  // const sources = useSelector(state => {
+  //   return state.sourcesCollections.map(assoc => {
+  //     return state.sources[assoc.source_id]
+  //   })
+  // })
 
-  if (!collection || sources[0] === sources[1]) {
-    return (<></>)
-  }
-  else {
+  // if (!collection || sources[0] === sources[1]) {
+  //   return (<></>)
+  // }
+  // else {
     return (
       <div className="container">
         <div className="collection-header">
+          <CollectionHeader collectionId={collectionId} />
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             <Button
               style={{ backgroundColor: "white" }}
@@ -83,12 +86,14 @@ export default function CollectionShow() {
             </Button>
           </Box>
 
-          <h2 className="title">{collection.name}</h2>
-          <h3> Notes: {collection.notes}</h3>
+          <SourceList collectionId={collectionId} />
+
+          {/* <h2 className="title">{collection.name}</h2>
+          <h3> Notes: {collection.notes}</h3> */}
 
         </div>
         
-        {isShown && ( 
+        {/* {isShown && ( 
         <div className='content'>
           <div className='sources'>
             <h3>Sources</h3>
@@ -103,8 +108,8 @@ export default function CollectionShow() {
             </ul>
           </div>
         </div>
-        )}
+        )} */}
       </div >
     )
-  };
+  // };
 }

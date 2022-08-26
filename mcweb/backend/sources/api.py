@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesCollectionSerializer, CollectionsSourceSerializer, FeaturedCollectionsSerializer
+from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesCollectionSerializer, CollectionsSourceSerializer, FeaturedCollectionsSerializer, SourceListSerializer
 from rest_framework.response import Response
 from collections import namedtuple
 import json
@@ -17,14 +17,14 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def list(self, request):
         queryset = Collection.objects.all() 
         file_path = os.path.join(BASE_DIR, 'backend/sources/media-collection.json')
-        json_data = open(file_path) # open json file
-        deserial_data = json.load(json_data) # deserialize the data
-        collection_return = [] # create return array
-        for collection in deserial_data['featuredCollections']['entries']: #first iterate through the featuredCollections entries
-           for id in collection['tags']: #next iterate through all the tags(ids) for any given featuredCollection 
-            featured_collection = get_object_or_404(queryset, pk=id) # get the object or 404
-            collection_return.append(featured_collection) #add object to return array
-        serializer = FeaturedCollectionsSerializer({'collections':collection_return}) #add it through new serializer
+        json_data = open(file_path) 
+        deserial_data = json.load(json_data) 
+        collection_return = [] 
+        for collection in deserial_data['featuredCollections']['entries']: 
+           for id in collection['tags']: 
+            featured_collection = get_object_or_404(queryset, pk=id) 
+            collection_return.append(featured_collection) 
+        serializer = FeaturedCollectionsSerializer({'collections':collection_return})
         return Response(serializer.data) 
 
 
@@ -46,17 +46,13 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None): 
-        Sources_collections_tuple = namedtuple('Sources_collections_tuple', ('sources', 'collections')) #create tuple to pass through the serializer
-        collection_bool = request.query_params.get('collection') #check in the query_params if collection=true, if 'true' the pk is a collection pk, else pk is for a source
+        Sources_collections_tuple = namedtuple('Sources_collections_tuple', ('sources', 'collections')) 
+        collection_bool = request.query_params.get('collection') 
         if (collection_bool == 'true'):
             collections_queryset = Collection.objects.all()
-            collection = get_object_or_404(collections_queryset, pk=pk) #see if there is a collection given wildcard and queryset
-            source_associations = collection.source_set.all() #get the associations for the collection
-            ret_obj = Sources_collections_tuple(
-                sources=source_associations,
-                collections=collection
-            ) # create tuple to be able to pass to serializer
-            serializer = SourcesCollectionSerializer(ret_obj)
+            collection = get_object_or_404(collections_queryset, pk=pk) 
+            source_associations = collection.source_set.all() 
+            serializer = SourceListSerializer({'sources' : source_associations})
             return Response(serializer.data)
         else :
             sources_queryset = Source.objects.all()
