@@ -1,4 +1,4 @@
-import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit'
 import { setupListeners } from '@reduxjs/toolkit/query/react';
 
 //rtk apis
@@ -11,9 +11,6 @@ import { sourcesApi } from './services/sourceApi'
 //reducers
 import authReducer from '../features/auth/authSlice';
 import searchReducer from '../features/search/searchSlice';
-import sourcesCollectionsReducer from '../features/sources_collections/sourcesCollectionsSlice'
-import collectionsReducer from '../features/collections/collectionsSlice'
-import sourcesReducer from '../features/sources/sourceSlice'
 
 let store; // singleton store
 
@@ -28,7 +25,6 @@ export const getStore = () => {
 const setupStore = () => {
   const theStore = configureStore({
     reducer: {
-
       // authentication api responsible for getting profile, logging out 
       // logging in, registering a user, resseting password 
       [authApi.reducerPath]: authApi.reducer,
@@ -40,15 +36,12 @@ const setupStore = () => {
 
       // sourcesCollection api responsible for associations' CRUD 
       [sourcesCollectionsApi.reducerPath]: sourcesCollectionsApi.reducer,
-      sourcesCollections: sourcesCollectionsReducer,
 
-      // collection api responsible for collections' CRUD 
+      // collection api 
       [collectionsApi.reducerPath]: collectionsApi.reducer,
-      collections: collectionsReducer,
 
       // sources api responsible for collections' CRUD 
       [sourcesApi.reducerPath]: sourcesApi.reducer,
-      sources: sourcesReducer,
 
 
     },

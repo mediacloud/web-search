@@ -1,19 +1,11 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Paper, Grid, Button } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux'
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import CollectionItem from '../collections/CollectionItem';
+import CollectionList from '../collections/CollectionList'
 import { useState } from 'react';
-//rtk api operations...corresponding with API calls to the backend
-import { useGetSourceAndAssociationsQuery } from '../../app/services/sourcesCollectionsApi';
-
-//rtk actions to change state
-import { setSourceCollectionsAssociations } from '../sources_collections/sourcesCollectionsSlice';
-import { setSource } from './sourceSlice';
-import { setCollections } from '../collections/collectionsSlice';
+import { useGetSourceQuery } from '../../app/services/sourceApi';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#bcdeec' : '#fff',
@@ -35,33 +27,16 @@ export default function SourceShow() {
     isSuccess,
     isError,
     error,
-  } = useGetSourceAndAssociationsQuery(sourceId);
+  } = useGetSourceQuery(sourceId);
 
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (data) {
-      dispatch(setSourceCollectionsAssociations(data))
-      dispatch(setSource(data))
-      dispatch(setCollections(data))
-    }
-  }, [data]);
-
-  const source = useSelector(state => state.sources[sourceId]);
-  const collections = useSelector(state => {
-    return state.sourcesCollections.map(assoc => {
-      return state.collections[assoc.collection_id]
-    })
-  })
-
-  if (!source || collections[0] === collections[1]) {
-    return (<></>)
+  if (isLoading) {
+    return (<h1>Loading...</h1>)
   }
   else {
     return (
-      <>
         <div className="sourceTitle">
-          <h1>{source.label}</h1>
+          <h1>{data.label}</h1>
+          <div className="buttons">
 
           <div className="buttons">
             {/* Update Source */}
@@ -71,7 +46,6 @@ export default function SourceShow() {
               sx={{ my: 2.25, color: 'black', display: 'block' }}
               component={Link}
               to="modify-source"
-              state={collections}
             >
               Modify this Source
             </Button>
@@ -85,7 +59,7 @@ export default function SourceShow() {
                 setIsShown(!isShown)
               }}
             >
-              {source.label}'s Collections
+              {data.label}'s Collections
             </Button>
           </div>
         </div>
@@ -97,54 +71,44 @@ export default function SourceShow() {
 
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={4} lg={3} >
-                <Item>Name: {source.name} </Item>
+                <Item>Name: {data.name} </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3} >
-                <Item>Covered Since: {source.first_story} </Item>
+                <Item>Covered Since: {data.first_story} </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3} >
-                <Item>Homepage: {source.homepage} </Item>
+                <Item>Homepage: {data.homepage} </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3} >
-                <Item>Stories per week: {source.stories_per_week} </Item>
+                <Item>Stories per week: {data.stories_per_week} </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3}>
-                <Item>Notes: {source.notes} </Item>
+                <Item>Notes: {data.notes} </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3}>
                 <Item>With Themes: </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3}>
-                <Item>Publication Country: {source.pub_country} </Item>
+                <Item>Publication Country: {data.pub_country} </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3} >
-                <Item>Publication State: {source.pub_state} </Item>
+                <Item>Publication State: {data.pub_state} </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3} >
-                <Item>Detected Primary Language: {source.primary_language} </Item>
+                <Item>Detected Primary Language: {data.primary_language} </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3} >
                 <Item>Detected Subject State:  </Item>
               </Grid>
               <Grid item xs={12} sm={6} md={4} lg={3} >
-                <Item>Media Type: {source.media_type} </Item>
+                <Item>Media Type: {data.media_type} </Item>
               </Grid>
             </Grid>
           </Box>
         </div>
-
-
-        {isShown &&
-          <div className="sourcesCollections">
-            <h4 className="sourceCollectionInformation">{source.name} has assocations with {Object.values(collections).length} collections </h4>
-            <ul>
-              {Object.values(collections).map(collection => {
-                return <CollectionItem key={`collection${collection.id}`} collection={collection} />
-              })}
-            </ul>
-          </div>
-        }
-      </>
+        <h3>Collections:</h3>
+        <CollectionList sourceId={sourceId} />
+      </div>
     )
   }
 }

@@ -10,7 +10,7 @@ export const collectionsApi = createApi({
       return headers;
     },
   }),
-  
+  tagTypes: ['Collection'],
   endpoints: (builder) => ({
     getFeaturedCollections: builder.query({
       query: () => ({
@@ -23,6 +23,10 @@ export const collectionsApi = createApi({
         url: `${id}/`,
         method: 'GET'
       }),
+      providesTags: (result, error, id) =>
+        result 
+          ? [{type: 'Collection', id}]
+          : ['Collection']
     }),
     postCollection: builder.mutation({
       query: (collection) => ({
