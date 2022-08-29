@@ -40,11 +40,9 @@ const setupStore = () => {
 
       // sourcesCollection api responsible for associations' CRUD 
       [sourcesCollectionsApi.reducerPath]: sourcesCollectionsApi.reducer,
-      sourcesCollections: sourcesCollectionsReducer,
 
-      // collection api responsible for collections' CRUD 
+      // collection api 
       [collectionsApi.reducerPath]: collectionsApi.reducer,
-      collections: collectionsReducer,
 
       // sources api responsible for collections' CRUD 
       [sourcesApi.reducerPath]: sourcesApi.reducer,

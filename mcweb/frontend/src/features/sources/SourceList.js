@@ -14,6 +14,7 @@ export default function SourceList(props) {
     else {
         return (
             <div>
+                <h4>This Collection has {data['sources'].length} Sources</h4>
                 {data['sources'].map(source => (
                     <SourceItem key={source.id} source={source} />
                 ))}
