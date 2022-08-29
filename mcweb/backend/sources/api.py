@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesCollectionSerializer, CollectionsSourceSerializer, FeaturedCollectionsSerializer, SourceListSerializer
+from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
 from rest_framework.response import Response
 from collections import namedtuple
 import json
@@ -24,7 +24,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
            for id in collection['tags']: 
             featured_collection = get_object_or_404(queryset, pk=id) 
             collection_return.append(featured_collection) 
-        serializer = FeaturedCollectionsSerializer({'collections':collection_return})
+        serializer = CollectionListSerializer({'collections':collection_return})
         return Response(serializer.data) 
 
 
@@ -46,7 +46,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None): 
-        Sources_collections_tuple = namedtuple('Sources_collections_tuple', ('sources', 'collections')) 
         collection_bool = request.query_params.get('collection') 
         if (collection_bool == 'true'):
             collections_queryset = Collection.objects.all()
@@ -58,11 +57,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             sources_queryset = Source.objects.all()
             source = get_object_or_404(sources_queryset, pk=pk)
             collection_associations = source.collections.all()
-            ret_obj = Sources_collections_tuple(
-                collections=collection_associations,
-                sources=source
-            )
-            serializer = CollectionsSourceSerializer(ret_obj)
+            serializer = CollectionListSerializer({'collections' : collection_associations})
             return Response(serializer.data)
 
 

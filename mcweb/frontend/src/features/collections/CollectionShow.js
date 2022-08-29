@@ -39,10 +39,6 @@ export default function CollectionShow() {
           </Box>
 
           <SourceList collectionId={collectionId} />
-
-      
-          {/* <h3> Notes: {collection.notes}</h3>  */}
-
         </div>
         
         {isShown && ( 

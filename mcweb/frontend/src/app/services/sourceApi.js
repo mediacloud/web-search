@@ -10,14 +10,17 @@ export const sourcesApi = createApi({
       return headers;
     },
   }),
-
+  tagTypes: ['Source'],
   endpoints: (builder) => ({
-
     getSource: builder.query({
       query: (id) => ({
         url: `${id}/`,
         method: 'GET'
       }),
+      providesTags: (result, error, id) =>
+        result
+          ? [{ type: 'Source', id }]
+          : ['Source']
     }),
     postSource: builder.mutation({
       query: (source) => ({

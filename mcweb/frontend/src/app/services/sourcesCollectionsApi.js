@@ -17,6 +17,10 @@ export const sourcesCollectionsApi = createApi({
                 url: `${id}/`,
                 method: 'GET'
             }),
+            providesTags: (result, error, collectionId) =>
+                result
+                    ? [...result['collections'].map(({ id }) => ({ type: 'Collection', id })), 'Collection']
+                    : ['Collection']
         }),
         getCollectionAndAssociations: builder.query({
             query: (id) => ({

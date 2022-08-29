@@ -13,7 +13,7 @@ export default function CollectionHeader(props){
     const collection = data;
 
     if (isLoading) return( <h1>Loading...</h1> )
-    else{
+    else {
         return (
             <div>
                 <h1>{collection.name}</h1>
@@ -21,4 +21,4 @@ export default function CollectionHeader(props){
             </div>
         )
     }
-}
+};
