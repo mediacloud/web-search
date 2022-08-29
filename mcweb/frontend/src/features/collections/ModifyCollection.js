@@ -73,7 +73,7 @@ export default function ModifyCollection() {
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // show data 
-  const [isShown, setIsShown] = useState(true)
+  const [isShown, setIsShown] = useState(false)
   // menu options
   const services = ["Online News", "Youtube"]
 
@@ -93,6 +93,7 @@ export default function ModifyCollection() {
   else {
     return (
       <>
+        {/* Header */}
         <div className='modifyHeader'>
           <h1>Modify this Collection</h1>
 
@@ -108,6 +109,7 @@ export default function ModifyCollection() {
           </Button>
         </div>
 
+        {/* Collection Content */}
         <div className='modifyCollectionContent'>
           <ul>
             {/* Name */}
@@ -154,31 +156,28 @@ export default function ModifyCollection() {
           </ul>
         </div>
 
-
-
         {/* Assocations Content  */}
-
         {isShown &&
           <div className='collectionAssociations'>
-              <div className='associationsHeader'>
-                <h2> Add Source to Collection (enter the source ID): </h2>
-                <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
+            <div className='associationsHeader'>
+              <h2> Add Source to Collection (enter the source ID): </h2>
+              <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
 
-                <button onClick={() => {
-                  const assoc = { 'source_id': sourceId, 'collection_id': collectionId } //get assoc data and package
-                  const source = sourceData.data; //data from getSource with entered id
+              <button onClick={() => {
+                const assoc = { 'source_id': sourceId, 'collection_id': collectionId } //get assoc data and package
+                const source = sourceData.data; //data from getSource with entered id
 
-                  dispatch(setSource({ 'sources': source })) // put the source in the redux state
+                dispatch(setSource({ 'sources': source })) // put the source in the redux state
 
-                  createSourceCollectionAssociation(assoc) //create association
-                    .then(() => dispatch(setSourceCollectionAssociation(assoc))) //if success update redux store
+                createSourceCollectionAssociation(assoc) //create association
+                  .then(() => dispatch(setSourceCollectionAssociation(assoc))) //if success update redux store
 
-                  setSourceId("") //reset id input field
-                }}>
-                  Add Source
-                </button>
+                setSourceId("") //reset id input field
+              }}>
+                Add Source
+              </button>
 
-              </div>
+            </div>
 
 
             <ul className='associationsContent'>
@@ -199,8 +198,7 @@ export default function ModifyCollection() {
                       </button>
                     </div>
                   )
-                })
-              }
+                })}
             </ul>
           </div>
         }
