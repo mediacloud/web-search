@@ -16,7 +16,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function SourceShow() {
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
 
   const params = useParams()
   const sourceId = Number(params.sourceId);
@@ -34,11 +34,11 @@ export default function SourceShow() {
   }
   else {
     return (
-      <div>
         <div className="sourceTitle">
           <h1>{data.label}</h1>
           <div className="buttons">
 
+          <div className="buttons">
             {/* Update Source */}
             <Button
               style={{ backgroundColor: "white" }}
@@ -110,5 +110,5 @@ export default function SourceShow() {
         <CollectionList sourceId={sourceId} />
       </div>
     )
-  };
+  }
 }

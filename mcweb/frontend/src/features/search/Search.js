@@ -18,7 +18,7 @@ import { useGetSearchMutation } from '../../app/services/searchApi';
 export default function Search() {
 
   const { enqueueSnackbar } = useSnackbar();
- 
+
   const [search, { isSearching }] = useGetSearchMutation();
 
   const totalAttention = useSelector(selectTotalAttention)
@@ -90,13 +90,20 @@ export default function Search() {
   }
 
   return (
-    <div>
-      <Container maxWidth="xs">
+    <>
+
+      <div className="searchTitle">
+        <h1>Featured Collections</h1>
+      </div>
+
+
+      <div className="searchContainer">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <h1>Search</h1>
+
           <Stack
             spacing={2}
             method="post"
+            sx={{backgroundColor: "white", padding: "25px"}}
           >
             {/* Query */}
             <TextField
@@ -138,11 +145,11 @@ export default function Search() {
               onClick={async () => {
                 try {
                   const count = await
-                   search({
-                    query: formState.query_str,
-                    start: fromValue,
-                    end: toValue,
-                  }).unwrap();
+                    search({
+                      query: formState.query_str,
+                      start: fromValue,
+                      end: toValue,
+                    }).unwrap();
                   dispatch(setSearch(count));
                   enqueueSnackbar("Total Attention Discovered", { variant: 'success' });
                 } catch {
@@ -156,7 +163,7 @@ export default function Search() {
             <h1>Total Attention: {totalAttention} </h1>
           </Stack>
         </LocalizationProvider>
-      </Container>
-    </div >
+      </div>
+    </>
   );
 }
