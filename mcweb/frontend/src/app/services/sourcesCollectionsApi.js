@@ -10,7 +10,7 @@ export const sourcesCollectionsApi = createApi({
             return headers;
         },
     }),
-
+    tagTypes: ['Source', 'Collection'],
     endpoints: (builder) => ({
         getSourceAndAssociations: builder.query({
             query: (id) => ({
@@ -23,6 +23,10 @@ export const sourcesCollectionsApi = createApi({
                 url: `${id}/?collection=true`,
                 method: 'GET'
             }),
+            providesTags: (result, error, collectionId) =>
+                result
+                  ? [...result['sources'].map(({id}) => ({type: 'Source', id})), 'Source']
+                  : ['Source']
         }),
         createSourceCollectionAssociation: builder.mutation({
             query: (payload) => ({

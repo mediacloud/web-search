@@ -26,7 +26,7 @@ export const collectionsApi = createApi({
       providesTags: (result, error, id) =>
         result 
           ? [{type: 'Collection', id}]
-          : ['Collection'],
+          : ['Collection']
     }),
     postCollection: builder.mutation({
       query: (collection) => ({
