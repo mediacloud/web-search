@@ -25,7 +25,7 @@ export default function ModifyCollection() {
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // show data 
-  const [isShown, setIsShown] = useState(true)
+  const [isShown, setIsShown] = useState(false)
   // menu options
   const services = ["Online News", "Youtube"]
 
@@ -56,6 +56,7 @@ export default function ModifyCollection() {
   else {
     return (
       <>
+        {/* Header */}
         <div className='modifyHeader'>
           <h1>Modify {data.id}: {data.name} Collection</h1>
           <Button
@@ -70,6 +71,7 @@ export default function ModifyCollection() {
           </Button>
         </div>
 
+        {/* Collection Content */}
         <div className='modifyCollectionContent'>
           <ul>
             {/* Name */}
@@ -116,15 +118,12 @@ export default function ModifyCollection() {
           </ul>
         </div>
 
-
-
         {/* Assocations Content  */}
-
         {isShown &&
           <div className='collectionAssociations'>
-              <div className='associationsHeader'>
-                <h2> Add Source to Collection (enter the source ID): </h2>
-                <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
+            <div className='associationsHeader'>
+              <h2> Add Source to Collection (enter the source ID): </h2>
+              <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
 
                 <button onClick={() => {
                   const assoc = { 'source_id': sourceId, 'collection_id': collectionId } 
@@ -135,10 +134,8 @@ export default function ModifyCollection() {
                   Add Source
                 </button>
 
-              </div>
-
+            </div>
             <SourceList collectionId={collectionId} edit={true} />
-            
           </div>
         }
       </>

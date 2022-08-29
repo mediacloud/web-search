@@ -25,6 +25,10 @@ export default function ModifySource() {
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
+
+  // show data 
+  const [isShown, setIsShown] = useState(false)
+
   // menu options
   const services = ["Online News", "Youtube"]
 
@@ -51,7 +55,7 @@ export default function ModifySource() {
   } = useGetSourceQuery(sourceId);
 
   useEffect(() => {
-    if (data){
+    if (data) {
       const formData = {
         id: data.id, name: data.name, notes: data.notes, homepage: data.homepage, label: data.label
       }
@@ -130,14 +134,15 @@ export default function ModifySource() {
           </li>
 
           <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
             onClick={async () => {
               const updateCollection = await updateSource(formState).unwrap();
+              setIsShown(!isShown)
             }}
           >
-            Update
+            Associations
           </Button>
 
           {/* <Button
