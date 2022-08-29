@@ -44,7 +44,7 @@ export default function ModifyCollection() {
       const formData = {
         id: data.id,
         name: data.name,
-        notes: data.notes
+        notes: data.notes ? data.notes : ""
       }
       setFormState(formData)
     }

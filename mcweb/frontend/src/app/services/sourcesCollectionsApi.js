@@ -38,14 +38,17 @@ export const sourcesCollectionsApi = createApi({
                 method: 'POST',
                 body: {'source_id': payload.source_id, 'collection_id': payload.collection_id}
             }),
-            invalidatesTags: ['Source', 'Collection']
+            invalidatesTags: (result, error, ids) =>
+                [{ type: 'Collection', id: ids.collection_id }, { type: 'Source', id: ids.source_id }],
+                
         }),
         deleteSourceCollectionAssociation: builder.mutation({
             query: (ids) => ({
                 url:`${ids.source_id}/?collection_id=${ids.collection_id}`,
                 method: 'DELETE'
             }),
-            invalidatesTags: ['Source', 'Collection']
+            invalidatesTags: (result, error, ids) => 
+                [{ type: 'Collection', id: ids.collection_id }, { type: 'Source', id: ids.source_id }],
         })
     })
 })
