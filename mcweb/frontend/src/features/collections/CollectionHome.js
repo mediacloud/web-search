@@ -11,7 +11,7 @@ import { setCollections } from './collectionsSlice';
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
   ...theme.typography.body2,
-  padding: theme.spacing(2),
+  padding: theme.spacing(1),
   textAlign: 'center',
   color: theme.palette.text.primary
 }));
@@ -29,7 +29,7 @@ export default function CollectionHome() {
           <h1>Featured Collections</h1>
         </div>
 
-        <div className="collectionHome">
+        <div className="featuredCollection">
           {
             (featuredCollections['collections'].map((collection) =>
               <Grid key={`featured-collection-${collection.id}`}>
