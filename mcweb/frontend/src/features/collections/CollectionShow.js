@@ -92,7 +92,7 @@ export default function CollectionShow() {
 
         {isShown &&
           <div className="collectionSources">
-            <h3 className='sourceCollectionInformation'>{collection.name} contains {Object.values(sources).length} media sources </h3>
+            <h3 className='collectionSourcesInformation'>{collection.name} contains {Object.values(sources).length} media sources </h3>
             <ul>
               {Object.values(sources).map(source => {
                 return <SourceItem key={`source-item-${source.id}`} source={source} />
