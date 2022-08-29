@@ -1,23 +1,54 @@
-ul {
-  display: block; 
-  list-style-type: none;
+// Modify Collection 
+
+.modifyHeader {
+  background-color: navy;
+  color: white;
+  display: flex;
+  padding: 10px;
+  justify-content: space-between;
+  
+  // Collection Title for CollectionHome
+  h1 {
+    padding: 5px;
+    font-weight: 600;
+  }
+}
+
+.modifyCollectionContent {
+  background-color: orange;
+  padding: 25px;
   
   li {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-
-    h5 {
-      padding-right: 20px;
+    padding: 10px;
+    background-color: white;
+    
+    h5 { 
+      padding: 10px;
+      font-weight: 600;
     }
   }
 }
 
-.modify-collection-source-item-div {
-  display: flex;
-  justify-content: space-between;
-}
+.collectionAssociations {
 
-.modify-collection-source-list {
-  padding-bottom: 70px;
+  .associationsHeader { 
+    padding: 5px;
+    background-color: navy;
+    display: flex; 
+
+    h2 { 
+      color: white; 
+      font-weight: 400;
+    }
+  }
+
+  .associationsContent { 
+    background-color: orange;
+
+    .assocationsContentItem {
+      display: flex;
+      justify-content: space-between;
+
+    }
+  }
 }

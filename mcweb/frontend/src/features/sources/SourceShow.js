@@ -24,7 +24,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function SourceShow() {
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
 
   const params = useParams()
   const sourceId = Number(params.sourceId);
@@ -59,11 +59,11 @@ export default function SourceShow() {
   }
   else {
     return (
-      <div>
+      <>
         <div className="sourceTitle">
           <h1>{source.label}</h1>
-          <div className="buttons">
 
+          <div className="buttons">
             {/* Update Source */}
             <Button
               style={{ backgroundColor: "white" }}
@@ -133,15 +133,18 @@ export default function SourceShow() {
           </Box>
         </div>
 
-        <div className="sourcesCollections">
-          <h4 className="sourceCollectionInformation">{source.name} has assocations with {Object.values(collections).length} collections </h4>
-          <ul>
-            {Object.values(collections).map(collection => {
-              return <CollectionItem key={`collection${collection.id}`} collection={collection} />
-            })}
-          </ul>
-        </div>
-      </div>
+
+        {isShown &&
+          <div className="sourcesCollections">
+            <h4 className="sourceCollectionInformation">{source.name} has assocations with {Object.values(collections).length} collections </h4>
+            <ul>
+              {Object.values(collections).map(collection => {
+                return <CollectionItem key={`collection${collection.id}`} collection={collection} />
+              })}
+            </ul>
+          </div>
+        }
+      </>
     )
-  };
+  }
 }

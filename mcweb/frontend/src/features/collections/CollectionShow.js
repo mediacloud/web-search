@@ -24,7 +24,7 @@ import { setSources } from '../sources/sourceSlice';
 export default function CollectionShow() {
   const params = useParams()
   const collectionId = Number(params.collectionId);
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
 
 
   const {
@@ -58,9 +58,15 @@ export default function CollectionShow() {
   }
   else {
     return (
-      <div className="container">
-        <div className="collection-header">
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+      <>
+        <div className="collectionTitle">
+
+          <div className="collectionInformation">
+            <h2 className="title">{collection.name}</h2>
+            <h3> Notes: {collection.notes}</h3>
+          </div>
+
+          <div className="buttons">
             <Button
               style={{ backgroundColor: "white" }}
               variant='contained'
@@ -81,30 +87,21 @@ export default function CollectionShow() {
             >
               Sources
             </Button>
-          </Box>
-
-          <h2 className="title">{collection.name}</h2>
-          <h3> Notes: {collection.notes}</h3>
-
+          </div>
         </div>
-        
-        {isShown && ( 
-        <div className='content'>
-          <div className='sources'>
-            <h3>Sources</h3>
-            <h6>This collection includes {Object.values(sources).length} media sources </h6>
 
-            <ul className="collection-show-source-list">
-              {
-                Object.values(sources).map(source => {
-                  return <SourceItem key={`source-item-${source.id}`} source={source} />
-                })
+        {isShown &&
+          <div className="collectionSources">
+            <h3 className='collectionSourcesInformation'>{collection.name} contains {Object.values(sources).length} media sources </h3>
+            <ul>
+              {Object.values(sources).map(source => {
+                return <SourceItem key={`source-item-${source.id}`} source={source} />
+              })
               }
             </ul>
           </div>
-        </div>
-        )}
-      </div >
+        }
+      </>
     )
-  };
+  }
 }
