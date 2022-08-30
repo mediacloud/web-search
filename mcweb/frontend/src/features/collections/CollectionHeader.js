@@ -24,34 +24,6 @@ export default function CollectionHeader(props) {
                     <h1 className="title">{collection.name}</h1>
                     <h3>Collection #{collectionId}</h3>
                 </div>
-
-                {/* Buttons for Modifying and showing Sources */}
-                <div className="buttons">
-
-                    {/* Routes to Modifying*/}
-                    <Button
-                        style={{ backgroundColor: "white" }}
-                        variant='contained'
-                        sx={{ my: 2.25, color: 'black', display: 'block' }}
-                        component={Link}
-                        to="modify-collection"
-                    >
-                        Modify this Collection
-                    </Button>
-
-                    {/* Shows all associated Sources*/}
-                    <Button
-                        style={{ backgroundColor: "white" }}
-                        variant='contained'
-                        sx={{ my: 2.25, color: 'black', display: 'block' }}
-                        onClick={async () => {
-                            setIsShown(!isShown)
-                        }}
-                    >
-                        Sources
-                    </Button>
-                </div>
-
             </div>
         )
     }
