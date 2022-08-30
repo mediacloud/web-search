@@ -11,41 +11,44 @@ export default function CollectionShow() {
   const collectionId = Number(params.collectionId);
   const [isShown, setIsShown] = useState(true)
 
-    return (
-      <div className="container">
-        <div className="collection-header">
-          <CollectionHeader collectionId={collectionId} />
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-              component={Link}
-              to="modify-collection"
-            >
-              Modify this Collection
-            </Button>
+  return (
+    <>
+      <div className='collectionHeader'>
 
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-              onClick={async () => {
-                setIsShown(!isShown)
-              }}
-            >
-              Sources
-            </Button>
-          </Box>
+        {/* Header  */}
+        <CollectionHeader collectionId={collectionId} />
 
-          <SourceList collectionId={collectionId} />
+        {/* Buttons for Modifying and showing Sources */}
+        <div className="buttons">
+          {/* Routes to Modifying */}
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            component={Link}
+            to="modify-collection"
+          >
+            Modify this Collection
+          </Button>
+
+          {/* Shows all associated Sources*/}
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            onClick={async () => {
+              setIsShown(!isShown)
+            }}
+          >
+            Sources
+          </Button>
         </div>
-        
-        {isShown && ( 
-        <div className='content'>
-            <SourceList collectionId={collectionId} />
-        </div>
-        )}
-      </div >
-    )
+      </div>
+
+
+      {isShown && (
+        <SourceList collectionId={collectionId} />
+      )}
+    </>
+  )
 }
