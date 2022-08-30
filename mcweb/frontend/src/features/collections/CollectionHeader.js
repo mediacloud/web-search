@@ -27,6 +27,8 @@ export default function CollectionHeader(props) {
 
                 {/* Buttons for Modifying and showing Sources */}
                 <div className="buttons">
+
+                    {/* Routes to Modifying*/}
                     <Button
                         style={{ backgroundColor: "white" }}
                         variant='contained'
@@ -37,6 +39,7 @@ export default function CollectionHeader(props) {
                         Modify this Collection
                     </Button>
 
+                    {/* Shows all associated Sources*/}
                     <Button
                         style={{ backgroundColor: "white" }}
                         variant='contained'
