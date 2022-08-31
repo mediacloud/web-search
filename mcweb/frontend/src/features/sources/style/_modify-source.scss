@@ -1,12 +1,9 @@
-.collection-item-modify-source-div{
+.sourceAssocationContent {
     display: flex;
-    justify-content: space-between;
-}
-
-.collection-list {
-    margin-bottom: 110px;
-}
-
-.modify-source-container {
-    padding-top: 75px;
+    padding: 20px;
+    background-color: navy;
+    h1 {
+        font-size: 26px;
+        color:white; 
+    }
 }

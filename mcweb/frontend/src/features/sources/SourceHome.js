@@ -17,7 +17,7 @@ export default function SourceHome() {
 
     return (
         <>
-            <div className="sourceTitle">
+            <div className="sourceHeader">
                 <h1>Sources Home</h1>
             </div>
 

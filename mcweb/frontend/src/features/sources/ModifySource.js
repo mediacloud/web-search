@@ -71,115 +71,124 @@ export default function ModifySource() {
   const [createSourceCollectionAssociation, associationResult] = useCreateSourceCollectionAssociationMutation();
 
 
-  if (isLoading){
+  if (isLoading) {
     return <h1>Loading...</h1>
   }
   else {
-  return (
-    <div className='modify-source-container'>
-      <div className="collection-header">
-        <h2 className="title">Modify this Source</h2>
+    return (
+      <>
+        <div className='modifyHeader'>
 
-        <ul>
-          <h2>{data.id} - {data.label}</h2>
-
-          {/* Name */}
-          <li>
-            <h5>Name</h5>
-            <TextField
-              fullWidth
-              id="text"
-              name="name"
-              value={formState.name ? formState.name : "enter name"}
-              onChange={handleChange}
-            />
-          </li>
-
-          {/* Notes */}
-          <li>
-            <h5>Notes</h5>
-            <TextField
-              fullWidth
-              id="outlined-multiline-static"
-              name="notes"
-              multiline
-              rows={4}
-              value={formState.notes === null ? "" : formState.notes}
-              onChange={handleChange}
-            />
-          </li>
-
-          {/* Homepage */}
-          <li>
-            <h5>Homepage</h5>
-            <TextField
-              fullWidth
-              id="text"
-              name="homepage"
-              value={formState.homepage}
-              onChange={handleChange}
-            />
-          </li>
-
-          {/* Label */}
-          <li>
-            <h5>Label</h5>
-            <TextField
-              fullWidth
-              id="text"
-              name="label"
-              value={formState.label ? formState.label : "enter or edit label"}
-              onChange={handleChange}
-            />
-          </li>
+          <h1>Modify {data.id}: {data.label}</h1>
 
           <Button
             style={{ backgroundColor: "white" }}
             variant='contained'
             sx={{ my: 2.25, color: 'black', display: 'block' }}
             onClick={async () => {
-              const updateCollection = await updateSource(formState).unwrap();
               setIsShown(!isShown)
             }}
           >
             Associations
           </Button>
+        </div>
 
-          {/* <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={async () => {
-              console.log(formState.id)
-              const deleteCollection = await remove({
-                id: formState.id
-              }).unwrap()
-              // deleted == null
-              console.log(deleteCollection)
-            }}
-          >
-            Delete
-          </Button> */}
+        {/* Source Content */}
+        <div className='modifyCollectionContent'>
+          <ul>
+            {/* Name */}
+            <li>
+              <h5>Name</h5>
+              <TextField
+                fullWidth
+                id="text"
+                name="name"
+                value={formState.name ? formState.name : "enter name"}
+                onChange={handleChange}
+              />
+            </li>
 
-        </ul>
-      </div>
-      <div>
-        <h3>Collections</h3>
+            {/* Notes */}
+            <li>
+              <h5>Notes</h5>
+              <TextField
+                fullWidth
+                id="outlined-multiline-static"
+                name="notes"
+                multiline
+                rows={4}
+                value={formState.notes === null ? "" : formState.notes}
+                onChange={handleChange}
+              />
+            </li>
 
-        <label> Add Collection to Source (enter the collection ID):
-          <input type="text" value={collectionId} onChange={e => setCollectionId(Number(e.target.value))} />
-        </label>
+            {/* Homepage */}
+            <li>
+              <h5>Homepage</h5>
+              <TextField
+                fullWidth
+                id="text"
+                name="homepage"
+                value={formState.homepage}
+                onChange={handleChange}
+              />
+            </li>
 
-        <button onClick={() => {
-          const assoc = { 'source_id': sourceId, 'collection_id': collectionId } 
-          const collection = collectionData.data; 
-          createSourceCollectionAssociation(assoc)
-          setCollectionId("")
-        }}>Add Source</button>
+            {/* Label */}
+            <li>
+              <h5>Label</h5>
+              <TextField
+                fullWidth
+                id="text"
+                name="label"
+                value={formState.label ? formState.label : "enter or edit label"}
+                onChange={handleChange}
+              />
+            </li>
 
-        <CollectionList edit={true} sourceId={sourceId} />
+            {/* Update */}
+            <Button
+              style={{ backgroundColor: "white" }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }}
+              onClick={async () => {
+                const updateCollection = await updateSource(formState).unwrap();
+              }}
+            >
+              Update
+            </Button>
+          </ul>
+        </div>
 
-      </div>
-    </div >
-  )};
+
+        {/* Assocation Content */}
+
+        {isShown &&
+          <div>
+            <div className='sourceAssocationContent'>
+              <h1> Add Collection to Source (enter the collection ID): </h1>
+              <input type="text" value={collectionId} onChange={e => setCollectionId(Number(e.target.value))} />
+
+              <button onClick={() => {
+                const assoc = { 'source_id': sourceId, 'collection_id': collectionId }
+                const collection = collectionData.data;
+                createSourceCollectionAssociation(assoc)
+                setCollectionId("")
+              }}>
+                Add Source
+              </button>
+
+            </div>
+            <CollectionList edit={true} sourceId={sourceId} />
+          </div>
+
+        }
+
+
+      </>
+
+
+
+    )
+  }
 }
