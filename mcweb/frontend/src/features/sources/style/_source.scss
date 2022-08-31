@@ -1,29 +1,20 @@
-.sourceHome {
-  background-color: purple;
-  h1 {
-    padding: 20px;
-    font-size: 40px;
-    color: white;
-  }
-}
 
-.aboutThisSource {
-  font-weight: 600;
-  color: white;
-}
-
-.sourceTitle { 
+// Source Header 
+.sourceHeader { 
   background-color: purple;
   color: white;
   display: flex; 
   justify-content: space-between;
   padding: 10px;
   
+  // Title 
   h1 {
+    font-size: 36px;
     padding: 5px;
     font-weight: 600;
   }
   
+  // Modify Source and Associated Collections
   .buttons {
     display: flex;
   }
@@ -33,15 +24,28 @@
   }
 }
 
+
 .sourceList {
   padding: 70px;
   background-color:rgb(86, 86, 184);
 }
 
+
+.sourceInformation {
+  padding: 30px;
+  background-color:rgb(86, 86, 184);
+   
+  h1 {
+    color: white;
+    padding: 5px;
+    font-weight: 500;
+  }
+}
+
+// Collections assocaited Sources
 .sourcesCollections {
-  padding-top: 50px;
   padding: 50px;
-  background-color: rgb(235, 166, 102);
+  background-color: orange;
   
   .sourceCollectionInformation {
     color: black;
@@ -51,11 +55,3 @@
   }
 }
 
-.source-collection-item {
-  display: flex;
-  h5 {
-    color: white;
-    padding: 10px;
-    font-weight: 500;
-  }
-}

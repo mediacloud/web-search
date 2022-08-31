@@ -5,47 +5,52 @@ import { useState } from 'react';
 
 import CollectionHeader from './CollectionHeader';
 import SourceList from '../sources/SourceList';
+import { CollectionsOutlined } from '@mui/icons-material';
 
 export default function CollectionShow() {
   const params = useParams()
   const collectionId = Number(params.collectionId);
   const [isShown, setIsShown] = useState(true)
 
-    return (
-      <div className="container">
-        <div className="collection-header">
-          <CollectionHeader collectionId={collectionId} />
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-              component={Link}
-              to="modify-collection"
-            >
-              Modify this Collection
-            </Button>
+  return (
+    <>
+      <div className='collectionTitle'>
 
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-              onClick={async () => {
-                setIsShown(!isShown)
-              }}
-            >
-              Sources
-            </Button>
-          </Box>
+        {/* Header  */}
+        <CollectionHeader collectionId={collectionId} />
 
-          <SourceList collectionId={collectionId} />
+        {/* Buttons for Modifying and showing Sources */}
+        <div className="buttons">
+
+          {/* Routes to Modifying */}
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            component={Link}
+            to="modify-collection"
+          >
+            Modify Collection
+          </Button>
+
+          {/* Shows all associated Sources*/}
+          <Button
+            style={{ backgroundColor: "white" }}
+            variant='contained'
+            sx={{ my: 2.25, color: 'black', display: 'block' }}
+            onClick={async () => {
+              setIsShown(!isShown)
+            }}
+          >
+            Sources
+          </Button>
         </div>
-        
-        {isShown && ( 
-        <div className='content'>
-            <SourceList collectionId={collectionId} />
-        </div>
-        )}
-      </div >
-    )
+      </div>
+
+      {/* Source List */}
+      {isShown && (
+        <SourceList collectionId={collectionId} />
+      )}
+    </>
+  )
 }

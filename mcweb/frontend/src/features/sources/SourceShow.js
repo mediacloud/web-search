@@ -16,10 +16,10 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function SourceShow() {
-  const [isShown, setIsShown] = useState(true)
-
   const params = useParams()
   const sourceId = Number(params.sourceId);
+  const [isShown, setIsShown] = useState(true)
+
 
   const {
     data,
@@ -34,11 +34,16 @@ export default function SourceShow() {
   }
   else {
     return (
-        <div className="sourceTitle">
+      <>
+
+        {/* Source Header */}
+        <div className="sourceHeader">
+
           <h1>{data.label}</h1>
+         
+          {/* Buttons */}
           <div className="buttons">
 
-          <div className="buttons">
             {/* Update Source */}
             <Button
               style={{ backgroundColor: "white" }}
@@ -57,6 +62,7 @@ export default function SourceShow() {
               sx={{ my: 2.25, color: 'black', display: 'block' }}
               onClick={async () => {
                 setIsShown(!isShown)
+                console.log(isShown)
               }}
             >
               {data.label}'s Collections
@@ -64,10 +70,12 @@ export default function SourceShow() {
           </div>
         </div>
 
-        <div className="sourceList">
+
+        {/* Source Information */}
+        <div className="sourceInformation">
           <Box sx={{ width: '100%' }}>
 
-            <h1 className='aboutThisSource'>About this Source</h1>
+            <h1>About this Source</h1>
 
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6} md={4} lg={3} >
@@ -106,9 +114,14 @@ export default function SourceShow() {
             </Grid>
           </Box>
         </div>
-        <h3>Collections:</h3>
-        <CollectionList sourceId={sourceId} />
-      </div>
+
+
+        {/* Assocations List */}
+        {isShown && (
+          <CollectionList sourceId={sourceId} />
+        )}
+
+      </>
     )
   }
 }

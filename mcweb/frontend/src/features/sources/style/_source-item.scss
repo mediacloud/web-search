@@ -1,20 +1,17 @@
 li {
     border-style: solid;
     display: flex;
-    justify-content: space-between;
     margin: 5px
 }
 
-.source-link{
+
+.source-collection-item {
     display: flex;
     justify-content: space-between;
+    
+    h5 {
+        color: white;
+        padding: 10px;
+        font-weight: 500;
+    }
 }
-
-h6 {
-    margin: 20px;
-}
-
-.source-item-id .source-item-label {
-    color: black;
-}
-

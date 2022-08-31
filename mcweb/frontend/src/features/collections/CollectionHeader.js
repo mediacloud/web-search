@@ -1,24 +1,29 @@
 import * as React from 'react';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
-export default function CollectionHeader(props){
+export default function CollectionHeader(props) {
     const { collectionId } = props
-    const { 
+    const {
         data,
         isLoading,
         isSuccess,
         isError,
         error,
-     } = useGetCollectionQuery(collectionId);
+    } = useGetCollectionQuery(collectionId);
     const collection = data;
 
-    if (isLoading) return( <h1>Loading...</h1> )
+    if (isLoading) return (<h1>Loading...</h1>)
     else {
         return (
-            <div>
-                <h1>{collection.name}</h1>
-                <h3>Collection #{collectionId}</h3>
+            <div className='collectionHeader'>
+
+                {/* Title and Collection ID */}
+                <div className="collectionInformation">
+                    <h2> {collection.name}</h2>
+                    <h3> Collection #{collectionId}</h3>
+                </div>
+
             </div>
         )
     }
-};
+}
