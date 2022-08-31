@@ -9,7 +9,7 @@ import SourceList from '../sources/SourceList';
 export default function CollectionShow() {
   const params = useParams()
   const collectionId = Number(params.collectionId);
-  const [isShown, setIsShown] = useState(true)
+  const [isShown, setIsShown] = useState(false)
 
   return (
     <>
@@ -20,6 +20,7 @@ export default function CollectionShow() {
 
         {/* Buttons for Modifying and showing Sources */}
         <div className="buttons">
+
           {/* Routes to Modifying */}
           <Button
             style={{ backgroundColor: "white" }}
@@ -28,7 +29,7 @@ export default function CollectionShow() {
             component={Link}
             to="modify-collection"
           >
-            Modify this Collection
+            Modify Collection
           </Button>
 
           {/* Shows all associated Sources*/}
@@ -45,7 +46,7 @@ export default function CollectionShow() {
         </div>
       </div>
 
-
+{/* Source List */}
       {isShown && (
         <SourceList collectionId={collectionId} />
       )}
