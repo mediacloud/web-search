@@ -9,8 +9,9 @@
   
   // Title 
   h1 {
+    font-size: 36px;
     padding: 5px;
-    font-weight: 500;
+    font-weight: 600;
   }
   
   // Modify Source and Associated Collections
@@ -24,8 +25,14 @@
 }
 
 
-.sourceInformation {
+.sourceList {
   padding: 70px;
+  background-color:rgb(86, 86, 184);
+}
+
+
+.sourceInformation {
+  padding: 30px;
   background-color:rgb(86, 86, 184);
    
   h1 {
