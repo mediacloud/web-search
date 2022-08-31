@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { Button } from '@mui/material';
-import { Link } from 'react-router-dom';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
 export default function CollectionHeader(props) {
@@ -21,9 +19,10 @@ export default function CollectionHeader(props) {
 
                 {/* Title and Collection ID */}
                 <div className="collectionInformation">
-                    <h1 className="title">{collection.name}</h1>
-                    <h3>Collection #{collectionId}</h3>
+                    <h1> {collection.name}</h1>
+                    <h3> Collection #{collectionId}</h3>
                 </div>
+
             </div>
         )
     }
