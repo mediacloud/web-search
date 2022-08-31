@@ -6,25 +6,30 @@ import SourceItem from './SourceItem';
 
 export default function SourceList(props) {
     const { collectionId, edit } = props;
-
     const {
         data,
         isLoading
     } = useGetCollectionAndAssociationsQuery(collectionId);
 
-
     const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
 
+    // if loading
     if (isLoading) {
         return (<h1>Loading...</h1>)
     }
+    // if edit 
     else if (edit) {
         return (
-            <div className="collectionSources">
-                <h4>This Collection has {data['sources'].length} Sources</h4>
-                {data.map(source => (
-                    <div key={`edit-${source.id}`}>
+            <div className="collectionAssociations">
+                {/* Header */}
+                <h2>This Collection has {data['sources'].length} Sources</h2>
+                {data.sources.map(source => (
+                    <div className="collectionItem" key={`edit-${source.id}`}>
+
+                        {/* Source */}
                         <SourceItem source={source} />
+
+                        {/* Remove */}
                         <button onClick={() => {
                             deleteSourceCollectionAssociation({
                                 "source_id": source.id,
@@ -40,10 +45,17 @@ export default function SourceList(props) {
     }
     else {
         return (
-            <div className="collectionSources">
-                <h1> Associated with {data['sources'].length} Sources</h1>
+            <div className="collectionAssociations">
+
+                {/* Header */}
+                <h2>Associated with {data['sources'].length} Sources</h2>
+
                 {data['sources'].map(source => (
-                    <SourceItem key={`source-${source.id}`} source={source} />
+                    <div className="collectionItem" key={`edit-${source.id}`}>
+
+                        {/* Source */}
+                        < SourceItem key={`source-${source.id}`} source={source} />
+                    </div>
                 ))}
             </div>
         )
