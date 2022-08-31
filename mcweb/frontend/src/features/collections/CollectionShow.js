@@ -10,7 +10,7 @@ import { CollectionsOutlined } from '@mui/icons-material';
 export default function CollectionShow() {
   const params = useParams()
   const collectionId = Number(params.collectionId);
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
 
   return (
     <>

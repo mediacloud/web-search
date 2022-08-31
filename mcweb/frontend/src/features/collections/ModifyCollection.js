@@ -25,7 +25,7 @@ export default function ModifyCollection() {
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // show data 
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
   // menu options
   const services = ["Online News", "Youtube"]
 
@@ -119,7 +119,20 @@ export default function ModifyCollection() {
             </Button>
           </ul>
         </div>
+        
+        <div>
+          <h3> Add Source to Collection (enter the source ID): </h3>
+          <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
 
+          <button onClick={() => {
+            const assoc = { 'source_id': sourceId, 'collection_id': collectionId }
+            const source = sourceData.data;
+            createSourceCollectionAssociation(assoc)
+            setSourceId("")
+          }}>
+            Add Source
+          </button>
+        </div>
         {/* Assocations Content  */}
         {isShown &&
             <SourceList collectionId={collectionId} edit={true} />
