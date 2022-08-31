@@ -49,9 +49,8 @@ export default function SourceList(props) {
 
                 {/* Header */}
                 <h2>Associated with {data['sources'].length} Sources</h2>
-
                 {data['sources'].map(source => (
-                    <div className="collectionItem" key={`edit-${source.id}`}>
+                    <div className="collectionItem" key={`${source.id}`}>
 
                         {/* Source */}
                         < SourceItem key={`source-${source.id}`} source={source} />
