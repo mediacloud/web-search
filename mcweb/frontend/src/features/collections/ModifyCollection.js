@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDeleteCollectionMutation, useUpdateCollectionMutation } from '../../app/services/collectionsApi';
 import SourceList from '../sources/SourceList';
-
+import UploadSources from '../sources/UploadSources';
 //rtk api operations
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
@@ -25,7 +25,7 @@ export default function ModifyCollection() {
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // show data 
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
   // menu options
   const services = ["Online News", "Youtube"]
 
@@ -134,6 +134,9 @@ export default function ModifyCollection() {
                   Add Source
                 </button>
 
+            </div>
+            <div>
+              <UploadSources />
             </div>
             <SourceList collectionId={collectionId} edit={true} />
           </div>

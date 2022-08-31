@@ -3,6 +3,7 @@ from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from collections import namedtuple
 import json
 import os 
@@ -43,6 +44,11 @@ class SourcesViewSet(viewsets.ModelViewSet):
         permissions.AllowAny
     ]
     serializer_class = SourcesSerializer 
+
+    @action(methods=['post'], detail=False)
+    def upload_sources(self, request):
+        print(request.data)
+        return Response("hello from upload_sources")
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None): 

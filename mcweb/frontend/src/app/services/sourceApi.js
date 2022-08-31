@@ -44,6 +44,13 @@ export const sourcesApi = createApi({
         body: { ...id }
       }),
     }),
+    uploadSources: builder.mutation({
+      query: (sourcesArray) => ({
+        url:'/upload_sources/',
+        method: 'POST',
+        body: sourcesArray
+      }),
+    }),
   })
 })
 
@@ -52,4 +59,5 @@ export const {
   usePostSourceMutation,
   useUpdateSourceMutation,
   useDeleteSourceMutation,
+  useUploadSourcesMutation,
 } = sourcesApi
