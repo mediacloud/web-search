@@ -1,3 +1,4 @@
+from importlib.metadata import metadata
 from django.shortcuts import get_object_or_404
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
@@ -8,6 +9,7 @@ from collections import namedtuple
 import json
 import os 
 from settings import BASE_DIR
+from mcmetadata import urls
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
@@ -47,7 +49,27 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):
-        print(request.data)
+        collection = Collection.objects.get(pk=request.data['collection_id'])
+        # email_title = "Updating collection {}".format(collection.name)
+        # email_text = ""
+        for row in request.data['sources']:
+            # print(row)
+            if len(row['id']) !=0 and row['id'] != 'NULL':
+                existing_source = Source.objects.get(pk=row['id'])
+                # print(existing_source)
+            else:
+                canonical_domain = urls.canonical_domain(row['homepage'])
+                # print(canonical_domain)
+                queryset = Source.objects.all()
+                existing_source = get_object_or_404(queryset, homepage=canonical_domain)
+                print(existing_source)
+        #   if existing_source is None:
+        #     existing_source = create_new_source(row)
+        #     email_text += "\n {}: created new source".format(canonical_domain)
+        #   else:
+        #     email_text += "\n {}: updated existing source".format(canonical_domain)
+        #   add_source_to_collection(collection_id, existing_source.id)
+        #   send_email_summary(current_user.email, email_summary)
         return Response("hello from upload_sources")
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
@@ -69,13 +91,13 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         collection_bool = request.query_params.get('collection')
-        if (collection_bool == 'true'): #check in the query_params if collection=true, if 'true' the pk is a collection pk, else pk is for a source
-            collections_queryset = Collection.objects.all() # make collection queryset
-            collection = get_object_or_404(collections_queryset, pk=pk) # get collection based on wildcard :id(pk)
-            source_id = request.query_params.get('source_id') #get source_id from params
-            sources_queryset = Source.objects.all() # make source queryset
-            source = get_object_or_404(sources_queryset, pk=source_id) #find source
-            collection.source_set.remove(source) #remove association from collection
+        if (collection_bool == 'true'): 
+            collections_queryset = Collection.objects.all()
+            collection = get_object_or_404(collections_queryset, pk=pk) 
+            source_id = request.query_params.get('source_id')
+            sources_queryset = Source.objects.all() 
+            source = get_object_or_404(sources_queryset, pk=source_id) 
+            collection.source_set.remove(source) 
             return Response({'collection_id': pk, 'source_id': source_id})
         else :
             sources_queryset = Source.objects.all()
@@ -97,6 +119,10 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collection = get_object_or_404(collections_queryset, pk=collection_id)
         source.collections.add(collection)
         return Response({'source_id': source_id, 'collection_id': collection_id})
+
+
+
+
 
 
 

@@ -7,6 +7,7 @@ pyhumps==3.7.*
 django-environ==0.9.*
 dj-database-url==1.0.*
 mediacloud==3.13.*
+mediacloud-metadata==0.7.*
 python-dateutil==2.8.*
 dateparser==1.1.*
 pymemcache==3.5.*

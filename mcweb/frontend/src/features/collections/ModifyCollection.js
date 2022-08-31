@@ -139,7 +139,7 @@ export default function ModifyCollection() {
               </button>
             </div>
             <div>
-              <UploadSources />
+              <UploadSources collectionId={collectionId} />
             </div>
             <SourceList collectionId={collectionId} edit={true} />
           </div>

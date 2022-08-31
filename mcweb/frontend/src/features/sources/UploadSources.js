@@ -3,40 +3,19 @@ import { useState } from 'react';
 import { useCSVReader } from 'react-papaparse';
 import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 
-export default function UploadSources(){
-    const [file, setFile] = useState();
+export default function UploadSources(props){
+    const {collectionId} = props;
 
     const [uploadSources, result] = useUploadSourcesMutation();
 
-    // const fileReader = new FileReader();
     const {CSVReader} = useCSVReader();
-    const handleChange = (e) => {
-        setFile(e.target.files[0])
-    }
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // if (file) {
-        //     fileReader.onload = function (event) {
-        //        console.log(event.target.result)
-        //        Papa.parse(event.target.result)
-        //        const csvOutput = event.target.result;
-        //     }
-
-        //     fileReader.readAsText(file);
-        // }
-        // if (file) {
-
-        // }
-    }
-
 
     return (
         <div>
-            <CSVReader onUploadAccepted={(results) => {
+            <CSVReader config={{header: true}} onUploadAccepted={(results) => {
                 console.log(results);
                 // RTK Mutation
-                uploadSources(results.data);
+                uploadSources({'sources': results.data, 'collection_id': collectionId});
             }} >
                 {({
                     getRootProps,
