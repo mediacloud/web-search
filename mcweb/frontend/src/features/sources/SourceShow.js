@@ -18,7 +18,7 @@ const Item = styled(Paper)(({ theme }) => ({
 export default function SourceShow() {
   const params = useParams()
   const sourceId = Number(params.sourceId);
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
 
 
   const {

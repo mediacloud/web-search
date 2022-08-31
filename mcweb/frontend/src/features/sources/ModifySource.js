@@ -27,7 +27,7 @@ export default function ModifySource() {
 
 
   // show data 
-  const [isShown, setIsShown] = useState(false)
+  const [isShown, setIsShown] = useState(true)
 
   // menu options
   const services = ["Online News", "Youtube"]
