@@ -1,22 +1,24 @@
-// Collection Header 
-.collectionHeader {
+.collectionTitle { 
   background-color: navy;
   color: white;
-  display: flex;
+  display: flex; 
   justify-content: space-between;
   padding: 10px;
   
-  // Collection Title for CollectionHome
   h1 {
-    font-size: 16px;
-    font-weight: 400;
+    font-size: 36px;
+    padding: 5px;
+    font-weight: 600;
+  }
+  .collectionName {
+    font-size: 18px;
+    font-weight: 600;
   }
   
   // Collection Title for CollectionShow 
   .collectionInformation {
-    
     h2 {
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 500;
     }
     h3 {
@@ -24,13 +26,17 @@
       font-weight: 400;
     }
   }
-  
-  // buttons in CollectionSHow
-  .buttons {
-    display: flex;
-    Button {
-      margin-left: 10px;
-    }
+}
+
+
+
+
+
+// buttons in CollectionSHow
+.buttons {
+  display: flex;
+  Button {
+    margin-left: 10px;
   }
 }
 

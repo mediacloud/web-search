@@ -12,22 +12,29 @@ export default function CollectionList(props) {
     const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
 
 
-    if (isLoading){
+    if (isLoading) {
         return (<h1>Loading...</h1>)
-    } 
-    else if (edit){
+    }
+    else if (edit) {
         return (
-            <div>
-                <h4>This Source is in {data['collections'].length} Collections</h4>
+            <div className='collectionAssociations'>
+                {/* Header */}
+                <h2 className='associationsHeader'>This Source is in {data['collections'].length} Collections</h2>
                 {data['collections'].map(collection => (
-                    <div key={collection.id}>
-                        <CollectionItem  collection={collection} />
+                    <div className='collectionItem' key={`edit-${collection.id}`} >
+
+                        {/* Collection Item */}
+                        <CollectionItem collection={collection} />
+
+                        {/* Remove */}
                         <button onClick={() => {
                             deleteSourceCollectionAssociation({
                                 "source_id": sourceId,
                                 "collection_id": collection.id
                             })
-                        }}>Remove</button>
+                        }}>
+                            Remove
+                        </button>
                     </div>
                 ))}
             </div>
@@ -35,10 +42,16 @@ export default function CollectionList(props) {
     }
     else {
         return (
-            <div>
-                <h4>This Source is in {data['collections'].length} Collections</h4>
+            <div className='collectionAssociations'>
+
+                {/* Header */}
+                <h2> Associated with {data['collections'].length} Collections</h2>
                 {data['collections'].map(collection => (
-                    <CollectionItem key={collection.id} collection={collection} />
+                    <div className="collectionItem" key={`${collection.id}`}>
+
+                        {/* Collection */}
+                        <CollectionItem key={collection.id} collection={collection} />
+                    </div>
                 ))}
             </div>
         )

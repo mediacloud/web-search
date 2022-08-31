@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import CollectionHeader from './CollectionHeader';
 import SourceList from '../sources/SourceList';
+import { CollectionsOutlined } from '@mui/icons-material';
 
 export default function CollectionShow() {
   const params = useParams()
@@ -13,7 +14,7 @@ export default function CollectionShow() {
 
   return (
     <>
-      <div className='collectionHeader'>
+      <div className='collectionTitle'>
 
         {/* Header  */}
         <CollectionHeader collectionId={collectionId} />
@@ -46,7 +47,7 @@ export default function CollectionShow() {
         </div>
       </div>
 
-{/* Source List */}
+      {/* Source List */}
       {isShown && (
         <SourceList collectionId={collectionId} />
       )}

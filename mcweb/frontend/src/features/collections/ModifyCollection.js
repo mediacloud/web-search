@@ -25,7 +25,7 @@ export default function ModifyCollection() {
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
   // show data 
-  const [isShown, setIsShown] = useState(true)
+  const [isShown, setIsShown] = useState(false)
   // menu options
   const services = ["Online News", "Youtube"]
 

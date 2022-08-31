@@ -19,7 +19,7 @@ export default function CollectionHeader(props) {
 
                 {/* Title and Collection ID */}
                 <div className="collectionInformation">
-                    <h1> {collection.name}</h1>
+                    <h2> {collection.name}</h2>
                     <h3> Collection #{collectionId}</h3>
                 </div>
 
