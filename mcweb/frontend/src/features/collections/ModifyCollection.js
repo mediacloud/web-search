@@ -119,23 +119,27 @@ export default function ModifyCollection() {
             </Button>
           </ul>
         </div>
-        
-        <div>
-          <h3> Add Source to Collection (enter the source ID): </h3>
-          <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
 
-          <button onClick={() => {
-            const assoc = { 'source_id': sourceId, 'collection_id': collectionId }
-            const source = sourceData.data;
-            createSourceCollectionAssociation(assoc)
-            setSourceId("")
-          }}>
-            Add Source
-          </button>
-        </div>
+
+
         {/* Assocations Content  */}
         {isShown &&
+          <div>
+            <div className='sourceAssocationContent'>
+              <h1> Add Source to Collection (enter the source ID): </h1>
+              <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
+
+              <button onClick={() => {
+                const assoc = { 'source_id': sourceId, 'collection_id': collectionId }
+                const source = sourceData.data;
+                createSourceCollectionAssociation(assoc)
+                setSourceId("")
+              }}>
+                Add Source
+              </button>
+            </div>
             <SourceList collectionId={collectionId} edit={true} />
+          </div>
         }
       </>
     )

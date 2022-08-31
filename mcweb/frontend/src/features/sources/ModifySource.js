@@ -175,7 +175,7 @@ export default function ModifySource() {
                 createSourceCollectionAssociation(assoc)
                 setCollectionId("")
               }}>
-                Add Source
+                Add Collection
               </button>
 
             </div>
