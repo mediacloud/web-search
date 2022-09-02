@@ -28,7 +28,7 @@ export const collectionsApi = createApi({
           ? [{type: 'Collection', id}]
           : ['Collection']
     }),
-    postCollection: builder.mutation({
+    createCollection: builder.mutation({
       query: (collection) => ({
         url: '',
         method: 'POST',
@@ -55,7 +55,7 @@ export const collectionsApi = createApi({
 export const {
   useGetFeaturedCollectionsQuery,
   useGetCollectionQuery,
-  usePostCollectionMutation,
+  useCreateCollectionMutation,
   useUpdateCollectionMutation,
   useDeleteCollectionMutation
 } = collectionsApi
