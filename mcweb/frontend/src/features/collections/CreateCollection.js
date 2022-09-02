@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextField, MenuItem, Box, FormControlLabel, Button, Checkbox } from '@mui/material';
+import { TextField,Button, Checkbox } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateCollectionMutation } from '../../app/services/collectionsApi';
@@ -54,17 +54,6 @@ export default function CreateCollection(props) {
                             onChange={handleChange}
                         />
                     </li>
-
-                    {/* Update */}
-                    {/* <button onClick={()=>{
-                        const newCollection = {
-                            name: formState.name,
-                            notes: formState.notes
-                        } 
-                        createCollection(newCollection)
-                            .then(collection => console.log(collection.id))
-
-                    }}>Create</button> */}
 
                     <Button
                         fullWidth
