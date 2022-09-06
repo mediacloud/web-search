@@ -55,34 +55,26 @@ class SourcesViewSet(viewsets.ModelViewSet):
         email_text = ""
         queryset = Source.objects.all()
         for row in request.data['sources']:
-            # print(row)
             if len(row['id']) !=0 and row['id'] != 'null':
                 existing_source = queryset.filter(pk=row['id'])
                 canonical_domain = existing_source[0].name
-                # print(existing_source)
             else:
                 canonical_domain = urls.canonical_domain(row['homepage'])
                 existing_source = queryset.filter(name=canonical_domain)
-                # print(existing_source)
             if len(existing_source) == 0:
-                # print("Creating Source....", canonical_domain)
                 existing_source = Source.create_new_source(row) 
-                # print(existing_source)
                 email_text += "\n {}: created new source".format(canonical_domain)
             elif len(existing_source) >1:
                 existing_source = existing_source[0]
-                # print(existing_source)
                 email_text += "\n {}: updated existing source".format(canonical_domain)
             else:
-                # print(canonical_domain)
+                existing_source = existing_source[0]
                 email_text += "\n {}: updated existing source".format(canonical_domain)
-            # print("adding source", existing_source, "to", collection.name)
-        # print(email_title)
-        # print(email_text)
-        
-        #   collection.source_set.add(existing_source)
+            print(existing_source)
+            collection.source_set.add(existing_source)
         #   send_email_summary(current_user.email, email_title, email_text)
-        return Response("Sources Upload Complete")
+        print(email_text)
+        return Response({'title': email_title, 'text': email_text})
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None): 

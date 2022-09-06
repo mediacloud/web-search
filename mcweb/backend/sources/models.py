@@ -55,7 +55,8 @@ class Source(models.Model):
         new_source.pub_state = source["pub_state"] if source["pub_state"] is not None else None
         new_source.primary_language = source["primary_language"] if source["primary_language"] is not None else None
         new_source.media_type = source["media_type"] if source["media_type"] is not None else None
-        new_source = new_source.save()
+        new_source.save()
+        new_source = Source.objects.get(pk=new_source.pk)
         return new_source
 
 
