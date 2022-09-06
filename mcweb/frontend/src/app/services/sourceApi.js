@@ -50,6 +50,7 @@ export const sourcesApi = createApi({
         method: 'POST',
         body: sourcesArray
       }),
+      invalidatesTags: ['Source']
     }),
   })
 })
