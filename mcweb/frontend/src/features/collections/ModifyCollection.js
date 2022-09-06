@@ -84,7 +84,7 @@ export default function ModifyCollection() {
                 id="text"
                 name="name"
                 value={formState.name}
-                onChange={handleChange}
+                onChange={handleChange} 
               />
             </li>
 

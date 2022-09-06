@@ -10,6 +10,8 @@ import { useCreateSourceCollectionAssociationMutation } from '../../app/services
 
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
+import { useCSVDownloader } from 'react-papaparse';
+
 import {
   useGetSourceQuery,
   useUpdateSourceMutation,
@@ -25,6 +27,9 @@ export default function ModifySource() {
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
+
+
+  const { CSVDownloader, Type } = useCSVDownloader();
 
   // show data 
   const [isShown, setIsShown] = useState(true)
@@ -81,16 +86,46 @@ export default function ModifySource() {
 
           <h1>Modify {data.id}: {data.label}</h1>
 
-          <Button
-            style={{ backgroundColor: "white" }}
-            variant='contained'
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            onClick={async () => {
-              setIsShown(!isShown)
-            }}
-          >
-            Associations
-          </Button>
+          <div className="actions">
+            <Button
+              style={{ backgroundColor: "white" }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }}
+              onClick={async () => {
+                setIsShown(!isShown)
+              }}
+            >
+              Associations
+            </Button>
+
+            <Button
+              style={{ backgroundColor: "white" }}
+              variant='contained'
+              sx={{ my: 2.25, color: 'black', display: 'block' }}
+
+            >
+              <CSVDownloader
+                type={Type.Button}
+                filename={'filename'}
+                bom={true}
+                config={
+                  {
+                    delimiter: ';',
+                  }
+                }
+                data={[
+                  {
+                    "Column 1": "1-1",
+                    "Column 2": "1-2",
+                    "Column 3": "1-3",
+                    "Column 4": "1-4",
+                  },
+                ]}
+              >
+                Download
+              </CSVDownloader>
+            </Button>
+          </div>
         </div>
 
         {/* Source Content */}
