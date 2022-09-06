@@ -28,7 +28,6 @@ export default function ModifySource() {
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
 
-
   const { CSVDownloader, Type } = useCSVDownloader();
 
   // show data 
@@ -98,33 +97,30 @@ export default function ModifySource() {
               Associations
             </Button>
 
-            <Button
-              style={{ backgroundColor: "white" }}
-              variant='contained'
-              sx={{ my: 2.25, color: 'black', display: 'block' }}
-
-            >
-              <CSVDownloader
-                type={Type.Button}
-                filename={'filename'}
-                bom={true}
-                config={
-                  {
-                    delimiter: ';',
-                  }
+            <CSVDownloader
+              type={Type.Button}
+              filename={data.label}
+              bom={true}
+              config={
+                {
+                  delimiter: ';',
                 }
-                data={[
+              }
+              data={
+                [
                   {
-                    "Column 1": "1-1",
-                    "Column 2": "1-2",
-                    "Column 3": "1-3",
-                    "Column 4": "1-4",
-                  },
-                ]}
-              >
-                Download
-              </CSVDownloader>
-            </Button>
+                    "ID": formState.id,
+                    "Name": formState.name,
+                    "Notes": formState.notes,
+                    "Homepage": formState.hompage,
+                    "Label": formState.label,
+                    "Service": formState.service,
+                  }
+                ]
+              }
+            >
+              Download
+            </CSVDownloader>
           </div>
         </div>
 
@@ -218,7 +214,6 @@ export default function ModifySource() {
           </div>
 
         }
-
 
       </>
 
