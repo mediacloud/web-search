@@ -27,6 +27,7 @@ import Homepage from './Homepage';
 // pages
 import Collections from './features/collections/CollectionShow';
 import CollectionHome from './features/collections/CollectionHome';
+import CreateCollection from './features/collections/CreateCollection';
 import Search from './features/search/Search'
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
@@ -71,6 +72,12 @@ export const renderApp = () => {
             <Route path="collections/:collectionId" element={
               <RequireAuth>
                 <Collections />
+              </RequireAuth>}
+            />
+
+            <Route path="collections/create" element={
+              <RequireAuth>
+                <CreateCollection />
               </RequireAuth>}
             />
 
