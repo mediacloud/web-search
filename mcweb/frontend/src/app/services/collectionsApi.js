@@ -1,26 +1,16 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { managerApi } from "./managerApi";
 
-export const collectionsApi = createApi({
-  reducerPath: 'collectionsApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/sources/collections/',
-    prepareHeaders: (headers, { getState }) => {
-      // Django requires this for security (cross-site forgery protection) once logged in
-      headers.set('X-Csrftoken', window.CSRF_TOKEN);
-      return headers;
-    },
-  }),
-  tagTypes: ['Collection'],
+export const collectionsApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getFeaturedCollections: builder.query({
       query: () => ({
-        url:'',
+        url:'collections/',
         method: 'GET'
       })
     }),
     getCollection: builder.query({
       query: (id) => ({
-        url: `${id}/`,
+        url: `collections/${id}/`,
         method: 'GET'
       }),
       providesTags: (result, error, id) =>
@@ -30,21 +20,21 @@ export const collectionsApi = createApi({
     }),
     postCollection: builder.mutation({
       query: (collection) => ({
-        url: '',
+        url: 'collections/',
         method: 'POST',
         body: { ...collection }
       })
     }),
     updateCollection: builder.mutation({
       query: (collection) => ({
-        url: `/${collection.id}/`,
+        url: `collections/${collection.id}/`,
         method: 'PATCH',
         body: { ... collection }
       })
     }),
     deleteCollection: builder.mutation({
       query: ({id}) => ({
-        url: `/${id}/`,
+        url: `collections/${id}/`,
         method: 'DELETE',
         body: {... id}
       }),
