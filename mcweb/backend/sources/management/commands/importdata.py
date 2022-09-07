@@ -58,7 +58,8 @@ class Command(BaseCommand):
         _run_psql_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW(), service='{}'".format(
             ServiceNames.ONLINE_NEWS.value))
         _run_psql_command("UPDATE sources_source SET primary_language=NULL WHERE primary_language='none'")
-
+        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_source\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_source\";")
+        
         # wipe and import Feeds
         self.stdout.write(self.style.SUCCESS('Importing feeds'))
         Feed.objects.all().delete()
@@ -66,6 +67,7 @@ class Command(BaseCommand):
             format(feeds_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_feed SET created_at=NOW(), modified_at=NOW(), admin_rss_enabled=True")
+        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_feed\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_feed\";")
 
         # wipe and import Collections
         self.stdout.write(self.style.SUCCESS('Importing collections'))
@@ -74,6 +76,7 @@ class Command(BaseCommand):
             collection_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_collection SET created_at=NOW(), modified_at=NOW()")
+        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_collection\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_collection\";")
 
         # wipe and import source-collection links
         self.stdout.write(self.style.SUCCESS('Importing source-collections links'))

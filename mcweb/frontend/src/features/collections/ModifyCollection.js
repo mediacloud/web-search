@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDeleteCollectionMutation, useUpdateCollectionMutation } from '../../app/services/collectionsApi';
 import SourceList from '../sources/SourceList';
-
+import UploadSources from '../sources/UploadSources';
 //rtk api operations
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
@@ -137,6 +137,9 @@ export default function ModifyCollection() {
               }}>
                 Add Source
               </button>
+            </div>
+            <div>
+              <UploadSources collectionId={collectionId} />
             </div>
             <SourceList collectionId={collectionId} edit={true} />
           </div>
