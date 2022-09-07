@@ -1,20 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { managerApi } from "./managerApi"
 
-export const sourcesApi = createApi({
-  reducerPath: 'sourcesApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api/sources/sources/',
-    prepareHeaders: (headers, { getState }) => {
-      // Django requires this for security (cross-site forgery protection) once logged in
-      headers.set('X-Csrftoken', window.CSRF_TOKEN);
-      return headers;
-    },
-  }),
-  tagTypes: ['Source'],
+export const sourcesApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getSource: builder.query({
       query: (id) => ({
-        url: `${id}/`,
+        url: `sources/${id}/`,
         method: 'GET'
       }),
       providesTags: (result, error, id) =>
@@ -24,7 +14,7 @@ export const sourcesApi = createApi({
     }),
     postSource: builder.mutation({
       query: (source) => ({
-        url: '',
+        url: 'sources/',
         method: 'POST',
         body: { ...source }
       })
@@ -32,14 +22,14 @@ export const sourcesApi = createApi({
     updateSource: builder.mutation({
       query: (source) => {
         return {
-        url: `/${source.id}/`,
+          url: `sources/${source.id}/`,
         method: 'PATCH',
         body:  {...source}
       }}
     }),
     deleteSource: builder.mutation({
       query: ({ id }) => ({
-        url: `/${id}/`,
+        url: `sources/${id}/`,
         method: 'DELETE',
         body: { ...id }
       }),

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useGetSourceAndAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { useGetSourceAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import CollectionItem from './CollectionItem';
 
 export default function CollectionList(props) {
@@ -7,7 +7,7 @@ export default function CollectionList(props) {
     const {
         data,
         isLoading
-    } = useGetSourceAndAssociationsQuery(sourceId);
+    } = useGetSourceAssociationsQuery(sourceId);
 
     const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
 

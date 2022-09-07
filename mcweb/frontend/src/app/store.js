@@ -4,9 +4,7 @@ import { setupListeners } from '@reduxjs/toolkit/query/react';
 //rtk apis
 import { api as authApi } from './services/authApi';
 import { searchApi } from './services/searchApi';
-import { sourcesCollectionsApi } from './services/sourcesCollectionsApi';
-import { collectionsApi } from './services/collectionsApi';
-import { sourcesApi } from './services/sourceApi'
+import { managerApi } from './services/managerApi';
 
 //reducers
 import authReducer from '../features/auth/authSlice';
@@ -34,25 +32,16 @@ const setupStore = () => {
       [searchApi.reducerPath]: searchApi.reducer,
       search: searchReducer,
 
-      // sourcesCollection api responsible for associations' CRUD 
-      [sourcesCollectionsApi.reducerPath]: sourcesCollectionsApi.reducer,
-
-      // collection api 
-      [collectionsApi.reducerPath]: collectionsApi.reducer,
-
-      // sources api responsible for collections' CRUD 
-      [sourcesApi.reducerPath]: sourcesApi.reducer,
-
+      // api responsible for all Sources or Collections CRUD
+      [managerApi.reducerPath]: managerApi.reducer,
 
     },
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
     middleware: (getDefaultMiddleware) => 
       getDefaultMiddleware().concat(authApi.middleware, 
-        searchApi.middleware, 
-        sourcesCollectionsApi.middleware,
-        collectionsApi.middleware,
-        sourcesApi.middleware
+        searchApi.middleware,
+        managerApi.middleware, 
         ),
     
   });
