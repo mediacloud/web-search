@@ -2,13 +2,15 @@ import * as React from 'react';
 import { useGetSourceAndAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import CollectionItem from './CollectionItem';
 
-import Papa from 'papaparse'
+import { useCSVDownloader } from 'react-papaparse';
 
 import { useState } from 'react';
 
 export default function CollectionList(props) {
 
-  const [collection, setCollection] = useState();
+  const [collection, setCollection] = useState()
+
+  const { CSVDownloader, Type } = useCSVDownloader();
 
   const { sourceId, edit } = props
   const {
@@ -17,54 +19,45 @@ export default function CollectionList(props) {
   } = useGetSourceAndAssociationsQuery(sourceId);
 
 
-
   const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
 
   if (loading) {
     return (<h1>Loading...</h1>)
   }
   else if (edit) {
-
-
+    
+    const id_list = data.collections.map((collection) => collection.id + "\n")
+    const name_list = data.collections.map((collection) => collection.name + "\n")
+    const notes_list = data.collections.map((collection) => collection.notes + "\n")
 
     return (
-
-
-
       <div className='collectionAssociations'>
+
+        <CSVDownloader
+          type={Type.Button}
+          filename={"CollectionList"}
+          bom={true}
+          config={
+            {
+              delimiter: "\n",
+              newLine: "\n"
+            }
+          }
+          data={
+            [
+              {
+                "id": id_list,
+                "name": name_list,
+                "notes": notes_list,
+              }, 
+              
+            ]
+          }
+        >
+          Download
+        </CSVDownloader>
         {/* Header */}
         <h2 className='associationsHeader'>This Source is in {data['collections'].length} Collections</h2>
-
-        <button onClick={() => {
-          const realData = data.collections.map((collection) => [
-            collection.id,
-            collection.name,
-            collection.notes,
-          ])
-
-          console.log(realData)
-          const fields = ['ID', 'Title', 'Description']
-
-          const csv = Papa.unparse({
-            fields: fields,
-            data: realData
-          })
-
-          const blob = new Blob([csv])
-
-          const a = document.createElement('a');
-
-          a.href = URL.createObjectURL(blob, { type: 'text/plain' });
-
-          a.download = 'CSV Export File';
-
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-
-        }}>
-          Download
-        </button>
 
         {
           data.collections.map(collection => (
