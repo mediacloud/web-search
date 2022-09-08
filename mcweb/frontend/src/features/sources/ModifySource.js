@@ -60,10 +60,9 @@ export default function ModifySource() {
 
   useEffect(() => {
     if (data) {
-      const formData = {
+    setFormState ({
         id: data.id, name: data.name, notes: data.notes, homepage: data.homepage, label: data.label
-      }
-      setFormState(formData)
+      })
     }
   }, [data])
 
@@ -112,10 +111,10 @@ export default function ModifySource() {
                     "ID": formState.id,
                     "Name": formState.name,
                     "Notes": formState.notes,
-                    "Homepage": formState.hompage,
+                    "Homepage": formState.homepage,
                     "Label": formState.label,
                     "Service": formState.service,
-                  }
+                  }, 
                 ]
               }
             >
