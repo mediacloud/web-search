@@ -9,8 +9,12 @@ import SourceList from '../sources/SourceList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
+import { useCSVDownloader } from 'react-papaparse';
+
 
 export default function ModifyCollection() {
+  const { CSVDownloader, Type } = useCSVDownloader();
+
   const params = useParams()
   const collectionId = Number(params.collectionId); //get collection id from wildcard
 
@@ -71,6 +75,28 @@ export default function ModifyCollection() {
           >
             Associations
           </Button>
+
+          <CSVDownloader
+            type={Type.Button}
+            filename={data.name}
+            bom={true}
+            config={
+              {
+                delimiter: ';',
+              }
+            }
+            data={
+              [
+                {
+                  "ID": formState.id,
+                  "Name": formState.name,
+                  "Notes": formState.notes,
+                },
+              ]
+            }
+          >
+            Download
+          </CSVDownloader>
         </div>
 
         {/* Collection Content */}
