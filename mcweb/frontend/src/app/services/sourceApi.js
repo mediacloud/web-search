@@ -42,11 +42,10 @@ export const sourcesApi = managerApi.injectEndpoints({
       }),
       invalidatesTags: ['Source']
     }),
-    downloadSourceCSV: builder.mutation({
-      query: (sourceID) => ({
-        url: '/donwload-csv/',
-        method: 'POST',
-        body: sourceID
+    downloadSourceCSV: builder.query({
+      query: (collectionId) => ({
+        url: `sources/download_sources?collection_id=${collectionId}`,
+        method: 'GET',
       }),
     })
   })
@@ -58,5 +57,5 @@ export const {
   useUpdateSourceMutation,
   useDeleteSourceMutation,
   useUploadSourcesMutation,
-  useDownloadSourceCSVMutation
+  useDownloadSourceCSVQuery
 } = sourcesApi

@@ -9,9 +9,10 @@ import UploadSources from '../sources/UploadSources';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
+import { useDownloadSourceCSVQuery } from '../../app/services/sourceApi';
 
 export default function ModifyCollection() {
-  const params = useParams()
+  const params = useParams();
   const collectionId = Number(params.collectionId); //get collection id from wildcard
 
   const { data, isLoading } = useGetCollectionQuery(collectionId);
@@ -37,6 +38,10 @@ export default function ModifyCollection() {
   const [createSourceCollectionAssociation, associationResult] = useCreateSourceCollectionAssociationMutation();
   const [updateCollection, { setUpdate }] = useUpdateCollectionMutation();
   const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
+
+
+  const csvDownloadData = useDownloadSourceCSVQuery(collectionId)
+
 
   //set form data to the collection specified in url
   useEffect(() => {
@@ -84,7 +89,7 @@ export default function ModifyCollection() {
                 id="text"
                 name="name"
                 value={formState.name}
-                onChange={handleChange} 
+                onChange={handleChange}
               />
             </li>
 
@@ -117,13 +122,27 @@ export default function ModifyCollection() {
             >
               Update
             </Button>
+
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={isLoading}
+              onClick={async () => {
+                console.log(csvDownloadData)
+              }}
+            >
+              Download
+            </Button>
+
           </ul>
         </div>
 
 
 
         {/* Assocations Content  */}
-        {isShown &&
+        {
+          isShown &&
           <div>
             <div className='sourceAssocationContent'>
               <h1> Add Source to Collection (enter the source ID): </h1>

@@ -9,7 +9,11 @@ from rest_framework.decorators import action
 from collections import namedtuple
 import json
 import os 
+import urls
 from settings import BASE_DIR
+
+import logging
+logger = logging.getLogger(__name__)
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
@@ -76,11 +80,12 @@ class SourcesViewSet(viewsets.ModelViewSet):
         print(email_text)
         return Response({'title': email_title, 'text': email_text})
 
-    @action(methods=['post'], detail=False)
-    def donwload_csv(self, request):
-        print(request.query_params.get('collection'))
-        
+    @action(detail=False)
+    def download_csv(self, request):
+        print(request.data)
 
+        return Response("hello")
+        
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None): 
