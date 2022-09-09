@@ -129,7 +129,7 @@ export default function ModifyCollection() {
               sx={{ mt: 3, mb: 2 }}
               disabled={isLoading}
               onClick={async () => {
-                console.log(csvDownloadData)
+                console.log(csvDownloadData.data)
               }}
             >
               Download
