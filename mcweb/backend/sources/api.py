@@ -83,8 +83,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def download_csv(self, request):
         print(request.data)
-
-        return Response("hello")
+        return Response({"message": "hello"})
         
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
