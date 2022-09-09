@@ -10,7 +10,6 @@ from collections import namedtuple
 import json
 import os 
 from settings import BASE_DIR
-from mcmetadata import urls
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
@@ -20,7 +19,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
     def list(self, request):
         queryset = Collection.objects.all() 
-        file_path = os.path.join(BASE_DIR, 'backend/sources/media-collection.json')
+        
+        file_path = os.path.join(BASE_DIR, '/Users/evansuslovich/Desktop/web-search/mcweb/backend/sources/media-collection.json')
         json_data = open(file_path) 
         deserial_data = json.load(json_data) 
         collection_return = [] 
@@ -75,6 +75,12 @@ class SourcesViewSet(viewsets.ModelViewSet):
         #   send_email_summary(current_user.email, email_title, email_text)
         print(email_text)
         return Response({'title': email_title, 'text': email_text})
+
+    @action(methods=['post'], detail=False)
+    def donwload_csv(self, request):
+        print(request.query_params.get('collection'))
+        
+
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None): 
