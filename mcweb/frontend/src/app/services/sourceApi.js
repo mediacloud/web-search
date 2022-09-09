@@ -44,7 +44,7 @@ export const sourcesApi = managerApi.injectEndpoints({
     }),
     downloadSourceCSV: builder.query({
       query: (collectionId) => ({
-        url: `sources/download_sources?collection_id=${collectionId}`,
+        url: `sources/download_csv/?collection_id=${collectionId}`,
         method: 'GET',
       }),
     })
