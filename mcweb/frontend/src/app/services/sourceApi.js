@@ -47,7 +47,15 @@ export const sourcesApi = managerApi.injectEndpoints({
         url: `sources/download_csv/?collection_id=${collectionId}`,
         method: 'GET',
       }),
-    })
+    }),
+
+      download: builder.mutation({
+        query: (collectionId) => ({
+          url: `csvDownload`,
+          method: 'POST',
+          body: {...collectionId}
+        })
+    }),
   })
 })
 
@@ -57,5 +65,7 @@ export const {
   useUpdateSourceMutation,
   useDeleteSourceMutation,
   useUploadSourcesMutation,
-  useDownloadSourceCSVQuery
+  useDownloadSourceCSVQuery,
+  useDownloadMutation
+  
 } = sourcesApi
