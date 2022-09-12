@@ -12,9 +12,9 @@ import os
 import urls
 from settings import BASE_DIR
 
-# csv 
+# csv
 
-import csv 
+import csv
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -96,15 +96,28 @@ class SourcesViewSet(viewsets.ModelViewSet):
         collection_id = request.query_params.get('collection_id')
         collection = Collection.objects.get(id=collection_id)
         source_associations = collection.source_set.all()
-        
+
         response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
-    )
+        )
 
         writer = csv.writer(response)
-    
+
+        writer.writerow(['Id', 'Name', 'URL', 'Label',
+        'Homepage', 'Notes', 'Service',  'Stories per Week',
+        'First Story', 'Publication Country', 'Publication State',
+        'Primary Langauge', 'Media Type'])
+
+        for source in source_associations:
+            writer.writerow([source.id, source.name, source.url_search_string, source.label,
+                  source.homepage, source.notes, source.service, source.stories_per_week,
+                  source.first_story, source.pub_country, source.pub_state, source.primary_language,
+                  source.media_type])
+
         return response
+
+
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         collection_bool = request.query_params.get('collection')
