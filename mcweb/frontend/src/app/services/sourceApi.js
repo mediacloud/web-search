@@ -46,8 +46,7 @@ export const sourcesApi = managerApi.injectEndpoints({
       query: (collectionId) => ({
         url: `sources/download_csv/?collection_id=${collectionId}`,
         method: 'GET',
-        responseHandler: (response) => response.blob().then(blob => 
-          window.location.assign(window.URL.createObjectURL(blob)))
+        responseHandler: async (response) => window.location.assign(window.URL.createObjectURL(await response.blob())),
       }),
     }),
   })
