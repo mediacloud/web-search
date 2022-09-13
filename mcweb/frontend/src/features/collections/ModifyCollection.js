@@ -40,7 +40,6 @@ export default function ModifyCollection() {
   const [skip, setSkip] = useState(true)
   const csv = useDownloadSourceCSVQuery(collectionId, { skip })
 
-
   //set form data to the collection specified in url
   useEffect(() => {
 
