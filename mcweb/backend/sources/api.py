@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from collections import namedtuple
 import json
 import os
-import urls
+from mcmetadata import urls
 from settings import BASE_DIR
 
 # csv
@@ -30,7 +30,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         queryset = Collection.objects.all()
 
         file_path = os.path.join(
-            BASE_DIR, '/Users/evansuslovich/Desktop/web-search/mcweb/backend/sources/media-collection.json')
+            BASE_DIR, 'backend/sources/media-collection.json')
         json_data = open(file_path)
         deserial_data = json.load(json_data)
         collection_return = []
@@ -104,10 +104,10 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
         writer = csv.writer(response)
 
-        writer.writerow(['Id', 'Name', 'URL', 'Label',
-        'Homepage', 'Notes', 'Service',  'Stories per Week',
-        'First Story', 'Publication Country', 'Publication State',
-        'Primary Langauge', 'Media Type'])
+        writer.writerow(['id', 'name', 'url_search_string', 'label',
+        'homepage', 'notes', 'service',  'stories_per_week',
+        'first_story', 'publication_country', 'publication_state',
+        'primary_langauge', 'media_type'])
 
         for source in source_associations:
             writer.writerow([source.id, source.name, source.url_search_string, source.label,

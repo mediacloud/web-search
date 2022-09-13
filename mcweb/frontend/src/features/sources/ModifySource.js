@@ -98,7 +98,7 @@ export default function ModifySource() {
               Associations
             </Button>
 
-            <Button
+            {/* <Button
               style={{ backgroundColor: "white" }}
               variant='contained'
               sx={{ my: 2.25, color: 'black', display: 'block' }}
@@ -124,7 +124,7 @@ export default function ModifySource() {
               >
                 Download
               </CSVDownloader>
-            </Button>
+            </Button> */}
           </div>
         </div>
 
