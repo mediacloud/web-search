@@ -9,9 +9,10 @@ import UploadSources from '../sources/UploadSources';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
+import { useDownloadSourceCSVQuery } from '../../app/services/sourceApi';
 
 export default function ModifyCollection() {
-  const params = useParams()
+  const params = useParams();
   const collectionId = Number(params.collectionId); //get collection id from wildcard
 
   const { data, isLoading } = useGetCollectionQuery(collectionId);
@@ -26,8 +27,6 @@ export default function ModifyCollection() {
 
   // show data 
   const [isShown, setIsShown] = useState(true)
-  // menu options
-  const services = ["Online News", "Youtube"]
 
   //patch for now, sources in the future will be uploadable only by csv
   const [sourceId, setSourceId] = useState("");
@@ -38,8 +37,13 @@ export default function ModifyCollection() {
   const [updateCollection, { setUpdate }] = useUpdateCollectionMutation();
   const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
 
+  const [skip, setSkip] = useState(true)
+  const csv = useDownloadSourceCSVQuery(collectionId, { skip })
+
+
   //set form data to the collection specified in url
   useEffect(() => {
+
     if (data) {
       const formData = {
         id: data.id,
@@ -84,7 +88,7 @@ export default function ModifyCollection() {
                 id="text"
                 name="name"
                 value={formState.name}
-                onChange={handleChange} 
+                onChange={handleChange}
               />
             </li>
 
@@ -117,13 +121,27 @@ export default function ModifyCollection() {
             >
               Update
             </Button>
+
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={isLoading}
+              onClick={async () => {
+               setSkip(false)
+              }}
+            >
+              Download
+            </Button>
+
           </ul>
         </div>
 
 
 
         {/* Assocations Content  */}
-        {isShown &&
+        {
+          isShown &&
           <div>
             <div className='sourceAssocationContent'>
               <h1> Add Source to Collection (enter the source ID): </h1>
