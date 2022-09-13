@@ -36,7 +36,7 @@ export const sourcesApi = managerApi.injectEndpoints({
     }),
     uploadSources: builder.mutation({
       query: (sourcesArray) => ({
-        url:'/upload_sources/',
+        url:'sources/upload_sources/',
         method: 'POST',
         body: sourcesArray
       }),
