@@ -26,7 +26,7 @@ export default function SignUp() {
 
   // register user 
   const [register, { isLoading }] = useRegisterMutation();
-  
+
   // log in user
   const [login, { isLoggingIn }] = useLoginMutation();
 
@@ -161,24 +161,25 @@ export default function SignUp() {
               disabled={isLoading}
               onClick={async () => {
                 try {
+                  // creating user 
                   const user = await register(formState).unwrap();
                   dispatch(setCredentials(user));
 
-                  const loggedInUser= await login({
+                  // logging in user
+                  const loggedInUser = await login({
                     username: formState.username,
                     password: formState.password1
                   }).unwrap();
                   dispatch(setCredentials(loggedInUser))
-                 
+
                   // the CSRF token changes because we've launched a new session - save the new one
                   saveCsrfToken();
-                 
+
                   navigate("/")
                   enqueueSnackbar("We created an account for you.", { variant: 'success' });
                 } catch (err) {
-                  console.log(err)
-                  // const errorMsg = `Failed - ${err.data.message}`;
-                  // enqueueSnackbar(errorMsg, { variant: 'error' });
+                  const errorMsg = `Failed - ${err.data.message}`;
+                  enqueueSnackbar(errorMsg, { variant: 'error' });
                 }
               }}
             >
