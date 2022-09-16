@@ -11,7 +11,7 @@ import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import { useResetPasswordSendEmailMutation, useEmailExistsQuery } from '../../app/services/authApi';
+import {useResetPasswordSendEmailQuery, useEmailExistsQuery } from '../../app/services/authApi';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
@@ -22,11 +22,9 @@ export default function ResetPassword() {
     email: '', verification: '',
   });
 
-  // formstate -> login
-  const [send, { isSend }] = useResetPasswordSendEmailMutation();
-  const verify = useEmailExistsQuery("evanjacobsuslovich@gmail.com")
-  // email
-
+  const [skip, setSkip] = useState(true)
+  const key = useResetPasswordSendEmailQuery(formState.email)
+  const verify = useEmailExistsQuery(formState.email)
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
@@ -96,28 +94,25 @@ export default function ResetPassword() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
+                  setSkip(false)
 
-                  // does the email exist? 
-                  // const emailExists = await exists(formState).unwrap();
-                  // const emailBoolean = JSON.stringify(emailExists.Exists)
+                  const exists = verify.data.Exists 
+            
+                  if (exists) {
+                    enqueueSnackbar("Email Sent", { variant: 'success' });
+                    // send email and store the returned key 
+                    const code = await send(formState).unwrap();
 
-                  console.log(verify)
-              
-                  // if (emailBoolean === "true") {
-                  //   enqueueSnackbar("Email Sent", { variant: 'success' });
-                  //   // send email and store the returned key 
-                  //   const code = await send(formState).unwrap();
-
-                  //   // set show to true to change scene 
-                  //   // set key to the code returned 
-                  //   setIsShown({
-                  //     show: true,
-                  //     key: code,
-                  //   })
-                  // }
-                  // else {
-                  //   enqueueSnackbar("Email does not exist", { variant: 'error' });
-                  // }
+                    // set show to true to change scene 
+                    // set key to the code returned 
+                    setIsShown({
+                      show: true,
+                      key: code,
+                    })
+                  }
+                  else {
+                    enqueueSnackbar("Email does not exist", { variant: 'error' });
+                  }
                 }}
               >
                 Send Login Link
