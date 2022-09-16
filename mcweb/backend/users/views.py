@@ -1,3 +1,4 @@
+from rest_framework.response import Response
 from pickle import FALSE
 import string
 import random
@@ -19,11 +20,11 @@ def randomKeyGenerator():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
 
 # does the email exist?
-@require_http_methods(['POST'])
+@require_http_methods(['GET'])
 def emailExists(request):
-    payload = json.loads(request.body)
-    email = payload.get('email', None)
-    
+
+    email = request.GET['email']
+
     try:
         User.objects.get(email=email)
         data = json.dumps({'Exists': True})
@@ -32,12 +33,10 @@ def emailExists(request):
 
     return HttpResponse(data, content_type='application/json')
 
-
-@require_http_methods(['POST'])
+@require_http_methods(['GET'])
 def sendEmail(request):
 
-    payload = json.loads(request.body)
-    email = payload.get('email', None)
+    email = request.GET['email']
 
     key = randomKeyGenerator()
 
