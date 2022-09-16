@@ -23,36 +23,31 @@ def randomKeyGenerator():
 @require_http_methods(['GET'])
 def emailExists(request):
 
-    # print(request.query_params.get('email'))
-    print("hello")
-#     payload = json.loads(request.body)
-#     email = payload.get('email', None)
-#     try:
-#         User.objects.get(email=email)
-#         data = json.dumps({'Exists': True})
-#     except User.DoesNotExist:
-#         data = json.dumps({'Exists': False})
+    email = request.GET['email']
 
-    data = json.dumps({'Key': "hi"})
+    try:
+        User.objects.get(email=email)
+        data = json.dumps({'Exists': True})
+    except User.DoesNotExist:
+        data = json.dumps({'Exists': False})
 
     return HttpResponse(data, content_type='application/json')
 
-@require_http_methods(['POST'])
+@require_http_methods(['GET'])
 def sendEmail(request):
 
-    payload = json.loads(request.body)
-    email = payload.get('email', None)
+    email = request.GET['email']
 
     key = randomKeyGenerator()
 
     message = "Hello, please use this verification code to reset your password! Thank you! \n\n" + key
 
-    send_mail(
-        subject='Reset Password',
-        message=message,
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[email]
-    )
+    # send_mail(
+    #     subject='Reset Password',
+    #     message=message,
+    #     from_email=settings.EMAIL_HOST_USER,
+    #     recipient_list=[email]
+    # )
 
     data = json.dumps({'Key': key})
 
