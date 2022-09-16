@@ -42,12 +42,12 @@ def sendEmail(request):
 
     message = "Hello, please use this verification code to reset your password! Thank you! \n\n" + key
 
-    # send_mail(
-    #     subject='Reset Password',
-    #     message=message,
-    #     from_email=settings.EMAIL_HOST_USER,
-    #     recipient_list=[email]
-    # )
+    send_mail(
+        subject='Reset Password',
+        message=message,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email]
+    )
 
     data = json.dumps({'Key': key})
 
