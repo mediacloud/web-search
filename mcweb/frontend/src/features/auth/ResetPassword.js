@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -11,28 +11,24 @@ import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import {useResetPasswordSendEmailQuery, useEmailExistsQuery } from '../../app/services/authApi';
+import { useResetPasswordSendEmailQuery, useEmailExistsQuery } from '../../app/services/authApi';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
-
-  const [formState, setFormState] = React.useState({
+  const [formState, setFormState] = useState({
     email: '', verification: '',
   });
 
-  const [skip, setSkip] = useState(true)
-  const key = useResetPasswordSendEmailQuery(formState.email)
+  const [skip, setSkip] = useState(false)
+
+  const key = useResetPasswordSendEmailQuery(formState.email, { skip })
   const verify = useEmailExistsQuery(formState.email)
 
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
 
-  const [isShown, setIsShown] = useState({
-    show: false,
-    key: null
-  });
-
+  const [isShown, setIsShown] = useState(false);
 
   return (
     <div style={{ paddingTop: "100px" }}>
@@ -61,7 +57,7 @@ export default function ResetPassword() {
             noValidate sx={{ mt: 1 }}
           >
             {/* Email  */}
-            {!isShown.show && (
+            {!isShown && (
               <TextField
                 margin="normal"
                 required
@@ -74,8 +70,8 @@ export default function ResetPassword() {
                 onChange={handleChange}
               />
             )}
-
-            {isShown.show && (
+            {/* Verification Code */}
+            {isShown && (
               <TextField
                 margin="normal"
                 required
@@ -87,28 +83,23 @@ export default function ResetPassword() {
                 onChange={handleChange}
               />
             )}
-
-            {!isShown.show && (
+            {/* Does the email exist in the DB */}
+            {!isShown && (
               <Button
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
-                  setSkip(false)
+                  const exists = verify.data.Exists
 
-                  const exists = verify.data.Exists 
-            
                   if (exists) {
                     enqueueSnackbar("Email Sent", { variant: 'success' });
-                    // send email and store the returned key 
-                    const code = await send(formState).unwrap();
+
+                    // calls key query when email exists  
+                    setSkip(false)
 
                     // set show to true to change scene 
-                    // set key to the code returned 
-                    setIsShown({
-                      show: true,
-                      key: code,
-                    })
+                    setIsShown(true)
                   }
                   else {
                     enqueueSnackbar("Email does not exist", { variant: 'error' });
@@ -119,14 +110,15 @@ export default function ResetPassword() {
               </Button>
             )}
 
-            {isShown.show && (
+            {/* Is the users key the real key? */}
+            {isShown && (
               <Button
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
-                  const stringVerification = isShown.key.Key;
-                  if (formState.verification === stringVerification) {
+                  // comparing the textFeild with the returned key from sendEmail
+                  if (formState.verification === key.data.Key) {
                     enqueueSnackbar("Verified", { variant: 'success' });
                     navigate('confirmed')
                   } else {
@@ -143,6 +135,5 @@ export default function ResetPassword() {
         </Box>
       </Container>
     </div>
-
   );
 }
