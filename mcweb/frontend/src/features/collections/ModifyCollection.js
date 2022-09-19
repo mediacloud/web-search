@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextField, MenuItem, Box, FormControlLabel, Button, Checkbox } from '@mui/material';
+import { TextField, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDeleteCollectionMutation, useUpdateCollectionMutation } from '../../app/services/collectionsApi';
@@ -23,22 +23,22 @@ export default function ModifyCollection() {
   });
 
   //formState declaration
-  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
 
   // show data 
-  const [isShown, setIsShown] = useState(true)
+  const [isShown, setIsShown] = useState(true);
 
   //patch for now, sources in the future will be uploadable only by csv
   const [sourceId, setSourceId] = useState("");
-  const sourceData = useGetSourceQuery(sourceId)
+  const sourceData = useGetSourceQuery(sourceId);
 
   // rtk operations
-  const [createSourceCollectionAssociation, associationResult] = useCreateSourceCollectionAssociationMutation();
-  const [updateCollection, { setUpdate }] = useUpdateCollectionMutation();
-  const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
+  const [createSourceCollectionAssociation] = useCreateSourceCollectionAssociationMutation();
+  const [updateCollection] = useUpdateCollectionMutation();
+  // const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
 
-  const [skip, setSkip] = useState(true)
-  const csv = useDownloadSourceCSVQuery(collectionId, { skip })
+  const [skip, setSkip] = useState(true);
+  const csv = useDownloadSourceCSVQuery(collectionId, { skip });
 
   //set form data to the collection specified in url
   useEffect(() => {
@@ -48,13 +48,13 @@ export default function ModifyCollection() {
         id: data.id,
         name: data.name,
         notes: data.notes ? data.notes : ""
-      }
-      setFormState(formData)
+      };
+      setFormState(formData);
     }
-  }, [data])
+  }, [data]);
 
   if (isLoading) {
-    return (<h1>Loading...</h1>)
+    return (<h1>Loading...</h1>);
   }
   else {
     return (
@@ -69,7 +69,7 @@ export default function ModifyCollection() {
             variant='contained'
             sx={{ my: 2.25, color: 'black', display: 'block' }}
             onClick={async () => {
-              setIsShown(!isShown)
+              setIsShown(!isShown);
             }}
           >
             Associations
@@ -127,7 +127,7 @@ export default function ModifyCollection() {
               sx={{ mt: 3, mb: 2 }}
               disabled={isLoading}
               onClick={async () => {
-               setSkip(false)
+               setSkip(false);
               }}
             >
               Download
@@ -147,10 +147,10 @@ export default function ModifyCollection() {
               <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
 
               <button onClick={() => {
-                const assoc = { 'source_id': sourceId, 'collection_id': collectionId }
+                const assoc = { 'source_id': sourceId, 'collection_id': collectionId };
                 const source = sourceData.data;
-                createSourceCollectionAssociation(assoc)
-                setSourceId("")
+                createSourceCollectionAssociation(assoc);
+                setSourceId("");
               }}>
                 Add Source
               </button>
@@ -162,6 +162,6 @@ export default function ModifyCollection() {
           </div>
         }
       </>
-    )
+    );
   }
 }
