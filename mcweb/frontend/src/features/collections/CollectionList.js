@@ -1,26 +1,24 @@
-import * as React from 'react';
-import { useGetSourceAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import CollectionItem from './CollectionItem';
+import * as React from "react";
+import { useGetSourceAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from "../../app/services/sourcesCollectionsApi";
+import CollectionItem from "./CollectionItem";
 
-export default function CollectionList(props) {
-    const { sourceId, edit } = props
-    const {
-        data,
-        isLoading
-    } = useGetSourceAssociationsQuery(sourceId);
+export default function CollectionList (props) {
+  const { sourceId, edit } = props;
+  const {
+    data,
+    isLoading
+  } = useGetSourceAssociationsQuery(sourceId);
 
-    const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
+  const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
-
-    if (isLoading) {
-        return (<h1>Loading...</h1>)
-    }
-    else if (edit) {
-        return (
+  if (isLoading) {
+    return (<h1>Loading...</h1>);
+  } else if (edit) {
+    return (
             <div className='collectionAssociations'>
                 {/* Header */}
-                <h2 className='associationsHeader'>This Source is in {data['collections'].length} Collections</h2>
-                {data['collections'].map(collection => (
+                <h2 className='associationsHeader'>This Source is in {data.collections.length} Collections</h2>
+                {data.collections.map(collection => (
                     <div className='collectionItem' key={`edit-${collection.id}`} >
 
                         {/* Collection Item */}
@@ -28,25 +26,24 @@ export default function CollectionList(props) {
 
                         {/* Remove */}
                         <button onClick={() => {
-                            deleteSourceCollectionAssociation({
-                                "source_id": sourceId,
-                                "collection_id": collection.id
-                            })
+                          deleteSourceCollectionAssociation({
+                            source_id: sourceId,
+                            collection_id: collection.id
+                          });
                         }}>
                             Remove
                         </button>
                     </div>
                 ))}
             </div>
-        )
-    }
-    else {
-        return (
+    );
+  } else {
+    return (
             <div className='collectionAssociations'>
 
                 {/* Header */}
-                <h2> Associated with {data['collections'].length} Collections</h2>
-                {data['collections'].map(collection => (
+                <h2> Associated with {data.collections.length} Collections</h2>
+                {data.collections.map(collection => (
                     <div className="collectionItem" key={`${collection.id}`}>
 
                         {/* Collection */}
@@ -54,6 +51,6 @@ export default function CollectionList(props) {
                     </div>
                 ))}
             </div>
-        )
-    }
+    );
+  }
 }

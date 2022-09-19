@@ -1,4 +1,4 @@
-import { createSlice, current } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 
 // Most of the operations will automatically fetched and managed 
@@ -18,7 +18,7 @@ const collectionsSlice = createSlice({
     setCollections: (state, { payload }) => {
       payload.collections.forEach(collection => {
         state[collection.id] = collection;
-      })
+      });
     },
     setCollection: (state, { payload }) => {
       state[payload.collections.id] = payload.collections;
@@ -26,6 +26,6 @@ const collectionsSlice = createSlice({
   },
 });
 
-export const {setCollection, setCollections } = collectionsSlice.actions
+export const {setCollection, setCollections } = collectionsSlice.actions;
 
 export default collectionsSlice.reducer;

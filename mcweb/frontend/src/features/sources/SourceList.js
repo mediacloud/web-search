@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useGetCollectionAssociationsQuery } from '../../app/services/sourcesCollectionsApi';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import SourceItem from './SourceItem';
 
 export default function SourceList(props) {
@@ -11,11 +10,11 @@ export default function SourceList(props) {
         isLoading
     } = useGetCollectionAssociationsQuery(collectionId);
 
-    const [deleteSourceCollectionAssociation, deleteResult] = useDeleteSourceCollectionAssociationMutation();
+    const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
     // if loading
     if (isLoading) {
-        return (<h1>Loading...</h1>)
+        return (<h1>Loading...</h1>);
     }
     // if edit 
     else if (edit) {
@@ -34,14 +33,14 @@ export default function SourceList(props) {
                             deleteSourceCollectionAssociation({
                                 "source_id": source.id,
                                 "collection_id": collectionId
-                            })
+                            });
                         }}>
                             Remove
                         </button>
                     </div>
                 ))}
             </div>
-        )
+        );
     }
     else {
         return (
@@ -57,6 +56,6 @@ export default function SourceList(props) {
                     </div>
                 ))}
             </div>
-        )
+        );
     }
 }

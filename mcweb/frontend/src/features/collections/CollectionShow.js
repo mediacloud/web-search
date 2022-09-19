@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { Button, Box } from '@mui/material';
+import { Button } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
 
 import CollectionHeader from './CollectionHeader';
 import SourceList from '../sources/SourceList';
-import { CollectionsOutlined } from '@mui/icons-material';
+
 
 export default function CollectionShow() {
-  const params = useParams()
+  const params = useParams();
   const collectionId = Number(params.collectionId);
-  const [isShown, setIsShown] = useState(true)
+  const [isShown, setIsShown] = useState(true);
 
   return (
     <>
@@ -39,7 +39,7 @@ export default function CollectionShow() {
             variant='contained'
             sx={{ my: 2.25, color: 'black', display: 'block' }}
             onClick={async () => {
-              setIsShown(!isShown)
+              setIsShown(!isShown);
             }}
           >
             Sources
@@ -52,5 +52,5 @@ export default function CollectionShow() {
         <SourceList collectionId={collectionId} />
       )}
     </>
-  )
+  );
 }
