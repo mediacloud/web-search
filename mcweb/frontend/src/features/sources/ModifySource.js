@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TextField, MenuItem, Box, FormControlLabel, Button, Checkbox } from '@mui/material';
+import { TextField, Button } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
@@ -25,17 +25,17 @@ export default function ModifySource() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
 
-  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
 
 
 
   const { CSVDownloader, Type } = useCSVDownloader();
 
   // show data 
-  const [isShown, setIsShown] = useState(true)
+  const [isShown, setIsShown] = useState(true);
 
   // menu options
-  const services = ["Online News", "Youtube"]
+  const services = ["Online News", "Youtube"];
 
   // form state for text fields 
   const [formState, setFormState] = React.useState({
@@ -63,21 +63,21 @@ export default function ModifySource() {
     if (data) {
       const formData = {
         id: data.id, name: data.name, notes: data.notes, homepage: data.homepage, label: data.label
-      }
-      setFormState(formData)
+      };
+      setFormState(formData);
     }
-  }, [data])
+  }, [data]);
 
   //patch for now, this should be fixed by a collections search feature, could also consider a debounce or throttle
   const [collectionId, setCollectionId] = useState("");
 
-  const collectionData = useGetCollectionQuery(collectionId)
+  const collectionData = useGetCollectionQuery(collectionId);
 
-  const [createSourceCollectionAssociation, associationResult] = useCreateSourceCollectionAssociationMutation();
+  const [createSourceCollectionAssociation] = useCreateSourceCollectionAssociationMutation();
 
 
   if (isLoading) {
-    return <h1>Loading...</h1>
+    return <h1>Loading...</h1>;
   }
   else {
     return (
@@ -92,7 +92,7 @@ export default function ModifySource() {
               variant='contained'
               sx={{ my: 2.25, color: 'black', display: 'block' }}
               onClick={async () => {
-                setIsShown(!isShown)
+                setIsShown(!isShown);
               }}
             >
               Associations
@@ -205,10 +205,10 @@ export default function ModifySource() {
               <input type="text" value={collectionId} onChange={e => setCollectionId(Number(e.target.value))} />
 
               <button onClick={() => {
-                const assoc = { 'source_id': sourceId, 'collection_id': collectionId }
+                const assoc = { 'source_id': sourceId, 'collection_id': collectionId };
                 const collection = collectionData.data;
-                createSourceCollectionAssociation(assoc)
-                setCollectionId("")
+                createSourceCollectionAssociation(assoc);
+                setCollectionId("");
               }}>
                 Add Collection
               </button>
@@ -224,6 +224,6 @@ export default function ModifySource() {
 
 
 
-    )
+    );
   }
 }

@@ -1,7 +1,7 @@
 // React
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Provider } from 'react-redux'
+import { Provider } from 'react-redux';
 import { SnackbarProvider } from 'notistack';
 
 // Router
@@ -11,15 +11,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Box } from '@mui/material';
 
-import Container from '@mui/material/Container';
 // Import our style sheet
-import '../../frontend/src/style/Application.scss'
+import '../../frontend/src/style/Application.scss';
 // user status
-import Account from './features/auth/Account'
-import SignIn from './features/auth/SignIn'
+import Account from './features/auth/Account';
+import SignIn from './features/auth/SignIn';
 import SignUp from './features/auth/SignUp';
-import ResetPassword from './features/auth/ResetPassword'
-import ConfirmedReset from './features/auth/ConfirmedReset'
+import ResetPassword from './features/auth/ResetPassword';
+import ConfirmedReset from './features/auth/ConfirmedReset';
 
 // Components
 import Homepage from './Homepage';
@@ -28,7 +27,7 @@ import Homepage from './Homepage';
 import Collections from './features/collections/CollectionShow';
 import CollectionHome from './features/collections/CollectionHome';
 import CreateCollection from './features/collections/CreateCollection';
-import Search from './features/search/Search'
+import Search from './features/search/Search';
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
 
@@ -39,7 +38,6 @@ import ModifySource from './features/sources/ModifySource';
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSelector } from 'react-redux';
 import { useLocation, Navigate } from 'react-router-dom';
-
 const theme = createTheme();
 // Store
 import { getStore } from './app/store';
@@ -63,7 +61,7 @@ export const renderApp = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />}>
-
+            
             <Route path="collections/:collectionId/modify-collection" element={
               <RequireAuth>
                 <ModifyCollection />

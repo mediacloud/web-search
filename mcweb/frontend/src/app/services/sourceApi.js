@@ -1,4 +1,4 @@
-import { managerApi } from "./managerApi"
+import { managerApi } from "./managerApi";
 
 export const sourcesApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -20,12 +20,11 @@ export const sourcesApi = managerApi.injectEndpoints({
       })
     }),
     updateSource: builder.mutation({
-      query: (source) => {
-        return {
-          url: `sources/${source.id}/`,
+      query: (source) => ({
+        url: `sources/${source.id}/`,
         method: 'PATCH',
         body:  {...source}
-      }}
+      })
     }),
     deleteSource: builder.mutation({
       query: ({ id }) => ({
@@ -50,7 +49,7 @@ export const sourcesApi = managerApi.injectEndpoints({
       }),
     }),
   })
-})
+});
 
 export const {
   useGetSourceQuery,
@@ -59,6 +58,4 @@ export const {
   useDeleteSourceMutation,
   useUploadSourcesMutation,
   useDownloadSourceCSVQuery,
-
-  
-} = sourcesApi
+} = sourcesApi;
