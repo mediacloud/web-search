@@ -1,4 +1,4 @@
-import { createSlice, current } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     id: null,
@@ -13,7 +13,7 @@ const initialState = {
     pub_state: null,
     primary_language: null,
     media_type: null
-}
+};
 
 const sourceSlice = createSlice({
     name: 'sources',
@@ -25,11 +25,11 @@ const sourceSlice = createSlice({
         setSources: (state, { payload }) => {
             payload.sources.forEach(source => {
                 state[source.id] = source;
-            })
+            });
         }
     },
 });
 
-export const { setSource, setSources} = sourceSlice.actions
+export const { setSource, setSources} = sourceSlice.actions;
 
 export default sourceSlice.reducer;

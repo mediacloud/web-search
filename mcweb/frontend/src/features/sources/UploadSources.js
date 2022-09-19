@@ -1,19 +1,17 @@
 import * as React from 'react';
-import { useState } from 'react';
 import { useCSVReader } from 'react-papaparse';
 import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 
 export default function UploadSources(props){
     const {collectionId} = props;
 
-    const [uploadSources, result] = useUploadSourcesMutation();
+    const [uploadSources] = useUploadSourcesMutation();
 
     const {CSVReader} = useCSVReader();
 
     return (
         <div>
             <CSVReader config={{header: true}} onUploadAccepted={(results) => {
-                console.log(results);
                 // RTK Mutation
                 uploadSources({'sources': results.data, 'collection_id': collectionId});
             }} >
@@ -37,5 +35,5 @@ export default function UploadSources(props){
             </CSVReader>
             {/* {csvOutput ? console.log(csvOutPut) : console.log("no csv output")} */}
         </div>
-    )
+    );
 }

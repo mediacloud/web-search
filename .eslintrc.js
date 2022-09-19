@@ -22,6 +22,7 @@ module.exports = {
     "rules": {
         "semi": ["error", "always"],
         "react/prop-types": ["off"],
-        "no-unused-vars": ["warn"]
+        "no-unused-vars": ["warn"],
+        "react/no-unescaped-entities": ["warn"]
     }
 };

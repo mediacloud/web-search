@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import { Box, Paper, Grid, Button } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import CollectionList from '../collections/CollectionList'
+import CollectionList from '../collections/CollectionList';
 import { useState } from 'react';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 
@@ -16,9 +16,9 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function SourceShow() {
-  const params = useParams()
+  const params = useParams();
   const sourceId = Number(params.sourceId);
-  const [isShown, setIsShown] = useState(true)
+  const [isShown, setIsShown] = useState(true);
 
 
   const {
@@ -30,7 +30,7 @@ export default function SourceShow() {
   } = useGetSourceQuery(sourceId);
 
   if (isLoading) {
-    return (<h1>Loading...</h1>)
+    return (<h1>Loading...</h1>);
   }
   else {
     return (
@@ -61,8 +61,8 @@ export default function SourceShow() {
               variant='contained'
               sx={{ my: 2.25, color: 'black', display: 'block' }}
               onClick={async () => {
-                setIsShown(!isShown)
-                console.log(isShown)
+                setIsShown(!isShown);
+                console.log(isShown);
               }}
             >
               {data.label}'s Collections
@@ -122,6 +122,6 @@ export default function SourceShow() {
         )}
 
       </>
-    )
+    );
   }
 }

@@ -6,7 +6,6 @@ from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from collections import namedtuple
 import json
 import os
 from mcmetadata import urls
@@ -86,7 +85,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 existing_source = existing_source[0]
                 email_text += "\n {}: updated existing source".format(
                     canonical_domain)
-            print(existing_source)
             collection.source_set.add(existing_source)
         #   send_email_summary(current_user.email, email_title, email_text)
         print(email_text)

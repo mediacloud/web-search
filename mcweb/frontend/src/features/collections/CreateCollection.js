@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { TextField,Button, Checkbox } from '@mui/material';
+import { TextField,Button } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateCollectionMutation } from '../../app/services/collectionsApi';
 
-export default function CreateCollection(props) {
+export default function CreateCollection() {
    
     const navigate = useNavigate();
 
@@ -12,12 +12,12 @@ export default function CreateCollection(props) {
         name: "", notes: "",
     });
 
-    const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+    const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
 
-    const [createCollection, result] = useCreateCollectionMutation();
+    const [createCollection] = useCreateCollectionMutation();
     
     // menu options
-    const services = ["Online News", "Youtube"]
+    const services = ["Online News", "Youtube"];
 
     return (
         <>
@@ -64,7 +64,7 @@ export default function CreateCollection(props) {
                                 name: formState.name,
                                 notes: formState.notes
                             }).unwrap()
-                           .then(collection => navigate(`/collections/${collection.id}`))
+                           .then(collection => navigate(`/collections/${collection.id}`));
                         }}
                     >
                         Create
@@ -72,4 +72,4 @@ export default function CreateCollection(props) {
                 </ul>
             </div>
         </>
-    )}
+    );}

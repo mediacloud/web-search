@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
 export default function CollectionHeader(props) {
-    const { collectionId } = props
+    const { collectionId } = props;
     const {
         data,
         isLoading,
@@ -12,7 +12,7 @@ export default function CollectionHeader(props) {
     } = useGetCollectionQuery(collectionId);
     const collection = data;
 
-    if (isLoading) return (<h1>Loading...</h1>)
+    if (isLoading) return (<h1>Loading...</h1>);
     else {
         return (
             <div className='collectionHeader'>
@@ -24,6 +24,6 @@ export default function CollectionHeader(props) {
                 </div>
 
             </div>
-        )
+        );
     }
 }
