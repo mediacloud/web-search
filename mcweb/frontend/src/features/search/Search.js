@@ -24,12 +24,18 @@ import { useGetSearchMutation } from '../../app/services/searchApi';
 
 export default function Search() {
 
-  const [serviceList, setServiceList] = useState([ { service: "" } ])
+  const [serviceList, setServiceList] = useState([
+    { service: "AI" },
+    { service: "Rights" },
+    { service: "Race" }
+  ])
 
-  console.log(serviceList)
+  // any = true = ANY (OR)
+  // any = false == ALL (AND)
+  const [any, setAny] = useState(true);
 
   const handleServiceAdd = () => {
-    setServiceList([... serviceList, {service: ""}])
+    setServiceList([...serviceList, { service: "" }])
   }
 
   const handleServiceRemove = (index) => {
@@ -40,10 +46,14 @@ export default function Search() {
 
 
   const handleServiceChange = (e, index) => {
-    const {name, value} = e.target
+    const { name, value } = e.target
     const list = [...serviceList];
     list[index][name] = value;
     setServiceList(list)
+  }
+
+  const handleServiceAny = () => {
+    setAny(!any);
   }
 
 
@@ -53,6 +63,27 @@ export default function Search() {
     setPlatform(event.target.value);
   };
 
+  function createQuery() {
+    let query = "";
+    let anyAll = "";
+
+    if (any === true) {
+      anyAll = "OR"
+    } else {
+      anyAll = "AND"
+    }
+
+    for (let i = 0; i < serviceList.length; i++) {
+      if (i == serviceList.length - 1) {
+        query += serviceList[i].service
+      } else {
+        query += serviceList[i].service + " " + anyAll + " "
+      }
+    }
+    return query; 
+  }
+
+  createQuery()
   return (
     <>
 
@@ -62,7 +93,6 @@ export default function Search() {
 
       <div>
         <h1>Simple Search</h1>
-
 
         {/* Choose Platform  */}
         <div>
@@ -83,54 +113,53 @@ export default function Search() {
 
 
 
-          <div className='form-field'>
-            
-            <label htmlFor='service'>Service(s) </label>
+        <div className='form-field'>
 
-            {serviceList.map((singleService, index) => (
-              <div key={index} className='services'>
 
-                <div className="firstDivision">
-                  <input name="service" type="text" id="service" required 
-                  value = {singleService.service}
-                  onChange= {(e) => handleServiceChange(e,index)}/>
-                  
-                  {serviceList.length - 1 === index && serviceList.length < 7 && (
-                    <button 
+
+          <div className='any-all'>
+            <button
+              className='any-btn'
+              type='buttton'
+              onClick={handleServiceAny}
+            >
+              <span>Any/All</span>
+            </button>
+
+            <h1>{any.toString()}</h1>
+          </div>
+
+          <label htmlFor='service'>Query</label>
+
+          {serviceList.map((singleService, index) => (
+            <div key={index} className='services'>
+
+              <div className="firstDivision">
+                <input name="service" type="text" id="service" required
+                  value={singleService.service}
+                  onChange={(e) => handleServiceChange(e, index)} />
+
+                {serviceList.length - 1 === index && serviceList.length < 7 && (
+                  <button
                     onClick={handleServiceAdd}
-                     type="button" 
-                     className='add-btn'>
-                      <span>Add a Service</span>
-                    </button>
-                  )}
-                </div>
+                    type="button"
+                    className='add-btn'>
+                    <span>Add a Service</span>
+                  </button>
+                )}
+              </div>
 
-                <div className="second-division">
-                 
-                 
-                 {serviceList.length > 1 &&
+              <div className="second-division">
+                {serviceList.length > 1 &&
                   <button onClick={() => handleServiceRemove(index)} type="button" className='remove-btn'>
                     <span>Remove</span>
                   </button>
-                  }
-                </div>
+                }
               </div>
-            ))}
-          </div>
-
-          <div className="output">
-            <h2>Output</h2>
-            {serviceList.map((singleService, index) => (
-              <ul key={index}>
-                {singleService.service &&
-                 <li>
-                  {singleService.service}
-                </li>}
-              </ul>
-            ))}
-          </div>
-       
-
+            </div>
+          ))}
+        </div>
+        <h1> {createQuery()}</h1>
       </div>
 
     </>
