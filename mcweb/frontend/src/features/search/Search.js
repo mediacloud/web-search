@@ -24,12 +24,28 @@ import { useGetSearchMutation } from '../../app/services/searchApi';
 
 export default function Search() {
 
- 
-  // YYYY - MM - DD
-  function createDate() {
-    const today = new Date()
-    return today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate()
+  const [serviceList, setServiceList] = useState([ { service: "" } ])
+
+  console.log(serviceList)
+
+  const handleServiceAdd = () => {
+    setServiceList([... serviceList, {service: ""}])
   }
+
+  const handleServiceRemove = (index) => {
+    const list = [...serviceList]
+    list.splice(index, 1);
+    setServiceList(list);
+  }
+
+
+  const handleServiceChange = (e, index) => {
+    const {name, value} = e.target
+    const list = [...serviceList];
+    list[index][name] = value;
+    setServiceList(list)
+  }
+
 
   const [platform, setPlatform] = useState('Online News Archive');
 
@@ -37,7 +53,6 @@ export default function Search() {
     setPlatform(event.target.value);
   };
 
-  console.log(platform)
   return (
     <>
 
@@ -48,6 +63,9 @@ export default function Search() {
       <div>
         <h1>Simple Search</h1>
 
+
+        {/* Choose Platform  */}
+        <div>
           <InputLabel>Platform</InputLabel>
           <Select
             labelId="demo-simple-select-label"
@@ -60,8 +78,59 @@ export default function Search() {
             <MenuItem value={"Twitter"}>Twitter</MenuItem>
             <MenuItem value={"Youtube"}>Youtube</MenuItem>
           </Select>
+        </div>
 
-      
+
+
+
+          <div className='form-field'>
+            
+            <label htmlFor='service'>Service(s) </label>
+
+            {serviceList.map((singleService, index) => (
+              <div key={index} className='services'>
+
+                <div className="firstDivision">
+                  <input name="service" type="text" id="service" required 
+                  value = {singleService.service}
+                  onChange= {(e) => handleServiceChange(e,index)}/>
+                  
+                  {serviceList.length - 1 === index && serviceList.length < 7 && (
+                    <button 
+                    onClick={handleServiceAdd}
+                     type="button" 
+                     className='add-btn'>
+                      <span>Add a Service</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="second-division">
+                 
+                 
+                 {serviceList.length > 1 &&
+                  <button onClick={() => handleServiceRemove(index)} type="button" className='remove-btn'>
+                    <span>Remove</span>
+                  </button>
+                  }
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="output">
+            <h2>Output</h2>
+            {serviceList.map((singleService, index) => (
+              <ul key={index}>
+                {singleService.service &&
+                 <li>
+                  {singleService.service}
+                </li>}
+              </ul>
+            ))}
+          </div>
+       
+
       </div>
 
     </>
