@@ -1,4 +1,4 @@
-import { renderApp } from './App';
+import { renderApp } from './Root';
 import { getStore } from './app/store';
 import { api as authApi } from './app/services/authApi';
 import { saveCsrfToken } from './services/csrfToken';
@@ -10,7 +10,7 @@ import { setCredentials } from './features/auth/authSlice';
 
 async function initializeApp() {
   const store = getStore();
-  saveCsrfToken()
+  saveCsrfToken();
   const response = await store.dispatch(authApi.endpoints.profile.initiate());
   await store.dispatch(setCredentials(response.data));
   renderApp();

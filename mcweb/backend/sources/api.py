@@ -67,7 +67,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         for row in request.data['sources']:
             if len(row.keys()) <= 1:
                 continue
-            if len(row['id']) != 0 and row['id'] != 'null':
+            if len(row['id']) > 0 and row['id'] != 'null':
                 existing_source = queryset.filter(pk=row['id'])
                 canonical_domain = existing_source[0].name
             else:
