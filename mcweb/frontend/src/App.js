@@ -16,6 +16,8 @@ import CreateCollection from './features/collections/CreateCollection';
 import Search from './features/search/Search';
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
+import Modal from './features/ui/modal/modal';
+import MediaPicker from './features/search/media_picker/MediaPicker';
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -26,7 +28,10 @@ import { selectIsLoggedIn } from './features/auth/authSlice';
 
 const App = () => {
   return (
+
     <div className="homepage">
+      <Modal />
+      {/* <MediaPicker /> */}
       <Header />
         <Routes>
              <Route path="collections/:collectionId/modify-collection" element={

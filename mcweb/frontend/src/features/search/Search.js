@@ -7,10 +7,10 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import Container from '@mui/material/Container';
 
 // information from store
 import { setSearch, selectTotalAttention } from '../search/searchSlice';
+import { openModal } from '../ui/uiSlice';
 import { useSelector } from 'react-redux';
 
 import { useGetSearchMutation } from '../../app/services/searchApi';
@@ -21,7 +21,7 @@ export default function Search() {
 
   const [search, { isSearching }] = useGetSearchMutation();
 
-  const totalAttention = useSelector(selectTotalAttention)
+  const totalAttention = useSelector(selectTotalAttention);
 
   const dispatch = useDispatch();
 
@@ -32,23 +32,23 @@ export default function Search() {
 
   const [fromValue, setFromValue] = React.useState(() => {
     if (fromValue === undefined) {
-      return createDate()
+      return createDate();
     }
   });
 
   const [toValue, setToValue] = React.useState(() => {
     if (toValue === undefined) {
-      return createDate()
+      return createDate();
     }
   });
 
-  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }))
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
 
   const handleChangeFromDate = (newValue) => {
     if (fromValue === undefined) {
       setFromValue(newValue);
     } else {
-      setFromValue(dateConverter(newValue.toString()))
+      setFromValue(dateConverter(newValue.toString()));
     }
   };
 
@@ -56,7 +56,7 @@ export default function Search() {
     if (toValue === undefined) {
       setToValue(newValue);
     } else {
-      setToValue(dateConverter(newValue.toString()))
+      setToValue(dateConverter(newValue.toString()));
     }
   };
 
@@ -64,29 +64,29 @@ export default function Search() {
   function dateConverter(date) {
     const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
-    let firstSpace = date.indexOf(' ') + 1
-    let secondSpace = date.substring(firstSpace + 1).indexOf(' ') + firstSpace + 1
-    let thirdSpace = date.substring(secondSpace + 1).indexOf(' ') + secondSpace + 1
-    let fourthSpace = date.substring(thirdSpace + 1).indexOf(' ') + thirdSpace + 1
+    let firstSpace = date.indexOf(' ') + 1;
+    let secondSpace = date.substring(firstSpace + 1).indexOf(' ') + firstSpace + 1;
+    let thirdSpace = date.substring(secondSpace + 1).indexOf(' ') + secondSpace + 1;
+    let fourthSpace = date.substring(thirdSpace + 1).indexOf(' ') + thirdSpace + 1;
 
-    let month = date.substring(firstSpace, secondSpace)
-    secondSpace++
+    let month = date.substring(firstSpace, secondSpace);
+    secondSpace++;
 
-    let day = date.substring(secondSpace, thirdSpace)
-    thirdSpace++
+    let day = date.substring(secondSpace, thirdSpace);
+    thirdSpace++;
 
-    let year = date.substring(thirdSpace, fourthSpace)
+    let year = date.substring(thirdSpace, fourthSpace);
 
     month = months.indexOf(month.toLowerCase()) + 1;
 
-    return year + "-" + month + "-" + day
+    return year + "-" + month + "-" + day;
 
   }
 
   // YYYY - MM - DD
   function createDate() {
-    const today = new Date()
-    return today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate()
+    const today = new Date();
+    return today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
   }
 
   return (
@@ -159,6 +159,8 @@ export default function Search() {
             >
               Submit
             </Button>
+
+            <button onClick={() => dispatch(openModal('mediaPicker'))}> Open Modal</button>
 
             <h1>Total Attention: {totalAttention} </h1>
           </Stack>

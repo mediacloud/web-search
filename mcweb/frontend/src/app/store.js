@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit'
+import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query/react';
 
 //rtk apis
@@ -9,6 +9,7 @@ import { managerApi } from './services/managerApi';
 //reducers
 import authReducer from '../features/auth/authSlice';
 import searchReducer from '../features/search/searchSlice';
+import uiReducer from '../features/ui/uiSlice';
 
 let store; // singleton store
 
@@ -18,7 +19,7 @@ export const getStore = () => {
     store = setupStore();
   }
   return store;
-}
+};
 
 const setupStore = () => {
   const theStore = configureStore({
@@ -34,6 +35,8 @@ const setupStore = () => {
 
       // api responsible for all Sources or Collections CRUD
       [managerApi.reducerPath]: managerApi.reducer,
+
+      ui: uiReducer,
 
     },
     // Adding the api middleware enables caching, invalidation, polling,
