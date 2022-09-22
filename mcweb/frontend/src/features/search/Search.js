@@ -10,7 +10,6 @@ import Container from '@mui/material/Container';
 
 
 import * as React from 'react';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { useState } from 'react';
@@ -30,10 +29,6 @@ export default function Search() {
     { service: "Race" }
   ])
 
-  // any = true = ANY (OR)
-  // any = false == ALL (AND)
-  const [any, setAny] = useState(true);
-
   const handleServiceAdd = () => {
     setServiceList([...serviceList, { service: "" }])
   }
@@ -52,9 +47,6 @@ export default function Search() {
     setServiceList(list)
   }
 
-  const handleServiceAny = () => {
-    setAny(!any);
-  }
 
 
   const [platform, setPlatform] = useState('Online News Archive');
@@ -63,11 +55,18 @@ export default function Search() {
     setPlatform(event.target.value);
   };
 
+  const [any, setAny] = useState("Any");
+
+  const handleChangeAnyAll = (event) => {
+    setAny(event.target.value);
+  };
+
+
   function createQuery() {
     let query = "";
     let anyAll = "";
 
-    if (any === true) {
+    if (any == "Any") {
       anyAll = "OR"
     } else {
       anyAll = "AND"
@@ -80,7 +79,7 @@ export default function Search() {
         query += serviceList[i].service + " " + anyAll + " "
       }
     }
-    return query; 
+    return query;
   }
 
   createQuery()
@@ -96,11 +95,8 @@ export default function Search() {
 
         {/* Choose Platform  */}
         <div>
-          <InputLabel>Platform</InputLabel>
           <Select
-            labelId="demo-simple-select-label"
             value={platform}
-            label="Platform"
             onChange={handleChangePlatform}
           >
             <MenuItem value={"Online News Archive"}>Online News Archive</MenuItem>
@@ -111,25 +107,19 @@ export default function Search() {
         </div>
 
 
+        {/* Choose Query Type */}
+        <div>
+          <Select
+            value={any}
+            onChange={handleChangeAnyAll}
+          >
+            <MenuItem value={"Any"}>Any</MenuItem>
+            <MenuItem value={"All"}>All</MenuItem>
+          </Select>
+        </div>
 
 
         <div className='form-field'>
-
-
-
-          <div className='any-all'>
-            <button
-              className='any-btn'
-              type='buttton'
-              onClick={handleServiceAny}
-            >
-              <span>Any/All</span>
-            </button>
-
-            <h1>{any.toString()}</h1>
-          </div>
-
-          <label htmlFor='service'>Query</label>
 
           {serviceList.map((singleService, index) => (
             <div key={index} className='services'>
