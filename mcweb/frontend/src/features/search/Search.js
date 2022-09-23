@@ -25,9 +25,31 @@ export default function Search() {
 
   const [serviceList, setServiceList] = useState([
     { service: "AI" },
-    { service: "Rights" },
-    { service: "Race" }
+    { service: "Work"}, 
   ])
+
+  const [negationList, setNegationList] = useState([
+    { query: "AI" },
+    { query: "Work" },
+  ])
+
+  const handleNegationAdd = () => {
+    setServiceList([...serviceList, { service: "" }])
+  }
+
+  const handleNegationRemove = (index) => {
+    const list = [...serviceList]
+    list.splice(index, 1);
+    setServiceList(list);
+  }
+
+  const handleNegationChange = (e, index) => {
+    const { name, value } = e.target
+    const list = [...serviceList];
+    list[index][name] = value;
+    setServiceList(list)
+  }
+
 
   const handleServiceAdd = () => {
     setServiceList([...serviceList, { service: "" }])
@@ -39,8 +61,7 @@ export default function Search() {
     setServiceList(list);
   }
 
-
-  const handleServiceChange = (e, index) => {
+  const handleQueryChange = (e, index) => {
     const { name, value } = e.target
     const list = [...serviceList];
     list[index][name] = value;
@@ -119,7 +140,8 @@ export default function Search() {
         </div>
 
 
-        <div className='form-field'>
+
+        <div>
 
           {serviceList.map((singleService, index) => (
             <div key={index} className='services'>
@@ -127,7 +149,7 @@ export default function Search() {
               <div className="firstDivision">
                 <input name="service" type="text" id="service" required
                   value={singleService.service}
-                  onChange={(e) => handleServiceChange(e, index)} />
+                  onChange={(e) => handleQueryChange(e, index)} />
 
                 {serviceList.length - 1 === index && serviceList.length < 7 && (
                   <button
@@ -149,6 +171,7 @@ export default function Search() {
             </div>
           ))}
         </div>
+        
         <h1> {createQuery()}</h1>
       </div>
 
