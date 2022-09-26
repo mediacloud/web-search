@@ -10,6 +10,7 @@ import { managerApi } from './services/managerApi';
 import authReducer from '../features/auth/authSlice';
 import searchReducer from '../features/search/searchSlice';
 import uiReducer from '../features/ui/uiSlice';
+import queryReducer from '../features/search/querySlice';
 
 let store; // singleton store
 
@@ -37,6 +38,8 @@ const setupStore = () => {
       [managerApi.reducerPath]: managerApi.reducer,
 
       ui: uiReducer,
+
+      query: queryReducer,
 
     },
     // Adding the api middleware enables caching, invalidation, polling,

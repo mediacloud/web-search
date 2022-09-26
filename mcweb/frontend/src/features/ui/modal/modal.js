@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import MediaPicker from '../../search/media_picker/MediaPicker';
-import { closeModal, changeTab } from '../uiSlice';
+import { closeModal} from '../uiSlice';
 
 export default function Modal() {
     const dispatch = useDispatch(); 
@@ -25,9 +25,6 @@ export default function Modal() {
     return (
         <div className="modal-background" onClick={() => dispatch(closeModal())}>
             <div className="modal-child" onClick={e => e.stopPropagation()}>
-                <button onClick={() => dispatch(changeTab('featuredCollections'))}>Featured Collections</button>
-                <button onClick={() => dispatch(changeTab('collectionSearch'))}>Search Collections</button>
-                <button onClick={() => dispatch(changeTab('sourceSearch'))}>Search Sources</button>
                 {component}
             </div>
         </div>

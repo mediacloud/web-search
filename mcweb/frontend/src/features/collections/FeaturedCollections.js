@@ -12,11 +12,11 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.primary
 }));
 
-export default function CollectionHome () {
-  const { data } = useGetFeaturedCollectionsQuery();
+export default function FeaturedCollections () {
+  const { data, isLoading } = useGetFeaturedCollectionsQuery();
   const featuredCollections = data;
-  if (!featuredCollections) {
-    return (<></>);
+  if (isLoading) {
+    return (<div>Loading...</div>);
   } else {
     return (
       <>

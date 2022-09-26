@@ -19,7 +19,8 @@
 
 // search styling 
 @import '../features/search/styles/search.scss';
-@import '../features/search/media_picker/media-picker';
+@import '../features/search/media_picker/style/media-picker';
+@import '../features/search/media_picker/style/featured-collection-picker';
 
 // text styling 
 @import '../style/text';

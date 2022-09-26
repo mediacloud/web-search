@@ -5,7 +5,7 @@
     right: 0;
     left: 0;
     background: rgba(0, 0, 0, 0.7);
-    z-index: 5;
+    z-index: 1;
 }
 
 .modal-child {
@@ -13,4 +13,5 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+   
 }

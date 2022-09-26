@@ -10,12 +10,9 @@ const uiSlice = createSlice({
         closeModal: (state) => {
             state['modal'] = false;
         },
-        changeTab: (state, {payload}) => {
-            state['tab'] = payload;
-        }
     },
 });
 
-export const { openModal, closeModal, changeTab } = uiSlice.actions;
+export const { openModal, closeModal } = uiSlice.actions;
 
 export default uiSlice.reducer;

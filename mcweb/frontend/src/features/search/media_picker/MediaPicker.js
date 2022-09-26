@@ -1,29 +1,34 @@
 import * as React from 'react';
-import {useSelector} from 'react-redux';
+import {useState} from 'react';
+import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
+import SelectedMedia from './SelectedMedia';
 
 export default function MediaPicker() {
-    const {tab} = useSelector(state => state.ui); 
-
-    if (tab === 'featuredCollections'){
-        return (
-            <div className='media-picker-container'>
-                This is in featuredCollections
+    const [tab, setTab] = useState('featuredCollections');
+    return(
+    <div className='media-picker-container'>
+        <div className='media-picker-sidebar'>
+            <div className='media-picker-tabs'>
+                <button onClick={() => setTab('featuredCollections')}>Featured Collections</button>
+                <button onClick={() => setTab('collectionSearch')}>Search Collections</button>
+                <button onClick={() => setTab('sourceSearch')}>Search Sources</button>
             </div>
-
-        );
-    } else if (tab === 'collectionSearch'){
-      return (
-        <div className='media-picker-container'>
-            This is in Collection Search
+            <SelectedMedia />
         </div>
-      );
-    } else {
-        return (
-            <div className='media-picker-container'>
-                This is in Source Search
-            </div>
-        );
-    }
+        {tab === 'featuredCollections' && (
+            <FeaturedCollectionsPicker />
+        )}
 
+        {tab === 'collectionSearch' && (
+            // <FeaturedCollectionsPicker />
+            <h3>Collection serach</h3>
+        )}
+            
+        {tab === 'sourceSearch' && (
+            // <FeaturedCollectionsPicker />
+            <h3>Sources srach</h3>
+        )}
+
+    </div>);
 
 }
