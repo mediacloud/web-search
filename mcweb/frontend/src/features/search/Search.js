@@ -28,7 +28,7 @@ export default function Search() {
   // MUI does not handle "name" with a DatePicker (massive bug)
   const [formState, setFormState] = React.useState({
     query_str: '',
-  });
+  }); 
 
   const [fromValue, setFromValue] = React.useState(() => {
     if (fromValue === undefined) {

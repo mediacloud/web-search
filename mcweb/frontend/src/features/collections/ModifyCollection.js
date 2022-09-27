@@ -8,6 +8,7 @@ import UploadSources from '../sources/UploadSources';
 //rtk api operations
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import { useDownloadSourceCSVQuery } from '../../app/services/sourceApi';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function ModifyCollection() {
   const params = useParams();
@@ -47,7 +48,7 @@ export default function ModifyCollection() {
   }, [data]);
 
   if (isLoading) {
-    return (<h1>Loading...</h1>);
+    return (<div> <CircularProgress size="75px"/> </div>);
   }
   else {
     return (
