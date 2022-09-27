@@ -18,7 +18,6 @@ export default function UploadSources(props){
                 {({
                     getRootProps,
                     acceptedFile,
-                    getRemoveFileProps,
                 }) => (
                     <div >
                         <button type='button' {...getRootProps()} >
@@ -27,9 +26,6 @@ export default function UploadSources(props){
                         <div >
                             {acceptedFile && acceptedFile.name}
                         </div>
-                        <button {...getRemoveFileProps()} >
-                            Remove File
-                        </button>
                     </div>
                 )}
             </CSVReader>

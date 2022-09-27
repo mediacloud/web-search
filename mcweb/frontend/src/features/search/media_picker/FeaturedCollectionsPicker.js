@@ -12,7 +12,7 @@ export default function FeaturedCollectionsPicker () {
     const collectionIds = collections.map(collection => collection.id);
 
     const inSelectedMedia = (collectionId) => {
-        collectionIds.includes(collectionId);
+        return collectionIds.includes(collectionId);
     };
 
     if (isLoading){
@@ -26,19 +26,18 @@ export default function FeaturedCollectionsPicker () {
                         <h5>{collection.name}</h5>
                         {/* <h5>Category</h5> */}
                         <h5>{collection.notes}</h5>
-                        {/* collection.id in selectedMedia collections ? X (remove from selected media) : + (add to SM) */}
-                        {inSelectedMedia(collection.id) && (
-                            <button onClick={() => dispatch(removeSelectedMedia(collection.id))}>
-                                X
-                            </button>
-                        )}
-                        {inSelectedMedia(collection.id) && (
-                            <button onClick={() => dispatch(removeSelectedMedia(collection.id))}>
-                                X
+
+                        {!(inSelectedMedia(collection.id)) && (
+                            <button onClick={() => dispatch(addSelectedMedia(collection))}>
+                                +
                             </button>
                         )}
 
-                        <button onClick={() => dispatch(addSelectedMedia(collection))}>+</button>
+                        {(inSelectedMedia(collection.id)) && (
+                            <button onClick={() => dispatch(removeSelectedMedia(collection.id))}>
+                                X
+                            </button>
+                        )}
                    </div>
                    );
                 })}

@@ -9,7 +9,6 @@ export default function SelectedMedia() {
         <div className='selected-media-container'>
             <h5>Selected Media</h5>
             <div>
-                {console.log(collections)}
                 {collections.map(collection => {
                     return (
                     <div className='selected-media-item' key={`selected-media${collection.id}`}>
