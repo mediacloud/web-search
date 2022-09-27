@@ -12,7 +12,7 @@ export default function CollectionList (props) {
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
   if (isLoading) {
-    return (<h1>Loading...</h1>);
+    return (<div> <CircularProgress size="75px"/> </div>);
   } else if (edit) {
     return (
             <div className='collectionAssociations'>

@@ -11,6 +11,7 @@ import { useCreateSourceCollectionAssociationMutation } from '../../app/services
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
 import { useCSVDownloader } from 'react-papaparse';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import {
   useGetSourceQuery,
@@ -77,7 +78,7 @@ export default function ModifySource() {
 
 
   if (isLoading) {
-    return <h1>Loading...</h1>;
+    return (<div> <CircularProgress size="75px"/> </div>);
   }
   else {
     return (
