@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, current } from '@reduxjs/toolkit';
 
 const querySlice = createSlice({
     name: 'ui',
@@ -7,9 +7,12 @@ const querySlice = createSlice({
         addSelectedMedia: (state, {payload}) => {
             state.collections.push(payload);
         },
+        removeSelectedMedia: (state, {payload}) => {
+            state.collections = state.collections.filter(collection => collection.id !== payload);
+        }
     },
 });
 
-export const { addSelectedMedia } = querySlice.actions;
+export const { addSelectedMedia, removeSelectedMedia } = querySlice.actions;
 
 export default querySlice.reducer;

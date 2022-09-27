@@ -1,6 +1,6 @@
 .featured-collections-picker-container{
-    height: 100%;
-    overflow: scroll;
+    max-height: 100%;
+    overflow-y: auto;
     h5 {
         color:black;
     }
@@ -8,4 +8,5 @@
 
 .collection-picker-item {
     display: flex;
+    justify-content: space-between;
 }

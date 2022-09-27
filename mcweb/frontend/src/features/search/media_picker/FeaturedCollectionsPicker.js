@@ -1,11 +1,19 @@
 import * as React from 'react';
 import { useGetFeaturedCollectionsQuery } from '../../../app/services/collectionsApi';
 import {useSelector, useDispatch} from 'react-redux';
-import { addSelectedMedia } from '../querySlice';
+import { addSelectedMedia, removeSelectedMedia } from '../querySlice';
 
 export default function FeaturedCollectionsPicker () {
     const {data, isLoading} = useGetFeaturedCollectionsQuery();
     const dispatch = useDispatch();
+
+    const { collections } = useSelector(state => state.query);
+
+    const collectionIds = collections.map(collection => collection.id);
+
+    const inSelectedMedia = (collectionId) => {
+        collectionIds.includes(collectionId);
+    };
 
     if (isLoading){
         return (<div>Loading...</div>);
@@ -19,7 +27,18 @@ export default function FeaturedCollectionsPicker () {
                         {/* <h5>Category</h5> */}
                         <h5>{collection.notes}</h5>
                         {/* collection.id in selectedMedia collections ? X (remove from selected media) : + (add to SM) */}
-                        <button onClick={() => dispatch(addSelectedMedia(collection)) }>+</button>
+                        {inSelectedMedia(collection.id) && (
+                            <button onClick={() => dispatch(removeSelectedMedia(collection.id))}>
+                                X
+                            </button>
+                        )}
+                        {inSelectedMedia(collection.id) && (
+                            <button onClick={() => dispatch(removeSelectedMedia(collection.id))}>
+                                X
+                            </button>
+                        )}
+
+                        <button onClick={() => dispatch(addSelectedMedia(collection))}>+</button>
                    </div>
                    );
                 })}
