@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import CollectionList from '../collections/CollectionList';
 import { useState } from 'react';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === 'dark' ? '#bcdeec' : '#fff',
@@ -30,7 +31,7 @@ export default function SourceShow() {
   } = useGetSourceQuery(sourceId);
 
   if (isLoading) {
-    return (<h1>Loading...</h1>);
+    return (<div> <CircularProgress size="75px"/> </div>);
   }
   else {
     return (

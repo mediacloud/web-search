@@ -10,6 +10,7 @@ import { useCreateSourceCollectionAssociationMutation } from '../../app/services
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import { useDownloadSourceCSVQuery } from '../../app/services/sourceApi';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function ModifyCollection() {
   const params = useParams();
@@ -54,7 +55,7 @@ export default function ModifyCollection() {
   }, [data]);
 
   if (isLoading) {
-    return (<h1>Loading...</h1>);
+    return (<div> <CircularProgress size="75px"/> </div>);
   }
   else {
     return (

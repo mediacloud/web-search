@@ -1,3 +1,4 @@
+import { CircularProgress } from '@mui/material';
 import * as React from 'react';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
@@ -12,7 +13,7 @@ export default function CollectionHeader(props) {
     } = useGetCollectionQuery(collectionId);
     const collection = data;
 
-    if (isLoading) return (<h1>Loading...</h1>);
+    if (isLoading) return (<div> <CircularProgress size="75px"/> </div>);
     else {
         return (
             <div className='collectionHeader'>
