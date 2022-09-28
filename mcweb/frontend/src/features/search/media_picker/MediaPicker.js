@@ -2,6 +2,7 @@ import * as React from 'react';
 import {useState} from 'react';
 import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
 import SelectedMedia from './SelectedMedia';
+import CollectionSearchPicker from './CollectionSearchPicker';
 
 export default function MediaPicker() {
     const [tab, setTab] = useState('featuredCollections');
@@ -21,7 +22,7 @@ export default function MediaPicker() {
 
         {tab === 'collectionSearch' && (
             // <FeaturedCollectionsPicker />
-            <h3>Collection serach</h3>
+            <CollectionSearchPicker />
         )}
             
         {tab === 'sourceSearch' && (
