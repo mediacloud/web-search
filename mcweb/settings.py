@@ -179,18 +179,20 @@ EMAIL_HOST_USER = "mcwebauthentication@outlook.com"
 EMAIL_HOST_PASSWORD = "mxzhubketlilkxyq"
 
 # sentry config
-sentry_sdk.init(
-    dsn="https://8fad60f457894e6485492dadaf593a55@o33894.ingest.sentry.io/6781815",
-    integrations=[
-        DjangoIntegration(),
-    ],
+if env('SENTRY_DSN') is not None:
+    sentry_sdk.init(
 
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=1.0,
+        dsn=env('SENTRY_DSN'),
+        integrations=[
+            DjangoIntegration(),
+        ],
 
-    # If you wish to associate users to errors (assuming you are using
-    # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
-)
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True
+    )
