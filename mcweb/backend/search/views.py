@@ -30,3 +30,10 @@ def search(request):
   total_articles = provider.count(query_str, start_date, end_date)
  
   return HttpResponse(json.dumps({"count": total_articles}), content_type="application/json", status=200)
+
+
+# @require_http_methods(["POST"])
+# def collection_search(request):
+#   print(request)
+#   print("In collection_search")
+#   return HttpResponse(json.dumps([{"id":1, "name": "sweet collection"}]), content_type="application/json", status=200)
