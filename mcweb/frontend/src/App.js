@@ -11,11 +11,12 @@ import ConfirmedReset from './features/auth/ConfirmedReset';
 
 // pages
 import Collections from './features/collections/CollectionShow';
-import CollectionHome from './features/collections/CollectionHome';
+import FeaturedCollections from './features/collections/FeaturedCollections';
 import CreateCollection from './features/collections/CreateCollection';
 import Search from './features/search/Search';
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
+import Modal from './features/ui/modal/modal';
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -26,7 +27,10 @@ import { selectIsLoggedIn } from './features/auth/authSlice';
 
 const App = () => {
   return (
+
     <div className="homepage">
+      <Modal />
+      {/* <MediaPicker /> */}
       <Header />
         <Routes>
              <Route path="collections/:collectionId/modify-collection" element={
@@ -48,7 +52,7 @@ const App = () => {
 
             <Route path="collections" element={
               <RequireAuth>
-                <CollectionHome />
+                <FeaturedCollections />
               </RequireAuth>}
             />
 

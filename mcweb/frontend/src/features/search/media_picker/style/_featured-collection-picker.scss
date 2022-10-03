@@ -1,0 +1,12 @@
+.featured-collections-picker-container{
+    max-height: 100%;
+    overflow-y: auto;
+    h5 {
+        color:black;
+    }
+}
+
+.collection-picker-item {
+    display: flex;
+    justify-content: space-between;
+}

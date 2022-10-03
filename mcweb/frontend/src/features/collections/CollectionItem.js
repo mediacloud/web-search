@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function CollectionItem (props) {
-    const collection = props.collection; //get collection from props
+    const collection = props.collection; 
     return (
         <li>
             <Link className="source-collection-item" to={`/collections/${collection.id}`}>
