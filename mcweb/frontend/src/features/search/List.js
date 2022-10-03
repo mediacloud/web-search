@@ -4,7 +4,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
-import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import Container from '@mui/material/Container';
 
@@ -16,12 +15,19 @@ import { useState } from 'react';
 
 
 // information from store
-import { setSearch, selectTotalAttention } from '../search/searchSlice';
+import { setSearch, selectTotalAttention} from '../search/searchSlice';
 import { useSelector } from 'react-redux';
+
+import { setQueryList, setNegatedQueryList } from '../search/searchSlice';
+
+import { useDispatch } from 'react-redux';
 
 import { useGetSearchMutation } from '../../app/services/searchApi';
 
 export default function List(props) {
+  const dispatch = useDispatch();
+  console.log(props)
+
 
   const [serviceList, setServiceList] = useState([
     { service: "" },
@@ -42,6 +48,14 @@ export default function List(props) {
     const list = [...serviceList];
     list[index][name] = value;
     setServiceList(list)
+
+    // negated
+    if (props.props === "AND OR") {
+      dispatch(setNegatedQueryList(createQuery()));
+    } else {
+      // regular query list
+      dispatch(setQueryList(createQuery()));
+    }
   }
 
 
@@ -57,7 +71,8 @@ export default function List(props) {
     return query;
   }
 
-  console.log(createQuery());
+
+
   return (
     <div>
       {serviceList.map((singleService, index) => (
