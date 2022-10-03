@@ -30,43 +30,70 @@ export default function Search() {
     setPlatform(event.target.value);
   };
 
-  const [any, setAny] = useState("AND");
+  const [any, setAny] = useState("Any");
 
   const handleChangeAnyAll = (event) => {
     setAny(event.target.value);
   };
 
 
-  // function createQuery() {
-  //   let query = "";
-  //   let anyAll = "";
+  // determines what to give List.js as a parameter from state
+  function propsLogic() {
+    if (any == "Any") {
+      return "OR"
+    } else {
+      return "AND"
+    }
+  }
 
-  //   if (any == "Any") {
-  //     anyAll = "OR"
-  //   } else {
-  //     anyAll = "AND"
-  //   }
-
-  //   for (let i = 0; i < serviceList.length; i++) {
-  //     if (i == serviceList.length - 1) {
-  //       query += serviceList[i].service
-  //     } else {
-  //       query += serviceList[i].service + " " + anyAll + " "
-  //     }
-  //   }
-  //   return query;
-  // }
-
-  // createQuery()
   return (
 
-    <div>
-       {/* regular list */}
-      <List props={any} />
+    <>
 
-      {/*  negation list */}
-      <List props="AND NOT" />
-    </div>
+      {/* Choose any platform  */}
+      <div className='services'>
+        <h1>Choose your Media</h1>
+        <Select
+          value={platform}
+          onChange={handleChangePlatform}
+        >
+          <MenuItem value={"Online News Archive"}>Online News Archive</MenuItem>
+          <MenuItem value={"Reddit"}>Reddit</MenuItem>
+          <MenuItem value={"Twitter"}>Twitter</MenuItem>
+          <MenuItem value={"Youtube"}>Youtube</MenuItem>
+        </Select>
+      </div>
+
+      {/* Choose Query Type */}
+
+
+      <div>
+        <div className='services'>
+          <h1>Match</h1>
+          <Select
+            value={any}
+            onChange={handleChangeAnyAll}
+          >
+            <MenuItem value={"Any"}>Any</MenuItem>
+            <MenuItem value={"All"}>All</MenuItem>
+          </Select>
+          <h1>of these Phrases</h1>
+
+
+        </div>
+        <List props={propsLogic()} />
+
+      </div>
+
+    
+
+      <h1>And none of these phrases</h1>
+
+      {/* Negation List */}
+      {/* Always 'AND OR' */}
+      <List props="AND OR" />
+
+    </>
 
   );
 }
