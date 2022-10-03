@@ -15,7 +15,7 @@ import { useState } from 'react';
 
 
 // information from store
-import { setSearch, selectTotalAttention} from '../search/searchSlice';
+import { setSearch, selectTotalAttention } from '../search/searchSlice';
 import { useSelector } from 'react-redux';
 
 import { setQueryList, setNegatedQueryList } from '../search/searchSlice';
@@ -26,51 +26,65 @@ import { useGetSearchMutation } from '../../app/services/searchApi';
 
 export default function List(props) {
   const dispatch = useDispatch();
-  console.log(props)
+  
+  //logical operator
+  const logic = props.props.logic;
 
+  // possible actions
+  const setQueryList = props.props.action.setQueryList
+  const setNegatedList = props.props.action.setNegatedQueryList
+
+  // list of actions
+  const functions = [setQueryList, setNegatedList];
+
+  // initialize the action on which is true
+  let action = null;
+  functions.map( func => {
+    if(func != null) {
+      action = func;
+    }
+  })
 
   const [serviceList, setServiceList] = useState([
     { service: "" },
   ])
 
+  // dispatches the query to the store using the action 
+  dispatch(action(createQuery()))
+
+
+  // add query 
   const handleServiceAdd = () => {
     setServiceList([...serviceList, { service: "" }])
   }
 
+  // remove query
   const handleServiceRemove = (index) => {
     const list = [...serviceList]
     list.splice(index, 1);
     setServiceList(list);
   }
 
+  // handle changes to query
   const handleQueryChange = (e, index) => {
     const { name, value } = e.target
     const list = [...serviceList];
     list[index][name] = value;
     setServiceList(list)
-
-    // negated
-    if (props.props === "AND OR") {
-      dispatch(setNegatedQueryList(createQuery()));
-    } else {
-      // regular query list
-      dispatch(setQueryList(createQuery()));
-    }
   }
 
-
+  // creates query
   function createQuery() {
     let query = "";
     for (let i = 0; i < serviceList.length; i++) {
       if (i == serviceList.length - 1) {
         query += serviceList[i].service
       } else {
-        query += serviceList[i].service + " " + props.props + " "
+        query += serviceList[i].service + " " + logic + " "
       }
     }
     return query;
   }
-
 
 
   return (

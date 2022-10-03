@@ -14,31 +14,22 @@ export default function DateChooser(props) {
   const dispatch = useDispatch()
 
   const [date, setDate] = useState(() => {
-    if (fromValue === undefined) {
-      return createDate();
+    if(date == undefined) {
+       return createDate()
     }
-  });
+  })
 
-  const [fromValue, setFromValue] = React.useState(() => {
-    if (fromValue === undefined) {
-      return createDate();
-    }
-  });
-
-  console.log(date)
-
+  if (props.props === "From") {
+    dispatch(setFromDate(date));
+  } else {
+    dispatch(setToDate(date));
+  }
 
   const handleChange = (value) => {
     if (date === undefined) {
       setDate(value);
     } else {
       setDate(dateConverter(value.toString()))
-    }
-
-    if(props.props === "From") {
-      dispatch(setFromDate(date));
-    } else {
-      dispatch(setToDate(date));
     }
   };
 
