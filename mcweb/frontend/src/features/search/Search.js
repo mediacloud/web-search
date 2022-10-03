@@ -1,12 +1,5 @@
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { Button } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import { useSnackbar } from 'notistack';
-import Container from '@mui/material/Container';
+
+import DateChooser from './DateChooser';
 
 
 import List from './List';
@@ -21,6 +14,8 @@ import { setSearch, selectTotalAttention } from '../search/searchSlice';
 import { useSelector } from 'react-redux';
 
 import { useGetSearchMutation } from '../../app/services/searchApi';
+
+
 
 export default function Search() {
 
@@ -92,6 +87,19 @@ export default function Search() {
       {/* Negation List */}
       {/* Always 'AND OR' */}
       <List props="AND OR" />
+
+    
+    {/* From Date */}
+    <div>
+      <h1>From Date: </h1>
+        <DateChooser props="From"/>
+    </div>
+
+    <div>
+      <h1>To Date: </h1>
+      <DateChooser props="To"/>
+    </div>
+
 
     </>
 
