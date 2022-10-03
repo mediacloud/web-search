@@ -32,9 +32,10 @@ export default function CollectionSearchPicker(){
             {data && (
                 <div>
                     <h5>Results</h5>
-                    {data.map(collection => {
+                    <h6>{data.collections.length} Collections matching "{query}"</h6>
+                    {data.collections.map(collection => {
                         return (
-                            <div key={collection.id}>
+                            <div className='collection-result-item' key={collection.id}>
                                 <p>{collection.name}</p>
                                 {!(inSelectedMedia(collection.id)) && (
                                     <button onClick={() => dispatch(addSelectedMedia(collection))}>

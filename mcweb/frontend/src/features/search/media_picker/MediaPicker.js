@@ -27,7 +27,7 @@ export default function MediaPicker() {
             
         {tab === 'sourceSearch' && (
             // <FeaturedCollectionsPicker />
-            <h3>Sources srach</h3>
+            <h3>Sources search...under construction</h3>
         )}
 
     </div>);
