@@ -22,11 +22,9 @@ import { useSelector } from 'react-redux';
 import { useGetSearchMutation } from '../../app/services/searchApi';
 
 export default function List(props) {
-  console.log(props)
 
   const [serviceList, setServiceList] = useState([
-    { service: "AI" },
-    { service: "Work" },
+    { service: "" },
   ])
 
   const handleServiceAdd = () => {
@@ -47,6 +45,19 @@ export default function List(props) {
   }
 
 
+  function createQuery() {
+    let query = "";
+    for (let i = 0; i < serviceList.length; i++) {
+      if (i == serviceList.length - 1) {
+        query += serviceList[i].service
+      } else {
+        query += serviceList[i].service + " " + props.props + " "
+      }
+    }
+    return query;
+  }
+
+  console.log(createQuery());
   return (
     <div>
       {serviceList.map((singleService, index) => (
@@ -77,5 +88,6 @@ export default function List(props) {
         </div>
       ))}
     </div>
+
   )
 }
