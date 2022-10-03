@@ -16,6 +16,7 @@ import { useSelector } from 'react-redux';
 import { useGetSearchMutation } from '../../app/services/searchApi';
 
 
+import {setQueryList, setNegatedQueryList, setFromDate, setToDate} from './searchSlice';
 
 export default function Search() {
 
@@ -33,12 +34,23 @@ export default function Search() {
 
 
   // determines what to give List.js as a parameter from state
-  function propsLogic() {
+  function logic() {
     if (any == "Any") {
       return "OR"
     } else {
       return "AND"
     }
+  }
+
+
+  const queryListProps = {
+    logic: logic(),
+    action: { setQueryList },
+  }
+
+  const negatedListProps = {
+    logic: "AND OR", 
+    action: {setNegatedQueryList}
   }
 
   return (
@@ -76,17 +88,17 @@ export default function Search() {
 
 
         </div>
-        <List props={propsLogic()} />
+        {}
+       
+        <List props={queryListProps}/>
 
       </div>
-
-    
 
       <h1>And none of these phrases</h1>
 
       {/* Negation List */}
       {/* Always 'AND OR' */}
-      <List props="AND OR" />
+      <List props={negatedListProps} />
 
     
     {/* From Date */}
