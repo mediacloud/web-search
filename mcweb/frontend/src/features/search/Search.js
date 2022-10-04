@@ -15,10 +15,17 @@ import { useSelector } from 'react-redux';
 
 import { useGetSearchMutation } from '../../app/services/searchApi';
 
+import { selectQuery, selectNegatedQuery, selectFromDate, selectToDate } from '../search/searchSlice';
 
 import {setQueryList, setNegatedQueryList, setFromDate, setToDate} from './searchSlice';
 
 export default function Search() {
+
+  const query = useSelector(selectQuery);
+  const negatedQuery = useSelector(selectNegatedQuery);
+  const fromDate = useSelector(selectFromDate);
+  const toDate = useSelector(selectToDate);
+  
 
   const [platform, setPlatform] = useState('Online News Archive');
 
@@ -88,7 +95,7 @@ export default function Search() {
 
 
         </div>
-        {}
+        
        
         <List props={queryListProps}/>
 
@@ -110,6 +117,15 @@ export default function Search() {
     <div>
       <h1>To Date: </h1>
       <DateChooser props="To"/>
+    </div>
+
+
+    <div>
+        <h1>Query: {query}</h1>
+        <h1>Negated Query: {negatedQuery}</h1>
+        <h1>From Date: {fromDate}</h1>
+        <h1>To Date: {toDate}</h1>
+
     </div>
 
 

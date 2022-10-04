@@ -8,10 +8,10 @@ const slice = createSlice({
       state.search = payload.count;
     },
     setQueryList: (state, {payload}) => {
-      state.queryList = payload.query;
+      state.queryList = payload;
     }, 
     setNegatedQueryList: (state, {payload}) => {
-      state.negatedQueryList = payload.query;
+      state.negatedQueryList = payload;
     }, 
     setFromDate: (state, { payload }) => {
       state.fromDate = payload;

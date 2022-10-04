@@ -45,12 +45,15 @@ export default function List(props) {
     }
   })
 
+
   const [serviceList, setServiceList] = useState([
     { service: "" },
   ])
 
   // dispatches the query to the store using the action 
-  dispatch(action(createQuery()))
+  React.useEffect(() => {
+    dispatch(action(createQuery()))
+  }, [serviceList])
 
 
   // add query 

@@ -19,11 +19,14 @@ export default function DateChooser(props) {
     }
   })
 
-  if (props.props === "From") {
-    dispatch(setFromDate(date));
-  } else {
-    dispatch(setToDate(date));
-  }
+  
+  React.useEffect(() => {
+    if (props.props === "From") {
+      dispatch(setFromDate(date));
+    } else {
+      dispatch(setToDate(date));
+    }
+  }, [date])
 
   const handleChange = (value) => {
     if (date === undefined) {
