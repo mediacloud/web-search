@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 import json
 import os
-from mcmetadata import urls
 from settings import BASE_DIR
 
 # csv
@@ -97,6 +96,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
         collection = Collection.objects.get(id=collection_id)
         source_associations = collection.source_set.all()
 
+        # 'collection-id/timestamp' 
+        # 812312321-202209191430.csv
         response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
@@ -104,6 +105,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
         writer = csv.writer(response)
 
+        # extract into a constat (global)
         writer.writerow(['id', 'name', 'url_search_string', 'label',
         'homepage', 'notes', 'service',  'stories_per_week',
         'first_story', 'publication_country', 'publication_state',
