@@ -22,11 +22,11 @@ const slice = createSlice({
   },
 });
 
-export const setSearch = slice.actions.setSearch
-export const setQueryList = slice.actions.setQueryList
-export const setNegatedQueryList = slice.actions.setNegatedQueryList
-export const setFromDate = slice.actions.setFromDate
-export const setToDate = slice.actions.setToDate
+export const setSearch = slice.actions.setSearch;
+export const setQueryList = slice.actions.setQueryList;
+export const setNegatedQueryList = slice.actions.setNegatedQueryList;
+export const setFromDate = slice.actions.setFromDate;
+export const setToDate = slice.actions.setToDate;
 
 export const selectTotalAttention = (state) => state.search.search;
 export const selectQuery = (state) => state.search.queryList;

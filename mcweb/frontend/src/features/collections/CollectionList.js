@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useGetSourceAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from "../../app/services/sourcesCollectionsApi";
 import CollectionItem from "./CollectionItem";
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function CollectionList (props) {
   const { sourceId, edit } = props;
@@ -12,7 +13,7 @@ export default function CollectionList (props) {
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
   if (isLoading) {
-    return (<h1>Loading...</h1>);
+    return <div> <CircularProgress size="75px"/> </div>;
   } else if (edit) {
     return (
             <div className='collectionAssociations'>

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -6,16 +7,12 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { Button } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import Container from '@mui/material/Container';
-
-
-import * as React from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { useState } from 'react';
 
 
 // information from store
-import { setSearch, selectTotalAttention } from '../search/searchSlice';
 import { useSelector } from 'react-redux';
 
 import { setQueryList, setNegatedQueryList } from '../search/searchSlice';
@@ -31,8 +28,8 @@ export default function List(props) {
   const logic = props.props.logic;
 
   // possible actions
-  const setQueryList = props.props.action.setQueryList
-  const setNegatedList = props.props.action.setNegatedQueryList
+  const setQueryList = props.props.action.setQueryList;
+  const setNegatedList = props.props.action.setNegatedQueryList;
 
   // list of actions
   const functions = [setQueryList, setNegatedList];
@@ -43,47 +40,47 @@ export default function List(props) {
     if(func != null) {
       action = func;
     }
-  })
+  });
 
 
   const [serviceList, setServiceList] = useState([
     { service: "" },
-  ])
+  ]);
 
   // dispatches the query to the store using the action 
   React.useEffect(() => {
-    dispatch(action(createQuery()))
-  }, [serviceList])
+    dispatch(action(createQuery()));
+  }, [serviceList]);
 
 
   // add query 
   const handleServiceAdd = () => {
-    setServiceList([...serviceList, { service: "" }])
-  }
+    setServiceList([...serviceList, { service: "" }]);
+  };
 
   // remove query
   const handleServiceRemove = (index) => {
-    const list = [...serviceList]
+    const list = [...serviceList];
     list.splice(index, 1);
     setServiceList(list);
-  }
+  };
 
   // handle changes to query
   const handleQueryChange = (e, index) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     const list = [...serviceList];
     list[index][name] = value;
-    setServiceList(list)
-  }
+    setServiceList(list);
+  };
 
   // creates query
   function createQuery() {
     let query = "";
     for (let i = 0; i < serviceList.length; i++) {
       if (i == serviceList.length - 1) {
-        query += serviceList[i].service
+        query += serviceList[i].service;
       } else {
-        query += serviceList[i].service + " " + logic + " "
+        query += serviceList[i].service + " " + logic + " ";
       }
     }
     return query;
@@ -105,7 +102,7 @@ export default function List(props) {
                 onClick={handleServiceAdd}
                 type="button"
                 className='add-btn'>
-                <span>Add a Service</span>
+                <span>Add a Query Term</span>
               </button>
             )}
           </div>
@@ -113,7 +110,7 @@ export default function List(props) {
           <div className="second-division">
             {serviceList.length > 1 &&
               <button onClick={() => handleServiceRemove(index)} type="button" className='remove-btn'>
-                <span>Remove</span>
+                <span>Remove Query Term</span>
               </button>
             }
           </div>
@@ -121,5 +118,5 @@ export default function List(props) {
       ))}
     </div>
 
-  )
+  );
 }
