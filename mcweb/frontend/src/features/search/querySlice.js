@@ -5,8 +5,15 @@ const startDate = dayjs().subtract(30, 'day').format('MM/DD/YYYY');
 const endDate = dayjs().format('MM/DD/YYYY');
 
 const querySlice = createSlice({
-    name: 'ui',
-    initialState: { 'queryString': "", 'dataSource': "", 'startDate': startDate, 'endDate': endDate, 'collections':[], 'sources':[]},
+    name: 'query',
+    initialState: { 'queryString': "",
+                    'queryList': "",
+                    'negatedQueryList': "", 
+                    'dataSource': "", 
+                    'startDate': startDate, 
+                    'endDate': endDate, 
+                    'collections':[], 
+                    'sources':[]},
     reducers: {
         addSelectedMedia: (state, {payload}) => {
             state.collections.push(payload);
@@ -23,6 +30,12 @@ const querySlice = createSlice({
         setQueryString: (state, { payload }) => {
             state.queryString = payload;
         },
+        setQueryList: (state, { payload }) => {
+            state.queryList = payload;
+        },
+        setNegatedQueryList: (state, { payload }) => {
+            state.negatedQueryList = payload;
+        },
     },
 });
 
@@ -31,6 +44,8 @@ export const {
     removeSelectedMedia,
     setStartDate,
     setEndDate,
-    setQueryString } = querySlice.actions;
+    setQueryString,
+    setQueryList,
+    setNegatedQueryList } = querySlice.actions;
 
 export default querySlice.reducer;
