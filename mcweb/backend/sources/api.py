@@ -29,14 +29,49 @@ class CollectionViewSet(viewsets.ModelViewSet):
         queryset = Collection.objects.all()
 
         file_path = os.path.join(
-            BASE_DIR, 'backend/sources/media-collection.json')
-        json_data = open(file_path)
-        deserial_data = json.load(json_data)
+            BASE_DIR, 'backend/sources/media-collection.json') 
+        json_data = open(file_path)  
+        deserial_data = json.load(json_data) 
         collection_return = []
+        list_ids = [] 
         for collection in deserial_data['featuredCollections']['entries']:
             for id in collection['tags']:
-                featured_collection = get_object_or_404(queryset, pk=id)
-                collection_return.append(featured_collection)
+                list_ids.append(id)
+        
+        def featured_order(self):
+            if self.id == 186572515:
+                return 1
+            if self.id == 186572435:
+                return 2
+            if self.id == 186572516:
+                return 3
+            if self.id == 200363048:
+                return 4
+            if self.id == 200363049:
+                return 5
+            if self.id == 200363050:
+                return 6
+            if self.id == 200363061:
+                return 7
+            if self.id == 200363062:
+                return 8
+            if self.id == 34412118:
+                return 9
+            if self.id == 34412232:
+                return 10
+            if self.id == 38379799:
+                return 11
+            if self.id == 9272347:
+                return 12
+            if self.id == 34412476:
+                return 13
+            if self.id == 34412202:
+                return 14
+            if self.id == 38381372:
+                return 15
+            
+        collection_return = Collection.objects.filter(id__in=list_ids)
+        collection_return = sorted(collection_return, key=featured_order)
         serializer = CollectionListSerializer(
             {'collections': collection_return})
         return Response(serializer.data)
