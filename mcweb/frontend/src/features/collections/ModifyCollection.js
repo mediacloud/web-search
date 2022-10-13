@@ -6,10 +6,9 @@ import { useDeleteCollectionMutation, useUpdateCollectionMutation } from '../../
 import SourceList from '../sources/SourceList';
 import UploadSources from '../sources/UploadSources';
 //rtk api operations
-import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import { useGetSourceQuery } from '../../app/services/sourceApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import { useDownloadSourceCSVQuery } from '../../app/services/sourceApi';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function ModifyCollection() {
   const params = useParams();
@@ -28,12 +27,7 @@ export default function ModifyCollection() {
   // show data 
   const [isShown, setIsShown] = useState(true);
 
-  //patch for now, sources in the future will be uploadable only by csv
-  const [sourceId, setSourceId] = useState("");
-  const sourceData = useGetSourceQuery(sourceId);
-
   // rtk operations
-  const [createSourceCollectionAssociation] = useCreateSourceCollectionAssociationMutation();
   const [updateCollection] = useUpdateCollectionMutation();
   // const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
 
@@ -54,7 +48,7 @@ export default function ModifyCollection() {
   }, [data]);
 
   if (isLoading) {
-    return (<h1>Loading...</h1>);
+    return (<div> <CircularProgress size="75px"/> </div>);
   }
   else {
     return (
@@ -142,19 +136,6 @@ export default function ModifyCollection() {
         {
           isShown &&
           <div>
-            <div className='sourceAssocationContent'>
-              <h1> Add Source to Collection (enter the source ID): </h1>
-              <input type="text" value={sourceId} onChange={e => setSourceId(Number(e.target.value))} />
-
-              <button onClick={() => {
-                const assoc = { 'source_id': sourceId, 'collection_id': collectionId };
-                const source = sourceData.data;
-                createSourceCollectionAssociation(assoc);
-                setSourceId("");
-              }}>
-                Add Source
-              </button>
-            </div>
             <div>
               <UploadSources collectionId={collectionId} />
             </div>

@@ -1,18 +1,7 @@
-// React
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { Provider } from 'react-redux';
-import { SnackbarProvider } from 'notistack';
-
-// Router
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-// MUI Styling
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Box } from '@mui/material';
-
-// Import our style sheet
-import '../../frontend/src/style/Application.scss';
+import Header from './Header';
+import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
+import { useSelector } from 'react-redux';
 // user status
 import Account from './features/auth/Account';
 import SignIn from './features/auth/SignIn';
@@ -20,49 +9,31 @@ import SignUp from './features/auth/SignUp';
 import ResetPassword from './features/auth/ResetPassword';
 import ConfirmedReset from './features/auth/ConfirmedReset';
 
-// Components
-import Homepage from './Homepage';
-
 // pages
 import Collections from './features/collections/CollectionShow';
-import CollectionHome from './features/collections/CollectionHome';
+import FeaturedCollections from './features/collections/FeaturedCollections';
 import CreateCollection from './features/collections/CreateCollection';
 import Search from './features/search/Search';
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
+import Modal from './features/ui/modal/modal';
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
 
 import { selectIsLoggedIn } from './features/auth/authSlice';
-import { useSelector } from 'react-redux';
-import { useLocation, Navigate } from 'react-router-dom';
-const theme = createTheme();
-// Store
-import { getStore } from './app/store';
 
 
-const App = () => (
-  <Provider store={getStore()}>
-    <ThemeProvider theme={theme}>
-      <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
-        <Box>
-          <Homepage />
-        </Box>
-      </SnackbarProvider>
-    </ThemeProvider>
-  </Provider >
-);
+const App = () => {
+  return (
 
-export const renderApp = () => {
-  createRoot(document.getElementById('app')).
-    render(
-      <BrowserRouter>
+    <div className="homepage">
+      <Modal />
+      {/* <MediaPicker /> */}
+      <Header />
         <Routes>
-          <Route path="/" element={<App />}>
-            
-            <Route path="collections/:collectionId/modify-collection" element={
+             <Route path="collections/:collectionId/modify-collection" element={
               <RequireAuth>
                 <ModifyCollection />
               </RequireAuth>} />
@@ -81,7 +52,7 @@ export const renderApp = () => {
 
             <Route path="collections" element={
               <RequireAuth>
-                <CollectionHome />
+                <FeaturedCollections />
               </RequireAuth>}
             />
 
@@ -114,11 +85,10 @@ export const renderApp = () => {
               <RequireAuth>
                 <Account />
               </RequireAuth>} />
-          </Route>
-
+          
         </Routes>
-      </BrowserRouter >
-    );
+    </div>
+  );
 };
 
 function RequireAuth({ children }) {
@@ -131,4 +101,4 @@ function RequireAuth({ children }) {
   return children;
 }
 
-
+export default App;

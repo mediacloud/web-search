@@ -19,8 +19,14 @@ export const searchApi = createApi({
         body: { ...credentials }
       }),
     }),
+    getCollectionSearch: builder.query({
+      query: (queryString) => ({
+        url: `collections/?query=${queryString}`,
+        method: 'GET'
+      })
+    })
   })
-})
+});
 
 
 // search/attentionOverTime 
@@ -28,4 +34,5 @@ export const searchApi = createApi({
 // action: get back Json. Save it to searchResults
 export const {
   useGetSearchMutation,
-} = searchApi
+  useLazyGetCollectionSearchQuery
+} = searchApi;
