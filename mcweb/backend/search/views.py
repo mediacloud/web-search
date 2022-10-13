@@ -35,19 +35,21 @@ def search(request):
 def query(request):
     payload = json.loads(request.body)
     payload = payload.get("queryObject")
-    query_str = payload["query"]
     platform = payload["platform"]
+    query_str = payload["query"]
+    collections = payload["collections"]
+    sources = payload["sources"]
+    
     start_date = payload["startDate"]
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-
     # Info from onlinenews provider
     provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
-    total_articles = provider.count(query_str, start_date, end_date)
-    sample = provider.sample(query_str, start_date, end_date)
-    count_over_time = provider.count_over_time(query_str, start_date, end_date)
-    words = provider.words(query_str, start_date, end_date)
+    total_articles = provider.count(query_str, start_date, end_date, collections=collections)
+    sample = provider.sample(query_str, start_date, end_date, collections=collections)
+    count_over_time = provider.count_over_time(query_str, start_date, end_date, collections=collections)
+    words = provider.words(query_str, start_date, end_date, collections=collections)
 
     # Reddit Provider
     # reddit_provider = provider_for(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT)
@@ -79,4 +81,6 @@ def query(request):
     # print("TOTAL ARTICLES",total_articles)
     # print("SAMPLES", sample)
 
+    # return HttpResponse("hello")
     return HttpResponse(json.dumps({"count": total_articles, "sample": sample, "count_over_time": count_over_time, "words": words}), content_type="application/json", status=200)
+

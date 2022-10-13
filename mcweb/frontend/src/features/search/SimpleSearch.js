@@ -30,7 +30,7 @@ export default function SimpleSearch () {
     };
 
     const negatedListProps = {
-        logic: "AND OR",
+        logic: "OR",
         action: { setNegatedQueryList }
     };
 

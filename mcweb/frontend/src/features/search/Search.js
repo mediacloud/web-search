@@ -11,7 +11,6 @@ import { useGetSearchMutation, useMakeQueryMutation } from '../../app/services/s
 
 
 // information from store
-import { setSearch, selectTotalAttention } from '../search/searchSlice';
 import { openModal } from '../ui/uiSlice';
 import { setQueryResults } from './resultsSlice';
 import SelectedMedia from './media_picker/SelectedMedia';
@@ -19,6 +18,8 @@ import SearchDatePicker from './SearchDatePicker';
 import SimpleSearch from './SimpleSearch';
 import CountOverTimeResults from './results/CountOverTimeResults';
 // import { selectQuery, selectNegatedQuery, selectFromDate, selectToDate } from '../search/searchSlice';
+import CountOverTimeChart from './results/CountOverTimeChart';
+import { setQueryString } from './querySlice';
 
 export default function Search() {
 
@@ -43,6 +44,12 @@ export default function Search() {
   };
   // const [search, { isSearching }] = useGetSearchMutation();
   const [query, {isLoading, data}] = useMakeQueryMutation();
+
+  const formatQuery = (queryList, negatedQueryList) => {
+    const fullQuery =  `(${queryList}) AND NOT (${negatedQueryList})`;
+    dispatch(setQueryString(fullQuery));
+    return fullQuery;
+  };
 
   return (
     <>
@@ -77,8 +84,7 @@ export default function Search() {
           try {
             const queryResult = await
               query({
-                'query': queryList,
-                'negatedList': negatedQueryList,
+                'query': formatQuery(queryList, negatedQueryList),
                 startDate,
                 endDate,
                 'collections': collectionIds,
@@ -97,7 +103,6 @@ export default function Search() {
       </Button>
     
       <h1>Total Attention: {totalAttention} </h1>
-
       {data && (
         <CountOverTimeResults  />
       )}
