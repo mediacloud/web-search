@@ -12,9 +12,6 @@ export default function CountOverTimeResults(){
         <div>
             <h3>Count Over Time</h3>
             <CountOverTimeChart />
-            {countOverTime["counts"].map((data, index) => {
-                return (<h5 key={index}>count: {data.count} date: {data.date}</h5>);
-            })}
         </div>
     );
 }

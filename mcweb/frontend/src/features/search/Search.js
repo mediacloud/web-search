@@ -1,14 +1,9 @@
 import * as React from 'react';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import { Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import { useState } from 'react';
-import { useGetSearchMutation, useMakeQueryMutation } from '../../app/services/searchApi';
-
+import { useMakeQueryMutation } from '../../app/services/searchApi';
+import PlatformPicker from './media_picker/PlatformPicker';
 
 // information from store
 import { openModal } from '../ui/uiSlice';
@@ -17,17 +12,16 @@ import SelectedMedia from './media_picker/SelectedMedia';
 import SearchDatePicker from './SearchDatePicker';
 import SimpleSearch from './SimpleSearch';
 import CountOverTimeResults from './results/CountOverTimeResults';
-// import { selectQuery, selectNegatedQuery, selectFromDate, selectToDate } from '../search/searchSlice';
-import CountOverTimeChart from './results/CountOverTimeChart';
+import SampleStories from './results/SampleStories';
 import { setQueryString } from './querySlice';
+
 
 export default function Search() {
 
-  const {totalAttention} = useSelector(state => state.search );
+  const {count} = useSelector(state => state.results );
   // const query = useSelector(selectQuery);
   const {enqueueSnackbar} = useSnackbar();
   const dispatch = useDispatch();
-  const [platform, setPlatform] = useState('Online News Archive');
 
   const { startDate, 
           endDate, 
@@ -35,26 +29,35 @@ export default function Search() {
           queryList, 
           negatedQueryList,
           collections,
-          sources } = useSelector(state => state.query);
+          sources,
+          platform } = useSelector(state => state.query);
 
   const collectionIds = collections.map(collection => collection['id']);
 
-  const handleChangePlatform = (event) => {
-    setPlatform(event.target.value);
-  };
+  // const handleChangePlatform = (event) => {
+  //   setPlatform(event.target.value);
+  // };
   // const [search, { isSearching }] = useGetSearchMutation();
   const [query, {isLoading, data}] = useMakeQueryMutation();
 
   const formatQuery = (queryList, negatedQueryList) => {
-    const fullQuery =  `(${queryList}) AND NOT (${negatedQueryList})`;
+    let fullQuery = "";
+    if (negatedQueryList === ""){
+      fullQuery = `(${queryList})`;
+    }else {
+      fullQuery = `(${queryList}) AND NOT (${negatedQueryList})`;
+    }
     dispatch(setQueryString(fullQuery));
     return fullQuery;
   };
 
+  if (platform === "Choose a Platform"){
+    dispatch(openModal("platformPicker"));
+  }
   return (
     <>
-
-      {/* Choose any platform  */}
+      <PlatformPicker />
+      {/* Choose any platform 
       <div className='services'>
         <h1>Choose your Media</h1>
         <Select
@@ -66,7 +69,7 @@ export default function Search() {
           <MenuItem value={"Twitter"}>Twitter</MenuItem>
           <MenuItem value={"Youtube"}>Youtube</MenuItem>
         </Select>
-      </div>
+      </div> */}
 
       {/* Choose Query Type */}
       <SimpleSearch />
@@ -102,9 +105,13 @@ export default function Search() {
         Submit
       </Button>
     
-      <h1>Total Attention: {totalAttention} </h1>
+      <h1>Total Attention: {count} </h1>
       {data && (
-        <CountOverTimeResults  />
+        <div className='results-container'>
+          <CountOverTimeResults />
+          <SampleStories platform={platform} />
+        </div>
+
       )}
     </>
   );

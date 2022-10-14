@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {useEffect} from 'react';
 import HighCharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
@@ -9,7 +8,7 @@ import utc from 'dayjs/plugin/utc';
 export default function CountOverTimeChart(){
     const {countOverTime, count} = useSelector(state => state.results);
     const {queryString} = useSelector(state =>state.query);
-    const cleanData = (data) => {
+    const cleanData = () => {
         if (countOverTime){
             const newData = countOverTime.counts.map(day => [dateHelper(day.date), day.count]);
             return newData;
@@ -68,7 +67,7 @@ export default function CountOverTimeChart(){
         series: [
             {
                 name: `query: ${queryString}`,
-                data: cleanData(countOverTime),
+                data: cleanData(),
             }, 
         ]
     };

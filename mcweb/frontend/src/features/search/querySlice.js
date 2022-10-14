@@ -9,7 +9,7 @@ const querySlice = createSlice({
     initialState: { 'queryString': "",
                     'queryList': "",
                     'negatedQueryList': "", 
-                    'dataSource': "", 
+                    'platform': "Choose a Platform", 
                     'startDate': startDate, 
                     'endDate': endDate, 
                     'collections':[], 
@@ -36,6 +36,9 @@ const querySlice = createSlice({
         setNegatedQueryList: (state, { payload }) => {
             state.negatedQueryList = payload;
         },
+        setPlatform: (state, { payload }) => {
+            state.platform = payload;
+        }
     },
 });
 
@@ -46,6 +49,7 @@ export const {
     setEndDate,
     setQueryString,
     setQueryList,
-    setNegatedQueryList } = querySlice.actions;
+    setNegatedQueryList,
+    setPlatform } = querySlice.actions;
 
 export default querySlice.reducer;

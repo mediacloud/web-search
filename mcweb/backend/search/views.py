@@ -1,3 +1,4 @@
+from itertools import count
 import json
 import logging
 from django.http import HttpResponse
@@ -44,43 +45,43 @@ def query(request):
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    # Info from onlinenews provider
-    provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
-    total_articles = provider.count(query_str, start_date, end_date, collections=collections)
-    sample = provider.sample(query_str, start_date, end_date, collections=collections)
-    count_over_time = provider.count_over_time(query_str, start_date, end_date, collections=collections)
-    words = provider.words(query_str, start_date, end_date, collections=collections)
 
-    # Reddit Provider
-    # reddit_provider = provider_for(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT)
-    # total_articles = reddit_provider.count(query_str, start_date, end_date)
-    # sample = reddit_provider.sample(query_str, start_date, end_date)
-    # count_over_time = reddit_provider.count_over_time(query_str, start_date, end_date)
+    if platform == 'Online News Archive':
+        provider = provider_for(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
+        total_articles = provider.count(query_str, start_date, end_date, collections=collections)
+        sample = provider.sample(query_str, start_date, end_date, collections=collections)
+        count_over_time = provider.count_over_time(query_str, start_date, end_date, collections=collections)
+        words = provider.words(query_str, start_date, end_date, collections=collections)
+        return HttpResponse(json.dumps({"count": total_articles, "count_over_time": count_over_time, "sample":sample, "words": words  }), content_type="application/json", status=200)
+    
+    elif platform == "Twitter":
+        twitter_provider = provider_for(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER)
+        total_articles = twitter_provider.count(query_str, start_date, end_date)
+        sample = twitter_provider.sample(query_str, start_date, end_date) # Need to normalize dates
+        print(sample)
+        count_over_time = twitter_provider.count_over_time(query_str, start_date, end_date) # need to normalize dates for return
+        print(count_over_time)
+        return HttpResponse(json.dumps({"count": total_articles, "sample": sample, "count_over_time":count_over_time }, default=str), content_type="application/json", status=200)
+    
+    elif platform == 'Youtube':
+        youtube_provider = provider_for(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE)
+        total_articles = youtube_provider.count(query_str, start_date, end_date)
+        sample = youtube_provider.sample(query_str, start_date, end_date)
+        print("TOTAL ARTICLES",total_articles)
+        print("SAMPLES", sample)
+         # print(query_str, platform, start_date, end_date, payload)
+        return HttpResponse(json.dumps({"count": total_articles, "sample":sample }), content_type="application/json", status=200)
 
-    # print("COUNT OVER TIME", len(count_over_time['counts']))
-    # print("TOTAL ARTICLES",total_articles)
-    # print("SAMPLES", sample)
-    # print(query_str, platform, start_date, end_date, payload)
+    elif platform == "Reddit":
+        reddit_provider = provider_for(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT)
+        total_articles = reddit_provider.count(query_str, start_date, end_date)
+        sample = reddit_provider.sample(query_str, start_date, end_date)
+        count_over_time = reddit_provider.count_over_time(query_str, start_date, end_date)
+         # print("COUNT OVER TIME", len(count_over_time['counts']))
+         # print("TOTAL ARTICLES",total_articles)
+         # print("SAMPLES", sample)
+         # print(query_str, platform, start_date, end_date, payload)
+        return HttpResponse(json.dumps({"count": total_articles }), content_type="application/json", status=200)
 
-    # Twitter Provider 
-    # twitter_provider = provider_for(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER)
-    # total_articles = twitter_provider.count(query_str, start_date, end_date)
-    # sample = twitter_provider.sample(query_str, start_date, end_date)
-    # count_over_time = twitter_provider.count_over_time(query_str, start_date, end_date)
-    # print("COUNT OVER TIME", len(count_over_time['counts']))
-    # print("TOTAL ARTICLES",total_articles)
-    # print("SAMPLES", sample)
-    # print(query_str, platform, start_date, end_date, payload)
-
-    # Youtube Provider 
-    # youtube_provider = provider_for(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE)
-    # total_articles = youtube_provider.count(query_str, start_date, end_date)
-    # sample = youtube_provider.sample(query_str, start_date, end_date)
-    # count_over_time = youtube_provider.count_over_time(query_str, start_date, end_date)
-    # print("COUNT OVER TIME", len(count_over_time['counts']))
-    # print("TOTAL ARTICLES",total_articles)
-    # print("SAMPLES", sample)
-
-    # return HttpResponse("hello")
-    return HttpResponse(json.dumps({"count": total_articles, "sample": sample, "count_over_time": count_over_time, "words": words}), content_type="application/json", status=200)
-
+    else:
+        return HttpResponse(json.dumps({"errors": "Platform not recognized"}), content_type="application/json", status=400)
