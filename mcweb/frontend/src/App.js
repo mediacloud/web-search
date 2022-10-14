@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from './Header';
+import Footer from './Footer';
 import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 // user status
@@ -87,7 +88,9 @@ const App = () => {
               </RequireAuth>} />
           
         </Routes>
+      <Footer />
     </div>
+    
   );
 };
 
