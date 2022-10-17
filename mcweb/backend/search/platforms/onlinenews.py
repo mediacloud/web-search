@@ -30,7 +30,7 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         :return:
         """
         q, fq = self._format_query(query, start_date, end_date, **kwargs)
-        story_list = self._mc_client.storyList(q, fq, rows=limit, **kwargs)
+        story_list = self._mc_client.storyList(q, fq, rows=limit)
         return story_list
 
     @cache_by_kwargs()
@@ -44,7 +44,7 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         :return:
         """
         q, fq = self._format_query(query, start_date, end_date, **kwargs)
-        story_count_result = self._mc_client.storyCount(q, fq, **kwargs)
+        story_count_result = self._mc_client.storyCount(q, fq)
         return story_count_result['count']
 
     @cache_by_kwargs()
@@ -79,7 +79,7 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         :return:
         """
         q, fq = self._format_query(query, start_date, end_date, **kwargs)
-        top_words = self._mc_client.wordCount(q, fq, **kwargs)[:limit]
+        top_words = self._mc_client.wordCount(q, fq)[:limit]
         return top_words
 
     @cache_by_kwargs()

@@ -3,7 +3,7 @@ import {useState} from 'react';
 import List from './List';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { setQueryList, setNegatedQueryList} from './searchSlice';
+import { setQueryList, setNegatedQueryList} from './querySlice';
 
 
 export default function SimpleSearch () {
@@ -30,7 +30,7 @@ export default function SimpleSearch () {
     };
 
     const negatedListProps = {
-        logic: "AND OR",
+        logic: "OR",
         action: { setNegatedQueryList }
     };
 
