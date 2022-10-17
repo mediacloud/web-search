@@ -24,7 +24,16 @@ export const searchApi = createApi({
         url: `collections/?query=${queryString}`,
         method: 'GET'
       })
-    })
+    }),
+    makeQuery: builder.mutation({
+      query: (queryObject) => {
+        return {
+        url: 'query',
+        method: 'POST',
+        body: {queryObject}
+        };
+      }
+    }),
   })
 });
 
@@ -34,5 +43,6 @@ export const searchApi = createApi({
 // action: get back Json. Save it to searchResults
 export const {
   useGetSearchMutation,
-  useLazyGetCollectionSearchQuery
+  useLazyGetCollectionSearchQuery,
+  useMakeQueryMutation,
 } = searchApi;

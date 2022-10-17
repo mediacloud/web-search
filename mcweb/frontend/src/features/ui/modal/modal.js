@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import MediaPicker from '../../search/media_picker/MediaPicker';
+import PlatformPicker from '../../search/media_picker/PlatformPicker';
 import { closeModal} from '../uiSlice';
 
 export default function Modal() {
@@ -17,6 +18,9 @@ export default function Modal() {
     switch (modal) {
         case 'mediaPicker':
             component = <MediaPicker />;
+            break;
+        case 'platformPicker':
+            component = <PlatformPicker />;
             break;
         default:
             return null;

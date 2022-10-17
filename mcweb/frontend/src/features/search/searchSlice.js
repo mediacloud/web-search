@@ -28,10 +28,10 @@ export const setNegatedQueryList = slice.actions.setNegatedQueryList;
 export const setFromDate = slice.actions.setFromDate;
 export const setToDate = slice.actions.setToDate;
 
-export const selectTotalAttention = (state) => state.search.search;
-export const selectQuery = (state) => state.search.queryList;
-export const selectNegatedQuery = (state) => state.search.negatedQueryList;
-export const selectFromDate = (state) => state.search.fromDate;
-export const selectToDate = (state) => state.search.toDate;
+// export const selectTotalAttention = (state) => state.search.search;
+// export const selectQuery = (state) => state.search.queryList;
+// export const selectNegatedQuery = (state) => state.search.negatedQueryList;
+// export const selectFromDate = (state) => state.search.fromDate;
+// export const selectToDate = (state) => state.search.toDate;
 
 export default slice.reducer;

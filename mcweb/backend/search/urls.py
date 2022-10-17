@@ -10,6 +10,7 @@ router.register('collections', SearchViewSet, 'collections')
 
 urlpatterns = [
     path('search', views.search),
+    path('query', views.query )
 ]
 
 urlpatterns += router.urls

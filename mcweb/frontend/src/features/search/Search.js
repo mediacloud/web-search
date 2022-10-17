@@ -1,45 +1,63 @@
 import * as React from 'react';
-import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import { Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import { useState } from 'react';
-import { useGetSearchMutation } from '../../app/services/searchApi';
-
+import { useMakeQueryMutation } from '../../app/services/searchApi';
+import PlatformPicker from './media_picker/PlatformPicker';
 
 // information from store
-import { setSearch, selectTotalAttention } from '../search/searchSlice';
 import { openModal } from '../ui/uiSlice';
-import { setQueryString } from './querySlice';
+import { setQueryResults } from './resultsSlice';
 import SelectedMedia from './media_picker/SelectedMedia';
 import SearchDatePicker from './SearchDatePicker';
 import SimpleSearch from './SimpleSearch';
-import { selectQuery, selectNegatedQuery, selectFromDate, selectToDate } from '../search/searchSlice';
+import CountOverTimeResults from './results/CountOverTimeResults';
+import SampleStories from './results/SampleStories';
+import { setQueryString } from './querySlice';
+
 
 export default function Search() {
 
-  const totalAttention = useSelector(selectTotalAttention);
-  const query = useSelector(selectQuery);
-  const negatedQuery = useSelector(selectNegatedQuery);
-  const fromDate = useSelector(selectFromDate);
-  const toDate = useSelector(selectToDate);
+  const {count} = useSelector(state => state.results );
+  // const query = useSelector(selectQuery);
   const {enqueueSnackbar} = useSnackbar();
   const dispatch = useDispatch();
-  const [platform, setPlatform] = useState('Online News Archive');
-  const { startDate, endDate, queryString } = useSelector(state => state.query);
 
-  const handleChangePlatform = (event) => {
-    setPlatform(event.target.value);
+  const { startDate, 
+          endDate, 
+          queryString, 
+          queryList, 
+          negatedQueryList,
+          collections,
+          sources,
+          platform } = useSelector(state => state.query);
+
+  const collectionIds = collections.map(collection => collection['id']);
+
+  // const handleChangePlatform = (event) => {
+  //   setPlatform(event.target.value);
+  // };
+  // const [search, { isSearching }] = useGetSearchMutation();
+  const [query, {isLoading, data}] = useMakeQueryMutation();
+
+  const formatQuery = (queryList, negatedQueryList) => {
+    let fullQuery = "";
+    if (negatedQueryList === ""){
+      fullQuery = `(${queryList})`;
+    }else {
+      fullQuery = `(${queryList}) AND NOT (${negatedQueryList})`;
+    }
+    dispatch(setQueryString(fullQuery));
+    return fullQuery;
   };
-  const [search, { isSearching }] = useGetSearchMutation();
 
+  if (platform === "Choose a Platform"){
+    dispatch(openModal("platformPicker"));
+  }
   return (
     <>
-
-      {/* Choose any platform  */}
+      <PlatformPicker />
+      {/* Choose any platform 
       <div className='services'>
         <h1>Choose your Media</h1>
         <Select
@@ -51,7 +69,7 @@ export default function Search() {
           <MenuItem value={"Twitter"}>Twitter</MenuItem>
           <MenuItem value={"Youtube"}>Youtube</MenuItem>
         </Select>
-      </div>
+      </div> */}
 
       {/* Choose Query Type */}
       <SimpleSearch />
@@ -60,20 +78,24 @@ export default function Search() {
       <button onClick={() => dispatch(openModal('mediaPicker'))}> Select Media</button>
 
       <SearchDatePicker />
-
+      
       {/* Submit */}
       <Button
         fullWidth
         variant="outlined"
         onClick={async () => {
           try {
-            const count = await
-              search({
-                query: query,
-                start: startDate,
-                end: endDate,
+            const queryResult = await
+              query({
+                'query': formatQuery(queryList, negatedQueryList),
+                startDate,
+                endDate,
+                'collections': collectionIds,
+                sources,
+                platform
               }).unwrap();
-            dispatch(setSearch(count));
+            dispatch(setQueryResults(queryResult));
+            
             enqueueSnackbar("Total Attention Discovered", { variant: 'success' });
           } catch {
             enqueueSnackbar("Query is empty", { variant: 'error' });
@@ -83,14 +105,14 @@ export default function Search() {
         Submit
       </Button>
     
-      <div>
-          <h1>Query: {query}</h1>
-          <h1>Negated Query: {negatedQuery}</h1>
-          <h1>From Date: {fromDate}</h1>
-          <h1>To Date: {toDate}</h1>
+      <h1>Total Attention: {count} </h1>
+      {data && (
+        <div className='results-container'>
+          <CountOverTimeResults />
+          <SampleStories platform={platform} />
+        </div>
 
-      </div>
-      <h1>Total Attention: {totalAttention} </h1>
+      )}
     </>
   );
 }

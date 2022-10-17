@@ -11,6 +11,7 @@ import authReducer from '../features/auth/authSlice';
 import searchReducer from '../features/search/searchSlice';
 import uiReducer from '../features/ui/uiSlice';
 import queryReducer from '../features/search/querySlice';
+import resultsReducer from '../features/search/resultsSlice';
 
 let store; // singleton store
 
@@ -40,6 +41,8 @@ const setupStore = () => {
       ui: uiReducer,
 
       query: queryReducer,
+
+      results: resultsReducer,
 
     },
     // Adding the api middleware enables caching, invalidation, polling,
