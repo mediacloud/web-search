@@ -3,8 +3,9 @@ import {useState} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { setPlatform } from '../querySlice';
+import { setPlatform } from './querySlice';
 import { closeModal } from '../../ui/uiSlice';
+import LooksOneIcon from '@mui/icons-material/LooksOne';
 
 export default function PlatformPicker (){
     const {platform} = useSelector(state => state.query);
@@ -18,7 +19,10 @@ export default function PlatformPicker (){
     if (platform === "Choose a Platform"){
         return(
             < div className='first-pick-services' >
-                <h1>First, Choose a platform to query against</h1>
+                <div className='platform-title'>
+                    <LooksOneIcon />
+                    <h1 className='first-pick-title'>Choose your Media</h1>
+                </div>
                 <Select
                     value={"Choose A Platform"}
                     onChange={handleChangePlatform}
@@ -29,13 +33,18 @@ export default function PlatformPicker (){
                     <MenuItem value={"Twitter"}>Twitter</MenuItem>
                     <MenuItem value={"Youtube"}>Youtube</MenuItem>
                 </Select>
+
             </div >
         );
     }
 
     return(
-        < div className = 'services' >
-         <h1>Choose your Media</h1>
+        < div className='second-pick-services' >
+            <div className='platform-title'>
+                <LooksOneIcon />
+                <h1>Choose your Media</h1>
+            </div>
+         
          <Select
            value={platform}
            onChange={handleChangePlatform}

@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from './Header';
+import TestHeader from './TestHeader';
 import Footer from './Footer';
 import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -32,7 +33,8 @@ const App = () => {
     <div className="homepage">
       <Modal />
       {/* <MediaPicker /> */}
-      <Header />
+      {/* <Header /> */}
+      <TestHeader />
         <Routes>
              <Route path="collections/:collectionId/modify-collection" element={
               <RequireAuth>

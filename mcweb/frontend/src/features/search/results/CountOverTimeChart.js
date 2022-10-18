@@ -30,10 +30,10 @@ export default function CountOverTimeChart(){
         },
         xAxis: {
             type: 'datetime',
-            dateTimeLabelFormats: { // don't display the year
-                day: '%e. %b',
-                month: '%e. %m',
-                year: '%y'
+            dateTimeLabelFormats: { 
+                month: '%m/%e/%y',
+                day: '%m/%e/%y',
+                year: '%m/%e/%y'
             },
             title: {
                 text: 'Date'

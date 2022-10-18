@@ -1,0 +1,29 @@
+.services {
+    background-color: white;
+}
+
+.first-pick-services {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.platform-title {
+    display: flex;
+    margin: .25rem;
+
+    h1 {
+            font-size: 1.5rem;
+            padding-bottom: .5rem;
+            font-family: $heading-font;
+        }
+}
+
+.first-pick-title {
+    font-size: 1.5rem;
+    padding: .5rem;
+}
+
+.second-pick-services {
+    margin: 1rem;
+}

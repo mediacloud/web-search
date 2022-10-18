@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useGetFeaturedCollectionsQuery } from '../../../app/services/collectionsApi';
+import { useGetFeaturedCollectionsQuery } from '../../../../app/services/collectionsApi';
 import {useSelector, useDispatch} from 'react-redux';
 import { addSelectedMedia, removeSelectedMedia } from '../querySlice';
 

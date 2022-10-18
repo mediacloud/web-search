@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useState} from 'react';
 import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
-import SelectedMedia from './SelectedMedia';
+import SelectedMedia from '../SelectedMedia';
 import CollectionSearchPicker from './CollectionSearchPicker';
 
 export default function MediaPicker() {

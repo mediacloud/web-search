@@ -1,0 +1,19 @@
+.date-picker-title {
+    display: flex;
+
+    h3 {
+            font-size: 1.5rem;
+            padding-bottom: .5rem;
+            margin-top: 1rem;
+            font-family: $heading-font;
+        }
+}
+
+.date-picker-container {
+    padding-left: .5rem;
+}
+
+.date-info {
+    margin-bottom: .5rem;
+    padding-left: .5rem;
+}

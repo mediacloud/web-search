@@ -8,7 +8,7 @@ export default function SampleStories(props){
     const {sample} = useSelector(state => state.results);
 
     if (!sample) return null;
-    console.log(platform);
+   
     if (platform === 'Online News Archive'){
         return(
             <div className='sample-container'>
@@ -24,7 +24,7 @@ export default function SampleStories(props){
                             <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
                                 <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
                                 <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p>{sampleStory.publish_date}</p>
+                                <p>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
                             </div>
                         );
                     })}

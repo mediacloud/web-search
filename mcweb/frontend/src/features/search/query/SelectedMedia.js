@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useSelector, useDispatch} from 'react-redux';
-import { removeSelectedMedia } from '../querySlice';
+import { removeSelectedMedia } from './querySlice';
 
 export default function SelectedMedia() {
     const {collections} = useSelector(state => state.query);

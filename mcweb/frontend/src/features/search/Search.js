@@ -3,23 +3,23 @@ import { Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { useMakeQueryMutation } from '../../app/services/searchApi';
-import PlatformPicker from './media_picker/PlatformPicker';
+import PlatformPicker from './query/PlatformPicker';
 
 // information from store
 import { openModal } from '../ui/uiSlice';
 import { setQueryResults } from './resultsSlice';
-import SelectedMedia from './media_picker/SelectedMedia';
-import SearchDatePicker from './SearchDatePicker';
-import SimpleSearch from './SimpleSearch';
+import SelectedMedia from './query/SelectedMedia';
+import SearchDatePicker from './query/SearchDatePicker';
+import SimpleSearch from './query/SimpleSearch';
 import CountOverTimeResults from './results/CountOverTimeResults';
 import SampleStories from './results/SampleStories';
-import { setQueryString } from './querySlice';
+import { setQueryString } from './query/querySlice';
+import Looks3Icon from '@mui/icons-material/Looks3';
+import TotalAttentionChart from './results/TotalAttentionChart';
 
 
 export default function Search() {
 
-  const {count} = useSelector(state => state.results );
-  // const query = useSelector(selectQuery);
   const {enqueueSnackbar} = useSnackbar();
   const dispatch = useDispatch();
 
@@ -34,10 +34,6 @@ export default function Search() {
 
   const collectionIds = collections.map(collection => collection['id']);
 
-  // const handleChangePlatform = (event) => {
-  //   setPlatform(event.target.value);
-  // };
-  // const [search, { isSearching }] = useGetSearchMutation();
   const [query, {isLoading, data}] = useMakeQueryMutation();
 
   const formatQuery = (queryList, negatedQueryList) => {
@@ -45,7 +41,12 @@ export default function Search() {
     if (negatedQueryList === ""){
       fullQuery = `(${queryList})`;
     }else {
-      fullQuery = `(${queryList}) AND NOT (${negatedQueryList})`;
+      if (platform === "Online News Archive"){
+        fullQuery = `(${queryList}) AND NOT (${negatedQueryList})`;
+      }else {
+        fullQuery = `(${queryList}) -${negatedQueryList}`;
+      }
+      
     }
     dispatch(setQueryString(fullQuery));
     return fullQuery;
@@ -56,34 +57,34 @@ export default function Search() {
   }
   return (
     <>
-      <PlatformPicker />
-      {/* Choose any platform 
-      <div className='services'>
-        <h1>Choose your Media</h1>
-        <Select
-          value={platform}
-          onChange={handleChangePlatform}
-        >
-          <MenuItem value={"Online News Archive"}>Online News Archive</MenuItem>
-          <MenuItem value={"Reddit"}>Reddit</MenuItem>
-          <MenuItem value={"Twitter"}>Twitter</MenuItem>
-          <MenuItem value={"Youtube"}>Youtube</MenuItem>
-        </Select>
-      </div> */}
+      <div className='query-inputs'>
+        <PlatformPicker />
 
-      {/* Choose Query Type */}
-      <SimpleSearch />
+        {/* Choose Query Type */}
+        <SimpleSearch />
 
-      <SelectedMedia />
-      <button onClick={() => dispatch(openModal('mediaPicker'))}> Select Media</button>
+        <div className='search-selected-media-container'>
+          <div className='selected-media-title'>
+            <Looks3Icon />
+            <h3>Select Your Media</h3>
+          </div>
+          <SelectedMedia />
+          <p className='selected-media-info'>Choose individual sources or collections to be searched. 
+            Our system includes collections for a large range of countries, 
+            in multiple languages. Learn more about choosing media.</p>
+          <button onClick={() => dispatch(openModal('mediaPicker'))}> Select Media</button>
+        </div>
 
-      <SearchDatePicker />
+        <SearchDatePicker />
+      </div>
+
       
       {/* Submit */}
       <Button
         fullWidth
         variant="outlined"
         onClick={async () => {
+          enqueueSnackbar("Query Dispatched Please Wait for Results", { variant: 'success'});
           try {
             const queryResult = await
               query({
@@ -104,10 +105,12 @@ export default function Search() {
       >
         Submit
       </Button>
+
+      {isLoading && (<h1>Loading...</h1>)}
     
-      <h1>Total Attention: {count} </h1>
       {data && (
         <div className='results-container'>
+          <TotalAttentionChart />
           <CountOverTimeResults />
           <SampleStories platform={platform} />
         </div>

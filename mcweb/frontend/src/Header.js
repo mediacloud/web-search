@@ -9,7 +9,8 @@ import Button from '@mui/material/Button';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import styled from "styled-components"
+import styled from "styled-components";
+import { NavLink } from 'react-router-dom';
 
 import { useLogoutMutation } from './app/services/authApi';
 import { selectCurrentUser, selectIsLoggedIn, setCredentials } from './features/auth/authSlice';
@@ -53,7 +54,7 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
           Account
         </Button>
       </Box >
-    )
+    );
   } else {
     return (
       <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
@@ -78,7 +79,7 @@ function userButtonStatus(isLoggedIn, user, logout, isLoading, dispatch, navigat
           Sign Up
         </Button>
       </Box>
-    )
+    );
   }
 }
 
@@ -91,7 +92,7 @@ const linkStyle = {
   fontSize: "35px",
   fontWeight: "400",
   
-}
+};
 
 export default function Header() {
 
@@ -145,7 +146,7 @@ export default function Header() {
               mr: 2,
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
-              fontFamily: 'Courier',
+              fontFamily: 'PT Serif, serif',
               letterSpacing: '.05rem',
               color: 'white',
               textDecoration: 'none',

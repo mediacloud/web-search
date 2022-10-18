@@ -15,13 +15,13 @@ import { useState } from 'react';
 // information from store
 import { useSelector } from 'react-redux';
 
-import { setQueryList, setNegatedQueryList } from '../search/searchSlice';
+import { setQueryList, setNegatedQueryList } from '../searchSlice';
 
 import { useDispatch } from 'react-redux';
 
-import { useGetSearchMutation } from '../../app/services/searchApi';
+import { useGetSearchMutation } from '../../../app/services/searchApi';
 
-export default function List(props) {
+export default function QueryList(props) {
   const dispatch = useDispatch();
   
   //logical operator
@@ -92,7 +92,7 @@ export default function List(props) {
       {serviceList.map((singleService, index) => (
         <div key={index} className='services'>
 
-          <div className="firstDivision">
+          <div className="first-division">
             <input name="service" type="text" id="service" required
               value={singleService.service}
               onChange={(e) => handleQueryChange(e, index)} />
@@ -102,7 +102,7 @@ export default function List(props) {
                 onClick={handleServiceAdd}
                 type="button"
                 className='add-btn'>
-                <span>Add a Query Term</span>
+                <span>Add Query Term</span>
               </button>
             )}
           </div>

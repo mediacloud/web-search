@@ -7,7 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useDispatch, useSelector } from 'react-redux';
 import { setStartDate, setEndDate } from './querySlice';
 import dayjs from 'dayjs';
-
+import Looks4Icon from '@mui/icons-material/Looks4';
 
 export default function SearchDatePicker() {
 
@@ -28,8 +28,11 @@ export default function SearchDatePicker() {
     };
 
     return (
-        <>
-            <div className="searchContainer">
+            <div className="date-picker-container">
+                <div className='date-picker-title'>
+                    <Looks4Icon />
+                    <h3>Enter Dates</h3>
+                </div>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
 
                     <Stack
@@ -61,7 +64,12 @@ export default function SearchDatePicker() {
 
                     </Stack>
                 </LocalizationProvider>
+            <p className='date-info'>Enter your inclusive date range. 
+                Our database goes back to 2011, 
+                however the start date for different 
+                sources and collections can vary. 
+                Click on a source or collecton to 
+                learn more about when we added it.</p>
             </div>
-        </>
     );
 }

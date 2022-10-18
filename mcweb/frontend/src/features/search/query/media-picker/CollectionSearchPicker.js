@@ -2,7 +2,7 @@ import * as React from 'react';
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import { addSelectedMedia, removeSelectedMedia } from '../querySlice';
-import { useLazyGetCollectionSearchQuery } from '../../../app/services/searchApi';
+import { useLazyGetCollectionSearchQuery } from '../../../../app/services/searchApi';
 
 export default function CollectionSearchPicker(){
     const [query, setQuery] = useState('');

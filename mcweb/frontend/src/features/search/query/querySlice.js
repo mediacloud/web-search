@@ -12,7 +12,7 @@ const querySlice = createSlice({
                     'platform': "Choose a Platform", 
                     'startDate': startDate, 
                     'endDate': endDate, 
-                    'collections':[], 
+                    'collections': [{ 'id': 34412234, 'name': "United States - National" }], 
                     'sources':[]},
     reducers: {
         addSelectedMedia: (state, {payload}) => {
