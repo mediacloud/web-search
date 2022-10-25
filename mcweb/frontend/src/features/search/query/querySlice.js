@@ -1,8 +1,8 @@
 import { createSlice, current } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 
-const startDate = dayjs().subtract(30, 'day').format('MM/DD/YYYY');
-const endDate = dayjs().format('MM/DD/YYYY');
+const startDate = dayjs().subtract(33, 'day').format('MM/DD/YYYY');
+const endDate = dayjs().subtract(3, 'day').format('MM/DD/YYYY');
 
 const querySlice = createSlice({
     name: 'query',
@@ -12,14 +12,27 @@ const querySlice = createSlice({
                     'platform': "Choose a Platform", 
                     'startDate': startDate, 
                     'endDate': endDate, 
-                    'collections': [{ 'id': 34412234, 'name': "United States - National" }], 
-                    'sources':[]},
+                    'collections': [{ 'id': 34412234, 'name': "United States - National" }],
+                    'previewCollections': [{ 'id': 34412234, 'name': "United States - National" }],
+                    'sources':[],
+                    'lastSearchTime': "",
+                    'anyAll': "any"
+                },
+                    
     reducers: {
         addSelectedMedia: (state, {payload}) => {
-            state.collections.push(payload);
+            state.collections = payload;
         },
         removeSelectedMedia: (state, {payload}) => {
             state.collections = state.collections.filter(collection => collection.id !== payload);
+            state.previewCollections = state.previewCollections.filter(collection => collection.id !== payload);
+
+        },
+        addPreviewSelectedMedia: (state, { payload }) => {
+            state.previewCollections.push(payload);
+        },
+        removePreviewSelectedMedia: (state, { payload }) => {
+            state.previewCollections = state.previewCollections.filter(collection => collection.id !== payload);
         },
         setStartDate: (state, {payload}) => {
             state.startDate = payload;
@@ -38,6 +51,12 @@ const querySlice = createSlice({
         },
         setPlatform: (state, { payload }) => {
             state.platform = payload;
+        },
+        setSearchTime: (state, {payload}) => {
+            state.lastSearchTime = payload;
+        },
+        setAnyAll: (state, {payload}) => {
+            state.anyAll = payload;
         }
     },
 });
@@ -50,6 +69,11 @@ export const {
     setQueryString,
     setQueryList,
     setNegatedQueryList,
-    setPlatform } = querySlice.actions;
+    setPlatform,
+    setSearchTime,
+    addPreviewSelectedMedia,
+    removePreviewSelectedMedia,
+    setAnyAll,
+    } = querySlice.actions;
 
 export default querySlice.reducer;

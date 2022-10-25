@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { useGetFeaturedCollectionsQuery } from '../../../../app/services/collectionsApi';
 import {useSelector, useDispatch} from 'react-redux';
-import { addSelectedMedia, removeSelectedMedia } from '../querySlice';
+import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 
 export default function FeaturedCollectionsPicker () {
     const {data, isLoading} = useGetFeaturedCollectionsQuery();
     const dispatch = useDispatch();
 
-    const { collections } = useSelector(state => state.query);
+    const { previewCollections } = useSelector(state => state.query);
 
-    const collectionIds = collections.map(collection => collection.id);
+    const collectionIds = previewCollections.map(collection => collection.id);
 
     const inSelectedMedia = (collectionId) => {
         return collectionIds.includes(collectionId);
@@ -28,13 +28,13 @@ export default function FeaturedCollectionsPicker () {
                         <h5>{collection.notes}</h5>
 
                         {!(inSelectedMedia(collection.id)) && (
-                            <button onClick={() => dispatch(addSelectedMedia(collection))}>
+                            <button onClick={() => dispatch(addPreviewSelectedMedia(collection))}>
                                 +
                             </button>
                         )}
 
                         {(inSelectedMedia(collection.id)) && (
-                            <button onClick={() => dispatch(removeSelectedMedia(collection.id))}>
+                            <button onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
                                 X
                             </button>
                         )}

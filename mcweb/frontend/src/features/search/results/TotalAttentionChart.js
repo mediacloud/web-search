@@ -1,63 +1,41 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import HighCharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import {queryGenerator} from '../util/queryGenerator';
+import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 
 export default function TotalAttentionChart() {
-    const { count } = useSelector(state => state.results);
-    const { queryString } = useSelector(state => state.query);
-    
-    // const options = {
-    //     chart: {
-    //         type: 'bar'
-    //     },
-    //     title: {
-    //         text: 'Total Attention'
-    //     },
-    //     xAxis: {
-    //         type: 'datetime',
-    //         dateTimeLabelFormats: {
-    //             month: '%e. %m',
-    //             day: '%e. %b',
-    //             year: '%y'
-    //         },
-    //         title: {
-    //             text: 'Total Attention'
-    //         }
-    //     },
-    //     yAxis: {
-    //         title: {
-    //             text: 'Number of stories'
-    //         },
-    //         min: 0
-    //     },
-    //     tooltip: {
-    //         headerFormat: '<b>{series.name}</b><br>',
-    //         pointFormat: '{point.x:%b. %e %y} - count: {point.y}'
-    //     },
+    const { queryList, 
+            negatedQueryList, 
+            platform, 
+            startDate, 
+            endDate, 
+            collections,
+            sources,
+            lastSearchTime, 
+            anyAll } = useSelector(state => state.query);
 
-    //     plotOptions: {
-    //         bar: {
-    //             dataLabels: {
-    //                 enabled: true,
-    //             }
-    //         }
-    //     },
+    const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
-    //     colors: ['#6CF', '#39F', '#06C', '#036', '#000'],
+    const [query, {isLoading, data}] = useGetTotalCountMutation();
+    const collectionIds = collections.map(collection => collection['id']);
 
-    //     // Define the data points. All series have a year of 1970/71 in order
-    //     // to be compared on the same x axis. Note that in JavaScript, months start
-    //     // at 0 for January, 1 for February etc.
-    //     series: [
-    //         {
-    //             name: `query: ${queryString}`,
-    //             data: count,
-    //         },
-    //     ]
-    // };
+    useEffect(()=> {
+        if (queryList) {
+            query({
+                'query': queryString,
+                startDate,
+                endDate,
+                'collections': collectionIds,
+                sources,
+                platform
+
+            });
+        }
+    }, [lastSearchTime]);
 
     const options = {
         chart: {
@@ -106,15 +84,16 @@ export default function TotalAttentionChart() {
         },
         series: [{
             name: `query: ${queryString}`,
-            data: [count]
+            data: [data ? data.count : null]
         }] 
     };
 
+    if (!data) return null;
     return (
 
         <div className='container'>
             {/* {console.log(countOverTime ? cleanData(countOverTime) : "")} */}
-            <h1 className='total-attention'>Total Attention: {count} </h1>
+            <h1 className='total-attention'>Total Attention: {data.count} </h1>
             {/* {console.log(countOverTime ? countOverTime.counts : null)} */}
             <HighchartsReact highcharts={HighCharts} options={options} />
         </div>

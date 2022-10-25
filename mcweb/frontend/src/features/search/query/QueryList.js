@@ -33,7 +33,7 @@ export default function QueryList(props) {
 
   // list of actions
   const functions = [setQueryList, setNegatedList];
-
+  console.log("props", props);
   // initialize the action on which is true
   let action = null;
   functions.map( func => {
@@ -61,6 +61,7 @@ export default function QueryList(props) {
   // remove query
   const handleServiceRemove = (index) => {
     const list = [...serviceList];
+    console.log("IN HANDLE SERVICE REMOVE", list, serviceList);
     list.splice(index, 1);
     setServiceList(list);
   };
@@ -69,6 +70,7 @@ export default function QueryList(props) {
   const handleQueryChange = (e, index) => {
     const { name, value } = e.target;
     const list = [...serviceList];
+    console.log("IN HANDLE QUERY CHANGE",name, value, list);
     list[index][name] = value;
     setServiceList(list);
   };
@@ -76,13 +78,16 @@ export default function QueryList(props) {
   // creates query
   function createQuery() {
     let query = "";
+    console.log("IN CREATEQUERY",serviceList);
     for (let i = 0; i < serviceList.length; i++) {
+      console.log(serviceList[i]);
       if (i == serviceList.length - 1) {
         query += serviceList[i].service;
       } else {
         query += serviceList[i].service + " " + logic + " ";
       }
     }
+    console.log(query);
     return query;
   }
 
@@ -90,8 +95,9 @@ export default function QueryList(props) {
   return (
     <div>
       {serviceList.map((singleService, index) => (
+        
         <div key={index} className='services'>
-
+          {console.log("IN RENDER", serviceList)}
           <div className="first-division">
             <input name="service" type="text" id="service" required
               value={singleService.service}

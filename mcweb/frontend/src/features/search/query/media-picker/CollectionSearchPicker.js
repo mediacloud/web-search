@@ -1,16 +1,16 @@
 import * as React from 'react';
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import { addSelectedMedia, removeSelectedMedia } from '../querySlice';
+import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import { useLazyGetCollectionSearchQuery } from '../../../../app/services/searchApi';
 
 export default function CollectionSearchPicker(){
     const [query, setQuery] = useState('');
     const [trigger, {isLoading, isError, data, error}, lastPromiseInfo] = useLazyGetCollectionSearchQuery();
     const dispatch = useDispatch();
-    const { collections } = useSelector(state => state.query);
+    const { previewCollections } = useSelector(state => state.query);
 
-    const collectionIds = collections.map(collection => collection.id);
+    const collectionIds = previewCollections.map(collection => collection.id);
 
     const inSelectedMedia = (collectionId) => {
         return collectionIds.includes(collectionId);
@@ -38,13 +38,13 @@ export default function CollectionSearchPicker(){
                             <div className='collection-result-item' key={collection.id}>
                                 <p>{collection.name}</p>
                                 {!(inSelectedMedia(collection.id)) && (
-                                    <button onClick={() => dispatch(addSelectedMedia(collection))}>
+                                    <button onClick={() => dispatch(addPreviewSelectedMedia(collection))}>
                                         +
                                     </button>
                                 )}
 
                                 {(inSelectedMedia(collection.id)) && (
-                                    <button onClick={() => dispatch(removeSelectedMedia(collection.id))}>
+                                    <button onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
                                         X
                                     </button>
                                 )}

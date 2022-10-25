@@ -1,11 +1,16 @@
 import * as React from 'react';
 import {useState} from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
-import SelectedMedia from '../SelectedMedia';
+import SelectedMediaPreview from '../SelectedMediaPreview';
 import CollectionSearchPicker from './CollectionSearchPicker';
+import { addSelectedMedia } from '../querySlice';
+import { closeModal } from '../../../ui/uiSlice';
 
 export default function MediaPicker() {
     const [tab, setTab] = useState('featuredCollections');
+    const dispatch = useDispatch();
+    const {previewCollections} = useSelector(state => state.query);
     return(
     <div className='media-picker-container'>
         <div className='media-picker-sidebar'>
@@ -14,7 +19,7 @@ export default function MediaPicker() {
                 <button onClick={() => setTab('collectionSearch')}>Search Collections</button>
                 <button onClick={() => setTab('sourceSearch')}>Search Sources</button>
             </div>
-            <SelectedMedia />
+            <SelectedMediaPreview />
         </div>
         {tab === 'featuredCollections' && (
             <FeaturedCollectionsPicker />
@@ -30,6 +35,12 @@ export default function MediaPicker() {
             <h3>Sources search...under construction</h3>
         )}
 
-    </div>);
+        <button onClick={() => {
+            dispatch(addSelectedMedia(previewCollections));
+            dispatch(closeModal());
+        }}>Confirm</button>
+
+    </div>
+    );
 
 }

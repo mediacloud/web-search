@@ -1,44 +1,52 @@
 import * as React from 'react';
 import {useState} from 'react';
 import QueryList from './QueryList';
+import TestQueryList from './TestQueryList';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { setQueryList, setNegatedQueryList} from './querySlice';
+import { setQueryList, setNegatedQueryList, setAnyAll} from './querySlice';
 import LooksTwoIcon from '@mui/icons-material/LooksTwo';
 import {useSelector} from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 export default function SimpleSearch () {
 
-    const [any, setAny] = useState("Any");
+    const [any, setAny] = useState("any");
+    const dispatch = useDispatch();
 
     const handleChangeAnyAll = (event) => {
         setAny(event.target.value);
+        dispatch(setAnyAll(event.target.value));
     };
 
     const {platform} = useSelector(state => state.query);
 
+    const PLATFORM_ONLINE_NEWS = 'onlinenews';
+    const PLATFORM_REDDIT = 'reddit';
+    const PLATFORM_TWITTER = 'twitter';
+    const PLATFORM_YOUTUBE = 'youtube';
     // determines what to give List.js as a parameter from state
     const queryLogic = () => {
-        if (any == "Any") {
-            if (platform === "Online News Archive" || platform === "Twitter"){
+        if (any == "any") {
+            if (platform === PLATFORM_ONLINE_NEWS || platform === PLATFORM_TWITTER){
                 return "OR";
-            }else if (platform === "Reddit" || platform === "Youtube"){
+            }else if (platform === PLATFORM_REDDIT || platform === PLATFORM_YOUTUBE){
                 return "|";
             }
             
         } else {
-            if (platform === "Online News Archive") {
+            if (platform === PLATFORM_ONLINE_NEWS) {
                 return "AND";
-            } else if (platform === "Twitter" || platform === "Youtube") {
+            } else if (platform === PLATFORM_TWITTER || platform === PLATFORM_YOUTUBE) {
                 return " ";
-            } else if (platform === "Reddit"){
+            } else if (platform === PLATFORM_REDDIT){
                 return "+";
             }
         }
     };
 
     const negatedQueryLogic = () => {
-        if (platform === "Online News Archive") {
+        if (platform === PLATFORM_ONLINE_NEWS) {
             return "OR";
         } else {
             return "-";
@@ -70,13 +78,13 @@ export default function SimpleSearch () {
                 value={any}
                 onChange={handleChangeAnyAll}
             >
-                <MenuItem value={"Any"}>Any</MenuItem>
-                <MenuItem value={"All"}>All</MenuItem>
+                <MenuItem value={"any"}>Any</MenuItem>
+                <MenuItem value={"all"}>All</MenuItem>
             </Select>
             <h1 className='select-title'>of these Phrases</h1>
           </div>
        
-            <QueryList props={queryListProps}/>
+            <TestQueryList negated={false}/>
 
         </div>
 
@@ -84,7 +92,7 @@ export default function SimpleSearch () {
             <h1 className='negations-title'>And none of these phrases</h1>
 
             {/* Negation List */}
-            <QueryList props={negatedListProps} />
+            <TestQueryList negated={true} />
         </div>
 
     </div>

@@ -27,6 +27,16 @@ export default function SearchDatePicker() {
         dispatch(setEndDate(dayjs(newValue).format('MM/DD/YYYY')));
     };
 
+    // const disabledDates = (date) => {
+    //     if (date === dayjs().subtract(2, 'day').format('MM/DD/YYYY')){
+    //         return true;
+    //     } else if (dayjs().subtract(1, 'day').format('MM/DD/YYYY')) {
+    //         return true;
+    //     } else if (dayjs().format('MM/DD/YYYY')) {
+    //         return true;
+    //     }
+    // };
+
     return (
             <div className="date-picker-container">
                 <div className='date-picker-title'>
@@ -49,6 +59,10 @@ export default function SearchDatePicker() {
                             inputFormat="MM/dd/yyyy"
                             value={startDate}
                             onChange={handleChangeFromDate}
+                            disableFuture={true}
+                            disableHighlightToday={true}
+                            maxDate={dayjs().subtract(3, 'day').format('MM/DD/YYYY')}
+                            
                             renderInput={(params) => <TextField {...params} />}
                         />
 
@@ -59,6 +73,10 @@ export default function SearchDatePicker() {
                             inputFormat="MM/dd/yyyy"
                             value={endDate}
                             onChange={handleChangeToDate}
+                            disableFuture={true}
+                            disableHighlightToday={true}
+                            maxDate={dayjs().subtract(3, 'day').format('MM/DD/YYYY')}
+                            // shouldDisableDate={disabledDates}
                             renderInput={(params) => <TextField {...params} />}
                         />
 

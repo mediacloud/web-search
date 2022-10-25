@@ -1,16 +1,49 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import HighCharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { useGetCountOverTimeMutation, useDownloadCountsOverTimeCSVMutation } from '../../../app/services/searchApi';
+import { queryGenerator } from '../util/queryGenerator';
 
 export default function CountOverTimeChart(){
-    const {countOverTime, count} = useSelector(state => state.results);
-    const {queryString} = useSelector(state =>state.query);
+
+    const { queryList,
+        negatedQueryList,
+        platform,
+        startDate,
+        endDate,
+        collections,
+        sources,
+        lastSearchTime,
+        anyAll } = useSelector(state => state.query);
+
+    const queryString = queryGenerator(queryList, negatedQueryList, platform);
+
+    const [query, { isLoading, data }] = useGetCountOverTimeMutation();
+    const [downloadCsv, csvResults] = useDownloadCountsOverTimeCSVMutation();
+
+    const collectionIds = collections.map(collection => collection['id']);
+    const PLATFORM_YOUTUBE = "youtube";
+    useEffect(() => {
+        if (queryList && platform !== PLATFORM_YOUTUBE) {
+            query({
+                'query': queryString,
+                startDate,
+                endDate,
+                'collections': collectionIds,
+                sources,
+                platform
+
+            });
+        }
+    }, [lastSearchTime]);
+
     const cleanData = () => {
-        if (countOverTime){
-            const newData = countOverTime.counts.map(day => [dateHelper(day.date), day.count]);
+        if (data){
+            const newData = data.count_over_time.counts.map(day => [dateHelper(day.date), day.count]);
             return newData;
         }
     };
@@ -72,13 +105,25 @@ export default function CountOverTimeChart(){
         ]
     };
 
+    if (!data) return null;
+    if (isLoading) return (<h1>Loading...</h1>);
     return(
 
         <div className='container'>
-            {/* {console.log(countOverTime ? cleanData(countOverTime) : "")} */}
-            
-            {/* {console.log(countOverTime ? countOverTime.counts : null)} */}
             <HighchartsReact highcharts={HighCharts} options={options} />
+            <button onClick={() => {
+                downloadCsv({
+                    'query': queryString,
+                    startDate,
+                    endDate,
+                    'collections': collectionIds,
+                    sources,
+                    platform
+
+                });
+            }}>
+                Download CSV
+            </button>
         </div>
     );
 }

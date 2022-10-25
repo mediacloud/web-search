@@ -8,7 +8,7 @@ from .provider import ContentProvider, MC_DATE_FORMAT
 from util.cache import cache_by_kwargs
 
 REDDIT_PUSHSHIFT_URL = "https://api.pushshift.io"
-SUBMISSION_SEARCH_URL = "{}/reddit/search/submissions".format(REDDIT_PUSHSHIFT_URL)
+SUBMISSION_SEARCH_URL = "{}/reddit/submission/search".format(REDDIT_PUSHSHIFT_URL)
 
 NEWS_SUBREDDITS = ['politics', 'worldnews', 'news', 'conspiracy', 'Libertarian', 'TrueReddit', 'Conservative', 'offbeat']
 
@@ -46,8 +46,9 @@ class RedditPushshiftProvider(ContentProvider):
         """
         data = self._cached_submission_search(q=query,
                                               start_date=start_date, end_date=end_date,
-                                              limit=0, track_total_hits=True, **kwargs)
-        return data['metadata']['es']['hits']['total']['value']
+                                              limit=0, track_total_hits=True)
+        print(data)
+        return data['metadata']['total_results']
 
     def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
         """
@@ -91,8 +92,9 @@ class RedditPushshiftProvider(ContentProvider):
         if 'subreddits' in kwargs:
             params['subreddit'] = ",".join(kwargs['subreddits'])
         if (start_date is not None) and (end_date is not None):
-            params['since'] = int(start_date.timestamp())
-            params['until'] = int(end_date.timestamp())
+            params['start'] = int(start_date.timestamp())
+            params['end'] = int(end_date.timestamp())
+        params['metadata'] = 'true'
         # and now add in any other arguments they have sent in
         params.update(kwargs)
         r = requests.get(SUBMISSION_SEARCH_URL, headers=headers, params=params)
