@@ -1,12 +1,11 @@
 .media-picker-container{
     background-color: white;
-    display: flex;
-    max-height: 100%;
+    // display: flex;
+    // max-height: 100%;
     overflow-y: auto;
-    // height: auto;
-    // width: auto;
-    border: 1px solid red;
-    overflow: auto;
+    // // height: auto;
+    // border: 1px solid red;
+    // overflow: auto;
 }
 
 .media-picker-tabs {
@@ -16,4 +15,11 @@
     button {
         margin: 5px;
     }
+}
+
+.media-picker-tab {
+    border-bottom: 1px solid gray;
+    font-size: 1.35rem;
+    font-family: $heading-font;
+    margin: 1rem;
 }

@@ -48,24 +48,23 @@ export default function SampleStories(){
     if (isLoading) return (<h1>Loading...</h1>);
     if (platform === PLATFORM_ONLINE_NEWS){
         return(
-            <div className='sample-container'>
-                <h3>Sample Stories</h3>
-                <div className='sample-title'>
-                    <h5>Title</h5>
-                    <h5>Media Source</h5>
-                    <h5>Published</h5>
+            <div className='container'>
+                <h1>Sample Stories</h1>
+                <div className='row'>
+                        <h5 className='col-5'>Title</h5>
+                        <h5 className='col-5'>Media Source</h5>
+                        <h5 className='col-2'>Published</h5>
                 </div>
-                <div>
                     {data.sample.map((sampleStory, index) => {
                         return(
-                            <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
-                                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
+                            <div className='row sample-story' key={`${index}-${sampleStory.media_id}`}>
+                                <a className='col-5' href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
+                                <a className='col-5' href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
+                                <p className='col-2'>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
                             </div>
                         );
                     })}
-                </div>
+               
                 <button onClick={() => {
                     downloadStories({
                         'query': queryString,
@@ -130,17 +129,17 @@ export default function SampleStories(){
             <div>
                 <h3>Sample Stories</h3>
                 <div className='sample-title'>
-                    <h5>Title</h5>
+                    <h5>Content</h5>
                     <h5>Media Source</h5>
                     <h5>Published</h5>
                 </div>
                 <div>
                     {data.sample.map((sampleStory, index) => {
                         return (
-                            <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
+                            <div className='sample-story-item' key={`${index}-`}>
+                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.content}</a>
                                 <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p>{sampleStory.publish_date}</p>
+                                <p>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
                             </div>
                         );
                     })}

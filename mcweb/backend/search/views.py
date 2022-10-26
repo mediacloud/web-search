@@ -123,6 +123,7 @@ def total_count(request):
     start_date, end_date, query_str, collections, platform, platform_source = itemgetter("start_date", "end_date", "query", "collections", "platform", "platform_source")(parse_query(request))
     provider = provider_for(platform, platform_source)
     count = provider.count(query_str, start_date, end_date, collections=collections)
+    # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"count": count }), content_type="application/json", status=200)
 
 @require_http_methods(["POST"])
@@ -179,14 +180,10 @@ def download_sample_stories_csv(request):
     )
 
     writer = csv.writer(response)
-
-    # extract into a constat (global)
-    writer.writerow(['stories_id', 'publish_date', 'title', 'url', 'language', 'ap_syndicated', 'themes', 'media_id', 'media_name', 'media_url'])
-    # print(sample_stories)
-    for story in sample_stories:
-        print(story)
+    writer.writerow(['publish_date', 'title', 'url', 'language'])
+    for row in sample_stories:
+        for story in row:
         # Can search media_id (source_id) and source object from story["domain"]
-        writer.writerow([ story["publication_date"], story["title"], story["url"], story["language"] ])
-
+            writer.writerow([story["publication_date"], story["title"], story["url"], story["language"] ])
 
     return response

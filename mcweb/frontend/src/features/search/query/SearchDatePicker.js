@@ -56,12 +56,11 @@ export default function SearchDatePicker() {
                             required
                             type='date'
                             label="From"
-                            inputFormat="MM/dd/yyyy"
                             value={startDate}
                             onChange={handleChangeFromDate}
                             disableFuture={true}
                             disableHighlightToday={true}
-                            maxDate={dayjs().subtract(3, 'day').format('MM/DD/YYYY')}
+                            maxDate={dayjs(dayjs().subtract(3, 'day').format('MM/DD/YYYY'))}
                             
                             renderInput={(params) => <TextField {...params} />}
                         />
@@ -70,12 +69,11 @@ export default function SearchDatePicker() {
                         <DatePicker
                             required
                             label="To"
-                            inputFormat="MM/dd/yyyy"
                             value={endDate}
                             onChange={handleChangeToDate}
                             disableFuture={true}
                             disableHighlightToday={true}
-                            maxDate={dayjs().subtract(3, 'day').format('MM/DD/YYYY')}
+                            maxDate={dayjs(dayjs().subtract(3, 'day').format('MM/DD/YYYY'))}
                             // shouldDisableDate={disabledDates}
                             renderInput={(params) => <TextField {...params} />}
                         />

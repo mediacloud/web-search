@@ -1,4 +1,4 @@
-.sample-story-item{
+.sample-story-item {
     display: flex;
     justify-content: space-between;
 }
@@ -11,4 +11,13 @@
 .sample-container {
     display: flex;
     flex-direction: column;
+}
+
+.sample-story:nth-child(even) {
+    background-color: rgb(202, 201, 201);
+    border-color: $primary-black;
+}
+.sample-story:nth-child(odd) {
+    background-color: $primary-off-white;
+    border-color: gray;
 }

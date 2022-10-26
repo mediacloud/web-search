@@ -10,3 +10,13 @@
     display: flex;
     justify-content: space-between;
 }
+
+.featured-collections-container {
+    width: auto;
+}
+
+.add-remove{
+    background-color: $primary-red;
+    border-radius: 50%;
+    border: 1px solid $primary-red;
+}

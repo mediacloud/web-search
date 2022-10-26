@@ -45,7 +45,7 @@ export default function TotalAttentionChart() {
             text: 'Total Attention'
         },
         xAxis: {
-            categories: [`${queryString}`,],
+            categories: [`${queryString}`, "Total Stories Count"],
             title: {
                 text: null
             }
@@ -85,14 +85,17 @@ export default function TotalAttentionChart() {
         series: [{
             name: `query: ${queryString}`,
             data: [data ? data.count : null]
-        }] 
+        }]
+        // {
+        //     name: "Total Stories",
+        //     data: [data ? data.all_count.normalized_total : null]
+        // }] 
     };
 
     if (!data) return null;
     return (
 
         <div className='container'>
-            {/* {console.log(countOverTime ? cleanData(countOverTime) : "")} */}
             <h1 className='total-attention'>Total Attention: {data.count} </h1>
             {/* {console.log(countOverTime ? countOverTime.counts : null)} */}
             <HighchartsReact highcharts={HighCharts} options={options} />

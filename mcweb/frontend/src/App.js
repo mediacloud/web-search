@@ -1,6 +1,5 @@
 import React from 'react';
 import Header from './Header';
-import TestHeader from './TestHeader';
 import Footer from './Footer';
 import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -18,7 +17,6 @@ import CreateCollection from './features/collections/CreateCollection';
 import Search from './features/search/Search';
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
-import Modal from './features/ui/modal/modal';
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -31,10 +29,7 @@ const App = () => {
   return (
 
     <div className="homepage">
-      <Modal />
-      {/* <MediaPicker /> */}
-      {/* <Header /> */}
-      <TestHeader />
+      <Header />
         <Routes>
              <Route path="collections/:collectionId/modify-collection" element={
               <RequireAuth>

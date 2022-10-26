@@ -26,9 +26,12 @@ export default function CountOverTimeChart(){
     const [downloadCsv, csvResults] = useDownloadCountsOverTimeCSVMutation();
 
     const collectionIds = collections.map(collection => collection['id']);
+
     const PLATFORM_YOUTUBE = "youtube";
+    const PLATFORM_REDDIT = "reddit";
+        
     useEffect(() => {
-        if (queryList && platform !== PLATFORM_YOUTUBE) {
+        if (queryList && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
             query({
                 'query': queryString,
                 startDate,

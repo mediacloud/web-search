@@ -1,13 +1,13 @@
 import * as React from 'react';
 import {useState} from 'react';
 import QueryList from './QueryList';
-import TestQueryList from './TestQueryList';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import { setQueryList, setNegatedQueryList, setAnyAll} from './querySlice';
 import LooksTwoIcon from '@mui/icons-material/LooksTwo';
 import {useSelector} from 'react-redux';
 import { useDispatch } from 'react-redux';
+import QueryPreview from './QueryPreview';
 
 export default function SimpleSearch () {
 
@@ -84,7 +84,7 @@ export default function SimpleSearch () {
             <h1 className='select-title'>of these Phrases</h1>
           </div>
        
-            <TestQueryList negated={false}/>
+            <QueryList negated={false}/>
 
         </div>
 
@@ -92,7 +92,11 @@ export default function SimpleSearch () {
             <h1 className='negations-title'>And none of these phrases</h1>
 
             {/* Negation List */}
-            <TestQueryList negated={true} />
+            <QueryList negated={true} />
+        </div>
+
+        <div>
+            <QueryPreview />
         </div>
 
     </div>
