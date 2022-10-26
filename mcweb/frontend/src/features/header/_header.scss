@@ -1,0 +1,49 @@
+// .header {
+//   text-align: center;
+//   background: #1C769D;
+//   color: white;
+//   position: static;
+// }
+
+#header {
+  background-color: $primary-red;
+  padding: 0px 10px;
+
+  img {
+    margin-right: 20px;
+  }
+
+  ul {
+    display: inline-block;
+    padding: 0px;
+    margin: 0px;
+
+    li {
+      border: none;
+      display: inline-block;
+
+      button {
+        padding: 10px 20px;
+        font-size: 14px;
+        color: white;
+        font-weight: bold;
+      }
+
+      a:hover {
+        text-decoration: none;
+      }
+
+      a.active {
+        button {
+          border-bottom: 2px solid #ffffff;
+        }
+      }
+
+    }
+  }
+
+  #menuButtonWrapper {
+    margin-top: 5px;
+  }
+
+}

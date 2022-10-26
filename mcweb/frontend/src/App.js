@@ -1,8 +1,10 @@
 import React from 'react';
-import Header from './Header';
-import Footer from './Footer';
 import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
 import { useSelector } from 'react-redux';
+
+import Header from './features/header/Header';
+import Footer from './Footer';
+
 // user status
 import Account from './features/auth/Account';
 import SignIn from './features/auth/SignIn';
@@ -23,7 +25,6 @@ import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
 
 import { selectIsLoggedIn } from './features/auth/authSlice';
-
 
 const App = () => {
   return (
@@ -67,12 +68,12 @@ const App = () => {
             <Route path="sources/:sourceId" element={
               <RequireAuth>
                 <SourceShow />
-              </RequireAuth>} /> 
+              </RequireAuth>} />
 
             <Route path="sources" element={
               <RequireAuth>
                 <SourceHome />
-              </RequireAuth>} /> 
+              </RequireAuth>} />
 
             <Route path="sign-in" element={<SignIn />} />
             <Route path="reset-password" element={<ResetPassword />} />
@@ -83,11 +84,11 @@ const App = () => {
               <RequireAuth>
                 <Account />
               </RequireAuth>} />
-          
+
         </Routes>
       <Footer />
     </div>
-    
+
   );
 };
 

@@ -17,11 +17,11 @@
 @import '../features/sources/style/source';
 
 // componenets
-@import '../style/header';
+@import '../features/header/header';
 @import '../style/homepage';
 @import '../style/footer';
 
-// search styling 
+// search styling
 @import '../features/search/styles/search.scss';
 @import '../features/search/query/style/media-picker';
 @import '../features/search/query/style/featured-collection-picker';
@@ -35,5 +35,9 @@
 // results styling
 @import '../features/search/results/styles/sample-stories';
 
-// text styling 
+// text styling
 @import '../style/text';
+
+body {
+    font-family: $font-families,
+}
