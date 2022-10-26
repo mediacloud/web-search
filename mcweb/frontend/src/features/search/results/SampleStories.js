@@ -5,6 +5,7 @@ import {useSelector} from 'react-redux';
 import { useGetSampleStoriesMutation, useDownloadSampleStoriesCSVMutation } from '../../../app/services/searchApi';
 import { queryGenerator } from '../util/queryGenerator';
 import dayjs from 'dayjs';
+import Button from '@mui/material/Button';
 
 export default function SampleStories(){
 
@@ -31,7 +32,7 @@ export default function SampleStories(){
     const collectionIds = collections.map(collection => collection['id']);
 
     useEffect(() => {
-        if (queryList) {
+        if (queryList[0].length !== 0) {
             query({
                 'query': queryString,
                 startDate,
@@ -65,7 +66,7 @@ export default function SampleStories(){
                         );
                     })}
                
-                <button onClick={() => {
+                <Button variant="outlined" onClick={() => {
                     downloadStories({
                         'query': queryString,
                         startDate,
@@ -77,7 +78,7 @@ export default function SampleStories(){
                     });
                 }}>
                     Download CSV
-                </button>
+                </Button>
             </div>
         );
     } else if (platform === PLATFORM_TWITTER){

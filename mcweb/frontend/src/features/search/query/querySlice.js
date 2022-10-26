@@ -1,21 +1,21 @@
 import { createSlice, current } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 
-const startDate = dayjs().subtract(33, 'day').format('MM/DD/YYYY');
-const endDate = dayjs().subtract(3, 'day').format('MM/DD/YYYY');
+const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
+const endDate = dayjs().subtract(4, 'day').format('MM/DD/YYYY');
 
 const querySlice = createSlice({
     name: 'query',
     initialState: { 'queryString': "",
-                    'queryList': "",
-                    'negatedQueryList': "", 
+                    'queryList': [[],[],[]],
+                    'negatedQueryList': [[],[],[]], 
                     'platform': "Choose a Platform", 
                     'startDate': startDate, 
                     'endDate': endDate, 
                     'collections': [{ 'id': 34412234, 'name': "United States - National" }],
                     'previewCollections': [{ 'id': 34412234, 'name': "United States - National" }],
                     'sources':[],
-                    'lastSearchTime': "",
+                    'lastSearchTime': dayjs().format(),
                     'anyAll': "any"
                 },
                     

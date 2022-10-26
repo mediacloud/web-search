@@ -8,13 +8,11 @@
 
 
 .collection-picker-item:nth-child(even) {
-    border: 1px solid gray;
-    background-color: $primary-off-white;
+    background-color: #dec6bd3f;
 }
 
 .collection-picker-item:nth-child(odd) {
-    border: 1px solid gray;
-    background-color: rgba(128, 128, 128, 0.488);
+    background-color:#2f2d2b1e;
 }
 
 .featured-collections-container {

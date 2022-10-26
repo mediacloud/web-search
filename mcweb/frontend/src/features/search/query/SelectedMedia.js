@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import { removeSelectedMedia } from './querySlice';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
 
 export default function SelectedMedia() {
     const {collections} = useSelector(state => state.query);
@@ -13,7 +13,7 @@ export default function SelectedMedia() {
                 {collections.map(collection => {
                     return (
                     <div className='selected-media-item' key={`selected-media${collection.id}`}>
-                        <div >{collection.name}</div>
+                        <h6 >{collection.name}</h6>
                         <div onClick={()=> dispatch(removeSelectedMedia(collection.id))}>
                             <RemoveCircleIcon sx={{ color: '#d24527' }} />
                         </div>

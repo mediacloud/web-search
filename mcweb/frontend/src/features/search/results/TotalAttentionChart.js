@@ -24,7 +24,7 @@ export default function TotalAttentionChart() {
     const collectionIds = collections.map(collection => collection['id']);
 
     useEffect(()=> {
-        if (queryList) {
+        if (queryList[0].length !== 0) {
             query({
                 'query': queryString,
                 startDate,

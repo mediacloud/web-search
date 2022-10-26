@@ -13,11 +13,11 @@
     flex-direction: column;
 }
 
-.sample-story:nth-child(even) {
-    background-color: rgb(202, 201, 201);
+.sample-story:nth-child(odd) {
+    background-color: #2f2d2b15;
     border-color: $primary-black;
 }
-.sample-story:nth-child(odd) {
+.sample-story:nth-child(even) {
     background-color: $primary-off-white;
-    border-color: gray;
+    border-color: #dec6bd23;
 }

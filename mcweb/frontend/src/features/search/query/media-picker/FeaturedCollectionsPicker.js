@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useGetFeaturedCollectionsQuery } from '../../../../app/services/collectionsApi';
 import {useSelector, useDispatch} from 'react-redux';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
 
 export default function FeaturedCollectionsPicker () {
     const {data, isLoading} = useGetFeaturedCollectionsQuery();
@@ -23,8 +23,8 @@ export default function FeaturedCollectionsPicker () {
         return(
             <div className='container featured-collections-container'>
                 <div className='row'>
-                    <div className='col-5'>Name</div>
-                    <div className='col-7'>Description</div>
+                    <h5 className='col-5'>Name</h5>
+                    <h5 className='col-7'>Description</h5>
                 </div>
                 {data.collections.map(collection => {
                   return( 

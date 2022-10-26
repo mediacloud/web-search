@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useGetCountOverTimeMutation, useDownloadCountsOverTimeCSVMutation } from '../../../app/services/searchApi';
 import { queryGenerator } from '../util/queryGenerator';
+import Button  from '@mui/material/Button';
 
 export default function CountOverTimeChart(){
 
@@ -31,7 +32,7 @@ export default function CountOverTimeChart(){
     const PLATFORM_REDDIT = "reddit";
         
     useEffect(() => {
-        if (queryList && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
+        if (queryList[0].length !== 0 && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
             query({
                 'query': queryString,
                 startDate,
@@ -114,7 +115,7 @@ export default function CountOverTimeChart(){
 
         <div className='container'>
             <HighchartsReact highcharts={HighCharts} options={options} />
-            <button onClick={() => {
+            <Button variant='outlined' onClick={() => {
                 downloadCsv({
                     'query': queryString,
                     startDate,
@@ -126,7 +127,7 @@ export default function CountOverTimeChart(){
                 });
             }}>
                 Download CSV
-            </button>
+            </Button>
         </div>
     );
 }

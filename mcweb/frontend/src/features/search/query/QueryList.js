@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { setQueryList, setNegatedQueryList } from './querySlice';
 import { useDispatch, useSelector } from 'react-redux';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 export default function QueryList(props) {
     const dispatch = useDispatch();
@@ -59,7 +59,7 @@ export default function QueryList(props) {
 
                             {serviceList.length - 1 === index && (
                                 <div onClick={handleServiceAdd} >
-                                    <AddCircleIcon sx={{color:'green', marginLeft:'.5rem'}} />
+                                    <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft:'.5rem'}} />
                                 </div>
                             )}
                         </div>
@@ -89,7 +89,7 @@ export default function QueryList(props) {
 
                                 {serviceList.length - 1 === index && (
                                     <div onClick={handleServiceAdd} >
-                                        <AddCircleIcon sx={{ color: 'green', marginLeft: '.5rem' }} />
+                                        <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
                                     </div>
                                 )}
                             </div>

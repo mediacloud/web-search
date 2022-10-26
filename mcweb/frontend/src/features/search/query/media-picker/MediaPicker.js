@@ -22,47 +22,6 @@ export default function MediaPicker(props) {
     const {previewCollections} = useSelector(state => state.query);
     const [open, setOpen] = useState(false);
 
-    // useEffect(() => {
-    //     setOpen(isOpen);
-    // }, [isOpen]);
-    // return(
-    // <div className='container media-picker-container'>
-    //     <div className='row'>
-    //         <div className='col-5'>
-    //             <div className='media-picker-tab' onClick={() => setTab('featuredCollections')}>Featured Collections</div>
-    //             <div className='media-picker-tab' onClick={() => setTab('collectionSearch')}>Search Collections</div>
-    //             <div className='media-picker-tab' onClick={() => setTab('sourceSearch')}>Search Sources</div>
-    //             <SelectedMediaPreview />
-    //         </div>
-
-        
-
-    //         <div className='col-7'>
-    //             {tab === 'featuredCollections' && (
-    //                 <FeaturedCollectionsPicker />
-    //             )}
-
-    //             {tab === 'collectionSearch' && (
-    //                 // <FeaturedCollectionsPicker />
-    //                 <CollectionSearchPicker />
-    //             )}
-
-    //             {tab === 'sourceSearch' && (
-    //                 // <FeaturedCollectionsPicker />
-    //                 <h3>Sources search...under construction</h3>
-    //             )}
-    //         </div>
-
-    //     </div>
-    //     <button onClick={() => {
-    //         dispatch(addSelectedMedia(previewCollections));
-    //         dispatch(closeModal());
-    //     }}>Confirm</button>
-    //     <button onClick={() => {
-    //         dispatch(closeModal());
-    //     }}>Close</button>
-    // </div>
-    // );
     return (
         <div>
             <Button variant="outlined" onClick={()=> setOpen(true)}>
@@ -73,7 +32,7 @@ export default function MediaPicker(props) {
                     <div className='container media-picker-container'>
                         <div className='row'>
 
-                            <div className='col-5'>
+                            <div className='col-4'>
                                 <div className='media-picker-tab' onClick={() => setTab('featuredCollections')}>Featured Collections</div>
                                 <div className='media-picker-tab' onClick={() => setTab('collectionSearch')}>Search Collections</div>
                                 <div className='media-picker-tab' onClick={() => setTab('sourceSearch')}>Search Sources</div>
@@ -82,7 +41,7 @@ export default function MediaPicker(props) {
 
 
 
-                            <div className='col-7'>
+                            <div className='col-8'>
                                 {tab === 'featuredCollections' && (
                                     <FeaturedCollectionsPicker />
                                 )}

@@ -3,6 +3,10 @@ import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import { useLazyGetCollectionSearchQuery } from '../../../../app/services/searchApi';
+import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 export default function CollectionSearchPicker(){
     const [query, setQuery] = useState('');
@@ -18,13 +22,13 @@ export default function CollectionSearchPicker(){
     return(
         <div className='collection-search-picker-container'>
             {/* CollectionSearch */}
-            <input type="text" value={query} onChange={e => setQuery(e.target.value)} />
-            <div onClick={() => {
+            <TextField size='large' sx={{marginTop:'1rem'}}label="Search Collection by Name"  value={query} onChange={e => setQuery(e.target.value)} />
+            <Button  sx={{marginLeft:'1rem', marginTop:'1rem'}}variant='outlined' onClick={() => {
                trigger(query);
             }
                 }>
                     Send Query
-            </div>
+            </Button>
             {/* CollectionSearch results? */}
             {isLoading && (
                 <div>Loading...</div>
@@ -35,18 +39,19 @@ export default function CollectionSearchPicker(){
                     <h6>{data.collections.length} Collections matching "{query}"</h6>
                     {data.collections.map(collection => {
                         return (
-                            <div className='collection-result-item' key={collection.id}>
-                                <p>{collection.name}</p>
-                                {!(inSelectedMedia(collection.id)) && (
-                                    <button onClick={() => dispatch(addPreviewSelectedMedia(collection))}>
-                                        +
-                                    </button>
-                                )}
+                            <div className='row collection-picker-item' key={collection.id}>
+                                <h5 className='col-5'>{collection.name}</h5>
+                                <h5 className='col-5'>{collection.notes}</h5>
 
+                                {!(inSelectedMedia(collection.id)) && (
+                                    <div className='col-2' onClick={() => dispatch(addPreviewSelectedMedia(collection))}>
+                                        <AddCircleIcon sx={{ color: '#d24527' }} />
+                                    </div>
+                                )}
                                 {(inSelectedMedia(collection.id)) && (
-                                    <button onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
-                                        X
-                                    </button>
+                                    <div className='col-2' onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
+                                        <RemoveCircleIcon sx={{ color: '#d24527' }} />
+                                    </div>
                                 )}
                             </div>
                         );
