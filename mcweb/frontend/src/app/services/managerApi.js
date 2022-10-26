@@ -4,7 +4,7 @@ export const managerApi = createApi({
     reducerPath: 'managerApi',
     baseQuery: fetchBaseQuery({
         baseUrl: '/api/sources/',
-        prepareHeaders: (headers, { getState }) => {
+        prepareHeaders: (headers) => {
             // Django requires this for security (cross-site forgery protection) once logged in
             headers.set('X-Csrftoken', window.CSRF_TOKEN);
             return headers;
@@ -12,4 +12,4 @@ export const managerApi = createApi({
     }),
     tagTypes: ['Source', 'Collection'],
     endpoints: () => ({})
-})
+});

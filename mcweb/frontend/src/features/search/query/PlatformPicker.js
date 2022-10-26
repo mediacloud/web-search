@@ -57,25 +57,6 @@ export default function PlatformPicker (){
                 </Dialog>
             </div>
         );
-        // return(
-        //     < div className='first-pick-services' >
-        //         <div className='platform-title'>
-        //             <LooksOneIcon />
-        //             <h1 className='first-pick-title'>Choose your Media</h1>
-        //         </div>
-        //         <Select
-        //             value={"Choose A Platform"}
-        //             onChange={handleChangePlatform}
-        //         >
-        //             <MenuItem defaultValue={true} disabled={true} value={"Choose A Platform"}>Choose A Platform</MenuItem>
-        //             <MenuItem value={PLATFORM_ONLINE_NEWS}>Online News Archive</MenuItem>
-        //             <MenuItem value={PLATFORM_REDDIT}>Reddit</MenuItem>
-        //             <MenuItem value={PLATFORM_TWITTER}>Twitter</MenuItem>
-        //             <MenuItem value={PLATFORM_YOUTUBE}>Youtube</MenuItem>
-        //         </Select>
-
-        //     </div >
-        // );
     }
 
     return(
@@ -97,16 +78,3 @@ export default function PlatformPicker (){
       </div >
     );
 }
-
-// # static list matching topics / info results
-// PLATFORM_TWITTER = 'twitter'
-// PLATFORM_REDDIT = 'reddit'
-// PLATFORM_YOUTUBE = 'youtube'
-// PLATFORM_ONLINE_NEWS = 'onlinenews'
-
-// # static list matching topics / info results
-// PLATFORM_SOURCE_PUSHSHIFT = 'pushshift'
-// PLATFORM_SOURCE_TWITTER = 'twitter'
-// PLATFORM_SOURCE_YOUTUBE = 'youtube'
-// PLATFORM_SOURCE_MEDIA_CLOUD = 'mediacloud'
-// PLATFORM_SOURCE_WAYBACK_MACHINE = 'waybackmachine'

@@ -6,17 +6,17 @@
     }
 }
 
-.collection-picker-item {
-    display: flex;
-    justify-content: space-between;
+
+.collection-picker-item:nth-child(even) {
+    border: 1px solid gray;
+    background-color: $primary-off-white;
+}
+
+.collection-picker-item:nth-child(odd) {
+    border: 1px solid gray;
+    background-color: rgba(128, 128, 128, 0.488);
 }
 
 .featured-collections-container {
     width: auto;
-}
-
-.add-remove{
-    background-color: $primary-red;
-    border-radius: 50%;
-    border: 1px solid $primary-red;
 }

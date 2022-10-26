@@ -1,12 +1,8 @@
 import * as React from 'react';
 import { useState } from 'react';
-
-// information from store
-import { useSelector } from 'react-redux';
-
 import { setQueryList, setNegatedQueryList } from './querySlice';
-
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 export default function QueryList(props) {
     const dispatch = useDispatch();
@@ -58,26 +54,15 @@ export default function QueryList(props) {
 
                             
                             {!(serviceList.length - 1 === index) && (
-                                <span>AND NOT</span>
+                                <span className='and-or'>AND NOT</span>
                             )}
 
                             {serviceList.length - 1 === index && (
-                                <button
-                                    onClick={handleServiceAdd}
-                                    type="button"
-                                    className='add-btn'>
-                                    <span>Add Query Term</span>
-                                </button>
+                                <div onClick={handleServiceAdd} >
+                                    <AddCircleIcon sx={{color:'green', marginLeft:'.5rem'}} />
+                                </div>
                             )}
                         </div>
-
-                        <div>
-                            {anyAll === "any" && (
-                                <h4></h4>
-                            )}
-                        </div>
-
-
                     </div>
                 ))}
             </div>
@@ -99,16 +84,13 @@ export default function QueryList(props) {
 
 
                                 {!(serviceList.length - 1 === index) && (
-                                    <span>OR</span>
+                                    <span className='and-or'>OR</span>
                                 )}
 
                                 {serviceList.length - 1 === index && (
-                                    <button
-                                        onClick={handleServiceAdd}
-                                        type="button"
-                                        className='add-btn'>
-                                        <span>Add Query Term</span>
-                                    </button>
+                                    <div onClick={handleServiceAdd} >
+                                        <AddCircleIcon sx={{ color: 'green', marginLeft: '.5rem' }} />
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -129,7 +111,7 @@ export default function QueryList(props) {
 
 
                                 {!(serviceList.length - 1 === index) && (
-                                    <span>AND</span>
+                                    <span className='and-or'>AND</span>
                                 )}
 
                                 {serviceList.length - 1 === index && (

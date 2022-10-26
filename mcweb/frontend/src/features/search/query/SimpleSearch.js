@@ -95,10 +95,6 @@ export default function SimpleSearch () {
             <QueryList negated={true} />
         </div>
 
-        <div>
-            <QueryPreview />
-        </div>
-
     </div>
     );
 }

@@ -2,18 +2,10 @@
     background-color: white;
 }
 
-.first-pick-services {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    max-width: 30%;
-    margin-left: 50%;
-}
-
 .platform-title {
-    display: flex;
     margin: .25rem;
-
+    display: flex;
+    justify-content: center;
     h1 {
             font-size: 1.5rem;
             padding-bottom: .5rem;

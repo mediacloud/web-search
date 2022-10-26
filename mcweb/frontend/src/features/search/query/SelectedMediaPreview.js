@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { removePreviewSelectedMedia } from './querySlice';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 
 export default function SelectedMediaPreview() {
     const { previewCollections } = useSelector(state => state.query);
@@ -13,7 +14,9 @@ export default function SelectedMediaPreview() {
                     return (
                         <div className='selected-media-item' key={`selected-media-preview-${collection.id}`}>
                             <div >{collection.name}</div>
-                            <button onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>X</button>
+                            <div onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
+                                <RemoveCircleIcon sx={{ color: '#d24527' }} />
+                            </div>
                         </div>
                     );
                 })}

@@ -19,8 +19,10 @@ export default function QueryPreview() {
 
     return(
         <div>
-            <h3>Your Query Preview</h3>
-            <div>{query}</div>
+                <h3>Your query preview:</h3>
+                <div>
+                    {query}
+                </div>
         </div>
     );
 }

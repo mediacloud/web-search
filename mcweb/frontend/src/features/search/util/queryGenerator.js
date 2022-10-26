@@ -1,4 +1,6 @@
 const PLATFORM_ONLINE_NEWS = 'onlinenews';
+
+
 export const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
     const PLATFORM_ONLINE_NEWS = "onlinenews";
     const PLATFORM_REDDIT = 'reddit';
@@ -11,9 +13,10 @@ export const queryGenerator = (queryList, negatedQueryList, platform, anyAll) =>
     const query = queryList ? queryList.filter(queryWord => queryWord.length >= 1) : [];
 
     const negatedQuery = negatedQueryList ? negatedQueryList.filter(queryWord => queryWord.length >= 1): [[]];
-  
     
-    if (negatedQuery[0].length ===  0){
+    
+    
+    if (negatedQueryList[0].length ===  0){
         if (platform === PLATFORM_ONLINE_NEWS){
             if (anyAll === "any") {
                 fullQuery = `${query.join(" OR ")}`;
@@ -48,7 +51,7 @@ export const queryGenerator = (queryList, negatedQueryList, platform, anyAll) =>
                 fullQuery = `(${query.join(" AND ")}) AND NOT (${negatedQuery.join(" OR ")})`;
             }
         } else {
-            fullQuery = `(${queryList.join(" ")}) -${negatedQuery.join(" -")}`;
+            fullQuery = `(${query.join(" ")}) -${negatedQuery.join(" -")}`;
         }
     }
     

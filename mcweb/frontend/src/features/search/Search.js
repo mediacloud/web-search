@@ -6,6 +6,7 @@ import PlatformPicker from './query/PlatformPicker';
 import {useState} from 'react';
 // information from store
 import { openModal } from '../ui/uiSlice';
+import QueryPreview from './query/QueryPreview';
 import SelectedMedia from './query/SelectedMedia';
 import SearchDatePicker from './query/SearchDatePicker';
 import SimpleSearch from './query/SimpleSearch';
@@ -33,11 +34,17 @@ export default function Search() {
   return (
     <div className='container search-container'>
         <div className='row'>
-          <div className='col-3'>
+          <div className='col text-center' >
             <PlatformPicker />
           </div>
-          <div className='col-9'>
+        </div>
+
+        <div className='row'>
+          <div className='col-8'>
             <SimpleSearch />
+          </div>
+          <div className='col-4'>
+              <QueryPreview />
           </div>
         </div>
 
@@ -56,7 +63,20 @@ export default function Search() {
                   in multiple languages. Learn more about choosing media.</p>
               </div>
             )}
-          
+
+            {platform !== PLATFORM_ONLINE_NEWS && (
+                <div className='col'>
+                  <div className='selected-media-title'>
+                    <Looks3Icon />
+                    <h3>Select Your Media</h3>
+                  </div>
+
+                  <p className='selected-media-info'>Choose individual sources or collections to be searched.
+                    Our system includes collections for a large range of countries,
+                    in multiple languages. Learn more about choosing media.</p>
+                </div>
+            )}
+
           <div className="col">
             <SearchDatePicker />
           </div>
