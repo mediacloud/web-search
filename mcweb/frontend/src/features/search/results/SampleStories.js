@@ -84,7 +84,7 @@ export default function SampleStories(){
     if (platform === PLATFORM_ONLINE_NEWS){
         platformSpecficContent = (
           <div className="clearfix">
-            <div className="float-right">
+            <div className="float-end">
               <Button variant="text" onClick={() => {
                   downloadStories({
                       'query': queryString,

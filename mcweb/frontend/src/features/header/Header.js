@@ -16,6 +16,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { NavLink } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import { Link } from 'react-router-dom';
 
 import { useLogoutMutation } from '../../app/services/authApi';
 import { selectCurrentUser, selectIsLoggedIn, setCredentials } from '../auth/authSlice';
@@ -32,7 +33,9 @@ const Header = () => (
       <div className="row">
         <div className="col-6">
 
-          <img src={assetUrl("img/mediacloud-logo-white-2x.png")} alt="Media Cloud logo" width={40} height={40}/>
+          <Link to="/">
+            <img src={assetUrl("img/mediacloud-logo-white-2x.png")} alt="Media Cloud logo" width={40} height={40}/>
+          </Link>
 
           <ul>
             {pages.map((page) => (
@@ -46,7 +49,7 @@ const Header = () => (
 
         </div>
         <div className="col-6">
-          <div id="menuButtonWrapper" className="float-right">
+          <div id="menuButtonWrapper" className="float-end">
             <UserMenu />
           </div>
         </div>

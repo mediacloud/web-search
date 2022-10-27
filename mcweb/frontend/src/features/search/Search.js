@@ -118,7 +118,7 @@ export default function Search() {
             <div className="col-12">
               {/* Submit */}
               <Button
-                className="float-right"
+                className="float-end"
                 variant="contained"
                 onClick={async () => {
                   try {

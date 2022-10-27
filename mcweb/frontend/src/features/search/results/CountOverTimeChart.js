@@ -126,7 +126,7 @@ export default function CountOverTimeChart(){
         <h2>Attention Over Time</h2>
         <HighchartsReact highcharts={HighCharts} options={options} />
         <div className="clearfix">
-          <div className="float-right">
+          <div className="float-end">
             <Button variant='text' onClick={() => {
                 downloadCsv({
                     'query': queryString,
