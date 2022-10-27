@@ -2,117 +2,151 @@ import * as React from 'react';
 import { Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
-import { useMakeQueryMutation } from '../../app/services/searchApi';
-import PlatformPicker from './media_picker/PlatformPicker';
-
+import PlatformPicker from './query/PlatformPicker';
+import {useState, useEffect} from 'react';
 // information from store
 import { openModal } from '../ui/uiSlice';
-import { setQueryResults } from './resultsSlice';
-import SelectedMedia from './media_picker/SelectedMedia';
-import SearchDatePicker from './SearchDatePicker';
-import SimpleSearch from './SimpleSearch';
-import CountOverTimeResults from './results/CountOverTimeResults';
+import QueryPreview from './query/QueryPreview';
+import SelectedMedia from './query/SelectedMedia';
+import SearchDatePicker from './query/SearchDatePicker';
+import SimpleSearch from './query/SimpleSearch';
 import SampleStories from './results/SampleStories';
-import { setQueryString } from './querySlice';
-
+import { setSearchTime, removeSelectedMedia } from './query/querySlice';
+import Looks3Icon from '@mui/icons-material/Looks3';
+import TotalAttentionChart from './results/TotalAttentionChart';
+import dayjs from 'dayjs';
+import CountOverTimeChart from './results/CountOverTimeChart';
+import MediaPicker from './query/media-picker/MediaPicker';
+import {useNavigate} from 'react-router-dom';
+import { queryGenerator } from './util/queryGenerator';
+import urlSerializer from './util/urlSerializer';
+import { useSearchParams } from 'react-router-dom';
+import setSearchQuery from '../search/util/setSearchQuery';
 
 export default function Search() {
+  // let [searchParams, setSearchParams] = useSearchParams();
+  // useEffect(()=> {
+  //   setSearchQuery(searchParams); // set query paramaters from url
+  // }, []);
 
-  const {count} = useSelector(state => state.results );
-  // const query = useSelector(selectQuery);
   const {enqueueSnackbar} = useSnackbar();
   const dispatch = useDispatch();
-
-  const { startDate, 
-          endDate, 
-          queryString, 
-          queryList, 
+  const navigate = useNavigate();
+  const { queryList,
           negatedQueryList,
-          collections,
-          sources,
-          platform } = useSelector(state => state.query);
+          startDate,
+          endDate,
+          collections, 
+          platform, 
+          anyAll
+        } = useSelector(state => state.query);
 
-  const collectionIds = collections.map(collection => collection['id']);
+  // const { platform, previewCollections } = useSelector(state => state.query);
 
-  // const handleChangePlatform = (event) => {
-  //   setPlatform(event.target.value);
-  // };
-  // const [search, { isSearching }] = useGetSearchMutation();
-  const [query, {isLoading, data}] = useMakeQueryMutation();
+  const PLATFORM_ONLINE_NEWS = "onlinenews";
+  const PLATFORM_REDDIT = "reddit";
+  const PLATFORM_YOUTUBE = "youtube";
 
-  const formatQuery = (queryList, negatedQueryList) => {
-    let fullQuery = "";
-    if (negatedQueryList === ""){
-      fullQuery = `(${queryList})`;
-    }else {
-      fullQuery = `(${queryList}) AND NOT (${negatedQueryList})`;
-    }
-    dispatch(setQueryString(fullQuery));
-    return fullQuery;
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+
+  
+
+  const queryObject = {
+    queryList: queryList,
+    negatedQueryList: negatedQueryList,
+    startDate: startDate,
+    endDate: endDate,
+    platform: platform,
+    collections: collections,
+    anyAll: anyAll
   };
 
   if (platform === "Choose a Platform"){
     dispatch(openModal("platformPicker"));
   }
   return (
-    <>
-      <PlatformPicker />
-      {/* Choose any platform 
-      <div className='services'>
-        <h1>Choose your Media</h1>
-        <Select
-          value={platform}
-          onChange={handleChangePlatform}
-        >
-          <MenuItem value={"Online News Archive"}>Online News Archive</MenuItem>
-          <MenuItem value={"Reddit"}>Reddit</MenuItem>
-          <MenuItem value={"Twitter"}>Twitter</MenuItem>
-          <MenuItem value={"Youtube"}>Youtube</MenuItem>
-        </Select>
-      </div> */}
+    <div className='search-container'>
 
-      {/* Choose Query Type */}
-      <SimpleSearch />
-
-      <SelectedMedia />
-      <button onClick={() => dispatch(openModal('mediaPicker'))}> Select Media</button>
-
-      <SearchDatePicker />
-      
-      {/* Submit */}
-      <Button
-        fullWidth
-        variant="outlined"
-        onClick={async () => {
-          try {
-            const queryResult = await
-              query({
-                'query': formatQuery(queryList, negatedQueryList),
-                startDate,
-                endDate,
-                'collections': collectionIds,
-                sources,
-                platform
-              }).unwrap();
-            dispatch(setQueryResults(queryResult));
-            
-            enqueueSnackbar("Total Attention Discovered", { variant: 'success' });
-          } catch {
-            enqueueSnackbar("Query is empty", { variant: 'error' });
-          }
-        }}
-      >
-        Submit
-      </Button>
-    
-      <h1>Total Attention: {count} </h1>
-      {data && (
-        <div className='results-container'>
-          <CountOverTimeResults />
-          <SampleStories platform={platform} />
+      <div className="container">
+        <div className='row'>
+          <div className='col' >
+            <PlatformPicker />
+          </div>
         </div>
+      </div>
 
-      )}
-    </>
+      <div className="container">
+        <SimpleSearch />
+      </div>
+
+      <div className="container">
+        <div className="row">
+
+          <div className="col-6">
+            <div className='query-section'>
+              <h3><em>2</em>Pick your collections</h3>
+              {platform === PLATFORM_ONLINE_NEWS && (
+                <>
+                  <SelectedMedia onRemove={removeSelectedMedia}/>
+                  <MediaPicker />
+                  <p className='help'>Choose individual sources or collections to be searched.
+                    Our system includes collections for a large range of countries,
+                    in multiple languages.</p>
+                </>
+              )}
+              {platform !== PLATFORM_ONLINE_NEWS && (
+                <p>Currently unsupported</p>
+              )}
+            </div>
+          </div>
+
+          <div className="col-6">
+            <div className='query-section'>
+              <h3><em>3</em>Pick your dates</h3>
+              <SearchDatePicker />
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div className="search-button-wrapper">
+        <div className="container">
+          <div className="row">
+            <div className="col-12">
+              {/* Submit */}
+              <Button
+                className="float-right"
+                variant="contained"
+                onClick={async () => {
+                  try {
+                    // navigate(
+                    //   `/search${urlSerializer(queryObject)}`,
+                    //   { options: { replace: true } }
+                    // );
+                    dispatch(setSearchTime(dayjs().format()));
+                  } catch {
+                    enqueueSnackbar("Query is empty", { variant: 'error' });
+                  }
+                }}
+              >
+                Search
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="search-results-wrapper">
+        <div className='container'>
+          <CountOverTimeChart />
+          <TotalAttentionChart />
+          <SampleStories  />
+        </div>
+      </div>
+
+    </ div>
   );
 }

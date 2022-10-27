@@ -1,8 +1,10 @@
 import React from 'react';
-import Header from './Header';
-import Footer from './Footer';
 import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
 import { useSelector } from 'react-redux';
+
+import Header from './features/header/Header';
+import Footer from './features/footer/Footer';
+
 // user status
 import Account from './features/auth/Account';
 import SignIn from './features/auth/SignIn';
@@ -17,22 +19,25 @@ import CreateCollection from './features/collections/CreateCollection';
 import Search from './features/search/Search';
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
-import Modal from './features/ui/modal/modal';
 
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
-
 import { selectIsLoggedIn } from './features/auth/authSlice';
-
-
+import { useSearchParams } from 'react-router-dom';
+import { addSelectedMedia, setStartDate, setEndDate, setPlatform } from './features/search/query/querySlice';
+import { useDispatch } from 'react-redux';
+import setSearchQuery from './features/search/util/setSearchQuery';
 const App = () => {
-  return (
+  const dispatch = useDispatch();
 
-    <div className="homepage">
-      <Modal />
-      {/* <MediaPicker /> */}
+  // let [searchParams, setSearchParams] = useSearchParams();
+  // setSearchQuery(searchParams); // set query paramaters from url
+
+  return (
+    <>
       <Header />
+      <div id="content">
         <Routes>
              <Route path="collections/:collectionId/modify-collection" element={
               <RequireAuth>
@@ -70,12 +75,12 @@ const App = () => {
             <Route path="sources/:sourceId" element={
               <RequireAuth>
                 <SourceShow />
-              </RequireAuth>} /> 
+              </RequireAuth>} />
 
             <Route path="sources" element={
               <RequireAuth>
                 <SourceHome />
-              </RequireAuth>} /> 
+              </RequireAuth>} />
 
             <Route path="sign-in" element={<SignIn />} />
             <Route path="reset-password" element={<ResetPassword />} />
@@ -86,11 +91,11 @@ const App = () => {
               <RequireAuth>
                 <Account />
               </RequireAuth>} />
-          
+
         </Routes>
+      </div>
       <Footer />
-    </div>
-    
+    </>
   );
 };
 

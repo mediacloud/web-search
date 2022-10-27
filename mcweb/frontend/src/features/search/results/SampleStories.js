@@ -1,101 +1,112 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import {useSelector} from 'react-redux';
+
+import { useGetSampleStoriesMutation, useDownloadSampleStoriesCSVMutation } from '../../../app/services/searchApi';
+import { queryGenerator } from '../util/queryGenerator';
 import dayjs from 'dayjs';
+import Button from '@mui/material/Button';
+import  CircularProgress  from '@mui/material/CircularProgress';
 
-export default function SampleStories(props){
+export default function SampleStories(){
 
-    const {platform} = props;
-    const {sample} = useSelector(state => state.results);
+    const { queryList,
+        negatedQueryList,
+        platform,
+        startDate,
+        endDate,
+        collections,
+        sources,
+        lastSearchTime,
+        anyAll } = useSelector(state => state.query);
 
-    if (!sample) return null;
-    console.log(platform);
-    if (platform === 'Online News Archive'){
-        return(
-            <div className='sample-container'>
-                <h3>Sample Stories</h3>
-                <div className='sample-title'>
-                    <h5>Title</h5>
-                    <h5>Media Source</h5>
-                    <h5>Published</h5>
-                </div>
-                <div>
-                    {sample.map((sampleStory, index) => {
-                        return(
-                            <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
-                                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p>{sampleStory.publish_date}</p>
-                            </div>
-                        );
-                    })}
-                </div>
+    const queryString = queryGenerator(queryList, negatedQueryList, platform);
+
+    const PLATFORM_TWITTER = 'twitter';
+    const PLATFORM_ONLINE_NEWS = 'onlinenews';
+    const PLATFORM_YOUTUBE = 'youtube';
+    const PLATFORM_REDDIT = 'reddit';
+
+    const [query, { isLoading, data }] = useGetSampleStoriesMutation();
+    const [downloadStories, downloadResult ] = useDownloadSampleStoriesCSVMutation();
+
+    const collectionIds = collections.map(collection => collection['id']);
+
+    useEffect(() => {
+        if (queryList[0].length !== 0) {
+            query({
+                'query': queryString,
+                startDate,
+                endDate,
+                'collections': collectionIds,
+                sources,
+                platform
+
+            });
+        }
+    }, [lastSearchTime]);
+
+    if (isLoading) return (<div> <CircularProgress size="75px" /> </div>);
+    if (!data) return null;
+
+    const content = (
+      <div className="results-item-wrapper results-sample-stories">
+          <h2>Sample Matching Content</h2>
+          <table>
+            <tbody>
+              <tr>
+                <th>Title</th>
+                <th>Source</th>
+                <th>Publication Date</th>
+              </tr>
+              {data.sample.map((sampleStory, index) => {
+                  return (
+                      <tr key={`${index}-${sampleStory.media_id}`}>
+                          <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
+                          <td>
+                            {(platform === PLATFORM_ONLINE_NEWS) && (
+                              <img className="google-icon"
+                                    src={`https://www.google.com/s2/favicons?domain=${sampleStory.media_url}`}
+                                      alt="{sampleStory.media_name}" />
+                            )}
+                            <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
+                          </td>
+                          <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+                      </tr>
+                  );
+              })}
+            </tbody>
+          </table>
+      </div>
+    );
+
+    let platformSpecficContent;
+    if (platform === PLATFORM_ONLINE_NEWS){
+        platformSpecficContent = (
+          <div className="clearfix">
+            <div className="float-right">
+              <Button variant="text" onClick={() => {
+                  downloadStories({
+                      'query': queryString,
+                      startDate,
+                      endDate,
+                      'collections': collectionIds,
+                      sources,
+                      platform
+
+                  });
+              }}>
+                  Download CSV
+              </Button>
             </div>
-        );
-    } else if (platform === 'Twitter'){
-        return (
-            <div>
-                <h3>Sample Stories</h3>
-                <div className='sample-title'>
-                    <h5>Title</h5>
-                    <h5>Media Source</h5>
-                    <h5>Published</h5>
-                </div>
-                <div>
-                    {sample.map((sampleStory, index) => {
-                        return (
-                            <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.content}</a>
-                                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.author}</a>
-                                <p>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-        );
-    } else if (platform === 'Youtube'){
-        return (
-            <div>
-                <h3>Sample Stories</h3>
-                <div className='sample-title'>
-                    <h5>Title</h5>
-                    <h5>Media Source</h5>
-                    <h5>Published</h5>
-                </div>
-                <div>
-                    {sample.map((sampleStory, index) => {
-                        return (
-                            <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.content}</a>
-                                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-        );
-    } else if (platform === 'Reddit'){
-        return (
-            <div>
-                <h3>Sample Stories</h3>
-                <div className='sample-title'>
-                    <h5>Title</h5>
-                    <h5>Media Source</h5>
-                    <h5>Published</h5>
-                </div>
-                <div>
-                    {sample.map((sampleStory, index) => {
-                        return (
-                            <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
-                                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p>{sampleStory.publish_date}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+          </div>
         );
     }
+    return (
+      <>
+        {content}
+        {platformSpecficContent}
+      </>
+    );
+
 }

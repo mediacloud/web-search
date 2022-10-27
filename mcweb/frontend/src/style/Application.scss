@@ -1,3 +1,7 @@
+@import '../../../../scss/custom.scss';
+// css reset
+@import './variables';
+
 // ui component styling
 @import '../features/ui/modal/_modal.scss';
 
@@ -13,20 +17,63 @@
 @import '../features/sources/style/source';
 
 // componenets
-@import '../style/header';
+@import '../features/header/header';
+@import '../features/footer/footer';
 @import '../style/homepage';
-@import '../style/footer';
 
-// search styling 
+// search styling
 @import '../features/search/styles/search.scss';
-@import '../features/search/media_picker/style/media-picker';
-@import '../features/search/media_picker/style/featured-collection-picker';
-@import '../features/search/media_picker/style/selected-media';
-@import '../features/search/media_picker/style/collection-search-picker';
-@import '../features/search/media_picker/style/platform-picker';
+@import '../features/search/results/styles/results.scss';
+@import '../features/search/query/style/featured-collection-picker';
+@import '../features/search/query/style/selected-media';
+@import '../features/search/query/style/collection-search-picker';
+@import '../features/search/query/style/platform-picker';
+@import '../features/search/query/style/simple-search';
+@import '../features/search/query/style/date-picker';
+@import '../features/search/query/style/query-preview';
+@import '../features/search/query/media-picker/media-picker';
 
 // results styling
 @import '../features/search/results/styles/sample-stories';
 
-// text styling 
+// text styling
 @import '../style/text';
+
+body {
+  font-family: $font-families;
+  background-color: $primary-off-white;
+}
+
+#content {
+  min-height: 300px;
+  padding: 10px 0px;
+  background-color: #fff;
+}
+
+table {
+  tr {
+    &:nth-child(even) {
+      background-color: #eee;
+    }
+
+    td {
+      font-size: 13px;
+      overflow-x: scroll;
+      padding: 13px;
+      vertical-align: top;
+
+      .google-icon {
+        margin-right: 6px;
+        vertical-align: bottom;
+      }
+    }
+  }
+}
+
+a {
+  color: $primary-red;
+
+  &:hover {
+    color: $primary-red;
+  }
+}

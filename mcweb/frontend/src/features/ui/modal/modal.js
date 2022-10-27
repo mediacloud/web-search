@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import MediaPicker from '../../search/media_picker/MediaPicker';
-import PlatformPicker from '../../search/media_picker/PlatformPicker';
+import MediaPicker from '../../search/query/media-picker/MediaPicker';
+import PlatformPicker from '../../search/query/PlatformPicker';
 import { closeModal} from '../uiSlice';
 
 export default function Modal() {

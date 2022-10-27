@@ -121,10 +121,10 @@ class TwitterTwitterProvider(ContentProvider):
     def _tweet_to_row(cls, item: Dict) -> Dict:
         link = 'https://twitter.com/{}/status/{}'.format(item['author']['username'], item['id'])
         return {
-            'media_name': 'Twitter',
+            'media_name': '@'+item['author']['username'],
             'media_url': 'https://twitter.com/{}'.format(item['author']['username']),
             'stories_id': item['id'],
-            'content': item['text'],
+            'title': item['text'],
             'publish_date': dateparser.parse(item['created_at']),
             'url': link,
             'last_updated': dateparser.parse(item['created_at']),

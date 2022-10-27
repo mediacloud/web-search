@@ -1,0 +1,53 @@
+
+.simple-search-container {
+    display: flex;
+    margin: 1rem;
+}
+
+.simple-search-title {
+    display: flex;
+
+    h1 {
+        font-size: 1.5rem;
+        padding-bottom: .5rem;
+        font-family: $heading-font;
+    }
+}
+
+.select-any-all {
+    display: flex;
+}
+
+.select-title {
+    font-size: 1.5rem;
+}
+
+.negated-query-list {
+    margin-top: 4rem;
+    margin-left: 2rem;
+}
+
+.first-division {
+    display: flex;
+}
+
+.services {
+    display: flex;
+}
+
+.and-or {
+    margin-left: .5rem;
+    color: #aaa;
+    font-weight: bold;
+}
+
+.query-term-list {
+  .query-term-item {
+    margin: 0px 0px 5px 0px;
+
+    input[type=text] {
+      padding: 3px;
+    }
+
+  }
+}
