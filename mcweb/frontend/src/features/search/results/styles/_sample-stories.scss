@@ -1,21 +1,3 @@
 .results-sample-stories {
-  table {
-    tr {
-      &:nth-child(even) {
-        background-color: #eee;
-      }
 
-      td {
-        font-size: 13px;
-        overflow-x: scroll;
-        padding: 13px;
-        vertical-align: top;
-
-        .google-icon {
-          margin-right: 6px;
-          vertical-align: bottom;
-        }
-      }
-    }
-  }
 }

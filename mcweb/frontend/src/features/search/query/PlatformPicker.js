@@ -15,6 +15,12 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import RedditIcon from '@mui/icons-material/Reddit';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
 
 export default function PlatformPicker (){
     const {platform} = useSelector(state => state.query);
@@ -63,23 +69,28 @@ export default function PlatformPicker (){
 
     return(
       <div className="row">
-        <div className="col-12">
+        <div className="col-12 text-center">
           <div className='query-section'>
-            <h3 className="inline"><em>1</em>Choose your platform</h3> &nbsp;
-            <FormControl>
-              <InputLabel id="platform-label">Platform</InputLabel>
-              <Select
-                labelId="platform-label"
+            <ToggleButtonGroup
                 value={platform}
-                label="Platform"
+                exclusive
                 onChange={handleChangePlatform}
+                aria-label="platform"
+                color="primary"
               >
-               <MenuItem value={PLATFORM_ONLINE_NEWS}>Online News Archive</MenuItem>
-               <MenuItem value={PLATFORM_REDDIT}>Reddit</MenuItem>
-               <MenuItem value={PLATFORM_TWITTER}>Twitter</MenuItem>
-               <MenuItem value={PLATFORM_YOUTUBE}>Youtube</MenuItem>
-             </Select>
-             </FormControl>
+                <ToggleButton value={PLATFORM_ONLINE_NEWS}>
+                  <NewspaperIcon /> &nbsp;Online News
+                </ToggleButton>
+                <ToggleButton value={PLATFORM_REDDIT}>
+                  <RedditIcon /> &nbsp;Reddit
+                </ToggleButton>
+                <ToggleButton value={PLATFORM_TWITTER}>
+                  <TwitterIcon /> &nbsp;Twitter
+                </ToggleButton>
+                <ToggleButton value={PLATFORM_YOUTUBE}>
+                  <YouTubeIcon /> &nbsp;YouTube
+                </ToggleButton>
+            </ToggleButtonGroup>
           </div>
         </div>
       </div >

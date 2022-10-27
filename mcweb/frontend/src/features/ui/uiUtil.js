@@ -6,4 +6,4 @@ export const defaultMenuOriginProps = {
 };
 
 // included so we can later move assets to a CDN if needed
-export const assetUrl = (assetPath) => `static/${assetPath}`;
+export const assetUrl = (assetPath) => `/static/${assetPath}`;

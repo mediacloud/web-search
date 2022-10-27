@@ -70,7 +70,7 @@ export default function SimpleSearch () {
 
         <div className="col-4">
           <div className='query-section'>
-            <h3><em>2</em>Enter simple search terms</h3>
+            <h3><em>1</em>Enter simple search terms</h3>
             {/*  can't use <p> tag here, because UL of options can't be child of it :-( */}
             <div className="description">
             Match
@@ -96,7 +96,7 @@ export default function SimpleSearch () {
 
         <div className="col-4">
           <h3>&nbsp;</h3>
-          <div className="description">Preview of full query:</div>
+          <div className="description">Your query preview:</div>
           <QueryPreview />
         </div>
 
