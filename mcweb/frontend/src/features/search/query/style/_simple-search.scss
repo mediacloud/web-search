@@ -1,3 +1,9 @@
+
+.simple-search-container {
+    display: flex;
+    margin: 1rem;
+}
+
 .simple-search-title {
     display: flex;
 
@@ -16,18 +22,9 @@
     font-size: 1.5rem;
 }
 
-.simple-search-container {
-    display: flex;
-    margin: 1rem;
-}
-
 .negated-query-list {
     margin-top: 4rem;
     margin-left: 2rem;
-}
-
-.negations-title {
-    font-size: 1.5rem;
 }
 
 .first-division {
@@ -40,4 +37,15 @@
 
 .and-or {
     margin-left: .5rem;
+}
+
+.query-term-list {
+  .query-term-item {
+    margin: 0px 0px 5px 0px;
+
+    input[type=text] {
+      padding: 3px;
+    }
+
+  }
 }

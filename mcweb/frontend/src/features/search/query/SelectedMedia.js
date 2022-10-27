@@ -8,12 +8,11 @@ export default function SelectedMedia() {
     const dispatch = useDispatch();
     return(
         <div className='selected-media-container'>
-            <h5>Selected Media</h5>
-            <div>
+            <div className="selected-media-item-list">
                 {collections.map(collection => {
                     return (
                     <div className='selected-media-item' key={`selected-media${collection.id}`}>
-                        <h6 >{collection.name}</h6>
+                        {collection.name}
                         <div onClick={()=> dispatch(removeSelectedMedia(collection.id))}>
                             <RemoveCircleIcon sx={{ color: '#d24527' }} />
                         </div>

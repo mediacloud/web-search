@@ -22,15 +22,16 @@ export default function CountOverTimeChart(){
         anyAll } = useSelector(state => state.query);
 
     const queryString = queryGenerator(queryList, negatedQueryList, platform);
+    const {countOverTime} = useSelector(state => state.results);
+    const [downloadCsv, csvResults] = useDownloadCountsOverTimeCSVMutation();
 
     const [query, { isLoading, data }] = useGetCountOverTimeMutation();
-    const [downloadCsv, csvResults] = useDownloadCountsOverTimeCSVMutation();
 
     const collectionIds = collections.map(collection => collection['id']);
 
     const PLATFORM_YOUTUBE = "youtube";
     const PLATFORM_REDDIT = "reddit";
-        
+
     useEffect(() => {
         if (queryList[0].length !== 0 && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
             query({
@@ -60,25 +61,24 @@ export default function CountOverTimeChart(){
 
     const options = {
         chart: {
-            type: 'spline'
+            type: 'spline',
+            height: '300px'
         },
-        title: {
-            text: 'Attention Over Time'
-        },
+        title: { text: '' },
         xAxis: {
             type: 'datetime',
-            dateTimeLabelFormats: { 
+            dateTimeLabelFormats: {
                 month: '%m/%e/%y',
                 day: '%m/%e/%y',
                 year: '%m/%e/%y'
             },
             title: {
-                text: 'Date'
+                text: 'Publication Date'
             }
         },
         yAxis: {
             title: {
-                text: 'Number of stories'
+                text: 'Matching Items'
             },
             min: 0
         },
@@ -95,8 +95,8 @@ export default function CountOverTimeChart(){
                 }
             }
         },
-
-        colors: ['#6CF', '#39F', '#06C', '#036', '#000'],
+        legend:{ enabled:false },
+        colors: ['#2f2d2b'],
 
         // Define the data points. All series have a year of 1970/71 in order
         // to be compared on the same x axis. Note that in JavaScript, months start
@@ -105,17 +105,19 @@ export default function CountOverTimeChart(){
             {
                 name: `query: ${queryString}`,
                 data: cleanData(),
-            }, 
+            },
         ]
     };
 
     if (!data) return null;
     if (isLoading) return (<h1>Loading...</h1>);
     return(
-
-        <div className='container'>
-            <HighchartsReact highcharts={HighCharts} options={options} />
-            <Button variant='outlined' onClick={() => {
+      <div className="results-item-wrapper clearfix">
+        <h2>Attention Over Time</h2>
+        <HighchartsReact highcharts={HighCharts} options={options} />
+        <div className="clearfix">
+          <div className="float-right">
+            <Button variant='text' onClick={() => {
                 downloadCsv({
                     'query': queryString,
                     startDate,
@@ -128,6 +130,8 @@ export default function CountOverTimeChart(){
             }}>
                 Download CSV
             </Button>
+          </div>
         </div>
+      </div>
     );
 }

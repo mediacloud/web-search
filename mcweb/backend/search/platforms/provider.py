@@ -3,7 +3,6 @@ from typing import List, Dict
 import datetime as dt
 import datetime
 from operator import itemgetter
-import dateutil
 from abc import ABC
 import mediacloud.api
 

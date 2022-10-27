@@ -28,54 +28,41 @@ export default function SearchDatePicker() {
     };
 
     return (
-            <div className="date-picker-container">
-                <div className='date-picker-title'>
-                    <Looks4Icon />
-                    <h3>Enter Dates</h3>
-                </div>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <>
+        <div className="date-picker-wrapper">
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                  required
+                  type='date'
+                  label="From"
+                  value={startDate}
+                  onChange={handleChangeFromDate}
+                  disableFuture={true}
+                  disableHighlightToday={true}
+                  maxDate={dayjs(dayjs().subtract(34, 'day').format('MM/DD/YYYY'))}
 
-                    <Stack
-                        spacing={2}
-                        method="post"
-                        sx={{ backgroundColor: "white", padding: "25px" }}
-                    >
-
-                        {/* From Date */}
-                        <DatePicker
-                            required
-                            type='date'
-                            label="From"
-                            value={startDate}
-                            onChange={handleChangeFromDate}
-                            disableFuture={true}
-                            disableHighlightToday={true}
-                            maxDate={dayjs(dayjs().subtract(34, 'day').format('MM/DD/YYYY'))}
-                            
-                            renderInput={(params) => <TextField {...params} />}
-                        />
-
-                        {/* To Date */}
-                        <DatePicker
-                            required
-                            label="To"
-                            value={endDate}
-                            onChange={handleChangeToDate}
-                            disableFuture={true}
-                            disableHighlightToday={true}
-                            maxDate={dayjs(dayjs().subtract(4, 'day').format('MM/DD/YYYY'))}
-                            // shouldDisableDate={disabledDates}
-                            renderInput={(params) => <TextField {...params} />}
-                        />
-
-                    </Stack>
-                </LocalizationProvider>
-            <p className='date-info'>Enter your inclusive date range. 
-                Our database goes back to 2011, 
-                however the start date for different 
-                sources and collections can vary. 
-                Click on a source or collecton to 
-                learn more about when we added it.</p>
-            </div>
+                  renderInput={(params) => <TextField {...params} />}
+              />
+              <DatePicker
+                  required
+                  label="To"
+                  value={endDate}
+                  onChange={handleChangeToDate}
+                  disableFuture={true}
+                  disableHighlightToday={true}
+                  maxDate={dayjs(dayjs().subtract(4, 'day').format('MM/DD/YYYY'))}
+                  // shouldDisableDate={disabledDates}
+                  renderInput={(params) => <TextField {...params} />}
+              />
+          </LocalizationProvider>
+        </div>
+        <p className='help'>
+          Enter your inclusive date range.
+            Our database goes back to 2011,
+            however the start date for different
+            sources and collections can vary.
+            Click on a source or collecton to
+            learn more about when we added it.</p>
+      </>
     );
 }

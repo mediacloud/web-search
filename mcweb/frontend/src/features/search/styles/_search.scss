@@ -1,12 +1,12 @@
 
 
-// .searchTitle { 
+// .searchTitle {
 //   background-color: green;
 //   color: white;
-//   display: flex; 
+//   display: flex;
 //   justify-content: space-between;
 //   padding: 10px;
-  
+
 //   h1 {
 //     padding: 5px;
 //     font-weight: 600;
@@ -17,7 +17,7 @@
 //   padding: 50px;
 //   background-color:rgb(86, 86, 184);
 //   justify-content: center;
-  
+
 // }
 
 // .services {
@@ -45,10 +45,6 @@
   margin-bottom: 1rem;
 }
 
-.selected-media-info {
-  padding:.5rem;
-}
-
 .results-container {
   margin: 1rem 1rem $footer-height 1rem;
 }
@@ -60,6 +56,72 @@
 }
 
 .search-container {
-  margin-bottom: $footer-height;
-}
+  margin-top: 15px;
 
+  code {
+    font-size: 14px;
+    font-family: sans-serif;
+    background-color: $primary-off-white;
+    color: $primary-black;
+    padding: 10px;
+    width: 100%;
+    display: block;
+  }
+
+  .description {
+    display: block;
+    padding: 5px 0px;
+
+    .select-inline {
+      margin: 0px 5px;
+    }
+
+  }
+
+
+  p.help {
+    margin-top: 10px;
+    color: #9e9e9e;
+    font-size: 12px;
+    line-height: normal;
+  }
+
+  .query-section {
+    margin-bottom: 30px;
+    h3 {
+      display: block;
+      margin: 0px 0px 8px 0px;
+      padding: 0px;
+      font-weight: 700;
+      font-size: 18px;
+
+      &.inline {
+        display: inline-block;
+      }
+
+      em {
+        background-color: $primary-red;
+        border-radius: 50%;
+        color: #fff;
+        display: inline-block;
+        font-size: 12px;
+        margin-right: 5px;
+        padding: 5px;
+        text-align: center;
+        vertical-align: top;
+        width: 25px;
+        font-style: normal;
+        font-weight: bold;
+      }
+
+    }
+
+  }
+
+  .search-button-wrapper {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0px;
+  }
+
+}

@@ -9,11 +9,11 @@ export default function SelectedMediaPreview() {
     return (
         <div className='selected-media-container'>
             <h4>Selected Media</h4>
-            <div>
+            <div className="selected-media-item-list">
                 {previewCollections.map(collection => {
                     return (
                         <div className='selected-media-item' key={`selected-media-preview-${collection.id}`}>
-                            <h6 >{collection.name}</h6>
+                            {collection.name}
                             <div onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
                                 <RemoveCircleIcon sx={{ color: '#d24527' }} />
                             </div>

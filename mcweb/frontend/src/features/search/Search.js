@@ -32,76 +32,81 @@ export default function Search() {
     dispatch(openModal("platformPicker"));
   }
   return (
-    <div className='container search-container'>
+    <div className='search-container'>
+
+      <div className="container">
         <div className='row'>
-          <div className='col text-center' >
+          <div className='col' >
             <PlatformPicker />
           </div>
         </div>
+      </div>
 
-        <div className='row'>
-          <div className='col-8'>
-            <SimpleSearch />
-          </div>
-          <div className='col-4'>
-              <QueryPreview />
-          </div>
-        </div>
+      <div className="container">
+        <SimpleSearch />
+      </div>
 
+      <div className="container">
         <div className="row">
-          
-            {platform === PLATFORM_ONLINE_NEWS && (
-              <div className='col'>
-                <div className='selected-media-title'>
-                  <Looks3Icon />
-                  <h3>Select Your Media</h3>
-                </div>
-                <SelectedMedia />
-                <MediaPicker />
-                <p className='selected-media-info'>Choose individual sources or collections to be searched.
-                  Our system includes collections for a large range of countries,
-                  in multiple languages. Learn more about choosing media.</p>
-              </div>
-            )}
 
-            {platform !== PLATFORM_ONLINE_NEWS && (
-                <div className='col'>
-                  <div className='selected-media-title'>
-                    <Looks3Icon />
-                    <h3>Select Your Media</h3>
-                  </div>
-
-                  <p className='selected-media-info'>Choose individual sources or collections to be searched.
+          <div className="col-6">
+            <div className='query-section'>
+              <h3><em>3</em>Select your collections</h3>
+              {platform === PLATFORM_ONLINE_NEWS && (
+                <>
+                  <SelectedMedia />
+                  <MediaPicker />
+                  <p className='help'>Choose individual sources or collections to be searched.
                     Our system includes collections for a large range of countries,
-                    in multiple languages. Learn more about choosing media.</p>
-                </div>
-            )}
+                    in multiple languages.</p>
+                </>
+              )}
+              {platform !== PLATFORM_ONLINE_NEWS && (
+                <p>Currently unsupported</p>
+              )}
+            </div>
+          </div>
 
-          <div className="col">
-            <SearchDatePicker />
+          <div className="col-6">
+            <div className='query-section'>
+              <h3><em>4</em>Select your dates</h3>
+              <SearchDatePicker />
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div className="search-button-wrapper">
+        <div className="container">
+          <div className="row">
+            <div className="col-12">
+              {/* Submit */}
+              <Button
+                className="float-right"
+                variant="contained"
+                onClick={async () => {
+                  enqueueSnackbar("Query Dispatched Please Wait for Results", { variant: 'success'});
+                  try {
+                    dispatch(setSearchTime(dayjs().format()));
+                  } catch {
+                    enqueueSnackbar("Query is empty", { variant: 'error' });
+                  }
+                }}
+              >
+                Search
+              </Button>
+            </div>
           </div>
         </div>
-         
-      {/* Submit */}
-      <Button
-        fullWidth
-        variant="outlined"
-        onClick={async () => {
-          enqueueSnackbar("Query Dispatched Please Wait for Results", { variant: 'success'});
-          try {
-            dispatch(setSearchTime(dayjs().format()));      
-          } catch {
-            enqueueSnackbar("Query is empty", { variant: 'error' });
-          }
-        }}
-      >
-        Search
-      </Button>
+      </div>
 
-      <div className='results-container'>
-        <TotalAttentionChart />
-        <CountOverTimeChart />
-        <SampleStories  />
+      <div className="search-results-wrapper">
+        <div className='container'>
+          <CountOverTimeChart />
+          <TotalAttentionChart />
+          <SampleStories  />
+        </div>
       </div>
 
     </ div>

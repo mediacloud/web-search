@@ -47,105 +47,65 @@ export default function SampleStories(){
 
     if (!data) return null;
     if (isLoading) return (<h1>Loading...</h1>);
-    if (platform === PLATFORM_ONLINE_NEWS){
-        return(
-            <div className='container'>
-                <h1>Sample Stories</h1>
-                <div className='row'>
-                        <h5 className='col-5'>Title</h5>
-                        <h5 className='col-5'>Media Source</h5>
-                        <h5 className='col-2'>Published</h5>
-                </div>
-                    {data.sample.map((sampleStory, index) => {
-                        return(
-                            <div className='row sample-story' key={`${index}-${sampleStory.media_id}`}>
-                                <a className='col-5' href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
-                                <a className='col-5' href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p className='col-2'>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
-                            </div>
-                        );
-                    })}
-               
-                <Button variant="outlined" onClick={() => {
-                    downloadStories({
-                        'query': queryString,
-                        startDate,
-                        endDate,
-                        'collections': collectionIds,
-                        sources,
-                        platform
 
-                    });
-                }}>
-                    Download CSV
-                </Button>
+    const content = (
+      <div className="results-item-wrapper results-sample-stories">
+          <h2>Sample Matching Content</h2>
+          <table>
+            <tbody>
+              <tr>
+                <th>Title</th>
+                <th>Source</th>
+                <th>Publication Date</th>
+              </tr>
+              {data.sample.map((sampleStory, index) => {
+                  return (
+                      <tr key={`${index}-${sampleStory.media_id}`}>
+                          <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
+                          <td>
+                            {(platform === PLATFORM_ONLINE_NEWS) && (
+                              <img className="google-icon"
+                                    src={`https://www.google.com/s2/favicons?domain=${sampleStory.media_url}`}
+                                      alt="{sampleStory.media_name}" />
+                            )}
+                            <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
+                          </td>
+                          <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+                      </tr>
+                  );
+              })}
+            </tbody>
+          </table>
+      </div>
+    )
+
+    let platformSpecficContent;
+    if (platform === PLATFORM_ONLINE_NEWS){
+        platformSpecficContent = (
+          <div className="clearfix">
+            <div className="float-right">
+              <Button variant="text" onClick={() => {
+                  downloadStories({
+                      'query': queryString,
+                      startDate,
+                      endDate,
+                      'collections': collectionIds,
+                      sources,
+                      platform
+
+                  });
+              }}>
+                  Download CSV
+              </Button>
             </div>
-        );
-    } else if (platform === PLATFORM_TWITTER){
-        return (
-            <div>
-                <h3>Sample Stories</h3>
-                <div className='sample-title'>
-                    <h5>Title</h5>
-                    <h5>Media Source</h5>
-                    <h5>Published</h5>
-                </div>
-                <div>
-                    {data.sample.map((sampleStory, index) => {
-                        return (
-                            <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.content}</a>
-                                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.author}</a>
-                                <p>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-        );
-    } else if (platform === PLATFORM_YOUTUBE){
-        return (
-            <div>
-                <h3>Sample Stories</h3>
-                <div className='sample-title'>
-                    <h5>Title</h5>
-                    <h5>Media Source</h5>
-                    <h5>Published</h5>
-                </div>
-                <div>
-                    {data.sample.map((sampleStory, index) => {
-                        return (
-                            <div className='sample-story-item' key={`${index}-${sampleStory.media_id}`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.content}</a>
-                                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-        );
-    } else if (platform === PLATFORM_REDDIT){
-        return (
-            <div>
-                <h3>Sample Stories</h3>
-                <div className='sample-title'>
-                    <h5>Content</h5>
-                    <h5>Media Source</h5>
-                    <h5>Published</h5>
-                </div>
-                <div>
-                    {data.sample.map((sampleStory, index) => {
-                        return (
-                            <div className='sample-story-item' key={`${index}-`}>
-                                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.content}</a>
-                                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-                                <p>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</p>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+          </div>
         );
     }
+    return (
+      <>
+        {content}
+        {platformSpecficContent}
+      </>
+    )
+
 }

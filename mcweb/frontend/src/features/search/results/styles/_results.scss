@@ -1,0 +1,14 @@
+.search-results-wrapper {
+  padding-top: 30px;
+
+  .results-item-wrapper {
+    margin-bottom: 20px;
+
+    h2 {
+      font-family: $font-families;
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+  }
+}

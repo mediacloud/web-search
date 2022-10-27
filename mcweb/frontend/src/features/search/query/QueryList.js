@@ -8,12 +8,12 @@ export default function QueryList(props) {
     const dispatch = useDispatch();
 
     const [serviceList, setServiceList] = useState([[],[],[]]);
-    
+
     const {negated} = props;
-   
+
     const {anyAll} = useSelector(state => state.query);
 
-    // add query 
+    // add query
     const handleServiceAdd = () => {
         setServiceList([...serviceList, []]);
     };
@@ -38,21 +38,22 @@ export default function QueryList(props) {
         } else {
             dispatch(setQueryList(list));
         }
-        
+
     };
 
     if (negated) {
         return (
-            <div>
+            <div className="query-term-list">
                 {serviceList.map((singleService, index) => (
-                    <div key={index} className='services'>
+                    <div key={index} className='query-term-item'>
 
                         <div className="first-division">
+
                             <input name="service" type="text" id="service" required
                                 value={String(singleService)}
                                 onChange={(e) => handleQueryChange(e, index)} />
 
-                            
+
                             {!(serviceList.length - 1 === index) && (
                                 <span className='and-or'>AND NOT</span>
                             )}
@@ -73,9 +74,9 @@ export default function QueryList(props) {
     else {
         if (anyAll === 'any'){
             return (
-                <div>
+                <div className="query-term-list">
                     {serviceList.map((singleService, index) => (
-                        <div key={index} className='services'>
+                        <div key={index} className='query-term-item'>
 
                             <div className="first-division">
                                 <input name="service" type="text" id="service" required
@@ -100,9 +101,9 @@ export default function QueryList(props) {
             );
         } else if (anyAll === 'all') {
             return (
-                <div>
+              <div className="query-term-list">
                     {serviceList.map((singleService, index) => (
-                        <div key={index} className='services'>
+                        <div key={index} className='query-term-item'>
 
                             <div className="first-division">
                                 <input name="service" type="text" id="service" required
@@ -115,12 +116,9 @@ export default function QueryList(props) {
                                 )}
 
                                 {serviceList.length - 1 === index && (
-                                    <button
-                                        onClick={handleServiceAdd}
-                                        type="button"
-                                        className='add-btn'>
-                                        <span>Add Query Term</span>
-                                    </button>
+                                  <div onClick={handleServiceAdd} >
+                                      <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                                  </div>
                                 )}
                             </div>
                         </div>

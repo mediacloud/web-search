@@ -1,5 +1,11 @@
-.selected-media-item {
-    margin-top: 1rem;
+.selected-media-item-list {
+  margin-bottom: 10px;
+
+  .selected-media-item {
+    border: 1px solid #bbb;
     display: flex;
     justify-content: space-between;
+    padding: 5px;
+  }
+
 }

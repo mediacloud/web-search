@@ -8,17 +8,17 @@ const querySlice = createSlice({
     name: 'query',
     initialState: { 'queryString': "",
                     'queryList': [[],[],[]],
-                    'negatedQueryList': [[],[],[]], 
-                    'platform': "Choose a Platform", 
-                    'startDate': startDate, 
-                    'endDate': endDate, 
+                    'negatedQueryList': [[],[],[]],
+                    'platform': "onlinenews", // "Choose a Platform", 
+                    'startDate': startDate,
+                    'endDate': endDate,
                     'collections': [{ 'id': 34412234, 'name': "United States - National" }],
                     'previewCollections': [{ 'id': 34412234, 'name': "United States - National" }],
                     'sources':[],
                     'lastSearchTime': dayjs().format(),
                     'anyAll': "any"
                 },
-                    
+
     reducers: {
         addSelectedMedia: (state, {payload}) => {
             state.collections = payload;
@@ -61,8 +61,8 @@ const querySlice = createSlice({
     },
 });
 
-export const { 
-    addSelectedMedia, 
+export const {
+    addSelectedMedia,
     removeSelectedMedia,
     setStartDate,
     setEndDate,

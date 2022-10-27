@@ -18,11 +18,12 @@
 
 // componenets
 @import '../features/header/header';
+@import '../features/footer/footer';
 @import '../style/homepage';
-@import '../style/footer';
 
 // search styling
 @import '../features/search/styles/search.scss';
+@import '../features/search/results/styles/results.scss';
 @import '../features/search/query/style/media-picker';
 @import '../features/search/query/style/featured-collection-picker';
 @import '../features/search/query/style/selected-media';
@@ -39,5 +40,12 @@
 @import '../style/text';
 
 body {
-    font-family: $font-families,
+  font-family: $font-families;
+  background-color: $primary-off-white;
+}
+
+#content {
+  min-height: 300px;
+  padding: 10px 0px;
+  background-color: #fff;
 }

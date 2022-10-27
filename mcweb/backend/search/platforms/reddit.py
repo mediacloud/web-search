@@ -113,7 +113,7 @@ class RedditPushshiftProvider(ContentProvider):
             'media_url': 'https://reddit.com/r/{}'.format(item['subreddit']),
             'url': 'https://reddit.com/'+item['permalink'],
             'stories_id': item['id'],
-            'content': item['title'],
+            'title': item['title'],
             'publish_date': dt.datetime.fromtimestamp(item['created_utc']).strftime(MC_DATE_FORMAT),
             'media_link': item['url'],
             'score': item['score'],
