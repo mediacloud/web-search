@@ -34,69 +34,63 @@ export default function Search() {
   return (
     <div className='container search-container'>
         <div className='row'>
-          <div className='col text-center' >
+          <div className='col' >
             <PlatformPicker />
           </div>
         </div>
 
-        <div className='row'>
-          <div className='col-8'>
-            <SimpleSearch />
-          </div>
-          <div className='col-4'>
-              <QueryPreview />
-          </div>
-        </div>
+        <SimpleSearch />
 
         <div className="row">
-          
-            {platform === PLATFORM_ONLINE_NEWS && (
-              <div className='col'>
-                <div className='selected-media-title'>
-                  <Looks3Icon />
-                  <h3>Select Your Media</h3>
-                </div>
-                <SelectedMedia />
-                <MediaPicker />
-                <p className='selected-media-info'>Choose individual sources or collections to be searched.
-                  Our system includes collections for a large range of countries,
-                  in multiple languages. Learn more about choosing media.</p>
-              </div>
-            )}
 
-            {platform !== PLATFORM_ONLINE_NEWS && (
-                <div className='col'>
-                  <div className='selected-media-title'>
-                    <Looks3Icon />
-                    <h3>Select Your Media</h3>
-                  </div>
-
-                  <p className='selected-media-info'>Choose individual sources or collections to be searched.
+          <div className="col-6">
+            <div className='query-section'>
+              <h3><em>3</em>Select your collections</h3>
+              {platform === PLATFORM_ONLINE_NEWS && (
+                <>
+                  <SelectedMedia />
+                  <MediaPicker />
+                  <p className='help'>Choose individual sources or collections to be searched.
                     Our system includes collections for a large range of countries,
-                    in multiple languages. Learn more about choosing media.</p>
-                </div>
-            )}
-
-          <div className="col">
-            <SearchDatePicker />
+                    in multiple languages.</p>
+                </>
+              )}
+              {platform !== PLATFORM_ONLINE_NEWS && (
+                <p>Currently unsupported</p>
+              )}
+            </div>
           </div>
+
+          <div className="col-6">
+            <div className='query-section'>
+              <h3><em>4</em>Select your dates</h3>
+              <SearchDatePicker />
+            </div>
+          </div>
+
         </div>
-         
-      {/* Submit */}
-      <Button
-        fullWidth
-        variant="outlined"
-        onClick={async () => {
-          enqueueSnackbar("Query Dispatched Please Wait for Results", { variant: 'success'});
-          try {
-            dispatch(setSearchTime(dayjs().format()));      
-          } catch {
-            enqueueSnackbar("Query is empty", { variant: 'error' });
-          }
-        }}
-      >
-        Search
-      </Button>
+
+      <div className="row">
+        <div className="col-12">
+
+
+          {/* Submit */}
+          <Button
+            className="float-right"
+            variant="contained"
+            onClick={async () => {
+              enqueueSnackbar("Query Dispatched Please Wait for Results", { variant: 'success'});
+              try {
+                dispatch(setSearchTime(dayjs().format()));
+              } catch {
+                enqueueSnackbar("Query is empty", { variant: 'error' });
+              }
+            }}
+          >
+            Search
+          </Button>
+        </div>
+      </div>
 
       <div className='results-container'>
         <TotalAttentionChart />

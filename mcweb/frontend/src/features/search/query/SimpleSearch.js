@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {useState} from 'react';
 import QueryList from './QueryList';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import SelectUnstyled from '@mui/base/SelectUnstyled';
+import OptionUnstyled from '@mui/base/OptionUnstyled';
 import { setQueryList, setNegatedQueryList, setAnyAll} from './querySlice';
 import LooksTwoIcon from '@mui/icons-material/LooksTwo';
 import {useSelector} from 'react-redux';
@@ -15,8 +15,8 @@ export default function SimpleSearch () {
     const dispatch = useDispatch();
 
     const handleChangeAnyAll = (event) => {
-        setAny(event.target.value);
-        dispatch(setAnyAll(event.target.value));
+      setAny(event.target.value);
+      dispatch(setAnyAll(event.target.value));
     };
 
     const {platform} = useSelector(state => state.query);
@@ -33,7 +33,7 @@ export default function SimpleSearch () {
             }else if (platform === PLATFORM_REDDIT || platform === PLATFORM_YOUTUBE){
                 return "|";
             }
-            
+
         } else {
             if (platform === PLATFORM_ONLINE_NEWS) {
                 return "AND";
@@ -66,35 +66,40 @@ export default function SimpleSearch () {
     };
 
     return(
-    <div className='simple-search-container'>
-        <div className='query-term-container'>
-            <div className='simple-search-title'>
-                <LooksTwoIcon />
-                <h1>Enter Your Search Terms</h1>
-            </div>
+      <div className="row">
 
-          <div className='select-any-all'>
-            <Select
+        <div className="col-4">
+          <div className='query-section'>
+            <h3><em>2</em>Enter simple search terms</h3>
+            {/*  can't use <p> tag here, because UL of options can't be child of it :-( */}
+            <div className="description">
+            Match
+              <select
+                className="select-inline"
                 value={any}
                 onChange={handleChangeAnyAll}
-            >
-                <MenuItem value={"any"}>Any</MenuItem>
-                <MenuItem value={"all"}>All</MenuItem>
-            </Select>
-            <h1 className='select-title'>of these Phrases</h1>
-          </div>
-       
+              >
+                <option value={"any"}>Any</option>
+                <option value={"all"}>All</option>
+              </select>
+              of these phrases:
+            </div>
             <QueryList negated={false}/>
-
+          </div>
         </div>
 
-        <div className='negated-query-list'>
-            <h1 className='negations-title'>And none of these phrases</h1>
-
-            {/* Negation List */}
-            <QueryList negated={true} />
+        <div className="col-4">
+          <h3>&nbsp;</h3>
+          <div className="description">And <b>none</b> of these phrases:</div>
+          <QueryList negated={true} />
         </div>
 
-    </div>
+        <div className="col-4">
+          <h3>&nbsp;</h3>
+          <div className="description">Preview of full query:</div>
+          <QueryPreview />
+        </div>
+
+      </div>
     );
 }
