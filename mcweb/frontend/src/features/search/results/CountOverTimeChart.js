@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import HighCharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
@@ -21,6 +21,8 @@ export default function CountOverTimeChart(){
         sources,
         lastSearchTime,
         anyAll } = useSelector(state => state.query);
+
+    const [hidden, setHidden] = useState(false);
 
     const queryString = queryGenerator(queryList, negatedQueryList, platform);
     const {countOverTime} = useSelector(state => state.results);
@@ -44,7 +46,10 @@ export default function CountOverTimeChart(){
                 platform
 
             });
-        } 
+            setHidden(false);
+        } else if (platform === PLATFORM_REDDIT || platform === PLATFORM_YOUTUBE) {
+            setHidden(true);
+        }
     }, [lastSearchTime]);
 
     const cleanData = () => {
@@ -110,9 +115,11 @@ export default function CountOverTimeChart(){
         ]
     };
     
-
+    
     if (isLoading) return (<div> <CircularProgress size="75px" /> </div>);
+    if (hidden) return (<h2 className="not-supported-text">Search Over Time Not Currently Supported For This Platform</h2>);
     if (!data ) return null;
+    
 
    return(
       <div className="results-item-wrapper clearfix">

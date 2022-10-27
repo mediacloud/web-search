@@ -22,7 +22,7 @@ export default function QueryPreview() {
         <code>{query || "(enter some phrases to the left)"}</code>
         <p className="help">
           Your search phrases are being translated automatically into the query
-          sytax supported by the platform you are searching against. This saves you
+          syntax supported by the platform you are searching against. This saves you
           from having to learn the esoteric syntax for each platform and API.
         </p>
       </>
