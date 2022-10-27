@@ -23,7 +23,7 @@ export default function Homepage(props) {
             <div className="col-5 offset-1">
               <h2>Search Online News & Social Media</h2>
               <p>
-              Our search tools let you author queries across media platforms, without having to worry about platform-specific search syntax. Based on what their APIs support, we can show attention over time, total attention, and sample matching content. This lets you quickly narrow in on a query to find exactly the type of conten you are looking for.
+              Our search tools let you author queries across media platforms, without having to worry about platform-specific search syntax. Based on what their APIs support, we can show attention over time, total attention, and sample matching content. This lets you quickly narrow in on a query to find exactly the type of content you are looking for.
               </p>
             </div>
             <div className="col-5">
