@@ -87,7 +87,7 @@
   }
 
   .query-section {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     h3 {
       display: block;
       margin: 0px 0px 8px 0px;
@@ -116,6 +116,12 @@
 
     }
 
+  }
+
+  .search-button-wrapper {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0px;
   }
 
 }

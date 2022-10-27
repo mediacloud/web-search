@@ -8,14 +8,14 @@ import {queryGenerator} from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 
 export default function TotalAttentionChart() {
-    const { queryList, 
-            negatedQueryList, 
-            platform, 
-            startDate, 
-            endDate, 
+    const { queryList,
+            negatedQueryList,
+            platform,
+            startDate,
+            endDate,
             collections,
             sources,
-            lastSearchTime, 
+            lastSearchTime,
             anyAll } = useSelector(state => state.query);
 
     const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
@@ -39,11 +39,10 @@ export default function TotalAttentionChart() {
 
     const options = {
         chart: {
-            type: 'bar'
+            type: 'bar',
+            height: '200px'
         },
-        title: {
-            text: 'Total Attention'
-        },
+        title: { text: '' },
         xAxis: {
             categories: [`${queryString}`, "Total Stories Count"],
             title: {
@@ -53,7 +52,7 @@ export default function TotalAttentionChart() {
         yAxis: {
             min: 0,
             title: {
-                text: 'Total Count',
+                text: 'Matching Items',
                 align: 'high'
             },
             labels: {
@@ -67,38 +66,31 @@ export default function TotalAttentionChart() {
                 }
             }
         },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'top',
-            x: -40,
-            y: 80,
-            floating: true,
-            borderWidth: 1,
-            backgroundColor:
-                '#FFFFFF',
-            shadow: true
-        },
+        legend:{ enabled:false },
         credits: {
             enabled: false
         },
         series: [{
+            color: '#2f2d2b',
             name: `query: ${queryString}`,
             data: [data ? data.count : null]
         }]
         // {
         //     name: "Total Stories",
         //     data: [data ? data.all_count.normalized_total : null]
-        // }] 
+        // }]
     };
 
     if (!data) return null;
     return (
-
-        <div className='container'>
-            <h1 className='total-attention'>Total Attention: {data.count} </h1>
+      <div className="results-item-wrapper">
+        <div className='row'>
+          <div className='col-12'>
+            <h2>Total Attention: {data.count} </h2>
             {/* {console.log(countOverTime ? countOverTime.counts : null)} */}
             <HighchartsReact highcharts={HighCharts} options={options} />
+          </div>
         </div>
+      </div>
     );
 }

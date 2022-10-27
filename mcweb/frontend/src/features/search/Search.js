@@ -32,15 +32,21 @@ export default function Search() {
     dispatch(openModal("platformPicker"));
   }
   return (
-    <div className='container search-container'>
+    <div className='search-container'>
+
+      <div className="container">
         <div className='row'>
           <div className='col' >
             <PlatformPicker />
           </div>
         </div>
+      </div>
 
+      <div className="container">
         <SimpleSearch />
+      </div>
 
+      <div className="container">
         <div className="row">
 
           <div className="col-6">
@@ -69,33 +75,38 @@ export default function Search() {
           </div>
 
         </div>
+      </div>
 
-      <div className="row">
-        <div className="col-12">
-
-
-          {/* Submit */}
-          <Button
-            className="float-right"
-            variant="contained"
-            onClick={async () => {
-              enqueueSnackbar("Query Dispatched Please Wait for Results", { variant: 'success'});
-              try {
-                dispatch(setSearchTime(dayjs().format()));
-              } catch {
-                enqueueSnackbar("Query is empty", { variant: 'error' });
-              }
-            }}
-          >
-            Search
-          </Button>
+      <div className="search-button-wrapper">
+        <div className="container">
+          <div className="row">
+            <div className="col-12">
+              {/* Submit */}
+              <Button
+                className="float-right"
+                variant="contained"
+                onClick={async () => {
+                  enqueueSnackbar("Query Dispatched Please Wait for Results", { variant: 'success'});
+                  try {
+                    dispatch(setSearchTime(dayjs().format()));
+                  } catch {
+                    enqueueSnackbar("Query is empty", { variant: 'error' });
+                  }
+                }}
+              >
+                Search
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className='results-container'>
-        <TotalAttentionChart />
-        <CountOverTimeChart />
-        <SampleStories  />
+      <div className="search-results-wrapper">
+        <div className='container'>
+          <CountOverTimeChart />
+          <TotalAttentionChart />
+          <SampleStories  />
+        </div>
       </div>
 
     </ div>

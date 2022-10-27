@@ -101,7 +101,7 @@ export default function QueryList(props) {
             );
         } else if (anyAll === 'all') {
             return (
-                <div>
+              <div className="query-term-list">
                     {serviceList.map((singleService, index) => (
                         <div key={index} className='query-term-item'>
 

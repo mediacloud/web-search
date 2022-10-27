@@ -80,7 +80,7 @@ class YouTubeYouTubeProvider(ContentProvider):
             'stories_id': item['id']['videoId'],
             'author': item['snippet']['channelTitle'],
             'publish_date': publish_date,
-            'content': item['snippet']['title'],
+            'title': item['snippet']['title'],
             'media_name': item['snippet']['channelTitle'],
             'media_url': "https://www.youtube.com/channel/{}".format(item['snippet']['channelId']),
             'url': "https://www.youtube.com/watch?v={}".format(item['id']['videoId'])
