@@ -17,6 +17,10 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import YouTubeIcon from '@mui/icons-material/YouTube';
+import RedditIcon from '@mui/icons-material/Reddit';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
 
 export default function PlatformPicker (){
     const {platform} = useSelector(state => state.query);
@@ -75,16 +79,16 @@ export default function PlatformPicker (){
                 color="primary"
               >
                 <ToggleButton value={PLATFORM_ONLINE_NEWS}>
-                  Online News
+                  <NewspaperIcon /> &nbsp;Online News
                 </ToggleButton>
                 <ToggleButton value={PLATFORM_REDDIT}>
-                  Reddit
+                  <RedditIcon /> &nbsp;Reddit
                 </ToggleButton>
                 <ToggleButton value={PLATFORM_TWITTER}>
-                  Twitter
+                  <TwitterIcon /> &nbsp;Twitter
                 </ToggleButton>
                 <ToggleButton value={PLATFORM_YOUTUBE}>
-                  YouTube
+                  <YouTubeIcon /> &nbsp;YouTube
                 </ToggleButton>
             </ToggleButtonGroup>
           </div>
