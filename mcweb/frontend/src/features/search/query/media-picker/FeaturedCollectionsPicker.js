@@ -4,6 +4,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
+import { Link } from "react-router-dom";
 
 export default function FeaturedCollectionsPicker () {
     const {data, isLoading} = useGetFeaturedCollectionsQuery();
@@ -22,29 +23,30 @@ export default function FeaturedCollectionsPicker () {
     } else {
         return(
             <div className='container featured-collections-container'>
-                <div className='row'>
-                    <h5 className='col-5'>Name</h5>
-                    <h5 className='col-7'>Description</h5>
-                </div>
-                {data.collections.map(collection => {
-                  return( 
-                    <div className='row collection-picker-item' key={collection.id}>
-                        <h5 className='col-5'>{collection.name}</h5>
-                        <h5 className='col-5'>{collection.notes}</h5>
-
-                        {!(inSelectedMedia(collection.id)) && (   
-                            <div className='col-2' onClick={() => dispatch(addPreviewSelectedMedia(collection))}>
-                                  <AddCircleIcon sx={{ color:'#d24527'}}  />
-                            </div>                             
-                        )}
-                        {(inSelectedMedia(collection.id)) && (
-                                <div className='col-2' onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
-                                  <RemoveCircleIcon sx={{ color:'#d24527'}} />
-                            </div>
-                        )}
-                   </div>
-                   );
-                })}
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                  </tr>
+                  {data.collections.map(collection => {
+                    return(
+                      <tr key={collection.id}>
+                          <td><Link target="_blank" rel="noopener noreferrer" to={`/collections/${collection.id}`}>{collection.name}</Link></td>
+                          <td>{collection.notes}</td>
+                          <td>
+                            {!(inSelectedMedia(collection.id)) && (
+                              <AddCircleIcon sx={{ color:'#d24527'}} onClick={() => dispatch(addPreviewSelectedMedia(collection))}/>
+                            )}
+                            {(inSelectedMedia(collection.id)) && (
+                              <RemoveCircleIcon sx={{ color:'#d24527'}} onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}/>
+                            )}
+                          </td>
+                     </tr>
+                     );
+                  })}
+                </tbody>
+              </table>
             </div>
         );
     }
