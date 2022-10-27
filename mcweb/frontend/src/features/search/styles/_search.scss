@@ -36,7 +36,6 @@
   h3 {
       font-size: 1.5rem;
       padding-bottom: .5rem;
-      font-family: $heading-font;
     }
 }
 
@@ -45,14 +44,9 @@
   margin-bottom: 1rem;
 }
 
-.results-container {
-  margin: 1rem 1rem $footer-height 1rem;
-}
-
 .total-attention {
   margin:.5rem;
   font-size: 1.5rem;
-  font-family: $heading-font;
 }
 
 .search-container {

@@ -24,7 +24,7 @@ export default function SignUp() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
-  // register user 
+  // register user
   const [register, { isLoading }] = useRegisterMutation();
 
   // log in user
@@ -161,7 +161,7 @@ export default function SignUp() {
               disabled={isLoading}
               onClick={async () => {
                 try {
-                  // creating user 
+                  // creating user
                   const user = await register(formState).unwrap();
                   dispatch(setCredentials(user));
 

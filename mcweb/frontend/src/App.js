@@ -1,6 +1,7 @@
 import React from 'react';
 import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import Homepage from './features/homepage/Homepage';
 
 import Header from './features/header/Header';
 import Footer from './features/footer/Footer';
@@ -39,6 +40,8 @@ const App = () => {
       <Header />
       <div id="content">
         <Routes>
+            <Route index element={<Homepage />} />
+
              <Route path="collections/:collectionId/modify-collection" element={
               <RequireAuth>
                 <ModifyCollection />

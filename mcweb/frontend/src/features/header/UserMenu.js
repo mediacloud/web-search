@@ -17,6 +17,7 @@ import { NavLink } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import {useSelector, useDispatch} from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useLogoutMutation } from '../../app/services/authApi';
 import { selectIsLoggedIn, setCredentials } from '../auth/authSlice';
@@ -67,6 +68,10 @@ const UserMenu = () => {
           </Menu>
         </>
       );
+    } else {
+      content = (
+        <Link to="/sign-in"><Button color="contrast" variant="outlined">login</Button></Link>
+      )
     }
     return content;
 };

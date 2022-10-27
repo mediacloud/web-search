@@ -19,7 +19,7 @@
 // componenets
 @import '../features/header/header';
 @import '../features/footer/footer';
-@import '../style/homepage';
+@import '../features/homepage/homepage';
 
 // search styling
 @import '../features/search/styles/search.scss';
@@ -40,7 +40,7 @@
 @import '../style/text';
 
 body {
-  font-family: $font-families;
+  font-family: $body-font-families;
   background-color: $primary-off-white;
 }
 
@@ -76,4 +76,8 @@ a {
   &:hover {
     color: $primary-red;
   }
+}
+
+h1, h2, h3 {
+  font-family: $heading-font-families
 }
