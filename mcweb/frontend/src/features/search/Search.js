@@ -11,7 +11,7 @@ import SelectedMedia from './query/SelectedMedia';
 import SearchDatePicker from './query/SearchDatePicker';
 import SimpleSearch from './query/SimpleSearch';
 import SampleStories from './results/SampleStories';
-import { setSearchTime } from './query/querySlice';
+import { setSearchTime, removeSelectedMedia } from './query/querySlice';
 import Looks3Icon from '@mui/icons-material/Looks3';
 import TotalAttentionChart from './results/TotalAttentionChart';
 import dayjs from 'dayjs';
@@ -23,7 +23,7 @@ export default function Search() {
   const {enqueueSnackbar} = useSnackbar();
   const dispatch = useDispatch();
 
-  const { platform } = useSelector(state => state.query);
+  const { platform, previewCollections } = useSelector(state => state.query);
 
   const PLATFORM_ONLINE_NEWS = "onlinenews";
   const [isOpen, setIsOpen] = useState(false);
@@ -54,7 +54,7 @@ export default function Search() {
               <h3><em>3</em>Select your collections</h3>
               {platform === PLATFORM_ONLINE_NEWS && (
                 <>
-                  <SelectedMedia />
+                  <SelectedMedia onRemove={removeSelectedMedia}/>
                   <MediaPicker />
                   <p className='help'>Choose individual sources or collections to be searched.
                     Our system includes collections for a large range of countries,

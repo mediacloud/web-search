@@ -7,6 +7,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import { Link } from "react-router-dom";
 
 export default function CollectionSearchPicker(){
     const [query, setQuery] = useState('');
@@ -23,11 +24,8 @@ export default function CollectionSearchPicker(){
         <div className='collection-search-picker-container'>
             {/* CollectionSearch */}
             <TextField size='large' sx={{marginTop:'1rem'}}label="Search Collection by Name"  value={query} onChange={e => setQuery(e.target.value)} />
-            <Button  sx={{marginLeft:'1rem', marginTop:'1rem'}}variant='outlined' onClick={() => {
-               trigger(query);
-            }
-                }>
-                    Send Query
+            <Button  sx={{marginLeft:'1rem', marginTop:'1rem'}}variant='outlined' onClick={() => trigger(query)}>
+                Search
             </Button>
             {/* CollectionSearch results? */}
             {isLoading && (
@@ -35,27 +33,33 @@ export default function CollectionSearchPicker(){
             )}
             {data && (
                 <div>
-                    <h5>Results</h5>
-                    <h6>{data.collections.length} Collections matching "{query}"</h6>
-                    {data.collections.map(collection => {
-                        return (
-                            <div className='row collection-picker-item' key={collection.id}>
-                                <h5 className='col-5'>{collection.name}</h5>
-                                <h5 className='col-5'>{collection.notes}</h5>
+                    <p>{data.collections.length} Collections matching "{query}"</p>
 
-                                {!(inSelectedMedia(collection.id)) && (
-                                    <div className='col-2' onClick={() => dispatch(addPreviewSelectedMedia(collection))}>
-                                        <AddCircleIcon sx={{ color: '#d24527' }} />
-                                    </div>
-                                )}
-                                {(inSelectedMedia(collection.id)) && (
-                                    <div className='col-2' onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
-                                        <RemoveCircleIcon sx={{ color: '#d24527' }} />
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
+                    <table>
+                      <tbody>
+                        <tr>
+                          <th>Name</th>
+                          <th>Description</th>
+                        </tr>
+                        {data.collections.map(collection => {
+                          return(
+                            <tr key={collection.id}>
+                                <td><Link to={`/collections/${collection.id}`} target="_blank" rel="noopener noreferrer">{collection.name}</Link></td>
+                                <td>{collection.notes}</td>
+                                <td>
+                                  {!(inSelectedMedia(collection.id)) && (
+                                    <AddCircleIcon sx={{ color:'#d24527'}} onClick={() => dispatch(addPreviewSelectedMedia(collection))}/>
+                                  )}
+                                  {(inSelectedMedia(collection.id)) && (
+                                    <RemoveCircleIcon sx={{ color:'#d24527'}} onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}/>
+                                  )}
+                                </td>
+                           </tr>
+                           );
+                        })}
+                      </tbody>
+                    </table>
+
                 </div>
             )}
         </div>

@@ -96,7 +96,7 @@ export default function SimpleSearch () {
 
         <div className="col-4">
           <h3>&nbsp;</h3>
-          <div className="description">Preview of full query:</div>
+          <div className="description">Your query preview:</div>
           <QueryPreview />
         </div>
 

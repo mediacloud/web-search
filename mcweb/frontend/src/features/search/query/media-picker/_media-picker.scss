@@ -1,0 +1,22 @@
+.media-picker {
+
+  .media-picker-container{
+      background-color: white;
+      // display: flex;
+      // max-height: 100%;
+      overflow-y: auto;
+      // // height: auto;
+      // border: 1px solid red;
+      // overflow: auto;
+  }
+
+}
+
+.media-picker-controls {
+  margin-top: 20px;
+  h3 {
+    font-family: $font-families;
+    font-size: 25px;
+    font-weight: bold;
+  }
+}
