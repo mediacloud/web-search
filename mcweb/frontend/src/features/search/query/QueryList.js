@@ -49,7 +49,7 @@ export default function QueryList(props) {
 
                         <div className="first-division">
 
-                            <input name="service" type="text" id="service" required
+                            <input size="35" name="service" type="text" id="service" required
                                 value={String(singleService)}
                                 onChange={(e) => handleQueryChange(e, index)} />
 
@@ -79,7 +79,7 @@ export default function QueryList(props) {
                         <div key={index} className='query-term-item'>
 
                             <div className="first-division">
-                                <input name="service" type="text" id="service" required
+                                <input size="35" name="service" type="text" id="service" required
                                     value={String(singleService)}
                                     onChange={(e) => handleQueryChange(e, index)} />
 
@@ -106,7 +106,7 @@ export default function QueryList(props) {
                         <div key={index} className='query-term-item'>
 
                             <div className="first-division">
-                                <input name="service" type="text" id="service" required
+                                <input size="40" name="service" type="text" id="service" required
                                     value={String(singleService)}
                                     onChange={(e) => handleQueryChange(e, index)} />
 
