@@ -51,7 +51,7 @@ export default function Search() {
 
           <div className="col-6">
             <div className='query-section'>
-              <h3><em>3</em>Select your collections</h3>
+              <h3><em>2</em>Select your collections</h3>
               {platform === PLATFORM_ONLINE_NEWS && (
                 <>
                   <SelectedMedia onRemove={removeSelectedMedia}/>
@@ -69,7 +69,7 @@ export default function Search() {
 
           <div className="col-6">
             <div className='query-section'>
-              <h3><em>4</em>Select your dates</h3>
+              <h3><em>3</em>Select your dates</h3>
               <SearchDatePicker />
             </div>
           </div>
