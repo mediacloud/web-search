@@ -11,7 +11,7 @@ const Item = styled(Paper)(({ theme }) => ({
   textAlign: "center",
   color: theme.palette.text.primary
 }));
-
+ 
 export default function FeaturedCollections () {
   const { data, isLoading } = useGetFeaturedCollectionsQuery();
   const featuredCollections = data;

@@ -1,5 +1,6 @@
 from django.core.cache import cache
 
+
 # not integrated yet: super useful (we keep results of api) (lasts for 24 hours)
 
 # provide helpers for working with Django's caching
@@ -33,3 +34,7 @@ def cache_by_kwargs(time_secs: int = 60*60*24):
         return wrapper
 
     return decorator
+
+# decorator for caching frontend request
+    
+    
