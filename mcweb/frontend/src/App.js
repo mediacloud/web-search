@@ -23,10 +23,17 @@ import SourceShow from './features/sources/SourceShow';
 //modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
-
 import { selectIsLoggedIn } from './features/auth/authSlice';
-
+import { useSearchParams } from 'react-router-dom';
+import { addSelectedMedia, setStartDate, setEndDate, setPlatform } from './features/search/query/querySlice';
+import { useDispatch } from 'react-redux';
+import setSearchQuery from './features/search/util/setSearchQuery';
 const App = () => {
+  const dispatch = useDispatch();
+
+  // let [searchParams, setSearchParams] = useSearchParams();
+  // setSearchQuery(searchParams); // set query paramaters from url
+
   return (
     <>
       <Header />

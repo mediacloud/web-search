@@ -3,7 +3,7 @@ import { Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import PlatformPicker from './query/PlatformPicker';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 // information from store
 import { openModal } from '../ui/uiSlice';
 import QueryPreview from './query/QueryPreview';
@@ -17,16 +17,49 @@ import TotalAttentionChart from './results/TotalAttentionChart';
 import dayjs from 'dayjs';
 import CountOverTimeChart from './results/CountOverTimeChart';
 import MediaPicker from './query/media-picker/MediaPicker';
+import {useNavigate} from 'react-router-dom';
+import { queryGenerator } from './util/queryGenerator';
+import urlSerializer from './util/urlSerializer';
+import { useSearchParams } from 'react-router-dom';
+import setSearchQuery from '../search/util/setSearchQuery';
 
 export default function Search() {
+  // let [searchParams, setSearchParams] = useSearchParams();
+  // useEffect(()=> {
+  //   setSearchQuery(searchParams); // set query paramaters from url
+  // }, []);
 
   const {enqueueSnackbar} = useSnackbar();
   const dispatch = useDispatch();
-
-  const { platform } = useSelector(state => state.query);
+  const navigate = useNavigate();
+  const { queryList,
+          negatedQueryList,
+          startDate,
+          endDate,
+          collections, 
+          platform, 
+          anyAll
+        } = useSelector(state => state.query);
 
   const PLATFORM_ONLINE_NEWS = "onlinenews";
+  const PLATFORM_REDDIT = "reddit";
+  const PLATFORM_YOUTUBE = "youtube";
+
   const [isOpen, setIsOpen] = useState(false);
+  
+  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+
+  
+
+  const queryObject = {
+    queryList: queryList,
+    negatedQueryList: negatedQueryList,
+    startDate: startDate,
+    endDate: endDate,
+    platform: platform,
+    collections: collections,
+    anyAll: anyAll
+  };
 
   if (platform === "Choose a Platform"){
     dispatch(openModal("platformPicker"));
@@ -86,8 +119,11 @@ export default function Search() {
                 className="float-right"
                 variant="contained"
                 onClick={async () => {
-                  enqueueSnackbar("Query Dispatched Please Wait for Results", { variant: 'success'});
                   try {
+                    navigate(
+                      `/search${urlSerializer(queryObject)}`,
+                      { options: { replace: true } }
+                    );
                     dispatch(setSearchTime(dayjs().format()));
                   } catch {
                     enqueueSnackbar("Query is empty", { variant: 'error' });

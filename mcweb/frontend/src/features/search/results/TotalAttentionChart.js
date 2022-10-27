@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import {queryGenerator} from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
+import  CircularProgress  from '@mui/material/CircularProgress';
 
 export default function TotalAttentionChart() {
     const { queryList,
@@ -81,7 +82,10 @@ export default function TotalAttentionChart() {
         // }]
     };
 
+    if (isLoading) return (<CircularProgress size="75px" />);
     if (!data) return null;
+    // if (isLoading) return ( <CircularProgress size="75px" />);
+
     return (
       <div className="results-item-wrapper">
         <div className='row'>

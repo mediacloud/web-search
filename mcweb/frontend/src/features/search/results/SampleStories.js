@@ -6,6 +6,7 @@ import { useGetSampleStoriesMutation, useDownloadSampleStoriesCSVMutation } from
 import { queryGenerator } from '../util/queryGenerator';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
+import  CircularProgress  from '@mui/material/CircularProgress';
 
 export default function SampleStories(){
 
@@ -45,8 +46,8 @@ export default function SampleStories(){
         }
     }, [lastSearchTime]);
 
+    if (isLoading) return (<div> <CircularProgress size="75px" /> </div>);
     if (!data) return null;
-    if (isLoading) return (<h1>Loading...</h1>);
 
     const content = (
       <div className="results-item-wrapper results-sample-stories">
@@ -77,7 +78,7 @@ export default function SampleStories(){
             </tbody>
           </table>
       </div>
-    )
+    );
 
     let platformSpecficContent;
     if (platform === PLATFORM_ONLINE_NEWS){
@@ -106,6 +107,6 @@ export default function SampleStories(){
         {content}
         {platformSpecficContent}
       </>
-    )
+    );
 
 }

@@ -8,6 +8,7 @@ import utc from 'dayjs/plugin/utc';
 import { useGetCountOverTimeMutation, useDownloadCountsOverTimeCSVMutation } from '../../../app/services/searchApi';
 import { queryGenerator } from '../util/queryGenerator';
 import Button  from '@mui/material/Button';
+import  CircularProgress  from '@mui/material/CircularProgress';
 
 export default function CountOverTimeChart(){
 
@@ -43,7 +44,7 @@ export default function CountOverTimeChart(){
                 platform
 
             });
-        }
+        } 
     }, [lastSearchTime]);
 
     const cleanData = () => {
@@ -108,10 +109,12 @@ export default function CountOverTimeChart(){
             },
         ]
     };
+    
 
-    if (!data) return null;
-    if (isLoading) return (<h1>Loading...</h1>);
-    return(
+    if (isLoading) return (<div> <CircularProgress size="75px" /> </div>);
+    if (!data ) return null;
+
+   return(
       <div className="results-item-wrapper clearfix">
         <h2>Attention Over Time</h2>
         <HighchartsReact highcharts={HighCharts} options={options} />
@@ -135,3 +138,4 @@ export default function CountOverTimeChart(){
       </div>
     );
 }
+
