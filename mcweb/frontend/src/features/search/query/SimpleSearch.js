@@ -70,7 +70,7 @@ export default function SimpleSearch () {
 
         <div className="col-4">
           <div className='query-section'>
-            <h3><em>1</em>Enter simple search terms</h3>
+            <h3><em>1</em>Enter search phrases</h3>
             {/*  can't use <p> tag here, because UL of options can't be child of it :-( */}
             <div className="description">
             Match
