@@ -10,9 +10,9 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import { useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-
+import { Link } from 'react-router-dom';
 
 import { CsrfToken } from '../../services/csrfToken';
 import { useRegisterMutation, useLoginMutation } from '../../app/services/authApi';
@@ -186,6 +186,18 @@ export default function SignUp() {
               Sign Up
             </Button>
           </Box>
+          <Typography
+            sx={{
+              mr: 2,
+              letterSpacing: '.02rem',
+              color: 'light-blue',
+              textDecoration: 'none',
+            }}
+            component={Link}
+            to="/sign-in"
+          >
+            Already Have an Account? Sign-In!
+          </Typography>
         </Box>
       </Container>
     </div >

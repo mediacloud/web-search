@@ -121,6 +121,18 @@ export default function SignIn() {
           </Typography>
         </Box>
       </Box>
+          <Typography
+            sx={{
+              mr: 2,
+              letterSpacing: '.02rem',
+              color: 'light-blue',
+              textDecoration: 'none',
+            }}
+            component={Link}
+            to="/sign-up"
+          >
+            No Account? Register Now!
+          </Typography>
       </Container>
     </div>
   );
