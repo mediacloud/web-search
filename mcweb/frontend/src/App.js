@@ -3,7 +3,7 @@ import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import Header from './features/header/Header';
-import Footer from './Footer';
+import Footer from './features/footer/Footer';
 
 // user status
 import Account from './features/auth/Account';
@@ -28,9 +28,9 @@ import { selectIsLoggedIn } from './features/auth/authSlice';
 
 const App = () => {
   return (
-
-    <div className="homepage">
+    <>
       <Header />
+      <div id="content">
         <Routes>
              <Route path="collections/:collectionId/modify-collection" element={
               <RequireAuth>
@@ -86,9 +86,9 @@ const App = () => {
               </RequireAuth>} />
 
         </Routes>
+      </div>
       <Footer />
-    </div>
-
+    </>
   );
 };
 
