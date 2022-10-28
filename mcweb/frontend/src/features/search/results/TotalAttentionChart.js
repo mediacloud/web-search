@@ -90,7 +90,7 @@ export default function TotalAttentionChart() {
       <div className="results-item-wrapper">
         <div className='row'>
           <div className='col-12'>
-            <h2>Total Attention: {data.count} </h2>
+            <h2>Total Attention</h2>
             {/* {console.log(countOverTime ? countOverTime.counts : null)} */}
             <HighchartsReact highcharts={HighCharts} options={options} />
           </div>
