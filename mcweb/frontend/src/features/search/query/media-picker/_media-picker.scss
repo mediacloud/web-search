@@ -13,9 +13,17 @@
 }
 
 .media-picker-controls {
-  margin-top: 20px;
+  margin-top: 10px;
+  padding: 30px 20px 0px 0px;
+  border-top: 1px solid $primary-off-white;
   h3 {
     font-size: 18px;
     font-weight: bold;
   }
+}
+
+.tabpanel {
+  padding: 0px 10px 10px 30px;
+  min-height: 700px;
+  border-left: 1px solid $primary-off-white;
 }

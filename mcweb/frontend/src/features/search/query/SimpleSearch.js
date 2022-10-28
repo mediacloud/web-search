@@ -89,15 +89,19 @@ export default function SimpleSearch () {
         </div>
 
         <div className="col-4">
-          <h3>&nbsp;</h3>
-          <div className="description">And <b>none</b> of these phrases:</div>
-          <QueryList negated={true} />
+          <div className='query-section'>
+            <h3>&nbsp;</h3>
+            <div className="description">And <b>none</b> of these phrases:</div>
+            <QueryList negated={true} />
+          </div>
         </div>
 
         <div className="col-4">
-          <h3>&nbsp;</h3>
-          <div className="description">Your query preview:</div>
-          <QueryPreview />
+          <div className='query-section'>
+            <h3>&nbsp;</h3>
+            <div className="description">Your query preview:</div>
+            <QueryPreview />
+          </div>
         </div>
 
       </div>

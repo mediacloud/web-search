@@ -36,8 +36,8 @@ export default function Search() {
           negatedQueryList,
           startDate,
           endDate,
-          collections, 
-          platform, 
+          collections,
+          platform,
           anyAll
         } = useSelector(state => state.query);
 
@@ -48,10 +48,10 @@ export default function Search() {
   const PLATFORM_YOUTUBE = "youtube";
 
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
-  
+
 
   const queryObject = {
     queryList: queryList,
@@ -84,7 +84,7 @@ export default function Search() {
       <div className="container">
         <div className="row">
 
-          <div className="col-6">
+          <div className="col-5">
             <div className='query-section'>
               <h3><em>2</em>Pick your collections</h3>
               {platform === PLATFORM_ONLINE_NEWS && (
@@ -102,7 +102,7 @@ export default function Search() {
             </div>
           </div>
 
-          <div className="col-6">
+          <div className="col-6 offset-1">
             <div className='query-section'>
               <h3><em>3</em>Pick your dates</h3>
               <SearchDatePicker />

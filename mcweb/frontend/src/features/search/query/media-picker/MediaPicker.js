@@ -46,7 +46,7 @@ export default function MediaPicker(props) {
                   orientation="vertical"
                   value={value}
                   onChange={(event, newValue) => { setValue(newValue) }}
-                  sx={{ width: '300px' }}
+                  sx={{ minWidth: '350px' }}
                 >
                   <Tab label="Featured Collections" id="tab1" />
                   <Tab label="Search All Collections" id="tab1" />
@@ -66,28 +66,28 @@ export default function MediaPicker(props) {
 
                 </Tabs>
 
-                <div role="tabpanel" hidden={value !== 0} index={0} id="tabpanel-0">
+                <div className="tabpanel" role="tabpanel" hidden={value !== 0} index={0} id="tabpanel-0">
                   {value === 0 && (
-                    <Box sx={{ p: 3}}>
+                    <>
                       <h2>Featured Collections</h2>
                       <FeaturedCollectionsPicker />
-                    </Box>
+                    </>
                   )}
                 </div>
-                <div role="tabpanel" hidden={value !== 1} index={1} id="tabpanel-1">
+                <div className="tabpanel" role="tabpanel" hidden={value !== 1} index={1} id="tabpanel-1">
                   {value === 1 && (
-                    <Box sx={{ p: 3 }}>
+                    <>
                       <h2>Search All Collections</h2>
                       <CollectionSearchPicker />
-                    </Box>
+                    </>
                   )}
                 </div>
-                <div role="tabpanel" hidden={value !== 2} index={2} id="tabpanel-2">
+                <div className="tabpanel" role="tabpanel" hidden={value !== 2} index={2} id="tabpanel-2">
                   {value === 2 && (
-                    <Box sx={{ p: 3 }}>
+                    <>
                       <h2>Search All Sources</h2>
                       <p>🚧 Coming soon</p>
-                    </Box>
+                    </>
                   )}
                 </div>
               </Box>

@@ -83,7 +83,8 @@
   .query-section {
     margin-bottom: 30px;
     h3 {
-      display: block;
+      font-family: $body-font-families;  // Too close to other text to use header font
+      height: 25px;
       margin: 0px 0px 8px 0px;
       padding: 0px;
       font-weight: 700;
