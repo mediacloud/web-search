@@ -9,12 +9,15 @@ from rest_framework.decorators import action
 import json
 import os
 from settings import BASE_DIR
+from util.cache import cache_by_kwargs
+from rest_framework.renderers import JSONRenderer
 
 # csv
 
 import csv
 from django.http import HttpResponse
 from django.shortcuts import render
+
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -24,6 +27,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = CollectionSerializer
 
+    @cache_by_kwargs()
     def list(self, request):
         queryset = Collection.objects.all()
 
@@ -36,44 +40,18 @@ class CollectionViewSet(viewsets.ModelViewSet):
         for collection in deserial_data['featuredCollections']['entries']:
             for id in collection['tags']:
                 list_ids.append(id)
-        
-        def featured_order(self):
-            if self.id == 186572515:
-                return 1
-            if self.id == 186572435:
-                return 2
-            if self.id == 186572516:
-                return 3
-            if self.id == 200363048:
-                return 4
-            if self.id == 200363049:
-                return 5
-            if self.id == 200363050:
-                return 6
-            if self.id == 200363061:
-                return 7
-            if self.id == 200363062:
-                return 8
-            if self.id == 34412118:
-                return 9
-            if self.id == 34412232:
-                return 10
-            if self.id == 38379799:
-                return 11
-            if self.id == 9272347:
-                return 12
-            if self.id == 34412476:
-                return 13
-            if self.id == 34412202:
-                return 14
-            if self.id == 38381372:
-                return 15
             
         collection_return = Collection.objects.filter(id__in=list_ids)
-        collection_return = sorted(collection_return, key=featured_order)
+        print(list_ids)
+        print(collection_return)
         serializer = CollectionListSerializer(
             {'collections': collection_return})
-        return Response(serializer.data)
+        response = Response(serializer.data)
+        response.accepted_renderer = JSONRenderer()
+        response.accepted_media_type = "application/json"
+        response.renderer_context = {}
+        response.render()
+        return response
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
