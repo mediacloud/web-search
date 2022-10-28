@@ -42,8 +42,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 list_ids.append(id)
             
         collection_return = Collection.objects.filter(id__in=list_ids)
-        print(list_ids)
-        print(collection_return)
         serializer = CollectionListSerializer(
             {'collections': collection_return})
         response = Response(serializer.data)
