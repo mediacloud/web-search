@@ -5,10 +5,12 @@ import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { useGetCountOverTimeMutation, useDownloadCountsOverTimeCSVMutation } from '../../../app/services/searchApi';
-import { queryGenerator } from '../util/queryGenerator';
+import Alert from '@mui/material/Alert';
 import Button  from '@mui/material/Button';
 import  CircularProgress  from '@mui/material/CircularProgress';
+
+import { useGetCountOverTimeMutation, useDownloadCountsOverTimeCSVMutation } from '../../../app/services/searchApi';
+import { queryGenerator } from '../util/queryGenerator';
 
 export default function CountOverTimeChart(){
 
@@ -114,35 +116,42 @@ export default function CountOverTimeChart(){
             },
         ]
     };
-    
-    
+
+
     if (isLoading) return (<div> <CircularProgress size="75px" /> </div>);
-    if (hidden) return (<h2 className="not-supported-text">Search Over Time Not Currently Supported For This Platform</h2>);
     if (!data ) return null;
-    
+
 
    return(
       <div className="results-item-wrapper clearfix">
         <h2>Attention Over Time</h2>
-        <HighchartsReact highcharts={HighCharts} options={options} />
-        <div className="clearfix">
-          <div className="float-end">
-            <Button variant='text' onClick={() => {
-                downloadCsv({
-                    'query': queryString,
-                    startDate,
-                    endDate,
-                    'collections': collectionIds,
-                    sources,
-                    platform
 
-                });
-            }}>
-                Download CSV
-            </Button>
-          </div>
-        </div>
+        {hidden && (
+          <Alert severity="warning">Our access doesn't support fetching attention over time data.</Alert>
+        )}
+        {!hidden && (
+          <>
+            <HighchartsReact highcharts={HighCharts} options={options} />
+            <div className="clearfix">
+              <div className="float-end">
+                <Button variant='text' onClick={() => {
+                    downloadCsv({
+                        'query': queryString,
+                        startDate,
+                        endDate,
+                        'collections': collectionIds,
+                        sources,
+                        platform
+
+                    });
+                }}>
+                    Download CSV
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+
       </div>
     );
 }
-
