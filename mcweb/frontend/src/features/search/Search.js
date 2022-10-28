@@ -122,10 +122,10 @@ export default function Search() {
                 variant="contained"
                 onClick={async () => {
                   try {
-                    // navigate(
-                    //   `/search${urlSerializer(queryObject)}`,
-                    //   { options: { replace: true } }
-                    // );
+                    navigate(
+                      `/search${urlSerializer(queryObject)}`,
+                      { options: { replace: true } }
+                    );
                     dispatch(setSearchTime(dayjs().format()));
                   } catch {
                     enqueueSnackbar("Query is empty", { variant: 'error' });

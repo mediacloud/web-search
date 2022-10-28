@@ -7,12 +7,12 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 export default function QueryList(props) {
     const dispatch = useDispatch();
 
-    const [serviceList, setServiceList] = useState([[],[],[]]);
-
+    
     const {negated} = props;
-
-    const {anyAll} = useSelector(state => state.query);
-
+    
+    const {anyAll, queryList, negatedQueryList} = useSelector(state => state.query);
+    
+    const [serviceList, setServiceList] = useState(negated ? negatedQueryList : queryList );
     // add query
     const handleServiceAdd = () => {
         setServiceList([...serviceList, []]);

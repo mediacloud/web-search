@@ -15,7 +15,7 @@ const querySlice = createSlice({
                     'collections': [{ 'id': 34412234, 'name': "United States - National" }],
                     'previewCollections': [{ 'id': 34412234, 'name': "United States - National" }],
                     'sources':[],
-                    'lastSearchTime': dayjs().format(),
+                    'lastSearchTime': "",
                     'anyAll': "any"
                 },
 

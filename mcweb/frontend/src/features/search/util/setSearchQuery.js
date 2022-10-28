@@ -17,7 +17,7 @@ const setSearchQuery = (searchParams) => {
     let startDate = searchParams.get("startDate");
     let endDate = searchParams.get("endDate");
     const platform = searchParams.get("platform");
-    const collections = searchParams.get("collections");
+    let collections = searchParams.get("collections");
     const anyAll = searchParams.get("anyAll");
 
     query = query ? query.split(",") : null;
@@ -26,13 +26,28 @@ const setSearchQuery = (searchParams) => {
     console.log(negatedQuery);
     startDate = startDate ? dayjs(startDate).format('MM/DD/YYYY') : null;
     endDate = endDate ? dayjs(endDate).format('MM/DD/YYYY') : null;
+    collections = collections ? collections.split(",") : null;
 
-    
+    if (query) {
+        dispatch(setQueryList([query]));
+    }
+    if (negatedQuery) {
+        dispatch(setNegatedQueryList([negatedQuery]));
+    }
     if (startDate) {
         dispatch(setStartDate(startDate));
     }
     if (endDate) {
         dispatch(setEndDate(endDate));
+    }
+    if (platform) {
+        dispatch(setPlatform(platform));
+    }
+    if (anyAll) {
+        dispatch(setAnyAll(anyAll));
+    }
+    if (collections) {
+        dispatch(addSelectedMedia(collections));
     }
 
     return null;

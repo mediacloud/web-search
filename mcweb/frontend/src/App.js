@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {Route, Navigate, useLocation, Routes} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Homepage from './features/homepage/Homepage';
@@ -31,13 +31,26 @@ import { useDispatch } from 'react-redux';
 import setSearchQuery from './features/search/util/setSearchQuery';
 const App = () => {
   const dispatch = useDispatch();
-
-  // let [searchParams, setSearchParams] = useSearchParams();
+  const {lastSearchTime} = useSelector(state => state.query);
+  let [searchParams, setSearchParams] = useSearchParams();
+  const [trigger, setTrigger] = useState(false);
   // setSearchQuery(searchParams); // set query paramaters from url
+  useEffect(() => {
+    if (searchParams.get("query")){
+      setTrigger(true);
+    }
+  }, [lastSearchTime]);
+
+  console.log(searchParams.get("query"));
+  if (trigger && searchParams.get("query")) {
+    setSearchQuery(searchParams);
+    setTrigger(false);
+  }
 
   return (
     <>
       <Header />
+      {console.log(trigger)}
       <div id="content">
         <Routes>
             <Route index element={<Homepage />} />
