@@ -23,7 +23,7 @@ export default function SampleStories(){
         lastSearchTime,
         anyAll } = useSelector(state => state.query);
 
-    const queryString = queryGenerator(queryList, negatedQueryList, platform);
+    const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
     const [query, { isLoading, data }] = useGetSampleStoriesMutation();
     const [downloadStories, downloadResult ] = useDownloadSampleStoriesCSVMutation();
