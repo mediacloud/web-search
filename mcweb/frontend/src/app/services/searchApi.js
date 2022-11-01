@@ -1,11 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import dayjs from 'dayjs';
 
 export const searchApi = createApi({
   reducerPath: 'searchApi',
   baseQuery: fetchBaseQuery({
     baseUrl: '/api/search/',
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers) => {
       // Django requires this for security (cross-site forgery protection) once logged in
       headers.set('X-Csrftoken', window.CSRF_TOKEN);
       return headers;
@@ -17,69 +16,69 @@ export const searchApi = createApi({
       query: (credentials) => ({
         url: 'search',
         method: 'POST',
-        body: { ...credentials }
+        body: { ...credentials },
       }),
     }),
     getCollectionSearch: builder.query({
       query: (queryString) => ({
         url: `collections/?query=${queryString}`,
-        method: 'GET'
-      })
+        method: 'GET',
+      }),
     }),
     getTotalCount: builder.mutation({
       query: (queryObject) => ({
-        url:'total-count',
+        url: 'total-count',
         method: 'POST',
-        body: {queryObject}
-      })
+        body: { queryObject },
+      }),
     }),
     getCountOverTime: builder.mutation({
       query: (queryObject) => ({
         url: 'count-over-time',
         method: 'POST',
-        body: { queryObject }
-      })
+        body: { queryObject },
+      }),
     }),
     getSampleStories: builder.mutation({
       query: (queryObject) => ({
         url: 'sample',
         method: 'POST',
-        body: { queryObject }
-      })
+        body: { queryObject },
+      }),
     }),
     downloadCountsOverTimeCSV: builder.mutation({
       query: (queryObject) => ({
         url: 'download-counts-over-time',
         method: 'POST',
         body: { queryObject },
-        responseHandler: async (response) => {
+        responseHandler: async (response) => (
         // const downloadLink = window.URL.createObjectURL(await response.blob());
-        // const titledLink = await downloadLink.setAttribute("download", 'count-over-time-csv.csv');
+        // const titledLink = await downloadLink.setAttribute("download",
+        // 'count-over-time-csv.csv');
         // console.log(await response.blob());
         // console.log(URL.createObjectURL(await response.blob()));
         // return await window.location.assign(titledLink);
-        return window.location.assign(window.URL.createObjectURL(await response.blob()));
-        }
-      })
+          window.location.assign(window.URL.createObjectURL(await response.blob()))),
+      }),
     }),
     downloadSampleStoriesCSV: builder.mutation({
       query: (queryObject) => ({
         url: 'download-sample-stories',
         method: 'POST',
         body: { queryObject },
-        responseHandler: async (response) => {
+        responseHandler: async (response) => (
           // const downloadLink = window.URL.createObjectURL(await response.blob());
-          // const titledLink = await downloadLink.setAttribute("download", 'count-over-time-csv.csv');
+          // const titledLink = await downloadLink.setAttribute("download",
+          // 'count-over-time-csv.csv');
           // console.log(await response.blob());
           // console.log(URL.createObjectURL(await response.blob()));
           // return await window.location.assign(titledLink);
-          return window.location.assign(window.URL.createObjectURL(await response.blob()));
-        }
-      })
-    })
+          window.location.assign(window.URL.createObjectURL(await response.blob()))),
+
+      }),
+    }),
   }),
 });
-
 
 // search/attentionOverTime
 // search
