@@ -120,8 +120,9 @@ export default function Search() {
               <Button
                 className="float-end"
                 variant="contained"
-                onClick={async () => {
+                onClick={() => {
                   try {
+                    console.log(queryObject);
                     navigate(
                       `/search${urlSerializer(queryObject)}`,
                       { options: { replace: true } }

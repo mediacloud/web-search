@@ -26,7 +26,6 @@ import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import { useSearchParams } from 'react-router-dom';
-import { addSelectedMedia, setStartDate, setEndDate, setPlatform } from './features/search/query/querySlice';
 import { useDispatch } from 'react-redux';
 import setSearchQuery from './features/search/util/setSearchQuery';
 const App = () => {
@@ -41,7 +40,7 @@ const App = () => {
     }
   }, [lastSearchTime]);
 
-  console.log(searchParams.get("query"));
+  // console.log(searchParams.get("query"));
   if (trigger && searchParams.get("query")) {
     setSearchQuery(searchParams);
     setTrigger(false);
@@ -50,7 +49,7 @@ const App = () => {
   return (
     <>
       <Header />
-      {console.log(trigger)}
+      {/* {console.log(trigger)} */}
       <div id="content">
         <Routes>
             <Route index element={<Homepage />} />
