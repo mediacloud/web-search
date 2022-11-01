@@ -26,15 +26,6 @@ export const searchApi = createApi({
         method: 'GET'
       })
     }),
-    makeQuery: builder.mutation({
-      query: (queryObject) => {
-        return {
-        url: 'query',
-        method: 'POST',
-        body: {queryObject}
-        };
-      }
-    }),
     getTotalCount: builder.mutation({
       query: (queryObject) => ({
         url:'total-count',
@@ -90,13 +81,12 @@ export const searchApi = createApi({
 });
 
 
-// search/attentionOverTime 
+// search/attentionOverTime
 // search
 // action: get back Json. Save it to searchResults
 export const {
   useGetSearchMutation,
   useLazyGetCollectionSearchQuery,
-  useMakeQueryMutation,
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,
