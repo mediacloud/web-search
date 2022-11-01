@@ -42,14 +42,9 @@ class TwitterTwitterProvider(ContentProvider):
         return TwitterTwitterProvider._tweets_to_rows(results)
 
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
-        params = dict(
-            query=query,
-            granularity='day',
-            start_time=start_date.isoformat("T") + "Z",
-            end_time=end_date.isoformat("T") + "Z",
-        )
-        results = self._cached_query("tweets/counts/all", params)
-        return results['meta']['total_tweet_count']
+        results = self.count_over_time(query, start_date, end_date, **kwargs)  # use the cached counts being made already
+        total = sum([r['count'] for r in results['counts']])
+        return total
 
     def count_over_time(self, query: str, start_date: dt.datetime,
                         end_date: dt.datetime,
@@ -89,6 +84,31 @@ class TwitterTwitterProvider(ContentProvider):
                 'count': d['tweet_count'],
             })
         return {'counts': to_return}
+
+    def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 500,
+                  **kwargs):
+        next_token = None
+        more_data = True
+        params = {
+            "query": query,
+            "max_results": page_size,
+            "start_time": start_date.isoformat("T") + "Z",
+            "end_time": end_date.isoformat("T") + "Z",
+            "tweet.fields": ",".join(["author_id", "created_at", "public_metrics"]),
+            "expansions": "author_id",
+        }
+        while more_data:
+            params['next_token'] = next_token
+            results = self._cached_query("tweets/search/all", params)
+            result_count = results['meta']['result_count']
+            if result_count == 0:
+                more_data = False
+                continue
+            page = TwitterTwitterProvider._tweets_to_rows(results)
+            yield page
+            next_token = results['meta']['next_token'] if 'next_token' in results['meta'] else None
+            more_data = next_token is not None
+
 
     @cache_by_kwargs()
     def _cached_query(self, endpoint: str, params: Dict = None) -> Dict:

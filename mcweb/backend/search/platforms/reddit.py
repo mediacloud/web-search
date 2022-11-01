@@ -1,4 +1,3 @@
-import datetime
 from collections import defaultdict
 import datetime as dt
 import requests
@@ -7,6 +6,8 @@ import logging
 
 from .provider import ContentProvider, MC_DATE_FORMAT
 from util.cache import cache_by_kwargs
+
+logger = logging.getLogger(__file__)
 
 REDDIT_PUSHSHIFT_URL = "https://api.pushshift.io"
 SUBMISSION_SEARCH_URL = "{}/reddit/submission/search".format(REDDIT_PUSHSHIFT_URL)
@@ -48,7 +49,7 @@ class RedditPushshiftProvider(ContentProvider):
         data = self._cached_submission_search(q=query,
                                               start_date=start_date, end_date=end_date,
                                               size=0, track_total_hits=True)
-        print(data)
+        logger.debug(data)
         return data['metadata']['total_results']
 
     # don't change the 250 (changing page size seems to be unsupported)
@@ -62,7 +63,7 @@ class RedditPushshiftProvider(ContentProvider):
                                                   **kwargs)
             cleaned_data = [self._submission_to_row(item) for item in page['data']]
             yield cleaned_data
-            more_data = len(page['data']) >= page_size
+            more_data = len(page['data']) >= (page_size-10)
             last_date = self._to_date(page['data'][-1]['created_utc']) if more_data else None
 
     @cache_by_kwargs()

@@ -7,6 +7,7 @@ import time
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
+import collections as py_collections
 
 import mcweb.backend.search.platforms as platforms
 import mcweb.backend.util.csv_stream as csv_stream
@@ -91,11 +92,14 @@ def download_all_content_csv(request):
 
     # we want to stream the results back to the user row by row (based on paging through results)
     def data_generator():
-        yield ['publish_date', 'title', 'url', 'language', 'source', 'source_url']
+        first_page = True
         for page in provider.all_items(query_str, start_date, end_date, collections=collections):
-            data = [[s["publish_date"], s["title"], s["url"], s["language"], s['media_name'], s['media_url']] for s in page]
-            for d in data:
-                yield d
+            if first_page:  # send back columun names, which differ by platform
+                yield sorted(list(page[0].keys()))
+            for story in page:
+                ordered_story = py_collections.OrderedDict(sorted(story.items()))
+                yield [v for k, v in ordered_story.items()]
+            first_page = False
 
     filename_timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
     filename = "mc-{}-{}-{}.csv".format(platform, platform_source, filename_timestamp)

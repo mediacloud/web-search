@@ -23,6 +23,13 @@ import urlSerializer from './util/urlSerializer';
 import { useSearchParams } from 'react-router-dom';
 import setSearchQuery from '../search/util/setSearchQuery';
 
+
+export const PLATFORM_ONLINE_NEWS = "onlinenews";
+export const PLATFORM_REDDIT = "reddit";
+export const PLATFORM_YOUTUBE = "youtube";
+export const PLATFORM_TWITTER = "twitter";
+
+
 export default function Search() {
   // let [searchParams, setSearchParams] = useSearchParams();
   // useEffect(()=> {
@@ -42,10 +49,6 @@ export default function Search() {
         } = useSelector(state => state.query);
 
   // const { platform, previewCollections } = useSelector(state => state.query);
-
-  const PLATFORM_ONLINE_NEWS = "onlinenews";
-  const PLATFORM_REDDIT = "reddit";
-  const PLATFORM_YOUTUBE = "youtube";
 
   const [isOpen, setIsOpen] = useState(false);
 

@@ -7,9 +7,9 @@ import { queryGenerator } from '../util/queryGenerator';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import  CircularProgress  from '@mui/material/CircularProgress';
-import { PLATFORM_REDDIT, PLATFORM_ONLINE_NEWS } from '../Search';
+import { PLATFORM_REDDIT, PLATFORM_ONLINE_NEWS, PLATFORM_TWITTER } from '../Search';
 
-const supportsDownload = (platform) => [PLATFORM_ONLINE_NEWS, PLATFORM_REDDIT].includes(platform);
+const supportsDownload = (platform) => [PLATFORM_ONLINE_NEWS, PLATFORM_REDDIT, PLATFORM_TWITTER].includes(platform);
 
 export default function SampleStories(){
 
@@ -24,11 +24,6 @@ export default function SampleStories(){
         anyAll } = useSelector(state => state.query);
 
     const queryString = queryGenerator(queryList, negatedQueryList, platform);
-
-    const PLATFORM_TWITTER = 'twitter';
-    const PLATFORM_ONLINE_NEWS = 'onlinenews';
-    const PLATFORM_YOUTUBE = 'youtube';
-    const PLATFORM_REDDIT = 'reddit';
 
     const [query, { isLoading, data }] = useGetSampleStoriesMutation();
     const [downloadStories, downloadResult ] = useDownloadSampleStoriesCSVMutation();
