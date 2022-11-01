@@ -52,7 +52,7 @@ def total_count(request):
 def count_over_time(request):
     start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
     provider = platforms.provider_for(platform, platform_source)
-    logger.debug("COUNT OVER TIME", start_date, end_date)
+    logger.debug("COUNT OVER TIME: %, %".format(start_date, end_date))
     counts_data = provider.count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"count_over_time": counts_data }, default=str), content_type="application/json", status=200)
 
