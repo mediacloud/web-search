@@ -9,8 +9,6 @@ router.register('collections', SearchViewSet, 'collections')
 
 
 urlpatterns = [
-    path('search', views.search),
-    path('query', views.query ),
     path('total-count', views.total_count),
     path('sample', views.sample),
     path('count-over-time', views.count_over_time),
