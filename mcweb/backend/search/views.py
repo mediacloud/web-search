@@ -4,7 +4,7 @@ import csv
 from operator import itemgetter
 import datetime as dt
 import time
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 import collections as py_collections
@@ -47,7 +47,7 @@ def total_count(request):
     provider = platforms.provider_for(platform, platform_source)
     count = provider.count(query_str, start_date, end_date, collections=collections)
     # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
-    return HttpResponse(json.dumps({"count": count }), content_type="application/json", status=200)
+    return HttpResponse(json.dumps({"count": count}), content_type="application/json", status=200)
 
 
 @require_http_methods(["POST"])
@@ -96,6 +96,11 @@ def sample(request):
 def download_all_content_csv(request):
     start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
     provider = platforms.provider_for(platform, platform_source)
+
+    # don't allow gigantic downloads
+    count = provider.count(query_str, start_date, end_date, collections=collections)
+    if count > 100000:  # arbitrary limit for now
+        return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
 
     # we want to stream the results back to the user row by row (based on paging through results)
     def data_generator():
