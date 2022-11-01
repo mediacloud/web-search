@@ -1,5 +1,5 @@
-import { renderApp } from './Root';
-import { getStore } from './app/store';
+import renderApp from './Root';
+import getStore from './app/store';
 import { api as authApi } from './app/services/authApi';
 import { saveCsrfToken } from './services/csrfToken';
 import { setCredentials } from './features/auth/authSlice';

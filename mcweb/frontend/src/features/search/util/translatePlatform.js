@@ -4,7 +4,7 @@ const PLATFORM_YOUTUBE = 'youtube';
 const PLATFORM_ONLINE_NEWS = 'onlinenews';
 
 const translatePlatform = (platformConstant) => {
-    console.log("hello");
+    console.log("test");
 }
 
 // # static list matching topics / info results
