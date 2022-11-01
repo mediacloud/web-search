@@ -92,8 +92,8 @@ class RedditPushshiftProvider(ContentProvider):
         if 'subreddits' in kwargs:
             params['subreddit'] = ",".join(kwargs['subreddits'])
         if (start_date is not None) and (end_date is not None):
-            params['start'] = int(start_date.timestamp())
-            params['end'] = int(end_date.timestamp())
+            params['after'] = int(start_date.timestamp())
+            params['before'] = int(end_date.timestamp())
         params['metadata'] = 'true'
         # and now add in any other arguments they have sent in
         params.update(kwargs)
