@@ -7,6 +7,9 @@ import { queryGenerator } from '../util/queryGenerator';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import  CircularProgress  from '@mui/material/CircularProgress';
+import { PLATFORM_REDDIT, PLATFORM_ONLINE_NEWS } from '../Search';
+
+const supportsDownload = (platform) => [PLATFORM_ONLINE_NEWS, PLATFORM_REDDIT].includes(platform);
 
 export default function SampleStories(){
 
@@ -81,7 +84,7 @@ export default function SampleStories(){
     );
 
     let platformSpecficContent;
-    if (platform === PLATFORM_ONLINE_NEWS){
+    if (supportsDownload(platform)){
         platformSpecficContent = (
           <div className="clearfix">
             <div className="float-end">
