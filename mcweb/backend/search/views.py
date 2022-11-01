@@ -10,6 +10,7 @@ from rest_framework.decorators import action
 import collections as py_collections
 
 import mcweb.backend.search.platforms as platforms
+import mcweb.backend.search.platforms.exceptions
 import mcweb.backend.util.csv_stream as csv_stream
 
 
@@ -63,7 +64,10 @@ def count_over_time(request):
 def download_counts_over_time_csv(request):
     start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
     provider = platforms.provider_for(platform, platform_source)
-    counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
+    try:
+        counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
+    except mcweb.backend.search.platforms.exceptions.UnsupportedOperationException:
+        counts_data = provider.count_over_time(query_str, start_date, end_date, collections=collections)
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
@@ -72,7 +76,10 @@ def download_counts_over_time_csv(request):
     # extract into a constat (global)
     writer.writerow(['date', 'count', 'total_count', 'ratio'])
     for day in counts_data["counts"]:
-        writer.writerow([day["date"], day["count"], day["total_count"], day["ratio"]])
+        if 'ratio' in day:
+            writer.writerow([day["date"], day["count"], day["total_count"], day["ratio"]])
+        else:
+            writer.writerow([day["date"], day["count"]])
     return response
 
 
