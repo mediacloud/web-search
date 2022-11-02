@@ -1,12 +1,9 @@
 import * as React from 'react';
-import { Button } from '@mui/material';
+import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
-// import { useState } from 'react';
 import dayjs from 'dayjs';
-// import { useNavigate } from 'react-router-dom';
 import PlatformPicker from './query/PlatformPicker';
-// information from store
 import { openModal } from '../ui/uiSlice';
 import SelectedMedia from './query/SelectedMedia';
 import SearchDatePicker from './query/SearchDatePicker';
@@ -14,28 +11,21 @@ import SimpleSearch from './query/SimpleSearch';
 import SampleStories from './results/SampleStories';
 import { setSearchTime, removeSelectedMedia } from './query/querySlice';
 import TotalAttentionChart from './results/TotalAttentionChart';
-import CountOverTimeChart from './results/CountOverTimeChart';
 import MediaPicker from './query/media-picker/MediaPicker';
-// import queryGenerator from './util/queryGenerator';
+import CountOverTimeResults from './results/CountOverTimeResults';
 
-
-export const PLATFORM_ONLINE_NEWS = "onlinenews";
-export const PLATFORM_REDDIT = "reddit";
-export const PLATFORM_YOUTUBE = "youtube";
-export const PLATFORM_TWITTER = "twitter";
-
+export const PLATFORM_ONLINE_NEWS = 'onlinenews';
+export const PLATFORM_REDDIT = 'reddit';
+export const PLATFORM_YOUTUBE = 'youtube';
+export const PLATFORM_TWITTER = 'twitter';
 
 export default function Search() {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+
   const {
     platform,
   } = useSelector((state) => state.query);
-
-  // const { platform, previewCollections } = useSelector(state => state.query);
-
-  const PLATFORM_ONLINE_NEWS = 'onlinenews';
 
   if (platform === 'Choose a Platform') {
     dispatch(openModal('platformPicker'));
@@ -123,7 +113,7 @@ export default function Search() {
 
       <div className="search-results-wrapper">
         <div className="container">
-          <CountOverTimeChart />
+          <CountOverTimeResults />
           <TotalAttentionChart />
           <SampleStories />
         </div>
