@@ -1,21 +1,13 @@
 .search-results-wrapper {
-  padding-top: 30px;
+  padding-top: 50px;
 
   .results-item-wrapper {
-    margin-bottom: 20px;
+    margin-bottom: 50px;
 
     h2 {
-      font-family: $body-font-families;
       font-size: 25px;
       font-weight: bold;
     }
 
   }
-}
-
-.not-supported-text {
-  font-family: $body-font-families;
-  font-size: 25px;
-  font-weight: bold;
-  margin-bottom: 40px;
 }

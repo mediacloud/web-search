@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const slice = createSlice({
   name: 'auth',
-  initialState: {user: null, isLoggedIn: false},
+  initialState: { user: null, isLoggedIn: false },
   reducers: {
     setCredentials: (state, { payload }) => {
       state.user = payload;
@@ -12,7 +12,7 @@ const slice = createSlice({
   },
 });
 
-export const setCredentials = slice.actions.setCredentials;
+export const { setCredentials } = slice.actions;
 
 export const selectCurrentUser = (state) => state.auth.user;
 

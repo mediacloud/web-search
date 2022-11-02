@@ -31,7 +31,7 @@ class YouTubeYouTubeProvider(ContentProvider):
         self._api_key = api_key
 
     def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
-        raise UnsupportedOperationException("Can't search youtube for videos poseted over time")
+        raise UnsupportedOperationException("Can't search youtube for videos posted over time")
 
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
         """
