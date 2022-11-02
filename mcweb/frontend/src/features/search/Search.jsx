@@ -18,6 +18,13 @@ import CountOverTimeChart from './results/CountOverTimeChart';
 import MediaPicker from './query/media-picker/MediaPicker';
 // import queryGenerator from './util/queryGenerator';
 
+
+export const PLATFORM_ONLINE_NEWS = "onlinenews";
+export const PLATFORM_REDDIT = "reddit";
+export const PLATFORM_YOUTUBE = "youtube";
+export const PLATFORM_TWITTER = "twitter";
+
+
 export default function Search() {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();

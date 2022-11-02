@@ -7,6 +7,8 @@ import logging
 from .provider import ContentProvider, MC_DATE_FORMAT
 from util.cache import cache_by_kwargs
 
+logger = logging.getLogger(__file__)
+
 REDDIT_PUSHSHIFT_URL = "https://api.pushshift.io"
 SUBMISSION_SEARCH_URL = "{}/reddit/submission/search".format(REDDIT_PUSHSHIFT_URL)
 
@@ -31,7 +33,7 @@ class RedditPushshiftProvider(ContentProvider):
         """
         data = self._cached_submission_search(q=query,
                                               start_date=start_date, end_date=end_date,
-                                              limit=limit,  sort='score', order='desc', **kwargs)
+                                              size=limit,  sort='desc', sort_type='score', **kwargs)
         cleaned_data = [self._submission_to_row(item) for item in data['data'][:limit]]
         return cleaned_data
 
@@ -46,32 +48,23 @@ class RedditPushshiftProvider(ContentProvider):
         """
         data = self._cached_submission_search(q=query,
                                               start_date=start_date, end_date=end_date,
-                                              limit=0, track_total_hits=True)
-        print(data)
+                                              size=0, track_total_hits=True)
+        logger.debug(data)
         return data['metadata']['total_results']
 
-    def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
-        """
-        How many reddit submissions over time match the query.
-        :param query:
-        :param start_date:
-        :param end_date:
-        :param kwargs: Options: 'subreddits': List[str], period: str (default '1d')
-        :return:
-        """
-        period = kwargs['period'] if 'period' in kwargs else '1d'
-        data = self._cached_submission_search(q=query,
-                                              start_date=start_date, end_date=end_date,
-                                              calendar_histogram='day')
-        # make the results match the format we use for stories/count in the Media Cloud API
-        results = []
-        for d in data['metadata']['es']['aggregations']['calendar_histogram']['buckets']:
-            results.append({
-                'date': dt.datetime.fromtimestamp(d['key']/1000),
-                'timestamp': d['key']/1000,
-                'count': d['doc_count'],
-            })
-        return {'counts': results}
+    # don't change the 250 (changing page size seems to be unsupported)
+    def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 250, **kwargs) -> Dict:
+        last_date = start_date
+        more_data = True
+        while more_data:
+            # page through by time
+            page = self._cached_submission_search(q=query, start_date=last_date, end_date=end_date,
+                                                  size=page_size, sort='created_utc', order='asc',
+                                                  **kwargs)
+            cleaned_data = [self._submission_to_row(item) for item in page['data']]
+            yield cleaned_data
+            more_data = len(page['data']) >= (page_size-10)
+            last_date = self._to_date(page['data'][-1]['created_utc']) if more_data else None
 
     @cache_by_kwargs()
     def _cached_submission_search(self, query: str = None, start_date: dt.datetime = None, end_date: dt.datetime = None,
@@ -92,8 +85,8 @@ class RedditPushshiftProvider(ContentProvider):
         if 'subreddits' in kwargs:
             params['subreddit'] = ",".join(kwargs['subreddits'])
         if (start_date is not None) and (end_date is not None):
-            params['start'] = int(start_date.timestamp())
-            params['end'] = int(end_date.timestamp())
+            params['after'] = int(start_date.timestamp())
+            params['before'] = int(end_date.timestamp())
         params['metadata'] = 'true'
         # and now add in any other arguments they have sent in
         params.update(kwargs)
@@ -114,13 +107,18 @@ class RedditPushshiftProvider(ContentProvider):
             'url': 'https://reddit.com/'+item['permalink'],
             'stories_id': item['id'],
             'title': item['title'],
-            'publish_date': dt.datetime.fromtimestamp(item['created_utc']).strftime(MC_DATE_FORMAT),
+            'publish_date': RedditPushshiftProvider._to_date(item['created_utc']).strftime(MC_DATE_FORMAT),
             'media_link': item['url'],
             'score': item['score'],
-            'last_updated': dt.datetime.fromtimestamp(item['updated_utc']).strftime(MC_DATE_FORMAT) if 'updated_utc' in item else None,
+            'last_updated': RedditPushshiftProvider._to_date(item['updated_utc']).strftime(MC_DATE_FORMAT) if 'updated_utc' in item else None,
             'author': item['author'],
-            'subreddit': item['subreddit']
+            'subreddit': item['subreddit'],
+            'language': None  # Reddit doesn't tell us the language, TODO: use langauge detection to guess?
         }
+
+    @classmethod
+    def _to_date(cls, reddit_timestamp: int) -> dt.datetime:
+        return dt.datetime.fromtimestamp(reddit_timestamp)
 
     @classmethod
     def _sanitize_url_for_reddit(cls, url: str) -> str:

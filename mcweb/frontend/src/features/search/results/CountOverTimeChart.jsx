@@ -22,11 +22,12 @@ export default function CountOverTimeChart() {
     collections,
     sources,
     lastSearchTime,
+    anyAll
   } = useSelector((state) => state.query);
 
   const [hidden, setHidden] = useState(false);
 
-  const queryString = queryGenerator(queryList, negatedQueryList, platform);
+  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [downloadCsv] = useDownloadCountsOverTimeCSVMutation();
 
