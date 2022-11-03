@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
+import { assetUrl } from '../ui/uiUtil';
 
 export default function Homepage() {
   return (
@@ -36,7 +37,7 @@ export default function Homepage() {
               </p>
             </div>
             <div className="col-5">
-              [screenshot]
+              <img src={assetUrl('img/screenshot-search-ui.png')} alt="screenshot of online media search interface" width="100%" />
             </div>
           </div>
         </div>
@@ -46,7 +47,7 @@ export default function Homepage() {
         <div className="container">
           <div className="row">
             <div className="col-5 offset-1">
-              [screenshot]
+              <img src={assetUrl('img/screenshot-attention-over-time.png')} alt="line chart of attention in media" width="100%" />
             </div>
             <div className="col-5">
               <h2>Track Attention Over Time</h2>
@@ -54,7 +55,7 @@ export default function Homepage() {
                 Media Cloud shows you attention to an issue over time to help
                 you understand how much it is covered. Our data can reveal key
                 events that cause spikes in coverage and conversation. Plateaus
-                can reveal stable, "normal", levels of attention to compare against.
+                can reveal stable, &quot;normal&quot;, levels of attention to compare against.
                 You can download all our charts and the underlying aggregated data.
               </p>
             </div>
