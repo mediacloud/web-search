@@ -36,7 +36,7 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
       }
     } else if (platform === PLATFORM_TWITTER) {
       if (anyAll === 'any') {
-        fullQuery = `${query.join(' or ')}`;
+        fullQuery = `${query.join(' OR ')}`;
       } else {
         fullQuery = `${query.join(' ')}`;
       }
