@@ -44,6 +44,7 @@ export default function SimpleSearch() {
           <h3>&nbsp;</h3>
           <div className="description">
             And
+            {' '}
             <b> none</b>
             {' '}
             of these phrases:
