@@ -1,6 +1,10 @@
 import dayjs from 'dayjs';
 
-const collectionIds = (collections) => collections.map((collection) => collection.id);
+// const collectionIds = (collections) => collections.map(collection => collection['id']);
+
+const formatCollections = (collectionsArray) => collectionsArray.map((collection) => (
+  `${collection.id}>${collection.name}`
+));
 
 const queryListHelper = (queryList) => {
   if (queryList[0].length < 1) return '';
@@ -21,8 +25,8 @@ const urlSerializer = (queryObject) => {
   const negatedQuery = queryListHelper(negatedQueryList);
   const start = dayjs(startDate).format('MM-DD-YYYY');
   const end = dayjs(endDate).format('MM-DD-YYYY');
-  const collectionId = collectionIds(collections).join(',');
-  return `?query=${query}&negatedQuery=${negatedQuery}&startDate=${start}&endDate=${end}&platform=${platform}&collections=${collectionId}&anyAll=${anyAll}`;
+  const collectionsFormatted = formatCollections(collections).join(',');
+  return `?query=${query}&negatedQuery=${negatedQuery}&startDate=${start}&endDate=${end}&platform=${platform}&collections=${collectionsFormatted}&anyAll=${anyAll}`;
 };
 
 export default urlSerializer;

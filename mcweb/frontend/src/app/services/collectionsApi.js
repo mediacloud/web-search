@@ -47,4 +47,5 @@ export const {
   useCreateCollectionMutation,
   useUpdateCollectionMutation,
   useDeleteCollectionMutation,
+  useLazyGetCollectionQuery,
 } = collectionsApi;

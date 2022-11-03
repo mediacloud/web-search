@@ -3,7 +3,14 @@ import dayjs from 'dayjs';
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 const endDate = dayjs().subtract(4, 'day').format('MM/DD/YYYY');
-
+const inPreviewCollections = (id, currentPreviewCollections) => {
+  for (let i = 0; i < currentPreviewCollections.length; i += 1) {
+    if (id === currentPreviewCollections[i].id) {
+      return true;
+    }
+  }
+  return false;
+};
 const querySlice = createSlice({
   name: 'query',
   initialState: {
@@ -32,6 +39,9 @@ const querySlice = createSlice({
     },
     addPreviewSelectedMedia: (state, { payload }) => {
       state.previewCollections.push(payload);
+    },
+    setPreviewSelectedMedia: (state, { payload }) => {
+      state.previewCollections = payload;
     },
     removePreviewSelectedMedia: (state, { payload }) => {
       state.previewCollections = state.previewCollections.filter(
@@ -78,6 +88,7 @@ export const {
   addPreviewSelectedMedia,
   removePreviewSelectedMedia,
   setAnyAll,
+  setPreviewSelectedMedia,
 } = querySlice.actions;
 
 export default querySlice.reducer;
