@@ -16,6 +16,7 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         self._logger = logging.getLogger(__name__)
         self._api_key = api_key
         self._mc_client = MediaCloud(api_key)
+        self._mc_client.TIMEOUT_SECS = 300  # give backend 5 mins to responsd
 
     @cache_by_kwargs()
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
@@ -65,6 +66,27 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
     def item(self, item_id: str) -> Dict:
         story = self._mc_client.story(item_id)
         return story
+
+    def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000, **kwargs):
+        q, fq = self._format_query(query, start_date, end_date, **kwargs)
+        last_id = 0
+        more_stories = True
+        stories = []
+        while more_stories:
+            page = self._matching_page(q, fq, last_processed_stories_id=last_id, page_size=page_size,
+                                       sort='processed_stories_id')
+            yield page
+            if len(page) == 0:
+                more_stories = False
+            else:
+                stories += page
+                last_id = page[-1]['processed_stories_id']
+
+    @cache_by_kwargs()
+    def _matching_page(self, q: str, fq: str, last_processed_stories_id: str, page_size: int, sort: str):
+        page = self._mc_client.storyList(q, fq, last_processed_stories_id=last_processed_stories_id, rows=page_size,
+                                         sort=sort)
+        return page
 
     @cache_by_kwargs()
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
