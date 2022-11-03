@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 // import { useState } from 'react';
 import dayjs from 'dayjs';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PlatformPicker from './query/PlatformPicker';
 // information from store
 import { openModal } from '../ui/uiSlice';
@@ -16,26 +16,41 @@ import { setSearchTime, removeSelectedMedia } from './query/querySlice';
 import TotalAttentionChart from './results/TotalAttentionChart';
 import CountOverTimeChart from './results/CountOverTimeChart';
 import MediaPicker from './query/media-picker/MediaPicker';
-// import queryGenerator from './util/queryGenerator';
+import queryGenerator from './util/queryGenerator';
+import urlSerializer from './util/urlSerializer';
 
-
-export const PLATFORM_ONLINE_NEWS = "onlinenews";
-export const PLATFORM_REDDIT = "reddit";
-export const PLATFORM_YOUTUBE = "youtube";
-export const PLATFORM_TWITTER = "twitter";
-
+export const PLATFORM_ONLINE_NEWS = 'onlinenews';
+export const PLATFORM_REDDIT = 'reddit';
+export const PLATFORM_YOUTUBE = 'youtube';
+export const PLATFORM_TWITTER = 'twitter';
 
 export default function Search() {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const {
+    queryList,
+    negatedQueryList,
+    startDate,
+    endDate,
+    collections,
     platform,
+    anyAll,
   } = useSelector((state) => state.query);
 
   // const { platform, previewCollections } = useSelector(state => state.query);
 
-  const PLATFORM_ONLINE_NEWS = 'onlinenews';
+  // const PLATFORM_ONLINE_NEWS = 'onlinenews';
+
+  const queryObject = {
+    queryList,
+    negatedQueryList,
+    startDate,
+    endDate,
+    platform,
+    collections,
+    anyAll,
+  };
 
   if (platform === 'Choose a Platform') {
     dispatch(openModal('platformPicker'));
@@ -104,10 +119,9 @@ export default function Search() {
                 variant="contained"
                 onClick={() => {
                   try {
-                    console.log(queryObject);
                     navigate(
                       `/search${urlSerializer(queryObject)}`,
-                      { options: { replace: true } }
+                      { options: { replace: true } },
                     );
                     dispatch(setSearchTime(dayjs().format()));
                   } catch {

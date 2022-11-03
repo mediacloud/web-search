@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Route, Navigate, useLocation, Routes,
+  Route, Navigate, useLocation, Routes, useSearchParams,
 } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Homepage from './features/homepage/Homepage';
 
 import Header from './features/header/Header';
@@ -23,27 +23,22 @@ import Search from './features/search/Search';
 import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
 
-// modify pages
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
 import { selectIsLoggedIn } from './features/auth/authSlice';
-import { useSearchParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import setSearchQuery from './features/search/util/setSearchQuery';
-const App = () => {
-  const dispatch = useDispatch();
-  const {lastSearchTime} = useSelector(state => state.query);
-  let [searchParams, setSearchParams] = useSearchParams();
+
+function App() {
+  const { lastSearchTime } = useSelector((state) => state.query);
+  const [searchParams] = useSearchParams();
   const [trigger, setTrigger] = useState(false);
-  // setSearchQuery(searchParams); // set query paramaters from url
   useEffect(() => {
-    if (searchParams.get("query")){
+    if (searchParams.get('query')) {
       setTrigger(true);
     }
   }, [lastSearchTime]);
 
-  // console.log(searchParams.get("query"));
-  if (trigger && searchParams.get("query")) {
+  if (trigger && searchParams.get('query')) {
     setSearchQuery(searchParams);
     setTrigger(false);
   }
@@ -51,7 +46,6 @@ const App = () => {
   return (
     <>
       <Header />
-      {/* {console.log(trigger)} */}
       <div id="content">
         <Routes>
           <Route index element={<Homepage />} />

@@ -24,19 +24,19 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
       }
     } else if (platform === PLATFORM_REDDIT) {
       if (anyAll === 'any') {
-        fullQuery = `${query.join('|')}`;
+        fullQuery = `${query.join(' | ')}`;
       } else {
-        fullQuery = `${query.join('+')}`;
+        fullQuery = `${query.join(' + ')}`;
       }
     } else if (platform === PLATFORM_YOUTUBE) {
       if (anyAll === 'any') {
-        fullQuery = `${query.join('|')}`;
+        fullQuery = `${query.join(' | ')}`;
       } else {
         fullQuery = `${query.join(' ')}`;
       }
     } else if (platform === PLATFORM_TWITTER) {
       if (anyAll === 'any') {
-        fullQuery = `${query.join(' or ')}`;
+        fullQuery = `${query.join(' OR ')}`;
       } else {
         fullQuery = `${query.join(' ')}`;
       }
@@ -45,10 +45,28 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
     const combinator = (anyAll === 'any') ? ' OR ' : ' AND ';
     const matchTerms = query.length > 0 ? `(${query.join(combinator)})` : '*';
     fullQuery = `${matchTerms} AND NOT (${negatedQuery.join(' OR ')})`;
-  } else {
-    fullQuery = `(${query.join(' ')}) -${negatedQuery.join(' -')}`;
+  } else if (platform === PLATFORM_REDDIT) {
+    if (anyAll === 'any') {
+      fullQuery = `${query.join(' | ')}`;
+    } else {
+      fullQuery = `${query.join(' + ')}`;
+    }
+    fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
+  } else if (platform === PLATFORM_YOUTUBE) {
+    if (anyAll === 'any') {
+      fullQuery = `${query.join(' | ')}`;
+    } else {
+      fullQuery = `${query.join(' ')}`;
+    }
+    fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
+  } else if (platform === PLATFORM_TWITTER) {
+    if (anyAll === 'any') {
+      fullQuery = `${query.join(' OR ')}`;
+    } else {
+      fullQuery = `${query.join(' ')}`;
+    }
+    fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
   }
-
   return fullQuery;
 };
 

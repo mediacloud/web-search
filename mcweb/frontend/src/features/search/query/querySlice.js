@@ -3,23 +3,15 @@ import dayjs from 'dayjs';
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 const endDate = dayjs().subtract(4, 'day').format('MM/DD/YYYY');
-
+const inPreviewCollections = (id, currentPreviewCollections) => {
+  for (let i = 0; i < currentPreviewCollections.length; i += 1) {
+    if (id === currentPreviewCollections[i].id) {
+      return true;
+    }
+  }
+  return false;
+};
 const querySlice = createSlice({
-<<<<<<< HEAD
-    name: 'query',
-    initialState: { 'queryString': "",
-                    'queryList': [[],[],[]],
-                    'negatedQueryList': [[],[],[]],
-                    'platform': "onlinenews", // "Choose a Platform", 
-                    'startDate': startDate,
-                    'endDate': endDate,
-                    'collections': [{ 'id': 34412234, 'name': "United States - National" }],
-                    'previewCollections': [{ 'id': 34412234, 'name': "United States - National" }],
-                    'sources':[],
-                    'lastSearchTime': "",
-                    'anyAll': "any"
-                },
-=======
   name: 'query',
   initialState: {
     queryString: '',
@@ -34,7 +26,6 @@ const querySlice = createSlice({
     lastSearchTime: dayjs().format(),
     anyAll: 'any',
   },
->>>>>>> main
 
   reducers: {
     addSelectedMedia: (state, { payload }) => {
@@ -48,6 +39,9 @@ const querySlice = createSlice({
     },
     addPreviewSelectedMedia: (state, { payload }) => {
       state.previewCollections.push(payload);
+    },
+    setPreviewSelectedMedia: (state, { payload }) => {
+      state.previewCollections = payload;
     },
     removePreviewSelectedMedia: (state, { payload }) => {
       state.previewCollections = state.previewCollections.filter(
@@ -94,6 +88,7 @@ export const {
   addPreviewSelectedMedia,
   removePreviewSelectedMedia,
   setAnyAll,
+  setPreviewSelectedMedia,
 } = querySlice.actions;
 
 export default querySlice.reducer;
