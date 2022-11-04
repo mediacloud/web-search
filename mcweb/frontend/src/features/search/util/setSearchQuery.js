@@ -15,7 +15,7 @@ const formatQuery = (query) => {
   if (query === null) return null;
   const finalQuery = new Array(query.length);
   for (let i = 0; i < query.length; i += 1) {
-    finalQuery[i] = [query[i]];
+    finalQuery[i] = query[i];
   }
   return finalQuery;
 };
@@ -61,6 +61,7 @@ const setSearchQuery = (searchParams) => {
 
   collections = collections ? collections.split(',') : null;
   collections = formatCollections(collections);
+
   if (query) {
     dispatch(setQueryList(query));
   }
