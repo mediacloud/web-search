@@ -11,6 +11,19 @@ import {
   setPreviewSelectedMedia,
 } from '../query/querySlice';
 
+const setCharAt = (str, index, chr) => {
+  if (index > str.length - 1) return str;
+  return str.substring(0, index) + chr + str.substring(index + 1);
+};
+
+const hashReplace = (w) => {
+  const hashPos = w.indexOf('^');
+  if (hashPos !== -1) {
+    w = setCharAt(w, hashPos, '#');
+  }
+  return w;
+};
+
 const formatQuery = (query) => {
   if (query === null) return null;
   const finalQuery = new Array(query.length);
@@ -50,11 +63,11 @@ const setSearchQuery = (searchParams) => {
 
   query = query ? query.split(',') : null;
   query = formatQuery(query);
-  query = sizeQuery(query);
+  query = sizeQuery(query).map(hashReplace);
 
   negatedQuery = negatedQuery ? negatedQuery.split(',') : null;
   negatedQuery = formatQuery(negatedQuery);
-  negatedQuery = sizeQuery(negatedQuery);
+  negatedQuery = sizeQuery(negatedQuery).map(hashReplace);
 
   startDate = startDate ? dayjs(startDate).format('MM/DD/YYYY') : null;
   endDate = endDate ? dayjs(endDate).format('MM/DD/YYYY') : null;

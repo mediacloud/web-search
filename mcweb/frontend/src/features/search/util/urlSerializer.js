@@ -6,11 +6,26 @@ const formatCollections = (collectionsArray) => collectionsArray.map((collection
   `${collection.id}>${collection.name}`
 ));
 
+const setCharAt = (str, index, chr) => {
+  if (index > str.length - 1) return str;
+  return str.substring(0, index) + chr + str.substring(index + 1);
+};
+
+const hashReplace = (w) => {
+  const hashPos = w.indexOf('#');
+  if (hashPos !== -1) {
+    w = setCharAt(w, hashPos, '^');
+  }
+  return w;
+};
+
 const queryListHelper = (queryList) => {
   if (queryList[0].length < 1) return '';
-  const filtered = queryList.filter((queryWord) => queryWord.length >= 1);
+  let filtered = queryList.filter((queryWord) => queryWord.length >= 1);
+  filtered = filtered.map(hashReplace);
   return filtered.join(',');
 };
+
 const urlSerializer = (queryObject) => {
   const {
     queryList,
