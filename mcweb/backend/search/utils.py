@@ -41,4 +41,4 @@ def parse_query(request):
     elif platform == PLATFORM_YOUTUBE:
         platform = {"platform": PLATFORM_YOUTUBE, "platform_source": PLATFORM_SOURCE_YOUTUBE }
     platform, platform_source = platform["platform"], platform["platform_source"]
-    return ({"start_date": start_date, "end_date": end_date, "query": query_str, "collections":collections, "platform":platform, "platform_source": platform_source})
+    return (start_date, end_date, query_str, collections, platform, platform_source)

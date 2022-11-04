@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 import PlatformPicker from './query/PlatformPicker';
 import { openModal } from '../ui/uiSlice';
 import SelectedMedia from './query/SelectedMedia';
@@ -11,8 +12,9 @@ import SimpleSearch from './query/SimpleSearch';
 import SampleStories from './results/SampleStories';
 import { setSearchTime, removeSelectedMedia } from './query/querySlice';
 import TotalAttentionChart from './results/TotalAttentionChart';
-import MediaPicker from './query/media-picker/MediaPicker';
 import CountOverTimeResults from './results/CountOverTimeResults';
+import MediaPicker from './query/media-picker/MediaPicker';
+import urlSerializer from './util/urlSerializer';
 
 export const PLATFORM_ONLINE_NEWS = 'onlinenews';
 export const PLATFORM_REDDIT = 'reddit';
@@ -22,10 +24,30 @@ export const PLATFORM_TWITTER = 'twitter';
 export default function Search() {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const {
+    queryList,
+    negatedQueryList,
+    startDate,
+    endDate,
+    collections,
     platform,
+    anyAll,
   } = useSelector((state) => state.query);
+
+  // const { platform, previewCollections } = useSelector(state => state.query);
+
+  // const PLATFORM_ONLINE_NEWS = 'onlinenews';
+
+  const queryObject = {
+    queryList,
+    negatedQueryList,
+    startDate,
+    endDate,
+    platform,
+    collections,
+    anyAll,
+  };
 
   if (platform === 'Choose a Platform') {
     dispatch(openModal('platformPicker'));
@@ -92,12 +114,12 @@ export default function Search() {
               <Button
                 className="float-end"
                 variant="contained"
-                onClick={async () => {
+                onClick={() => {
                   try {
-                    // navigate(
-                    //   `/search${urlSerializer(queryObject)}`,
-                    //   { options: { replace: true } }
-                    // );
+                    navigate(
+                      `/search${urlSerializer(queryObject)}`,
+                      { options: { replace: true } },
+                    );
                     dispatch(setSearchTime(dayjs().format()));
                   } catch {
                     enqueueSnackbar('Query is empty', { variant: 'error' });

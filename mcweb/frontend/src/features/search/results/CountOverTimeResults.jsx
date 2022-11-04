@@ -50,9 +50,13 @@ export default function CountOverTimeResults() {
 
   const cleanData = (oldData) => {
     let newData;
-    if (oldData.normalized_count_over_time) {
+    if (normalized && oldData.normalized_count_over_time) {
       newData = oldData.normalized_count_over_time.counts.map((day) => (
         [dateHelper(day.date), day.ratio]
+      ));
+    } else if (!normalized && oldData.normalized_count_over_time) {
+      newData = oldData.normalized_count_over_time.counts.map((day) => (
+        [dateHelper(day.date), day.count]
       ));
     } else {
       newData = oldData.count_over_time.counts.map((day) => [dateHelper(day.date), day.count]);
@@ -63,8 +67,7 @@ export default function CountOverTimeResults() {
   useEffect(() => {
     if (queryList[0].length !== 0
       && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
-      if (platform === PLATFORM_ONLINE_NEWS || normalized) {
-        setNormalized(true);
+      if (platform === PLATFORM_ONLINE_NEWS) {
         normalizedQuery({
           query: queryString,
           startDate,
@@ -74,7 +77,6 @@ export default function CountOverTimeResults() {
           platform,
         });
       } else {
-        setNormalized(false);
         query({
           query: queryString,
           startDate,
@@ -112,14 +114,15 @@ export default function CountOverTimeResults() {
       {!hidden && (
         <>
           <CountOverTimeChart
-            data={cleanData(data || normalizedResults.data)}
+            data={(platform === PLATFORM_ONLINE_NEWS
+              ? cleanData(normalizedResults.data) : cleanData(data))}
             normalized={normalized}
           />
           <div className="clearfix">
             {platform === PLATFORM_ONLINE_NEWS && (
               <div className="float-start">
                 <Button onClick={() => {
-                  setNormalized(true);
+                  setNormalized(false);
                 }}
                 >
                   View Options

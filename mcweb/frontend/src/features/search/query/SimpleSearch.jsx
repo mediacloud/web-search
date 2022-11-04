@@ -1,16 +1,15 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import QueryList from './QueryList';
 import { setAnyAll } from './querySlice';
 import QueryPreview from './QueryPreview';
 
 export default function SimpleSearch() {
-  const [any, setAny] = useState('any');
+  const { anyAll } = useSelector((state) => state.query);
   const dispatch = useDispatch();
 
   const handleChangeAnyAll = (event) => {
-    setAny(event.target.value);
     dispatch(setAnyAll(event.target.value));
   };
 
@@ -28,7 +27,7 @@ export default function SimpleSearch() {
             Match
             <select
               className="select-inline"
-              value={any}
+              value={anyAll}
               onChange={handleChangeAnyAll}
             >
               <option value="any">Any</option>
@@ -46,7 +45,7 @@ export default function SimpleSearch() {
           <div className="description">
             And
             {' '}
-            <b>none</b>
+            <b> none</b>
             {' '}
             of these phrases:
           </div>
