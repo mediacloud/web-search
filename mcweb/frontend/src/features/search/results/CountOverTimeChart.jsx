@@ -22,7 +22,7 @@ export default function CountOverTimeChart() {
     collections,
     sources,
     lastSearchTime,
-    anyAll
+    anyAll,
   } = useSelector((state) => state.query);
 
   const [hidden, setHidden] = useState(false);
@@ -67,6 +67,7 @@ export default function CountOverTimeChart() {
       const newData = data.count_over_time.counts.map((day) => [dateHelper(day.date), day.count]);
       return newData;
     }
+    return data;
   };
 
   const options = {
@@ -122,9 +123,7 @@ export default function CountOverTimeChart() {
   if (isLoading) {
     return (
       <div>
-        {' '}
         <CircularProgress size="75px" />
-        {' '}
       </div>
     );
   }
@@ -135,7 +134,7 @@ export default function CountOverTimeChart() {
       <h2>Attention Over Time</h2>
 
       {hidden && (
-      <Alert severity="warning">Our access doesn't support fetching attention over time data.</Alert>
+      <Alert severity="warning">Our access doesn&apos;t support fetching attention over time data.</Alert>
       )}
       {!hidden && (
       <>
