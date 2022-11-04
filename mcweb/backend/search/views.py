@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 @require_http_methods(["POST"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
-    start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
+    start_date, end_date, query_str, collections, platform, platform_source = itemgetter("start_date", "end_date", "query", "collections", "platform", "platform_source")(parse_query(request))
     provider = platforms.provider_for(platform, platform_source)
     try:
         counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
@@ -69,7 +69,7 @@ def download_counts_over_time_csv(request):
 @require_http_methods(["POST"])
 @action(detail=False)
 def download_all_content_csv(request):
-    start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
+    start_date, end_date, query_str, collections, platform, platform_source = itemgetter("start_date", "end_date", "query", "collections", "platform", "platform_source")(parse_query(request))
     provider = platforms.provider_for(platform, platform_source)
 
     # don't allow gigantic downloads
