@@ -63,7 +63,8 @@ export default function CountOverTimeResults() {
   useEffect(() => {
     if (queryList[0].length !== 0
       && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
-      if (platform === PLATFORM_ONLINE_NEWS && normalized) {
+      if (platform === PLATFORM_ONLINE_NEWS || normalized) {
+        setNormalized(true);
         normalizedQuery({
           query: queryString,
           startDate,
@@ -73,6 +74,7 @@ export default function CountOverTimeResults() {
           platform,
         });
       } else {
+        setNormalized(false);
         query({
           query: queryString,
           startDate,
@@ -110,18 +112,20 @@ export default function CountOverTimeResults() {
       {!hidden && (
         <>
           <CountOverTimeChart
-            data={cleanData(data ? data : normalizedResults.data)}
+            data={cleanData(data || normalizedResults.data)}
             normalized={normalized}
           />
           <div className="clearfix">
-            <div className='float-start'>
-              <Button onClick={()=> {
-                setNormalized(true);
-              }}
-              >
-                View Options
-              </Button>
-            </div>
+            {platform === PLATFORM_ONLINE_NEWS && (
+              <div className="float-start">
+                <Button onClick={() => {
+                  setNormalized(true);
+                }}
+                >
+                  View Options
+                </Button>
+              </div>
+            )}
             <div className="float-end">
               <Button
                 variant="text"

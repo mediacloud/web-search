@@ -1,5 +1,4 @@
 import datetime as dt
-from operator import itemgetter
 import json
 from .platforms import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_SOURCE_WAYBACK_MACHINE
 
@@ -33,13 +32,13 @@ def parse_query(request):
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    if platform == "onlinenews":
+    if platform == PLATFORM_ONLINE_NEWS:
         platform = {"platform": PLATFORM_ONLINE_NEWS, "platform_source": PLATFORM_SOURCE_MEDIA_CLOUD }
-    elif platform == "twitter":
+    elif platform == PLATFORM_TWITTER:
         platform = {"platform": PLATFORM_TWITTER, "platform_source": PLATFORM_SOURCE_TWITTER }
-    elif platform == "reddit":
+    elif platform == PLATFORM_REDDIT:
         platform = {"platform": PLATFORM_REDDIT, "platform_source": PLATFORM_SOURCE_PUSHSHIFT }
-    elif platform == "youtube":
+    elif platform == PLATFORM_YOUTUBE:
         platform = {"platform": PLATFORM_YOUTUBE, "platform_source": PLATFORM_SOURCE_YOUTUBE }
-    platform, platform_source = itemgetter("platform", "platform_source")(platform)
+    platform, platform_source = platform["platform"], platform["platform_source"]
     return ({"start_date": start_date, "end_date": end_date, "query": query_str, "collections":collections, "platform":platform, "platform_source": platform_source})
