@@ -6,9 +6,20 @@ const formatCollections = (collectionsArray) => collectionsArray.map((collection
   `${collection.id}>${collection.name}`
 ));
 
+// const hashReplace = (w) => {
+//   const hashPos = w.indexOf('#');
+//   if (hashPos !== -1) {
+//     w[hashPos] = '^';
+//   }
+//   console.log(w);
+//   return w;
+// };
+
 const queryListHelper = (queryList) => {
   if (queryList[0].length < 1) return '';
   const filtered = queryList.filter((queryWord) => queryWord.length >= 1);
+  // filtered = filtered.map(hashReplace);
+  // console.log(filtered);
   return filtered.join(',');
 };
 const urlSerializer = (queryObject) => {
@@ -22,6 +33,7 @@ const urlSerializer = (queryObject) => {
     anyAll,
   } = queryObject;
   const query = queryListHelper(queryList);
+  // console.log(query);
   const negatedQuery = queryListHelper(negatedQueryList);
   const start = dayjs(startDate).format('MM-DD-YYYY');
   const end = dayjs(endDate).format('MM-DD-YYYY');
