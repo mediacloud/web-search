@@ -16,13 +16,8 @@ import { setSearchTime, removeSelectedMedia } from './query/querySlice';
 import TotalAttentionChart from './results/TotalAttentionChart';
 import CountOverTimeChart from './results/CountOverTimeChart';
 import MediaPicker from './query/media-picker/MediaPicker';
-import queryGenerator from './util/queryGenerator';
 import urlSerializer from './util/urlSerializer';
-
-export const PLATFORM_ONLINE_NEWS = 'onlinenews';
-export const PLATFORM_REDDIT = 'reddit';
-export const PLATFORM_YOUTUBE = 'youtube';
-export const PLATFORM_TWITTER = 'twitter';
+import { PLATFORM_ONLINE_NEWS } from './util/platforms';
 
 export default function Search() {
   const { enqueueSnackbar } = useSnackbar();

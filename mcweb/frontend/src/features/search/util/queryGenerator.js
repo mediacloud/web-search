@@ -1,7 +1,6 @@
-const PLATFORM_ONLINE_NEWS = 'onlinenews';
-const PLATFORM_REDDIT = 'reddit';
-const PLATFORM_YOUTUBE = 'youtube';
-const PLATFORM_TWITTER = 'twitter';
+import {
+  PLATFORM_REDDIT, PLATFORM_ONLINE_NEWS, PLATFORM_TWITTER, PLATFORM_YOUTUBE,
+} from './platforms';
 
 const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
   let fullQuery = '';

@@ -15,6 +15,10 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import RedditIcon from '@mui/icons-material/Reddit';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import {
+  PLATFORM_REDDIT, PLATFORM_ONLINE_NEWS, PLATFORM_TWITTER, PLATFORM_YOUTUBE,
+} from '../util/platforms';
+
 import { closeModal } from '../../ui/uiSlice';
 import { setPlatform } from './querySlice';
 
@@ -27,10 +31,6 @@ export default function PlatformPicker() {
     dispatch(closeModal());
   };
 
-  const PLATFORM_TWITTER = 'twitter';
-  const PLATFORM_REDDIT = 'reddit';
-  const PLATFORM_YOUTUBE = 'youtube';
-  const PLATFORM_ONLINE_NEWS = 'onlinenews';
   const [open, setOpen] = useState(true);
   if (platform === 'Choose a Platform') {
     return (
@@ -76,23 +76,19 @@ export default function PlatformPicker() {
           >
             <ToggleButton value={PLATFORM_ONLINE_NEWS}>
               <NewspaperIcon />
-              {' '}
-&nbsp;Online News
+              Online News
             </ToggleButton>
             <ToggleButton value={PLATFORM_REDDIT}>
               <RedditIcon />
-              {' '}
-&nbsp;Reddit
+              Reddit
             </ToggleButton>
             <ToggleButton value={PLATFORM_TWITTER}>
               <TwitterIcon />
-              {' '}
-&nbsp;Twitter
+              Twitter
             </ToggleButton>
             <ToggleButton value={PLATFORM_YOUTUBE}>
               <YouTubeIcon />
-              {' '}
-&nbsp;YouTube
+              YouTube
             </ToggleButton>
           </ToggleButtonGroup>
         </div>
