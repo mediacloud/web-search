@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
 import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
-import { useGetTotalCountMutation } from '../../../app/services/searchApi';
+import { useGetTotalCountMutation, useGetNormalizedCountOverTimeMutation } from '../../../app/services/searchApi';
 
 function TotalAttentionResults() {
   const {
@@ -20,11 +20,32 @@ function TotalAttentionResults() {
 
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
+  const PLATFORM_ONLINE_NEWS = 'onlinenews';
+  const [normalized, setNormalized] = useState(true);
   const [query, { isLoading, data }] = useGetTotalCountMutation();
+  const [normalizedQuery, nqResult] = useGetNormalizedCountOverTimeMutation();
+
   const collectionIds = collections.map((collection) => collection.id);
+  const normalizeData = (data) => {
+    const { total } = data;
+    const normalizedTotal = data.normalized_total;
+    const normalizedPercentage = (total / normalizedTotal);
+    console.log(total, normalizedTotal);
+    console.log(normalizedPercentage);
+  };
 
   useEffect(() => {
-    if (queryList[0].length !== 0) {
+    if (platform === PLATFORM_ONLINE_NEWS) {
+      normalizedQuery({
+        query: queryString,
+        startDate,
+        endDate,
+        collections: collectionIds,
+        sources,
+        platform,
+      });
+      setNormalized(true);
+    } else {
       query({
         query: queryString,
         startDate,
@@ -34,10 +55,11 @@ function TotalAttentionResults() {
         platform,
 
       });
+      setNormalized(false);
     }
   }, [lastSearchTime]);
 
-  if (isLoading) {
+  if (isLoading || nqResult.isLoading) {
     return (
       <div>
         {' '}
@@ -47,14 +69,17 @@ function TotalAttentionResults() {
     );
   }
 
-  if (!data) return null;
+  if (!data && !nqResult.data) return null;
 
   return (
     <div className="results-item-wrapper">
       <div className="row">
         <div className="col-12">
           <h2>Total Attention</h2>
-          <TotalAttentionChart data={data} />
+          <TotalAttentionChart
+            data={data || normalizeData(nqResult.data)}
+            normalized={normalized}
+          />
         </div>
       </div>
     </div>
