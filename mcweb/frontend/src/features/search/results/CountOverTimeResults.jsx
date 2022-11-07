@@ -40,6 +40,7 @@ export default function CountOverTimeResults() {
   const PLATFORM_YOUTUBE = 'youtube';
   const PLATFORM_REDDIT = 'reddit';
   const PLATFORM_ONLINE_NEWS = 'onlinenews';
+  const PLATFORM_TWITTER = 'twitter';
 
   const dateHelper = (dateString) => {
     dayjs.extend(utc);
@@ -49,6 +50,7 @@ export default function CountOverTimeResults() {
 
   const cleanData = (oldData) => {
     let newData;
+    console.log(oldData);
     if (platform === PLATFORM_ONLINE_NEWS) {
       if (normalized) {
         newData = oldData.count_over_time.counts.map((day) => (
@@ -66,27 +68,25 @@ export default function CountOverTimeResults() {
   };
 
   useEffect(() => {
-    if (queryList[0].length !== 0
-      && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
-      if (platform === PLATFORM_ONLINE_NEWS) {
-        normalizedQuery({
-          query: queryString,
-          startDate,
-          endDate,
-          collections: collectionIds,
-          sources,
-          platform,
-        });
-      } else {
-        query({
-          query: queryString,
-          startDate,
-          endDate,
-          collections: collectionIds,
-          sources,
-          platform,
-        });
-      }
+    if (queryList[0].length !== 0 && (platform === PLATFORM_ONLINE_NEWS)) {
+      normalizedQuery({
+        query: queryString,
+        startDate,
+        endDate,
+        collections: collectionIds,
+        sources,
+        platform,
+      });
+      setHidden(false);
+    } else if (queryList[0].length !== 0 && (platform === PLATFORM_TWITTER)) {
+      query({
+        query: queryString,
+        startDate,
+        endDate,
+        collections: collectionIds,
+        sources,
+        platform,
+      });
       setHidden(false);
     } else if (platform === PLATFORM_REDDIT || platform === PLATFORM_YOUTUBE) {
       setHidden(true);
