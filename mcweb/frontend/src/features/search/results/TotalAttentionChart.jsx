@@ -1,43 +1,18 @@
 import * as React from 'react';
-import { useEffect } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
-import CircularProgress from '@mui/material/CircularProgress';
 import queryGenerator from '../util/queryGenerator';
-import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 
-export default function TotalAttentionChart() {
+export default function TotalAttentionChart({ data }) {
   const {
     queryList,
     negatedQueryList,
     platform,
-    startDate,
-    endDate,
-    collections,
-    sources,
-    lastSearchTime,
     anyAll,
   } = useSelector((state) => state.query);
 
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
-
-  const [query, { isLoading, data }] = useGetTotalCountMutation();
-  const collectionIds = collections.map((collection) => collection.id);
-
-  useEffect(() => {
-    if (queryList[0].length !== 0) {
-      query({
-        query: queryString,
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources,
-        platform,
-
-      });
-    }
-  }, [lastSearchTime]);
 
   const options = {
     chart: {
@@ -77,25 +52,11 @@ export default function TotalAttentionChart() {
       name: `query: ${queryString}`,
       data: [data ? data.count : null],
     }],
-    // {
-    //     name: "Total Stories",
-    //     data: [data ? data.all_count.normalized_total : null]
-    // }]
   };
 
-  if (isLoading) return (<CircularProgress size="75px" />);
-  if (!data) return null;
-  // if (isLoading) return ( <CircularProgress size="75px" />);
-
   return (
-    <div className="results-item-wrapper">
-      <div className="row">
-        <div className="col-12">
-          <h2>Total Attention</h2>
-          {/* {console.log(countOverTime ? countOverTime.counts : null)} */}
-          <HighchartsReact options={options} highcharts={Highcharts} />
-        </div>
-      </div>
+    <div>
+      <HighchartsReact options={options} highcharts={Highcharts} />
     </div>
   );
 }
