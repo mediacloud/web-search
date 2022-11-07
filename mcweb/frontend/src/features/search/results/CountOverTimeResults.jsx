@@ -12,7 +12,6 @@ import {
   useGetCountOverTimeMutation,
   useGetNormalizedCountOverTimeMutation,
 } from '../../../app/services/searchApi';
-// import { PLATFORM_YOUTUBE, PLATFORM_REDDIT } from '../Search';
 
 export default function CountOverTimeResults() {
   const {
@@ -50,14 +49,16 @@ export default function CountOverTimeResults() {
 
   const cleanData = (oldData) => {
     let newData;
-    if (normalized && oldData.normalized_count_over_time) {
-      newData = oldData.normalized_count_over_time.counts.map((day) => (
-        [dateHelper(day.date), day.ratio]
-      ));
-    } else if (!normalized && oldData.normalized_count_over_time) {
-      newData = oldData.normalized_count_over_time.counts.map((day) => (
-        [dateHelper(day.date), day.count]
-      ));
+    if (platform === PLATFORM_ONLINE_NEWS) {
+      if (normalized) {
+        newData = oldData.count_over_time.counts.map((day) => (
+          [dateHelper(day.date), day.ratio]
+        ));
+      } else {
+        newData = oldData.count_over_time.counts.map((day) => (
+          [dateHelper(day.date), day.count]
+        ));
+      }
     } else {
       newData = oldData.count_over_time.counts.map((day) => [dateHelper(day.date), day.count]);
     }
@@ -103,30 +104,39 @@ export default function CountOverTimeResults() {
   }
 
   if (!data && !normalizedResults.data) return null;
-  // if (!normalizedResults.data) return null;
+
   return (
     <div className="results-item-wrapper clearfix">
       <h2>Attention Over Time</h2>
 
       {hidden && (
-        <Alert severity="warning">Our access doesn't support fetching attention over time data.</Alert>
+        <Alert severity="warning">Our access doesn&apos;t support fetching attention over time data.</Alert>
       )}
       {!hidden && (
         <>
           <CountOverTimeChart
-            data={(platform === PLATFORM_ONLINE_NEWS
-              ? cleanData(normalizedResults.data) : cleanData(data))}
+            data={(cleanData(normalizedResults.data) || cleanData(data))}
             normalized={normalized}
           />
           <div className="clearfix">
             {platform === PLATFORM_ONLINE_NEWS && (
               <div className="float-start">
-                <Button onClick={() => {
-                  setNormalized(false);
-                }}
-                >
-                  View Options
-                </Button>
+                {normalized && (
+                  <Button onClick={() => {
+                    setNormalized(false);
+                  }}
+                  >
+                    View Story Count
+                  </Button>
+                )}
+                {!normalized && (
+                  <Button onClick={() => {
+                    setNormalized(true);
+                  }}
+                  >
+                    View Normalized Story Percentage
+                  </Button>
+                )}
               </div>
             )}
             <div className="float-end">

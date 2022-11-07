@@ -68,7 +68,6 @@ export default function CountOverTimeChart({ data, normalized }) {
   }
   return (
     <div>
-      {console.log(normalized)}
       <HighchartsReact options={options} highcharts={Highcharts} />
     </div>
   );

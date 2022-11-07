@@ -46,7 +46,7 @@ def normalized_count_over_time(request):
     provider = platforms.provider_for(platform, platform_source)
     logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
     counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
-    return HttpResponse(json.dumps({"normalized_count_over_time": counts_data }, default=str), content_type="application/json", status=200)
+    return HttpResponse(json.dumps({"count_over_time": counts_data }, default=str), content_type="application/json", status=200)
 
 @require_http_methods(["POST"])
 @action(detail=False)
