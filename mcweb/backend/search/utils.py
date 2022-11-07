@@ -1,7 +1,5 @@
 import datetime as dt
-from operator import itemgetter
 import json
-from .platforms import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_SOURCE_WAYBACK_MACHINE
 
 
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -27,7 +25,7 @@ def fill_in_dates(start_date, end_date, existing_counts):
 def parse_query(request):
     payload = json.loads(request.body)
     payload = payload.get("queryObject")
-    platform = payload["platform"]
+    provider_name = payload["platform"]
     query_str = payload["query"]
     collections = payload["collections"]
     sources = payload["sources"]
@@ -35,13 +33,4 @@ def parse_query(request):
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    if platform == "onlinenews":
-        platform = {"platform": PLATFORM_ONLINE_NEWS, "platform_source": PLATFORM_SOURCE_MEDIA_CLOUD }
-    elif platform == "twitter":
-        platform = {"platform": PLATFORM_TWITTER, "platform_source": PLATFORM_SOURCE_TWITTER }
-    elif platform == "reddit":
-        platform = {"platform": PLATFORM_REDDIT, "platform_source": PLATFORM_SOURCE_PUSHSHIFT }
-    elif platform == "youtube":
-        platform = {"platform": PLATFORM_YOUTUBE, "platform_source": PLATFORM_SOURCE_YOUTUBE }
-    platform, platform_source = itemgetter("platform", "platform_source")(platform)
-    return (start_date, end_date, query_str, collections, platform, platform_source)
+    return (start_date, end_date, query_str, collections, provider_name)

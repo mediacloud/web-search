@@ -143,7 +143,7 @@ class TwitterTwitterProvider(ContentProvider):
         return {
             'media_name': '@'+item['author']['username'],
             'media_url': 'https://twitter.com/{}'.format(item['author']['username']),
-            'stories_id': item['id'],
+            'id': item['id'],
             'title': item['text'],
             'publish_date': dateparser.parse(item['created_at']),
             'url': link,
