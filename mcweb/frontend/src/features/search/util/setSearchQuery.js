@@ -11,19 +11,6 @@ import {
   setPreviewSelectedMedia,
 } from '../query/querySlice';
 
-const setCharAt = (str, index, chr) => {
-  if (index > str.length - 1) return str;
-  return str.substring(0, index) + chr + str.substring(index + 1);
-};
-
-const hashReplace = (w) => {
-  const hashPos = w.indexOf('^');
-  if (hashPos !== -1) {
-    w = setCharAt(w, hashPos, '#');
-  }
-  return w;
-};
-
 const formatQuery = (query) => {
   if (query === null) return null;
   const finalQuery = new Array(query.length);
@@ -32,6 +19,8 @@ const formatQuery = (query) => {
   }
   return finalQuery;
 };
+
+const decode = (params) => decodeURIComponent(params);
 
 // if query length is less than 3 (default size for search) make length 3
 const sizeQuery = (query) => {
@@ -53,26 +42,27 @@ const formatCollections = (collections) => collections.map((collection) => {
 
 const setSearchQuery = (searchParams) => {
   const dispatch = useDispatch();
-  let query = searchParams.get('query');
-  let negatedQuery = searchParams.get('negatedQuery');
-  let startDate = searchParams.get('startDate');
-  let endDate = searchParams.get('endDate');
-  const platform = searchParams.get('platform');
-  let collections = searchParams.get('collections');
-  const anyAll = searchParams.get('anyAll');
+  // param keys are set in ./urlSerializer.js
+  let query = searchParams.get('q');
+  let negatedQuery = searchParams.get('nq');
+  let startDate = searchParams.get('start');
+  let endDate = searchParams.get('end');
+  const platform = searchParams.get('p');
+  let collections = searchParams.get('cs');
+  const anyAll = searchParams.get('any');
 
-  query = query ? query.split(',') : null;
+  query = query ? decode(query).split(',') : null;
   query = formatQuery(query);
-  query = sizeQuery(query).map(hashReplace);
+  query = sizeQuery(query);
 
-  negatedQuery = negatedQuery ? negatedQuery.split(',') : null;
+  negatedQuery = negatedQuery ? decode(negatedQuery).split(',') : null;
   negatedQuery = formatQuery(negatedQuery);
-  negatedQuery = sizeQuery(negatedQuery).map(hashReplace);
+  negatedQuery = sizeQuery(negatedQuery);
 
   startDate = startDate ? dayjs(startDate).format('MM/DD/YYYY') : null;
   endDate = endDate ? dayjs(endDate).format('MM/DD/YYYY') : null;
 
-  collections = collections ? collections.split(',') : null;
+  collections = collections ? decode(collections).split(',') : null;
   collections = formatCollections(collections);
 
   if (query) {
