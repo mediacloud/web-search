@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+
 import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation, useGetNormalizedCountOverTimeMutation } from '../../../app/services/searchApi';
+import { PROVIDER_YOUTUBE_YOUTUBE } from '../util/platforms';
+
+const YOUTUBE_COUNT_MAX = '> 1000000';
 
 function TotalAttentionResults() {
   const {
@@ -74,13 +79,24 @@ function TotalAttentionResults() {
   return (
     <div className="results-item-wrapper">
       <div className="row">
-        <div className="col-12">
+        <div className="col-4">
           <h2>Total Attention</h2>
+          <p>
+            Compare the total number of items that matched your queries.
+            your queries. Use the &quot;view options&quot; menu to switch between story counts
+            and a percentage (if supported).
+          </p>
+        </div>
+        <div className="col-8">
+          {((platform === PROVIDER_YOUTUBE_YOUTUBE) && (data.count === YOUTUBE_COUNT_MAX)) && (
+            <Alert severity="warning">Over 1 million matches. Our access doesn&apos;t support exact counts for numbers this high.</Alert>
+          )}
           <TotalAttentionChart
             data={data || normalizeData(nqResult.data)}
             normalized={normalized}
           />
         </div>
+
       </div>
     </div>
   );

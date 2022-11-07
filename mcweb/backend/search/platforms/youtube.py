@@ -77,7 +77,7 @@ class YouTubeYouTubeProvider(ContentProvider):
         except KeyError:
             publish_date = None
         return {
-            'stories_id': item['id']['videoId'],
+            'id': item['id']['videoId'],
             'author': item['snippet']['channelTitle'],
             'publish_date': publish_date,
             'title': item['snippet']['title'],

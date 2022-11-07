@@ -15,6 +15,11 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import RedditIcon from '@mui/icons-material/Reddit';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import {
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_TWITTER_TWITTER,
+  PROVIDER_YOUTUBE_YOUTUBE,
+} from '../util/platforms';
+
 import { closeModal } from '../../ui/uiSlice';
 import { setPlatform } from './querySlice';
 
@@ -27,10 +32,6 @@ export default function PlatformPicker() {
     dispatch(closeModal());
   };
 
-  const PLATFORM_TWITTER = 'twitter';
-  const PLATFORM_REDDIT = 'reddit';
-  const PLATFORM_YOUTUBE = 'youtube';
-  const PLATFORM_ONLINE_NEWS = 'onlinenews';
   const [open, setOpen] = useState(true);
   if (platform === 'Choose a Platform') {
     return (
@@ -49,10 +50,10 @@ export default function PlatformPicker() {
               onChange={handleChangePlatform}
             >
               <MenuItem defaultValue disabled value="Choose A Platform">Choose A Platform</MenuItem>
-              <MenuItem value={PLATFORM_ONLINE_NEWS}>Online News Archive</MenuItem>
-              <MenuItem value={PLATFORM_REDDIT}>Reddit</MenuItem>
-              <MenuItem value={PLATFORM_TWITTER}>Twitter</MenuItem>
-              <MenuItem value={PLATFORM_YOUTUBE}>Youtube</MenuItem>
+              <MenuItem value={PROVIDER_NEWS_MEDIA_CLOUD}>Online News Archive</MenuItem>
+              <MenuItem value={PROVIDER_REDDIT_PUSHSHIFT}>Reddit</MenuItem>
+              <MenuItem value={PROVIDER_TWITTER_TWITTER}>Twitter</MenuItem>
+              <MenuItem value={PROVIDER_YOUTUBE_YOUTUBE}>Youtube</MenuItem>
             </Select>
           </DialogContent>
           <DialogActions>
@@ -74,26 +75,30 @@ export default function PlatformPicker() {
             aria-label="platform"
             color="primary"
           >
-            <ToggleButton value={PLATFORM_ONLINE_NEWS}>
-              <NewspaperIcon />
-              {' '}
-&nbsp;Online News
-            </ToggleButton>
-            <ToggleButton value={PLATFORM_REDDIT}>
-              <RedditIcon />
-              {' '}
-&nbsp;Reddit
-            </ToggleButton>
-            <ToggleButton value={PLATFORM_TWITTER}>
-              <TwitterIcon />
-              {' '}
-&nbsp;Twitter
-            </ToggleButton>
-            <ToggleButton value={PLATFORM_YOUTUBE}>
-              <YouTubeIcon />
-              {' '}
-&nbsp;YouTube
-            </ToggleButton>
+            {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
+              <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
+                <NewspaperIcon />
+                Online News
+              </ToggleButton>
+            )}
+            {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
+              <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
+                <RedditIcon />
+                Reddit
+              </ToggleButton>
+            )}
+            {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
+              <ToggleButton value={PROVIDER_TWITTER_TWITTER}>
+                <TwitterIcon />
+                Twitter
+              </ToggleButton>
+            )}
+            {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
+              <ToggleButton value={PROVIDER_YOUTUBE_YOUTUBE}>
+                <YouTubeIcon />
+                YouTube
+              </ToggleButton>
+            )}
           </ToggleButtonGroup>
         </div>
       </div>

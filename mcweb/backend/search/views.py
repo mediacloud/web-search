@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(["POST"])
 def total_count(request):
-    start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
-    provider = platforms.provider_for(platform, platform_source)
+    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    provider = platforms.provider_by_name(provider_name)
     total_attention = provider.count(query_str, start_date, end_date, collections=collections)
     # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"count": total_attention}), content_type="application/json", status=200)
@@ -25,8 +25,8 @@ def total_count(request):
 
 @require_http_methods(["POST"])
 def count_over_time(request):
-    start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
-    provider = platforms.provider_for(platform, platform_source)
+    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    provider = platforms.provider_by_name(provider_name)
     count_attention_over_time = provider.count_over_time(query_str, start_date, end_date, collections=collections)
     zero_filled_counts = fill_in_dates(start_date, end_date, count_attention_over_time['counts'])
     count_attention_over_time['counts'] = zero_filled_counts
@@ -35,8 +35,8 @@ def count_over_time(request):
 
 @require_http_methods(["POST"])
 def sample(request):
-    start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
-    provider = platforms.provider_for(platform, platform_source)
+    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    provider = platforms.provider_by_name(provider_name)
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json", status=200)
 
@@ -51,8 +51,8 @@ def normalized_count_over_time(request):
 @require_http_methods(["POST"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
-    start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
-    provider = platforms.provider_for(platform, platform_source)
+    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    provider = platforms.provider_by_name(provider_name)
     try:
         counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     except mcweb.backend.search.platforms.exceptions.UnsupportedOperationException:
@@ -75,8 +75,8 @@ def download_counts_over_time_csv(request):
 @require_http_methods(["POST"])
 @action(detail=False)
 def download_all_content_csv(request):
-    start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
-    provider = platforms.provider_for(platform, platform_source)
+    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    provider = platforms.provider_by_name(provider_name)
 
     # don't allow gigantic downloads
     count = provider.count(query_str, start_date, end_date, collections=collections)
@@ -95,6 +95,6 @@ def download_all_content_csv(request):
             first_page = False
 
     filename_timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-    filename = "mc-{}-{}-{}.csv".format(platform, platform_source, filename_timestamp)
+    filename = "mc-{}-{}.csv".format(provider_name, filename_timestamp)
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()

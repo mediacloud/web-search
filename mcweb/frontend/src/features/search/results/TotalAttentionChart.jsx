@@ -50,7 +50,7 @@ export default function TotalAttentionChart({ data }) {
     series: [{
       color: '#2f2d2b',
       name: `query: ${queryString}`,
-      data: [data ? data.count : null],
+      data: [data],
     }],
   };
 

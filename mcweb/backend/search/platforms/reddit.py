@@ -105,7 +105,7 @@ class RedditPushshiftProvider(ContentProvider):
             'media_name': '/r/{}'.format(item['subreddit']),
             'media_url': 'https://reddit.com/r/{}'.format(item['subreddit']),
             'url': 'https://reddit.com/'+item['permalink'],
-            'stories_id': item['id'],
+            'id': item['id'],
             'title': item['title'],
             'publish_date': RedditPushshiftProvider._to_date(item['created_utc']).strftime(MC_DATE_FORMAT),
             'media_link': item['url'],
