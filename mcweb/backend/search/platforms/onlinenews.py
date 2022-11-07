@@ -4,6 +4,7 @@ import dateparser
 import requests
 import logging
 from mediacloud.api import MediaCloud
+import mcmetadata
 
 from .provider import ContentProvider
 from util.cache import cache_by_kwargs
@@ -32,7 +33,7 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         """
         q, fq = self._format_query(query, start_date, end_date, **kwargs)
         story_list = self._mc_client.storyList(q, fq, rows=limit)
-        return story_list
+        return self._matches_to_rows(story_list)
 
     @cache_by_kwargs()
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
@@ -151,6 +152,22 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         # important to keep this unique among platforms so that the caching works right
         return "OnlineNewsMediaCloudProvider"
 
+    @classmethod
+    def _matches_to_rows(cls, matches: List) -> List:
+        return [OnlineNewsMediaCloudProvider._match_to_row(m) for m in matches]
+
+    @classmethod
+    def _match_to_row(cls, match: Dict) -> Dict:
+        return {
+            'media_name': mcmetadata.urls.canonical_domain(match['url']),
+            'media_url': match['media_url'],
+            'id': match['stories_id'],
+            'title': match['title'],
+            'publish_date': dateparser.parse(match['publish_date']),
+            'url': match['url'],
+            'language': match['language'],
+        }
+
 
 class OnlineNewsWaybackMachineProvider(ContentProvider):
 
@@ -239,7 +256,6 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         more_pages = True
         while more_pages:
             page, response = self._query("{}/search/result".format(collection), params, method='POST')
-            yield page
             # check if there is a link to the next page
             more_pages = False
             next_link_token = response.headers.get('x-resume-token')
@@ -275,7 +291,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         return {
             'media_name': match['domain'],
             'media_url': "http://"+match['domain'],
-            'stories_id': match['article_url'].split("/")[-1],
+            'id': match['article_url'].split("/")[-1],
             'title': match['title'],
             'publish_date': dateparser.parse(match['publication_date']),
             'url': match['url'],

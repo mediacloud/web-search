@@ -11,6 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { useGetCountOverTimeMutation, useDownloadCountsOverTimeCSVMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
+import { PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_YOUTUBE_YOUTUBE } from '../util/platforms';
 
 export default function CountOverTimeChart() {
   const {
@@ -35,12 +36,9 @@ export default function CountOverTimeChart() {
 
   const collectionIds = collections.map((collection) => collection.id);
 
-  const PLATFORM_YOUTUBE = 'youtube';
-  const PLATFORM_REDDIT = 'reddit';
-
   useEffect(() => {
     if (queryList[0].length !== 0
-        && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
+        && (platform !== PROVIDER_YOUTUBE_YOUTUBE && platform !== PROVIDER_REDDIT_PUSHSHIFT)) {
       query({
         query: queryString,
         startDate,
@@ -51,7 +49,7 @@ export default function CountOverTimeChart() {
 
       });
       setHidden(false);
-    } else if (platform === PLATFORM_REDDIT || platform === PLATFORM_YOUTUBE) {
+    } else if (platform === PROVIDER_YOUTUBE_YOUTUBE || platform === PROVIDER_REDDIT_PUSHSHIFT) {
       setHidden(true);
     }
   }, [lastSearchTime]);
@@ -131,37 +129,48 @@ export default function CountOverTimeChart() {
 
   return (
     <div className="results-item-wrapper clearfix">
-      <h2>Attention Over Time</h2>
-
-      {hidden && (
-      <Alert severity="warning">Our access doesn&apos;t support fetching attention over time data.</Alert>
-      )}
-      {!hidden && (
-      <>
-        <HighchartsReact options={options} highcharts={Highcharts} />
-        <div className="clearfix">
-          <div className="float-end">
-            <Button
-              variant="text"
-              onClick={() => {
-                downloadCsv({
-                  query: queryString,
-                  startDate,
-                  endDate,
-                  collections: collectionIds,
-                  sources,
-                  platform,
-
-                });
-              }}
-            >
-              Download CSV
-            </Button>
-          </div>
+      <div className="row">
+        <div className="col-4">
+          <h2>Attention Over Time</h2>
+          <p>
+            Compare the attention paid to your queries over time to understand how they are covered.
+            This chart shows the number of stories that match each of your queries. Spikes in
+            attention can reveal key events. Plateaus can reveal stable, &quot;normal&quot;
+            attention levels. Use the &quot;view options&quot; menu to switch between story counts
+            and a percentage (if supported).
+          </p>
         </div>
-      </>
-      )}
+        <div className="col-8">
+          {hidden && (
+          <Alert severity="warning">Our access doesn&apos;t support fetching attention over time data.</Alert>
+          )}
+          {!hidden && (
+          <>
+            <HighchartsReact options={options} highcharts={Highcharts} />
+            <div className="clearfix">
+              <div className="float-end">
+                <Button
+                  variant="text"
+                  onClick={() => {
+                    downloadCsv({
+                      query: queryString,
+                      startDate,
+                      endDate,
+                      collections: collectionIds,
+                      sources,
+                      platform,
 
+                    });
+                  }}
+                >
+                  Download CSV
+                </Button>
+              </div>
+            </div>
+          </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
