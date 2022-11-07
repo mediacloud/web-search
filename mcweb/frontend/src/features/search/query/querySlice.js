@@ -1,23 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
+import { PLATFORM_ONLINE_NEWS } from '../util/platforms';
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
+
 const endDate = dayjs().subtract(4, 'day').format('MM/DD/YYYY');
-const inPreviewCollections = (id, currentPreviewCollections) => {
-  for (let i = 0; i < currentPreviewCollections.length; i += 1) {
-    if (id === currentPreviewCollections[i].id) {
-      return true;
-    }
-  }
-  return false;
-};
+
 const querySlice = createSlice({
   name: 'query',
   initialState: {
     queryString: '',
     queryList: [[], [], []],
     negatedQueryList: [[], [], []],
-    platform: 'onlinenews', // "Choose a Platform",
+    platform: PLATFORM_ONLINE_NEWS, // "Choose a Platform",
     startDate,
     endDate,
     collections: [{ id: 34412234, name: 'United States - National' }],
@@ -28,50 +23,33 @@ const querySlice = createSlice({
   },
 
   reducers: {
-    addSelectedMedia: (state, { payload }) => {
-      state.collections = payload;
-    },
-    removeSelectedMedia: (state, { payload }) => {
-      state.collections = state.collections.filter((collection) => collection.id !== payload);
-      state.previewCollections = state.previewCollections.filter(
+    addSelectedMedia: (state, { payload }) => ({ ...state, collections: payload }),
+    removeSelectedMedia: (state, { payload }) => ({
+      ...state,
+      collections: state.collections.filter((collection) => collection.id !== payload),
+      previewCollections: state.previewCollections.filter(
         (collection) => collection.id !== payload,
-      );
-    },
-    addPreviewSelectedMedia: (state, { payload }) => {
-      state.previewCollections.push(payload);
-    },
-    setPreviewSelectedMedia: (state, { payload }) => {
-      state.previewCollections = payload;
-    },
-    removePreviewSelectedMedia: (state, { payload }) => {
-      state.previewCollections = state.previewCollections.filter(
+      ),
+    }),
+    addPreviewSelectedMedia: (state, { payload }) => ({
+      ...state,
+      previewCollections: state.previewCollections.push(payload),
+    }),
+    setPreviewSelectedMedia: (state, { payload }) => ({ ...state, previewCollections: payload }),
+    removePreviewSelectedMedia: (state, { payload }) => ({
+      ...state,
+      previewCollections: state.previewCollections.filter(
         (collection) => collection.id !== payload,
-      );
-    },
-    setStartDate: (state, { payload }) => {
-      state.startDate = payload;
-    },
-    setEndDate: (state, { payload }) => {
-      state.endDate = payload;
-    },
-    setQueryString: (state, { payload }) => {
-      state.queryString = payload;
-    },
-    setQueryList: (state, { payload }) => {
-      state.queryList = payload;
-    },
-    setNegatedQueryList: (state, { payload }) => {
-      state.negatedQueryList = payload;
-    },
-    setPlatform: (state, { payload }) => {
-      state.platform = payload;
-    },
-    setSearchTime: (state, { payload }) => {
-      state.lastSearchTime = payload;
-    },
-    setAnyAll: (state, { payload }) => {
-      state.anyAll = payload;
-    },
+      ),
+    }),
+    setStartDate: (state, { payload }) => ({ ...state, startDate: payload }),
+    setEndDate: (state, { payload }) => ({ ...state, endDate: payload }),
+    setQueryString: (state, { payload }) => ({ ...state, queryString: payload }),
+    setQueryList: (state, { payload }) => ({ ...state, queryList: payload }),
+    setNegatedQueryList: (state, { payload }) => ({ ...state, negatedQueryList: payload }),
+    setPlatform: (state, { payload }) => ({ ...state, platform: payload }),
+    setSearchTime: (state, { payload }) => ({ ...state, lastSearchTime: payload }),
+    setAnyAll: (state, { payload }) => ({ ...state, anyAll: payload }),
   },
 });
 
