@@ -18,7 +18,7 @@ function Footer() {
             </p>
             <p>
               v
-              { APP_VERSION }
+              { document.settings.appVersion }
             </p>
           </div>
         </div>

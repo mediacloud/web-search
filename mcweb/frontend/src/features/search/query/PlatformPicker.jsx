@@ -75,22 +75,30 @@ export default function PlatformPicker() {
             aria-label="platform"
             color="primary"
           >
-            <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
-              <NewspaperIcon />
-              Online News
-            </ToggleButton>
-            <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
-              <RedditIcon />
-              Reddit
-            </ToggleButton>
-            <ToggleButton value={PROVIDER_TWITTER_TWITTER}>
-              <TwitterIcon />
-              Twitter
-            </ToggleButton>
-            <ToggleButton value={PROVIDER_YOUTUBE_YOUTUBE}>
-              <YouTubeIcon />
-              YouTube
-            </ToggleButton>
+            {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
+              <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
+                <NewspaperIcon />
+                Online News
+              </ToggleButton>
+            )}
+            {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
+              <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
+                <RedditIcon />
+                Reddit
+              </ToggleButton>
+            )}
+            {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
+              <ToggleButton value={PROVIDER_TWITTER_TWITTER}>
+                <TwitterIcon />
+                Twitter
+              </ToggleButton>
+            )}
+            {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
+              <ToggleButton value={PROVIDER_YOUTUBE_YOUTUBE}>
+                <YouTubeIcon />
+                YouTube
+              </ToggleButton>
+            )}
           </ToggleButtonGroup>
         </div>
       </div>
