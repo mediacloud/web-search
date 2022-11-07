@@ -4,7 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
 import queryGenerator from '../util/queryGenerator';
 
-export default function CountOverTimeChart({data, normalized}) {
+export default function CountOverTimeChart({ data, normalized }) {
   const {
     queryList,
     negatedQueryList,

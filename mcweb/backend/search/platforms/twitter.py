@@ -34,9 +34,9 @@ class TwitterTwitterProvider(ContentProvider):
             "query": query,
             "max_results": limit,
             "start_time": start_date.isoformat("T") + "Z",
-            "end_time": end_date.isoformat("T") + "Z",
+            "end_time": self._fix_end_date(end_date).isoformat("T") + "Z",
             "tweet.fields": ",".join(["author_id", "created_at", "public_metrics"]),
-            "expansions": "author_id"
+            "expansions": "author_id",
         }
         results = self._cached_query("tweets/search/all", params)
         return TwitterTwitterProvider._tweets_to_rows(results)
@@ -61,7 +61,7 @@ class TwitterTwitterProvider(ContentProvider):
             query=query,
             granularity='day',
             start_time=start_date.isoformat("T") + "Z",
-            end_time=end_date.isoformat("T") + "Z",
+            end_time=self._fix_end_date(end_date).isoformat("T") + "Z",
         )
         more_data = True
         next_token = None
@@ -93,7 +93,7 @@ class TwitterTwitterProvider(ContentProvider):
             "query": query,
             "max_results": page_size,
             "start_time": start_date.isoformat("T") + "Z",
-            "end_time": end_date.isoformat("T") + "Z",
+            "end_time": self._fix_end_date(end_date).isoformat("T") + "Z",
             "tweet.fields": ",".join(["author_id", "created_at", "public_metrics"]),
             "expansions": "author_id",
         }
@@ -163,3 +163,9 @@ class TwitterTwitterProvider(ContentProvider):
     def __repr__(self):
         # important to keep this unique among platforms so that the caching works right
         return "TwitterTwitterProvider"
+
+    @classmethod
+    def _fix_end_date(cls, orig_end_date: dt.datetime) -> dt.datetime:
+        # twitter end dates are NOT inclusive, so we need to add one day here to make it match the general
+        # behavior of our system (and UI copywriting)
+        return orig_end_date + dt.timedelta(days=1)

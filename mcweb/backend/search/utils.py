@@ -2,8 +2,9 @@ import datetime as dt
 import json
 from .platforms import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_SOURCE_WAYBACK_MACHINE
 
+
 def fill_in_dates(start_date, end_date, existing_counts):
-    delta = end_date - start_date
+    delta = (end_date + dt.timedelta(1)) - start_date
     date_count_dict = {k['date']: k['count'] for k in existing_counts}
 
     # whether or not the dates in existing_counts are string types
@@ -20,6 +21,7 @@ def fill_in_dates(start_date, end_date, existing_counts):
         else:
             filled_counts.append({'count': date_count_dict[day_string], 'date': day_string})
     return filled_counts
+
 
 def parse_query(request):
     payload = json.loads(request.body)

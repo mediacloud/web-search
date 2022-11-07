@@ -2,7 +2,6 @@ import json
 import logging
 import csv
 import time
-from operator import itemgetter
 import collections as py_collections
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
@@ -12,9 +11,8 @@ import mcweb.backend.search.platforms.exceptions
 import mcweb.backend.util.csv_stream as csv_stream
 from .utils import fill_in_dates, parse_query
 
-
-
 logger = logging.getLogger(__name__)
+
 
 @require_http_methods(["POST"])
 def total_count(request):
@@ -24,6 +22,7 @@ def total_count(request):
     # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"count": total_attention}), content_type="application/json", status=200)
 
+
 @require_http_methods(["POST"])
 def count_over_time(request):
     start_date, end_date, query_str, collections, platform, platform_source = parse_query(request)
@@ -31,7 +30,8 @@ def count_over_time(request):
     count_attention_over_time = provider.count_over_time(query_str, start_date, end_date, collections=collections)
     zero_filled_counts = fill_in_dates(start_date, end_date, count_attention_over_time['counts'])
     count_attention_over_time['counts'] = zero_filled_counts
-    return HttpResponse(json.dumps({"count_over_time": count_attention_over_time }, default=str), content_type="application/json", status=200)
+    return HttpResponse(json.dumps({"count_over_time": count_attention_over_time}, default=str), content_type="application/json", status=200)
+
 
 @require_http_methods(["POST"])
 def sample(request):
@@ -47,8 +47,6 @@ def normalized_count_over_time(request):
     logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
     counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"normalized_count_over_time": counts_data }, default=str), content_type="application/json", status=200)
-
-logger = logging.getLogger(__name__)
 
 @require_http_methods(["POST"])
 @action(detail=False)
@@ -72,6 +70,7 @@ def download_counts_over_time_csv(request):
         else:
             writer.writerow([day["date"], day["count"]])
     return response
+
 
 @require_http_methods(["POST"])
 @action(detail=False)
