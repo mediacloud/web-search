@@ -50,7 +50,6 @@ export default function CountOverTimeResults() {
 
   const cleanData = (oldData) => {
     let newData;
-    console.log(oldData);
     if (platform === PLATFORM_ONLINE_NEWS) {
       if (normalized) {
         newData = oldData.count_over_time.counts.map((day) => (
@@ -77,8 +76,9 @@ export default function CountOverTimeResults() {
         sources,
         platform,
       });
+      setNormalized(true);
       setHidden(false);
-    } else if (queryList[0].length !== 0 && (platform === PLATFORM_TWITTER)) {
+    } else if (platform === PLATFORM_TWITTER) {
       query({
         query: queryString,
         startDate,
@@ -87,6 +87,7 @@ export default function CountOverTimeResults() {
         sources,
         platform,
       });
+      setNormalized(false);
       setHidden(false);
     } else if (platform === PLATFORM_REDDIT || platform === PLATFORM_YOUTUBE) {
       setHidden(true);
@@ -103,8 +104,7 @@ export default function CountOverTimeResults() {
     );
   }
 
-  if (!data && !normalizedResults.data) return null;
-
+  if (!data && !normalizedResults.data && !hidden) return null;
   return (
     <div className="results-item-wrapper clearfix">
       <h2>Attention Over Time</h2>
@@ -115,7 +115,7 @@ export default function CountOverTimeResults() {
       {!hidden && (
         <>
           <CountOverTimeChart
-            data={(cleanData(normalizedResults.data) || cleanData(data))}
+            data={data ? cleanData(data) : cleanData(normalizedResults.data)}
             normalized={normalized}
           />
           <div className="clearfix">
