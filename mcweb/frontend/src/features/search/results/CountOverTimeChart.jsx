@@ -129,37 +129,48 @@ export default function CountOverTimeChart() {
 
   return (
     <div className="results-item-wrapper clearfix">
-      <h2>Attention Over Time</h2>
-
-      {hidden && (
-      <Alert severity="warning">Our access doesn&apos;t support fetching attention over time data.</Alert>
-      )}
-      {!hidden && (
-      <>
-        <HighchartsReact options={options} highcharts={Highcharts} />
-        <div className="clearfix">
-          <div className="float-end">
-            <Button
-              variant="text"
-              onClick={() => {
-                downloadCsv({
-                  query: queryString,
-                  startDate,
-                  endDate,
-                  collections: collectionIds,
-                  sources,
-                  platform,
-
-                });
-              }}
-            >
-              Download CSV
-            </Button>
-          </div>
+      <div className="row">
+        <div className="col-4">
+          <h2>Attention Over Time</h2>
+          <p>
+            Compare the attention paid to your queries over time to understand how they are covered.
+            This chart shows the number of stories that match each of your queries. Spikes in
+            attention can reveal key events. Plateaus can reveal stable, &quot;normal&quot;
+            attention levels. Use the &quot;view options&quot; menu to switch between story counts
+            and a percentage (if supported).
+          </p>
         </div>
-      </>
-      )}
+        <div className="col-8">
+          {hidden && (
+          <Alert severity="warning">Our access doesn&apos;t support fetching attention over time data.</Alert>
+          )}
+          {!hidden && (
+          <>
+            <HighchartsReact options={options} highcharts={Highcharts} />
+            <div className="clearfix">
+              <div className="float-end">
+                <Button
+                  variant="text"
+                  onClick={() => {
+                    downloadCsv({
+                      query: queryString,
+                      startDate,
+                      endDate,
+                      collections: collectionIds,
+                      sources,
+                      platform,
 
+                    });
+                  }}
+                >
+                  Download CSV
+                </Button>
+              </div>
+            </div>
+          </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

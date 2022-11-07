@@ -59,32 +59,43 @@ export default function SampleStories() {
 
   const content = (
     <div className="results-item-wrapper results-sample-stories">
-      <h2>Sample Matching Content</h2>
-      <table>
-        <tbody>
-          <tr>
-            <th>Title</th>
-            <th>Source</th>
-            <th>Publication Date</th>
-          </tr>
-          {data.sample.map((sampleStory) => (
-            <tr key={`story-${sampleStory.id}`}>
-              <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
-              <td>
-                {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
-                <img
-                  className="google-icon"
-                  src={`https://www.google.com/s2/favicons?domain=${sampleStory.media_url}`}
-                  alt="{sampleStory.media_name}"
-                />
-                )}
-                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-              </td>
-              <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="row">
+        <div className="col-4">
+          <h2>Sample Content</h2>
+          <p>
+            This is a random sample of the content that matched your queries.
+            Click the menu on the bottom  right to download a CSV of all the
+            matching content and associated metadata.
+          </p>
+        </div>
+        <div className="col-8">
+          <table>
+            <tbody>
+              <tr>
+                <th>Title</th>
+                <th>Source</th>
+                <th>Publication Date</th>
+              </tr>
+              {data.sample.map((sampleStory) => (
+                <tr key={`story-${sampleStory.id}`}>
+                  <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
+                  <td>
+                    {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+                    <img
+                      className="google-icon"
+                      src={`https://www.google.com/s2/favicons?domain=${sampleStory.media_url}`}
+                      alt="{sampleStory.media_name}"
+                    />
+                    )}
+                    <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
+                  </td>
+                  <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 
