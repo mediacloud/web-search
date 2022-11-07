@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
-import { PLATFORM_ONLINE_NEWS } from '../util/platforms';
+import { PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 
@@ -12,7 +12,7 @@ const querySlice = createSlice({
     queryString: '',
     queryList: [[], [], []],
     negatedQueryList: [[], [], []],
-    platform: PLATFORM_ONLINE_NEWS, // "Choose a Platform",
+    platform: PROVIDER_NEWS_MEDIA_CLOUD, // "Choose a Platform",
     startDate,
     endDate,
     collections: [{ id: 34412234, name: 'United States - National' }],

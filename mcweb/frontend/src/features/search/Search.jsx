@@ -17,7 +17,7 @@ import TotalAttentionChart from './results/TotalAttentionChart';
 import CountOverTimeChart from './results/CountOverTimeChart';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
-import { PLATFORM_ONLINE_NEWS } from './util/platforms';
+import { PROVIDER_NEWS_MEDIA_CLOUD } from './util/platforms';
 
 export default function Search() {
   const { enqueueSnackbar } = useSnackbar();
@@ -34,8 +34,6 @@ export default function Search() {
   } = useSelector((state) => state.query);
 
   // const { platform, previewCollections } = useSelector(state => state.query);
-
-  // const PLATFORM_ONLINE_NEWS = 'onlinenews';
 
   const queryObject = {
     queryList,
@@ -74,7 +72,7 @@ export default function Search() {
                 <em>2</em>
                 Pick your collections
               </h3>
-              {platform === PLATFORM_ONLINE_NEWS && (
+              {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
                 <>
                   <SelectedMedia onRemove={removeSelectedMedia} />
                   <MediaPicker />
@@ -85,7 +83,7 @@ export default function Search() {
                   </p>
                 </>
               )}
-              {platform !== PLATFORM_ONLINE_NEWS && (
+              {platform !== PROVIDER_NEWS_MEDIA_CLOUD && (
                 <p>Currently unsupported</p>
               )}
             </div>

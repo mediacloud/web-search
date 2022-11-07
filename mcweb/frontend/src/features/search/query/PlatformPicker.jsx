@@ -16,7 +16,8 @@ import RedditIcon from '@mui/icons-material/Reddit';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import {
-  PLATFORM_REDDIT, PLATFORM_ONLINE_NEWS, PLATFORM_TWITTER, PLATFORM_YOUTUBE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_TWITTER_TWITTER,
+  PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
 
 import { closeModal } from '../../ui/uiSlice';
@@ -49,10 +50,10 @@ export default function PlatformPicker() {
               onChange={handleChangePlatform}
             >
               <MenuItem defaultValue disabled value="Choose A Platform">Choose A Platform</MenuItem>
-              <MenuItem value={PLATFORM_ONLINE_NEWS}>Online News Archive</MenuItem>
-              <MenuItem value={PLATFORM_REDDIT}>Reddit</MenuItem>
-              <MenuItem value={PLATFORM_TWITTER}>Twitter</MenuItem>
-              <MenuItem value={PLATFORM_YOUTUBE}>Youtube</MenuItem>
+              <MenuItem value={PROVIDER_NEWS_MEDIA_CLOUD}>Online News Archive</MenuItem>
+              <MenuItem value={PROVIDER_REDDIT_PUSHSHIFT}>Reddit</MenuItem>
+              <MenuItem value={PROVIDER_TWITTER_TWITTER}>Twitter</MenuItem>
+              <MenuItem value={PROVIDER_YOUTUBE_YOUTUBE}>Youtube</MenuItem>
             </Select>
           </DialogContent>
           <DialogActions>
@@ -74,19 +75,19 @@ export default function PlatformPicker() {
             aria-label="platform"
             color="primary"
           >
-            <ToggleButton value={PLATFORM_ONLINE_NEWS}>
+            <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
               <NewspaperIcon />
               Online News
             </ToggleButton>
-            <ToggleButton value={PLATFORM_REDDIT}>
+            <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
               <RedditIcon />
               Reddit
             </ToggleButton>
-            <ToggleButton value={PLATFORM_TWITTER}>
+            <ToggleButton value={PROVIDER_TWITTER_TWITTER}>
               <TwitterIcon />
               Twitter
             </ToggleButton>
-            <ToggleButton value={PLATFORM_YOUTUBE}>
+            <ToggleButton value={PROVIDER_YOUTUBE_YOUTUBE}>
               <YouTubeIcon />
               YouTube
             </ToggleButton>

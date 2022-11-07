@@ -1,5 +1,6 @@
 import {
-  PLATFORM_REDDIT, PLATFORM_ONLINE_NEWS, PLATFORM_TWITTER, PLATFORM_YOUTUBE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_TWITTER_TWITTER,
+  PROVIDER_YOUTUBE_YOUTUBE,
 } from './platforms';
 
 const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
@@ -15,50 +16,50 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
   ).map(quoter) : [[]];
 
   if (negatedQueryList[0].length === 0) {
-    if (platform === PLATFORM_ONLINE_NEWS) {
+    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
       if (anyAll === 'any') {
         fullQuery = `${query.join(' OR ')}`;
       } else {
         fullQuery = `${query.join(' AND ')}`;
       }
-    } else if (platform === PLATFORM_REDDIT) {
+    } else if (platform === PROVIDER_REDDIT_PUSHSHIFT) {
       if (anyAll === 'any') {
         fullQuery = `${query.join(' | ')}`;
       } else {
         fullQuery = `${query.join(' + ')}`;
       }
-    } else if (platform === PLATFORM_YOUTUBE) {
+    } else if (platform === PROVIDER_YOUTUBE_YOUTUBE) {
       if (anyAll === 'any') {
         fullQuery = `${query.join(' | ')}`;
       } else {
         fullQuery = `${query.join(' ')}`;
       }
-    } else if (platform === PLATFORM_TWITTER) {
+    } else if (platform === PROVIDER_TWITTER_TWITTER) {
       if (anyAll === 'any') {
         fullQuery = `${query.join(' OR ')}`;
       } else {
         fullQuery = `${query.join(' ')}`;
       }
     }
-  } else if (platform === PLATFORM_ONLINE_NEWS) {
+  } else if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
     const combinator = (anyAll === 'any') ? ' OR ' : ' AND ';
     const matchTerms = query.length > 0 ? `(${query.join(combinator)})` : '*';
     fullQuery = `${matchTerms} AND NOT (${negatedQuery.join(' OR ')})`;
-  } else if (platform === PLATFORM_REDDIT) {
+  } else if (platform === PROVIDER_REDDIT_PUSHSHIFT) {
     if (anyAll === 'any') {
       fullQuery = `${query.join(' | ')}`;
     } else {
       fullQuery = `${query.join(' + ')}`;
     }
     fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
-  } else if (platform === PLATFORM_YOUTUBE) {
+  } else if (platform === PROVIDER_YOUTUBE_YOUTUBE) {
     if (anyAll === 'any') {
       fullQuery = `${query.join(' | ')}`;
     } else {
       fullQuery = `${query.join(' ')}`;
     }
     fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
-  } else if (platform === PLATFORM_TWITTER) {
+  } else if (platform === PROVIDER_TWITTER_TWITTER) {
     if (anyAll === 'any') {
       fullQuery = `${query.join(' OR ')}`;
     } else {

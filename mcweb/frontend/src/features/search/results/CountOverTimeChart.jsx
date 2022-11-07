@@ -11,6 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { useGetCountOverTimeMutation, useDownloadCountsOverTimeCSVMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
+import { PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_YOUTUBE_YOUTUBE } from '../util/platforms';
 
 export default function CountOverTimeChart() {
   const {
@@ -35,12 +36,9 @@ export default function CountOverTimeChart() {
 
   const collectionIds = collections.map((collection) => collection.id);
 
-  const PLATFORM_YOUTUBE = 'youtube';
-  const PLATFORM_REDDIT = 'reddit';
-
   useEffect(() => {
     if (queryList[0].length !== 0
-        && (platform !== PLATFORM_YOUTUBE && platform !== PLATFORM_REDDIT)) {
+        && (platform !== PROVIDER_YOUTUBE_YOUTUBE && platform !== PROVIDER_REDDIT_PUSHSHIFT)) {
       query({
         query: queryString,
         startDate,
@@ -51,7 +49,7 @@ export default function CountOverTimeChart() {
 
       });
       setHidden(false);
-    } else if (platform === PLATFORM_REDDIT || platform === PLATFORM_YOUTUBE) {
+    } else if (platform === PROVIDER_YOUTUBE_YOUTUBE || platform === PROVIDER_REDDIT_PUSHSHIFT) {
       setHidden(true);
     }
   }, [lastSearchTime]);

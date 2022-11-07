@@ -7,10 +7,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { useGetSampleStoriesMutation, useDownloadSampleStoriesCSVMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
-import { PLATFORM_REDDIT, PLATFORM_ONLINE_NEWS, PLATFORM_TWITTER } from '../util/platforms';
+import { PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_TWITTER_TWITTER } from '../util/platforms';
 
-const supportsDownload = (platform) => [PLATFORM_ONLINE_NEWS, PLATFORM_REDDIT,
-  PLATFORM_TWITTER].includes(platform);
+const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_REDDIT_PUSHSHIFT,
+  PROVIDER_TWITTER_TWITTER].includes(platform);
 
 export default function SampleStories() {
   const {
@@ -68,10 +68,10 @@ export default function SampleStories() {
             <th>Publication Date</th>
           </tr>
           {data.sample.map((sampleStory) => (
-            <tr key={`media-${sampleStory.media_id}`}>
+            <tr key={`story-${sampleStory.id}`}>
               <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
               <td>
-                {(platform === PLATFORM_ONLINE_NEWS) && (
+                {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
                 <img
                   className="google-icon"
                   src={`https://www.google.com/s2/favicons?domain=${sampleStory.media_url}`}
