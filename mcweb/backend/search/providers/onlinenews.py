@@ -5,9 +5,13 @@ import requests
 import logging
 from mediacloud.api import MediaCloud
 import mcmetadata
+from django.apps import apps
 
 from .provider import ContentProvider
 from util.cache import cache_by_kwargs
+
+Source = apps.get_model('sources', 'Source')
+Collection = apps.get_model('sources', 'Collection')
 
 
 class OnlineNewsMediaCloudProvider(ContentProvider):
@@ -66,7 +70,7 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
     @cache_by_kwargs()
     def item(self, item_id: str) -> Dict:
         story = self._mc_client.story(item_id)
-        return story
+        return self._match_to_row(story)
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000, **kwargs):
         q, fq = self._format_query(query, start_date, end_date, **kwargs)
@@ -220,6 +224,24 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
             return 0
         return results['total']
 
+    @classmethod
+    def _assembled_query_str(cls, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> str:
+        domains = []
+        # turn media ids into domains
+        media_ids = kwargs['sources'] if 'sources' in kwargs else []
+        selected_sources = Source.objects.filter(id__in=media_ids)
+        domains += [s.name for s in selected_sources]
+        # turn collections ids into list of domains
+        collection_ids = kwargs['collections'] if 'collections' in kwargs else []
+        selected_sources = Source.objects.filter(collections__id__in=collection_ids)
+        domains += [s.name for s in selected_sources]
+        # need to put all those filters in single query string
+        q = query
+        if len(domains) > 0:
+            q += " AND (domain:({}))".format(" OR ".join(domains))
+        q += " AND ({})".format("publication_date:[{} TO {}]".format(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")))
+        return q
+
     def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
         results = self._overview_query(query, start_date, end_date, **kwargs)
         if self._is_no_results(results):
@@ -234,13 +256,9 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
             })
         return {'counts': to_return}
 
-    @staticmethod
-    def _date_query_clause(start_date: dt.datetime, end_date: dt.datetime) -> str:
-        return "publication_date:[{} TO {}]".format(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
-
     def _overview_query(self, query: str, start_date: dt.datetime, end_date: dt.datetime,
                         collection: str = DEFAULT_COLLECTION, **kwargs) -> Dict:
-        params = {"q": "{} AND {}".format(query, self._date_query_clause(start_date, end_date))}
+        params = {"q": self._assembled_query_str(query, start_date, end_date, **kwargs)}
         params.update(kwargs)
         results, response = self._query("{}/search/overview".format(collection), params, method='POST')
         return results
@@ -251,11 +269,12 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
                   collection: str = DEFAULT_COLLECTION, **kwargs):
-        params = {"q": "{} AND {}".format(query, self._date_query_clause(start_date, end_date))}
+        params = {"q": self._assembled_query_str(query, start_date, end_date, **kwargs)}
         params.update(kwargs)
         more_pages = True
         while more_pages:
             page, response = self._query("{}/search/result".format(collection), params, method='POST')
+            yield self._matches_to_rows(page)
             # check if there is a link to the next page
             more_pages = False
             next_link_token = response.headers.get('x-resume-token')
@@ -265,7 +284,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
 
     def terms(self, query: str, start_date: dt.datetime, end_date: dt.datetime, field: str, aggregation: str,
               collection: str = DEFAULT_COLLECTION, **kwargs) -> Dict:
-        params = {"q": "{} AND {}".format(query, self._date_query_clause(start_date, end_date))}
+        params = {"q": self._assembled_query_str(query, start_date, end_date, **kwargs)}
         params.update(kwargs)
         results, response = self._query("{}/terms/{}/{}".format(collection, field, aggregation), params,
                                         method='GET')
@@ -291,7 +310,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         return {
             'media_name': match['domain'],
             'media_url': "http://"+match['domain'],
-            'id': match['article_url'].split("/")[-1],
+            'id': match['archive_playback_url'].split("/")[4],  # grabs a unique id off archive.org URL
             'title': match['title'],
             'publish_date': dateparser.parse(match['publication_date']),
             'url': match['url'],

@@ -33,12 +33,12 @@ function App() {
   const [searchParams] = useSearchParams();
   const [trigger, setTrigger] = useState(false);
   useEffect(() => {
-    if (searchParams.get('query')) {
+    if (searchParams.get('q')) {
       setTrigger(true);
     }
   }, [lastSearchTime]);
 
-  if (trigger && searchParams.get('query')) {
+  if (trigger && searchParams.get('q')) {
     setSearchQuery(searchParams);
     setTrigger(false);
   }

@@ -32,15 +32,13 @@ export default function CountOverTimeResults() {
     anyAll,
   } = useSelector((state) => state.query);
 
-  const [hidden, setHidden] = useState(false);
-
   const [normalized, setNormalized] = useState(true);
 
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [downloadCsv] = useDownloadCountsOverTimeCSVMutation();
 
-  const [query, { isLoading, data }] = useGetCountOverTimeMutation();
+  const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
   const [normalizedQuery, normalizedResults] = useGetNormalizedCountOverTimeMutation();
 
@@ -81,8 +79,7 @@ export default function CountOverTimeResults() {
         platform,
       });
       setNormalized(true);
-      setHidden(false);
-    } else if (platform === PROVIDER_TWITTER_TWITTER) {
+    } else if (queryList[0].length !== 0) {
       query({
         query: queryString,
         startDate,
@@ -92,9 +89,6 @@ export default function CountOverTimeResults() {
         platform,
       });
       setNormalized(false);
-      setHidden(false);
-    } else if (platform === PROVIDER_REDDIT_PUSHSHIFT || platform === PROVIDER_YOUTUBE_YOUTUBE) {
-      setHidden(true);
     }
   }, [lastSearchTime]);
 
@@ -108,7 +102,72 @@ export default function CountOverTimeResults() {
     );
   }
 
-  if (!data && !normalizedResults.data && !hidden) return null;
+  if ((data === undefined)
+   && (normalizedResults.data === undefined)
+   && (error === undefined) && (normalizedResults.error === undefined)) {
+    return null;
+  }
+
+  let content;
+  if (error || normalizedResults.error) {
+    // const msg = data.note;
+    content = (
+      <Alert severity="warning">
+        Our access doesn&apos;t support fetching attention over time data.
+        (
+        {error.data.note || normalizedResults.error.data.note}
+        )
+      </Alert>
+    );
+  } else {
+    content = (
+      <>
+        <CountOverTimeChart
+          data={data ? cleanData(data) : cleanData(normalizedResults.data)}
+          normalized={normalized}
+        />
+        <div className="clearfix">
+          {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
+            <div className="float-start">
+              {normalized && (
+                <Button onClick={() => {
+                  setNormalized(false);
+                }}
+                >
+                  View Story Count
+                </Button>
+              )}
+              {!normalized && (
+                <Button onClick={() => {
+                  setNormalized(true);
+                }}
+                >
+                  View Normalized Story Percentage
+                </Button>
+              )}
+            </div>
+          )}
+          <div className="float-end">
+            <Button
+              variant="text"
+              onClick={() => {
+                downloadCsv({
+                  query: queryString,
+                  startDate,
+                  endDate,
+                  collections: collectionIds,
+                  sources,
+                  platform,
+                });
+              }}
+            >
+              Download CSV
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }
   return (
     <div className="results-item-wrapper clearfix">
       <div className="row">
@@ -123,57 +182,7 @@ export default function CountOverTimeResults() {
           </p>
         </div>
         <div className="col-8">
-
-          {hidden && (
-          <Alert severity="warning">Our access doesn&apos;t support fetching attention over time data.</Alert>
-          )}
-          {!hidden && (
-          <>
-            <CountOverTimeChart
-              data={data ? cleanData(data) : cleanData(normalizedResults.data)}
-              normalized={normalized}
-            />
-            <div className="clearfix">
-              {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
-              <div className="float-start">
-                {normalized && (
-                  <Button onClick={() => {
-                    setNormalized(false);
-                  }}
-                  >
-                    View Story Count
-                  </Button>
-                )}
-                {!normalized && (
-                  <Button onClick={() => {
-                    setNormalized(true);
-                  }}
-                  >
-                    View Normalized Story Percentage
-                  </Button>
-                )}
-              </div>
-              )}
-              <div className="float-end">
-                <Button
-                  variant="text"
-                  onClick={() => {
-                    downloadCsv({
-                      query: queryString,
-                      startDate,
-                      endDate,
-                      collections: collectionIds,
-                      sources,
-                      platform,
-                    });
-                  }}
-                >
-                  Download CSV
-                </Button>
-              </div>
-            </div>
-          </>
-          )}
+          { content }
         </div>
       </div>
     </div>

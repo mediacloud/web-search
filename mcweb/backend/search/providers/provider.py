@@ -21,25 +21,25 @@ class ContentProvider(ABC):
 
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
                **kwargs) -> List[Dict]:
-        raise NotImplementedError("Subclasses should implement sample!")
+        raise NotImplementedError("Doesn't support sample content.")
 
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
-        raise NotImplementedError("Subclasses should implement count!")
+        raise NotImplementedError("Doesn't support total count.")
 
     def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
-        raise NotImplementedError("Subclasses should implement count_over_time!")
+        raise NotImplementedError("Doesn't support counts over time.")
 
     def item(self, item_id: str) -> Dict:
-        raise NotImplementedError("Subclasses should implement count_over_time!")
+        raise NotImplementedError("Doesn't support fetching individual content.")
 
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
-        raise NotImplementedError("Subclasses should implement words!")
+        raise NotImplementedError("Doesn't support top words.")
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
                   **kwargs):
         # yields a page of items
-        raise NotImplementedError("Subclasses should implement words!")
+        raise NotImplementedError("Doesn't support fetching all matching content.")
 
     def normalized_count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime,
                                    **kwargs) -> Dict:

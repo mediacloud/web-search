@@ -5,6 +5,7 @@ from typing import List, Dict
 import logging
 
 from .provider import ContentProvider, MC_DATE_FORMAT
+from .exceptions import UnsupportedOperationException
 from util.cache import cache_by_kwargs
 
 logger = logging.getLogger(__file__)
@@ -51,6 +52,9 @@ class RedditPushshiftProvider(ContentProvider):
                                               size=0, track_total_hits=True)
         logger.debug(data)
         return data['metadata']['total_results']
+
+    def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
+        raise UnsupportedOperationException("The PushShift.io API doesn't support aggregated counts")
 
     # don't change the 250 (changing page size seems to be unsupported)
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 250, **kwargs) -> Dict:

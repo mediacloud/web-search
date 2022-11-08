@@ -2,6 +2,7 @@ import logging
 from typing import List
 import os
 
+from .exceptions import UnknownProviderException, UnavailableProviderException
 from .provider import ContentProvider
 from .reddit import RedditPushshiftProvider
 from .twitter import TwitterTwitterProvider
@@ -77,14 +78,3 @@ def provider_for(platform: str, source: str) -> ContentProvider:
         return platform_provider
     else:
         raise UnavailableProviderException(platform, source)
-
-
-class UnknownProviderException(Exception):
-    def __init__(self, platform, source):
-        super().__init__("Unknown provider {} from {}".format(platform, source))
-
-
-class UnavailableProviderException(Exception):
-    def __init__(self, platform, source):
-        super().__init__("Unavailable provider {} from {}".format(platform, source))
-

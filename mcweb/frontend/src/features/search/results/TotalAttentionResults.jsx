@@ -9,8 +9,6 @@ import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation, useGetNormalizedCountOverTimeMutation } from '../../../app/services/searchApi';
 import { PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
 
-const YOUTUBE_COUNT_MAX = '> 1000000';
-
 function TotalAttentionResults() {
   const {
     queryList,
@@ -28,7 +26,7 @@ function TotalAttentionResults() {
 
   const [normalized, setNormalized] = useState(true);
 
-  const [query, { isLoading, data }] = useGetTotalCountMutation();
+  const [query, { isLoading, data, error }] = useGetTotalCountMutation();
 
   const [normalizedQuery, nqResult] = useGetNormalizedCountOverTimeMutation();
 
@@ -85,7 +83,7 @@ function TotalAttentionResults() {
     );
   }
 
-  if (!data && !nqResult.data) return null;
+  if (!data && !nqResult.data && !error && !nqResult.error) return null;
 
   return (
     <div className="results-item-wrapper">
@@ -99,13 +97,20 @@ function TotalAttentionResults() {
           </p>
         </div>
         <div className="col-8">
-          {((platform === PROVIDER_YOUTUBE_YOUTUBE) && (data.count === YOUTUBE_COUNT_MAX)) && (
-            <Alert severity="warning">Over 1 million matches. Our access doesn&apos;t support exact counts for numbers this high.</Alert>
+          {(error || nqResult.error) && (
+            <Alert severity="warning">
+              Our access doesn&apos;t support fetching attention over time data.
+              (
+              {error.data.note || nqResult.error.data.note}
+              )
+            </Alert>
           )}
+          {(error === undefined && nqResult.error === undefined) && (
           <TotalAttentionChart
             data={data ? normalizeData(data) : normalizeData(nqResult.data.count_over_time)}
             normalized={normalized}
           />
+          )}
           <div className="clearfix">
             {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
               <div className="float-start">

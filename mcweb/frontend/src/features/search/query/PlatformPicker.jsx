@@ -17,7 +17,7 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_TWITTER_TWITTER,
-  PROVIDER_YOUTUBE_YOUTUBE,
+  PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
 import { closeModal } from '../../ui/uiSlice';
@@ -50,7 +50,8 @@ export default function PlatformPicker() {
               onChange={handleChangePlatform}
             >
               <MenuItem defaultValue disabled value="Choose A Platform">Choose A Platform</MenuItem>
-              <MenuItem value={PROVIDER_NEWS_MEDIA_CLOUD}>Online News Archive</MenuItem>
+              <MenuItem value={PROVIDER_NEWS_WAYBACK_MACHINE}>News: Media Cloud</MenuItem>
+              <MenuItem value={PROVIDER_NEWS_MEDIA_CLOUD}>Media Cloud</MenuItem>
               <MenuItem value={PROVIDER_REDDIT_PUSHSHIFT}>Reddit</MenuItem>
               <MenuItem value={PROVIDER_TWITTER_TWITTER}>Twitter</MenuItem>
               <MenuItem value={PROVIDER_YOUTUBE_YOUTUBE}>Youtube</MenuItem>
@@ -67,7 +68,7 @@ export default function PlatformPicker() {
   return (
     <div className="row">
       <div className="col-12 text-center">
-        <div className="query-section">
+        <div className="query-section platform-picker">
           <ToggleButtonGroup
             value={platform}
             exclusive
@@ -75,28 +76,44 @@ export default function PlatformPicker() {
             aria-label="platform"
             color="primary"
           >
+            {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
+              <ToggleButton value={PROVIDER_NEWS_WAYBACK_MACHINE}>
+                <NewspaperIcon fontSize="large" />
+                Online News
+                <br />
+                (Wayback Machine)
+              </ToggleButton>
+            )}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
               <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
-                <NewspaperIcon />
+                <NewspaperIcon fontSize="large" />
                 Online News
+                <br />
+                (Media Cloud)
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
               <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
-                <RedditIcon />
+                <RedditIcon fontSize="large" />
                 Reddit
+                <br />
+                (PushShift.io API)
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
               <ToggleButton value={PROVIDER_TWITTER_TWITTER}>
-                <TwitterIcon />
+                <TwitterIcon fontSize="large" />
                 Twitter
+                <br />
+                (Twitter API)
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
               <ToggleButton value={PROVIDER_YOUTUBE_YOUTUBE}>
-                <YouTubeIcon />
+                <YouTubeIcon fontSize="large" />
                 YouTube
+                <br />
+                (YouTube API)
               </ToggleButton>
             )}
           </ToggleButtonGroup>

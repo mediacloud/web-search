@@ -1,6 +1,6 @@
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_TWITTER_TWITTER,
-  PROVIDER_YOUTUBE_YOUTUBE,
+  PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from './platforms';
 
 const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
@@ -16,7 +16,7 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
   ).map(quoter) : [[]];
 
   if (negatedQueryList[0].length === 0) {
-    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+    if ((platform === PROVIDER_NEWS_MEDIA_CLOUD) || (platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
       if (anyAll === 'any') {
         fullQuery = `${query.join(' OR ')}`;
       } else {
@@ -41,7 +41,8 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
         fullQuery = `${query.join(' ')}`;
       }
     }
-  } else if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+  } else if ((platform === PROVIDER_NEWS_MEDIA_CLOUD)
+  || (platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
     const combinator = (anyAll === 'any') ? ' OR ' : ' AND ';
     const matchTerms = query.length > 0 ? `(${query.join(combinator)})` : '*';
     fullQuery = `${matchTerms} AND NOT (${negatedQuery.join(' OR ')})`;
