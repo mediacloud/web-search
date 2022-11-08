@@ -34,6 +34,7 @@ export default function TotalAttentionChart({ data, normalized }) {
       },
       labels: {
         overflow: 'justify',
+        format: '{value}',
       },
     },
     plotOptions: {
@@ -41,6 +42,7 @@ export default function TotalAttentionChart({ data, normalized }) {
         dataLabels: {
           enabled: true,
         },
+        pointStart: 0,
       },
     },
     legend: { enabled: false },
@@ -53,9 +55,8 @@ export default function TotalAttentionChart({ data, normalized }) {
       data: [data],
     }],
   };
-
   if (normalized) {
-    options.yAxis.labels.format = '{value}%';
+    options.yAxis.labels.format = '{value: .4f}%';
   }
 
   return (

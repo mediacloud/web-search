@@ -16,6 +16,7 @@ import {
 } from '../../../app/services/searchApi';
 import {
   PROVIDER_NEWS_MEDIA_CLOUD,
+  PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
 export default function CountOverTimeResults() {
@@ -59,7 +60,7 @@ export default function CountOverTimeResults() {
 
   const cleanData = (oldData) => {
     let newData;
-    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+    if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
       if (normalized) {
         newData = oldData.count_over_time.counts.map((day) => (
           [dateHelper(day.date), day.ratio]
@@ -76,7 +77,8 @@ export default function CountOverTimeResults() {
   };
 
   useEffect(() => {
-    if (queryList[0].length !== 0 && (platform === PROVIDER_NEWS_MEDIA_CLOUD)) {
+    if (queryList[0].length !== 0
+      && (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
       normalizedQuery({
         query: queryString,
         startDate,
@@ -134,7 +136,8 @@ export default function CountOverTimeResults() {
           normalized={normalized}
         />
         <div className="clearfix">
-          {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
+          {(platform === PROVIDER_NEWS_MEDIA_CLOUD
+          || platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
             <div className="float-start">
               {normalized && (
                 <div>

@@ -8,7 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation, useGetNormalizedCountOverTimeMutation } from '../../../app/services/searchApi';
-import { PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
+import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../util/platforms';
 
 function TotalAttentionResults() {
   const {
@@ -43,7 +43,7 @@ function TotalAttentionResults() {
 
   const normalizeData = (oldData) => {
     let newData;
-    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+    if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
       const { total } = oldData;
       const normalizedTotal = oldData.normalized_total;
       if (normalized) {
@@ -58,7 +58,8 @@ function TotalAttentionResults() {
   };
 
   useEffect(() => {
-    if (queryList[0].length !== 0 && platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+    if (queryList[0].length !== 0 && (platform === PROVIDER_NEWS_MEDIA_CLOUD
+      || platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
       normalizedQuery({
         query: queryString,
         startDate,
@@ -121,7 +122,8 @@ function TotalAttentionResults() {
           />
           )}
           <div className="clearfix">
-            {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
+            {(platform === PROVIDER_NEWS_MEDIA_CLOUD
+            || platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
               <div className="float-start">
                 {normalized && (
                   <div>
