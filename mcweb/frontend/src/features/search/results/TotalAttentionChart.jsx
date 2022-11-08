@@ -8,9 +8,6 @@ import Alert from '@mui/material/Alert';
 
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
-import { PROVIDER_YOUTUBE_YOUTUBE } from '../util/platforms';
-
-const YOUTUBE_COUNT_MAX = '> 1000000';
 
 export default function TotalAttentionChart() {
   const {
@@ -27,7 +24,7 @@ export default function TotalAttentionChart() {
 
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
-  const [query, { isLoading, data }] = useGetTotalCountMutation();
+  const [query, { isLoading, data, error }] = useGetTotalCountMutation();
   const collectionIds = collections.map((collection) => collection.id);
 
   useEffect(() => {
@@ -89,7 +86,7 @@ export default function TotalAttentionChart() {
   };
 
   if (isLoading) return (<CircularProgress size="75px" />);
-  if (!data) return null;
+  if (!data && !error) return null;
   // if (isLoading) return ( <CircularProgress size="75px" />);
 
   return (
@@ -105,10 +102,15 @@ export default function TotalAttentionChart() {
         </div>
         <div className="col-8">
           {/* {console.log(countOverTime ? countOverTime.counts : null)} */}
-          { ((platform === PROVIDER_YOUTUBE_YOUTUBE) && (data.count === YOUTUBE_COUNT_MAX)) && (
-            <Alert severity="warning">Over 1 million matches. Our access doesn&apos;t support exact counts for numbers this high.</Alert>
+          { error && (
+            <Alert severity="warning">
+              Our access doesn&apos;t support fetching attention over time data.
+              (
+              { error.data.note }
+              )
+            </Alert>
           )}
-          <HighchartsReact options={options} highcharts={Highcharts} />
+          { error === undefined && (<HighchartsReact options={options} highcharts={Highcharts} />)}
         </div>
       </div>
     </div>

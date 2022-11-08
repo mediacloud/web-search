@@ -17,7 +17,7 @@ import TotalAttentionChart from './results/TotalAttentionChart';
 import CountOverTimeChart from './results/CountOverTimeChart';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
-import { PROVIDER_NEWS_MEDIA_CLOUD } from './util/platforms';
+import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
 
 export default function Search() {
   const { enqueueSnackbar } = useSnackbar();
@@ -72,7 +72,7 @@ export default function Search() {
                 <em>2</em>
                 Pick your collections
               </h3>
-              {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
+              {[PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
                 <>
                   <SelectedMedia onRemove={removeSelectedMedia} />
                   <MediaPicker />
@@ -83,7 +83,7 @@ export default function Search() {
                   </p>
                 </>
               )}
-              {platform !== PROVIDER_NEWS_MEDIA_CLOUD && (
+              {![PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
                 <p>Currently unsupported</p>
               )}
             </div>

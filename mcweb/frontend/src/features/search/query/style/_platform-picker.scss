@@ -1,8 +1,13 @@
-.services {
-    background-color: white;
-}
+.platform-picker {
+  button {
+    text-align: left;
 
-.first-pick-title {
-    font-size: 1.5rem;
-    padding: .5rem;
+    svg {
+      margin-right: 10px;
+    }
+
+    i {
+      font-size: 15px;
+    }
+  }
 }
