@@ -42,14 +42,11 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 list_ids.append(id)
             
         collection_return = Collection.objects.filter(id__in=list_ids)
+        print(collection_return)
+        print(list_ids)
         serializer = CollectionListSerializer(
             {'collections': collection_return})
-        response = Response(serializer.data)
-        response.accepted_renderer = JSONRenderer()
-        response.accepted_media_type = "application/json"
-        response.renderer_context = {}
-        response.render()
-        return response
+        return Response(serializer.data)
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
