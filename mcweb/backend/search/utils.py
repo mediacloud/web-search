@@ -25,7 +25,6 @@ def fill_in_dates(start_date, end_date, existing_counts):
 def parse_query(request):
     payload = json.loads(request.body)
     payload = payload.get("queryObject")
-    print(payload)
     provider_name = payload["platform"]
     query_str = payload["query"]
     collections = payload["collections"]
