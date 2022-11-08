@@ -25,6 +25,7 @@ def fill_in_dates(start_date, end_date, existing_counts):
 def parse_query(request):
     payload = json.loads(request.body)
     payload = payload.get("queryObject")
+    print(payload)
     provider_name = payload["platform"]
     query_str = payload["query"]
     collections = payload["collections"]
@@ -33,17 +34,4 @@ def parse_query(request):
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-<<<<<<< HEAD
-    if platform == PLATFORM_ONLINE_NEWS:
-        platform = {"platform": PLATFORM_ONLINE_NEWS, "platform_source": PLATFORM_SOURCE_MEDIA_CLOUD }
-    elif platform == PLATFORM_TWITTER:
-        platform = {"platform": PLATFORM_TWITTER, "platform_source": PLATFORM_SOURCE_TWITTER }
-    elif platform == PLATFORM_REDDIT:
-        platform = {"platform": PLATFORM_REDDIT, "platform_source": PLATFORM_SOURCE_PUSHSHIFT }
-    elif platform == PLATFORM_YOUTUBE:
-        platform = {"platform": PLATFORM_YOUTUBE, "platform_source": PLATFORM_SOURCE_YOUTUBE }
-    platform, platform_source = platform["platform"], platform["platform_source"]
-    return (start_date, end_date, query_str, collections, platform, platform_source)
-=======
     return (start_date, end_date, query_str, collections, provider_name)
->>>>>>> main

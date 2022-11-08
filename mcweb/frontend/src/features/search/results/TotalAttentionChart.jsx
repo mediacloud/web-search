@@ -4,7 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
 import queryGenerator from '../util/queryGenerator';
 
-export default function TotalAttentionChart({ data }) {
+export default function TotalAttentionChart({ data, normalized }) {
   const {
     queryList,
     negatedQueryList,
@@ -53,6 +53,10 @@ export default function TotalAttentionChart({ data }) {
       data: [data],
     }],
   };
+
+  if (normalized) {
+    options.yAxis.labels.format = '{value}%';
+  }
 
   return (
     <div>

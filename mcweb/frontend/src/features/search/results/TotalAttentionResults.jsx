@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
 
 import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation, useGetNormalizedCountOverTimeMutation } from '../../../app/services/searchApi';
-import { PROVIDER_YOUTUBE_YOUTUBE } from '../util/platforms';
+import { PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
 
 const YOUTUBE_COUNT_MAX = '> 1000000';
 
@@ -25,22 +26,32 @@ function TotalAttentionResults() {
 
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
-  const PLATFORM_ONLINE_NEWS = 'onlinenews';
   const [normalized, setNormalized] = useState(true);
+
   const [query, { isLoading, data }] = useGetTotalCountMutation();
+
   const [normalizedQuery, nqResult] = useGetNormalizedCountOverTimeMutation();
 
   const collectionIds = collections.map((collection) => collection.id);
-  const normalizeData = (data) => {
-    const { total } = data;
-    const normalizedTotal = data.normalized_total;
-    const normalizedPercentage = (total / normalizedTotal);
-    console.log(total, normalizedTotal);
-    console.log(normalizedPercentage);
+
+  const normalizeData = (oldData) => {
+    let newData;
+    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+      const { total } = oldData;
+      const normalizedTotal = oldData.normalized_total;
+      if (normalized) {
+        newData = (total / normalizedTotal);
+      } else {
+        newData = total;
+      }
+    } else {
+      newData = oldData.count;
+    }
+    return newData;
   };
 
   useEffect(() => {
-    if (platform === PLATFORM_ONLINE_NEWS) {
+    if (queryList[0].length !== 0 && platform === PROVIDER_NEWS_MEDIA_CLOUD) {
       normalizedQuery({
         query: queryString,
         startDate,
@@ -50,7 +61,7 @@ function TotalAttentionResults() {
         platform,
       });
       setNormalized(true);
-    } else {
+    } else if (queryList[0].length !== 0) {
       query({
         query: queryString,
         startDate,
@@ -92,11 +103,32 @@ function TotalAttentionResults() {
             <Alert severity="warning">Over 1 million matches. Our access doesn&apos;t support exact counts for numbers this high.</Alert>
           )}
           <TotalAttentionChart
-            data={data || normalizeData(nqResult.data)}
+            data={data ? normalizeData(data) : normalizeData(nqResult.data.count_over_time)}
             normalized={normalized}
           />
+          <div className="clearfix">
+            {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
+              <div className="float-start">
+                {normalized && (
+                  <Button onClick={() => {
+                    setNormalized(false);
+                  }}
+                  >
+                    View Story Count
+                  </Button>
+                )}
+                {!normalized && (
+                  <Button onClick={() => {
+                    setNormalized(true);
+                  }}
+                  >
+                    View Normalized Story Percentage
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-
       </div>
     </div>
   );
