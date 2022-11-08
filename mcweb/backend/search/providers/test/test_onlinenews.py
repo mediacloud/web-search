@@ -25,7 +25,7 @@ class OnlineNewsMediaCloudProviderTest(TestCase):
     def test_item(self):
         stories_id = 123123
         story = self._provider.item(stories_id)
-        assert story['media_id'] == 15
+        assert story['media_name'] == 'boston.com'
         assert story['id'] == stories_id
         assert len(story['title']) > 0
 

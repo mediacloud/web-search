@@ -66,7 +66,7 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
     @cache_by_kwargs()
     def item(self, item_id: str) -> Dict:
         story = self._mc_client.story(item_id)
-        return story
+        return self._match_to_row(story)
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000, **kwargs):
         q, fq = self._format_query(query, start_date, end_date, **kwargs)
@@ -256,6 +256,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         more_pages = True
         while more_pages:
             page, response = self._query("{}/search/result".format(collection), params, method='POST')
+            yield self._matches_to_rows(page)
             # check if there is a link to the next page
             more_pages = False
             next_link_token = response.headers.get('x-resume-token')

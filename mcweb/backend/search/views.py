@@ -7,8 +7,8 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 
-import mcweb.backend.search.platforms as platforms
-import mcweb.backend.search.platforms.exceptions
+import mcweb.backend.search.providers as providers
+import mcweb.backend.search.providers.exceptions
 import mcweb.backend.util.csv_stream as csv_stream
 from .utils import fill_in_dates, parse_query
 
@@ -35,7 +35,7 @@ def handle_provider_errors(func):
 @require_http_methods(["POST"])
 def total_count(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
-    provider = platforms.provider_by_name(provider_name)
+    provider = providers.provider_by_name(provider_name)
     total_attention = provider.count(query_str, start_date, end_date, collections=collections)
     # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"count": total_attention}), content_type="application/json", status=200)
@@ -45,7 +45,7 @@ def total_count(request):
 @require_http_methods(["POST"])
 def count_over_time(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
-    provider = platforms.provider_by_name(provider_name)
+    provider = providers.provider_by_name(provider_name)
     count_attention_over_time = provider.count_over_time(query_str, start_date, end_date, collections=collections)
     zero_filled_counts = fill_in_dates(start_date, end_date, count_attention_over_time['counts'])
     count_attention_over_time['counts'] = zero_filled_counts
@@ -56,7 +56,7 @@ def count_over_time(request):
 @require_http_methods(["POST"])
 def sample(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
-    provider = platforms.provider_by_name(provider_name)
+    provider = providers.provider_by_name(provider_name)
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"sample": sample_stories}, default=str), content_type="application/json", status=200)
 
@@ -65,10 +65,10 @@ def sample(request):
 @action(detail=False)
 def download_counts_over_time_csv(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
-    provider = platforms.provider_by_name(provider_name)
+    provider = providers.provider_by_name(provider_name)
     try:
         counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
-    except mcweb.backend.search.platforms.exceptions.UnsupportedOperationException:
+    except mcweb.backend.search.providers.exceptions.UnsupportedOperationException:
         counts_data = provider.count_over_time(query_str, start_date, end_date, collections=collections)
     response = HttpResponse(
         content_type='text/csv',
@@ -89,7 +89,7 @@ def download_counts_over_time_csv(request):
 @action(detail=False)
 def download_all_content_csv(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
-    provider = platforms.provider_by_name(provider_name)
+    provider = providers.provider_by_name(provider_name)
 
     # don't allow gigantic downloads
     count = provider.count(query_str, start_date, end_date, collections=collections)
