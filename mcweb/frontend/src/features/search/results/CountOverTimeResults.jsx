@@ -5,6 +5,8 @@ import utc from 'dayjs/plugin/utc';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import queryGenerator from '../util/queryGenerator';
 import CountOverTimeChart from './CountOverTimeChart';
 import {
@@ -13,10 +15,7 @@ import {
   useGetNormalizedCountOverTimeMutation,
 } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT,
-  PROVIDER_YOUTUBE_YOUTUBE,
   PROVIDER_NEWS_MEDIA_CLOUD,
-  PROVIDER_TWITTER_TWITTER,
 } from '../util/platforms';
 
 export default function CountOverTimeResults() {
@@ -33,6 +32,14 @@ export default function CountOverTimeResults() {
   } = useSelector((state) => state.query);
 
   const [normalized, setNormalized] = useState(true);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = (e) => setAnchorEl(e.currentTarget);
+
+  const handleClose = () => setAnchorEl(null);
+
+  const open = Boolean(anchorEl);
 
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
@@ -130,20 +137,53 @@ export default function CountOverTimeResults() {
           {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
             <div className="float-start">
               {normalized && (
-                <Button onClick={() => {
-                  setNormalized(false);
-                }}
-                >
-                  View Story Count
-                </Button>
+                <div>
+                  <Button onClick={handleClick}>
+                    View Options
+                  </Button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem onClick={() => {
+                      setNormalized(false);
+                      handleClose();
+                    }}
+                    >
+                      View Story Count
+
+                    </MenuItem>
+                  </Menu>
+                </div>
               )}
               {!normalized && (
-                <Button onClick={() => {
-                  setNormalized(true);
-                }}
-                >
-                  View Normalized Story Percentage
-                </Button>
+                <div>
+                  <Button onClick={handleClick}>
+                    View Options
+                  </Button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem onClick={() => {
+                      setNormalized(true);
+                      handleClose();
+                    }}
+                    >
+                      View Normalized Story Percentage (default)
+                    </MenuItem>
+                  </Menu>
+                </div>
               )}
             </div>
           )}
