@@ -31,7 +31,7 @@ class YouTubeYouTubeProvider(ContentProvider):
         self._api_key = api_key
 
     def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
-        raise UnsupportedOperationException("Can't search youtube for videos posted over time")
+        raise UnsupportedOperationException("The YouTube API doesn't support counts over time")
 
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
         """
@@ -45,7 +45,8 @@ class YouTubeYouTubeProvider(ContentProvider):
         results = self._fetch_results_from_api(query, start_date, end_date)
         total = results['pageInfo']['totalResults']
         if total == 1000000:
-            total = "> 1000000"
+            raise UnsupportedOperationException("The YouTube API doesn't provide exact counts when there are more "
+                                                "than 1 million matches")
         return total
 
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,

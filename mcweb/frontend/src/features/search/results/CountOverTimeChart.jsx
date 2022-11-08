@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useSelector } from 'react-redux';
@@ -11,7 +11,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 import { useGetCountOverTimeMutation, useDownloadCountsOverTimeCSVMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
-import { PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_YOUTUBE_YOUTUBE } from '../util/platforms';
 
 export default function CountOverTimeChart() {
   const {
@@ -26,19 +25,16 @@ export default function CountOverTimeChart() {
     anyAll,
   } = useSelector((state) => state.query);
 
-  const [hidden, setHidden] = useState(false);
-
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [downloadCsv] = useDownloadCountsOverTimeCSVMutation();
 
-  const [query, { isLoading, data }] = useGetCountOverTimeMutation();
+  const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
   const collectionIds = collections.map((collection) => collection.id);
 
   useEffect(() => {
-    if (queryList[0].length !== 0
-        && (platform !== PROVIDER_YOUTUBE_YOUTUBE && platform !== PROVIDER_REDDIT_PUSHSHIFT)) {
+    if (queryList[0].length !== 0) {
       query({
         query: queryString,
         startDate,
@@ -48,9 +44,6 @@ export default function CountOverTimeChart() {
         platform,
 
       });
-      setHidden(false);
-    } else if (platform === PROVIDER_YOUTUBE_YOUTUBE || platform === PROVIDER_REDDIT_PUSHSHIFT) {
-      setHidden(true);
     }
   }, [lastSearchTime]);
 
@@ -125,7 +118,48 @@ export default function CountOverTimeChart() {
       </div>
     );
   }
-  if (!data) return null;
+  if ((data === undefined) && (error === undefined)) {
+    return null;
+  }
+
+  let content;
+  if (error) {
+    // const msg = data.note;
+    content = (
+      <Alert severity="warning">
+        Our access doesn&apos;t support fetching attention over time data.
+        (
+        { error.data.note }
+        )
+      </Alert>
+    );
+  } else {
+    content = (
+      <>
+        <HighchartsReact options={options} highcharts={Highcharts} />
+        <div className="clearfix">
+          <div className="float-end">
+            <Button
+              variant="text"
+              onClick={() => {
+                downloadCsv({
+                  query: queryString,
+                  startDate,
+                  endDate,
+                  collections: collectionIds,
+                  sources,
+                  platform,
+
+                });
+              }}
+            >
+              Download CSV
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="results-item-wrapper clearfix">
@@ -141,34 +175,7 @@ export default function CountOverTimeChart() {
           </p>
         </div>
         <div className="col-8">
-          {hidden && (
-          <Alert severity="warning">Our access doesn&apos;t support fetching attention over time data.</Alert>
-          )}
-          {!hidden && (
-          <>
-            <HighchartsReact options={options} highcharts={Highcharts} />
-            <div className="clearfix">
-              <div className="float-end">
-                <Button
-                  variant="text"
-                  onClick={() => {
-                    downloadCsv({
-                      query: queryString,
-                      startDate,
-                      endDate,
-                      collections: collectionIds,
-                      sources,
-                      platform,
-
-                    });
-                  }}
-                >
-                  Download CSV
-                </Button>
-              </div>
-            </div>
-          </>
-          )}
+          { content }
         </div>
       </div>
     </div>

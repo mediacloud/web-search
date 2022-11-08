@@ -6,6 +6,7 @@ import collections as py_collections
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
+
 import mcweb.backend.search.platforms as platforms
 import mcweb.backend.search.platforms.exceptions
 import mcweb.backend.util.csv_stream as csv_stream
@@ -14,6 +15,23 @@ from .utils import fill_in_dates, parse_query
 logger = logging.getLogger(__name__)
 
 
+def handle_provider_errors(func):
+    """
+    If a provider-related method returns a JSON error we want to send it back to the client with information
+    that can be used to show the user some kind of error.
+    """
+    def _handler(request):
+        try:
+            return func(request)
+        except Exception as e:
+            return HttpResponseBadRequest(json.dumps(dict(
+               status="error",
+               note=str(e),
+            )))
+    return _handler
+
+
+@handle_provider_errors
 @require_http_methods(["POST"])
 def total_count(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
@@ -23,6 +41,7 @@ def total_count(request):
     return HttpResponse(json.dumps({"count": total_attention}), content_type="application/json", status=200)
 
 
+@handle_provider_errors
 @require_http_methods(["POST"])
 def count_over_time(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
@@ -33,6 +52,7 @@ def count_over_time(request):
     return HttpResponse(json.dumps({"count_over_time": count_attention_over_time}, default=str), content_type="application/json", status=200)
 
 
+@handle_provider_errors
 @require_http_methods(["POST"])
 def sample(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
