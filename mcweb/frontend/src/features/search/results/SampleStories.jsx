@@ -8,12 +8,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useGetSampleStoriesMutation, useDownloadSampleStoriesCSVMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
 
-const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_REDDIT_PUSHSHIFT,
-  PROVIDER_TWITTER_TWITTER].includes(platform);
+const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER].includes(platform);
 
 export default function SampleStories() {
   const {
