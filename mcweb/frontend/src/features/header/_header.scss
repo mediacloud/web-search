@@ -7,10 +7,10 @@
 
 #header {
   background-color: $primary-red;
-  padding: 0px $padding-s;
+  padding: $padding-s 0px;
 
   img {
-    margin-right: 20px;
+    margin-right: $padding-m;
   }
 
   ul {
@@ -23,7 +23,7 @@
       display: inline-block;
 
       button {
-        padding: $padding-s 20px;
+        padding: $padding-s $padding-m;
         font-size: 14px;
         color: white;
         font-weight: bold;

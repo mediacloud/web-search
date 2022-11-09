@@ -44,15 +44,17 @@ export default function SourceList(props) {
           {data.sources.map((source) => (
             <tr key={source.id}>
               <td>
-                <img
-                  className="google-icon"
-                  src={`https://www.google.com/s2/favicons?domain=${source.name}`}
-                  alt="{source.name}"
-                />
+                <a href={source.homepage} target="_new">
+                  <img
+                    className="google-icon"
+                    src={`https://www.google.com/s2/favicons?domain=${source.name}`}
+                    alt="{source.name}"
+                  />
+                </a>
               </td>
               <td>
-                <Link className="source-collection-item" to={`/sources/${source.id}`}>
-                  {source.label}
+                <Link to={`/sources/${source.id}`}>
+                  {source.label || source.name}
                 </Link>
               </td>
               {edit && (

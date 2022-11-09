@@ -19,7 +19,7 @@ export default function FeaturedCollections() {
           { isLoading && (<CircularProgress size="75px" />)}
           { !isLoading
             && (featuredCollections.collections.map((collection) => (
-              <div className="col-4">
+              <div className="col-4" key={collection.id}>
                 <div key={`featured-collection-${collection.id}`} className="featured-collection">
                   <em>collection</em>
                   <Link to={`/collections/${collection.id}`}>

@@ -7,17 +7,13 @@
 
 // ui component styling
 @import '../features/ui/modal/_modal.scss';
+@import '../features/ui/style/statpanel';
 
 // collection styling
 @import '../features/collections/style/collection';
 @import '../features/collections/style/modify-collection';
-@import '../features/collections/style/collection-item';
 
 // source styling
-@import '../features/sources/style/source-list';
-@import '../features/sources/style/source-item';
-@import '../features/sources/style/modify-source';
-@import '../features/sources/style/source';
 
 // componenets
 @import '../features/header/header';
@@ -64,13 +60,13 @@ table {
     }
 
     td {
-      font-size: 13px;
+      font-size: 16px;
       overflow-x: scroll;
-      padding: 13px;
+      padding: $padding-s;
       vertical-align: top;
 
       .google-icon {
-        margin-right: 6px;
+        margin-right: $padding-xs;
         vertical-align: bottom;
       }
     }
