@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 from settings import VERSION
-import mcweb.backend.search.providers as providers
+import backend.search.providers as providers
 
 logger = logging.getLogger(__name__)
 

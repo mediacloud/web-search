@@ -7,9 +7,9 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 
-import mcweb.backend.search.providers as providers
-import mcweb.backend.search.providers.exceptions
-import mcweb.backend.util.csv_stream as csv_stream
+import backend.search.providers as providers
+import backend.search.providers.exceptions
+import backend.util.csv_stream as csv_stream
 from .utils import fill_in_dates, parse_query
 
 logger = logging.getLogger(__name__)
