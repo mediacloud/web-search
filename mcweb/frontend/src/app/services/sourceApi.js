@@ -40,15 +40,6 @@ export const sourcesApi = managerApi.injectEndpoints({
       }),
       invalidatesTags: ['Source'],
     }),
-    downloadSourceCSV: builder.query({
-      query: (collectionId) => ({
-        url: `sources/download_csv/?collection_id=${collectionId}`,
-        method: 'GET',
-        responseHandler: async (response) => (
-          window.location.assign(window.URL.createObjectURL(await response.blob()))
-        ),
-      }),
-    }),
   }),
 });
 

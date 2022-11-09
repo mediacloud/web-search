@@ -37,7 +37,7 @@ export default function SourceList(props) {
       <table width="100%">
         <thead>
           <tr>
-            <th colSpan="2">Name</th>
+            <th colSpan={edit ? 3 : 2}>Name</th>
           </tr>
         </thead>
         <tbody>
@@ -54,7 +54,9 @@ export default function SourceList(props) {
                 <Link className="source-collection-item" to={`/sources/${source.id}`}>
                   {source.label}
                 </Link>
-                {edit && (
+              </td>
+              {edit && (
+                <td>
                   <IconButton
                     aria-label="remove"
                     onClick={() => {
@@ -66,8 +68,8 @@ export default function SourceList(props) {
                   >
                     <HighlightOffIcon />
                   </IconButton>
-                )}
-              </td>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
