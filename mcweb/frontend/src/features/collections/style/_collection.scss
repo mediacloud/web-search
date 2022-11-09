@@ -10,11 +10,7 @@
       padding: 20px;
 
       em {
-          font-variant: small-caps;
-          color: $primary-black;
-          font-weight: bold;
-          font-style: normal;
-          display: block;
+          @include small-label;
           margin-bottom: $padding-s;
       }
 

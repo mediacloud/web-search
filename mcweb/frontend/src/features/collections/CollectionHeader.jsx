@@ -1,9 +1,9 @@
+import PropTypes from 'prop-types';
 import { CircularProgress } from '@mui/material';
 import * as React from 'react';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
-export default function CollectionHeader(props) {
-  const { collectionId } = props;
+export default function CollectionHeader({ collectionId }) {
   const {
     data,
     isLoading,
@@ -22,20 +22,27 @@ export default function CollectionHeader(props) {
 
   return (
     <div className="collectionHeader">
-
-      {/* Title and Collection ID */}
-      <div className="collectionInformation">
-        <h2>
-          {' '}
-          {collection.name}
-        </h2>
-        <h3>
-          {' '}
-          Collection #
-          {collectionId}
-        </h3>
+      <div className="feature-area filled">
+        <div className="container">
+          <div className="row">
+            <div className="col-12">
+              <span className="small-label">
+                {collection.platform}
+                {' '}
+                Collection #
+                {collectionId}
+              </span>
+              <h1>
+                {collection.name}
+              </h1>
+            </div>
+          </div>
+        </div>
       </div>
-
     </div>
   );
 }
+
+CollectionHeader.propTypes = {
+  collectionId: PropTypes.number.isRequired,
+};
