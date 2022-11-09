@@ -26,6 +26,7 @@ export default function Search() {
   const navigate = useNavigate();
 
   const {
+    queryString,
     queryList,
     negatedQueryList,
     startDate,
@@ -39,11 +40,13 @@ export default function Search() {
   const queryObject = {
     queryList,
     negatedQueryList,
+    queryString,
     startDate,
     endDate,
     platform,
     collections,
     anyAll,
+    advanced,
   };
 
   if (platform === 'Choose a Platform') {

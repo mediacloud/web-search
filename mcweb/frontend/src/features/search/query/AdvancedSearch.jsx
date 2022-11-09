@@ -23,6 +23,7 @@ function AdvancedSearch() {
   useEffect(() => {
     language = setLanguage(platform);
   }, [platform]);
+
   const [query, setQuery] = useState(
     queryGenerator(queryList, negatedQueryList, platform, anyAll),
   );

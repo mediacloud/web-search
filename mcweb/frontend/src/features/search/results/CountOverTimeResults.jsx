@@ -50,7 +50,6 @@ export default function CountOverTimeResults() {
     } else {
       queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
     }
-    console.log(queryReturn);
     return queryReturn;
   };
 

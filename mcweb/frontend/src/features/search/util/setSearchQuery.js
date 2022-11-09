@@ -9,6 +9,8 @@ import {
   setAnyAll,
   addSelectedMedia,
   setPreviewSelectedMedia,
+  setAdvanced,
+  setQueryString,
 } from '../query/querySlice';
 
 const formatQuery = (query) => {
@@ -50,6 +52,7 @@ const setSearchQuery = (searchParams) => {
   const platform = searchParams.get('p');
   let collections = searchParams.get('cs');
   const anyAll = searchParams.get('any');
+  let queryString = searchParams.get('qs');
 
   query = query ? decode(query).split(',') : null;
   query = formatQuery(query);
@@ -59,16 +62,19 @@ const setSearchQuery = (searchParams) => {
   negatedQuery = formatQuery(negatedQuery);
   negatedQuery = sizeQuery(negatedQuery);
 
+  queryString = queryString ? decode(queryString) : null;
+
   startDate = startDate ? dayjs(startDate).format('MM/DD/YYYY') : null;
   endDate = endDate ? dayjs(endDate).format('MM/DD/YYYY') : null;
 
   collections = collections ? decode(collections).split(',') : null;
   collections = formatCollections(collections);
 
-  if (query) {
+  if (queryString) {
+    dispatch(setQueryString(queryString));
+    dispatch(setAdvanced(true));
+  } else {
     dispatch(setQueryList(query));
-  }
-  if (negatedQuery) {
     dispatch(setNegatedQueryList(negatedQuery));
   }
   if (startDate) {
