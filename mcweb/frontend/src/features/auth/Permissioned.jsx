@@ -25,7 +25,7 @@ export default function Permissioned({ children, role }) {
 
 Permissioned.propTypes = {
   children: PropTypes.element.isRequired,
-  role: PropTypes.optionalString,
+  role: PropTypes.string,
 };
 
 Permissioned.defaultProps = {
