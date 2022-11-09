@@ -1,5 +1,7 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useCSVReader } from 'react-papaparse';
+import Button from '@mui/material/Button';
 import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 
 export default function UploadSources(props) {
@@ -23,9 +25,9 @@ export default function UploadSources(props) {
           acceptedFile,
         }) => (
           <div>
-            <button type="button" {...getRootProps()}>
+            <Button variant="outlined" {...getRootProps()}>
               Upload CSV
-            </button>
+            </Button>
             <div>
               {acceptedFile && acceptedFile.name}
             </div>
@@ -36,3 +38,7 @@ export default function UploadSources(props) {
     </div>
   );
 }
+
+UploadSources.propTypes = {
+  collectionId: PropTypes.number.isRequired,
+};

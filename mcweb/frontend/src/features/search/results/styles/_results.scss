@@ -1,11 +1,11 @@
 .search-results-wrapper {
-  padding-top: 50px;
+  padding-top: $padding-l;
 
   .results-item-wrapper {
-    margin-bottom: 50px;
+    margin-bottom: $padding-l;
 
     h2 {
-      font-size: 25px;
+      font-size: $padding-m;
       font-weight: bold;
     }
 

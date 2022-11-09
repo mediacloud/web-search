@@ -34,34 +34,16 @@ export default function SignIn() {
   );
 
   return (
-    <div>
-      <CssBaseline />
-      <Container maxWidth="xs">
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
+    <div className="containter">
+      <div className="row">
+        <div className="col-4 offset-4">
+          <h1>Login</h1>
 
           <Box
             component="form"
             method="post"
             noValidate
-            sx={{ mt: 1 }}
           >
-
-            {/* Username  */}
             <TextField
               margin="normal"
               required
@@ -73,8 +55,6 @@ export default function SignIn() {
               autoFocus
               onChange={handleChange}
             />
-
-            {/* Password  */}
             <TextField
               margin="normal"
               required
@@ -105,37 +85,22 @@ export default function SignIn() {
                 }
               }}
             >
-              Sign In
+              Login
             </Button>
 
-            {/* Reset Password */}
-            <Typography
-              sx={{
-                mr: 2,
-                letterSpacing: '.02rem',
-                color: 'light-blue',
-                textDecoration: 'none',
-              }}
-              component={Link}
-              to="/reset-password"
-            >
-              Forgot password?
-            </Typography>
+            <p>
+              <Link to="/reset-password">
+                Forgot password?
+              </Link>
+            </p>
+            <p>
+              <Link to="/sign-up">
+                No Account? Register Now!
+              </Link>
+            </p>
           </Box>
-        </Box>
-        <Typography
-          sx={{
-            mr: 2,
-            letterSpacing: '.02rem',
-            color: 'light-blue',
-            textDecoration: 'none',
-          }}
-          component={Link}
-          to="/sign-up"
-        >
-          No Account? Register Now!
-        </Typography>
-      </Container>
+        </div>
+      </div>
     </div>
   );
 }

@@ -17,10 +17,9 @@ import ConfirmedReset from './features/auth/ConfirmedReset';
 
 // pages
 import Collections from './features/collections/CollectionShow';
-import FeaturedCollections from './features/collections/FeaturedCollections';
+import CollectionsHome from './features/collections/CollectionsHome';
 import CreateCollection from './features/collections/CreateCollection';
 import Search from './features/search/Search';
-import SourceHome from './features/sources/SourceHome';
 import SourceShow from './features/sources/SourceShow';
 
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -81,7 +80,7 @@ function App() {
             path="collections"
             element={(
               <RequireAuth>
-                <FeaturedCollections />
+                <CollectionsHome />
               </RequireAuth>
             )}
           />
@@ -109,15 +108,6 @@ function App() {
             element={(
               <RequireAuth>
                 <SourceShow />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="sources"
-            element={(
-              <RequireAuth>
-                <SourceHome />
               </RequireAuth>
             )}
           />

@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types';
 import { CircularProgress } from '@mui/material';
 import * as React from 'react';
-import { useGetCollectionQuery } from '../../app/services/collectionsApi';
+import { useGetSourceQuery } from '../../app/services/sourceApi';
 
-export default function CollectionHeader({ collectionId }) {
+export default function SourceHeader({ sourceId }) {
   const {
     data,
     isLoading,
-  } = useGetCollectionQuery(collectionId);
-  const collection = data;
+  } = useGetSourceQuery(sourceId);
+  const source = data;
 
   if (isLoading) {
     return (
@@ -27,13 +27,13 @@ export default function CollectionHeader({ collectionId }) {
           <div className="row">
             <div className="col-12">
               <span className="small-label">
-                {collection.platform}
+                {source.platform}
                 {' '}
-                Collection #
-                {collectionId}
+                Source #
+                {sourceId}
               </span>
               <h1>
-                {collection.name}
+                {source.label}
               </h1>
             </div>
           </div>
@@ -43,6 +43,6 @@ export default function CollectionHeader({ collectionId }) {
   );
 }
 
-CollectionHeader.propTypes = {
-  collectionId: PropTypes.number.isRequired,
+SourceHeader.propTypes = {
+  sourceId: PropTypes.number.isRequired,
 };

@@ -35,7 +35,7 @@
 }
 
 .and-or {
-  margin-left: 10px;
+  margin-left: $padding-s;
   color: #aaa;
   font-weight: bold;
   font-size: 13px;
@@ -44,7 +44,7 @@
 
 .query-term-list {
   .query-term-item {
-    margin: 0px 0px 5px 0px;
+    margin: 0px 0px $padding-xs 0px;
 
     input[type=text] {
       padding: 3px;

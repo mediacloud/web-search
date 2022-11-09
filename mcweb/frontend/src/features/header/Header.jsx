@@ -4,7 +4,7 @@ import { NavLink, Link } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import { assetUrl } from '../ui/uiUtil';
 
-const pages = ['search', 'collections', 'sources'];
+const pages = ['search', 'collections'];
 // const settings = ['Account', 'Logout'];
 
 function Header() {

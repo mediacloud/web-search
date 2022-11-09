@@ -1,55 +1,45 @@
 import * as React from 'react';
 import { Button } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
-import { useState } from 'react';
 
 import CollectionHeader from './CollectionHeader';
 import SourceList from '../sources/SourceList';
+import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
 export default function CollectionShow() {
   const params = useParams();
   const collectionId = Number(params.collectionId);
-  const [isShown, setIsShown] = useState(true);
 
   return (
     <>
-      <div className="collectionTitle">
 
-        {/* Header  */}
-        <CollectionHeader collectionId={collectionId} />
+      <CollectionHeader collectionId={collectionId} />
 
-        {/* Buttons for Modifying and showing Sources */}
-        <div className="buttons">
-
-          {/* Routes to Modifying */}
-          <Button
-            style={{ backgroundColor: 'white' }}
-            variant="contained"
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            component={Link}
-            to="modify-collection"
-          >
-            Modify Collection
-          </Button>
-
-          {/* Shows all associated Sources */}
-          <Button
-            style={{ backgroundColor: 'white' }}
-            variant="contained"
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            onClick={async () => {
-              setIsShown(!isShown);
-            }}
-          >
-            Sources
-          </Button>
+      <div className="sub-feature">
+        <div className="container">
+          <div className="row">
+            <div className="col-12">
+              <Button variant="outlined" target="_blank" href={`/api/sources/sources/download_csv/?collection_id=${collectionId}`}>
+                Download Source CSV
+              </Button>
+              &nbsp;&nbsp;&nbsp;
+              <Permissioned role={ROLE_STAFF}>
+                <Button variant="outlined" component={Link} to="modify-collection">
+                  Modify Collection
+                </Button>
+              </Permissioned>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Source List */}
-      {isShown && (
-        <SourceList collectionId={collectionId} />
-      )}
+      <div className="container">
+        <div className="row">
+          <div className="col-6">
+            <SourceList collectionId={collectionId} />
+          </div>
+        </div>
+      </div>
     </>
   );
 }
