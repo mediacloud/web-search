@@ -2,10 +2,18 @@ from django.db import models
 from enum import Enum
 
 
+class CollectionPlatforms(Enum):
+    ONLINE_NEWS = "online_news"
+    REDDIT = "digital_native"
+    YOUTUBE = "youtube"
+
+
 class Collection(models.Model):
     # UI should verify uniqueness
     name = models.CharField(max_length=255, null=False, blank=False)
     notes = models.TextField(null=True, blank=True)
+    platform = models.CharField(max_length=100, choices=[(tag, tag.value) for tag in CollectionPlatforms], null=True,
+                                default=CollectionPlatforms.ONLINE_NEWS.value)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
