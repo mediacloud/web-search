@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
@@ -11,17 +11,20 @@ import SearchDatePicker from './query/SearchDatePicker';
 import SimpleSearch from './query/SimpleSearch';
 import SampleStories from './results/SampleStories';
 import { setSearchTime, removeSelectedMedia } from './query/querySlice';
-import TotalAttentionChart from './results/TotalAttentionChart';
 import TotalAttentionResults from './results/TotalAttentionResults';
 import CountOverTimeResults from './results/CountOverTimeResults';
+import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
 
 export default function Search() {
   const { enqueueSnackbar } = useSnackbar();
+
   const dispatch = useDispatch();
+
   const navigate = useNavigate();
+
   const {
     queryList,
     negatedQueryList,
@@ -30,9 +33,8 @@ export default function Search() {
     collections,
     platform,
     anyAll,
+    advanced,
   } = useSelector((state) => state.query);
-
-  // const { platform, previewCollections } = useSelector(state => state.query);
 
   const queryObject = {
     queryList,
@@ -58,9 +60,17 @@ export default function Search() {
         </div>
       </div>
 
-      <div className="container">
-        <SimpleSearch />
-      </div>
+      {!advanced && (
+        <div className="container">
+          <SimpleSearch />
+        </div>
+      )}
+
+      {advanced && (
+        <div className="container">
+          <AdvancedSearch />
+        </div>
+      )}
 
       <div className="container">
         <div className="row">

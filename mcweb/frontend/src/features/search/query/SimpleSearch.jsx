@@ -4,10 +4,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import QueryList from './QueryList';
 import { setAnyAll } from './querySlice';
 import QueryPreview from './QueryPreview';
+import SearchAlertDialog from '../util/SearchAlertDialog';
 
 export default function SimpleSearch() {
   const { anyAll } = useSelector((state) => state.query);
+
   const dispatch = useDispatch();
+
+  const [open, setOpen] = useState(false);
 
   const handleChangeAnyAll = (event) => {
     dispatch(setAnyAll(event.target.value));
@@ -60,7 +64,11 @@ export default function SimpleSearch() {
           <QueryPreview />
         </div>
       </div>
-
+      <div className="clearfix">
+        <div className="float-start">
+          <SearchAlertDialog onClick={() => setOpen(true)} openDialog={open} />
+        </div>
+      </div>
     </div>
   );
 }

@@ -22,6 +22,7 @@ import {
 export default function CountOverTimeResults() {
   const {
     queryList,
+    queryString,
     negatedQueryList,
     platform,
     startDate,
@@ -42,7 +43,16 @@ export default function CountOverTimeResults() {
 
   const open = Boolean(anchorEl);
 
-  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const fullQuery = () => {
+    let queryReturn = '';
+    if (queryString) {
+      queryReturn = queryString;
+    } else {
+      queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+    }
+    console.log(queryReturn);
+    return queryReturn;
+  };
 
   const [downloadCsv] = useDownloadCountsOverTimeCSVMutation();
 
@@ -80,7 +90,7 @@ export default function CountOverTimeResults() {
     if (queryList[0].length !== 0
       && (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
       normalizedQuery({
-        query: queryString,
+        query: fullQuery(),
         startDate,
         endDate,
         collections: collectionIds,
@@ -90,7 +100,7 @@ export default function CountOverTimeResults() {
       setNormalized(true);
     } else if (queryList[0].length !== 0) {
       query({
-        query: queryString,
+        query: fullQuery(),
         startDate,
         endDate,
         collections: collectionIds,
@@ -195,7 +205,7 @@ export default function CountOverTimeResults() {
               variant="text"
               onClick={() => {
                 downloadCsv({
-                  query: queryString,
+                  query: fullQuery,
                   startDate,
                   endDate,
                   collections: collectionIds,

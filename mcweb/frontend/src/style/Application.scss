@@ -33,6 +33,9 @@
 @import '../features/search/query/style/query-preview';
 @import '../features/search/query/media-picker/media-picker';
 
+// syntax highlighting
+@import 'prismjs/themes/prism.css';
+
 // results styling
 @import '../features/search/results/styles/sample-stories';
 
