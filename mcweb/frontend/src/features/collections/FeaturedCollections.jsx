@@ -1,40 +1,36 @@
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import { Paper, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { useGetFeaturedCollectionsQuery } from '../../app/services/collectionsApi';
+import CircularProgress from '@mui/material/CircularProgress';
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#99b9de' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.primary,
-}));
+import { useGetFeaturedCollectionsQuery } from '../../app/services/collectionsApi';
 
 export default function FeaturedCollections() {
   const { data, isLoading } = useGetFeaturedCollectionsQuery();
   const featuredCollections = data;
-  if (isLoading) {
-    return (<div>Loading...</div>);
-  }
   return (
-    <>
-      <div className="collectionTitle">
-        <h1>Featured Collections</h1>
+    <div className="featured-collections-wrapper">
+      <div className="row">
+        <div className="col-12">
+          <h2>Featured Collections</h2>
+        </div>
       </div>
-
-      <div className="featuredCollection">
-        {
-            (featuredCollections.collections.map((collection) => (
-              <Grid key={`featured-collection-${collection.id}`}>
-                <Link to={`/collections/${collection.id}`}>
-                  <Item>{collection.name}</Item>
-                </Link>
-              </Grid>
-            )))
-          }
+      <div className="featured-collection-list">
+        <div className="row">
+          { isLoading && (<CircularProgress size="75px" />)}
+          { !isLoading
+            && (featuredCollections.collections.map((collection) => (
+              <div className="col-4">
+                <div key={`featured-collection-${collection.id}`} className="featured-collection">
+                  <em>collection</em>
+                  <Link to={`/collections/${collection.id}`}>
+                    <h3>{collection.name}</h3>
+                  </Link>
+                  <p>{collection.notes}</p>
+                </div>
+              </div>
+            )))}
+        </div>
       </div>
-    </>
+    </div>
   );
 }

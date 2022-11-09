@@ -11,7 +11,6 @@ import SearchDatePicker from './query/SearchDatePicker';
 import SimpleSearch from './query/SimpleSearch';
 import SampleStories from './results/SampleStories';
 import { setSearchTime, removeSelectedMedia } from './query/querySlice';
-import TotalAttentionChart from './results/TotalAttentionChart';
 import TotalAttentionResults from './results/TotalAttentionResults';
 import CountOverTimeResults from './results/CountOverTimeResults';
 import MediaPicker from './query/media-picker/MediaPicker';

@@ -46,7 +46,6 @@ body {
 
 #content {
   min-height: 300px;
-  padding: 10px 0px;
   background-color: #fff;
 }
 
@@ -68,16 +67,4 @@ table {
       }
     }
   }
-}
-
-a {
-  color: $primary-red;
-
-  &:hover {
-    color: $primary-red;
-  }
-}
-
-h1, h2, h3 {
-  font-family: $heading-font-families
 }
