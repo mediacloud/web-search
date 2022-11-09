@@ -4,7 +4,7 @@ from enum import Enum
 
 class CollectionPlatforms(Enum):
     ONLINE_NEWS = "online_news"
-    REDDIT = "digital_native"
+    REDDIT = "reddit"
     YOUTUBE = "youtube"
 
 
@@ -18,9 +18,10 @@ class Collection(models.Model):
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
 
-class ServiceNames(Enum):  # call something like ServiceNames.ONLINE_NEWS.value to get the string you really want
+class SourcePlatforms(Enum):
     ONLINE_NEWS = "online_news"
-    YOU_TUBE = "youtube"
+    YOUTUBE = "youtube"
+    REDDIT = "reddit"
 
 
 class MediaTypes(Enum):
@@ -37,8 +38,8 @@ class Source(models.Model):
     label = models.CharField(max_length=255, null=True, blank=True)
     homepage = models.CharField(max_length=4000, null=True, blank=True)
     notes = models.TextField(null=True, blank=True)
-    service = models.CharField(max_length=100, choices=[(
-        tag, tag.value) for tag in ServiceNames], null=True)
+    platform = models.CharField(max_length=100, choices=[(tag, tag.value) for tag in SourcePlatforms], null=True,
+                                default=SourcePlatforms.ONLINE_NEWS.value)
     stories_per_week = models.IntegerField(default=0, null=True)
     first_story = models.DateTimeField(null=True)
     collections = models.ManyToManyField(Collection)
