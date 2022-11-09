@@ -14,3 +14,16 @@ h1, h2, h3 {
 p {
   line-height: 1.2em;
 }
+
+@mixin small-label {
+  text-transform: uppercase;
+  color: $primary-red;
+  font-size: 14px;
+  font-weight: bold;
+  display: block;
+  font-style: normal;
+}
+
+.small-label {
+  @include small-label;
+}

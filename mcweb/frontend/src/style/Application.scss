@@ -1,6 +1,9 @@
-@import '../../../../scss/custom.scss';
 // css reset
+@import '../../../../scss/custom.scss';
+
+// text styling
 @import './variables';
+@import './text';
 
 // ui component styling
 @import '../features/ui/modal/_modal.scss';
@@ -36,9 +39,6 @@
 // results styling
 @import '../features/search/results/styles/sample-stories';
 
-// text styling
-@import '../style/text';
-
 body {
   font-family: $body-font-families;
   background-color: $primary-black;
@@ -51,6 +51,13 @@ body {
 }
 
 table {
+  thead {
+    th {
+      background-color: $primary-black;
+      color: $primary-off-white;
+      padding: $padding-xs;
+    }
+  }
   tr {
     &:nth-child(even) {
       background-color: $primary-off-white;
@@ -97,14 +104,18 @@ table {
         color: $primary-off-white;
       }
     }
-
 }
+
+.sub-feature {
+  border-bottom: 1px solid $primary-off-white;
+  padding-bottom: $padding-m;
+  margin-bottom: $padding-m;
+}
+
 
 dl {
   dt {
-    text-transform: uppercase;
-    color: $primary-red;
-    font-size: 14px;
+    @include small-label;
   }
   dd {
     font-size: 18px;
