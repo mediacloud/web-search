@@ -1,29 +1,4 @@
 
-
-// .searchTitle {
-//   background-color: green;
-//   color: white;
-//   display: flex;
-//   justify-content: space-between;
-//   padding: 10px;
-
-//   h1 {
-//     padding: 5px;
-//     font-weight: 600;
-//   }
-// }
-
-// .searchContainer {
-//   padding: 50px;
-//   background-color:rgb(86, 86, 184);
-//   justify-content: center;
-
-// }
-
-// .services {
-//   display: flex;
-// }
-
 .query-inputs {
   display: flex;
   flex-direction: column;
@@ -50,41 +25,41 @@
 }
 
 .search-container {
-  padding: 30px 0px;
+  padding: $padding-m 0px;
 
   code {
     font-size: 14px;
     font-family: sans-serif;
     background-color: $primary-off-white;
     color: $primary-black;
-    padding: 10px;
+    padding: $padding-s;
     width: 100%;
     display: block;
   }
 
   .description {
     display: block;
-    padding: 5px 0px;
+    padding: $padding-xs 0px;
 
     .select-inline {
-      margin: 0px 5px;
+      margin: 0px $padding-xs;
     }
 
   }
 
 
   p.help {
-    margin-top: 10px;
+    margin-top: $padding-s;
     color: #9e9e9e;
     font-size: 12px;
     line-height: normal;
   }
 
   .query-section {
-    margin-bottom: 30px;
+    margin-bottom: $padding-m;
     h3 {
       font-family: $body-font-families;  // Too close to other text to use header font
-      height: 25px;
+      height: $padding-m;
       margin: 0px 0px 8px 0px;
       padding: 0px;
       font-weight: 700;
@@ -100,11 +75,11 @@
         color: #fff;
         display: inline-block;
         font-size: 12px;
-        margin-right: 5px;
-        padding: 5px;
+        margin-right: $padding-xs;
+        padding: $padding-xs;
         text-align: center;
         vertical-align: top;
-        width: 25px;
+        width: $padding-m;
         font-style: normal;
         font-weight: bold;
       }

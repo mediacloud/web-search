@@ -4,12 +4,12 @@
   background-color: navy;
   color: white;
   display: flex;
-  padding: 10px;
+  padding: $padding-s;
   justify-content: space-between;
   
   // Collection Title for CollectionHome
   h1 {
-    padding: 10px;
+    padding: $padding-s;
     font-weight: 400;
     font-size: 20px;
   }
@@ -17,19 +17,19 @@
 
 .modifyCollectionContent {
   background-color: orange;
-  padding: 25px;
+  padding: $padding-m;
   
   h2 { 
-    padding: 10px;
+    padding: $padding-s;
     font-weight: 600;
     color: white; 
   }
   li {
-    padding: 10px;
+    padding: $padding-s;
     background-color: white;
     
     h5 { 
-      padding: 10px;
+      padding: $padding-s;
       font-weight: 600;
     }
   }

@@ -2,7 +2,7 @@ import React from 'react';
 
 function Footer() {
   return (
-    <div id="footer">
+    <div id="footer" className="feature-area reverse">
       <div className="container">
         <div className="row">
           <div className="col-8 offset-2">

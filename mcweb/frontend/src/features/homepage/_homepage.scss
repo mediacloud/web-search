@@ -2,23 +2,3 @@
 #homepage {
 
 }
-
-.feature-area {
-    padding: 50px 0px;
-
-    h1 {
-      margin-bottom: 25px;
-    }
-
-    img {
-      border: 1px solid $primary-off-white;
-    }
-
-    &.filled {
-      background-color: $primary-off-white;
-      img {
-        border: 1px solid #fff;
-      }
-    }
-
-}

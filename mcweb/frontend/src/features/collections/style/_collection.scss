@@ -1,6 +1,6 @@
 
 .featured-collections-wrapper {
-  padding-top: 30px;
+  padding-top: $padding-m;
 
   .featured-collection-list {
 
@@ -15,11 +15,11 @@
           font-weight: bold;
           font-style: normal;
           display: block;
-          margin-bottom: 10px;
+          margin-bottom: $padding-s;
       }
 
       &:hover {
-        box-shadow: 2px 2px 5px $primary-off-white;
+        box-shadow: 2px 2px $padding-xs $primary-off-white;
       }
 
       h3 {

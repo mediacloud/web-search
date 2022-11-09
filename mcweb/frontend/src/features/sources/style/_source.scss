@@ -1,26 +1,26 @@
 
-// Source Header 
-.sourceHeader { 
+// Source Header
+.sourceHeader {
   background-color: purple;
   color: white;
-  display: flex; 
+  display: flex;
   justify-content: space-between;
-  padding: 10px;
-  
-  // Title 
+  padding: $padding-s;
+
+  // Title
   h1 {
     font-size: 36px;
-    padding: 5px;
+    padding: $padding-s;
     font-weight: 600;
   }
-  
+
   // Modify Source and Associated Collections
   .buttons {
     display: flex;
   }
-  
+
   Button {
-    margin-left: 10px;
+    margin-left: $padding-s;
   }
 }
 
@@ -32,26 +32,25 @@
 
 
 .sourceInformation {
-  padding: 30px;
+  padding: $padding-m;
   background-color:rgb(86, 86, 184);
-   
+
   h1 {
     color: white;
-    padding: 5px;
+    padding: $padding-s;
     font-weight: 500;
   }
 }
 
 // Collections assocaited Sources
 .sourcesCollections {
-  padding: 50px;
+  padding: $padding-l;
   background-color: orange;
-  
+
   .sourceCollectionInformation {
     color: black;
     justify-content: space-between;
-    padding: 10px;
+    padding: $padding-s;
     font-weight: 500;
   }
 }
-
