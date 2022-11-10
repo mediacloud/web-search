@@ -53,37 +53,6 @@ export const searchApi = createApi({
         body: { queryObject },
       }),
     }),
-    downloadCountsOverTimeCSV: builder.mutation({
-      query: (queryObject) => ({
-        url: 'download-counts-over-time',
-        method: 'POST',
-        body: { queryObject },
-        responseHandler: async (response) => (
-        // const downloadLink = window.URL.createObjectURL(await response.blob());
-        // const titledLink = await downloadLink.setAttribute("download",
-        // 'count-over-time-csv.csv');
-        // console.log(await response.blob());
-        // console.log(URL.createObjectURL(await response.blob()));
-        // return await window.location.assign(titledLink);
-          window.location.assign(window.URL.createObjectURL(await response.blob()))),
-      }),
-    }),
-    downloadSampleStoriesCSV: builder.mutation({
-      query: (queryObject) => ({
-        url: 'download-sample-stories',
-        method: 'POST',
-        body: { queryObject },
-        responseHandler: async (response) => (
-          // const downloadLink = window.URL.createObjectURL(await response.blob());
-          // const titledLink = await downloadLink.setAttribute("download",
-          // 'count-over-time-csv.csv');
-          // console.log(await response.blob());
-          // console.log(URL.createObjectURL(await response.blob()));
-          // return await window.location.assign(titledLink);
-          window.location.assign(window.URL.createObjectURL(await response.blob()))),
-
-      }),
-    }),
   }),
 });
 
@@ -96,7 +65,5 @@ export const {
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,
-  useDownloadCountsOverTimeCSVMutation,
-  useDownloadSampleStoriesCSVMutation,
   useGetNormalizedCountOverTimeMutation,
 } = searchApi;

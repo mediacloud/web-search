@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { useGetSampleStoriesMutation, useDownloadSampleStoriesCSVMutation } from '../../../app/services/searchApi';
+import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
@@ -31,9 +31,12 @@ export default function SampleStories() {
   const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [query, { isLoading, data }] = useGetSampleStoriesMutation();
-  const [downloadStories] = useDownloadSampleStoriesCSVMutation();
 
   const collectionIds = collections.map((collection) => collection.id);
+
+  const handleDownloadRequest = (queryObject) => {
+    window.location = `/api/search/download-all-content-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  };
 
   useEffect(() => {
     if (queryList[0].length !== 0) {
@@ -131,18 +134,17 @@ export default function SampleStories() {
           <Button
             variant="text"
             onClick={() => {
-              downloadStories({
+              handleDownloadRequest({
                 query: queryString,
                 startDate,
                 endDate,
                 collections: collectionIds,
                 sources,
                 platform,
-
               });
             }}
           >
-            Download CSV
+            Download CSV of All Content
           </Button>
         </div>
       </div>
