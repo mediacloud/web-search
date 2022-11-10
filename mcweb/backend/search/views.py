@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 
 import backend.search.providers as providers
-import backend.search.providers.exceptions
+from backend.search.providers.exceptions import UnsupportedOperationException
 import backend.util.csv_stream as csv_stream
 from .utils import fill_in_dates, parse_query
 
@@ -60,6 +60,7 @@ def sample(request):
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json", status=200)
 
+
 @require_http_methods(["POST"])
 def normalized_count_over_time(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
@@ -68,22 +69,27 @@ def normalized_count_over_time(request):
     counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"count_over_time": counts_data }, default=str), content_type="application/json", status=200)
 
-@require_http_methods(["POST"])
+
+@require_http_methods(["GET"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    start_date, end_date, query_str, collections, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
     try:
         counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
-    except mcweb.backend.search.providers.exceptions.UnsupportedOperationException:
+        normalized = True
+    except UnsupportedOperationException:
         counts_data = provider.count_over_time(query_str, start_date, end_date, collections=collections)
+        normalized = False
+    filename = "mc-{}-{}-counts.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
-        headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
+        headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    # extract into a constat (global)
-    writer.writerow(['date', 'count', 'total_count', 'ratio'])
+    # TODO: extract into a constant (global)
+    cols = ['date', 'count', 'total_count', 'ratio'] if normalized else ['date', 'count']
+    writer.writerow(cols)
     for day in counts_data["counts"]:
         if 'ratio' in day:
             writer.writerow([day["date"], day["count"], day["total_count"], day["ratio"]])
@@ -92,10 +98,10 @@ def download_counts_over_time_csv(request):
     return response
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET"])
 @action(detail=False)
 def download_all_content_csv(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    start_date, end_date, query_str, collections, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
 
     # don't allow gigantic downloads
@@ -114,7 +120,10 @@ def download_all_content_csv(request):
                 yield [v for k, v in ordered_story.items()]
             first_page = False
 
-    filename_timestamp = time.strftime("%Y%m%d%H%M%S", time.localtime())
-    filename = "mc-{}-{}.csv".format(provider_name, filename_timestamp)
+    filename = "mc-{}-{}-content.csv".format(provider_name, _filename_timestamp())
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
+
+
+def _filename_timestamp() -> str:
+    return time.strftime("%Y%m%d%H%M%S", time.localtime())
