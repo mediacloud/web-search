@@ -32,6 +32,7 @@ const urlSerializer = (queryObject) => {
   negatedQuery = encode(negatedQuery);
 
   const qs = encode(queryString);
+
   const start = dayjs(startDate).format('MM-DD-YYYY');
   const end = dayjs(endDate).format('MM-DD-YYYY');
 

@@ -23,8 +23,8 @@ export default function SearchAlertDialog({ openDialog }) {
 
   return (
     <div>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Switch to Advanced Search
+      <Button onClick={handleClickOpen}>
+        Edit this query in advanced mode
       </Button>
       <Dialog
         open={open}

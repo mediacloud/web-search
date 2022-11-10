@@ -52,18 +52,13 @@ export default function TotalAttentionChart({ data, normalized }) {
     },
     series: [{
       color: '#2f2d2b',
-<<<<<<< HEAD
       name: `query: ${fullQuery}`,
-      data: [data],
-=======
-      name: `query: ${queryString}`,
       data: [{
         y: data,
         dataLabels: {
           format: `{point.y: ${data}}`,
         },
       }],
->>>>>>> 79d6848ea1bca3ab634758b0462b3f8c3255c8d3
     }],
   };
   if (normalized) {
