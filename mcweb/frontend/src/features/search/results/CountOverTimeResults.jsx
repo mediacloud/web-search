@@ -31,6 +31,7 @@ export default function CountOverTimeResults() {
     sources,
     lastSearchTime,
     anyAll,
+    advanced,
   } = useSelector((state) => state.query);
 
   const [normalized, setNormalized] = useState(true);
@@ -86,7 +87,7 @@ export default function CountOverTimeResults() {
   };
 
   useEffect(() => {
-    if (queryList[0].length !== 0
+    if ((queryList[0].length !== 0 || (advanced && queryString !== 0))
       && (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
       normalizedQuery({
         query: fullQuery(),
@@ -97,7 +98,7 @@ export default function CountOverTimeResults() {
         platform,
       });
       setNormalized(true);
-    } else if (queryList[0].length !== 0) {
+    } else if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
       query({
         query: fullQuery(),
         startDate,

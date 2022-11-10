@@ -6,13 +6,14 @@ import queryGenerator from '../util/queryGenerator';
 
 export default function CountOverTimeChart({ data, normalized }) {
   const {
+    queryString,
     queryList,
     negatedQueryList,
     platform,
     anyAll,
   } = useSelector((state) => state.query);
 
-  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const options = {
     chart: {
@@ -56,7 +57,7 @@ export default function CountOverTimeChart({ data, normalized }) {
     colors: ['#2f2d2b'],
     series: [
       {
-        name: `query: ${queryString}`,
+        name: `query: ${fullQuery}`,
         data,
       },
     ],

@@ -12,6 +12,7 @@ import { setQueryString } from './querySlice';
 function AdvancedSearch() {
   const dispatch = useDispatch();
   const {
+    queryString,
     queryList,
     negatedQueryList,
     platform,
@@ -25,7 +26,7 @@ function AdvancedSearch() {
   }, [platform]);
 
   const [query, setQuery] = useState(
-    queryGenerator(queryList, negatedQueryList, platform, anyAll),
+    queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll),
   );
 
   const handleChange = (queryString) => {
