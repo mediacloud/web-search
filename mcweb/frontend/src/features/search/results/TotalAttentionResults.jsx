@@ -47,7 +47,7 @@ function TotalAttentionResults() {
       const { total } = oldData;
       const normalizedTotal = oldData.normalized_total;
       if (normalized) {
-        newData = (total / normalizedTotal);
+        newData = (Math.round(((total / normalizedTotal) + Number.EPSILON) * 10000) / 100);
       } else {
         newData = total;
       }

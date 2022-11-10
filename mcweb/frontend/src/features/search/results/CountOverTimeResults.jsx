@@ -64,7 +64,7 @@ export default function CountOverTimeResults() {
     if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
       if (normalized) {
         newData = oldData.count_over_time.counts.map((day) => (
-          [dateHelper(day.date), day.ratio]
+          [dateHelper(day.date), (Math.round((day.ratio + Number.EPSILON) * 10000) / 100)]
         ));
       } else {
         newData = oldData.count_over_time.counts.map((day) => (
