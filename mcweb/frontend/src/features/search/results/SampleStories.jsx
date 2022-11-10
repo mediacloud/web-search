@@ -144,7 +144,7 @@ export default function SampleStories() {
               });
             }}
           >
-            Download CSV
+            Download CSV of All Content
           </Button>
         </div>
       </div>
