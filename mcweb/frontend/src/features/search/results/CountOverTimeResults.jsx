@@ -10,7 +10,6 @@ import MenuItem from '@mui/material/MenuItem';
 import queryGenerator from '../util/queryGenerator';
 import CountOverTimeChart from './CountOverTimeChart';
 import {
-  useDownloadCountsOverTimeCSVMutation,
   useGetCountOverTimeMutation,
   useGetNormalizedCountOverTimeMutation,
 } from '../../../app/services/searchApi';
@@ -54,13 +53,15 @@ export default function CountOverTimeResults() {
     return queryReturn;
   };
 
-  const [downloadCsv] = useDownloadCountsOverTimeCSVMutation();
-
   const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
   const [normalizedQuery, normalizedResults] = useGetNormalizedCountOverTimeMutation();
 
   const collectionIds = collections.map((collection) => collection.id);
+
+  const handleDownloadRequest = (queryObject) => {
+    window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  };
 
   const dateHelper = (dateString) => {
     dayjs.extend(utc);
@@ -73,7 +74,7 @@ export default function CountOverTimeResults() {
     if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
       if (normalized) {
         newData = oldData.count_over_time.counts.map((day) => (
-          [dateHelper(day.date), day.ratio]
+          [dateHelper(day.date), (Math.round((day.ratio + Number.EPSILON) * 10000) / 100)]
         ));
       } else {
         newData = oldData.count_over_time.counts.map((day) => (
@@ -204,8 +205,8 @@ export default function CountOverTimeResults() {
             <Button
               variant="text"
               onClick={() => {
-                downloadCsv({
-                  query: fullQuery,
+                handleDownloadRequest({
+                  query: fullQuery(),
                   startDate,
                   endDate,
                   collections: collectionIds,

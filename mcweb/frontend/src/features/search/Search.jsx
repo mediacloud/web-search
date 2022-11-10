@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
+import { searchApi } from '../../app/services/searchApi';
 import PlatformPicker from './query/PlatformPicker';
-import { openModal } from '../ui/uiSlice';
 import SelectedMedia from './query/SelectedMedia';
 import SearchDatePicker from './query/SearchDatePicker';
 import SimpleSearch from './query/SimpleSearch';
@@ -49,9 +49,6 @@ export default function Search() {
     advanced,
   };
 
-  if (platform === 'Choose a Platform') {
-    dispatch(openModal('platformPicker'));
-  }
   return (
     <div className="search-container">
 
@@ -128,6 +125,7 @@ export default function Search() {
                       `/search${urlSerializer(queryObject)}`,
                       { options: { replace: true } },
                     );
+                    dispatch(searchApi.util.resetApiState());
                     dispatch(setSearchTime(dayjs().format()));
                   } catch {
                     enqueueSnackbar('Query is empty', { variant: 'error' });
