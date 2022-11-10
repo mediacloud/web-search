@@ -7,10 +7,10 @@
 
 #header {
   background-color: $primary-red;
-  padding: 0px 10px;
+  padding: $padding-s 0px;
 
   img {
-    margin-right: 20px;
+    margin-right: $padding-m;
   }
 
   ul {
@@ -23,7 +23,7 @@
       display: inline-block;
 
       button {
-        padding: 10px 20px;
+        padding: $padding-s $padding-m;
         font-size: 14px;
         color: white;
         font-weight: bold;
@@ -43,7 +43,7 @@
   }
 
   #menuButtonWrapper {
-    margin-top: 5px;
+    margin-top: $padding-xs;
   }
 
 }

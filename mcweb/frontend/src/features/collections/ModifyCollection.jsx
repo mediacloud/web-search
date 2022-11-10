@@ -3,11 +3,11 @@ import { TextField, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+
 import { useUpdateCollectionMutation, useGetCollectionQuery } from '../../app/services/collectionsApi';
 import SourceList from '../sources/SourceList';
 import UploadSources from '../sources/UploadSources';
-// rtk api operations
-import { useDownloadSourceCSVQuery } from '../../app/services/sourceApi';
+import CollectionHeader from './CollectionHeader';
 
 export default function ModifyCollection() {
   const params = useParams();
@@ -25,15 +25,9 @@ export default function ModifyCollection() {
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
 
-  // show data
-  const [isShown, setIsShown] = useState(true);
-
   // rtk operations
   const [updateCollection] = useUpdateCollectionMutation();
   // const [deleteCollection, { setRemove }] = useDeleteCollectionMutation();
-
-  const [skip, setSkip] = useState(true);
-  const csv = useDownloadSourceCSVQuery(collectionId, { skip });
 
   // set form data to the collection specified in url
   useEffect(() => {
@@ -60,49 +54,32 @@ export default function ModifyCollection() {
   return (
     <>
       {/* Header */}
-      <div className="modifyHeader">
+      <CollectionHeader collectionId={collectionId} />
 
-        <h1>
-          Modify
-          {data.id}
-          :
-          {data.name}
-          {' '}
-          Collection
-        </h1>
+      <div className="container">
 
-        <Button
-          style={{ backgroundColor: 'white' }}
-          variant="contained"
-          sx={{ my: 2.25, color: 'black', display: 'block' }}
-          onClick={async () => {
-            setIsShown(!isShown);
-          }}
-        >
-          Associations
-        </Button>
-      </div>
+        <div className="row">
+          <div className="col-12">
+            <h2>Modify this Collection</h2>
+          </div>
+        </div>
 
-      {/* Collection Content */}
-      <div className="modifyCollectionContent">
-        <ul>
-          {/* Name */}
-          <li>
-            <h5>Name</h5>
+        <div className="row">
+          <div className="col-12">
+            <br />
             <TextField
+              label="Name"
               fullWidth
               id="text"
               name="name"
               value={formState.name}
               onChange={handleChange}
             />
-          </li>
-
-          {/* Notes */}
-          <li>
-            <h5>Notes</h5>
+            <br />
+            <br />
             <TextField
               fullWidth
+              label="Notes"
               id="outlined-multiline-static"
               name="notes"
               multiline
@@ -110,51 +87,37 @@ export default function ModifyCollection() {
               value={formState.notes}
               onChange={handleChange}
             />
-          </li>
+            <br />
+            <br />
+            <Button
+              variant="contained"
+              onClick={async () => {
+                const updatedCollection = await updateCollection({
+                  id: formState.id,
+                  name: formState.name,
+                  notes: formState.notes,
+                }).unwrap();
+              }}
+            >
+              Update
+            </Button>
+          </div>
+        </div>
 
-          {/* Update */}
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            onClick={async () => {
-              const updatedCollection = await updateCollection({
-                id: formState.id,
-                name: formState.name,
-                notes: formState.notes,
-              }).unwrap();
-            }}
-          >
-            Update
-          </Button>
+        <div className="row">
+          <div className="col-12">
+            <h3>Add/Remove Sources</h3>
+            <UploadSources collectionId={collectionId} />
+          </div>
+        </div>
 
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={isLoading}
-            onClick={async () => {
-              setSkip(false);
-            }}
-          >
-            Download
-          </Button>
-
-        </ul>
-      </div>
-
-      {/* Assocations Content  */}
-      {
-          isShown
-          && (
-          <div>
-            <div>
-              <UploadSources collectionId={collectionId} />
-            </div>
+        <div className="row">
+          <div className="col-12">
             <SourceList collectionId={collectionId} edit />
           </div>
-          )
-        }
+        </div>
+      </div>
+
     </>
   );
 }

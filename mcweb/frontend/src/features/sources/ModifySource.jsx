@@ -5,6 +5,12 @@ import { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
+import SourceHeader from './SourceHeader';
 import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
@@ -20,7 +26,7 @@ export default function ModifySource() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
   const [formState, setFormState] = React.useState({
-    id: '', name: '', notes: '', homepage: '', label: '', service: '',
+    id: '', name: '', notes: '', homepage: '', label: '', service: '', platform: '', url_search_string: '',
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -28,9 +34,6 @@ export default function ModifySource() {
   );
 
   // const { CSVDownloader, Type } = useCSVDownloader();
-
-  // show data
-  const [isShown, setIsShown] = useState(true);
 
   // create
   // const [post, { setPost }] = usePostSourceMutation();
@@ -72,120 +75,122 @@ export default function ModifySource() {
 
   return (
     <>
-      <div className="modifyHeader">
+      <SourceHeader sourceId={sourceId} />
 
-        <h1>
-          Modify
-          {data.id}
-          :
-          {data.label}
-        </h1>
+      <div className="container">
 
-        <div className="actions">
-          <Button
-            style={{ backgroundColor: 'white' }}
-            variant="contained"
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            onClick={async () => {
-              setIsShown(!isShown);
-            }}
-          >
-            Associations
-          </Button>
+        <div className="row">
+          <div className="col-6">
+            <h2>Modify this Source</h2>
+          </div>
         </div>
-      </div>
-
-      {/* Source Content */}
-      <div className="modifyCollectionContent">
-        <ul>
-          {/* Name */}
-          <li>
-            <h5>Name</h5>
+        <div className="row">
+          <div className="col-8">
+            <FormControl fullWidth>
+              <InputLabel id="source-platform-label">Platform</InputLabel>
+              <Select
+                labelId="source-platform-label"
+                value={data.platform}
+                label="Platform"
+                onChange={handleChange}
+              >
+                <MenuItem value="online_news">Online News</MenuItem>
+                <MenuItem value="youtube">YouTube</MenuItem>
+                <MenuItem value="reddit">Reddit</MenuItem>
+              </Select>
+            </FormControl>
+            <br />
+            <br />
             <TextField
               fullWidth
-              id="text"
               name="name"
+              label="name"
+              helperText="This is the unique identified for this source within our system. Don't change this unless you know what you're doing. For news sources this should be the unique domain name."
               value={formState.name ? formState.name : 'enter name'}
               onChange={handleChange}
             />
-          </li>
-
-          {/* Notes */}
-          <li>
-            <h5>Notes</h5>
+            <br />
+            <br />
             <TextField
               fullWidth
-              id="outlined-multiline-static"
               name="notes"
+              label="Notes"
               multiline
               rows={4}
               value={formState.notes === null ? '' : formState.notes}
               onChange={handleChange}
+              helperText="These will be shown publicly on the source page in our system."
             />
-          </li>
-
-          {/* Homepage */}
-          <li>
-            <h5>Homepage</h5>
+            <br />
+            <br />
             <TextField
               fullWidth
-              id="text"
               name="homepage"
+              label="Homepage"
               value={formState.homepage}
               onChange={handleChange}
             />
-          </li>
-
-          {/* Label */}
-          <li>
-            <h5>Label</h5>
+            <br />
+            <br />
             <TextField
               fullWidth
-              id="text"
               name="label"
-              value={formState.label ? formState.label : 'enter or edit label'}
+              label="Label"
+              value={formState.label ? formState.label : null}
               onChange={handleChange}
+              helperText="The human-readable name shown to people for this source. Leave empty to have the domain be the name."
             />
-          </li>
-
-          {/* Update */}
-          <Button
-            style={{ backgroundColor: 'white' }}
-            variant="contained"
-            sx={{ my: 2.25, color: 'black', display: 'block' }}
-            onClick={async () => {
-              const updateCollection = await updateSource(formState).unwrap();
-            }}
-          >
-            Update
-          </Button>
-        </ul>
-      </div>
-
-      {/* Assocation Content */}
-
-      {isShown
-          && (
-          <div>
-            <div className="sourceAssocationContent">
-              <h1> Add Collection to Source (enter the collection ID): </h1>
-              <input type="text" value={collectionId} onChange={(e) => setCollectionId(Number(e.target.value))} />
-
-              <Button onClick={() => {
-                const assoc = { source_id: sourceId, collection_id: collectionId };
-                const collection = collectionData.data;
-                createSourceCollectionAssociation(assoc);
-                setCollectionId('');
+            <br />
+            <br />
+            <TextField
+              fullWidth
+              name="url_search_string"
+              label="URL Search String"
+              value={formState.url_search_string ? formState.url_search_string : null}
+              onChange={handleChange}
+              helperText="For a very small number of news sources, we want to search within a subdomain (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string here, such as '*news.bbc.co.uk/nigeria/*'."
+            />
+            <br />
+            <br />
+            <Button
+              variant="contained"
+              onClick={async () => {
+                const updateCollection = await updateSource(formState).unwrap();
               }}
-              >
-                Add Collection
-              </Button>
+            >
+              Update
+            </Button>
+          </div>
+        </div>
 
-            </div>
+        {/* Assocation Content */}
+
+        <div className="row">
+          <div className="col-12">
+
+            <h2> Add to Collection (enter the collection ID): </h2>
+            <input type="text" value={collectionId} onChange={(e) => setCollectionId(Number(e.target.value))} />
+
+            <Button onClick={() => {
+              const assoc = { source_id: sourceId, collection_id: collectionId };
+              const collection = collectionData.data;
+              createSourceCollectionAssociation(assoc);
+              setCollectionId('');
+            }}
+            >
+              Add Collection
+            </Button>
+
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-6">
             <CollectionList edit sourceId={sourceId} />
           </div>
-          )}
+        </div>
 
+      </div>
     </>
 
   );
