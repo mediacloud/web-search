@@ -15,60 +15,47 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
     (queryWord) => queryWord.length >= 1,
   ).map(quoter) : [[]];
 
-  if (negatedQueryList[0].length === 0) {
-    if ((platform === PROVIDER_NEWS_MEDIA_CLOUD) || (platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
-      if (anyAll === 'any') {
-        fullQuery = `${query.join(' OR ')}`;
-      } else {
-        fullQuery = `${query.join(' AND ')}`;
-      }
-    } else if (platform === PROVIDER_REDDIT_PUSHSHIFT) {
-      if (anyAll === 'any') {
-        fullQuery = `${query.join(' | ')}`;
-      } else {
-        fullQuery = `${query.join(' + ')}`;
-      }
-    } else if (platform === PROVIDER_YOUTUBE_YOUTUBE) {
-      if (anyAll === 'any') {
-        fullQuery = `${query.join(' | ')}`;
-      } else {
-        fullQuery = `${query.join(' ')}`;
-      }
-    } else if (platform === PROVIDER_TWITTER_TWITTER) {
-      if (anyAll === 'any') {
-        fullQuery = `${query.join(' OR ')}`;
-      } else {
-        fullQuery = `${query.join(' ')}`;
-      }
+  // first add in the match list
+  if ((platform === PROVIDER_NEWS_MEDIA_CLOUD) || (platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
+    if (anyAll === 'any') {
+      fullQuery = (query.length === 0) ? '*' : `${query.join(' OR ')}`;
+    } else {
+      fullQuery = (query.length === 0) ? '*' : `${query.join(' AND ')}`;
     }
-  } else if ((platform === PROVIDER_NEWS_MEDIA_CLOUD)
-  || (platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
-    const combinator = (anyAll === 'any') ? ' OR ' : ' AND ';
-    const matchTerms = query.length > 0 ? `(${query.join(combinator)})` : '*';
-    fullQuery = `${matchTerms} AND NOT (${negatedQuery.join(' OR ')})`;
   } else if (platform === PROVIDER_REDDIT_PUSHSHIFT) {
     if (anyAll === 'any') {
       fullQuery = `${query.join(' | ')}`;
     } else {
       fullQuery = `${query.join(' + ')}`;
     }
-    fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
   } else if (platform === PROVIDER_YOUTUBE_YOUTUBE) {
     if (anyAll === 'any') {
       fullQuery = `${query.join(' | ')}`;
     } else {
       fullQuery = `${query.join(' ')}`;
     }
-    fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
   } else if (platform === PROVIDER_TWITTER_TWITTER) {
     if (anyAll === 'any') {
       fullQuery = `${query.join(' OR ')}`;
     } else {
       fullQuery = `${query.join(' ')}`;
     }
-    fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
   }
-  return fullQuery;
+  // now add negations, if any
+  if (negatedQuery.length > 0) {
+    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+      fullQuery = `(${fullQuery}) AND NOT (${negatedQuery.join(' OR ')})`;
+    } else if (platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
+      fullQuery = `(${fullQuery}) -(${negatedQuery.join(' -')})`;
+    } else if (platform === PROVIDER_REDDIT_PUSHSHIFT) {
+      fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
+    } else if (platform === PROVIDER_YOUTUBE_YOUTUBE) {
+      fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
+    } else if (platform === PROVIDER_TWITTER_TWITTER) {
+      fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
+    }
+  }
+  return fullQuery; // returning full combined matches plus negations
 };
 
 export default queryGenerator;
