@@ -35,7 +35,7 @@ export default function SearchDatePicker() {
             onChange={handleChangeFromDate}
             disableFuture
             disableHighlightToday
-            maxDate={dayjs(dayjs().subtract(34, 'day').format('MM/DD/YYYY'))}
+            maxDate={dayjs(dayjs().subtract(4, 'day').format('MM/DD/YYYY'))}
             renderInput={(params) => <TextField {...params} />}
           />
           <DatePicker
