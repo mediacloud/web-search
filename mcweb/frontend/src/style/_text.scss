@@ -1,6 +1,41 @@
-.text {
-  font-size: 35px;
-  color: white;
-  font-weight: 400;
-  padding-right: 20px;  
+
+a {
+  color: $primary-red;
+
+  &:hover {
+    color: $primary-red;
+  }
+}
+
+h1, h2, h3 {
+  font-family: $heading-font-families;
+}
+
+h1 {
+  margin: 0.5em 0 0.5em 0;
+}
+
+h2 {
+  margin: 0.5em 0 0.5em 0;
+}
+
+h3 {
+  margin: 0.5em 0 0.5em 0;
+}
+
+p {
+  line-height: 1.2em;
+}
+
+@mixin small-label {
+  text-transform: uppercase;
+  color: $primary-red;
+  font-size: 14px;
+  font-weight: bold;
+  display: block;
+  font-style: normal;
+}
+
+.small-label {
+  @include small-label;
 }

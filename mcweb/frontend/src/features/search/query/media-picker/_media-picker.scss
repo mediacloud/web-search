@@ -13,8 +13,8 @@
 }
 
 .media-picker-controls {
-  margin-top: 10px;
-  padding: 30px 20px 0px 0px;
+  margin-top: $padding-s;
+  padding: $padding-m 20px 0px 0px;
   border-top: 1px solid $primary-off-white;
   h3 {
     font-size: 18px;
@@ -23,7 +23,7 @@
 }
 
 .tabpanel {
-  padding: 0px 10px 10px 30px;
+  padding: 0px $padding-s $padding-s $padding-m;
   min-height: 700px;
   border-left: 1px solid $primary-off-white;
 }

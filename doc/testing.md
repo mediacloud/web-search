@@ -7,4 +7,4 @@ take advantage of.
 
 You can run all tests: `python mcweb/manage.py test`
 
-Or you can run an individual test module: `python mcweb/manage.py test backend.search.platforms.test.test_twitter`
+Or you can run an individual test module: `python mcweb/manage.py test backend.search.providers.test.test_twitter`

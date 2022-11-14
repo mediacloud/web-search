@@ -1,11 +1,11 @@
 .selected-media-item-list {
-  margin-bottom: 10px;
+  margin-bottom: $padding-s;
 
   .selected-media-item {
     border: 1px solid #bbb;
     display: flex;
     justify-content: space-between;
-    padding: 5px;
+    padding: $padding-xs;
   }
 
 }

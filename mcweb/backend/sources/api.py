@@ -131,26 +131,23 @@ class SourcesViewSet(viewsets.ModelViewSet):
         collection = Collection.objects.get(id=collection_id)
         source_associations = collection.source_set.all()
 
-        # 'collection-id/timestamp' 
-        # 812312321-202209191430.csv
         response = HttpResponse(
-        content_type='text/csv',
-        headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
+            content_type='text/csv',
+            headers={'Content-Disposition': 'attachment; filename="collection-{}-sources.csv"'.format(collection_id)},
         )
 
         writer = csv.writer(response)
 
-        # extract into a constat (global)
-        writer.writerow(['id', 'name', 'url_search_string', 'label',
-        'homepage', 'notes', 'service',  'stories_per_week',
-        'first_story', 'publication_country', 'publication_state',
-        'primary_langauge', 'media_type'])
+        # TODO: extract into a constant (global)
+        writer.writerow(['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'service',
+                         'stories_per_week', 'first_story', 'publication_country', 'publication_state',
+                         'primary_langauge', 'media_type'])
 
         for source in source_associations:
             writer.writerow([source.id, source.name, source.url_search_string, source.label,
-                  source.homepage, source.notes, source.service, source.stories_per_week,
-                  source.first_story, source.pub_country, source.pub_state, source.primary_language,
-                  source.media_type])
+                             source.homepage, source.notes, source.service, source.stories_per_week,
+                             source.first_story, source.pub_country, source.pub_state, source.primary_language,
+                             source.media_type])
 
         return response
 

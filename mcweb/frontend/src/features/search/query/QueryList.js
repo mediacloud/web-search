@@ -1,18 +1,22 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { setQueryList, setNegatedQueryList } from './querySlice';
 import { useDispatch, useSelector } from 'react-redux';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 export default function QueryList(props) {
     const dispatch = useDispatch();
+    const { anyAll, queryList, negatedQueryList } = useSelector(state => state.query);
+    const [serviceList, setServiceList] = useState(negated ? negatedQueryList : queryList);
 
-    const [serviceList, setServiceList] = useState([[],[],[]]);
+    useEffect(() => {
+        negated ? setServiceList(negatedQueryList) : setServiceList(queryList);
+    }, [queryList, negatedQueryList]);
 
     const {negated} = props;
-
-    const {anyAll} = useSelector(state => state.query);
-
+    
+    
+    
     // add query
     const handleServiceAdd = () => {
         setServiceList([...serviceList, []]);

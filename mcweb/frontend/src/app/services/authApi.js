@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-const initialState = { isLoggedIn: false };
+// const initialState = { isLoggedIn: false };
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: '/api/auth/',
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers) => {
       // Django requires this for security (cross-site forgery protection) once logged in
       headers.set('X-Csrftoken', window.CSRF_TOKEN);
       return headers;
@@ -26,14 +26,14 @@ export const api = createApi({
       query: (credentials) => ({
         url: 'login',
         method: 'POST',
-        body: { ...credentials }
+        body: { ...credentials },
       }),
     }),
     register: builder.mutation({
       query: (credentials) => ({
         url: 'register',
         method: 'POST',
-        body: { ...credentials }
+        body: { ...credentials },
       }),
     }),
     resetPasswordSendEmail: builder.query({
@@ -52,11 +52,11 @@ export const api = createApi({
       query: (credentials) => ({
         url: 'reset-password',
         method: 'POST',
-        body: { ...credentials }
+        body: { ...credentials },
       }),
     }),
-  })
-})
+  }),
+});
 
 export const {
   useProfileQuery,
@@ -65,6 +65,6 @@ export const {
   useRegisterMutation,
   useResetPasswordSendEmailQuery,
   useEmailExistsQuery,
-  useResetPasswordMutation
+  useResetPasswordMutation,
 
 } = api;

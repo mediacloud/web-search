@@ -13,7 +13,5 @@ class SearchViewSet(viewsets.ModelViewSet):
     def list(self, request):
         query = request.query_params["query"]
         collections = Collection.objects.filter(name__icontains=query)
-        # collections = [collection for collection in collections_query]
-        # print(collections)
         serializer = CollectionListSerializer({'collections':collections})
         return Response(serializer.data)
