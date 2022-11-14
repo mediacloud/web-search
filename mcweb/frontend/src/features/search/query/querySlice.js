@@ -20,6 +20,7 @@ const querySlice = createSlice({
     sources: [],
     lastSearchTime: dayjs().format(),
     anyAll: 'any',
+    advanced: false,
   },
 
   reducers: {
@@ -50,6 +51,7 @@ const querySlice = createSlice({
     setPlatform: (state, { payload }) => ({ ...state, platform: payload }),
     setSearchTime: (state, { payload }) => ({ ...state, lastSearchTime: payload }),
     setAnyAll: (state, { payload }) => ({ ...state, anyAll: payload }),
+    setAdvanced: (state, { payload }) => ({ ...state, advanced: payload }),
   },
 });
 
@@ -67,6 +69,7 @@ export const {
   removePreviewSelectedMedia,
   setAnyAll,
   setPreviewSelectedMedia,
+  setAdvanced,
 } = querySlice.actions;
 
 export default querySlice.reducer;

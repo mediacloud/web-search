@@ -6,13 +6,14 @@ import queryGenerator from '../util/queryGenerator';
 
 export default function TotalAttentionChart({ data, normalized }) {
   const {
+    queryString,
     queryList,
     negatedQueryList,
     platform,
     anyAll,
   } = useSelector((state) => state.query);
 
-  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const options = {
     chart: {
@@ -21,7 +22,7 @@ export default function TotalAttentionChart({ data, normalized }) {
     },
     title: { text: '' },
     xAxis: {
-      categories: [`${queryString}`, 'Total Stories Count'],
+      categories: [`${fullQuery}`, 'Total Stories Count'],
       title: {
         text: null,
       },
@@ -51,7 +52,7 @@ export default function TotalAttentionChart({ data, normalized }) {
     },
     series: [{
       color: '#2f2d2b',
-      name: `query: ${queryString}`,
+      name: `query: ${fullQuery}`,
       data: [{
         y: data,
         dataLabels: {

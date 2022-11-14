@@ -21,6 +21,7 @@ import {
 export default function CountOverTimeResults() {
   const {
     queryList,
+    queryString,
     negatedQueryList,
     platform,
     startDate,
@@ -29,6 +30,7 @@ export default function CountOverTimeResults() {
     sources,
     lastSearchTime,
     anyAll,
+    advanced,
   } = useSelector((state) => state.query);
 
   const [normalized, setNormalized] = useState(true);
@@ -41,7 +43,15 @@ export default function CountOverTimeResults() {
 
   const open = Boolean(anchorEl);
 
-  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const fullQuery = () => {
+    let queryReturn = '';
+    if (queryString) {
+      queryReturn = queryString;
+    } else {
+      queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+    }
+    return queryReturn;
+  };
 
   const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
@@ -78,10 +88,10 @@ export default function CountOverTimeResults() {
   };
 
   useEffect(() => {
-    if (queryList[0].length !== 0
+    if ((queryList[0].length !== 0 || (advanced && queryString !== 0))
       && (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
       normalizedQuery({
-        query: queryString,
+        query: fullQuery(),
         startDate,
         endDate,
         collections: collectionIds,
@@ -89,9 +99,9 @@ export default function CountOverTimeResults() {
         platform,
       });
       setNormalized(true);
-    } else if (queryList[0].length !== 0) {
+    } else if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
       query({
-        query: queryString,
+        query: fullQuery(),
         startDate,
         endDate,
         collections: collectionIds,
@@ -196,7 +206,7 @@ export default function CountOverTimeResults() {
               variant="text"
               onClick={() => {
                 handleDownloadRequest({
-                  query: queryString,
+                  query: fullQuery(),
                   startDate,
                   endDate,
                   collections: collectionIds,

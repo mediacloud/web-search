@@ -18,6 +18,7 @@ const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS
 export default function SampleStories() {
   const {
     queryList,
+    queryString,
     negatedQueryList,
     platform,
     startDate,
@@ -26,9 +27,10 @@ export default function SampleStories() {
     sources,
     lastSearchTime,
     anyAll,
+    advanced,
   } = useSelector((state) => state.query);
 
-  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [query, { isLoading, data }] = useGetSampleStoriesMutation();
 
@@ -39,9 +41,9 @@ export default function SampleStories() {
   };
 
   useEffect(() => {
-    if (queryList[0].length !== 0) {
+    if ((queryList[0].length !== 0 || (advanced && queryString !== 0))) {
       query({
-        query: queryString,
+        query: fullQuery,
         startDate,
         endDate,
         collections: collectionIds,
@@ -135,7 +137,7 @@ export default function SampleStories() {
             variant="text"
             onClick={() => {
               handleDownloadRequest({
-                query: queryString,
+                query: fullQuery,
                 startDate,
                 endDate,
                 collections: collectionIds,
