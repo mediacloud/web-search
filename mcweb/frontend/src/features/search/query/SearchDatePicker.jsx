@@ -10,12 +10,8 @@ import { setStartDate, setEndDate } from './querySlice';
 export default function SearchDatePicker() {
   const dispatch = useDispatch();
   const { startDate, endDate } = useSelector((state) => state.query);
-  // const [fromValue, setFromValue] = React.useState(dayjs().subtract(30, 'day'));
-
-  // const [toValue, setToValue] = React.useState(dayjs());
 
   const handleChangeFromDate = (newValue) => {
-    // setFromValue(dayjs(newValue));
     dispatch(setStartDate(dayjs(newValue).format('MM/DD/YYYY')));
   };
 
@@ -35,7 +31,7 @@ export default function SearchDatePicker() {
             onChange={handleChangeFromDate}
             disableFuture
             disableHighlightToday
-            maxDate={dayjs(dayjs().subtract(4, 'day').format('MM/DD/YYYY'))}
+            maxDate={endDate}
             renderInput={(params) => <TextField {...params} />}
           />
           <DatePicker
@@ -46,7 +42,6 @@ export default function SearchDatePicker() {
             disableFuture
             disableHighlightToday
             maxDate={dayjs(dayjs().subtract(4, 'day').format('MM/DD/YYYY'))}
-                  // shouldDisableDate={disabledDates}
             renderInput={(params) => <TextField {...params} />}
           />
         </LocalizationProvider>
