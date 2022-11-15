@@ -18,9 +18,22 @@ export default function QueryList(props) {
     
     
     
+
+
+
     // add query
-    const handleServiceAdd = () => {
-        setServiceList([...serviceList, []]);
+    const handleServiceAdd = (index) => {
+        const list = [...serviceList];
+        list.push(""); 
+
+        setServiceList(list);
+        
+        if (negated) {
+            dispatch(setNegatedQueryList(list));
+        } else {
+            dispatch(setQueryList(list));
+        }
+
     };
     
     // remove query
@@ -28,6 +41,7 @@ export default function QueryList(props) {
         const list = [...serviceList];
         // console.log("IN HANDLE SERVICE REMOVE", list, serviceList);
         list.pop()
+       
         setServiceList(list);
         
         if (negated) {
@@ -44,6 +58,7 @@ export default function QueryList(props) {
         const list = [...serviceList];
         list[index] = value;
         setServiceList(list);
+        
         if (negated){
             dispatch(setNegatedQueryList(list));
         } else {
@@ -107,57 +122,57 @@ export default function QueryList(props) {
                                             <span className='and-or'>OR</span>
                                             )}
                                             
-                                                {serviceList.length - 1 === index && (
-                                                    <div onClick={handleServiceAdd} >
-                                                        <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-                                                    </div>
+                                            {serviceList.length - 1 === index && (
+                                                <div onClick={handleServiceAdd} >
+                                                <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                                                </div>
                                                 )}
-
+                                                
                                                 {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
                                                     <div onClick={handleServiceRemove} onChange={handleQueryChange}>
-                                                        <DoNotDisturbOnIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                                                    <DoNotDisturbOnIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
                                                     </div>
-                                                )}
-                                                </div>
-                                                </div>
-                                                ))}
-                                                </div>
-                                                
-                                                );
-                                            } else if (anyAll === 'all') {
-                                                return (
-                                                    <div className="query-term-list">
-                                                    {serviceList.map((singleService, index) => (
-                                                        <div key={index} className='query-term-item'>
-                                                        
-                                                        <div className="first-division">
-                                                        <input size="40" name="service" type="text" id="service" required
-                                                        value={String(singleService)}
-                                                        onChange={(e) => handleQueryChange(e, index)} />
-                                                        
-                                                        
-                                                        {!(serviceList.length - 1 === index) && (
-                                                            <span className='and-or'>AND</span>
-                                                            )}
+                                                    )}
+                                                    </div>
+                                                    </div>
+                                                    ))}
+                                                    </div>
+                                                    
+                                                    );
+                                                } else if (anyAll === 'all') {
+                                                    return (
+                                                        <div className="query-term-list">
+                                                        {serviceList.map((singleService, index) => (
+                                                            <div key={index} className='query-term-item'>
                                                             
+                                                            <div className="first-division">
+                                                            <input size="40" name="service" type="text" id="service" required
+                                                            value={String(singleService)}
+                                                            onChange={(e) => handleQueryChange(e, index)} />
+                                                            
+                                                            
+                                                            {!(serviceList.length - 1 === index) && (
+                                                                <span className='and-or'>AND</span>
+                                                                )}
+                                                                
                                                                 {serviceList.length - 1 === index && (
                                                                     <div onClick={handleServiceAdd} >
-                                                                        <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                                                                    <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
                                                                     </div>
-                                                                )}
-
-                                                                {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-                                                                    <div onClick={handleServiceRemove} >
+                                                                    )}
+                                                                    
+                                                                    {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
+                                                                        <div onClick={handleServiceRemove} >
                                                                         <DoNotDisturbOnIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-                                                                    </div>
-                                                                )}
-                                                                </div>
-                                                                </div>
-                                                                ))}
-                                                                </div>
-                                                                
-                                                                );
+                                                                        </div>
+                                                                        )}
+                                                                        </div>
+                                                                        </div>
+                                                                        ))}
+                                                                        </div>
+                                                                        
+                                                                        );
+                                                                    }
+                                                                }
                                                             }
-                                                        }
-                                                    }
-                                                    
+                                                            
