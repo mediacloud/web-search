@@ -60,7 +60,7 @@ def sample(request):
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json", status=200)
 
-
+@handle_provider_errors
 @require_http_methods(["POST"])
 def normalized_count_over_time(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
@@ -103,11 +103,12 @@ def download_counts_over_time_csv(request):
 def download_all_content_csv(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
-
     # don't allow gigantic downloads
     count = provider.count(query_str, start_date, end_date, collections=collections)
-    if count > 100000:  # arbitrary limit for now
+    if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
         return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
+    elif count > 500000 and request.user.is_staff:
+        return HttpResponseBadRequest("Too many matches to download, make sure there are < 500,000")
 
     # we want to stream the results back to the user row by row (based on paging through results)
     def data_generator():
