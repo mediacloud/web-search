@@ -93,11 +93,11 @@ export default function SignIn() {
                 Forgot password?
               </Link>
             </p>
-            <p>
+            {/* <p>
               <Link to="/sign-up">
                 No Account? Register Now!
               </Link>
-            </p>
+            </p> */}
           </Box>
         </div>
       </div>
