@@ -1,37 +1,51 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { setQueryList, setNegatedQueryList } from './querySlice';
 
-export default function QueryList(props) {
+export default function QueryList({ negated }) {
   const dispatch = useDispatch();
+  const { anyAll, queryList, negatedQueryList } = useSelector((state) => state.query);
+  const [serviceList, setServiceList] = useState(negated ? negatedQueryList : queryList);
 
-  const [serviceList, setServiceList] = useState([[], [], []]);
+  useEffect(() => {
+    negated ? setServiceList(negatedQueryList) : setServiceList(queryList);
+  }, [queryList, negatedQueryList]);
 
-  const { negated } = props;
-
-  const { anyAll } = useSelector((state) => state.query);
-
-  // add query
   const handleServiceAdd = () => {
-    setServiceList([...serviceList, []]);
+    const list = [...serviceList];
+    list.push([]);
+
+    setServiceList(list);
+
+    if (negated) {
+      dispatch(setNegatedQueryList(list));
+    } else {
+      dispatch(setQueryList(list));
+    }
   };
 
-  // remove query
-  //   const handleServiceRemove = (index) => {
-  //     const list = [...serviceList];
-  //     // console.log("IN HANDLE SERVICE REMOVE", list, serviceList);
-  //     list.splice(index, 1);
-  //     setServiceList(list);
-  //   };
+  const handleServiceRemove = () => {
+    const list = [...serviceList];
+    list.pop();
 
-  // handle changes to query
+    setServiceList(list);
+
+    if (negated) {
+      dispatch(setNegatedQueryList(list));
+    } else {
+      dispatch(setQueryList(list));
+    }
+  };
+
   const handleQueryChange = (e, index) => {
     const { value } = e.target;
     const list = [...serviceList];
     list[index] = value;
     setServiceList(list);
+
     if (negated) {
       dispatch(setNegatedQueryList(list));
     } else {
@@ -66,7 +80,15 @@ export default function QueryList(props) {
                 <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
               </div>
               )}
+
+              {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
+              <div onClick={handleServiceRemove} onChange={handleQueryChange}>
+                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+              </div>
+              )}
+
             </div>
+
           </div>
         ))}
       </div>
@@ -100,6 +122,12 @@ export default function QueryList(props) {
                 <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
               </div>
               )}
+
+              {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
+              <div onClick={handleServiceRemove} onChange={handleQueryChange}>
+                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+              </div>
+              )}
             </div>
           </div>
         ))}
@@ -130,6 +158,12 @@ export default function QueryList(props) {
               {serviceList.length - 1 === index && (
               <div onClick={handleServiceAdd}>
                 <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+              </div>
+              )}
+
+              {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
+              <div onClick={handleServiceRemove}>
+                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
               </div>
               )}
             </div>
