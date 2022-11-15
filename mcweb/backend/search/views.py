@@ -60,7 +60,7 @@ def sample(request):
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json", status=200)
 
-
+@handle_provider_errors
 @require_http_methods(["POST"])
 def normalized_count_over_time(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
