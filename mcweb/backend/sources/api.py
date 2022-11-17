@@ -1,21 +1,16 @@
-from http.client import CannotSendHeader, HTTPResponse
 from importlib.metadata import metadata
+import csv
+import json
+import os
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from settings import BASE_DIR
+from django.shortcuts import render
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
-from rest_framework.response import Response
-from rest_framework.decorators import action
-import json
-import os
-from settings import BASE_DIR
-
-# csv
-
-import csv
-from django.http import HttpResponse
-from django.shortcuts import render
-
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
