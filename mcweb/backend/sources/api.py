@@ -1,13 +1,17 @@
+import time
+import json
+import os
 from http.client import CannotSendHeader, HTTPResponse
 from importlib.metadata import metadata
 from django.shortcuts import get_object_or_404
+from backend.util import csv_stream
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
-from rest_framework.response import Response
-from rest_framework.decorators import action
-import json
-import os
+
+
 from settings import BASE_DIR
 
 # csv
@@ -124,33 +128,28 @@ class SourcesViewSet(viewsets.ModelViewSet):
         print(email_text)
         return Response({'title': email_title, 'text': email_text})
 
-    @action(detail=False)
+    @action(methods=['GET'], detail=False)
     def download_csv(self, request):
-
         collection_id = request.query_params.get('collection_id')
         collection = Collection.objects.get(id=collection_id)
         source_associations = collection.source_set.all()
-
-        response = HttpResponse(
-            content_type='text/csv',
-            headers={'Content-Disposition': 'attachment; filename="collection-{}-sources.csv"'.format(collection_id)},
-        )
-
-        writer = csv.writer(response)
-
-        # TODO: extract into a constant (global)
-        writer.writerow(['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'service',
-                         'stories_per_week', 'first_story', 'publication_country', 'publication_state',
-                         'primary_langauge', 'media_type'])
-
-        for source in source_associations:
-            writer.writerow([source.id, source.name, source.url_search_string, source.label,
-                             source.homepage, source.notes, source.service, source.stories_per_week,
+        # we want to stream the results back to the user row by row (based on paging through results)
+        def data_generator():
+            first_page = True
+            for source in source_associations:
+                if first_page:  # send back columun names, which differ by platform
+                    yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes',
+                'stories_per_week', 'first_story', 'publication_country', 'publication_state',
+                'primary_langauge', 'media_type'])
+                yield ([source.id, source.name, source.url_search_string, source.label,
+                             source.homepage, source.notes, source.stories_per_week,
                              source.first_story, source.pub_country, source.pub_state, source.primary_language,
                              source.media_type])
+                first_page = False
 
-        return response
-
+        filename = filename = "Collection-{}-{}-sources-{}.csv".format(collection_id, collection.name, _filename_timestamp())
+        streamer = csv_stream.CSVStream(filename, data_generator)
+        return streamer.stream()
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
@@ -198,3 +197,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collection = get_object_or_404(collections_queryset, pk=collection_id)
         source.collections.add(collection)
         return Response({'source_id': source_id, 'collection_id': collection_id})
+
+
+def _filename_timestamp() -> str:
+    return time.strftime("%Y%m%d%H%M%S", time.localtime())
