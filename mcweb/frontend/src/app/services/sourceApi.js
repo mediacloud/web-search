@@ -49,5 +49,4 @@ export const {
   useUpdateSourceMutation,
   useDeleteSourceMutation,
   useUploadSourcesMutation,
-  useDownloadSourceCSVQuery,
 } = sourcesApi;
