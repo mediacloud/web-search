@@ -1,6 +1,8 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import { useParams, Link } from 'react-router-dom';
+import {
+  useParams, Link, Route, Routes,
+} from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import SourceHeader from './SourceHeader';
@@ -8,6 +10,7 @@ import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import StatPanel from '../ui/StatPanel';
+import FeedShow from '../feeds/FeedShow';
 
 export default function SourceShow() {
   const params = useParams();
@@ -36,11 +39,18 @@ export default function SourceShow() {
       <div className="sub-feature">
         <div className="container">
           <div className="row">
-            <div className="col-12">
+            <div className="col-3">
               <Permissioned role={ROLE_STAFF}>
                 <Button variant="outlined" component={Link} to="modify-source">
                   Modify Source
                   <p>{data.notes}</p>
+                </Button>
+              </Permissioned>
+            </div>
+            <div className="col-3">
+              <Permissioned role={ROLE_STAFF}>
+                <Button variant="outlined" component={Link} to="feeds">
+                  Modify this Source's Feeds
                 </Button>
               </Permissioned>
             </div>
@@ -65,6 +75,10 @@ export default function SourceShow() {
             <CollectionList sourceId={sourceId} />
           </div>
         </div>
+
+        <Routes>
+          <Route path="feeds" element={<FeedShow sourceId={sourceId} />} />
+        </Routes>
 
       </div>
 
