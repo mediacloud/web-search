@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
-import { PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
+import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate } from '../util/platforms';
+
+const DEFAULT_PROVIDER = PROVIDER_NEWS_MEDIA_CLOUD;
+const DEFAULT_COLLECTIONS = [{ id: 34412234, name: 'United States - National' }];
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
-
-const endDate = dayjs().subtract(4, 'day').format('MM/DD/YYYY');
 
 const querySlice = createSlice({
   name: 'query',
@@ -12,11 +13,11 @@ const querySlice = createSlice({
     queryString: '',
     queryList: [[], [], []],
     negatedQueryList: [[], [], []],
-    platform: PROVIDER_NEWS_MEDIA_CLOUD, // "Choose a Platform",
+    platform: DEFAULT_PROVIDER,
     startDate,
-    endDate,
-    collections: [{ id: 34412234, name: 'United States - National' }],
-    previewCollections: [{ id: 34412234, name: 'United States - National' }],
+    endDate: latestAllowedEndDate(DEFAULT_PROVIDER),
+    collections: DEFAULT_COLLECTIONS,
+    previewCollections: DEFAULT_COLLECTIONS,
     sources: [],
     lastSearchTime: dayjs().format(),
     anyAll: 'any',

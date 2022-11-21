@@ -168,4 +168,6 @@ class TwitterTwitterProvider(ContentProvider):
     def _fix_end_date(cls, orig_end_date: dt.datetime) -> dt.datetime:
         # twitter end dates are NOT inclusive, so we need to add one day here to make it match the general
         # behavior of our system (and UI copywriting)
-        return orig_end_date + dt.timedelta(days=1)
+        # also: can't search results more recent than 10 seconds ago (or something like that)
+        return min(orig_end_date + dt.timedelta(days=1),
+                   dt.datetime.now() - dt.timedelta(minutes=5))
