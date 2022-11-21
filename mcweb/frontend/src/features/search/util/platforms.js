@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 // keep in sync with mcweb/frontend/views.py
 
 export const PLATFORM_TWITTER = 'twitter';
@@ -25,3 +27,10 @@ export const PROVIDER_NEWS_WAYBACK_MACHINE = providerName(
 );
 export const PROVIDER_REDDIT_PUSHSHIFT = providerName(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT);
 export const PROVIDER_YOUTUBE_YOUTUBE = providerName(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE);
+
+export const latestAllowedEndDate = (provider) => {
+  const today = dayjs();
+  if (provider === PROVIDER_NEWS_MEDIA_CLOUD) return today.subtract('1', 'day');
+  if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return today.subtract('4', 'day');
+  return today;
+};
