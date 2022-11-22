@@ -7,3 +7,5 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     notes = models.TextField(null=True, blank=True)
     has_consented = models.BooleanField(default=False)
+    was_imported = models.BooleanField(default=False)
+    imported_password_hash = models.TextField(null=True, blank=True)
