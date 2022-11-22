@@ -44,5 +44,4 @@ class Command(BaseCommand):
                 p.was_imported = True
                 p.imported_password_hash = row['password_hash']
                 p.save()
-                n += 1
         self.stdout.write(self.style.SUCCESS('Done'))
