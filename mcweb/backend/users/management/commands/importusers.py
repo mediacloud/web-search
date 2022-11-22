@@ -26,14 +26,9 @@ class Command(BaseCommand):
         User.objects.filter(is_superuser=False).delete()
 
         # import new users
-        limit = 5
-        n = 0
         with open(file_path) as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
-                if (n > limit) and (row['email'] != 'r.bhargava@northeastern.edu'):
-
-                    continue
                 u = User()
                 u.email = row['email']
                 u.username = row['email']
