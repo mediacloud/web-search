@@ -11,17 +11,18 @@ from django.core import serializers
 import humps
 from django.core.mail import send_mail
 import settings
-import datetime as dt
 from django.contrib.auth.decorators import login_required
 logger = logging.getLogger(__name__)
 
+
 # random key generator
-def randomKeyGenerator():
+def _random_key():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
+
 
 # does the email exist?
 @require_http_methods(['GET'])
-def emailExists(request):
+def email_exists(request):
 
     email = request.GET['email']
 
@@ -33,12 +34,13 @@ def emailExists(request):
 
     return HttpResponse(data, content_type='application/json')
 
+
 @require_http_methods(['GET'])
-def sendEmail(request):
+def reset_password_request(request):
 
     email = request.GET['email']
 
-    key = randomKeyGenerator()
+    key = _random_key()
 
     message = "Hello, please use this verification code to reset your password! Thank you! \n\n" + key
 
@@ -55,7 +57,7 @@ def sendEmail(request):
 
 
 @require_http_methods(['POST'])
-def resetPassword(request):
+def reset_password(request):
     payload = json.loads(request.body)
 
     username = payload.get('username', None)
@@ -82,6 +84,7 @@ def resetPassword(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
+
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 def profile(request):
@@ -98,12 +101,17 @@ def login(request):
     user = auth.authenticate(username=payload.get('username', None),
                              password=payload.get('password', None))
     if user is not None:
-        logger.debug('logged in success')
-        auth.login(request, user)
-        data = _serialized_current_user(request)
-        return HttpResponse(data, content_type='application/json')
+        if user.is_active:
+            logger.debug('logged in success')
+            auth.login(request, user)
+            data = _serialized_current_user(request)
+            return HttpResponse(data, content_type='application/json')
+        else:
+            logger.debug('inactive user login attempted')
+        data = json.dumps({'message': "Inactive user"})
+        return HttpResponse(data, content_type='application/json', status=403)
     else:
-        logger.debug('user does not exist')
+        logger.debug('user login failed')
         data = json.dumps({'message': "Unable to login"})
         return HttpResponse(data, content_type='application/json', status=403)
 
@@ -142,7 +150,7 @@ def register(request):
         data = json.dumps({'message': "new user created"})
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
-        data = json.dumps({'message': e.message})
+        data = json.dumps({'message': str(e)})
         return HttpResponse(data, content_type='application/json', status=400)
 
 
