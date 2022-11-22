@@ -12,6 +12,10 @@ import humps
 from django.core.mail import send_mail
 import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
+
+import mcweb.backend.users.legacy as legacy
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,7 +27,6 @@ def _random_key():
 # does the email exist?
 @require_http_methods(['GET'])
 def email_exists(request):
-
     email = request.GET['email']
 
     try:
@@ -37,7 +40,6 @@ def email_exists(request):
 
 @require_http_methods(['GET'])
 def reset_password_request(request):
-
     email = request.GET['email']
 
     key = _random_key()
@@ -98,19 +100,39 @@ def profile(request):
 @require_http_methods(["POST"])
 def login(request):
     payload = json.loads(request.body)
-    user = auth.authenticate(username=payload.get('username', None),
-                             password=payload.get('password', None))
+    entered_username = payload.get('username', None)
+    entered_password = payload.get('password', None)
+    user = auth.authenticate(username=entered_username, password=entered_password)
+
+    # password and username correct
     if user is not None:
         if user.is_active:
+            # ✅ login worked
             logger.debug('logged in success')
             auth.login(request, user)
             data = _serialized_current_user(request)
             return HttpResponse(data, content_type='application/json')
         else:
+            # ⚠️ user inactive
             logger.debug('inactive user login attempted')
-        data = json.dumps({'message': "Inactive user"})
-        return HttpResponse(data, content_type='application/json', status=403)
+            data = json.dumps({'message': "Inactive user"})
+            return HttpResponse(data, content_type='application/json', status=403)
+    # ❌ something went wrong
     else:
+        # ⚠️ first time legacy login (so they used email)
+        matching_user = User.objects.get(username=entered_username)
+        if matching_user is not None:
+            if (len(matching_user.password) == 0) and\
+                    (legacy.password_matches_hash(entered_password, matching_user.profile.imported_password_hash)):
+                # save their password in Django format for next time
+                matching_user.set_password(entered_password) # this will hash it properly
+                matching_user.save()
+                # ✅ log them in
+                user = auth.authenticate(username=entered_username, password=entered_password)
+                auth.login(request, user)
+                data = _serialized_current_user(request)
+                return HttpResponse(data, content_type='application/json')
+        # ❌ username or password was wrong (legacy or new user)
         logger.debug('user login failed')
         data = json.dumps({'message': "Unable to login"})
         return HttpResponse(data, content_type='application/json', status=403)
