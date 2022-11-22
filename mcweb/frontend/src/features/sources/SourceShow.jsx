@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import {
-  useParams, Link, Route, Routes,
+  useParams, Link, Route, Routes, useLocation, Outlet,
 } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -16,6 +16,7 @@ export default function SourceShow() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
 
+  const location = useLocation();
   const {
     data,
     isLoading,
@@ -34,12 +35,12 @@ export default function SourceShow() {
   return (
     <>
 
-      <SourceHeader sourceId={sourceId} />
+      {/* <SourceHeader sourceId={sourceId} /> */}
 
       <div className="sub-feature">
         <div className="container">
           <div className="row">
-            <div className="col-3">
+            <div className="col-12">
               <Permissioned role={ROLE_STAFF}>
                 <Button variant="outlined" component={Link} to="modify-source">
                   Modify Source
@@ -49,15 +50,17 @@ export default function SourceShow() {
             </div>
             <div className="col-3">
               <Permissioned role={ROLE_STAFF}>
+                {console.log(location)}
                 <Button variant="outlined" component={Link} to="feeds">
                   Modify this Source's Feeds
                 </Button>
+
               </Permissioned>
             </div>
           </div>
         </div>
       </div>
-
+      <Outlet />
       <div className="container">
 
         <StatPanel items={[
@@ -75,10 +78,6 @@ export default function SourceShow() {
             <CollectionList sourceId={sourceId} />
           </div>
         </div>
-
-        <Routes>
-          <Route path="feeds" element={<FeedShow sourceId={sourceId} />} />
-        </Routes>
 
       </div>
 

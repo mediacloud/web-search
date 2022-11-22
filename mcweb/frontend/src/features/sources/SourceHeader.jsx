@@ -1,9 +1,12 @@
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import { CircularProgress } from '@mui/material';
-import * as React from 'react';
+import { Outlet, useParams } from 'react-router-dom';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 
-export default function SourceHeader({ sourceId }) {
+export default function SourceHeader() {
+  const params = useParams();
+  const sourceId = Number(params.sourceId);
   const {
     data,
     isLoading,
@@ -39,6 +42,7 @@ export default function SourceHeader({ sourceId }) {
           </div>
         </div>
       </div>
+      <Outlet />
     </div>
   );
 }

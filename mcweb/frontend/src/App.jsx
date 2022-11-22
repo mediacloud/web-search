@@ -21,6 +21,8 @@ import CollectionsHome from './features/collections/CollectionsHome';
 import CreateCollection from './features/collections/CreateCollection';
 import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
+import FeedShow from './features/feeds/FeedShow';
+import SourceHeader from './features/sources/SourceHeader';
 
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
@@ -95,22 +97,38 @@ function App() {
           />
 
           <Route
-            path="sources/:sourceId/modify-source"
+            path="sources"
             element={(
               <RequireAuth>
-                <ModifySource />
+                <SourceHeader />
               </RequireAuth>
             )}
-          />
-
-          <Route
-            path="sources/:sourceId"
-            element={(
-              <RequireAuth>
-                <SourceShow />
-              </RequireAuth>
-            )}
-          />
+          >
+            <Route
+              path=":sourceId"
+              element={(
+                <RequireAuth>
+                  <SourceShow />
+                </RequireAuth>
+              )}
+            />
+            <Route
+              path=":sourceId/feeds"
+              element={(
+                <RequireAuth>
+                  <FeedShow />
+                </RequireAuth>
+              )}
+            />
+            <Route
+              path=":sourceId/modify-source"
+              element={(
+                <RequireAuth>
+                  <ModifySource />
+                </RequireAuth>
+              )}
+            />
+          </Route>
 
           <Route path="sign-in" element={<SignIn />} />
           <Route path="reset-password" element={<ResetPassword />} />
