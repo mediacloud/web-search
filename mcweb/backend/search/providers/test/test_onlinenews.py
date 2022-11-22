@@ -140,6 +140,15 @@ class OnlineNewsWaybackMachineProviderTest(TestCase):
             found_story_count += len(page)
         assert found_story_count == story_count
 
+    def test_words(self):
+        results = self._provider.words("coronavirus", dt.datetime(2022, 4, 1), dt.datetime(2022, 4, 5))
+        last_count = 99999999999
+        for item in results:
+            assert last_count >= item['count']
+            last_count = item['count']
+
+"""
+
     def test_top_sources(self):
         results = self._provider.top_sources("coronavirus", dt.datetime(2022, 3, 1), dt.datetime(2022, 4, 1))
         assert len(results) > 0
@@ -164,12 +173,4 @@ class OnlineNewsWaybackMachineProviderTest(TestCase):
             assert r['value'] <= last_count
             last_count = r['value']
             assert len(r['name']) == 2
-
-    def test_top_terms(self):
-        results = self._provider.terms("coronavirus", dt.datetime(2022, 4, 1), dt.datetime(2022, 4, 5),
-                                       field=OnlineNewsWaybackMachineProvider.TERM_FIELD_SNIPPET,
-                                       aggregation=OnlineNewsWaybackMachineProvider.TERM_AGGREGATION_TOP)
-        last_count = 99999999999
-        for term, count in results.items():
-            assert last_count >= count
-            last_count = count
+"""
