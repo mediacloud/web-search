@@ -15,7 +15,7 @@ const querySlice = createSlice({
     negatedQueryList: [[], [], []],
     platform: DEFAULT_PROVIDER,
     startDate,
-    endDate: latestAllowedEndDate(DEFAULT_PROVIDER),
+    endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
     collections: DEFAULT_COLLECTIONS,
     previewCollections: DEFAULT_COLLECTIONS,
     sources: [],
