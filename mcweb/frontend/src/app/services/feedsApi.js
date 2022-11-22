@@ -1,21 +1,13 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import managerApi from './managerApi';
 
-export const feedsApi = createApi({
-  reducerPath: 'feedsApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'https://rss-fetcher.tarbell.mediacloud.org/api/',
-    prepareHeaders: (headers) => {
-      // Django requires this for security (cross-site forgery protection) once logged in
-      headers.set('X-Csrftoken', window.CSRF_TOKEN);
-      return headers;
-    },
-  }),
+export const feedsApi = managerApi.injectEndpoints({
 
   endpoints: (builder) => ({
-    getSourceFeeds: builder.query({
+    getSourceFeeds: builder.mutation({
       query: (sourceId) => ({
-        url: `sources/${sourceId}/feeds`,
-        method: 'GET',
+        url: '/feeds/sources_feeds/',
+        method: 'POST',
+        body: { source_id: sourceId },
       }),
     }),
 
@@ -23,5 +15,5 @@ export const feedsApi = createApi({
 });
 
 export const {
-  useGetSourceFeedsQuery,
+  useGetSourceFeedsMutation,
 } = feedsApi;

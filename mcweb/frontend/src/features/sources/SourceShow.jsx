@@ -40,7 +40,7 @@ export default function SourceShow() {
       <div className="sub-feature">
         <div className="container">
           <div className="row">
-            <div className="col-12">
+            <div className="col-2">
               <Permissioned role={ROLE_STAFF}>
                 <Button variant="outlined" component={Link} to="modify-source">
                   Modify Source
