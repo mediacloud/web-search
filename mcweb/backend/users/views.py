@@ -11,18 +11,22 @@ from django.core import serializers
 import humps
 from django.core.mail import send_mail
 import settings
-import datetime as dt
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
+
+import mcweb.backend.users.legacy as legacy
+
 logger = logging.getLogger(__name__)
 
+
 # random key generator
-def randomKeyGenerator():
+def _random_key():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
+
 
 # does the email exist?
 @require_http_methods(['GET'])
-def emailExists(request):
-
+def email_exists(request):
     email = request.GET['email']
 
     try:
@@ -33,12 +37,12 @@ def emailExists(request):
 
     return HttpResponse(data, content_type='application/json')
 
-@require_http_methods(['GET'])
-def sendEmail(request):
 
+@require_http_methods(['GET'])
+def reset_password_request(request):
     email = request.GET['email']
 
-    key = randomKeyGenerator()
+    key = _random_key()
 
     message = "Hello, please use this verification code to reset your password! Thank you! \n\n" + key
 
@@ -55,7 +59,7 @@ def sendEmail(request):
 
 
 @require_http_methods(['POST'])
-def resetPassword(request):
+def reset_password(request):
     payload = json.loads(request.body)
 
     username = payload.get('username', None)
@@ -82,6 +86,7 @@ def resetPassword(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
+
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 def profile(request):
@@ -95,15 +100,40 @@ def profile(request):
 @require_http_methods(["POST"])
 def login(request):
     payload = json.loads(request.body)
-    user = auth.authenticate(username=payload.get('username', None),
-                             password=payload.get('password', None))
+    entered_username = payload.get('username', None)
+    entered_password = payload.get('password', None)
+    user = auth.authenticate(username=entered_username, password=entered_password)
+
+    # password and username correct
     if user is not None:
-        logger.debug('logged in success')
-        auth.login(request, user)
-        data = _serialized_current_user(request)
-        return HttpResponse(data, content_type='application/json')
+        if user.is_active:
+            # ✅ login worked
+            logger.debug('logged in success')
+            auth.login(request, user)
+            data = _serialized_current_user(request)
+            return HttpResponse(data, content_type='application/json')
+        else:
+            # ⚠️ user inactive
+            logger.debug('inactive user login attempted')
+            data = json.dumps({'message': "Inactive user"})
+            return HttpResponse(data, content_type='application/json', status=403)
+    # ❌ something went wrong
     else:
-        logger.debug('user does not exist')
+        # ⚠️ first time legacy login (so they used email)
+        matching_user = User.objects.get(username=entered_username)
+        if matching_user is not None:
+            if (len(matching_user.password) == 0) and\
+                    (legacy.password_matches_hash(entered_password, matching_user.profile.imported_password_hash)):
+                # save their password in Django format for next time
+                matching_user.set_password(entered_password) # this will hash it properly
+                matching_user.save()
+                # ✅ log them in
+                user = auth.authenticate(username=entered_username, password=entered_password)
+                auth.login(request, user)
+                data = _serialized_current_user(request)
+                return HttpResponse(data, content_type='application/json')
+        # ❌ username or password was wrong (legacy or new user)
+        logger.debug('user login failed')
         data = json.dumps({'message': "Unable to login"})
         return HttpResponse(data, content_type='application/json', status=403)
 
@@ -142,7 +172,7 @@ def register(request):
         data = json.dumps({'message': "new user created"})
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
-        data = json.dumps({'message': e.message})
+        data = json.dumps({'message': str(e)})
         return HttpResponse(data, content_type='application/json', status=400)
 
 
