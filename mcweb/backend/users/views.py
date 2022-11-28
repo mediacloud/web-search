@@ -14,7 +14,7 @@ import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
 
-import mcweb.backend.users.legacy as legacy
+import backend.users.legacy as legacy
 
 logger = logging.getLogger(__name__)
 
