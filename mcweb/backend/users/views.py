@@ -149,6 +149,7 @@ def register(request):
         username = payload.get('username', None)
         password1 = payload.get('password1', None)
         password2 = payload.get('password2', None)
+        notes = payload.get('notes', None)
 
         # first verify passwords match
         if password1 != password2:
