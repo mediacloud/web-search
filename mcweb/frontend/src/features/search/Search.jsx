@@ -16,6 +16,7 @@ import CountOverTimeResults from './results/CountOverTimeResults';
 import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
+import deactivateButton from './util/deactivateButton';
 import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
 
 export default function Search() {
@@ -121,6 +122,8 @@ export default function Search() {
                 variant="contained"
                 onClick={() => {
                   try {
+                    deactivateButton(); 
+                    
                     navigate(
                       `/search${urlSerializer(queryObject)}`,
                       { options: { replace: true } },
