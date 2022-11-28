@@ -10,10 +10,17 @@ def send_email(mail_params):
 
 def send_signup_email(recepient):
     try: 
-        send_email('[Media Cloud] Activate your Media Cloud account',
+        send_mail('[Media Cloud] Activate your Media Cloud account',
                 'Thanks for registering',
                 'noreply@mediacloud.org',
                 [recepient],
                 fail_silently=False )
+    except Exception as e:
+        print(e)
+
+def send_source_upload_email(mail_params):
+    subject, body, recepient = mail_params 
+    try:
+        send_mail(subject, body, 'system@mediacloud.org', [recepient], fail_silently=False)
     except Exception as e:
         print(e)

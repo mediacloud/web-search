@@ -11,6 +11,7 @@ from rest_framework.decorators import action
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
+from util.send_emails import send_source_upload_email 
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
@@ -115,7 +116,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 email_text += "\n {}: updated existing source".format(
                     canonical_domain)
             collection.source_set.add(existing_source)
-        #   send_email_summary(current_user.email, email_title, email_text)
+        send_source_upload_email(email_title, email_text, request.user.email)
         print(email_text)
         return Response({'title': email_title, 'text': email_text})
 
