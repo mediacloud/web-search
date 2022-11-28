@@ -12,6 +12,8 @@ from settings import BASE_DIR
 from util.cache import cache_by_kwargs
 from rest_framework.renderers import JSONRenderer
 
+from django.db.models import Case, When
+
 # csv
 
 import csv
@@ -37,16 +39,23 @@ class CollectionViewSet(viewsets.ModelViewSet):
         deserial_data = json.load(json_data) 
         collection_return = []
         list_ids = [] 
+
         for collection in deserial_data['featuredCollections']['entries']:
             for id in collection['tags']:
                 list_ids.append(id)
+        
             
-        collection_return = Collection.objects.filter(id__in=list_ids)
-        print(collection_return)
-        print(list_ids)
+        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_ids)]) 
+        collection_return = Collection.objects.filter(pk__in=list_ids, id__in=list_ids).order_by(ordered_cases)  
+            
         serializer = CollectionListSerializer(
             {'collections': collection_return})
-        return Response(serializer.data)
+        response = Response(serializer.data)
+        response.accepted_renderer = JSONRenderer()
+        response.accepted_media_type = "application/json"
+        response.renderer_context = {}
+        response.render()
+        return response
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
