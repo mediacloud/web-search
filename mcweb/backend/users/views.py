@@ -107,7 +107,9 @@ def login(request):
     # password and username correct
     if user is not None:
         if not user.registered:
-            print("you need the email confirmation")
+            logger.debug('Email has not been verified, please check your inbox for activation link')
+            data = json.dumps({'message': "Email has not been verified"})
+            return HttpResponse(data, content_type='application/json', status=403)
         elif user.is_active:
             # ✅ login worked
             logger.debug('logged in success')
