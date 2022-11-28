@@ -1,1 +1,0 @@
-from .send_emails import send_email
