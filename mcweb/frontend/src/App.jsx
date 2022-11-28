@@ -11,7 +11,7 @@ import Footer from './features/footer/Footer';
 // user status
 import Account from './features/auth/Account';
 import SignIn from './features/auth/SignIn';
-// import SignUp from './features/auth/SignUp';
+import SignUp from './features/auth/SignUp';
 import ResetPassword from './features/auth/ResetPassword';
 import ConfirmedReset from './features/auth/ConfirmedReset';
 
@@ -116,7 +116,7 @@ function App() {
           <Route path="reset-password" element={<ResetPassword />} />
           <Route path="reset-password/confirmed" element={<ConfirmedReset />} />
 
-          {/* <Route path="sign-up" element={<SignUp />} /> */}
+          <Route path="sign-up" element={<SignUp />} />
           <Route
             path="account"
             element={(
