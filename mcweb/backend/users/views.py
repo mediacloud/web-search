@@ -13,6 +13,7 @@ from django.core.mail import send_mail
 import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
+from .models import Profile
 
 import mcweb.backend.users.legacy as legacy
 
@@ -169,6 +170,10 @@ def register(request):
         created_user = User.objects.create_user(username=username, password=password1, email=email,
                                                 first_name=first_name, last_name=last_name)
         created_user.save()
+        user_profile = Profile()
+        user_profile.user = created_user
+        user_profile.notes = notes
+        user_profile.save()
         logging.debug('new user created')
         data = json.dumps({'message': "new user created"})
         return HttpResponse(data, content_type='application/json', status=200)
