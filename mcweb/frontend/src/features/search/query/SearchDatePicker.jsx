@@ -5,23 +5,27 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
+import { useSnackbar } from 'notistack';
 import { setStartDate, setEndDate } from './querySlice';
+import { latestAllowedEndDate } from '../util/platforms';
 
 export default function SearchDatePicker() {
   const dispatch = useDispatch();
-  const { startDate, endDate } = useSelector((state) => state.query);
-  // const [fromValue, setFromValue] = React.useState(dayjs().subtract(30, 'day'));
-
-  // const [toValue, setToValue] = React.useState(dayjs());
+  const { enqueueSnackbar } = useSnackbar();
+  const { platform, startDate, endDate } = useSelector((state) => state.query);
 
   const handleChangeFromDate = (newValue) => {
-    // setFromValue(dayjs(newValue));
     dispatch(setStartDate(dayjs(newValue).format('MM/DD/YYYY')));
   };
 
   const handleChangeToDate = (newValue) => {
     dispatch(setEndDate(dayjs(newValue).format('MM/DD/YYYY')));
   };
+
+  if (dayjs(endDate) > latestAllowedEndDate(platform)) {
+    handleChangeToDate(latestAllowedEndDate(platform));
+    enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
+  }
 
   return (
     <>
@@ -35,7 +39,7 @@ export default function SearchDatePicker() {
             onChange={handleChangeFromDate}
             disableFuture
             disableHighlightToday
-            maxDate={dayjs(dayjs().subtract(34, 'day').format('MM/DD/YYYY'))}
+            maxDate={endDate}
             renderInput={(params) => <TextField {...params} />}
           />
           <DatePicker
@@ -45,19 +49,14 @@ export default function SearchDatePicker() {
             onChange={handleChangeToDate}
             disableFuture
             disableHighlightToday
-            maxDate={dayjs(dayjs().subtract(4, 'day').format('MM/DD/YYYY'))}
-                  // shouldDisableDate={disabledDates}
+            maxDate={dayjs(latestAllowedEndDate(platform).format('MM/DD/YYYY'))}
             renderInput={(params) => <TextField {...params} />}
           />
         </LocalizationProvider>
       </div>
       <p className="help">
-        Enter your inclusive date range.
-        Our database goes back to 2011,
-        however the start date for different
-        sources and collections can vary.
-        Click on a source or collecton to
-        learn more about when we added it.
+        Each platform has different limitations on how recent your search can be.
+        The start and end dates are inclusive.
       </p>
     </>
   );

@@ -6,6 +6,7 @@ import logging
 from mediacloud.api import MediaCloud
 import mcmetadata
 from django.apps import apps
+from waybacknews.searchapi import SearchApiClient
 
 from .provider import ContentProvider
 from util.cache import cache_by_kwargs
@@ -175,57 +176,46 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
 
 class OnlineNewsWaybackMachineProvider(ContentProvider):
 
-    VERSION = "v1"
     DEFAULT_COLLECTION = "mediacloud"
-    API_BASE_URL = "http://colsearch.sawood-dev.us.archive.org:8000/{}/".format(VERSION)
-
-    TERM_FIELD_TITLE = "title"
-    TERM_FIELD_SNIPPET = "snippet"
-    TERM_AGGREGATION_TOP = "top"
-    TERM_AGGREGATION_SIGNIFICANT = "significant"
-    TERM_AGGREGATION_RARE = "rare"
 
     def __init__(self):
         super(OnlineNewsWaybackMachineProvider, self).__init__()
+        self._client = SearchApiClient(self.DEFAULT_COLLECTION)
         self._logger = logging.getLogger(__name__)
 
+    @cache_by_kwargs()
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
                **kwargs) -> List[Dict]:
-        results = self._overview_query(query, start_date, end_date, **kwargs)
-        if self._is_no_results(results):
-            return []
-        return self._matches_to_rows(results['matches'])
+        results = self._client.sample(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs)
+        return self._matches_to_rows(results)
 
-    def top_sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> List[Dict]:
-        results = self._overview_query(query, start_date, end_date, **kwargs)
-        if self._is_no_results(results):
-            return []
-        return self._dict_to_list(results['topdomains'])
-
-    def top_tlds(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> List[Dict]:
-        results = self._overview_query(query, start_date, end_date, **kwargs)
-        if self._is_no_results(results):
-            return []
-        return self._dict_to_list(results['toptlds'])
-
-    def top_languages(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> List[Dict]:
-        results = self._overview_query(query, start_date, end_date, **kwargs)
-        if self._is_no_results(results):
-            return []
-        return self._dict_to_list(results['toplangs'])
-
-    @staticmethod
-    def _is_no_results(results: Dict) -> bool:
-        return ('matches' not in results) and ('detail' in results) and (results['detail'] == 'No results found!')
-
+    @cache_by_kwargs()
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
-        results = self._overview_query(query, start_date, end_date, **kwargs)
-        if self._is_no_results(results):
-            return 0
-        return results['total']
+        return self._client.count(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs)
+
+    @cache_by_kwargs()
+    def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
+        results = self._client.count_over_time(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs)
+        return {'counts': results}
+
+    @cache_by_kwargs()
+    def item(self, item_id: str, collection: str = DEFAULT_COLLECTION) -> Dict:
+        return self._client.article(item_id)
+
+    @cache_by_kwargs()
+    def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
+                  collection: str = DEFAULT_COLLECTION, **kwargs):
+        for page in self._client.all_articles(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs):
+            yield self._matches_to_rows(page)
+
+    def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+              **kwargs) -> List[Dict]:
+        results = self._client.terms(self._assembled_query_str(query, **kwargs), start_date, end_date,
+                                     self._client.TERM_FIELD_TITLE, self._client.TERM_AGGREGATION_TOP)
+        return [dict(term=t, count=c) for t, c in results.items()]
 
     @classmethod
-    def _assembled_query_str(cls, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> str:
+    def _assembled_query_str(cls, query: str, **kwargs) -> str:
         domains = []
         # turn media ids into domains
         media_ids = kwargs['sources'] if 'sources' in kwargs else []
@@ -239,67 +229,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         q = query
         if len(domains) > 0:
             q += " AND (domain:({}))".format(" OR ".join(domains))
-        q += " AND ({})".format("publication_date:[{} TO {}]".format(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")))
         return q
-
-    def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
-        results = self._overview_query(query, start_date, end_date, **kwargs)
-        if self._is_no_results(results):
-            return {}
-        data = results['dailycounts']
-        to_return = []
-        for day_date, day_value in data.items():
-            to_return.append({
-                'date': dateparser.parse(day_date),
-                'timestamp': dateparser.parse(day_date).timestamp(),
-                'count': day_value,
-            })
-        return {'counts': to_return}
-
-    def _overview_query(self, query: str, start_date: dt.datetime, end_date: dt.datetime,
-                        collection: str = DEFAULT_COLLECTION, **kwargs) -> Dict:
-        params = {"q": self._assembled_query_str(query, start_date, end_date, **kwargs)}
-        params.update(kwargs)
-        results, response = self._query("{}/search/overview".format(collection), params, method='POST')
-        return results
-
-    def item(self, item_id: str, collection: str = DEFAULT_COLLECTION) -> Dict:
-        results, _ = self._query("{}/article/{}".format(item_id, collection), method='GET')
-        return results
-
-    def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
-                  collection: str = DEFAULT_COLLECTION, **kwargs):
-        params = {"q": self._assembled_query_str(query, start_date, end_date, **kwargs)}
-        params.update(kwargs)
-        more_pages = True
-        while more_pages:
-            page, response = self._query("{}/search/result".format(collection), params, method='POST')
-            yield self._matches_to_rows(page)
-            # check if there is a link to the next page
-            more_pages = False
-            next_link_token = response.headers.get('x-resume-token')
-            if next_link_token:
-                params['resume'] = next_link_token
-                more_pages = True
-
-    def terms(self, query: str, start_date: dt.datetime, end_date: dt.datetime, field: str, aggregation: str,
-              collection: str = DEFAULT_COLLECTION, **kwargs) -> Dict:
-        params = {"q": self._assembled_query_str(query, start_date, end_date, **kwargs)}
-        params.update(kwargs)
-        results, response = self._query("{}/terms/{}/{}".format(collection, field, aggregation), params,
-                                        method='GET')
-        return results
-
-    @cache_by_kwargs()
-    def _query(self, endpoint: str, params: Dict = None, method: str = 'GET'):
-        endpoint_url = self.API_BASE_URL+endpoint
-        if method == 'GET':
-            r = requests.get(endpoint_url, params)
-        elif method == 'POST':
-            r = requests.post(endpoint_url, json=params)
-        else:
-            raise RuntimeError("Unsupported method of '{}'".format(method))
-        return r.json(), r
 
     @classmethod
     def _matches_to_rows(cls, matches: List) -> List:
@@ -316,10 +246,6 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
             'url': match['url'],
             'language': match['language'],
         }
-
-    @classmethod
-    def _dict_to_list(cls, data: Dict) -> List[Dict]:
-        return [{'name': k, 'value': v} for k, v in data.items()]
 
     def __repr__(self):
         # important to keep this unique among platforms so that the caching works right

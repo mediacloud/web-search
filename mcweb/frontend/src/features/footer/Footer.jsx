@@ -9,11 +9,16 @@ function Footer() {
             <p>
               Media Cloud is a consortium research project
               across multiple institutions, including the&nbsp;
-              <a href="https://www.umass.edu/">University of Massachusetts Amherst</a>
+              <a href="https://www.umass.edu/" target="_blank" rel="noreferrer">University of Massachusetts Amherst</a>
               ,&nbsp;
-              <a href="https://www.northeastern.edu/">Northeastern University</a>
+              <a href="https://www.northeastern.edu/" target="_blank" rel="noreferrer">Northeastern University</a>
+              , the
+              {' '}
+              <a href="https://archive.org/about" target="_blank" rel="noreferrer">Internet Archive&apos;s</a>
+              {' '}
+              <a href="https://web.archive.org" target="_blank" rel="noreferrer">Wayback Machine</a>
               , and the&nbsp;
-              <a href="https://cyber.law.harvard.edu/">Berkman Klein Center for Internet & Society at Harvard University</a>
+              <a href="https://cyber.law.harvard.edu/" target="_blank" rel="noreferrer">Berkman Klein Center for Internet & Society at Harvard University</a>
               .
             </p>
             <p>

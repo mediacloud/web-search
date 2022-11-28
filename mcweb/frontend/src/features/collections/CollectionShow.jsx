@@ -3,6 +3,7 @@ import { Button } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
 
 import CollectionHeader from './CollectionHeader';
+import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import SourceList from '../sources/SourceList';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
@@ -19,9 +20,7 @@ export default function CollectionShow() {
         <div className="container">
           <div className="row">
             <div className="col-12">
-              <Button variant="outlined" target="_blank" href={`/api/sources/sources/download_csv/?collection_id=${collectionId}`}>
-                Download Source CSV
-              </Button>
+              <DownloadSourcesCsv collectionId={collectionId} />
               &nbsp;&nbsp;&nbsp;
               <Permissioned role={ROLE_STAFF}>
                 <Button variant="outlined" component={Link} to="modify-collection">

@@ -12,6 +12,7 @@ import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../uti
 
 function TotalAttentionResults() {
   const {
+    queryString,
     queryList,
     negatedQueryList,
     platform,
@@ -21,9 +22,10 @@ function TotalAttentionResults() {
     sources,
     lastSearchTime,
     anyAll,
+    advanced,
   } = useSelector((state) => state.query);
 
-  const queryString = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [normalized, setNormalized] = useState(true);
 
@@ -58,10 +60,11 @@ function TotalAttentionResults() {
   };
 
   useEffect(() => {
-    if (queryList[0].length !== 0 && (platform === PROVIDER_NEWS_MEDIA_CLOUD
+    if ((queryList[0].length !== 0 || (advanced && queryString !== 0))
+      && (platform === PROVIDER_NEWS_MEDIA_CLOUD
       || platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
       normalizedQuery({
-        query: queryString,
+        query: fullQuery,
         startDate,
         endDate,
         collections: collectionIds,
@@ -69,9 +72,9 @@ function TotalAttentionResults() {
         platform,
       });
       setNormalized(true);
-    } else if (queryList[0].length !== 0) {
+    } else if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
       query({
-        query: queryString,
+        query: fullQuery,
         startDate,
         endDate,
         collections: collectionIds,

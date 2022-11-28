@@ -8,6 +8,7 @@ import { useUpdateCollectionMutation, useGetCollectionQuery } from '../../app/se
 import SourceList from '../sources/SourceList';
 import UploadSources from '../sources/UploadSources';
 import CollectionHeader from './CollectionHeader';
+import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 
 export default function ModifyCollection() {
   const params = useParams();
@@ -98,9 +99,11 @@ export default function ModifyCollection() {
                   notes: formState.notes,
                 }).unwrap();
               }}
+              sx={{ marginRight: '5px' }}
             >
               Update
             </Button>
+            <DownloadSourcesCsv collectionId={collectionId} />
           </div>
         </div>
 

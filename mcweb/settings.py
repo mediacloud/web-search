@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "frontend",
     "backend.sources",
+    "backend.search",
+    "backend.users",
     "rest_framework_simplejwt",
 ]
 
@@ -122,7 +124,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-STATIC_ROOT="mcweb/static"
+STATIC_ROOT = "mcweb/static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field
