@@ -171,17 +171,17 @@ export default function SignUp() {
                   dispatch(setCredentials(user));
 
                   // logging in user
-                  const loggedInUser = await login({
-                    username: formState.username,
-                    password: formState.password1,
-                  }).unwrap();
-                  dispatch(setCredentials(loggedInUser));
+                  // const loggedInUser = await login({
+                  //   username: formState.username,
+                  //   password: formState.password1,
+                  // }).unwrap();
+                  // dispatch(setCredentials(loggedInUser));
 
                   // the CSRF token changes because we've launched a new session - save the new one
-                  saveCsrfToken();
+                  // saveCsrfToken();
 
                   navigate('/');
-                  enqueueSnackbar('We created an account for you.', { variant: 'success' });
+                  enqueueSnackbar('Your account has been created, please check you email for the account activation link.', { variant: 'success' });
                 } catch (err) {
                   const errorMsg = `Failed - ${err.data.message}`;
                   enqueueSnackbar(errorMsg, { variant: 'error' });

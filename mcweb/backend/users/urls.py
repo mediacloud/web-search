@@ -11,6 +11,6 @@ urlpatterns = [
     path('send-email', views.reset_password_request),
     path('email-exists', views.email_exists),
     path('reset-password', views.reset_password),
-    path('activate-user', views.activate_user),
+    path('activate-user/<uidb64>/<token>', views.activate_user, name='activate'),
     path('activate-success', RedirectView.as_view(url='https://search.mediacloud.org/') )
 ]

@@ -1,9 +1,9 @@
 {% autoescape off %}
 
-Hi {{user.first_name}} {{user.last_name}}
+Hi {{user.first_name}} {{user.last_name}},
 
 Thanks for registering for Media Cloud. Click the link below to activate your account.
 
-https://{{domain}}{{% url 'activate' uidb64=uid token=token}}
+http://localhost:8000{% url 'activate' uidb64=uid token=token %}
 
 {% endautoescape %}
