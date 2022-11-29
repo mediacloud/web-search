@@ -13,7 +13,12 @@ from django.core.mail import send_mail
 import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
-
+from django.utils.encoding import force_bytes, force_str, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.shortcuts import redirect, render
+from django.views.generic.base import RedirectView
+from util.send_emails import send_signup_email
+from util.token_generator import generate_token
 import mcweb.backend.users.legacy as legacy
 
 logger = logging.getLogger(__name__)
@@ -171,7 +176,10 @@ def register(request):
         # checks out, make a new user
         created_user = User.objects.create_user(username=username, password=password1, email=email,
                                                 first_name=first_name, last_name=last_name)
+        
         created_user.save()
+        # send activation email
+        send_signup_email(request.user.email, request)
         logging.debug('new user created')
         data = json.dumps({'message': "new user created"})
         return HttpResponse(data, content_type='application/json', status=200)
@@ -195,3 +203,21 @@ def _serialized_current_user(request) -> str:
     data = json.loads(serialized_data)[0]['fields']
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
+
+def activate_user(request, uidb64, token):
+
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk = uid)
+    except Exception as e:
+        user = None
+
+    if user and generate_token.check_token(user, token):
+        user.profile.registered = True 
+        user.save()
+
+        logging.debug('Account Activated')
+
+        return redirect('/api/auth/activate-success/')
+    
+    return render(request, 'authentication/activate-failed.html', {'user': user})

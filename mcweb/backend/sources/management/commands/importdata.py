@@ -4,7 +4,7 @@ from subprocess import call
 import glob
 import tempfile
 
-from ...models import Collection, Source, Feed, ServiceNames
+from ...models import Collection, Source, Feed, SourcePlatforms
 
 
 def _run_psql_command(cmd: str):
@@ -51,12 +51,12 @@ class Command(BaseCommand):
         # wipe and import Sources
         self.stdout.write(self.style.SUCCESS('Importing sources'))
         Source.objects.all().delete()
-        cmd = "\\copy sources_source (id, name, url_search_string, label, homepage, notes, service, pub_country," \
+        cmd = "\\copy sources_source (id, name, url_search_string, label, homepage, notes, platform, pub_country," \
               "pub_state, primary_language, media_type) from " \
               "'{}' CSV QUOTE '\"' HEADER".format(sources_path)
         _run_psql_command(cmd)
-        _run_psql_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW(), service='{}'".format(
-            ServiceNames.ONLINE_NEWS.value))
+        _run_psql_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW(), platform='{}'".format(
+            SourcePlatforms.ONLINE_NEWS.value))
         _run_psql_command("UPDATE sources_source SET primary_language=NULL WHERE primary_language='none'")
         _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_source\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_source\";")
         

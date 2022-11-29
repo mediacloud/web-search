@@ -9,4 +9,4 @@ class Profile(models.Model):
     has_consented = models.BooleanField(default=False)
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
-    registered = models.BooleanField(default=False)
+    registered = models.BooleanField(default=False, null=True, blank=True)
