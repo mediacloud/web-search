@@ -6,11 +6,12 @@ import collections as py_collections
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
-
+from django.apps import apps
 import backend.search.providers as providers
 from backend.search.providers.exceptions import UnsupportedOperationException
 import backend.util.csv_stream as csv_stream
 from .utils import fill_in_dates, parse_query
+from ..users.models import QuotaHistory
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,7 @@ def total_count(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     total_attention = provider.count(query_str, start_date, end_date, collections=collections)
+    QuotaHistory.increment(request.user.id, provider_name)
     # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"count": total_attention}), content_type="application/json", status=200)
 
@@ -47,6 +49,7 @@ def count_over_time(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     count_attention_over_time = provider.count_over_time(query_str, start_date, end_date, collections=collections)
+    QuotaHistory.increment(request.user.id, provider_name, 2)
     zero_filled_counts = fill_in_dates(start_date, end_date, count_attention_over_time['counts'])
     count_attention_over_time['counts'] = zero_filled_counts
     return HttpResponse(json.dumps({"count_over_time": count_attention_over_time}, default=str), content_type="application/json", status=200)
@@ -58,16 +61,19 @@ def sample(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
+    QuotaHistory.increment(request.user.id, provider_name)
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json", status=200)
+
 
 @handle_provider_errors
 @require_http_methods(["POST"])
 def normalized_count_over_time(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
+    QuotaHistory.increment(request.user.id, provider_name, 1)
     logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
     counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
-    return HttpResponse(json.dumps({"count_over_time": counts_data }, default=str), content_type="application/json", status=200)
+    return HttpResponse(json.dumps({"count_over_time": counts_data}, default=str), content_type="application/json", status=200)
 
 
 @require_http_methods(["GET"])
@@ -81,6 +87,7 @@ def download_counts_over_time_csv(request):
     except UnsupportedOperationException:
         counts_data = provider.count_over_time(query_str, start_date, end_date, collections=collections)
         normalized = False
+    QuotaHistory.increment(request.user.id, provider_name, 2)
     filename = "mc-{}-{}-counts.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -114,7 +121,8 @@ def download_all_content_csv(request):
     def data_generator():
         first_page = True
         for page in provider.all_items(query_str, start_date, end_date, collections=collections):
-            if first_page:  # send back columun names, which differ by platform
+            QuotaHistory.increment(request.user.id, provider_name)
+            if first_page:  # send back column names, which differ by platform
                 yield sorted(list(page[0].keys()))
             for story in page:
                 ordered_story = py_collections.OrderedDict(sorted(story.items()))
