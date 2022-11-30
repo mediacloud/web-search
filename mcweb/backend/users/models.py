@@ -15,7 +15,7 @@ class Profile(models.Model):
     has_consented = models.BooleanField(default=False)
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
-    # fields that store user-specific weekly quota for each provider
+    # fields that store user-specific weekly quota for each provider, to block system abuse
     quota_mediacloud_legacy = models.IntegerField(default=100000, null=False)
     quota_wayback_machine = models.IntegerField(default=100000, null=False)
     quota_reddit_pushshift = models.IntegerField(default=10000, null=False)
@@ -39,10 +39,12 @@ class Profile(models.Model):
 
     @classmethod
     def user_provider_quota(cls, user_id: int, provider: str) -> int:
-        profile = Profile.objects.filter(user_id=user_id)
+        profile = Profile.objects.get(user_id=user_id)
         return profile.quota_for(provider)
 
 
+# track weekly hits against each provider so we can threshold against system abuse, and also give ourselves some
+# potentially useful measure of system load/usage (beyond basic web analystics)
 class QuotaHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     provider = models.TextField(null=False, blank=False)
@@ -53,8 +55,11 @@ class QuotaHistory(models.Model):
 
     class Meta:
         indexes = [
+            # the main index for querying to increment all the time
             models.Index(fields=['user_id', 'provider', 'week'], name='user_quota_lookup_idx'),
+            # useful for aggregating provider usage across users
             models.Index(fields=['provider'], name='user_quota_provider_idx'),
+            # useful for aggregating total system usage by week
             models.Index(fields=['week'], name='user_quota_week_idx'),
         ]
 
