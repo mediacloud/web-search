@@ -46,7 +46,7 @@ function validDates(startDate, endDate) {
 
 // is the advanced search query string not just the "*"
 function validQueryString(queryString) {
-  return queryString.length > 1; 
+  return queryString.length != 0; 
 }
 
 
