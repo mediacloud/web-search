@@ -9,13 +9,13 @@ const resultsSlice = createSlice({
     sample: null,
   },
   reducers: {
-    setQueryResults: (state, { payload }) => {
-      state.count = payload.count;
-      state.countOverTime = payload.count_over_time;
-      state.sample = payload.sample;
-      state.words = payload.words;
-    },
-
+    setQueryResults: (state, { payload }) => ({
+      ...state,
+      count: payload.count,
+      countOverTime: payload.count_over_time,
+      sample: payload.sample,
+      words: payload.words,
+    }),
   },
 });
 

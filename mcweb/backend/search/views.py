@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import action
 
 import backend.search.providers as providers
-from backend.search.providers.exceptions import UnsupportedOperationException
+from backend.search.providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
 import backend.util.csv_stream as csv_stream
 from .utils import fill_in_dates, parse_query
 
@@ -36,9 +36,14 @@ def handle_provider_errors(func):
 def total_count(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
-    total_attention = provider.count(query_str, start_date, end_date, collections=collections)
+    relevant_count = provider.count(query_str, start_date, end_date, collections=collections)
+    try:
+        total_content_count = provider.count(provider.everything_query(), start_date, end_date, collections=collections)
+    except QueryingEverythingUnsupportedQuery as e:
+        total_content_count = None
     # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
-    return HttpResponse(json.dumps({"count": total_attention}), content_type="application/json", status=200)
+    return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
+                        content_type="application/json", status=200)
 
 
 @handle_provider_errors
@@ -46,10 +51,14 @@ def total_count(request):
 def count_over_time(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
-    count_attention_over_time = provider.count_over_time(query_str, start_date, end_date, collections=collections)
-    zero_filled_counts = fill_in_dates(start_date, end_date, count_attention_over_time['counts'])
-    count_attention_over_time['counts'] = zero_filled_counts
-    return HttpResponse(json.dumps({"count_over_time": count_attention_over_time}, default=str), content_type="application/json", status=200)
+    try:
+        results = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
+    except UnsupportedOperationException:
+        # for platforms that don't support querying over time
+        results = provider.count_over_time(query_str, start_date, end_date, collections=collections)
+    #logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
+    return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
+                        status=200)
 
 
 @handle_provider_errors
@@ -58,16 +67,8 @@ def sample(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
-    return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json", status=200)
-
-@handle_provider_errors
-@require_http_methods(["POST"])
-def normalized_count_over_time(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request)
-    provider = providers.provider_by_name(provider_name)
-    logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
-    counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
-    return HttpResponse(json.dumps({"count_over_time": counts_data }, default=str), content_type="application/json", status=200)
+    return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json",
+                        status=200)
 
 
 @require_http_methods(["GET"])

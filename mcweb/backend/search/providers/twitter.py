@@ -109,7 +109,6 @@ class TwitterTwitterProvider(ContentProvider):
             next_token = results['meta']['next_token'] if 'next_token' in results['meta'] else None
             more_data = next_token is not None
 
-
     @cache_by_kwargs()
     def _cached_query(self, endpoint: str, params: Dict = None) -> Dict:
         """
@@ -154,6 +153,7 @@ class TwitterTwitterProvider(ContentProvider):
             'reply_count': item['public_metrics']['reply_count'],
             'like_count': item['public_metrics']['like_count'],
             'quote_count': item['public_metrics']['quote_count'],
+            'content': item['text']
         }
 
     def normalized_count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime,

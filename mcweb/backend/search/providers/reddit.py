@@ -22,6 +22,9 @@ class RedditPushshiftProvider(ContentProvider):
         super(RedditPushshiftProvider, self).__init__()
         self._logger = logging.getLogger(__name__)
 
+    def everything_query(self) -> str:
+        return '*'
+
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20, **kwargs) -> List[Dict]:
         """
         Return a list of top submissions matching the query.
