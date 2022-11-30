@@ -1,4 +1,4 @@
-import React, {useEffect, useEFfect} from 'react';
+import React, {useEffect} from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
