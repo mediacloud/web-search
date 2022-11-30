@@ -6,34 +6,16 @@ from django.shortcuts import get_object_or_404
 from backend.util import csv_stream
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from util.cache import cache_by_kwargs
+from settings import BASE_DIR
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
 import mcmetadata.urls as urls
 from django.db.models import Case, When
 
-from settings import BASE_DIR
-from util.cache import cache_by_kwargs
 from rest_framework.renderers import JSONRenderer
 
-<<<<<<< HEAD
-from django.db.models import Case, When
-
-# csv
-
-import csv
-from django.http import HttpResponse
-from settings import BASE_DIR
-from django.shortcuts import render
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from .models import Collection, Feed, Source
-from rest_framework import viewsets, permissions
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
-from util.send_emails import send_source_upload_email 
-
-=======
->>>>>>> 0330dff93b0c1a06d4cde2641c8155be2c89e2b6
 
 class CollectionViewSet(viewsets.ModelViewSet):
     queryset = Collection.objects.all()
