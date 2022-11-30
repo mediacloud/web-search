@@ -62,6 +62,9 @@ class QuotaHistory(models.Model):
             # useful for aggregating total system usage by week
             models.Index(fields=['week'], name='user_quota_week_idx'),
         ]
+        constraints = [
+            models.UniqueConstraint(fields=['user_id', 'provider', 'week'], name='unique user_provider_week')
+        ]
 
     @classmethod
     def _this_week(cls) -> dt.date:
