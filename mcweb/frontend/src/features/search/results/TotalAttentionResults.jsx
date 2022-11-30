@@ -12,8 +12,8 @@ import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-const supportsNormalizedCount = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
-  PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
+export const supportsNormalizedCount = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD,
+  PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
 
 function TotalAttentionResults() {
   const {
@@ -91,7 +91,7 @@ function TotalAttentionResults() {
         <div className="col-8">
           {(error) && (
             <Alert severity="warning">
-              Our access doesn&apos;t support fetching attention over time data.
+              Our access doesn&apos;t support fetching total attention data.
               (
               {error.data.note}
               )
