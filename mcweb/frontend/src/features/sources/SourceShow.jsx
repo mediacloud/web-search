@@ -50,7 +50,6 @@ export default function SourceShow() {
             </div>
             <div className="col-3">
               <Permissioned role={ROLE_STAFF}>
-                {console.log(location)}
                 <Button variant="outlined" component={Link} to="feeds">
                   Modify this Source's Feeds
                 </Button>

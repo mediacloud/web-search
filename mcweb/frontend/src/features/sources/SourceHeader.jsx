@@ -47,6 +47,6 @@ export default function SourceHeader() {
   );
 }
 
-SourceHeader.propTypes = {
-  sourceId: PropTypes.number.isRequired,
-};
+// SourceHeader.propTypes = {
+//   sourceId: PropTypes.number.isRequired,
+// };
