@@ -1,5 +1,6 @@
 from django.db import models
 from enum import Enum
+from typing import Dict
 
 
 class CollectionPlatforms(Enum):
@@ -50,8 +51,8 @@ class Source(models.Model):
     primary_language = models.CharField(max_length=5, null=True, blank=True)
     media_type = models.CharField(max_length=100, choices=[(tag, tag.value) for tag in MediaTypes], null=True)
 
-    def create_new_source(source):
-        
+    @classmethod
+    def create_new_source(cls, source: Dict):
         new_source = Source()
         new_source.name = source["name"] if source["name"] is not None else None
         new_source.url_search_string = source["url_search_string"] if source["url_search_string"] is not None else None
