@@ -1,6 +1,7 @@
 import time
 import json
 import os
+import requests
 from http.client import CannotSendHeader, HTTPResponse
 from importlib.metadata import metadata
 from django.shortcuts import get_object_or_404
@@ -70,6 +71,13 @@ class FeedsViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = FeedsSerializer
 
+    @action(methods=['post'], detail=False)
+    def sources_feeds(self, request):
+        source_id = request.data["source_id"]
+        response = requests.get(f'https://rss-fetcher.tarbell.mediacloud.org/api/sources/{source_id}/feeds')
+        feeds = response.json()
+        feeds = feeds["results"]
+        return Response({"feeds": feeds})
 
 class SourcesViewSet(viewsets.ModelViewSet):
     queryset = Source.objects.all()
