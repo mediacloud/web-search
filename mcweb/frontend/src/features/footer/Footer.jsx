@@ -22,6 +22,19 @@ function Footer() {
               .
             </p>
             <p>
+              Need help? Join our
+              {' '}
+              <a href="https://groups.io/g/mediacloud" target="_blank" rel="noreferrer">discussion group</a>
+              {' '}
+              or fill out
+              {' '}
+              <a href="https://mediacloud.org/support-form" target="_blank" rel="noreferrer">our support form</a>
+              .
+              <br />
+              <a href="https://mediacloud.org/privacy-policy" target="_blank" rel="noreferrer">Read our privacy policy</a>
+              .
+            </p>
+            <p>
               v
               { document.settings.appVersion }
             </p>
