@@ -27,3 +27,6 @@ mcweb/static/frontend
 mcweb/static/rest_framework
 
 tmp/*.csv
+
+.vscode
+package-lock.json
