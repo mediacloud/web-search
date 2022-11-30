@@ -1,6 +1,8 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
-import { useParams, Link } from 'react-router-dom';
+import {
+  useParams, Link, Route, Routes, useLocation, Outlet,
+} from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import SourceHeader from './SourceHeader';
@@ -8,11 +10,13 @@ import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import StatPanel from '../ui/StatPanel';
+import FeedShow from '../feeds/FeedShow';
 
 export default function SourceShow() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
 
+  const location = useLocation();
   const {
     data,
     isLoading,
@@ -31,12 +35,12 @@ export default function SourceShow() {
   return (
     <>
 
-      <SourceHeader sourceId={sourceId} />
+      {/* <SourceHeader sourceId={sourceId} /> */}
 
       <div className="sub-feature">
         <div className="container">
           <div className="row">
-            <div className="col-12">
+            <div className="col-2">
               <Permissioned role={ROLE_STAFF}>
                 <Button variant="outlined" component={Link} to="modify-source">
                   Modify Source
@@ -44,10 +48,18 @@ export default function SourceShow() {
                 </Button>
               </Permissioned>
             </div>
+            <div className="col-3">
+              <Permissioned role={ROLE_STAFF}>
+                <Button variant="outlined" component={Link} to="feeds">
+                  Modify this Source's Feeds
+                </Button>
+
+              </Permissioned>
+            </div>
           </div>
         </div>
       </div>
-
+      <Outlet />
       <div className="container">
 
         <StatPanel items={[
