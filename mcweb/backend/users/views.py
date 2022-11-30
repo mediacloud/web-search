@@ -1,5 +1,3 @@
-from rest_framework.response import Response
-from pickle import FALSE
 import string
 import random
 import json
@@ -12,7 +10,6 @@ import humps
 from django.core.mail import send_mail
 import settings
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.hashers import make_password
 from .models import Profile
 
 import mcweb.backend.users.legacy as legacy
@@ -126,7 +123,7 @@ def login(request):
             if (len(matching_user.password) == 0) and\
                     (legacy.password_matches_hash(entered_password, matching_user.profile.imported_password_hash)):
                 # save their password in Django format for next time
-                matching_user.set_password(entered_password) # this will hash it properly
+                matching_user.set_password(entered_password)  # this will hash it properly
                 matching_user.save()
                 # ✅ log them in
                 user = auth.authenticate(username=entered_username, password=entered_password)
