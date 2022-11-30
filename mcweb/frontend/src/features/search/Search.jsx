@@ -1,4 +1,4 @@
-import React, {useEffect, useEFfect} from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
@@ -18,7 +18,6 @@ import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
 import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
-import { useState } from 'react';
 
 export default function Search() {
   
