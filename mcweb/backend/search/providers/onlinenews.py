@@ -202,7 +202,6 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
     def item(self, item_id: str, collection: str = DEFAULT_COLLECTION) -> Dict:
         return self._client.article(item_id)
 
-    @cache_by_kwargs()
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
                   collection: str = DEFAULT_COLLECTION, **kwargs):
         for page in self._client.all_articles(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs):
