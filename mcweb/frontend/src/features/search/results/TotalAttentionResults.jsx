@@ -7,8 +7,13 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
-import { useGetTotalCountMutation, useGetNormalizedCountOverTimeMutation } from '../../../app/services/searchApi';
-import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../util/platforms';
+import { useGetTotalCountMutation } from '../../../app/services/searchApi';
+import {
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
+} from '../util/platforms';
+
+export const supportsNormalizedCount = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD,
+  PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
 
 function TotalAttentionResults() {
   const {
@@ -39,40 +44,15 @@ function TotalAttentionResults() {
 
   const [query, { isLoading, data, error }] = useGetTotalCountMutation();
 
-  const [normalizedQuery, nqResult] = useGetNormalizedCountOverTimeMutation();
-
   const collectionIds = collections.map((collection) => collection.id);
 
-  const normalizeData = (oldData) => {
-    let newData;
-    if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
-      const { total } = oldData;
-      const normalizedTotal = oldData.normalized_total;
-      if (normalized) {
-        newData = (Math.round(((total / normalizedTotal) + Number.EPSILON) * 10000) / 100);
-      } else {
-        newData = total;
-      }
-    } else {
-      newData = oldData.count;
-    }
-    return newData;
-  };
+  // using EPSILON in the denominator here prevents against div by zero errors
+  // (which returns infinity in JS)
+  const normalizeData = (oldData) => 100 * (oldData.count.relevant
+    / (oldData.count.total + Number.EPSILON));
 
   useEffect(() => {
-    if ((queryList[0].length !== 0 || (advanced && queryString !== 0))
-      && (platform === PROVIDER_NEWS_MEDIA_CLOUD
-      || platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
-      normalizedQuery({
-        query: fullQuery,
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources,
-        platform,
-      });
-      setNormalized(true);
-    } else if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
+    if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
       query({
         query: fullQuery,
         startDate,
@@ -80,13 +60,12 @@ function TotalAttentionResults() {
         collections: collectionIds,
         sources,
         platform,
-
       });
-      setNormalized(false);
+      setNormalized(supportsNormalizedCount(platform));
     }
   }, [lastSearchTime]);
 
-  if (isLoading || nqResult.isLoading) {
+  if (isLoading) {
     return (
       <div>
         {' '}
@@ -96,7 +75,7 @@ function TotalAttentionResults() {
     );
   }
 
-  if (!data && !nqResult.data && !error && !nqResult.error) return null;
+  if (!data && !error) return null;
 
   return (
     <div className="results-item-wrapper">
@@ -110,19 +89,19 @@ function TotalAttentionResults() {
           </p>
         </div>
         <div className="col-8">
-          {(error || nqResult.error) && (
+          {(error) && (
             <Alert severity="warning">
-              Our access doesn&apos;t support fetching attention over time data.
+              Our access doesn&apos;t support fetching total attention data.
               (
-              {error.data.note || nqResult.error.data.note}
+              {error.data.note}
               )
             </Alert>
           )}
-          {(error === undefined && nqResult.error === undefined) && (
-          <TotalAttentionChart
-            data={data ? normalizeData(data) : normalizeData(nqResult.data.count_over_time)}
-            normalized={normalized}
-          />
+          {(error === undefined) && (
+            <TotalAttentionChart
+              data={(normalized) ? normalizeData(data) : data.count.relevant}
+              normalized={normalized}
+            />
           )}
           <div className="clearfix">
             {(platform === PROVIDER_NEWS_MEDIA_CLOUD

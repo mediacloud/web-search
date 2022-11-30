@@ -5,6 +5,7 @@ import datetime
 from operator import itemgetter
 from abc import ABC
 import mediacloud.api
+from .exceptions import QueryingEverythingUnsupportedQuery
 
 # helpful for turning any date into the standard Media Cloud date format
 MC_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -18,6 +19,9 @@ class ContentProvider(ABC):
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
+
+    def everything_query(self) -> str:
+        raise QueryingEverythingUnsupportedQuery()
 
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
                **kwargs) -> List[Dict]:
