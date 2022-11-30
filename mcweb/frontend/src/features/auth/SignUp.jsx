@@ -33,6 +33,7 @@ export default function SignUp() {
     email: '',
     password1: '',
     password2: '',
+    notes: '',
   });
   const handleChange = ({ target: { name, value } }) => (
     setFormState((prev) => ({ ...prev, [name]: value }))
@@ -147,7 +148,16 @@ export default function SignUp() {
                   onChange={handleChange}
                 />
               </Grid>
-
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="notes"
+                  label="Tell us a little about why you want to use Media Cloud"
+                  type="text"
+                  onChange={handleChange}
+                />
+              </Grid>
             </Grid>
             <Button
               fullWidth
