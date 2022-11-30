@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
-import { useSnackbar } from 'notistack';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import { searchApi } from '../../app/services/searchApi';
@@ -16,14 +15,15 @@ import CountOverTimeResults from './results/CountOverTimeResults';
 import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
+import deactivateButton from './util/deactivateButton';
 import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
 
 export default function Search() {
-  const { enqueueSnackbar } = useSnackbar();
-
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
+
+  const [show, setShow] = useState(false);
 
   const {
     queryString,
@@ -48,6 +48,10 @@ export default function Search() {
     anyAll,
     advanced,
   };
+
+  useEffect(() => {
+    setShow(deactivateButton(queryObject));
+  }, [queryObject]);
 
   return (
     <div className="search-container">
@@ -119,17 +123,14 @@ export default function Search() {
               <Button
                 className="float-end"
                 variant="contained"
+                disabled={!show}
                 onClick={() => {
-                  try {
-                    navigate(
-                      `/search${urlSerializer(queryObject)}`,
-                      { options: { replace: true } },
-                    );
-                    dispatch(searchApi.util.resetApiState());
-                    dispatch(setSearchTime(dayjs().format()));
-                  } catch {
-                    enqueueSnackbar('Query is empty', { variant: 'error' });
-                  }
+                  navigate(
+                    `/search${urlSerializer(queryObject)}`,
+                    { options: { replace: true } },
+                  );
+                  dispatch(searchApi.util.resetApiState());
+                  dispatch(setSearchTime(dayjs().format()));
                 }}
               >
                 Search

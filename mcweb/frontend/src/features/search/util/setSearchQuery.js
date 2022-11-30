@@ -1,5 +1,6 @@
 import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
+
 import {
   setQueryList,
   setNegatedQueryList,
@@ -11,6 +12,7 @@ import {
   setPreviewSelectedMedia,
   setAdvanced,
   setQueryString,
+  setSearchTime,
 } from '../query/querySlice';
 
 const formatQuery = (query) => {
@@ -94,6 +96,7 @@ const setSearchQuery = (searchParams) => {
     dispatch(setPreviewSelectedMedia(collections));
   }
 
+  dispatch(setSearchTime(dayjs().unix()));
   return null;
 };
 
