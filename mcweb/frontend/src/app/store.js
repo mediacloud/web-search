@@ -10,6 +10,7 @@ import searchReducer from '../features/search/searchSlice';
 import uiReducer from '../features/ui/uiSlice';
 import queryReducer from '../features/search/query/querySlice';
 import resultsReducer from '../features/search/resultsSlice';
+import rtkQueryErrorLogger from './middleware';
 
 let store; // singleton store
 
@@ -41,6 +42,7 @@ const setupStore = () => {
       authApi.middleware,
       searchApi.middleware,
       managerApi.middleware,
+      rtkQueryErrorLogger,
     ),
 
   });
