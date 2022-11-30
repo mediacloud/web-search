@@ -2,8 +2,11 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import exporting from 'highcharts/modules/exporting';
 import { useSelector } from 'react-redux';
 import queryGenerator from '../util/queryGenerator';
+
+exporting(Highcharts);
 
 export default function TotalAttentionChart({ data, normalized }) {
   const {
