@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useEFfect} from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
@@ -18,13 +18,17 @@ import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
 import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
+import { useState } from 'react';
 
 export default function Search() {
+  
   const { enqueueSnackbar } = useSnackbar();
 
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
+
+  const [show, setShow] = useState(false)
 
   const {
     queryString,
@@ -49,6 +53,13 @@ export default function Search() {
     anyAll,
     advanced,
   };
+
+
+  useEffect(() => {
+    setShow(deactivateButton(queryObject))
+  }, [queryObject])
+
+
 
   return (
     <div className="search-container">
@@ -120,20 +131,16 @@ export default function Search() {
               <Button
                 className="float-end"
                 variant="contained"
+                disabled={!show}
                 onClick={() => {
-                  try {
-                    deactivateButton(); 
-                    
                     navigate(
                       `/search${urlSerializer(queryObject)}`,
                       { options: { replace: true } },
                     );
                     dispatch(searchApi.util.resetApiState());
                     dispatch(setSearchTime(dayjs().format()));
-                  } catch {
-                    enqueueSnackbar('Query is empty', { variant: 'error' });
+                    }
                   }
-                }}
               >
                 Search
               </Button>
