@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 
 const deactvateButton = (queryObject) => {
   const {
+    queryString,
     queryList,
     negatedQueryList,
     startDate,
@@ -10,19 +11,26 @@ const deactvateButton = (queryObject) => {
   } = queryObject;
   
   
+  
   const totalQuery = queryList.concat(negatedQueryList)
   
-  const isEmpty = isTotalQueryEmpty(totalQuery)
+  // is the query string empty? 
+  const isQueryEmpty = validQuery(totalQuery)
 
-  const correctDates = areCorrectDates(startDate, endDate); 
+  // are the dates in correct order? 
+  const areDatesValid = validDates(startDate, endDate); 
+
+  // is the advanced search query empty? 
+  const isQueryStringEmpty = validQueryString(queryString)
+  
 
 
-  return isEmpty && correctDates; 
+  return ((isQueryEmpty || isQueryStringEmpty) && areDatesValid)
   
 }
 
 // checks too see if the query is empty 
-function isTotalQueryEmpty(totalQuery) {
+function validQuery(totalQuery) {
   for(let i = 0; i < totalQuery.length; i++) {
     if(totalQuery[i].length > 0) {
       return true; 
@@ -32,8 +40,13 @@ function isTotalQueryEmpty(totalQuery) {
 }
 
 // checks to see if the startDAte is before the endDAte
-function areCorrectDates(startDate, endDate) {
+function validDates(startDate, endDate) {
   return dayjs(startDate).isBefore(dayjs(endDate));
+}
+
+// is the advanced search query string not just the "*"
+function validQueryString(queryString) {
+  return queryString.length > 1; 
 }
 
 
