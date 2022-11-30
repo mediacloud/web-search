@@ -1,0 +1,13 @@
+.search-results-wrapper {
+  padding-top: $padding-l;
+
+  .results-item-wrapper {
+    margin-bottom: $padding-l;
+
+    h2 {
+      font-size: $padding-m;
+      font-weight: bold;
+    }
+
+  }
+}

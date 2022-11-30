@@ -4,7 +4,7 @@ export const searchApi = createApi({
   reducerPath: 'searchApi',
   baseQuery: fetchBaseQuery({
     baseUrl: '/api/search/',
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers) => {
       // Django requires this for security (cross-site forgery protection) once logged in
       headers.set('X-Csrftoken', window.CSRF_TOKEN);
       return headers;
@@ -16,33 +16,54 @@ export const searchApi = createApi({
       query: (credentials) => ({
         url: 'search',
         method: 'POST',
-        body: { ...credentials }
+        body: { ...credentials },
       }),
     }),
     getCollectionSearch: builder.query({
       query: (queryString) => ({
         url: `collections/?query=${queryString}`,
-        method: 'GET'
-      })
+        method: 'GET',
+      }),
     }),
-    makeQuery: builder.mutation({
-      query: (queryObject) => {
-        return {
-        url: 'query',
+    getTotalCount: builder.mutation({
+      query: (queryObject) => ({
+        url: 'total-count',
         method: 'POST',
-        body: {queryObject}
-        };
-      }
+        body: { queryObject },
+      }),
     }),
-  })
+    getCountOverTime: builder.mutation({
+      query: (queryObject) => ({
+        url: 'count-over-time',
+        method: 'POST',
+        body: { queryObject },
+      }),
+    }),
+    getNormalizedCountOverTime: builder.mutation({
+      query: (queryObject) => ({
+        url: 'normalized-count-over-time',
+        method: 'POST',
+        body: { queryObject },
+      }),
+    }),
+    getSampleStories: builder.mutation({
+      query: (queryObject) => ({
+        url: 'sample',
+        method: 'POST',
+        body: { queryObject },
+      }),
+    }),
+  }),
 });
 
-
-// search/attentionOverTime 
+// search/attentionOverTime
 // search
 // action: get back Json. Save it to searchResults
 export const {
   useGetSearchMutation,
   useLazyGetCollectionSearchQuery,
-  useMakeQueryMutation,
+  useGetTotalCountMutation,
+  useGetCountOverTimeMutation,
+  useGetSampleStoriesMutation,
+  useGetNormalizedCountOverTimeMutation,
 } = searchApi;

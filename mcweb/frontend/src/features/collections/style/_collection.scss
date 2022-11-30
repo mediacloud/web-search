@@ -1,61 +1,33 @@
-.collectionTitle { 
-  background-color: navy;
-  color: white;
-  display: flex; 
-  justify-content: space-between;
-  padding: 10px;
-  
-  h1 {
-    font-size: 36px;
-    padding: 5px;
-    font-weight: 600;
-  }
-  .collectionName {
-    font-size: 18px;
-    font-weight: 600;
-  }
-  
-  // Collection Title for CollectionShow 
-  .collectionInformation {
-    h2 {
-      font-size: 16px;
-      font-weight: 500;
+
+.featured-collections-wrapper {
+  padding-top: $padding-m;
+
+  .featured-collection-list {
+
+    .featured-collection {
+      border: 1px solid $primary-off-white;
+      margin: 0px 0px 20px 0px;
+      padding: 20px;
+
+      em {
+          @include small-label;
+          margin-bottom: $padding-s;
+      }
+
+      &:hover {
+        box-shadow: 2px 2px $padding-xs $primary-off-white;
+      }
+
+      h3 {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+
+      p {
+
+      }
     }
-    h3 {
-      font-size: 12px;
-      font-weight: 400;
-    }
-  }
-}
 
-
-
-
-
-// buttons in CollectionSHow
-.buttons {
-  display: flex;
-  Button {
-    margin-left: 10px;
-  }
-}
-
-// Featured Collection Contents 
-.featuredCollection {
-  padding: 50px;
-  background-color:rgb(86, 86, 184);
-}
-
-// All sources to the collection 
-.collectionSources {
-  padding: 30px;
-  background-color: rgb(235, 166, 102);
-  
-  // information for the collections' sources 
-  .collectionSourcesInformation {
-    color: black;
-    justify-content: space-between;
-    margin-left: 50px;
-    font-weight: 550;
   }
 }

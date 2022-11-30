@@ -1,32 +1,124 @@
+// css reset
+@import '../../../../scss/custom.scss';
+
+// text styling
+@import './variables';
+@import './text';
+
 // ui component styling
 @import '../features/ui/modal/_modal.scss';
+@import '../features/ui/style/statpanel';
 
 // collection styling
 @import '../features/collections/style/collection';
 @import '../features/collections/style/modify-collection';
-@import '../features/collections/style/collection-item';
 
 // source styling
-@import '../features/sources/style/source-list';
-@import '../features/sources/style/source-item';
-@import '../features/sources/style/modify-source';
-@import '../features/sources/style/source';
 
 // componenets
-@import '../style/header';
-@import '../style/homepage';
-@import '../style/footer';
+@import '../features/header/header';
+@import '../features/footer/footer';
+@import '../features/homepage/homepage';
 
-// search styling 
+// search styling
 @import '../features/search/styles/search.scss';
-@import '../features/search/media_picker/style/media-picker';
-@import '../features/search/media_picker/style/featured-collection-picker';
-@import '../features/search/media_picker/style/selected-media';
-@import '../features/search/media_picker/style/collection-search-picker';
-@import '../features/search/media_picker/style/platform-picker';
+@import '../features/search/results/styles/results.scss';
+@import '../features/search/query/style/featured-collection-picker';
+@import '../features/search/query/style/selected-media';
+@import '../features/search/query/style/collection-search-picker';
+@import '../features/search/query/style/platform-picker';
+@import '../features/search/query/style/simple-search';
+@import '../features/search/query/style/date-picker';
+@import '../features/search/query/style/query-preview';
+@import '../features/search/query/media-picker/media-picker';
+
+// syntax highlighting
+@import 'prismjs/themes/prism.css';
 
 // results styling
 @import '../features/search/results/styles/sample-stories';
 
-// text styling 
-@import '../style/text';
+body {
+  font-family: $body-font-families;
+  background-color: $primary-black;
+}
+
+#content {
+  min-height: 300px;
+  background-color: #fff;
+  padding-bottom: $padding-m;
+}
+
+table {
+  thead {
+    th {
+      background-color: $primary-black;
+      color: $primary-off-white;
+      padding: $padding-xs;
+    }
+  }
+  tr {
+    &:nth-child(even) {
+      background-color: $primary-off-white;
+    }
+
+    td {
+      font-size: 16px;
+      overflow-x: scroll;
+      padding: $padding-s;
+      vertical-align: top;
+
+      .google-icon {
+        margin-right: $padding-xs;
+        vertical-align: bottom;
+      }
+    }
+  }
+}
+
+.feature-area {
+    padding: $padding-l 0px;
+    margin-bottom: $padding-m;
+
+    h1 {
+      margin-top: 0px;
+      padding-top: 0px;
+      margin-bottom: $padding-m;
+    }
+
+    img {
+      border: 1px solid $primary-off-white;
+    }
+
+    &.filled {
+      background-color: $primary-off-white;
+      img {
+        border: 1px solid #fff;
+      }
+    }
+
+    &.reverse {
+      background-color: $primary-black;
+      color: $primary-off-white;
+
+      a {
+        color: $primary-off-white;
+      }
+    }
+}
+
+.sub-feature {
+  border-bottom: 1px solid $primary-off-white;
+  padding-bottom: $padding-m;
+  margin-bottom: $padding-m;
+}
+
+
+dl {
+  dt {
+    @include small-label;
+  }
+  dd {
+    font-size: 18px;
+  }
+}

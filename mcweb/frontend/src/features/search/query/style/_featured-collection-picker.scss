@@ -1,0 +1,20 @@
+.featured-collections-picker-container{
+    max-height: 100%;
+    overflow-y: auto;
+    h5 {
+        color:black;
+    }
+}
+
+
+.collection-picker-item:nth-child(even) {
+    background-color: #dec6bd3f;
+}
+
+.collection-picker-item:nth-child(odd) {
+    background-color:#2f2d2b1e;
+}
+
+.featured-collections-container {
+    width: auto;
+}

@@ -1,0 +1,29 @@
+.media-picker {
+
+  .media-picker-container{
+      background-color: white;
+      // display: flex;
+      // max-height: 100%;
+      overflow-y: auto;
+      // // height: auto;
+      // border: 1px solid red;
+      // overflow: auto;
+  }
+
+}
+
+.media-picker-controls {
+  margin-top: $padding-s;
+  padding: $padding-m 20px 0px 0px;
+  border-top: 1px solid $primary-off-white;
+  h3 {
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
+.tabpanel {
+  padding: 0px $padding-s $padding-s $padding-m;
+  min-height: 700px;
+  border-left: 1px solid $primary-off-white;
+}

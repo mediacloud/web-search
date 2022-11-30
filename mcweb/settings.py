@@ -10,15 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
+import logging
 from pathlib import Path
 import os
 import dj_database_url
 import environ
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from django.core.exceptions import ImproperlyConfigured
+
+logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "0.1.1"
+VERSION = "0.1.4"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -46,6 +50,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "frontend",
     "backend.sources",
+    "backend.search",
+    "backend.users",
     "rest_framework_simplejwt",
 ]
 
@@ -118,7 +124,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-STATIC_ROOT="mcweb/static"
+STATIC_ROOT = "mcweb/static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-auto-field
@@ -179,7 +185,7 @@ EMAIL_HOST_USER = "mcwebauthentication@outlook.com"
 EMAIL_HOST_PASSWORD = "mxzhubketlilkxyq"
 
 # sentry config
-if env('SENTRY_DSN') is not None:
+try:
     sentry_sdk.init(
 
         dsn=env('SENTRY_DSN'),
@@ -196,3 +202,5 @@ if env('SENTRY_DSN') is not None:
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True
     )
+except ImproperlyConfigured:
+    logger.debug("Sentry DSN not configured")
