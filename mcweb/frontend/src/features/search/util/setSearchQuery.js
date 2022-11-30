@@ -11,6 +11,7 @@ import {
   setPreviewSelectedMedia,
   setAdvanced,
   setQueryString,
+  setSearchTime,
 } from '../query/querySlice';
 
 const formatQuery = (query) => {
@@ -94,6 +95,7 @@ const setSearchQuery = (searchParams) => {
     dispatch(setPreviewSelectedMedia(collections));
   }
 
+  dispatch(setSearchTime(dayjs().unix()));
   return null;
 };
 

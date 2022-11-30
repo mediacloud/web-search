@@ -19,7 +19,7 @@ const querySlice = createSlice({
     collections: DEFAULT_COLLECTIONS,
     previewCollections: DEFAULT_COLLECTIONS,
     sources: [],
-    lastSearchTime: dayjs().format(),
+    lastSearchTime: 0,
     anyAll: 'any',
     advanced: false,
   },
