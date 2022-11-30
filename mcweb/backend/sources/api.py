@@ -2,8 +2,6 @@ import time
 import json
 import os
 import requests
-from http.client import CannotSendHeader, HTTPResponse
-from importlib.metadata import metadata
 from django.shortcuts import get_object_or_404
 from backend.util import csv_stream
 from rest_framework.response import Response
@@ -11,20 +9,12 @@ from rest_framework.decorators import action
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
-
+import mcmetadata.urls as urls
+from django.db.models import Case, When
 
 from settings import BASE_DIR
 from util.cache import cache_by_kwargs
 from rest_framework.renderers import JSONRenderer
-
-from django.db.models import Case, When
-
-# csv
-
-import csv
-from django.http import HttpResponse
-from django.shortcuts import render
-
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -48,8 +38,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         for collection in deserial_data['featuredCollections']['entries']:
             for id in collection['tags']:
                 list_ids.append(id)
-        
-            
+
         ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_ids)]) 
         collection_return = Collection.objects.filter(pk__in=list_ids, id__in=list_ids).order_by(ordered_cases)  
             
@@ -78,6 +67,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
         feeds = response.json()
         feeds = feeds["results"]
         return Response({"feeds": feeds})
+
 
 class SourcesViewSet(viewsets.ModelViewSet):
     queryset = Source.objects.all()
@@ -141,7 +131,9 @@ class SourcesViewSet(viewsets.ModelViewSet):
         streamer = csv_stream.CSVStream(filename, data_generator)
         return streamer.stream()
 
+
 class SourcesCollectionsViewSet(viewsets.ViewSet):
+
     def retrieve(self, request, pk=None):
         collection_bool = request.query_params.get('collection')
         if (collection_bool == 'true'):

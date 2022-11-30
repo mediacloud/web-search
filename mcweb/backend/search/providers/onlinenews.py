@@ -11,8 +11,6 @@ from waybacknews.searchapi import SearchApiClient
 from .provider import ContentProvider
 from util.cache import cache_by_kwargs
 
-Source = apps.get_model('sources', 'Source')
-Collection = apps.get_model('sources', 'Collection')
 
 class OnlineNewsMediaCloudProvider(ContentProvider):
 
@@ -220,6 +218,9 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
 
     @classmethod
     def _assembled_query_str(cls, query: str, **kwargs) -> str:
+        # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
+        Source = apps.get_model('sources', 'Source')
+        # Collection = apps.get_model('sources', 'Collection')
         domains = []
         # turn media ids into domains
         media_ids = kwargs['sources'] if 'sources' in kwargs else []

@@ -31,20 +31,20 @@ PLATFORM_SOURCE_WAYBACK_MACHINE = 'waybackmachine'
 NAME_SEPARATOR = "-"
 
 
-def _provider_name(platform: str, source: str) -> str:
+def provider_name(platform: str, source: str) -> str:
     return platform + NAME_SEPARATOR + source
 
 
 def available_provider_names() -> List[str]:
     platforms = []
     if TWITTER_API_BEARER_TOKEN:
-        platforms.append(_provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER))
+        platforms.append(provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER))
     if YOUTUBE_API_KEY:
-        platforms.append(_provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE))
+        platforms.append(provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE))
     if MEDIA_CLOUD_API_KEY:
-        platforms.append(_provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD))
-    platforms.append(_provider_name(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT))
-    platforms.append(_provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE))
+        platforms.append(provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD))
+    platforms.append(provider_name(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT))
+    platforms.append(provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE))
     return platforms
 
 
@@ -62,7 +62,7 @@ def provider_for(platform: str, source: str) -> ContentProvider:
     :return:
     """
     available = available_provider_names()
-    if _provider_name(platform, source) in available:
+    if provider_name(platform, source) in available:
         if (platform == PLATFORM_TWITTER) and (source == PLATFORM_SOURCE_TWITTER):
             platform_provider = TwitterTwitterProvider(TWITTER_API_BEARER_TOKEN)
         elif (platform == PLATFORM_REDDIT) and (source == PLATFORM_SOURCE_PUSHSHIFT):
