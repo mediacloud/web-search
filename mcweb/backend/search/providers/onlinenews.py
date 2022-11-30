@@ -12,7 +12,6 @@ from .provider import ContentProvider
 from util.cache import cache_by_kwargs
 
 
-
 class OnlineNewsMediaCloudProvider(ContentProvider):
 
     def __init__(self, api_key):
@@ -21,6 +20,9 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         self._api_key = api_key
         self._mc_client = MediaCloud(api_key)
         self._mc_client.TIMEOUT_SECS = 300  # give backend 5 mins to responsd
+
+    def everything_query(self) -> str:
+        return '*'
 
     @cache_by_kwargs()
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
@@ -181,6 +183,9 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         self._client = SearchApiClient(self.DEFAULT_COLLECTION)
         self._logger = logging.getLogger(__name__)
 
+    def everything_query(self) -> str:
+        return '*'
+
     @cache_by_kwargs()
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
                **kwargs) -> List[Dict]:
@@ -200,7 +205,6 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
     def item(self, item_id: str, collection: str = DEFAULT_COLLECTION) -> Dict:
         return self._client.article(item_id)
 
-    @cache_by_kwargs()
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
                   collection: str = DEFAULT_COLLECTION, **kwargs):
         for page in self._client.all_articles(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs):
