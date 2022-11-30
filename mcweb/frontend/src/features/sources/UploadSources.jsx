@@ -34,7 +34,6 @@ export default function UploadSources(props) {
           </div>
         )}
       </CSVReader>
-      {/* {csvOutput ? console.log(csvOutPut) : console.log("no csv output")} */}
     </div>
   );
 }
