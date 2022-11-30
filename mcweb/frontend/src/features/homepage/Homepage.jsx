@@ -78,7 +78,7 @@ export default function Homepage() {
               </p>
             </div>
             <div className="col-5">
-              [screenshot]
+              <img src={assetUrl('img/mc-country-coverage.png')} alt="heatmap visualization showing countries stories ahve come from" width="100%" />
             </div>
           </div>
         </div>
