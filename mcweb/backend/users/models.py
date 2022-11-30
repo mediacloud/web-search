@@ -82,6 +82,6 @@ class QuotaHistory(models.Model):
         matching.save()
         # raise an error if they are at quota
         quota = Profile.user_provider_quota(user_id, provider)
-        if quota == matching.hits:
+        if quota <= matching.hits:
             raise OverQuotaException(provider, quota)
         return matching.hits
