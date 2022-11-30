@@ -1,8 +1,8 @@
 import * as React from 'react';
-import Highcharts from 'highcharts'
-import exporting from "highcharts/modules/exporting";
-import HighchartsReact from 'highcharts-react-official'
-
+import PropTypes from 'prop-types';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
+import exporting from 'highcharts/modules/exporting';
 import { useSelector } from 'react-redux';
 import queryGenerator from '../util/queryGenerator';
 
@@ -66,8 +66,8 @@ export default function TotalAttentionChart({ data, normalized }) {
     }],
   };
   if (normalized) {
-    options.yAxis.labels.format = '{value: .1f}%';
-    options.series[0].data[0].dataLabels = { format: `{point.y: ${data} %}` };
+    options.yAxis.labels.format = '{value: .2f}%';
+    options.series[0].data[0].dataLabels = { format: `{point.y: ${data.toPrecision(4)} %}` };
   }
 
   return (
@@ -76,3 +76,8 @@ export default function TotalAttentionChart({ data, normalized }) {
     </div>
   );
 }
+
+TotalAttentionChart.propTypes = {
+  data: PropTypes.number.isRequired,
+  normalized: PropTypes.bool.isRequired,
+};

@@ -11,3 +11,8 @@ class UnknownProviderException(Exception):
 class UnavailableProviderException(Exception):
     def __init__(self, platform, source):
         super().__init__("Unavailable provider {} from {}".format(platform, source))
+
+
+class QueryingEverythingUnsupportedQuery(Exception):
+    def __init__(self):
+        super().__init__("Can't query everything")

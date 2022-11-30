@@ -9,14 +9,12 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import queryGenerator from '../util/queryGenerator';
 import CountOverTimeChart from './CountOverTimeChart';
-import {
-  useGetCountOverTimeMutation,
-  useGetNormalizedCountOverTimeMutation,
-} from '../../../app/services/searchApi';
+import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
+import { supportsNormalizedCount } from './TotalAttentionResults';
 
 export default function CountOverTimeResults() {
   const {
@@ -55,8 +53,6 @@ export default function CountOverTimeResults() {
 
   const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
-  const [normalizedQuery, normalizedResults] = useGetNormalizedCountOverTimeMutation();
-
   const collectionIds = collections.map((collection) => collection.id);
 
   const handleDownloadRequest = (queryObject) => {
@@ -69,37 +65,13 @@ export default function CountOverTimeResults() {
     return newDate;
   };
 
-  const cleanData = (oldData) => {
-    let newData;
-    if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
-      if (normalized) {
-        newData = oldData.count_over_time.counts.map((day) => (
-          [dateHelper(day.date), (Math.round((day.ratio + Number.EPSILON) * 10000) / 100)]
-        ));
-      } else {
-        newData = oldData.count_over_time.counts.map((day) => (
-          [dateHelper(day.date), day.count]
-        ));
-      }
-    } else {
-      newData = oldData.count_over_time.counts.map((day) => [dateHelper(day.date), day.count]);
-    }
-    return newData;
-  };
+  const cleanData = (oldData) => oldData.map((r) => [
+    dateHelper(r.date),
+    normalized ? r.ratio * 100 : r.count,
+  ]);
 
   useEffect(() => {
-    if ((queryList[0].length !== 0 || (advanced && queryString !== 0))
-      && (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
-      normalizedQuery({
-        query: fullQuery(),
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources,
-        platform,
-      });
-      setNormalized(true);
-    } else if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
+    if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
       query({
         query: fullQuery(),
         startDate,
@@ -108,11 +80,11 @@ export default function CountOverTimeResults() {
         sources,
         platform,
       });
-      setNormalized(false);
+      setNormalized(supportsNormalizedCount(platform));
     }
   }, [lastSearchTime]);
 
-  if (isLoading || normalizedResults.isLoading) {
+  if (isLoading) {
     return (
       <div>
         {' '}
@@ -122,20 +94,18 @@ export default function CountOverTimeResults() {
     );
   }
 
-  if ((data === undefined)
-   && (normalizedResults.data === undefined)
-   && (error === undefined) && (normalizedResults.error === undefined)) {
+  if ((data === undefined) && (error === undefined)) {
     return null;
   }
 
   let content;
-  if (error || normalizedResults.error) {
+  if (error) {
     // const msg = data.note;
     content = (
       <Alert severity="warning">
         Our access doesn&apos;t support fetching attention over time data.
         (
-        {error.data.note || normalizedResults.error.data.note}
+        {error.data.note}
         )
       </Alert>
     );
@@ -143,7 +113,7 @@ export default function CountOverTimeResults() {
     content = (
       <>
         <CountOverTimeChart
-          data={data ? cleanData(data) : cleanData(normalizedResults.data)}
+          data={cleanData(data.count_over_time.counts)}
           normalized={normalized}
         />
         <div className="clearfix">

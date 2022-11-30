@@ -39,13 +39,6 @@ export const searchApi = createApi({
         body: { queryObject },
       }),
     }),
-    getNormalizedCountOverTime: builder.mutation({
-      query: (queryObject) => ({
-        url: 'normalized-count-over-time',
-        method: 'POST',
-        body: { queryObject },
-      }),
-    }),
     getSampleStories: builder.mutation({
       query: (queryObject) => ({
         url: 'sample',
@@ -65,5 +58,4 @@ export const {
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,
-  useGetNormalizedCountOverTimeMutation,
 } = searchApi;

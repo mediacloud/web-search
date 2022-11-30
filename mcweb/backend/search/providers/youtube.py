@@ -33,6 +33,10 @@ class YouTubeYouTubeProvider(ContentProvider):
     def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
         raise UnsupportedOperationException("The YouTube API doesn't support counts over time")
 
+    def normalized_count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime,
+                                   **kwargs) -> Dict:
+        raise UnsupportedOperationException("Can't search YouTube API for all videos in a timeframe")
+
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
         """
         Count how many videos match the query.
