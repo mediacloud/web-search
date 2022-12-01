@@ -11,8 +11,17 @@ from backend.search.providers.exceptions import UnsupportedOperationException, Q
 import backend.util.csv_stream as csv_stream
 from .utils import parse_query
 from ..users.models import QuotaHistory
+from .providers.exceptions import ProviderException
+from mcweb.backend.users.exceptions import OverQuotaException
 
 logger = logging.getLogger(__name__)
+
+
+def error_response(msg: str):
+    return HttpResponseBadRequest(json.dumps(dict(
+        status="error",
+        note=msg,
+    )))
 
 
 def handle_provider_errors(func):
@@ -23,11 +32,13 @@ def handle_provider_errors(func):
     def _handler(request):
         try:
             return func(request)
+        except (ProviderException, OverQuotaException) as e:
+            # these are expected errors, so just report the details msg to the user
+            return error_response(str(e))
         except Exception as e:
-            return HttpResponseBadRequest(json.dumps(dict(
-               status="error",
-               note=str(e),
-            )))
+            # these are internal errors we care about, so handle them as true errors
+            logger.exception(e)
+            return error_response(str(e))
     return _handler
 
 
