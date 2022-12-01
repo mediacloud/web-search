@@ -1,8 +1,11 @@
 import * as React from 'react';
-
+import { useLocation } from 'react-router-dom';
 import FeaturedCollections from './FeaturedCollections';
 
 export default function CollectionsHome() {
+  const location = useLocation();
+
+  if (location.pathname !== '/collections') return null;
   return (
     <>
       <div className="feature-area filled">

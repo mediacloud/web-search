@@ -1,9 +1,14 @@
 import PropTypes from 'prop-types';
 import { CircularProgress } from '@mui/material';
 import * as React from 'react';
+import { Outlet, useParams } from 'react-router-dom';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
-export default function CollectionHeader({ collectionId }) {
+export default function CollectionHeader() {
+  const params = useParams();
+  if (!params.collectionId) return null;
+  const collectionId = Number(params.collectionId);
+
   const {
     data,
     isLoading,
@@ -39,10 +44,11 @@ export default function CollectionHeader({ collectionId }) {
           </div>
         </div>
       </div>
+      <Outlet />
     </div>
   );
 }
 
-CollectionHeader.propTypes = {
-  collectionId: PropTypes.number.isRequired,
-};
+// CollectionHeader.propTypes = {
+//   collectionId: PropTypes.number.isRequired,
+// };
