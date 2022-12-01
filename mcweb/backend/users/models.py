@@ -19,7 +19,7 @@ class Profile(models.Model):
     quota_mediacloud_legacy = models.IntegerField(default=100000, null=False)
     quota_wayback_machine = models.IntegerField(default=100000, null=False)
     quota_reddit_pushshift = models.IntegerField(default=10000, null=False)
-    quota_twitter = models.IntegerField(default=10000, null=False)
+    quota_twitter = models.IntegerField(default=10, null=False)
     quota_youtube = models.IntegerField(default=10000, null=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
@@ -39,7 +39,8 @@ class Profile(models.Model):
 
     @classmethod
     def user_provider_quota(cls, user_id: int, provider: str) -> int:
-        profile = Profile.objects.get(user_id=user_id)
+        # as a backup catchall - create the profile in case it isn't there already (maybe for pre-existing user? 🤷🏽‍)
+        profile, _ = Profile.objects.get_or_create(user_id=user_id)
         return profile.quota_for(provider)
 
 
