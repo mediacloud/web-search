@@ -29,7 +29,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         queryset = Collection.objects.all()
 
         file_path = os.path.join(
-            BASE_DIR, 'backend/sources/media-collection.json') 
+            BASE_DIR, 'backend/sources/data/media-collection.json') 
         json_data = open(file_path)  
         deserial_data = json.load(json_data) 
         collection_return = []
@@ -50,7 +50,32 @@ class CollectionViewSet(viewsets.ModelViewSet):
         response.renderer_context = {}
         response.render()
         return response
+    
+    @action(methods=['GET'], detail=False)
+    def geo_collections(self, request):
+        queryset = Collection.objects.all()
 
+        file_path = os.path.join(
+            BASE_DIR, 'backend/sources/data/country-collections.json') 
+        json_data = open(file_path)  
+        deserial_data = json.load(json_data) 
+        collection_return = []
+        list_ids = [] 
+        for collection in deserial_data['collections']:
+            print(collection)
+            list_ids.append(collection['tags_id'])
+
+        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_ids)]) 
+        collection_return = Collection.objects.filter(pk__in=list_ids, id__in=list_ids).order_by(ordered_cases)  
+            
+        serializer = CollectionListSerializer(
+            {'collections': collection_return})
+        response = Response(serializer.data)
+        response.accepted_renderer = JSONRenderer()
+        response.accepted_media_type = "application/json"
+        response.renderer_context = {}
+        response.render()
+        return response
 
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()

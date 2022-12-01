@@ -8,6 +8,12 @@ export const collectionsApi = managerApi.injectEndpoints({
         method: 'GET',
       }),
     }),
+    getGlobalCollections: builder.query({
+      query: () => ({
+        url: 'collections/geo_collections',
+        method: 'GET',
+      }),
+    }),
     getCollection: builder.query({
       query: (id) => ({
         url: `collections/${id}/`,
@@ -48,4 +54,5 @@ export const {
   useUpdateCollectionMutation,
   useDeleteCollectionMutation,
   useLazyGetCollectionQuery,
+  useGetGlobalCollectionsQuery,
 } = collectionsApi;
