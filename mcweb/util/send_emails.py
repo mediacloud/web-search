@@ -2,6 +2,8 @@ import threading
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
 
+
+# adapted with help from https://github.com/CryceTruly/django-tutorial-youtube/tree/main/templates Cryce Truly
 class EmailThread(threading.Thread):
 
     def __init__(self, email):
