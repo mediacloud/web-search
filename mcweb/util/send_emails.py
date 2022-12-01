@@ -1,10 +1,6 @@
 import threading
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str, DjangoUnicodeDecodeError
-from django.contrib.sites.shortcuts import get_current_site
-from util.token_generator import generate_token
 
 class EmailThread(threading.Thread):
 
