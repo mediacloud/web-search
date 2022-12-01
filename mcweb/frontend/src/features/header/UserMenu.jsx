@@ -10,7 +10,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useLogoutMutation } from '../../app/services/authApi';
 import { selectIsLoggedIn, setCredentials } from '../auth/authSlice';
 import { saveCsrfToken } from '../../services/csrfToken';
-import { defaultMenuOriginProps } from '../ui/uiUtil';
+
+// to save us typing redundant info when using MUI <Menu>s
+const defaultMenuOriginProps = {
+  anchorOrigin: { vertical: 'bottom', horizontal: 'right' },
+  transformOrigin: { vertical: 'top', horizontal: 'right' },
+};
 
 const UserMenu = () => {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -25,7 +30,7 @@ const UserMenu = () => {
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
   const handleLogout = async () => {
-    const result = await logout().unwrap();
+    await logout().unwrap();
     dispatch(setCredentials(null));
     navigate('/');
     enqueueSnackbar("You've been logged out", { variant: 'success' });
@@ -43,7 +48,8 @@ const UserMenu = () => {
           id="user-menu"
           open={Boolean(anchorElUser)}
           anchorEl={anchorElUser}
-          {...defaultMenuOriginProps}
+          anchorOrigin={defaultMenuOriginProps.anchorOrigin}
+          transformOrigin={defaultMenuOriginProps.transformOrigin}
           keepMounted
           onClose={handleCloseUserMenu}
         >

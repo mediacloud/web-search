@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import { NavLink, Link } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import { assetUrl } from '../ui/uiUtil';
+import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
 const pages = ['search', 'collections'];
 // const settings = ['Account', 'Logout'];
@@ -31,6 +32,13 @@ function Header() {
           </div>
           <div className="col-6">
             <div id="menuButtonWrapper" className="float-end">
+              <Permissioned role={ROLE_STAFF}>
+                { /* need to do an a link here to a new window so that it does
+                  NOT go throug hthe Router */ }
+                <a href="/adminauth/user/" target="_blank">
+                  <Button variant="text">Admin</Button>
+                </a>
+              </Permissioned>
               <UserMenu />
             </div>
           </div>
