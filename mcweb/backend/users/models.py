@@ -19,7 +19,7 @@ class Profile(models.Model):
     quota_mediacloud_legacy = models.IntegerField(default=100000, null=False)
     quota_wayback_machine = models.IntegerField(default=100000, null=False)
     quota_reddit_pushshift = models.IntegerField(default=10000, null=False)
-    quota_twitter = models.IntegerField(default=10000, null=False)
+    quota_twitter = models.IntegerField(default=10, null=False)
     quota_youtube = models.IntegerField(default=10000, null=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
