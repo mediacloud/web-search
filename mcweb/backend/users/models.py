@@ -39,7 +39,8 @@ class Profile(models.Model):
 
     @classmethod
     def user_provider_quota(cls, user_id: int, provider: str) -> int:
-        profile = Profile.objects.get(user_id=user_id)
+        # as a backup catchall - create the profile in case it isn't there already (maybe for pre-existing user? 🤷🏽‍)
+        profile, _ = Profile.objects.get_or_create(user_id=user_id)
         return profile.quota_for(provider)
 
 
