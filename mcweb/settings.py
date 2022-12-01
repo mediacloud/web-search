@@ -177,12 +177,22 @@ CACHES = {
 
 
 # email authentication
-EMAIL_BACKEND = env('EMAIL_BACKEND')
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = env('EMAIL_PORT')
-EMAIL_USE_SSL = env('EMAIL_USE_SSL')
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+try:
+    EMAIL_BACKEND = env('EMAIL_BACKEND')
+    EMAIL_HOST = env('EMAIL_HOST')
+    EMAIL_PORT = env('EMAIL_PORT')
+    EMAIL_USE_SSL = env('EMAIL_USE_SSL')
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+except ImproperlyConfigured:
+    # don't require email settings; for instance on localhost
+    logger.warning("Email not configured")
+    EMAIL_BACKEND = None
+    EMAIL_HOST = None
+    EMAIL_PORT = None
+    EMAIL_USE_SSL = None
+    EMAIL_HOST_USER = None
+    EMAIL_HOST_PASSWORD = None
 
 # sentry config
 try:
