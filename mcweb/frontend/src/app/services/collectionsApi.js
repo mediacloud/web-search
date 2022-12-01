@@ -10,7 +10,7 @@ export const collectionsApi = managerApi.injectEndpoints({
     }),
     getGlobalCollections: builder.query({
       query: () => ({
-        url: 'collections/geo_collections',
+        url: 'collections/geo_collections/',
         method: 'GET',
       }),
     }),

@@ -20,6 +20,7 @@ import Collections from './features/collections/CollectionShow';
 import CollectionsHome from './features/collections/CollectionsHome';
 import CreateCollection from './features/collections/CreateCollection';
 import CollectionHeader from './features/collections/CollectionHeader';
+import GeographicNewsCollections from './features/collections/GeographicNewsCollections';
 import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
 import FeedShow from './features/feeds/FeedShow';
@@ -85,6 +86,14 @@ function App() {
             element={(
               <RequireAuth>
                 <CreateCollection />
+              </RequireAuth>
+            )}
+          />
+          <Route
+            path="collections/news/geographic"
+            element={(
+              <RequireAuth>
+                <GeographicNewsCollections />
               </RequireAuth>
             )}
           />
