@@ -6,14 +6,14 @@ from django.shortcuts import get_object_or_404
 from backend.util import csv_stream
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from util.cache import cache_by_kwargs
+from settings import BASE_DIR
 from .models import Collection, Feed, Source
 from rest_framework import viewsets, permissions
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
 import mcmetadata.urls as urls
 from django.db.models import Case, When
 
-from settings import BASE_DIR
-from util.cache import cache_by_kwargs
 from rest_framework.renderers import JSONRenderer
 
 
@@ -104,7 +104,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 email_text += "\n {}: updated existing source".format(
                     canonical_domain)
             collection.source_set.add(existing_source)
-        #   send_email_summary(current_user.email, email_title, email_text)
+        send_source_upload_email(email_title, email_text, request.user.email)
         print(email_text)
         return Response({'title': email_title, 'text': email_text})
 

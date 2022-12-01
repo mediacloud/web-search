@@ -7,11 +7,12 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.core import serializers
 import humps
+import threading
 from django.core.mail import send_mail
 import settings
 from django.contrib.auth.decorators import login_required
 from .models import Profile
-
+from util.send_emails import send_signup_email
 import mcweb.backend.users.legacy as legacy
 
 logger = logging.getLogger(__name__)
@@ -20,7 +21,6 @@ logger = logging.getLogger(__name__)
 # random key generator
 def _random_key():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
-
 
 # does the email exist?
 @require_http_methods(['GET'])
@@ -161,20 +161,22 @@ def register(request):
             logger.debug('Email taken')
             data = json.dumps({'message': "Email already exists"})
             return HttpResponse(data, content_type='application/json', status=403)
-        except User.DoesNotExist:
+        except Exception as e:
             pass
         # checks out, make a new user
         created_user = User.objects.create_user(username=username, password=password1, email=email,
                                                 first_name=first_name, last_name=last_name)
         created_user.save()
+        logging.debug('new user created')
         user_profile = Profile()
         user_profile.user = created_user
         user_profile.notes = notes
         user_profile.save()
-        logging.debug('new user created')
+        send_signup_email(created_user, request)
         data = json.dumps({'message': "new user created"})
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
+        print(e)
         data = json.dumps({'message': str(e)})
         return HttpResponse(data, content_type='application/json', status=400)
 
@@ -194,3 +196,24 @@ def _serialized_current_user(request) -> str:
     data = json.loads(serialized_data)[0]['fields']
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
+
+def activate_user(request, uidb64, token):
+
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        print(uid)
+        user = User.objects.get(pk = uid)
+    except Exception as e:
+        user = None
+        print(e)
+        data = json.dumps({'message': str(e)})
+    if user and generate_token.check_token(user, token):
+        print(user)
+        user.profile.registered = True 
+        user.profile.save()
+
+        logging.debug('Account Activated')
+        auth.login(request, user)
+        return redirect('/api/auth/activate-success')
+    data = user
+    return HttpResponse(data, content_type='application/json', status=400)

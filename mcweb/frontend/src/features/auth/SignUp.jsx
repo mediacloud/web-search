@@ -170,7 +170,7 @@ export default function SignUp() {
                   const user = await register(formState).unwrap();
                   dispatch(setCredentials(user));
 
-                  // logging in user
+                  // logging in user;
                   const loggedInUser = await login({
                     username: formState.username,
                     password: formState.password1,
@@ -181,7 +181,7 @@ export default function SignUp() {
                   saveCsrfToken();
 
                   navigate('/');
-                  enqueueSnackbar('We created an account for you.', { variant: 'success' });
+                  enqueueSnackbar('Your account has been created', { variant: 'success' });
                 } catch (err) {
                   const errorMsg = `Failed - ${err.data.message}`;
                   enqueueSnackbar(errorMsg, { variant: 'error' });
