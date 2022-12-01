@@ -8,15 +8,16 @@ export const ROLE_STAFF = 'STAFF';
 export const ROLE_ADMIN = 'ADMIN';
 
 export default function Permissioned({ children, role }) {
-  const isLoggedIn = useSelector(selectIsLoggedIn);
-  const currentUser = useSelector(selectCurrentUser);
+  const isLoggedIn = useSelector(selectIsLoggedIn); // will be undefined if not logged in
+  const currentUser = useSelector(selectCurrentUser); // will be undefined if not logged in
 
   let allowed = false;
   if ((role === ROLE_USER) && isLoggedIn) {
     allowed = true;
-  } else if ((role === ROLE_STAFF) && currentUser.isStaff) {
+  } else if ((role === ROLE_STAFF) && isLoggedIn
+    && (currentUser.isStaff || currentUser.isSuperuser)) {
     allowed = true;
-  } else if ((role === ROLE_ADMIN) && currentUser.isSuperuser) {
+  } else if ((role === ROLE_ADMIN) && isLoggedIn && currentUser.isSuperuser) {
     allowed = true;
   }
 
