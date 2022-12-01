@@ -24,14 +24,10 @@ def send_email(mail_params):
         print(e)
 
 def send_signup_email(user, request):
-    current_site = get_current_site
     email_body = render_to_string('authentication/activate.html', {
         'user': user,
-        'domain': current_site,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': generate_token.make_token(user)
     })
-    email = EmailMessage(subject = '[Media Cloud] Activate your Media Cloud account',
+    email = EmailMessage(subject = '[Media Cloud] Thank you for signing up for Media Cloud',
                 body = email_body,
                 from_email = 'noreply@mediacloud.org',
                 to = [user.email])

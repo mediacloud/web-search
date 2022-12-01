@@ -15,7 +15,6 @@ class Profile(models.Model):
     has_consented = models.BooleanField(default=False)
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
-    registered = models.BooleanField(default=False, null=True, blank=True)
     # fields that store user-specific weekly quota for each provider, to block system abuse
     quota_mediacloud_legacy = models.IntegerField(default=100000, null=False)
     quota_wayback_machine = models.IntegerField(default=100000, null=False)
