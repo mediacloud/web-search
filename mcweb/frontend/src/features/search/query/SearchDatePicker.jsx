@@ -13,7 +13,6 @@ export default function SearchDatePicker() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const { platform, startDate, endDate } = useSelector((state) => state.query);
-
   const handleChangeFromDate = (newValue) => {
     dispatch(setStartDate(dayjs(newValue).format('MM/DD/YYYY')));
   };

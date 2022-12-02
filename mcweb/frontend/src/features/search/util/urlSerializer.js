@@ -35,7 +35,6 @@ const urlSerializer = (queryObject) => {
 
   const start = dayjs(startDate).format('MM-DD-YYYY');
   const end = dayjs(endDate).format('MM-DD-YYYY');
-
   let collectionsFormatted = formatCollections(collections).join(',');
   collectionsFormatted = encode(collectionsFormatted);
 

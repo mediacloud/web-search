@@ -15,6 +15,8 @@ import {
   setSearchTime,
 } from '../query/querySlice';
 
+const customParseFormat = require('dayjs/plugin/customParseFormat');
+
 const formatQuery = (query) => {
   if (query === null) return null;
   const finalQuery = new Array(query.length);
@@ -45,6 +47,7 @@ const formatCollections = (collections) => collections.map((collection) => {
 });
 
 const setSearchQuery = (searchParams) => {
+  dayjs.extend(customParseFormat);
   const dispatch = useDispatch();
   // param keys are set in ./urlSerializer.js
   let query = searchParams.get('q');
@@ -66,9 +69,8 @@ const setSearchQuery = (searchParams) => {
 
   queryString = queryString ? decode(queryString) : null;
 
-  startDate = startDate ? dayjs(startDate).format('MM/DD/YYYY') : null;
-  endDate = endDate ? dayjs(endDate).format('MM/DD/YYYY') : null;
-
+  startDate = startDate ? dayjs(startDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
+  endDate = endDate ? dayjs(endDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
   collections = collections ? decode(collections).split(',') : null;
   collections = formatCollections(collections);
 
