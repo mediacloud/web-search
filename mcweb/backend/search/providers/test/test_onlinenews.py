@@ -147,15 +147,20 @@ class OnlineNewsWaybackMachineProviderTest(TestCase):
             assert last_count >= item['count']
             last_count = item['count']
 
-"""
-
     def test_top_sources(self):
-        results = self._provider.top_sources("coronavirus", dt.datetime(2022, 3, 1), dt.datetime(2022, 4, 1))
+        results = self._provider.sources("coronavirus", dt.datetime(2022, 3, 1), dt.datetime(2022, 4, 1))
         assert len(results) > 0
         last_count = 999999999999
         for r in results:
-            assert r['value'] <= last_count
-            last_count = r['value']
+            assert 'source' in r
+            assert 'count' in r
+            assert r['count'] <= last_count
+            last_count = r['count']
+        # make sure results unique
+        source_names = [r['source'] for r in results]
+        assert len(source_names) == len(set(source_names))
+
+    """
 
     def test_top_tlds(self):
         results = self._provider.top_tlds("coronavirus", dt.datetime(2022, 3, 1), dt.datetime(2022, 4, 1))

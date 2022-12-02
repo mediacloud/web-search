@@ -1,7 +1,6 @@
 import datetime as dt
 from typing import List, Dict
 import dateparser
-import requests
 import logging
 from mediacloud.api import MediaCloud
 import mcmetadata
@@ -212,9 +211,16 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
 
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
+        # for now just return top terms in article titles
         results = self._client.terms(self._assembled_query_str(query, **kwargs), start_date, end_date,
                                      self._client.TERM_FIELD_TITLE, self._client.TERM_AGGREGATION_TOP)
         return [dict(term=t, count=c) for t, c in results.items()]
+
+    def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+                **kwargs) -> List[Dict]:
+        results = self._client.top_sources(self._assembled_query_str(query, **kwargs), start_date, end_date)
+        cleaned_sources = [dict(source=t['name'], count=t['value']) for t in results]
+        return cleaned_sources
 
     @classmethod
     def _assembled_query_str(cls, query: str, **kwargs) -> str:
