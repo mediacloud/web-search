@@ -18,6 +18,7 @@ class TwitterTwitterProvider(ContentProvider):
         super(TwitterTwitterProvider, self).__init__()
         self._logger = logging.getLogger(__name__)
         self._bearer_token = bearer_token
+        self._session = requests.Session()  # better performance to put all HTTP through this one object
 
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10, **kwargs) -> List[Dict]:
         """
@@ -122,7 +123,7 @@ class TwitterTwitterProvider(ContentProvider):
             'Content-type': 'application/json',
             'Authorization': "Bearer {}".format(self._bearer_token)
         }
-        r = requests.get(TWITTER_API_URL+endpoint, headers=headers, params=params)
+        r = self._session.get(TWITTER_API_URL+endpoint, headers=headers, params=params)
         return r.json()
 
     @classmethod
