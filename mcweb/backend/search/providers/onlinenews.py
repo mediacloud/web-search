@@ -106,7 +106,9 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         :return:
         """
         q, fq = self._format_query(query, start_date, end_date, **kwargs)
-        top_words = self._mc_client.wordCount(q, fq)[:limit]
+        top_words = self._mc_client.wordCount(q, fq, sample_size=5000)[:limit]
+        for t in top_words:
+            t['ratio'] = t['count']/5000
         return top_words
 
     @cache_by_kwargs()

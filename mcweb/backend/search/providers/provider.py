@@ -7,12 +7,12 @@ from abc import ABC
 import mediacloud.api
 import collections
 from .exceptions import QueryingEverythingUnsupportedQuery
-from .stopwords import remove_from_counter
+from .language import terms_without_stopwords
 
 # helpful for turning any date into the standard Media Cloud date format
 MC_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-DEFAULT_WORDS_SAMPLE = 5000
+DEFAULT_WORDS_SAMPLE = 500
 
 
 class ContentProvider(ABC):
@@ -82,7 +82,7 @@ class ContentProvider(ABC):
 
     # use this if you need to sample some content for top words
     def _sampled_title_words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
-                       **kwargs) -> List[Dict]:
+                             **kwargs) -> List[Dict]:
         # support sample_size kwarg
         sample_size = kwargs['sample_size'] if 'sample_size' in kwargs else DEFAULT_WORDS_SAMPLE
         # grab a sample and count terms as we page through it
@@ -90,10 +90,7 @@ class ContentProvider(ABC):
         counts = collections.Counter()
         for page in self.all_items(query, start_date, end_date, limit=sample_size):
             sampled_count += len(page)
-            combined_text = " ".join([t['title'].lower() for t in page])
-            counts.update(combined_text.split())
-        # remove EN stopwords for now TODO: use fasttext to detect and then remove stopwords per tweet
-        counts = remove_from_counter('en', counts)
+            [counts.update(terms_without_stopwords(t['language'], t['title'])) for t in page]
         # clean up results
         results = [dict(term=w, count=c, ratio=c/sampled_count) for w, c in counts.most_common(limit)]
         return results

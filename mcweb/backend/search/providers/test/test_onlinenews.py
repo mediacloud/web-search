@@ -23,11 +23,18 @@ class OnlineNewsMediaCloudProviderTest(TestCase):
             assert 'url' in post
 
     def test_item(self):
-        stories_id = 123123
+        stories_id = '123123'
         story = self._provider.item(stories_id)
         assert story['media_name'] == 'boston.com'
-        assert story['id'] == stories_id
+        assert story['id'] == int(stories_id)
         assert len(story['title']) > 0
+
+    def test_words(self):
+        results = self._provider.words("coronavirus", dt.datetime(2022, 4, 1), dt.datetime(2022, 4, 5))
+        last_count = 99999999999
+        for item in results:
+            assert last_count >= item['count']
+            last_count = item['count']
 
     def test_count_over_time(self):
         results = self._provider.count_over_time("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
