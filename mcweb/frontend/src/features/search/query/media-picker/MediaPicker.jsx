@@ -9,7 +9,7 @@ import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
 import { addSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import CollectionSearchPicker from './CollectionSearchPicker';
-import SelectedMediaPreview from '../SelectedMediaPreview';
+import SelectedMedia from '../SelectedMedia';
 import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
 
 export default function MediaPicker() {
@@ -51,7 +51,10 @@ export default function MediaPicker() {
 
               <div className="media-picker-controls">
                 <h3>Selected Collections</h3>
-                <SelectedMediaPreview onRemove={removePreviewSelectedMedia} />
+                <SelectedMedia
+                  onRemove={removePreviewSelectedMedia}
+                  collections={previewCollections}
+                />
                 <Button
                   variant="contained"
                   onClick={() => {
