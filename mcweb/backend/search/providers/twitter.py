@@ -3,13 +3,15 @@ import requests
 import dateparser
 from typing import List, Dict
 import logging
+import collections
 
 from .provider import ContentProvider
 from .exceptions import UnsupportedOperationException
 from util.cache import cache_by_kwargs
-
+from .stopwords import remove_from_counter
 
 TWITTER_API_URL = 'https://api.twitter.com/2/'
+DEFAULT_WORDS_SAMPLE = 5000
 
 
 class TwitterTwitterProvider(ContentProvider):
@@ -87,6 +89,7 @@ class TwitterTwitterProvider(ContentProvider):
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 500,
                   **kwargs):
+        limit = kwargs['limit'] if 'limit' in kwargs else None
         next_token = None
         more_data = True
         params = {
@@ -97,7 +100,8 @@ class TwitterTwitterProvider(ContentProvider):
             "tweet.fields": ",".join(["author_id", "created_at", "public_metrics"]),
             "expansions": "author_id",
         }
-        while more_data:
+        item_count = 0
+        while more_data and ((limit is not None) and (item_count < limit)):
             params['next_token'] = next_token
             results = self._cached_query("tweets/search/all", params)
             result_count = results['meta']['result_count']
@@ -106,8 +110,26 @@ class TwitterTwitterProvider(ContentProvider):
                 continue
             page = TwitterTwitterProvider._tweets_to_rows(results)
             yield page
+            item_count += len(page)
             next_token = results['meta']['next_token'] if 'next_token' in results['meta'] else None
             more_data = next_token is not None
+
+    def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+              **kwargs) -> List[Dict]:
+        # support sample_size kwarg, based on most recent of those tweets
+        sample_size = kwargs['sample_size'] if 'sample_size' in kwargs else DEFAULT_WORDS_SAMPLE
+        # grab a sample and count terms as we page through it
+        sampled_count = 0
+        counts = collections.Counter()
+        for page_of_tweets in self.all_items(query, start_date, end_date, limit=sample_size):
+            sampled_count += len(page_of_tweets)
+            combined_tweet_text = " ".join([t['title'].lower() for t in page_of_tweets])
+            counts.update(combined_tweet_text.split())
+        # remove EN stopwords for now TODO: use fasttext to detect and then remove stopwords per tweet
+        counts = remove_from_counter('en', counts)
+        # clean up results
+        results = [dict(term=w, count=c, ratio=c/sampled_count) for w, c in counts.most_common(limit)]
+        return results
 
     @cache_by_kwargs()
     def _cached_query(self, endpoint: str, params: Dict = None) -> Dict:

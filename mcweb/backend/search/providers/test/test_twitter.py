@@ -37,3 +37,14 @@ class TwitterTwitterProviderTest(TestCase):
         assert 'counts' in results
         assert isinstance(results['counts'], list) is True
         assert len(results['counts']) == 46
+
+    def test_words(self):
+        results = self._provider.words(TERM, start_date=dt.datetime.now() - dt.timedelta(days=45),
+                                       end_date=self._now)
+        last_count = 99999999999
+        last_ratio = 1
+        for item in results:
+            assert last_count >= item['count']
+            last_count = item['count']
+            assert last_ratio >= item['ratio']
+            last_ratio = item['ratio']
