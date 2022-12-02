@@ -9,8 +9,6 @@ from .exceptions import UnsupportedOperationException
 from util.cache import cache_by_kwargs
 from .language import top_detected
 
-logger = logging.getLogger(__file__)
-
 REDDIT_PUSHSHIFT_URL = "https://api.pushshift.io"
 SUBMISSION_SEARCH_URL = "{}/reddit/submission/search".format(REDDIT_PUSHSHIFT_URL)
 
@@ -22,6 +20,7 @@ class RedditPushshiftProvider(ContentProvider):
     def __init__(self):
         super(RedditPushshiftProvider, self).__init__()
         self._logger = logging.getLogger(__name__)
+        self._session = requests.Session()  # better performance to put all HTTP through this one object
 
     def everything_query(self) -> str:
         return '*'
@@ -54,7 +53,7 @@ class RedditPushshiftProvider(ContentProvider):
         data = self._cached_submission_search(q=query,
                                               start_date=start_date, end_date=end_date,
                                               size=0, track_total_hits=True)
-        logger.debug(data)
+        # self._logger.debug(data)
         return data['metadata']['total_results']
 
     def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
@@ -98,7 +97,7 @@ class RedditPushshiftProvider(ContentProvider):
         params['metadata'] = 'true'
         # and now add in any other arguments they have sent in
         params.update(kwargs)
-        r = requests.get(SUBMISSION_SEARCH_URL, headers=headers, params=params)
+        r = self._session.get(SUBMISSION_SEARCH_URL, headers=headers, params=params)
         # temp = r.url # useful assignment for debugging investigations
         return r.json()
 
