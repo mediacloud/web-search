@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import IconButton from '@mui/material/IconButton';
 import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
 import { Link } from 'react-router-dom';
@@ -33,10 +34,14 @@ export default function FeaturedCollectionsPicker() {
               <td>{collection.notes}</td>
               <td>
                 {!(inSelectedMedia(collection.id)) && (
-                <AddCircleIcon sx={{ color: '#d24527' }} onClick={() => dispatch(addPreviewSelectedMedia(collection))} />
+                  <IconButton size="sm" aria-label="add" onClick={() => dispatch(addPreviewSelectedMedia(collection))}>
+                    <AddCircleIcon sx={{ color: '#d24527' }} />
+                  </IconButton>
                 )}
                 {(inSelectedMedia(collection.id)) && (
-                <RemoveCircleIcon sx={{ color: '#d24527' }} onClick={() => dispatch(removePreviewSelectedMedia(collection.id))} />
+                  <IconButton size="sm" aria-label="remove" onClick={() => dispatch(removePreviewSelectedMedia(collection.id))}>
+                    <RemoveCircleIcon sx={{ color: '#d24527' }} />
+                  </IconButton>
                 )}
               </td>
             </tr>

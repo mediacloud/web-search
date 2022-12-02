@@ -35,7 +35,7 @@ const querySlice = createSlice({
     }),
     addPreviewSelectedMedia: (state, { payload }) => ({
       ...state,
-      previewCollections: state.previewCollections.push(payload),
+      previewCollections: [...state.previewCollections, payload],
     }),
     setPreviewSelectedMedia: (state, { payload }) => ({ ...state, previewCollections: payload }),
     removePreviewSelectedMedia: (state, { payload }) => ({
