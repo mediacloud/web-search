@@ -20,6 +20,8 @@ class TwitterTwitterProviderTest(TestCase):
         for tweet in results:
             assert 'content' in tweet
             assert len(tweet['content']) > 0
+            assert 'language' in tweet
+            assert len(tweet['language']) == 2
 
     def test_count(self):
         results = self._provider.count(TERM, start_date=self._5_days_ago, end_date=self._now)

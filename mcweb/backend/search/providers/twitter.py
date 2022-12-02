@@ -7,7 +7,7 @@ import logging
 from .provider import ContentProvider
 from .exceptions import UnsupportedOperationException
 from util.cache import cache_by_kwargs
-
+from .language import top_detected
 
 TWITTER_API_URL = 'https://api.twitter.com/2/'
 
@@ -148,7 +148,7 @@ class TwitterTwitterProvider(ContentProvider):
             'url': link,
             'last_updated': dateparser.parse(item['created_at']),
             'author': item['author']['name'],
-            'language': None,
+            'language': top_detected(item['text']),  # guess the language cause Twitter oddly doesn't
             'retweet_count': item['public_metrics']['retweet_count'],
             'reply_count': item['public_metrics']['reply_count'],
             'like_count': item['public_metrics']['like_count'],
