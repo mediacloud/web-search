@@ -72,17 +72,34 @@ class CollectionViewSet(viewsets.ModelViewSet):
             
 
         ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_ids)]) 
-        collection_return_test = Collection.objects.filter(pk__in=list_ids, id__in=list_ids).order_by(ordered_cases)  
-            
+        collection_objects = Collection.objects.filter(pk__in=list_ids, id__in=list_ids).order_by(ordered_cases)  
+        # collection_dict = {}
+
+        # for collection in collection_objects:
+        #     collection_dict[collection.id] = collection 
+        
+       
+        # for country in collection_return:
+        #     final_collection_list = []
+        #     collections = country["collections"]
+        #     # print(country)
+        #     for collection in collections:
+        #         # print(collection)
+        #         final_collection_list.append(collection_dict[collection])
+        #     country["collections"] = final_collection_list
+
+   
+
         serializer = CollectionListSerializer(
-            {'collections': collection_return_test})
-        response = Response(serializer.data)
+            {'collections': collection_objects})
+        response = Response({"collections": serializer.data, "geographic_collections": collection_return})
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
         response.renderer_context = {}
-        response.geographic_collections = collection_return
+        # response.geographic_collections = collection_return
+        # collection_return[0]["collections"]
         return response.render()
-        # return Response({"geographic_collections": collection_return, "collections": response.render})
+        # return Response({"geographic_collections": collection_return})
 
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
