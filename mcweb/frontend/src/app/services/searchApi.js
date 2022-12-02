@@ -46,6 +46,13 @@ export const searchApi = createApi({
         body: { queryObject },
       }),
     }),
+    getTopWords: builder.mutation({
+      query: (queryObject) => ({
+        url: 'words',
+        method: 'POST',
+        body: { queryObject },
+      }),
+    }),
   }),
 });
 
@@ -58,4 +65,5 @@ export const {
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,
+  useGetTopWordsMutation,
 } = searchApi;
