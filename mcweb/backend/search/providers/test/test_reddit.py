@@ -21,6 +21,8 @@ class RedditPushshiftProviderTest(TestCase):
         for post in results:
             assert last_score >= post['score']
             last_score = post['score']
+            assert 'language' in post
+            assert len(post['language']) == 2
 
     def test_words(self):
         results = self._provider.words("robots", start_date=dt.datetime.now() - dt.timedelta(days=30),

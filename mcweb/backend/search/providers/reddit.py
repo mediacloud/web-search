@@ -7,6 +7,7 @@ import logging
 from .provider import ContentProvider, MC_DATE_FORMAT
 from .exceptions import UnsupportedOperationException
 from util.cache import cache_by_kwargs
+from .language import top_detected
 
 logger = logging.getLogger(__file__)
 
@@ -130,11 +131,11 @@ class RedditPushshiftProvider(ContentProvider):
             'last_updated': RedditPushshiftProvider._to_date(item['updated_utc']).strftime(MC_DATE_FORMAT) if 'updated_utc' in item else None,
             'author': item['author'],
             'subreddit': item['subreddit'],
-            'language': None,  # Reddit doesn't tell us the language, TODO: use langauge detection to guess?
             'thumbnail_url': item['thumbnail'],
             'is_video': item['is_video'],
             'linked_domain': item['domain'],
             'over_18': item['over_18'],
+            'language': top_detected(item['title'])  # Reddit doesn't tell us the language, so guess it
         }
 
     @classmethod

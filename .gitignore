@@ -30,3 +30,6 @@ tmp/*.csv
 
 .vscode
 package-lock.json
+
+# language detected model downloaded by install script
+mcweb/backend/search/providers/language/lid.176.bin
