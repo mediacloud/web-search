@@ -29,9 +29,7 @@ def parse_query(request, http_method: str = 'POST') -> tuple:
     collections = payload["collections"]
     sources = payload["sources"]
     start_date = payload["startDate"]
-    print("parse", str(start_date))
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
-    # print(end_date)
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
     return start_date, end_date, query_str, collections, provider_name

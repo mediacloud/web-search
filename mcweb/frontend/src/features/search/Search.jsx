@@ -130,7 +130,7 @@ export default function Search() {
                     { options: { replace: true } },
                   );
                   dispatch(searchApi.util.resetApiState());
-                  dispatch(setSearchTime(dayjs().format()));
+                  dispatch(setSearchTime(dayjs().unix()));
                 }}
               >
                 Search
