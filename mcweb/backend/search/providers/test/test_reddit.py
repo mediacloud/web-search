@@ -13,7 +13,7 @@ class RedditPushshiftProviderTest(TestCase):
         results = self._provider.count("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
                                         dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
         assert results > 0
-    """
+
     def test_sample(self):
         results = self._provider.sample("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
                                         dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
@@ -22,6 +22,18 @@ class RedditPushshiftProviderTest(TestCase):
             assert last_score >= post['score']
             last_score = post['score']
 
+    def test_words(self):
+        results = self._provider.words("robots", start_date=dt.datetime.now() - dt.timedelta(days=30),
+                                       end_date=dt.datetime.now())
+        last_count = 99999999999
+        last_ratio = 1
+        for item in results:
+            assert last_count >= item['count']
+            last_count = item['count']
+            assert last_ratio >= item['ratio']
+            last_ratio = item['ratio']
+
+    """
     def test_count_over_time(self):
         results = self._provider.count_over_time("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
                                                  dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))

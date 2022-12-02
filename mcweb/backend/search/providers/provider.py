@@ -5,10 +5,14 @@ import datetime
 from operator import itemgetter
 from abc import ABC
 import mediacloud.api
+import collections
 from .exceptions import QueryingEverythingUnsupportedQuery
+from .stopwords import remove_from_counter
 
 # helpful for turning any date into the standard Media Cloud date format
 MC_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+DEFAULT_WORDS_SAMPLE = 5000
 
 
 class ContentProvider(ABC):
@@ -38,6 +42,10 @@ class ContentProvider(ABC):
 
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
+        raise NotImplementedError("Doesn't support top words.")
+
+    def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+                **kwargs) -> List[Dict]:
         raise NotImplementedError("Doesn't support top words.")
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
@@ -71,6 +79,24 @@ class ContentProvider(ABC):
         :return: a query string that can be used to capture matching "everything" 
         """
         return '*'
+
+    # use this if you need to sample some content for top words
+    def _sampled_title_words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+                       **kwargs) -> List[Dict]:
+        # support sample_size kwarg
+        sample_size = kwargs['sample_size'] if 'sample_size' in kwargs else DEFAULT_WORDS_SAMPLE
+        # grab a sample and count terms as we page through it
+        sampled_count = 0
+        counts = collections.Counter()
+        for page in self.all_items(query, start_date, end_date, limit=sample_size):
+            sampled_count += len(page)
+            combined_text = " ".join([t['title'].lower() for t in page])
+            counts.update(combined_text.split())
+        # remove EN stopwords for now TODO: use fasttext to detect and then remove stopwords per tweet
+        counts = remove_from_counter('en', counts)
+        # clean up results
+        results = [dict(term=w, count=c, ratio=c/sampled_count) for w, c in counts.most_common(limit)]
+        return results
 
 
 def add_missing_dates_to_split_story_counts(counts, start, end, period="day"):

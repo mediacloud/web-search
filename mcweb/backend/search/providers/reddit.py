@@ -61,17 +61,25 @@ class RedditPushshiftProvider(ContentProvider):
 
     # don't change the 250 (changing page size seems to be unsupported)
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 250, **kwargs) -> Dict:
+        limit = kwargs['limit'] if 'limit' in kwargs else None
         last_date = start_date
         more_data = True
-        while more_data:
+        item_count = 0
+        while more_data and ((limit is not None) and (item_count < limit)):
             # page through by time
             page = self._cached_submission_search(q=query, start_date=last_date, end_date=end_date,
                                                   size=page_size, sort='created_utc', order='asc',
                                                   **kwargs)
             cleaned_data = [self._submission_to_row(item) for item in page['data']]
             yield cleaned_data
+            item_count += len(cleaned_data)
             more_data = len(page['data']) >= (page_size-10)
             last_date = self._to_date(page['data'][-1]['created_utc']) if more_data else None
+
+    def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+              **kwargs) -> List[Dict]:
+        # use the helper because we need to sample from most recent tweets
+        return self._sampled_title_words(query, start_date, end_date, limit, **kwargs)
 
     @cache_by_kwargs()
     def _cached_submission_search(self, query: str = None, start_date: dt.datetime = None, end_date: dt.datetime = None,
@@ -98,6 +106,8 @@ class RedditPushshiftProvider(ContentProvider):
         # and now add in any other arguments they have sent in
         params.update(kwargs)
         r = requests.get(SUBMISSION_SEARCH_URL, headers=headers, params=params)
+        if r.status_code != 200:
+            raise RuntimeError('HTTP error from pushshift.io - {}'.format(r.status_code))
         # temp = r.url # useful assignment for debugging investigations
         return r.json()
 
@@ -120,7 +130,11 @@ class RedditPushshiftProvider(ContentProvider):
             'last_updated': RedditPushshiftProvider._to_date(item['updated_utc']).strftime(MC_DATE_FORMAT) if 'updated_utc' in item else None,
             'author': item['author'],
             'subreddit': item['subreddit'],
-            'language': None  # Reddit doesn't tell us the language, TODO: use langauge detection to guess?
+            'language': None,  # Reddit doesn't tell us the language, TODO: use langauge detection to guess?
+            'thumbnail_url': item['thumbnail'],
+            'is_video': item['is_video'],
+            'linked_domain': item['domain'],
+            'over_18': item['over_18'],
         }
 
     @classmethod
