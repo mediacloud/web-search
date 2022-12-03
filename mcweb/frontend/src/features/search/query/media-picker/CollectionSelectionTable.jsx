@@ -17,11 +17,13 @@ export default function CollectionSelectionTable({
         <tr>
           <th>Name</th>
           <th>Description</th>
+          <th>Sources</th>
         </tr>
         {matching.map((c) => (
           <tr key={c.id}>
             <td><Link target="_blank" rel="noopener noreferrer" to={`/collections/${c.id}`}>{c.name}</Link></td>
             <td>{c.notes}</td>
+            <td>{c.source_count}</td>
             <td>
               {!(alreadySelected(c.id)) && (
                 <IconButton size="sm" aria-label="add" onClick={() => dispatch(onAdd(c))}>

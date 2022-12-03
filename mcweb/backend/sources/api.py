@@ -2,54 +2,75 @@ import time
 import json
 import os
 import requests
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
-from backend.util import csv_stream
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django.db.models import Case, When
+from rest_framework import viewsets, permissions
+import mcmetadata.urls as urls
+from rest_framework.renderers import JSONRenderer
+from typing import List
+
+from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
+from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from settings import BASE_DIR
 from .models import Collection, Feed, Source
-from rest_framework import viewsets, permissions
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
-import mcmetadata.urls as urls
-from django.db.models import Case, When
 
-from rest_framework.renderers import JSONRenderer
+
+def _featured_collection_ids() -> List:
+    file_path = os.path.join(
+        BASE_DIR, 'backend/sources/media-collection.json')
+    json_data = open(file_path)
+    deserial_data = json.load(json_data)
+    list_ids = []
+    for collection in deserial_data['featuredCollections']['entries']:
+        for id in collection['tags']:
+            list_ids.append(id)
+    return list_ids
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
-    queryset = Collection.objects.all()
+    queryset = Collection.objects.\
+        annotate(source_count=Count('source')).\
+        order_by('-source_count').\
+        all()
+
+    MAX_SEARCH_RESULTS = 50
+
     permission_classes = [
         permissions.AllowAny
     ]
     serializer_class = CollectionSerializer
 
     @cache_by_kwargs()
-    def list(self, request):
-        queryset = Collection.objects.all()
+    def _cached_serialized_featured_collections(self) -> str:
+        featured_collection_ids = _featured_collection_ids()
+        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
+        featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
+                                                    id__in=featured_collection_ids).order_by(ordered_cases)
 
-        file_path = os.path.join(
-            BASE_DIR, 'backend/sources/media-collection.json') 
-        json_data = open(file_path)  
-        deserial_data = json.load(json_data) 
-        collection_return = []
-        list_ids = [] 
-
-        for collection in deserial_data['featuredCollections']['entries']:
-            for id in collection['tags']:
-                list_ids.append(id)
-
-        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_ids)]) 
-        collection_return = Collection.objects.filter(pk__in=list_ids, id__in=list_ids).order_by(ordered_cases)  
-            
         serializer = CollectionListSerializer(
-            {'collections': collection_return})
-        response = Response(serializer.data)
+            {'collections': featured_collections})
+        return serializer.data
+
+    @action(detail=False)
+    def featured(self, request):
+        data = self._cached_serialized_featured_collections()
+        response = Response(data)
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
         response.renderer_context = {}
         response.render()
         return response
+
+    @action(detail=False)
+    def search(self, request):
+        query = request.query_params["query"]
+        collections = self.queryset.filter(name__icontains=query)[:self.MAX_SEARCH_RESULTS]
+        serializer = CollectionListSerializer({'collections': collections})
+        return Response(serializer.data)
 
 
 class FeedsViewSet(viewsets.ModelViewSet):

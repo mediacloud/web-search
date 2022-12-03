@@ -19,12 +19,6 @@ export const searchApi = createApi({
         body: { ...credentials },
       }),
     }),
-    getCollectionSearch: builder.query({
-      query: (queryString) => ({
-        url: `collections/?query=${queryString}`,
-        method: 'GET',
-      }),
-    }),
     getTotalCount: builder.mutation({
       query: (queryObject) => ({
         url: 'total-count',
@@ -54,7 +48,6 @@ export const searchApi = createApi({
 // action: get back Json. Save it to searchResults
 export const {
   useGetSearchMutation,
-  useLazyGetCollectionSearchQuery,
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,
