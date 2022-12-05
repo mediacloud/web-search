@@ -87,7 +87,7 @@ export default function Search() {
               </h3>
               {[PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
                 <>
-                  <SelectedMedia onRemove={removeSelectedMedia} />
+                  <SelectedMedia onRemove={removeSelectedMedia} collections={collections} />
                   <MediaPicker />
                   <p className="help">
                     Choose individual sources or collections to be searched.
@@ -130,7 +130,7 @@ export default function Search() {
                     { options: { replace: true } },
                   );
                   dispatch(searchApi.util.resetApiState());
-                  dispatch(setSearchTime(dayjs().format()));
+                  dispatch(setSearchTime(dayjs().unix()));
                 }}
               >
                 Search

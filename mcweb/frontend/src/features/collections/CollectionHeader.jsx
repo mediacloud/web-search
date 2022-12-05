@@ -16,13 +16,7 @@ export default function CollectionHeader() {
   const collection = data;
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return (<CircularProgress size={75} />);
   }
 
   return (

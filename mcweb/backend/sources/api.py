@@ -2,29 +2,50 @@ import time
 import json
 import os
 import requests
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
-from backend.util import csv_stream
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from util.cache import cache_by_kwargs
-from settings import BASE_DIR
-from .models import Collection, Feed, Source
-from rest_framework import viewsets, permissions
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
-import mcmetadata.urls as urls
 from django.db.models import Case, When
-
+from rest_framework import viewsets, permissions
+import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
+from typing import List
+
+from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
+from backend.util import csv_stream
+from util.cache import cache_by_kwargs
+from .models import Collection, Feed, Source
+
+
+def _featured_collection_ids() -> List:
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(this_dir, 'data', 'featured-collections.json')
+    with open(file_path) as json_file:
+        data = json.load(json_file)
+        list_ids = []
+        for collection in data['featuredCollections']['entries']:
+            for cid in collection['tags']:
+                list_ids.append(cid)
+        return list_ids
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
-    queryset = Collection.objects.all()
+    # use this queryset, so we ensure that every result has `source_count` included
+    queryset = Collection.objects.\
+        annotate(source_count=Count('source')).\
+        order_by('-source_count').\
+        all()
+
+    MAX_SEARCH_RESULTS = 50
+
     permission_classes = [
-        permissions.AllowAny
+        permissions.IsAuthenticated
     ]
     serializer_class = CollectionSerializer
 
     @cache_by_kwargs()
+<<<<<<< HEAD
     def list(self, request):
         queryset = Collection.objects.all()
 
@@ -45,6 +66,21 @@ class CollectionViewSet(viewsets.ModelViewSet):
         serializer = CollectionListSerializer(
             {'collections': collection_return})
         response = Response(serializer.data)
+=======
+    def _cached_serialized_featured_collections(self) -> str:
+        featured_collection_ids = _featured_collection_ids()
+        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
+        featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
+                                                    id__in=featured_collection_ids).order_by(ordered_cases)
+
+        serializer = self.serializer_class(featured_collections, many=True)
+        return serializer.data
+
+    @action(detail=False)
+    def featured(self, request):
+        data = self._cached_serialized_featured_collections()
+        response = Response({"collections":data})
+>>>>>>> 8827d45558058c46f80818e4c47c6babada87995
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
         response.renderer_context = {}
@@ -81,11 +117,18 @@ class CollectionViewSet(viewsets.ModelViewSet):
         response.renderer_context = {}
         return response.render()
 
+    @action(detail=False)
+    def search(self, request):
+        query = request.query_params["query"]
+        collections = self.queryset.filter(name__icontains=query)[:self.MAX_SEARCH_RESULTS]
+        serializer = self.serializer_class(collections, many=True)
+        return Response({"collections":serializer.data})
+
 
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
     permission_classes = [
-        permissions.AllowAny
+        permissions.IsAuthenticated
 
     ]
     serializer_class = FeedsSerializer
@@ -102,7 +145,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
 class SourcesViewSet(viewsets.ModelViewSet):
     queryset = Source.objects.all()
     permission_classes = [
-        permissions.AllowAny
+        permissions.IsAuthenticated
     ]
     serializer_class = SourcesSerializer
 
@@ -157,7 +200,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                              source.media_type])
                 first_page = False
 
-        filename = filename = "Collection-{}-{}-sources-{}.csv".format(collection_id, collection.name, _filename_timestamp())
+        filename = "Collection-{}-{}-sources-{}.csv".format(collection_id, collection.name, _filename_timestamp())
         streamer = csv_stream.CSVStream(filename, data_generator)
         return streamer.stream()
 

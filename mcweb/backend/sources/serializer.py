@@ -10,9 +10,16 @@ from .models import Collection, Feed, Source
 # after first validating the incoming data.
 
 class CollectionSerializer(serializers.ModelSerializer):
+    source_count = serializers.IntegerField()
+
     class Meta:
         model = Collection
-        fields = '__all__'
+        #fields = ['id', 'name', 'notes', 'platform']
+        fields = ['id', 'name', 'notes', 'platform', 'source_count']
+
+
+class CollectionListSerializer(serializers.Serializer):
+    collections = CollectionSerializer(many=True)
 
 
 class FeedsSerializer(serializers.ModelSerializer):
@@ -37,9 +44,6 @@ class SourcesCollectionSerializer(serializers.Serializer):
 class CollectionsSourceSerializer(serializers.Serializer):
     collections = CollectionSerializer(many=True)
     sources = SourcesSerializer()
-
-class CollectionListSerializer(serializers.Serializer):
-    collections = CollectionSerializer(many=True)
 
 class SourceListSerializer(serializers.Serializer):
     sources = SourcesSerializer(many=True)

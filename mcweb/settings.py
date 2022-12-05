@@ -22,7 +22,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "0.1.4"
+VERSION = "1.0.0"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -177,12 +177,22 @@ CACHES = {
 
 
 # email authentication
-EMAIL_BACKEND = env('EMAIL_BACKEND')
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_PORT = env('EMAIL_PORT')
-EMAIL_USE_SSL = env('EMAIL_USE_SSL')
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+try:
+    EMAIL_BACKEND = env('EMAIL_BACKEND')
+    EMAIL_HOST = env('EMAIL_HOST')
+    EMAIL_PORT = env('EMAIL_PORT')
+    EMAIL_USE_SSL = env('EMAIL_USE_SSL')
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+except ImproperlyConfigured:
+    # don't require email settings; for instance on localhost
+    logger.warning("Email not configured")
+    EMAIL_BACKEND = None
+    EMAIL_HOST = None
+    EMAIL_PORT = None
+    EMAIL_USE_SSL = None
+    EMAIL_HOST_USER = None
+    EMAIL_HOST_PASSWORD = None
 
 # sentry config
 try:

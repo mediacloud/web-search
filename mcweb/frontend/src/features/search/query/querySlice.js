@@ -19,7 +19,7 @@ const querySlice = createSlice({
     collections: DEFAULT_COLLECTIONS,
     previewCollections: DEFAULT_COLLECTIONS,
     sources: [],
-    lastSearchTime: 0,
+    lastSearchTime: dayjs().unix(),
     anyAll: 'any',
     advanced: false,
   },
@@ -35,7 +35,7 @@ const querySlice = createSlice({
     }),
     addPreviewSelectedMedia: (state, { payload }) => ({
       ...state,
-      previewCollections: state.previewCollections.push(payload),
+      previewCollections: [...state.previewCollections, payload],
     }),
     setPreviewSelectedMedia: (state, { payload }) => ({ ...state, previewCollections: payload }),
     removePreviewSelectedMedia: (state, { payload }) => ({

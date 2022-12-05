@@ -7,7 +7,7 @@ import logging
 from .provider import ContentProvider
 from .exceptions import UnsupportedOperationException
 from util.cache import cache_by_kwargs
-
+from .language import top_detected
 
 TWITTER_API_URL = 'https://api.twitter.com/2/'
 
@@ -18,6 +18,7 @@ class TwitterTwitterProvider(ContentProvider):
         super(TwitterTwitterProvider, self).__init__()
         self._logger = logging.getLogger(__name__)
         self._bearer_token = bearer_token
+        self._session = requests.Session()  # better performance to put all HTTP through this one object
 
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10, **kwargs) -> List[Dict]:
         """
@@ -122,7 +123,7 @@ class TwitterTwitterProvider(ContentProvider):
             'Content-type': 'application/json',
             'Authorization': "Bearer {}".format(self._bearer_token)
         }
-        r = requests.get(TWITTER_API_URL+endpoint, headers=headers, params=params)
+        r = self._session.get(TWITTER_API_URL+endpoint, headers=headers, params=params)
         return r.json()
 
     @classmethod
@@ -148,7 +149,7 @@ class TwitterTwitterProvider(ContentProvider):
             'url': link,
             'last_updated': dateparser.parse(item['created_at']),
             'author': item['author']['name'],
-            'language': None,
+            'language': top_detected(item['text']),  # guess the language cause Twitter oddly doesn't
             'retweet_count': item['public_metrics']['retweet_count'],
             'reply_count': item['public_metrics']['reply_count'],
             'like_count': item['public_metrics']['like_count'],

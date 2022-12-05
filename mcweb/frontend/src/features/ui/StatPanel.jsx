@@ -19,6 +19,6 @@ export default function StatPanel({ items }) {
 StatPanel.propTypes = {
   items: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string.isRequired,
-    value: PropTypes.any,
+    value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   })).isRequired,
 };

@@ -13,7 +13,7 @@ import settings
 from django.contrib.auth.decorators import login_required
 from .models import Profile
 from util.send_emails import send_signup_email
-import mcweb.backend.users.legacy as legacy
+import backend.users.legacy as legacy
 
 logger = logging.getLogger(__name__)
 

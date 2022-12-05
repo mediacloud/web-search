@@ -12,7 +12,7 @@ import backend.util.csv_stream as csv_stream
 from .utils import parse_query
 from ..users.models import QuotaHistory
 from .providers.exceptions import ProviderException
-from mcweb.backend.users.exceptions import OverQuotaException
+from backend.users.exceptions import OverQuotaException
 
 logger = logging.getLogger(__name__)
 
