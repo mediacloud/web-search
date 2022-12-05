@@ -12,7 +12,7 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List
 
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer, CollectionWriteSerializer
+from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
