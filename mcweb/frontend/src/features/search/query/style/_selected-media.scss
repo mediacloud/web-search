@@ -6,6 +6,10 @@
     display: flex;
     justify-content: space-between;
     padding: $padding-xs;
+
+    a {
+      padding: $padding-xs;
+    }
   }
 
 }

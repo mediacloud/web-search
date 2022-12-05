@@ -34,6 +34,8 @@ class MediaTypes(Enum):
 
 
 class Source(models.Model):
+    collections = models.ManyToManyField(Collection)
+
     name = models.CharField(max_length=1000, null=True)
     url_search_string = models.CharField(max_length=1000, null=True)
     label = models.CharField(max_length=255, null=True, blank=True)
@@ -43,7 +45,6 @@ class Source(models.Model):
                                 default=SourcePlatforms.ONLINE_NEWS.value)
     stories_per_week = models.IntegerField(default=0, null=True)
     first_story = models.DateTimeField(null=True)
-    collections = models.ManyToManyField(Collection)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
     pub_country = models.CharField(max_length=5, null=True, blank=True)

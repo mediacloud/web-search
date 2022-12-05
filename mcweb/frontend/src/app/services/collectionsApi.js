@@ -4,7 +4,13 @@ export const collectionsApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getFeaturedCollections: builder.query({
       query: () => ({
-        url: 'collections/',
+        url: 'collections/featured/',
+        method: 'GET',
+      }),
+    }),
+    searchCollections: builder.query({
+      query: (queryString) => ({
+        url: `collections/search/?query=${queryString}`,
         method: 'GET',
       }),
     }),
@@ -43,6 +49,7 @@ export const collectionsApi = managerApi.injectEndpoints({
 
 export const {
   useGetFeaturedCollectionsQuery,
+  useLazySearchCollectionsQuery,
   useGetCollectionQuery,
   useCreateCollectionMutation,
   useUpdateCollectionMutation,
