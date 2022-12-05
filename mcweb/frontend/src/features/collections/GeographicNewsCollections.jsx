@@ -3,25 +3,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Link } from 'react-router-dom';
 import { useGetGlobalCollectionsQuery } from '../../app/services/collectionsApi';
 
-const cleanData = (data) => {
-  const { collections } = data.collections;
-  const countries = data.geographic_collections;
-  const collectionObject = {};
-
-  collections.forEach((collection) => {
-    collectionObject[collection.id] = collection;
-  });
-
-  return countries.map((country) => {
-    const fullCollections = [];
-
-    country.collections.forEach((collection) => {
-      fullCollections.push(collectionObject[collection]);
-    });
-    return { name: country.name, collections: fullCollections };
-  });
-};
-
 export default function GeographicNewsCollections() {
   const { data, isLoading } = useGetGlobalCollectionsQuery();
   if (!data) return null;
@@ -34,7 +15,6 @@ export default function GeographicNewsCollections() {
       </div>
     );
   }
-  const geographicCollections = cleanData(data);
   return (
 
     <div className="container">
@@ -42,9 +22,9 @@ export default function GeographicNewsCollections() {
 
         <h1 className="geo-header col-12">Collections by Country</h1>
       </div>
-      {geographicCollections.map((country) => (
-        <div className="row table-container" key={country.name}>
-          <h4>{country.name}</h4>
+      {data.countries.map((countryAndCollections) => (
+        <div className="row table-container" key={countryAndCollections.country.name}>
+          <h4>{countryAndCollections.country.name}</h4>
           <table className="col-12">
             <thead>
               <tr className="row">
@@ -52,15 +32,15 @@ export default function GeographicNewsCollections() {
                 <th className="col-8">Description</th>
               </tr>
             </thead>
-            {country.collections.map((collection) => (
-              <tr key={collection.id} className="row">
+            {countryAndCollections.collections.map((collection) => (
+              <tr key={collection.tags_id} className="row">
                 <td className="col-4">
-                  <Link to={`/collections/${collection.id}`} target="_blank" rel="noopener noreferrer">
-                    {collection.name}
+                  <Link to={`/collections/${collection.tags_id}`} target="_blank" rel="noopener noreferrer">
+                    {collection.label}
                   </Link>
                 </td>
                 <td className="col-8">
-                  {collection.notes}
+                  {collection.description}
                 </td>
               </tr>
 

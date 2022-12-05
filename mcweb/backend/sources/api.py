@@ -45,28 +45,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
     serializer_class = CollectionSerializer
 
     @cache_by_kwargs()
-<<<<<<< HEAD
-    def list(self, request):
-        queryset = Collection.objects.all()
-
-        file_path = os.path.join(
-            BASE_DIR, 'backend/sources/data/media-collection.json') 
-        json_data = open(file_path)  
-        deserial_data = json.load(json_data) 
-        collection_return = []
-        list_ids = [] 
-
-        for collection in deserial_data['featuredCollections']['entries']:
-            for id in collection['tags']:
-                list_ids.append(id)
-
-        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_ids)]) 
-        collection_return = Collection.objects.filter(pk__in=list_ids, id__in=list_ids).order_by(ordered_cases)  
-            
-        serializer = CollectionListSerializer(
-            {'collections': collection_return})
-        response = Response(serializer.data)
-=======
     def _cached_serialized_featured_collections(self) -> str:
         featured_collection_ids = _featured_collection_ids()
         ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
@@ -80,7 +58,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def featured(self, request):
         data = self._cached_serialized_featured_collections()
         response = Response({"collections":data})
->>>>>>> 8827d45558058c46f80818e4c47c6babada87995
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
         response.renderer_context = {}
@@ -89,33 +66,11 @@ class CollectionViewSet(viewsets.ModelViewSet):
     
     @action(methods=['GET'], detail=False)
     def geo_collections(self, request):
-        queryset = Collection.objects.all()
-
-        file_path = os.path.join(
-            BASE_DIR, 'backend/sources/data/country-collections.json') 
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        file_path = os.path.join(this_dir, 'data', 'country-collections.json')
         json_data = open(file_path)  
         deserial_data = json.load(json_data) 
-        collection_return = []
-        list_ids = [] 
-       
-        for country in deserial_data:
-            country_name = country["country"]["name"]
-            country_collections = {"name": country_name, "collections": []}
-            for collection in country["collections"]:
-                country_collections["collections"].append(collection["tags_id"])
-                list_ids.append(collection["tags_id"])
-            collection_return.append(country_collections)
-            
-
-        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(list_ids)]) 
-        collection_objects = Collection.objects.filter(pk__in=list_ids, id__in=list_ids).order_by(ordered_cases)  
-        serializer = CollectionListSerializer(
-            {'collections': collection_objects})
-        response = Response({"collections": serializer.data, "geographic_collections": collection_return})
-        response.accepted_renderer = JSONRenderer()
-        response.accepted_media_type = "application/json"
-        response.renderer_context = {}
-        return response.render()
+        return Response({"countries": deserial_data})
 
     @action(detail=False)
     def search(self, request):
