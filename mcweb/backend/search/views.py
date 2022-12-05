@@ -5,6 +5,7 @@ import time
 import collections as py_collections
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import action
 import backend.search.providers as providers
 from backend.search.providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
@@ -41,7 +42,7 @@ def handle_provider_errors(func):
             return error_response(str(e))
     return _handler
 
-
+@login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def total_count(request):
@@ -58,7 +59,7 @@ def total_count(request):
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
-
+@login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def count_over_time(request):
@@ -74,7 +75,7 @@ def count_over_time(request):
     return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
                         status=200)
 
-
+@login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def sample(request):
@@ -85,7 +86,7 @@ def sample(request):
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json",
                         status=200)
 
-
+@login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
@@ -114,7 +115,7 @@ def download_counts_over_time_csv(request):
             writer.writerow([day["date"], day["count"]])
     return response
 
-
+@login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_all_content_csv(request):
