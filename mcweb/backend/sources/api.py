@@ -12,10 +12,11 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List
 
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionListSerializer, SourceListSerializer
+from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
+from .permissions import IsGetOrIsStaff
 
 
 def _featured_collection_ids() -> List:
@@ -40,9 +41,17 @@ class CollectionViewSet(viewsets.ModelViewSet):
     MAX_SEARCH_RESULTS = 50
 
     permission_classes = [
-        permissions.IsAuthenticated
+        IsGetOrIsStaff,
     ]
     serializer_class = CollectionSerializer
+
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+
+        if self.request.method != 'GET':
+            serializer_class = CollectionWriteSerializer
+
+        return serializer_class
 
     @cache_by_kwargs()
     def _cached_serialized_featured_collections(self) -> str:
@@ -92,7 +101,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
 class SourcesViewSet(viewsets.ModelViewSet):
     queryset = Source.objects.all()
     permission_classes = [
-        permissions.IsAuthenticated
+        IsGetOrIsStaff
     ]
     serializer_class = SourcesSerializer
 
@@ -153,6 +162,10 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
+    
+    permission_classes = [
+        IsGetOrIsStaff
+    ]
 
     def retrieve(self, request, pk=None):
         collection_bool = request.query_params.get('collection')
@@ -160,15 +173,14 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collections_queryset = Collection.objects.all()
             collection = get_object_or_404(collections_queryset, pk=pk)
             source_associations = collection.source_set.all()
-            serializer = SourceListSerializer({'sources': source_associations})
-            return Response(serializer.data)
+            serializer = SourcesSerializer(source_associations, many=True)
+            return Response({'sources': serializer.data})
         else:
             sources_queryset = Source.objects.all()
             source = get_object_or_404(sources_queryset, pk=pk)
             collection_associations = source.collections.all()
-            serializer = CollectionListSerializer(
-                {'collections': collection_associations})
-            return Response(serializer.data)
+            serializer = CollectionWriteSerializer(collection_associations, many=True)
+            return Response({'collections':serializer.data})
 
     def destroy(self, request, pk=None):
         collection_bool = request.query_params.get('collection')

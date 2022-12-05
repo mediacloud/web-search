@@ -19,6 +19,7 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from django.core.exceptions import ImproperlyConfigured
 
+
 logger = logging.getLogger(__file__)
 
 # The static version of the app
