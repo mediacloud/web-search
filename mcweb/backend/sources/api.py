@@ -2,6 +2,7 @@ import time
 import json
 import os
 import requests
+import requests.auth
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
@@ -17,6 +18,13 @@ from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
+
+
+# Same env var names as rss-fetcher config:
+RSS_FETCHER_USER = os.getenv('RSS_FETCHER_USER', None)
+RSS_FETCHER_PASS = os.getenv('RSS_FETCHER_PASS', None)
+# Allows testing against alternate (eg; dev, staging) instances of rss-fetcher:
+RSS_FETCHER_URL  = os.getenv('RSS_FETCHER_URL', 'https://rss-fetcher.tarbell.mediacloud.org')
 
 
 def _featured_collection_ids() -> List:
@@ -92,7 +100,11 @@ class FeedsViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=False)
     def sources_feeds(self, request):
         source_id = request.data["source_id"]
-        response = requests.get(f'https://rss-fetcher.tarbell.mediacloud.org/api/sources/{source_id}/feeds')
+        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
+            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
+        else:
+            auth = None
+        response = requests.get(f'{RSS_FETCHER_URL}/api/sources/{source_id}/feeds', auth=auth)
         feeds = response.json()
         feeds = feeds["results"]
         return Response({"feeds": feeds})
