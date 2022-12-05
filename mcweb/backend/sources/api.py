@@ -51,8 +51,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
                                                     id__in=featured_collection_ids).order_by(ordered_cases)
 
-        serializer = CollectionListSerializer(
-            {'collections': featured_collections})
+        serializer = self.serializer_class({'collections': featured_collections})
         return serializer.data
 
     @action(detail=False)
@@ -69,7 +68,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def search(self, request):
         query = request.query_params["query"]
         collections = self.queryset.filter(name__icontains=query)[:self.MAX_SEARCH_RESULTS]
-        serializer = CollectionListSerializer({'collections': collections})
+        serializer = self.serializer_class({'collections': collections})
         return Response(serializer.data)
 
 
