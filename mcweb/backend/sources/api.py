@@ -51,13 +51,13 @@ class CollectionViewSet(viewsets.ModelViewSet):
         featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
                                                     id__in=featured_collection_ids).order_by(ordered_cases)
 
-        serializer = self.serializer_class({'collections': featured_collections})
+        serializer = self.serializer_class(featured_collections, many=True)
         return serializer.data
 
     @action(detail=False)
     def featured(self, request):
         data = self._cached_serialized_featured_collections()
-        response = Response(data)
+        response = Response({"collections":data})
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
         response.renderer_context = {}
@@ -68,8 +68,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def search(self, request):
         query = request.query_params["query"]
         collections = self.queryset.filter(name__icontains=query)[:self.MAX_SEARCH_RESULTS]
-        serializer = self.serializer_class({'collections': collections})
-        return Response(serializer.data)
+        serializer = self.serializer_class(collections, many=True)
+        return Response({"collections":serializer.data})
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
