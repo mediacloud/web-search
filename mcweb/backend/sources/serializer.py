@@ -48,5 +48,3 @@ class CollectionsSourceSerializer(serializers.Serializer):
 class SourceListSerializer(serializers.Serializer):
     sources = SourcesSerializer(many=True)
 
-
-
