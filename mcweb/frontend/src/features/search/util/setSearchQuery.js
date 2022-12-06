@@ -42,13 +42,13 @@ const sizeQuery = (query) => {
 };
 
 const formatCollections = (collections) => collections.map((collection) => {
-  const [id, name] = collection.split('>');
+  let [id, name] = collection.split('>');
+  id = Number(id);
   return { id, name };
 });
 
-const setSearchQuery = (searchParams) => {
+const setSearchQuery = (searchParams, dispatch) => {
   dayjs.extend(customParseFormat);
-  const dispatch = useDispatch();
   // param keys are set in ./urlSerializer.js
   let query = searchParams.get('q');
   let negatedQuery = searchParams.get('nq');
