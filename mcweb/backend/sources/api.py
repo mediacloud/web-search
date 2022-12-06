@@ -19,6 +19,7 @@ from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
+from util.send_emails import send_source_upload_email
 
 
 def _featured_collection_ids() -> List:
@@ -148,7 +149,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
                     canonical_domain)
             collection.source_set.add(existing_source)
         send_source_upload_email(email_title, email_text, request.user.email)
-        print(email_text)
         return Response({'title': email_title, 'text': email_text})
 
     @action(methods=['GET'], detail=False)
