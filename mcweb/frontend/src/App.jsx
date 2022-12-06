@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Route, Navigate, useLocation, Routes, useSearchParams,
 } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Homepage from './features/homepage/Homepage';
 
 import Header from './features/header/Header';
@@ -32,17 +32,16 @@ import setSearchQuery from './features/search/util/setSearchQuery';
 function App() {
   const { lastSearchTime } = useSelector((state) => state.query);
   const [searchParams] = useSearchParams();
-  const [trigger, setTrigger] = useState(false);
+  const [trigger, setTrigger] = useState(true);
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    if (searchParams.get('start')) {
-      setTrigger(true);
+    if (trigger && searchParams.get('start')) {
+      setSearchQuery(searchParams, dispatch);
+      setTrigger(false);
     }
   }, [lastSearchTime]);
-
-  if (trigger && searchParams.get('start')) {
-    setSearchQuery(searchParams);
-    setTrigger(false);
-  }
 
   return (
     <>
