@@ -74,6 +74,14 @@ class CollectionViewSet(viewsets.ModelViewSet):
         response.renderer_context = {}
         response.render()
         return response
+    
+    @action(methods=['GET'], detail=False)
+    def geo_collections(self, request):
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        file_path = os.path.join(this_dir, 'data', 'country-collections.json')
+        json_data = open(file_path)  
+        deserial_data = json.load(json_data) 
+        return Response({"countries": deserial_data})
 
     @action(detail=False)
     def search(self, request):

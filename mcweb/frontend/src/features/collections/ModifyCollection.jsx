@@ -53,74 +53,68 @@ export default function ModifyCollection() {
   }
 
   return (
-    <>
-      {/* Header */}
-      <CollectionHeader collectionId={collectionId} />
+    <div className="container">
 
-      <div className="container">
-
-        <div className="row">
-          <div className="col-12">
-            <h2>Modify this Collection</h2>
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-12">
-            <br />
-            <TextField
-              label="Name"
-              fullWidth
-              id="text"
-              name="name"
-              value={formState.name}
-              onChange={handleChange}
-            />
-            <br />
-            <br />
-            <TextField
-              fullWidth
-              label="Notes"
-              id="outlined-multiline-static"
-              name="notes"
-              multiline
-              rows={4}
-              value={formState.notes}
-              onChange={handleChange}
-            />
-            <br />
-            <br />
-            <Button
-              variant="contained"
-              onClick={async () => {
-                const updatedCollection = await updateCollection({
-                  id: formState.id,
-                  name: formState.name,
-                  notes: formState.notes,
-                }).unwrap();
-              }}
-              sx={{ marginRight: '5px' }}
-            >
-              Update
-            </Button>
-            <DownloadSourcesCsv collectionId={collectionId} />
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-12">
-            <h3>Add/Remove Sources</h3>
-            <UploadSources collectionId={collectionId} />
-          </div>
-        </div>
-
-        <div className="row">
-          <div className="col-12">
-            <SourceList collectionId={collectionId} edit />
-          </div>
+      <div className="row">
+        <div className="col-12">
+          <h2>Modify this Collection</h2>
         </div>
       </div>
 
-    </>
+      <div className="row">
+        <div className="col-12">
+          <br />
+          <TextField
+            label="Name"
+            fullWidth
+            id="text"
+            name="name"
+            value={formState.name}
+            onChange={handleChange}
+          />
+          <br />
+          <br />
+          <TextField
+            fullWidth
+            label="Notes"
+            id="outlined-multiline-static"
+            name="notes"
+            multiline
+            rows={4}
+            value={formState.notes}
+            onChange={handleChange}
+          />
+          <br />
+          <br />
+          <Button
+            variant="contained"
+            onClick={async () => {
+              const updatedCollection = await updateCollection({
+                id: formState.id,
+                name: formState.name,
+                notes: formState.notes,
+              }).unwrap();
+            }}
+            sx={{ marginRight: '5px' }}
+          >
+            Update
+          </Button>
+          <DownloadSourcesCsv collectionId={collectionId} />
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-12">
+          <h3>Add/Remove Sources</h3>
+          <UploadSources collectionId={collectionId} />
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-12">
+          <SourceList collectionId={collectionId} edit />
+        </div>
+      </div>
+    </div>
   );
 }
