@@ -19,6 +19,7 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from django.core.exceptions import ImproperlyConfigured
 
+
 logger = logging.getLogger(__file__)
 
 # The static version of the app
@@ -48,11 +49,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "frontend",
     "backend.sources",
     "backend.search",
     "backend.users",
-    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -137,7 +138,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 
 

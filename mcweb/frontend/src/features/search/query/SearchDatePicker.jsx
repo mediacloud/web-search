@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -21,10 +21,12 @@ export default function SearchDatePicker() {
     dispatch(setEndDate(dayjs(newValue).format('MM/DD/YYYY')));
   };
 
-  if (dayjs(endDate) > latestAllowedEndDate(platform)) {
-    handleChangeToDate(latestAllowedEndDate(platform));
-    enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
-  }
+  useEffect(() => {
+    if (dayjs(endDate) > latestAllowedEndDate(platform)) {
+      handleChangeToDate(latestAllowedEndDate(platform));
+      enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
+    }
+  }, [platform]);
 
   return (
     <>

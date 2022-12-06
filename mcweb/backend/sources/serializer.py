@@ -1,4 +1,3 @@
-import collections
 from rest_framework import serializers
 from .models import Collection, Feed, Source
 
@@ -18,8 +17,10 @@ class CollectionSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'notes', 'platform', 'source_count']
 
 
-class CollectionListSerializer(serializers.Serializer):
-    collections = CollectionSerializer(many=True)
+class CollectionWriteSerializer(serializers.ModelSerializer):
+    class Meta: 
+        model = Collection
+        fields = ['id', 'name', 'notes', 'platform']
 
 
 class FeedsSerializer(serializers.ModelSerializer):
@@ -33,18 +34,7 @@ class SourcesSerializer(serializers.ModelSerializer):
     collections = serializers.PrimaryKeyRelatedField(
         many=True, write_only=True, queryset=Collection.objects.all()
     )
+
     class Meta:
         model = Source
         fields = '__all__'
-
-class SourcesCollectionSerializer(serializers.Serializer): 
-    collections = CollectionSerializer()
-    sources = SourcesSerializer(many=True)
-
-class CollectionsSourceSerializer(serializers.Serializer):
-    collections = CollectionSerializer(many=True)
-    sources = SourcesSerializer()
-
-class SourceListSerializer(serializers.Serializer):
-    sources = SourcesSerializer(many=True)
-
