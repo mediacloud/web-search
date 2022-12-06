@@ -13,18 +13,12 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List
 
+from . import RSS_FETCHER_USER, RSS_FETCHER_PASS, RSS_FETCHER_URL
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
-
-
-# Same env var names as rss-fetcher config:
-RSS_FETCHER_USER = os.getenv('RSS_FETCHER_USER', None)
-RSS_FETCHER_PASS = os.getenv('RSS_FETCHER_PASS', None)
-# Allows testing against alternate (eg; dev, staging) instances of rss-fetcher:
-RSS_FETCHER_URL  = os.getenv('RSS_FETCHER_URL', 'https://rss-fetcher.tarbell.mediacloud.org')
 
 
 def _featured_collection_ids() -> List:
