@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { Button } from '@mui/material';
 import { Link, useParams } from 'react-router-dom';
-
-import CollectionHeader from './CollectionHeader';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import SourceList from '../sources/SourceList';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
@@ -13,9 +11,6 @@ export default function CollectionShow() {
 
   return (
     <>
-
-      <CollectionHeader collectionId={collectionId} />
-
       <div className="sub-feature">
         <div className="container">
           <div className="row">

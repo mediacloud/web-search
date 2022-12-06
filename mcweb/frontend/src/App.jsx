@@ -19,6 +19,8 @@ import ConfirmedReset from './features/auth/ConfirmedReset';
 import Collections from './features/collections/CollectionShow';
 import CollectionsHome from './features/collections/CollectionsHome';
 import CreateCollection from './features/collections/CreateCollection';
+import CollectionHeader from './features/collections/CollectionHeader';
+import GeographicNewsCollections from './features/collections/GeographicNewsCollections';
 import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
 import FeedShow from './features/feeds/FeedShow';
@@ -51,23 +53,33 @@ function App() {
           <Route index element={<Homepage />} />
 
           <Route
-            path="collections/:collectionId/modify-collection"
+            path="collections"
             element={(
               <RequireAuth>
-                <ModifyCollection />
+                <CollectionHeader />
+                <CollectionsHome />
               </RequireAuth>
             )}
-          />
+          >
 
-          <Route
-            path="collections/:collectionId"
-            element={(
-              <RequireAuth>
-                <Collections />
-              </RequireAuth>
+            <Route
+              path=":collectionId"
+              element={(
+                <RequireAuth>
+                  <Collections />
+                </RequireAuth>
             )}
-          />
+            />
+            <Route
+              path=":collectionId/modify-collection"
+              element={(
+                <RequireAuth>
+                  <ModifyCollection />
+                </RequireAuth>
+            )}
+            />
 
+          </Route>
           <Route
             path="collections/create"
             element={(
@@ -76,16 +88,14 @@ function App() {
               </RequireAuth>
             )}
           />
-
           <Route
-            path="collections"
+            path="collections/news/geographic"
             element={(
               <RequireAuth>
-                <CollectionsHome />
+                <GeographicNewsCollections />
               </RequireAuth>
             )}
           />
-
           <Route
             path="search"
             element={(

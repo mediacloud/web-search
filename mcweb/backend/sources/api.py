@@ -13,18 +13,13 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List
 
+from . import RSS_FETCHER_USER, RSS_FETCHER_PASS, RSS_FETCHER_URL
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
-
-
-# Same env var names as rss-fetcher config:
-RSS_FETCHER_USER = os.getenv('RSS_FETCHER_USER', None)
-RSS_FETCHER_PASS = os.getenv('RSS_FETCHER_PASS', None)
-# Allows testing against alternate (eg; dev, staging) instances of rss-fetcher:
-RSS_FETCHER_URL  = os.getenv('RSS_FETCHER_URL', 'https://rss-fetcher.tarbell.mediacloud.org')
+from util.send_emails import send_source_upload_email
 
 
 def _featured_collection_ids() -> List:
@@ -89,6 +84,14 @@ class CollectionViewSet(viewsets.ModelViewSet):
         response.renderer_context = {}
         response.render()
         return response
+    
+    @action(methods=['GET'], detail=False)
+    def geo_collections(self, request):
+        this_dir = os.path.dirname(os.path.realpath(__file__))
+        file_path = os.path.join(this_dir, 'data', 'country-collections.json')
+        json_data = open(file_path)  
+        deserial_data = json.load(json_data) 
+        return Response({"countries": deserial_data})
 
     @action(detail=False)
     def search(self, request):
@@ -166,7 +169,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
                     canonical_domain)
             collection.source_set.add(existing_source)
         send_source_upload_email(email_title, email_text, request.user.email)
-        print(email_text)
         return Response({'title': email_title, 'text': email_text})
 
     @action(methods=['GET'], detail=False)
