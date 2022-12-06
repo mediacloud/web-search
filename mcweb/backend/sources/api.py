@@ -53,6 +53,15 @@ class CollectionViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = CollectionSerializer
 
+    # overriden to support filtering all endpoints by collection id
+    def get_queryset(self):
+        # add in optional filters
+        source_id = self.request.query_params.get("source_id")
+        if source_id is not None:
+            source_id = int(source_id)  # validation: should throw a ValueError back up the chain
+            return super().get_queryset().filter(source__id=source_id)
+        return super().get_queryset()
+
     def get_serializer_class(self):
         serializer_class = self.serializer_class
 
@@ -86,7 +95,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         query = request.query_params["query"]
         collections = self.queryset.filter(name__icontains=query)[:self.MAX_SEARCH_RESULTS]
         serializer = self.serializer_class(collections, many=True)
-        return Response({"collections":serializer.data})
+        return Response({"collections": serializer.data})
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
@@ -111,11 +120,22 @@ class FeedsViewSet(viewsets.ModelViewSet):
 
 
 class SourcesViewSet(viewsets.ModelViewSet):
-    queryset = Source.objects.all()
+    queryset = Source.objects.\
+        annotate(collection_count=Count('collections')).\
+        order_by('-collection_count').\
+        all()
     permission_classes = [
         IsGetOrIsStaff
     ]
     serializer_class = SourcesSerializer
+
+    # overriden to support filtering all endpoints by collection id
+    def get_queryset(self):
+        collection_id = self.request.query_params.get("collection_id")
+        if collection_id is not None:
+            collection_id = int(collection_id)  # validation: should throw a ValueError back up the chain
+            return super().get_queryset().filter(collections__id=collection_id)
+        return super().get_queryset()
 
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):

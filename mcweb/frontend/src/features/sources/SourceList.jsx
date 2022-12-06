@@ -1,18 +1,21 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import Pagination from '@mui/material/Pagination';
 import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
 
-import { useGetCollectionAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { useListSourcesQuery, PAGE_SIZE } from  '../../app/services/sourceApi';
+import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 
 export default function SourceList(props) {
   const { collectionId, edit } = props;
+  const [page, setPage] = useState(0);
   const {
     data,
     isLoading,
-  } = useGetCollectionAssociationsQuery(collectionId);
+  } = useListSourcesQuery({collectionId, page});
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
@@ -31,9 +34,14 @@ export default function SourceList(props) {
     <div>
       <h2>
         Sources (
-        {data.sources.length}
+        {data.count}
         )
       </h2>
+      <Pagination
+        count={Math.ceil(data.count / PAGE_SIZE)}
+        page={page+1}
+        color="primary"
+        onChange={(evt, value) => setPage(value-1)}/>
       <table width="100%">
         <thead>
           <tr>
@@ -41,7 +49,7 @@ export default function SourceList(props) {
           </tr>
         </thead>
         <tbody>
-          {data.sources.map((source) => (
+          {data.results.map((source) => (
             <tr key={source.id}>
               <td>
                 <a href={source.homepage} target="_new">

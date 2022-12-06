@@ -1,10 +1,18 @@
 import managerApi from './managerApi';
 
+export const PAGE_SIZE = 100;
+
 export const collectionsApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getFeaturedCollections: builder.query({
       query: () => ({
         url: 'collections/featured/',
+        method: 'GET',
+      }),
+    }),
+    listCollections: builder.query({
+      query: ({sourceId, page}) => ({
+        url: `collections/?source_id=${sourceId}&limit=${PAGE_SIZE}&offset=${PAGE_SIZE*page}`,
         method: 'GET',
       }),
     }),
@@ -49,6 +57,7 @@ export const collectionsApi = managerApi.injectEndpoints({
 
 export const {
   useGetFeaturedCollectionsQuery,
+  useListCollectionsQuery,
   useLazySearchCollectionsQuery,
   useGetCollectionQuery,
   useCreateCollectionMutation,

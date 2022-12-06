@@ -32,13 +32,16 @@ class FeedsSerializer(serializers.ModelSerializer):
 
 
 class SourcesSerializer(serializers.ModelSerializer):
+    collection_count = serializers.IntegerField()
+
     collections = serializers.PrimaryKeyRelatedField(
         many=True, write_only=True, queryset=Collection.objects.all()
     )
+
     class Meta:
         model = Source
-        fields = '__all__'
-
-
-
-
+        fields = ['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform', 'stories_per_week',
+                  'first_story', 'created_at', 'modified_at', 'pub_country', 'pub_state', 'primary_language',
+                  'media_type',
+                  'collection_count',
+                  'collections']
