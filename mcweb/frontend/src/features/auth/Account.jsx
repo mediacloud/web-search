@@ -23,6 +23,8 @@ function Account() {
           <dd>{currentUser.username}</dd>
           <dt>Email:</dt>
           <dd>{currentUser.email}</dd>
+          <dt>API Token:</dt>
+          <dd>{currentUser.token}</dd>
           <Permissioned role={ROLE_STAFF}>
             <dt>Staff?</dt>
             <dd>{currentUser.isStaff ? 'yes' : 'no'}</dd>
