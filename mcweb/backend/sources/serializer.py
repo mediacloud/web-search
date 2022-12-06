@@ -1,4 +1,3 @@
-import collections
 from rest_framework import serializers
 from .models import Collection, Feed, Source
 
@@ -35,10 +34,7 @@ class SourcesSerializer(serializers.ModelSerializer):
     collections = serializers.PrimaryKeyRelatedField(
         many=True, write_only=True, queryset=Collection.objects.all()
     )
+
     class Meta:
         model = Source
         fields = '__all__'
-
-
-
-
