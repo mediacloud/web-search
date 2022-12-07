@@ -16,7 +16,7 @@ import ResetPassword from './features/auth/ResetPassword';
 import ConfirmedReset from './features/auth/ConfirmedReset';
 
 // pages
-import Collections from './features/collections/CollectionShow';
+import CollectionShow from './features/collections/CollectionShow';
 import CollectionsHome from './features/collections/CollectionsHome';
 import CreateCollection from './features/collections/CreateCollection';
 import CollectionHeader from './features/collections/CollectionHeader';
@@ -66,12 +66,12 @@ function App() {
               path=":collectionId"
               element={(
                 <RequireAuth>
-                  <Collections />
+                  <CollectionShow />
                 </RequireAuth>
             )}
             />
             <Route
-              path=":collectionId/modify-collection"
+              path=":collectionId/edit"
               element={(
                 <RequireAuth>
                   <ModifyCollection />

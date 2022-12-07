@@ -51,6 +51,7 @@ body {
 }
 
 table {
+  margin-top: $padding-s;
   thead {
     th {
       background-color: $primary-black;
@@ -112,6 +113,14 @@ table {
   border-bottom: 1px solid $primary-off-white;
   padding-bottom: $padding-m;
   margin-bottom: $padding-m;
+
+  button {
+    margin-right: $padding-s;
+
+    a {
+      text-decoration: none;
+    }
+  }
 }
 
 

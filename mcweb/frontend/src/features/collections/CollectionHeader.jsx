@@ -26,7 +26,7 @@ export default function CollectionHeader() {
   }
 
   return (
-    <div className="collectionHeader">
+    <>
       <div className="feature-area filled">
         <div className="container">
           <div className="row">
@@ -58,14 +58,12 @@ export default function CollectionHeader() {
                   collections: [data],
                   platform: PROVIDER_NEWS_WAYBACK_MACHINE,
                   advanced: false,
-                })}`} target="_blank">Search Now</a>
+                })}`} target="_blank">Search Content</a>
               </Button>
-              &nbsp;&nbsp;&nbsp;
               <DownloadSourcesCsv collectionId={collectionId} />
-              &nbsp;&nbsp;&nbsp;
               <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" component={Link} to="modify-collection">
-                  Modify Collection
+                <Button variant="outlined" component={Link} to={`${collectionId}/edit`}>
+                  Edit
                 </Button>
               </Permissioned>
             </div>
@@ -73,7 +71,7 @@ export default function CollectionHeader() {
         </div>
       </div>
       <Outlet />
-    </div>
+    </>
   );
 }
 
