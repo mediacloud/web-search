@@ -11,6 +11,7 @@ import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
+import { googleFaviconUrl } from '../../ui/uiUtil';
 
 const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER].includes(platform);
@@ -109,10 +110,10 @@ export default function SampleStories() {
                 <tr key={`story-${sampleStory.id}`}>
                   <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
                   <td>
-                    {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+                    {[PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
                     <img
                       className="google-icon"
-                      src={`https://www.google.com/s2/favicons?domain=${sampleStory.media_url}`}
+                      src={googleFaviconUrl(sampleStory.media_url)}
                       alt="{sampleStory.media_name}"
                     />
                     )}

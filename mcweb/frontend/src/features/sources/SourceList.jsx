@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 
 import { useListSourcesQuery, PAGE_SIZE } from  '../../app/services/sourceApi';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { googleFaviconUrl } from '../ui/uiUtil';
 
 export default function SourceList(props) {
   const { collectionId, edit } = props;
@@ -45,7 +46,9 @@ export default function SourceList(props) {
       <table width="100%">
         <thead>
           <tr>
-            <th colSpan={edit ? 3 : 2}>Name</th>
+            <th colSpan="2">Name</th>
+            <th>Stories per Week</th>
+            {edit && (<th></th>)}
           </tr>
         </thead>
         <tbody>
@@ -55,7 +58,7 @@ export default function SourceList(props) {
                 <a href={source.homepage} target="_new">
                   <img
                     className="google-icon"
-                    src={`https://www.google.com/s2/favicons?domain=${source.name}`}
+                    src={googleFaviconUrl(source.homepage || `https://{source.domain}`)}
                     alt="{source.name}"
                   />
                 </a>
@@ -65,6 +68,7 @@ export default function SourceList(props) {
                   {source.label || source.name}
                 </Link>
               </td>
+              <td>{source.stories_per_week}</td>
               {edit && (
                 <td>
                   <IconButton
