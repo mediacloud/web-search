@@ -1,5 +1,7 @@
 import managerApi from './managerApi';
 
+export const PAGE_SIZE = 100;
+
 export const sourcesApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getSource: builder.query({
@@ -10,6 +12,12 @@ export const sourcesApi = managerApi.injectEndpoints({
       providesTags: (result, error, id) => (result
         ? [{ type: 'Source', id }]
         : ['Source']),
+    }),
+    listSources: builder.query({
+      query: ({collectionId, page}) => ({
+        url: `sources/?collection_id=${collectionId}&limit=${PAGE_SIZE}&offset=${PAGE_SIZE*page}`,
+        method: 'GET',
+      }),
     }),
     postSource: builder.mutation({
       query: (source) => ({
@@ -45,6 +53,7 @@ export const sourcesApi = managerApi.injectEndpoints({
 
 export const {
   useGetSourceQuery,
+  useListSourcesQuery,
   usePostSourceMutation,
   useUpdateSourceMutation,
   useDeleteSourceMutation,

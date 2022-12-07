@@ -10,6 +10,7 @@ class CollectionPlatforms(Enum):
 
 
 class Collection(models.Model):
+
     # UI should verify uniqueness
     name = models.CharField(max_length=255, null=False, blank=False)
     notes = models.TextField(null=True, blank=True)
