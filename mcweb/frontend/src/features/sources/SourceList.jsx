@@ -45,7 +45,9 @@ export default function SourceList(props) {
       <table width="100%">
         <thead>
           <tr>
-            <th colSpan={edit ? 3 : 2}>Name</th>
+            <th colSpan="2">Name</th>
+            <th>Stories per Week</th>
+            {edit && (<th></th>)}
           </tr>
         </thead>
         <tbody>
@@ -65,6 +67,7 @@ export default function SourceList(props) {
                   {source.label || source.name}
                 </Link>
               </td>
+              <td>{source.stories_per_week}</td>
               {edit && (
                 <td>
                   <IconButton
