@@ -59,10 +59,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         serializer_class = self.serializer_class
-
         if self.request.method != 'GET':
             serializer_class = CollectionWriteSerializer
-
         return serializer_class
 
     @cache_by_kwargs()

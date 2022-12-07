@@ -1,24 +1,30 @@
 import * as React from 'react';
 import { TextField, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router'
 import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
-
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import { useSnackbar } from 'notistack';
+import Select from '@mui/material/Select';
 import { useUpdateCollectionMutation, useGetCollectionQuery } from '../../app/services/collectionsApi';
 import SourceList from '../sources/SourceList';
 import UploadSources from '../sources/UploadSources';
-import CollectionHeader from './CollectionHeader';
-import DownloadSourcesCsv from './util/DownloadSourcesCsv';
+import { platformDisplayName } from '../ui/uiUtil';
 
 export default function ModifyCollection() {
   const params = useParams();
+  const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   const collectionId = Number(params.collectionId); // get collection id from wildcard
 
   const { data, isLoading } = useGetCollectionQuery(collectionId);
 
   // form state for text fields
   const [formState, setFormState] = useState({
-    id: 0, name: '', notes: '',
+    id: 0, name: '', notes: '', platform: 'online_news',
   });
 
   // formState declaration
@@ -37,19 +43,14 @@ export default function ModifyCollection() {
         id: data.id,
         name: data.name,
         notes: data.notes ? data.notes : '',
+        platform: data.platform,
       };
       setFormState(formData);
     }
   }, [data]);
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
@@ -86,20 +87,45 @@ export default function ModifyCollection() {
           />
           <br />
           <br />
+          <FormControl fullWidth>
+            <InputLabel id="type-select-label">Platform</InputLabel>
+            <Select
+              labelId="type-select-label"
+              id="type-select"
+              value={formState.platform}
+              name="platform"
+              label="Platform"
+              onChange={handleChange}
+            >
+              <MenuItem value="online_news">{platformDisplayName('online_news')}</MenuItem>
+              <MenuItem value="reddit">{platformDisplayName('reddit')}</MenuItem>
+              <MenuItem value="twitter">{platformDisplayName('twitter')}</MenuItem>
+              <MenuItem value="youtube">{platformDisplayName('youtube')}</MenuItem>
+            </Select>
+          </FormControl>
+          <br />
+          <br />
           <Button
             variant="contained"
             onClick={async () => {
-              const updatedCollection = await updateCollection({
-                id: formState.id,
-                name: formState.name,
-                notes: formState.notes,
-              }).unwrap();
+              try {
+                const updatedCollection = await updateCollection({
+                  id: formState.id,
+                  name: formState.name,
+                  notes: formState.notes,
+                  platform: formState.platform,
+                }).unwrap()
+                enqueueSnackbar('Saved changes', { variant: 'success' });
+                navigate(`/collections/${collectionId}`);
+              } catch (err) {
+                console.log(err);
+                const errorMsg = `Failed - ${err.data.message}`;
+                enqueueSnackbar(errorMsg, { variant: 'error' });
+              }
             }}
-            sx={{ marginRight: '5px' }}
           >
             Update
           </Button>
-          <DownloadSourcesCsv collectionId={collectionId} />
         </div>
       </div>
 
