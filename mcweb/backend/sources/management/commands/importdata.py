@@ -13,7 +13,7 @@ def _run_psql_command(cmd: str):
 
 
 class Command(BaseCommand):
-    help = 'Closes the specified poll for voting'
+    help = 'Wipe and import all collections, sources, associations between them, and feeds.'
 
     def handle(self, *args, **options):
         file_dir = tempfile.gettempdir()  # prints the current temporary directory
