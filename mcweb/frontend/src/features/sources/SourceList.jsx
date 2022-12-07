@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 
 import { useListSourcesQuery, PAGE_SIZE } from  '../../app/services/sourceApi';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { googleFaviconUrl } from '../ui/uiUtil';
 
 export default function SourceList(props) {
   const { collectionId, edit } = props;
@@ -57,7 +58,7 @@ export default function SourceList(props) {
                 <a href={source.homepage} target="_new">
                   <img
                     className="google-icon"
-                    src={`https://www.google.com/s2/favicons?domain=${source.name}`}
+                    src={googleFaviconUrl(source.homepage || `https://{source.domain}`)}
                     alt="{source.name}"
                   />
                 </a>
