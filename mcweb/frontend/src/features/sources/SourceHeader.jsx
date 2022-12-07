@@ -24,7 +24,7 @@ export default function SourceHeader() {
   }
 
   return (
-    <div className="collectionHeader">
+    <>
       <div className="feature-area filled">
         <div className="container">
           <div className="row">
@@ -43,7 +43,7 @@ export default function SourceHeader() {
         </div>
       </div>
       <Outlet />
-    </div>
+    </>
   );
 }
 
