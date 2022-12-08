@@ -10,7 +10,7 @@ import { useDeleteSourceCollectionAssociationMutation } from '../../app/services
 import { googleFaviconUrl, asNumber } from '../ui/uiUtil';
 
 export default function SourceList(props) {
-  const { collectionId, edit, isOnlineNews } = props;
+  const { collectionId, edit } = props;
   const [page, setPage] = useState(0);
   const {
     data: sources,
@@ -43,7 +43,7 @@ export default function SourceList(props) {
         <thead>
           <tr>
             <th colSpan="2">Name</th>
-            {isOnlineNews && (<th>Stories per Week</th>)}
+            <th>Content per Week</th>
             {edit && (<th></th>)}
           </tr>
         </thead>
@@ -64,7 +64,7 @@ export default function SourceList(props) {
                   {source.label || source.name}
                 </Link>
               </td>
-              {isOnlineNews && (<td class="numeric">{asNumber(source.stories_per_week)}</td>)}
+              <td class="numeric">{asNumber(source.stories_per_week)}</td>
               {edit && (
                 <td>
                   <IconButton
@@ -91,10 +91,8 @@ export default function SourceList(props) {
 SourceList.propTypes = {
   collectionId: PropTypes.number.isRequired,
   edit: PropTypes.bool,
-  isOnlineNews: PropTypes.bool,
 };
 
 SourceList.defaultProps = {
   edit: false,
-  isOnlineNews: false,
 };

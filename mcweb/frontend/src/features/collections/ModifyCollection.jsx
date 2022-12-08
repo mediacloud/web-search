@@ -138,7 +138,7 @@ export default function ModifyCollection() {
 
       <div className="row">
         <div className="col-12">
-          <SourceList collectionId={collectionId} edit isOnlineNews={data.platform === "online_news"}/>
+          <SourceList collectionId={collectionId} edit />
         </div>
       </div>
     </div>
