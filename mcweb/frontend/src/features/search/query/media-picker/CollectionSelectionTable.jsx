@@ -5,6 +5,7 @@ import IconButton from '@mui/material/IconButton';
 import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
 import { Link } from 'react-router-dom';
+import { asNumber } from '../../../ui/uiUtil';
 
 export default function CollectionSelectionTable({
   selected, matching, onAdd, onRemove,
@@ -23,7 +24,7 @@ export default function CollectionSelectionTable({
           <tr key={c.id}>
             <td><Link target="_blank" rel="noopener noreferrer" to={`/collections/${c.id}`}>{c.name}</Link></td>
             <td>{c.notes}</td>
-            <td>{c.source_count}</td>
+            <td class="numeric">{asNumber(c.source_count)}</td>
             <td>
               {!(alreadySelected(c.id)) && (
                 <IconButton size="sm" aria-label="add" onClick={() => dispatch(onAdd(c))}>

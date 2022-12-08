@@ -17,13 +17,7 @@ export default function SourceShow() {
   } = useGetSourceQuery(sourceId);
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
@@ -37,15 +31,17 @@ export default function SourceShow() {
           </div>
         )}
 
-        <StatPanel items={[
-          { label: 'First Story', value: data.first_story },
-          { label: 'Stories per Week', value: data.stories_per_week },
-          { label: 'Publication Country', value: data.pub_country },
-          { label: 'Publication State', value: data.pub_state },
-          { label: 'Primary Language', value: data.primary_language },
-          { label: 'Media Type', value: data.media_type },
-        ]}
-        />
+        {(data.platform==="online_news") && (
+          <StatPanel items={[
+              { label: 'First Story', value: data.first_story },
+              { label: 'Stories per Week', value: data.stories_per_week },
+              { label: 'Publication Country', value: data.pub_country },
+              { label: 'Publication State', value: data.pub_state },
+              { label: 'Primary Language', value: data.primary_language },
+              { label: 'Media Type', value: data.media_type },
+            ]}
+          />
+        )}
 
         <div className="row">
           <div className="col-6">

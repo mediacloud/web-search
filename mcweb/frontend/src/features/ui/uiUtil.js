@@ -18,4 +18,28 @@ export const platformDisplayName = (platform) => {
     return "Uknown";
 }
 
+export const mediaTypeDisplayName = (mediaType) => {
+    switch (mediaType){
+        case "audio_broadcast":
+            return "Audio Broadcast News";
+        case "digital_native":
+            return "Digital Native";
+        case "print_native":
+            return "Print Native";
+        case "video_broadcast":
+            return "Video Broadcast";
+        case "other":
+            return "Other";
+    }
+    return "Uknown";
+}
+
+export const asNumber = (potentialNumber) => {
+    try {
+        return potentialNumber.toLocaleString();
+    } catch (error) {
+        return potentialNumber;
+    }      
+}
+
 export default assetUrl;

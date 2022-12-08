@@ -2,7 +2,7 @@ import managerApi from './managerApi';
 
 export const PAGE_SIZE = 100;
 
-export const sourcesApi = managerApi.injectEndpoints({
+export const sourceApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getSource: builder.query({
       query: (id) => ({
@@ -19,7 +19,7 @@ export const sourcesApi = managerApi.injectEndpoints({
         method: 'GET',
       }),
     }),
-    postSource: builder.mutation({
+    createSource: builder.mutation({
       query: (source) => ({
         url: 'sources/',
         method: 'POST',
@@ -55,8 +55,8 @@ export const sourcesApi = managerApi.injectEndpoints({
 export const {
   useGetSourceQuery,
   useListSourcesQuery,
-  usePostSourceMutation,
+  useCreateSourceMutation,
   useUpdateSourceMutation,
   useDeleteSourceMutation,
   useUploadSourcesMutation,
-} = sourcesApi;
+} = sourceApi;

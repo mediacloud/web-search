@@ -18,8 +18,6 @@ import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import {
   useGetSourceQuery,
   useUpdateSourceMutation,
-  // useDeleteSourceMutation,
-  // usePostSourceMutation,
 }
   from '../../app/services/sourceApi';
 
@@ -29,7 +27,7 @@ export default function ModifySource() {
   const navigate = useNavigate();
   const sourceId = Number(params.sourceId);
   const [formState, setFormState] = React.useState({
-    id: '', name: '', notes: '', homepage: '', label: '', service: '', platform: '', url_search_string: '',
+    name: '', notes: '', homepage: '', label: '', service: '', platform: '', url_search_string: '',
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -86,6 +84,7 @@ export default function ModifySource() {
       </div>
       <div className="row">
         <div className="col-8">
+
           <FormControl fullWidth>
             <InputLabel id="type-select-label">Platform</InputLabel>
             <Select
@@ -102,8 +101,10 @@ export default function ModifySource() {
               <MenuItem value="youtube">{platformDisplayName('youtube')}</MenuItem>
             </Select>
           </FormControl>
+
           <br />
           <br />
+
           <TextField
             fullWidth
             name="name"

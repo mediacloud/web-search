@@ -17,13 +17,7 @@ export default function SourceHeader() {
   const source = data;
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
@@ -39,7 +33,7 @@ export default function SourceHeader() {
                 {sourceId}
               </span>
               <h1>
-                {source.label}
+                {source.label || source.name}
               </h1>
             </div>
           </div>

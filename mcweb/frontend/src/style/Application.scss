@@ -74,6 +74,10 @@ table {
         margin-right: $padding-xs;
         vertical-align: bottom;
       }
+
+      &.numeric {
+        text-align: right;
+      }
     }
   }
 }

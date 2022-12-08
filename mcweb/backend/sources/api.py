@@ -14,7 +14,7 @@ from rest_framework.renderers import JSONRenderer
 from typing import List
 
 from . import RSS_FETCHER_USER, RSS_FETCHER_PASS, RSS_FETCHER_URL
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, CollectionWriteSerializer
+from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
@@ -128,7 +128,16 @@ class SourcesViewSet(viewsets.ModelViewSet):
     permission_classes = [
         IsGetOrIsStaff
     ]
-    serializer_class = SourcesSerializer
+    serializers_by_action = {
+        'default': SourcesSerializer,
+        'list': SourcesViewSerializer,
+        'retrieve': SourcesViewSerializer,
+    }
+
+    def get_serializer_class(self):
+        if self.action in self.serializers_by_action.keys():
+            return self.serializers_by_action[self.action]
+        return self.serializers_by_action['default']
 
     # overriden to support filtering all endpoints by collection id
     def get_queryset(self):

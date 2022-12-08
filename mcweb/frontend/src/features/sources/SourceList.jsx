@@ -5,54 +5,50 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
-
 import { useListSourcesQuery, PAGE_SIZE } from  '../../app/services/sourceApi';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import { googleFaviconUrl } from '../ui/uiUtil';
+import { googleFaviconUrl, asNumber } from '../ui/uiUtil';
 
 export default function SourceList(props) {
-  const { collectionId, edit } = props;
+  const { collectionId, edit, isOnlineNews } = props;
   const [page, setPage] = useState(0);
   const {
-    data,
+    data: sources,
     isLoading,
   } = useListSourcesQuery({collectionId, page});
+
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
   // if loading
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
     <div>
       <h2>
         Sources (
-        {data.count}
+        {asNumber(sources.count)}
         )
       </h2>
-      <Pagination
-        count={Math.ceil(data.count / PAGE_SIZE)}
-        page={page+1}
-        color="primary"
-        onChange={(evt, value) => setPage(value-1)}/>
+      { (Math.ceil(sources.count / PAGE_SIZE) > 1) && (
+        <Pagination
+          count={Math.ceil(sources.count / PAGE_SIZE)}
+          page={page+1}
+          color="primary"
+          onChange={(evt, value) => setPage(value-1)}/>
+      )}
       <table width="100%">
         <thead>
           <tr>
             <th colSpan="2">Name</th>
-            <th>Stories per Week</th>
+            {isOnlineNews && (<th>Stories per Week</th>)}
             {edit && (<th></th>)}
           </tr>
         </thead>
         <tbody>
-          {data.results.map((source) => (
+          {sources.results.map((source) => (
             <tr key={source.id}>
               <td>
                 <a href={source.homepage} target="_new">
@@ -68,7 +64,7 @@ export default function SourceList(props) {
                   {source.label || source.name}
                 </Link>
               </td>
-              <td>{source.stories_per_week}</td>
+              {isOnlineNews && (<td class="numeric">{asNumber(source.stories_per_week)}</td>)}
               {edit && (
                 <td>
                   <IconButton
@@ -95,8 +91,10 @@ export default function SourceList(props) {
 SourceList.propTypes = {
   collectionId: PropTypes.number.isRequired,
   edit: PropTypes.bool,
+  isOnlineNews: PropTypes.bool,
 };
 
 SourceList.defaultProps = {
   edit: false,
+  isOnlineNews: false,
 };
