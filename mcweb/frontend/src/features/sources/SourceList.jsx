@@ -7,7 +7,7 @@ import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
 import { useListSourcesQuery, PAGE_SIZE } from  '../../app/services/sourceApi';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import { googleFaviconUrl, asNumber } from '../ui/uiUtil';
+import { sourceFavIcon, asNumber } from '../ui/uiUtil';
 
 export default function SourceList(props) {
   const { collectionId, edit } = props;
@@ -42,7 +42,7 @@ export default function SourceList(props) {
       <table width="100%">
         <thead>
           <tr>
-            <th colSpan="2">Name</th>
+            <th>Name</th>
             <th>Content per Week</th>
             {edit && (<th></th>)}
           </tr>
@@ -51,20 +51,17 @@ export default function SourceList(props) {
           {sources.results.map((source) => (
             <tr key={source.id}>
               <td>
-                <a href={source.homepage} target="_new">
-                  <img
-                    className="google-icon"
-                    src={googleFaviconUrl(source.homepage || `https://{source.domain}`)}
-                    alt="{source.name}"
-                  />
-                </a>
-              </td>
-              <td>
+                <img
+                  className="google-icon"
+                  src={sourceFavIcon(source)}
+                  alt="{source.name}"
+                  width="32px"
+                />
                 <Link to={`/sources/${source.id}`}>
                   {source.label || source.name}
                 </Link>
               </td>
-              <td class="numeric">{asNumber(source.stories_per_week)}</td>
+              <td className="numeric">{asNumber(source.stories_per_week)}</td>
               {edit && (
                 <td>
                   <IconButton

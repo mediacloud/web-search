@@ -12,7 +12,7 @@ export default function SourceShow() {
 
   const location = useLocation();
   const {
-    data,
+    data: source,
     isLoading,
   } = useGetSourceQuery(sourceId);
 
@@ -23,25 +23,24 @@ export default function SourceShow() {
   return (
       <div className="container">
         
-        { data.notes && (
-          <div class="row">
-            <div class="col-6">
-              <p>{data.notes}</p>
-            </div>
-          </div>
-        )}
-
-        {(data.platform==="online_news") && (
+        {(source.platform==="online_news") && (
           <StatPanel items={[
-              { label: 'First Story', value: data.first_story },
-              { label: 'Stories per Week', value: data.stories_per_week },
-              { label: 'Publication Country', value: data.pub_country },
-              { label: 'Publication State', value: data.pub_state },
-              { label: 'Primary Language', value: data.primary_language },
-              { label: 'Media Type', value: data.media_type },
+              { label: 'First Story', value: source.first_story },
+              { label: 'Stories per Week', value: source.stories_per_week },
+              { label: 'Publication Country', value: source.pub_country },
+              { label: 'Publication State', value: source.pub_state },
+              { label: 'Primary Language', value: source.primary_language },
+              { label: 'Media Type', value: source.media_type },
             ]}
           />
         )}
+
+        <div className="row">
+          <div className="col-6">
+            <p><b>Homepage</b>: <a href={source.homepage} target="_blank">{source.homepage}</a></p>
+            {source.notes && (<p><b>Notes</b>{source.notes}</p>)}
+          </div>
+        </div>
 
         <div className="row">
           <div className="col-6">

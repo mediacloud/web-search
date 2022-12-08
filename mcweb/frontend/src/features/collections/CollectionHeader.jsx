@@ -10,7 +10,7 @@ import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
-import { platformDisplayName } from '../ui/uiUtil';
+import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 
 export default function CollectionHeader() {
   const params = useParams();
@@ -27,6 +27,8 @@ export default function CollectionHeader() {
     return (<CircularProgress size={75} />);
   }
 
+  const PlatformIcon = platformIcon(collection.platform);
+
   return (
     <>
       <div className="feature-area filled">
@@ -40,6 +42,8 @@ export default function CollectionHeader() {
                 {collectionId}
               </span>
               <h1>
+                <PlatformIcon  fontSize="large" />
+                &nbsp;
                 {collection.name}
               </h1>
             </div>
