@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Button } from '@mui/material';
 import { useLocation, Link } from 'react-router-dom';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import FeaturedCollections from './FeaturedCollections';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
@@ -33,7 +34,7 @@ export default function CollectionsHome() {
                 <Link to="news/geographic">Browse Geographic News Collections</Link>
               </Button>
               <Permissioned role={ROLE_STAFF}>
-                  <Button variant="outlined">
+                  <Button variant="outlined" endIcon={<LockOpenIcon />}>
                     <Link to="create">Create a New Collection</Link>
                   </Button>
                 </Permissioned>

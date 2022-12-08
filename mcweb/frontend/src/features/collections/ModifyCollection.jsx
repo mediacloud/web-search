@@ -58,7 +58,7 @@ export default function ModifyCollection() {
 
       <div className="row">
         <div className="col-12">
-          <h2>Modify this Collection</h2>
+          <h2>Edit Collection</h2>
         </div>
       </div>
 
@@ -124,7 +124,7 @@ export default function ModifyCollection() {
               }
             }}
           >
-            Update
+            Save
           </Button>
         </div>
       </div>

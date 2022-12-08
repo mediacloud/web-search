@@ -4,11 +4,13 @@ import * as React from 'react';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import dayjs from 'dayjs';
 import { Button } from '@mui/material';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Outlet, Link, useParams } from 'react-router-dom';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
+import { platformDisplayName } from '../ui/uiUtil';
 
 export default function CollectionHeader() {
   const params = useParams();
@@ -32,7 +34,7 @@ export default function CollectionHeader() {
           <div className="row">
             <div className="col-12">
               <span className="small-label">
-                {collection.platform}
+                {platformDisplayName(collection.platform)}
                 {' '}
                 Collection #
                 {collectionId}
@@ -62,8 +64,8 @@ export default function CollectionHeader() {
               </Button>
               <DownloadSourcesCsv collectionId={collectionId} />
               <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" component={Link} to={`${collectionId}/edit`}>
-                  Edit
+                <Button variant="outlined" endIcon={<LockOpenIcon />}>
+                  <Link to={`${collectionId}/edit`}>Edit</Link>
                 </Button>
               </Permissioned>
             </div>

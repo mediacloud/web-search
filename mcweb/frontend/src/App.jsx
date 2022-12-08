@@ -130,7 +130,7 @@ function App() {
               )}
             />
             <Route
-              path=":sourceId/modify-source"
+              path=":sourceId/edit"
               element={(
                 <RequireAuth>
                   <ModifySource />
