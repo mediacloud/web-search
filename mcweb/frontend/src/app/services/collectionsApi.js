@@ -1,6 +1,5 @@
 import managerApi from './managerApi';
-
-export const PAGE_SIZE = 100;
+import { toSearchUrlParams } from './queryUtil';
 
 export const collectionsApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,25 +10,10 @@ export const collectionsApi = managerApi.injectEndpoints({
       }),
     }),
     listCollections: builder.query({
-      query: ({name, sourceId, page}) => {
-        const queryParams = {
-          limit: PAGE_SIZE,
-          offset: page ? PAGE_SIZE*page : 0,
-        }; // need to make sure we don't send any "undefined"s to server
-        if (name) {
-          queryParams.name = name;
-        }
-        if (sourceId) {
-          queryParams.sourceId = sourceId;
-        }
-        if (page) {
-          queryParams.page = page;
-        }
-        return {
-          url: `collections/?${(new URLSearchParams(queryParams)).toString()}`,
+      query: (params) => ({
+          url: `collections/?${toSearchUrlParams(params)}`,
           method: 'GET',
-        };
-      },
+      }),
     }),
     getGlobalCollections: builder.query({
       query: () => ({

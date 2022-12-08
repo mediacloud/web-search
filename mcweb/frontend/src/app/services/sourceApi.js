@@ -1,4 +1,5 @@
 import managerApi from './managerApi';
+import { toSearchUrlParams } from './queryUtil';
 
 export const PAGE_SIZE = 100;
 
@@ -14,8 +15,8 @@ export const sourceApi = managerApi.injectEndpoints({
         : ['SelectedSource']),
     }),
     listSources: builder.query({
-      query: ({collectionId, page}) => ({
-        url: `sources/?collection_id=${collectionId}&limit=${PAGE_SIZE}&offset=${PAGE_SIZE*page}`,
+      query: (params) => ({
+        url: `sources/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
     }),
@@ -55,6 +56,7 @@ export const sourceApi = managerApi.injectEndpoints({
 export const {
   useGetSourceQuery,
   useListSourcesQuery,
+  useLazyListSourcesQuery,
   useCreateSourceMutation,
   useUpdateSourceMutation,
   useDeleteSourceMutation,

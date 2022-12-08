@@ -7,7 +7,7 @@ from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.db.models import Case, When
+from django.db.models import Case, When, Q
 from rest_framework import viewsets, permissions
 import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
@@ -60,7 +60,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         if platform is not None:
             # TODO: validate this is a valid platform type
             queryset = queryset.filter(platform=platform)
-        name = self.request.query_params["name"]
+        name = self.request.query_params.get("name")
         if name is not None:
             queryset = queryset.filter(name__icontains=name)
         return queryset
@@ -151,6 +151,9 @@ class SourcesViewSet(viewsets.ModelViewSet):
         if platform is not None:
             # TODO: check if the platform is a valid option
             queryset = queryset.filter(platform=platform)
+        name = self.request.query_params.get("name")
+        if name is not None:
+            queryset = queryset.filter(Q(name__icontains=name) | Q(label__icontains=name))
         return queryset
 
     @action(methods=['post'], detail=False)
