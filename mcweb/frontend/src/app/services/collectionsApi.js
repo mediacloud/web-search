@@ -11,16 +11,25 @@ export const collectionsApi = managerApi.injectEndpoints({
       }),
     }),
     listCollections: builder.query({
-      query: ({sourceId, page}) => ({
-        url: `collections/?source_id=${sourceId}&limit=${PAGE_SIZE}&offset=${PAGE_SIZE*page}`,
-        method: 'GET',
-      }),
-    }),
-    searchCollections: builder.query({
-      query: (queryString) => ({
-        url: `collections/search/?query=${queryString}`,
-        method: 'GET',
-      }),
+      query: ({name, sourceId, page}) => {
+        const queryParams = {
+          limit: PAGE_SIZE,
+          offset: page ? PAGE_SIZE*page : 0,
+        }; // need to make sure we don't send any "undefined"s to server
+        if (name) {
+          queryParams.name = name;
+        }
+        if (sourceId) {
+          queryParams.sourceId = sourceId;
+        }
+        if (page) {
+          queryParams.page = page;
+        }
+        return {
+          url: `collections/?${(new URLSearchParams(queryParams)).toString()}`,
+          method: 'GET',
+        };
+      },
     }),
     getGlobalCollections: builder.query({
       query: () => ({
@@ -65,7 +74,7 @@ export const collectionsApi = managerApi.injectEndpoints({
 export const {
   useGetFeaturedCollectionsQuery,
   useListCollectionsQuery,
-  useLazySearchCollectionsQuery,
+  useLazyListCollectionsQuery,
   useGetCollectionQuery,
   useCreateCollectionMutation,
   useUpdateCollectionMutation,

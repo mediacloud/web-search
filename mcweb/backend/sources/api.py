@@ -50,12 +50,20 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     # overriden to support filtering all endpoints by collection id
     def get_queryset(self):
+        queryset = super().get_queryset()
         # add in optional filters
         source_id = self.request.query_params.get("source_id")
         if source_id is not None:
             source_id = int(source_id)  # validation: should throw a ValueError back up the chain
-            return super().get_queryset().filter(source__id=source_id)
-        return super().get_queryset()
+            queryset = queryset.filter(source__id=source_id)
+        platform = self.request.query_params.get("platform")
+        if platform is not None:
+            # TODO: validate this is a valid platform type
+            queryset = queryset.filter(platform=platform)
+        name = self.request.query_params["name"]
+        if name is not None:
+            queryset = queryset.filter(name__icontains=name)
+        return queryset
 
     def get_serializer_class(self):
         serializer_class = self.serializer_class
@@ -90,13 +98,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
         json_data = open(file_path)  
         deserial_data = json.load(json_data) 
         return Response({"countries": deserial_data})
-
-    @action(detail=False)
-    def search(self, request):
-        query = request.query_params["query"]
-        collections = self.queryset.filter(name__icontains=query)[:self.MAX_SEARCH_RESULTS]
-        serializer = self.serializer_class(collections, many=True)
-        return Response({"collections": serializer.data})
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
@@ -141,11 +142,16 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
     # overriden to support filtering all endpoints by collection id
     def get_queryset(self):
+        queryset = super().get_queryset()
         collection_id = self.request.query_params.get("collection_id")
         if collection_id is not None:
             collection_id = int(collection_id)  # validation: should throw a ValueError back up the chain
-            return super().get_queryset().filter(collections__id=collection_id)
-        return super().get_queryset()
+            queryset = queryset.filter(collections__id=collection_id)
+        platform = self.request.query_params.get("platform")
+        if platform is not None:
+            # TODO: check if the platform is a valid option
+            queryset = queryset.filter(platform=platform)
+        return queryset
 
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):

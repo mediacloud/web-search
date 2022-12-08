@@ -5,14 +5,14 @@ import { CircularProgress } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import CollectionSelectionTable from './CollectionSelectionTable';
-import { useLazySearchCollectionsQuery } from '../../../../app/services/collectionsApi';
+import { useLazyListCollectionsQuery } from '../../../../app/services/collectionsApi';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 
 export default function CollectionSearchPicker() {
   const [query, setQuery] = useState('');
   const [trigger, {
     isLoading, data,
-  }] = useLazySearchCollectionsQuery();
+  }] = useLazyListCollectionsQuery();
   const { previewCollections } = useSelector((state) => state.query);
 
   return (
@@ -26,7 +26,7 @@ export default function CollectionSearchPicker() {
             <TextField fullWidth label="collection name" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
           <div className="col-6">
-            <Button size="large" variant="contained" onClick={() => trigger(query)}>
+            <Button size="large" variant="contained" onClick={() => trigger({name: query})}>
               Search
             </Button>
           </div>
@@ -40,7 +40,7 @@ export default function CollectionSearchPicker() {
             {data && (
               <>
                 <p>
-                  {data.collections.length}
+                  {data.count}
                   {' '}
                   Collections matching &quot;
                   {query}
@@ -48,7 +48,7 @@ export default function CollectionSearchPicker() {
                 </p>
                 <CollectionSelectionTable
                   selected={previewCollections}
-                  matching={data.collections}
+                  matching={data.results}
                   onAdd={addPreviewSelectedMedia}
                   onRemove={removePreviewSelectedMedia}
                 />
