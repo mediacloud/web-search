@@ -1,26 +1,23 @@
 import * as React from 'react';
 import { Button } from '@mui/material';
-import { useLocation, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import FeaturedCollections from './FeaturedCollections';
+import FeaturedCollections from '../collections/FeaturedCollections';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
-export default function CollectionsHome() {
-  const location = useLocation();
-
-  if (location.pathname !== '/collections') return null;
+export default function DirectoryHome() {
   return (
     <>
       <div className="feature-area filled">
         <div className="container">
           <div className="row">
             <div className="col-4">
-              <h1>Collections</h1>
+              <h1>Directory</h1>
               <p>
                 <Link to="/collections/news/geographic">Check the breadth of our global coverage</Link>
                 {' '}
                 by browsing the media sources
-                and collections in our database, and suggesting more to add.
+                and collections in our directory, and suggesting more to add.
               </p>
             </div>
           </div>
@@ -31,13 +28,18 @@ export default function CollectionsHome() {
           <div className="row">
             <div className="col-12">
               <Button variant="outlined">
-                <Link to="news/geographic">Browse Geographic News Collections</Link>
+                <Link to="/collections/news/geographic">Browse Geographic News Collections</Link>
               </Button>
               <Permissioned role={ROLE_STAFF}>
+                <>
                   <Button variant="outlined" endIcon={<LockOpenIcon />}>
-                    <Link to="create">Create a New Collection</Link>
+                    <Link to="/collections/create">Create a New Collection</Link>
                   </Button>
-                </Permissioned>
+                  <Button variant="outlined" endIcon={<LockOpenIcon />}>
+                    <Link to="/sources/create">Create a New Source</Link>
+                  </Button>
+                </>
+              </Permissioned>
             </div>
           </div>
         </div>

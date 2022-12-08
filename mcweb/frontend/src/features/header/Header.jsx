@@ -6,7 +6,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { assetUrl } from '../ui/uiUtil';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
-const pages = ['search', 'collections'];
+const pages = ['search', 'directory'];
 // const settings = ['Account', 'Logout'];
 
 function Header() {
