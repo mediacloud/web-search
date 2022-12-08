@@ -14,14 +14,6 @@ const collectionsSlice = createSlice({
   name: 'collections',
   initialState: {},
   reducers: {
-    setCollections: (state, { payload }) => {
-      payload.collections.forEach((collection) => {
-        state[collection.id] = collection;
-      });
-    },
-    setCollection: (state, { payload }) => {
-      state[payload.collections.id] = payload.collections;
-    },
   },
 });
 
