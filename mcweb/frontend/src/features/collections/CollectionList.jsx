@@ -5,9 +5,9 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
-
 import { useListCollectionsQuery, PAGE_SIZE } from '../../app/services/collectionsApi';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { asNumber } from '../ui/uiUtil';
 
 export default function CollectionList(props) {
   const { sourceId, edit } = props;
@@ -20,31 +20,29 @@ export default function CollectionList(props) {
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
     <>
       <h2>
         Collections (
-        {data.count}
+        {asNumber(data.count)}
         )
       </h2>
-      <Pagination
-        count={Math.ceil(data.count / PAGE_SIZE)}
-        page={page+1}
-        color="primary"
-        onChange={(evt, value) => setPage(value-1)}/>
+      {(Math.ceil(data.count / PAGE_SIZE) > 1) && (
+        <Pagination
+          count={Math.ceil(data.count / PAGE_SIZE)}
+          page={page+1}
+          color="primary"
+          onChange={(evt, value) => setPage(value-1)}/>
+      )}
       <table>
         <thead>
           <tr>
-            <th colSpan={edit ? 2 : 1}>Name</th>
+            <th>Name</th>
+            <th>Sources</th>
+            {edit && <th></th>}
           </tr>
         </thead>
         <tbody>
@@ -55,6 +53,7 @@ export default function CollectionList(props) {
                   {collection.name}
                 </Link>
               </td>
+              <td class="numeric">{asNumber(collection.source_count)}</td>
               { edit && (
                 <td>
                   <IconButton

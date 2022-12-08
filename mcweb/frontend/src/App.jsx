@@ -16,9 +16,10 @@ import ResetPassword from './features/auth/ResetPassword';
 import ConfirmedReset from './features/auth/ConfirmedReset';
 
 // pages
-import Collections from './features/collections/CollectionShow';
-import CollectionsHome from './features/collections/CollectionsHome';
+import CollectionShow from './features/collections/CollectionShow';
+import DirectoryHome from './features/directory/DirectoryHome';
 import CreateCollection from './features/collections/CreateCollection';
+import CreateSource from './features/sources/CreateSource';
 import CollectionHeader from './features/collections/CollectionHeader';
 import GeographicNewsCollections from './features/collections/GeographicNewsCollections';
 import Search from './features/search/Search';
@@ -53,11 +54,19 @@ function App() {
           <Route index element={<Homepage />} />
 
           <Route
+            path="directory"
+            element={(
+              <RequireAuth>
+                <DirectoryHome />
+              </RequireAuth>
+            )}
+          />
+
+          <Route
             path="collections"
             element={(
               <RequireAuth>
                 <CollectionHeader />
-                <CollectionsHome />
               </RequireAuth>
             )}
           >
@@ -66,12 +75,12 @@ function App() {
               path=":collectionId"
               element={(
                 <RequireAuth>
-                  <Collections />
+                  <CollectionShow />
                 </RequireAuth>
             )}
             />
             <Route
-              path=":collectionId/modify-collection"
+              path=":collectionId/edit"
               element={(
                 <RequireAuth>
                   <ModifyCollection />
@@ -130,7 +139,7 @@ function App() {
               )}
             />
             <Route
-              path=":sourceId/modify-source"
+              path=":sourceId/edit"
               element={(
                 <RequireAuth>
                   <ModifySource />
@@ -138,6 +147,14 @@ function App() {
               )}
             />
           </Route>
+          <Route
+            path="sources/create"
+            element={(
+              <RequireAuth>
+                <CreateSource />
+              </RequireAuth>
+            )}
+          />
 
           <Route path="sign-in" element={<SignIn />} />
           <Route path="reset-password" element={<ResetPassword />} />

@@ -2,10 +2,11 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import { NavLink, Link } from 'react-router-dom';
 import UserMenu from './UserMenu';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { assetUrl } from '../ui/uiUtil';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
-const pages = ['search', 'collections'];
+const pages = ['search', 'directory'];
 // const settings = ['Account', 'Logout'];
 
 function Header() {
@@ -36,7 +37,7 @@ function Header() {
                 { /* need to do an a link here to a new window so that it does
                   NOT go throug hthe Router */ }
                 <a href="/adminauth/user/" target="_blank">
-                  <Button variant="text">Admin</Button>
+                  <Button variant="text" endIcon={<LockOpenIcon />}>Admin</Button>
                 </a>
               </Permissioned>
               <UserMenu />

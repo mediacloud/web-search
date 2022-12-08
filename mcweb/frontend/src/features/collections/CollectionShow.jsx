@@ -1,39 +1,22 @@
 import * as React from 'react';
-import { Button } from '@mui/material';
-import { Link, useParams } from 'react-router-dom';
-import DownloadSourcesCsv from './util/DownloadSourcesCsv';
+import { useParams } from 'react-router-dom';
 import SourceList from '../sources/SourceList';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 
 export default function CollectionShow() {
   const params = useParams();
   const collectionId = Number(params.collectionId);
-
+  const {
+    data: collection,
+  } = useGetCollectionQuery(collectionId);
+  
   return (
-    <>
-      <div className="sub-feature">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <DownloadSourcesCsv collectionId={collectionId} />
-              &nbsp;&nbsp;&nbsp;
-              <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" component={Link} to="modify-collection">
-                  Modify Collection
-                </Button>
-              </Permissioned>
-            </div>
-          </div>
+    <div className="container">
+      <div className="row">
+        <div className="col-6">
+          <SourceList collectionId={collectionId} isOnlineNews={collection.platform == "online_news"}/>
         </div>
       </div>
-
-      <div className="container">
-        <div className="row">
-          <div className="col-6">
-            <SourceList collectionId={collectionId} />
-          </div>
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

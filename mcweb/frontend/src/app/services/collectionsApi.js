@@ -34,8 +34,8 @@ export const collectionsApi = managerApi.injectEndpoints({
         method: 'GET',
       }),
       providesTags: (result, error, id) => (result
-        ? [{ type: 'Collection', id }]
-        : ['Collection']),
+        ? [{ type: 'SelectedCollection', id }]
+        : ['SelectedCollection']),
     }),
     createCollection: builder.mutation({
       query: (collection) => ({
@@ -50,6 +50,7 @@ export const collectionsApi = managerApi.injectEndpoints({
         method: 'PATCH',
         body: { ...collection },
       }),
+      invalidatesTags: ['SelectedCollection'],
     }),
     deleteCollection: builder.mutation({
       query: ({ id }) => ({

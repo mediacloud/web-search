@@ -5,8 +5,7 @@ const formatCollections = (collectionsArray) => collectionsArray.map((collection
 ));
 
 const queryListHelper = (queryList) => {
-  if (queryList[0].length < 1) return '';
-  const filtered = queryList.filter((queryWord) => queryWord.length >= 1);
+  const filtered = queryList.filter((queryPhrase) => queryPhrase.length >= 1);
   return filtered.join(',');
 };
 
