@@ -12,10 +12,10 @@ import {
   PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-import { setPlatform, resetSelectedAndPreviewMedia } from './querySlice';
+import { setPlatform, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS } from './querySlice';
 
 export default function PlatformPicker() {
-  const { platform } = useSelector((state) => state.query);
+  const { platform, collections, sources } = useSelector((state) => state.query);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -24,9 +24,27 @@ export default function PlatformPicker() {
   const handleChangePlatform = async (event) => {
     const newPlatform = event.target.value;
     await dispatch(setPlatform(newPlatform));
-    if (!providersOfSamePlatform(platform, newPlatform)) {
-      await dispatch(resetSelectedAndPreviewMedia());
-      enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
+    const hasSomeMedia = (collections.length + sources.length) > 0;
+    const samePlatform = providersOfSamePlatform(platform, newPlatform);
+/*
+    hasSomeMedia && samePlatform: nothing
+    !hasSomeMedia && samePlatform: nothing
+    hasSomeMedia && !samePlatform: reset
+    !hasSomeMedia && !samePlatform: if to online_news set to news_default else reset
+*/
+    if (!samePlatform) {
+      if (!hasSomeMedia) {
+        if ([PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(newPlatform)) {
+          await dispatch(addSelectedMedia(DEFAULT_ONLINE_NEWS_COLLECTIONS));
+          enqueueSnackbar("We reset your collections to work with this platform.", { variant: 'warning' });
+        } else {
+          await dispatch(resetSelectedAndPreviewMedia());
+          enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });  
+        }
+      } else {
+        await dispatch(resetSelectedAndPreviewMedia());
+        enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
+      }
     }
   };
 

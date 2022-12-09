@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate } from '../util/platforms';
 
 const DEFAULT_PROVIDER = PROVIDER_NEWS_MEDIA_CLOUD;
-const DEFAULT_COLLECTIONS = [{ id: 34412234, name: 'United States - National' }];
+export const DEFAULT_ONLINE_NEWS_COLLECTIONS = [{ type: 'collection', id: 34412234, name: 'United States - National' }];
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 
@@ -16,8 +16,8 @@ const querySlice = createSlice({
     platform: DEFAULT_PROVIDER,
     startDate,
     endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
-    collections: DEFAULT_COLLECTIONS,
-    previewCollections: DEFAULT_COLLECTIONS,
+    collections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+    previewCollections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
     sources: [],
     previewSources: [],
     lastSearchTime: dayjs().unix(),
