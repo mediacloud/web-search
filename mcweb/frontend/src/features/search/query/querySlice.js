@@ -33,15 +33,15 @@ const querySlice = createSlice({
     }),
     addPreviewSelectedMedia: (state, { payload }) => ({
       ...state,
-      collections: payload.filter(c => c.type == 'collection'),
-      sources: payload.filter(c => c.type == 'source'),
+      previewCollections: [...state.collections, ...payload.filter(c => c.type == 'collection')],
+      previewSources: [...state.sources, ...payload.filter(c => c.type == 'source')],
     }),
     removeSelectedMedia: (state, { payload }) => ({
       ...state,
-      collections: payload.type == 'collection' ? state.collections.filter((c) => c.id !== payload.id) : collections,
-      previewCollections: state.previewCollections.filter((c) => c.id !== payload.id),
-      sources: payload.type == 'sources' ? state.sources.filter((s) => s.id !== payload.id) : sources,
-      previewSources: state.previewSources.filter((s) => s.id !== payload.id),
+      collections: payload.type == 'collection' ? state.collections.filter((c) => c.id !== payload.id) : state.collections,
+      previewCollections: payload.type == 'collection' ? state.previewCollections.filter((c) => c.id !== payload.id) : state.collections,
+      sources: payload.type == 'source' ? state.sources.filter((s) => s.id !== payload.id) : state.sources,
+      previewSources: payload.type == 'source' ? state.previewSources.filter((s) => s.id !== payload.id) : state.sources,
     }),
     setPreviewSelectedMedia: (state, { payload }) => ({
       ...state,

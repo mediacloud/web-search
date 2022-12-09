@@ -53,7 +53,8 @@ export default function CountOverTimeResults() {
 
   const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
-  const collectionIds = collections.map((collection) => collection.id);
+  const collectionIds = collections.map(c => c.id);
+  const sourceIds = sources.map(s => s.id);
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
@@ -77,7 +78,7 @@ export default function CountOverTimeResults() {
         startDate,
         endDate,
         collections: collectionIds,
-        sources,
+        sources: sourceIds,
         platform,
       });
       setNormalized(supportsNormalizedCount(platform));
@@ -180,7 +181,7 @@ export default function CountOverTimeResults() {
                   startDate,
                   endDate,
                   collections: collectionIds,
-                  sources,
+                  sources: sourceIds,
                   platform,
                 });
               }}

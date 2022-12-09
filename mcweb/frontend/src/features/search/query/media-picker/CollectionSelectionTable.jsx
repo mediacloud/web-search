@@ -27,12 +27,12 @@ export default function CollectionSelectionTable({
             <td class="numeric">{asNumber(c.source_count)}</td>
             <td>
               {!(alreadySelected(c.id)) && (
-                <IconButton size="sm" aria-label="add" onClick={() => dispatch(onAdd(c))}>
+                <IconButton size="sm" aria-label="add" onClick={() => dispatch(onAdd([{...c, type:'collection'}]))}>
                   <AddCircleIcon sx={{ color: '#d24527' }} />
                 </IconButton>
               )}
               {(alreadySelected(c.id)) && (
-                <IconButton size="sm" aria-label="remove" onClick={() => dispatch(onRemove(c.id))}>
+                <IconButton size="sm" aria-label="remove" onClick={() => dispatch(onRemove([{...c, type:'collection'}]))}>
                   <RemoveCircleIcon sx={{ color: '#d24527' }} />
                 </IconButton>
               )}

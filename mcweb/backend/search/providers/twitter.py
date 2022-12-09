@@ -3,7 +3,6 @@ import requests
 import dateparser
 from typing import List, Dict
 import logging
-from django.apps import apps
 
 from .provider import ContentProvider
 from .exceptions import UnsupportedOperationException
@@ -14,6 +13,9 @@ TWITTER_API_URL = 'https://api.twitter.com/2/'
 
 
 class TwitterTwitterProvider(ContentProvider):
+    """
+    All these endpoints accept a `usernames: List[str]` keyword arg.
+    """
 
     def __init__(self, bearer_token=None):
         super(TwitterTwitterProvider, self).__init__()
@@ -45,18 +47,7 @@ class TwitterTwitterProvider(ContentProvider):
 
     @classmethod
     def _assembled_query_str(cls, query: str, **kwargs) -> str:
-        # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
-        Source = apps.get_model('sources', 'Source')
-        # Collection = apps.get_model('sources', 'Collection')
-        usernames = []
-        # turn media ids into list of usernames
-        media_ids = kwargs['sources'] if 'sources' in kwargs else []
-        selected_sources = Source.objects.filter(id__in=media_ids)
-        usernames += [s.name for s in selected_sources]
-        # turn collections ids into list of usernames
-        collection_ids = kwargs['collections'] if 'collections' in kwargs else []
-        selected_sources = Source.objects.filter(collections__id__in=collection_ids)
-        usernames += [s.name for s in selected_sources]
+        usernames = kwargs.get('usernames', [])
         # need to put all those filters in single query string
         if len(usernames) == 0:
             assembled_query = query
@@ -155,6 +146,8 @@ class TwitterTwitterProvider(ContentProvider):
 
     @classmethod
     def _add_author_to_tweets(cls, results: Dict) -> None:
+        if cls._no_results(results):
+            return
         user_id_lookup = {u['id']: u for u in results['includes']['users']}
         for t in results['data']:
             t['author'] = user_id_lookup[t['author_id']]
@@ -162,7 +155,15 @@ class TwitterTwitterProvider(ContentProvider):
     @classmethod
     def _tweets_to_rows(cls, results: Dict) -> List:
         TwitterTwitterProvider._add_author_to_tweets(results)
+        if cls._no_results(results):
+            return []
         return [TwitterTwitterProvider._tweet_to_row(t) for t in results['data']]
+
+
+    @classmethod
+    def _no_results(self, results):
+        return results['meta']['result_count'] == 0
+
 
     @classmethod
     def _tweet_to_row(cls, item: Dict) -> Dict:

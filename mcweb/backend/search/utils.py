@@ -1,5 +1,10 @@
 import datetime as dt
 import json
+from typing import List, Dict
+from django.apps import apps
+from .providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
+    PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
+    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
 
 
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -28,8 +33,66 @@ def parse_query(request, http_method: str = 'POST') -> tuple:
     query_str = payload["query"]
     collections = payload["collections"]
     sources = payload["sources"]
+    provider_props = search_props_for_provider(provider_name, collections, sources)
     start_date = payload["startDate"]
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    return start_date, end_date, query_str, collections, sources, provider_name
+    return start_date, end_date, query_str, provider_props, provider_name
+
+
+def search_props_for_provider(provider, collections: List, sources: List) -> Dict:
+    if provider == provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER):
+        return _for_twitter_api(collections, sources)
+    if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
+        return _for_youtube_api(collections, sources)
+    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
+        return _for_media_cloud(collections, sources)
+    if provider == provider_name(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT):
+        return _for_reddit_pushshift(collections, sources)
+    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
+        return _for_wayback_machine(collections, sources)
+    return {}
+
+
+def _for_youtube_api(collections: List, sources: List) -> Dict:
+    # TODO: filter by a list of channels
+    return dict()
+
+
+def _for_twitter_api(collections: List, sources: List) -> Dict:
+    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
+    Source = apps.get_model('sources', 'Source')
+    usernames = []
+    # turn media ids into list of usernames
+    selected_sources = Source.objects.filter(id__in=sources)
+    usernames += [s.name for s in selected_sources]
+    # turn collections ids into list of usernames
+    selected_sources = Source.objects.filter(collections__id__in=collections)
+    usernames += [s.name for s in selected_sources]
+    return dict(usernames=usernames)
+
+
+def _for_reddit_pushshift(collections: List, sources: List) -> Dict:
+    # TODO: filter by a list of subreddits
+    return dict()
+
+
+def _for_wayback_machine(collections: List, sources: List) -> Dict:
+    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
+    Source = apps.get_model('sources', 'Source')
+    domains = []
+    # turn media ids into list of domains
+    selected_sources = Source.objects.filter(id__in=sources)
+    domains += [s.name for s in selected_sources]
+    # turn collections ids into list of domains
+    selected_sources = Source.objects.filter(collections__id__in=collections)
+    domains += [s.name for s in selected_sources]
+    return dict(domains=domains)
+
+
+def _for_media_cloud(collections: List, sources: List) -> Dict:
+    return dict(
+        tags_ids=[c['id'] for c in collections],
+        media_ids=[s['id'] for s in sources]
+    )

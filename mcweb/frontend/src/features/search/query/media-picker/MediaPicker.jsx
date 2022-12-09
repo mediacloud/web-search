@@ -60,7 +60,7 @@ export default function MediaPicker() {
                   variant="contained"
                   onClick={() => {
                     setOpen(false);
-                    dispatch(addSelectedMedia(previewCollections));
+                    dispatch(addSelectedMedia([...previewCollections, ...previewSources]));
                   }}
                 >
                   Confirm

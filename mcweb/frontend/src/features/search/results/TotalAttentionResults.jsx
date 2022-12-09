@@ -44,7 +44,8 @@ function TotalAttentionResults() {
 
   const [query, { isLoading, data, error }] = useGetTotalCountMutation();
 
-  const collectionIds = collections.map((collection) => collection.id);
+  const collectionIds = collections.map(c => c.id);
+  const sourceIds = sources.map(s => s.id);
 
   // using EPSILON in the denominator here prevents against div by zero errors
   // (which returns infinity in JS)
@@ -58,7 +59,7 @@ function TotalAttentionResults() {
         startDate,
         endDate,
         collections: collectionIds,
-        sources,
+        sources: sourceIds,
         platform,
       });
       setNormalized(supportsNormalizedCount(platform));
