@@ -14,6 +14,13 @@ class RedditPushshiftProviderTest(TestCase):
                                         dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
         assert results > 0
 
+    def test_subreddits(self):
+        results = self._provider.sample("professor", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
+                                        dt.datetime.strptime("2019-02-01", "%Y-%m-%d"),
+                                        subreddits=['NEU'])
+        for post in results:
+            assert post['subreddit'] == 'NEU'
+
     def test_sample(self):
         results = self._provider.sample("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
                                         dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))

@@ -12,8 +12,6 @@ from .language import top_detected
 REDDIT_PUSHSHIFT_URL = "https://api.pushshift.io"
 SUBMISSION_SEARCH_URL = "{}/reddit/submission/search".format(REDDIT_PUSHSHIFT_URL)
 
-NEWS_SUBREDDITS = ['politics', 'worldnews', 'news', 'conspiracy', 'Libertarian', 'TrueReddit', 'Conservative', 'offbeat']
-
 
 class RedditPushshiftProvider(ContentProvider):
 
