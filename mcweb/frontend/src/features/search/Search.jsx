@@ -32,6 +32,7 @@ export default function Search() {
     startDate,
     endDate,
     collections,
+    sources,
     platform,
     anyAll,
     advanced,
@@ -45,6 +46,7 @@ export default function Search() {
     endDate,
     platform,
     collections,
+    sources,
     anyAll,
     advanced,
   };
@@ -83,22 +85,15 @@ export default function Search() {
             <div className="query-section">
               <h3>
                 <em>2</em>
-                Pick your collections
+                Pick collections and sources
               </h3>
-              {[PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
-                <>
-                  <SelectedMedia onRemove={removeSelectedMedia} collections={collections} />
-                  <MediaPicker />
-                  <p className="help">
-                    Choose individual sources or collections to be searched.
-                    Our system includes collections for a large range of countries,
-                    in multiple languages.
-                  </p>
-                </>
-              )}
-              {![PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
-                <p>Currently unsupported</p>
-              )}
+              <SelectedMedia onRemove={removeSelectedMedia} collections={collections} sources={sources} />
+              <MediaPicker />
+              <p className="help">
+                Choose individual sources or collections to be searched.
+                Our system includes collections for a large range of countries,
+                in multiple languages.
+              </p>
             </div>
           </div>
 
@@ -106,7 +101,7 @@ export default function Search() {
             <div className="query-section">
               <h3>
                 <em>3</em>
-                Pick your dates
+                Pick dates
               </h3>
               <SearchDatePicker />
             </div>

@@ -35,7 +35,8 @@ export default function SampleStories() {
 
   const [query, { isLoading, data }] = useGetSampleStoriesMutation();
 
-  const collectionIds = collections.map((collection) => collection.id);
+  const collectionIds = collections.map(c => c.id);
+  const sourceIds = sources.map(s => s.id);
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-all-content-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
@@ -48,7 +49,7 @@ export default function SampleStories() {
         startDate,
         endDate,
         collections: collectionIds,
-        sources,
+        sources: sourceIds,
         platform,
 
       });
@@ -142,7 +143,7 @@ export default function SampleStories() {
                 startDate,
                 endDate,
                 collections: collectionIds,
-                sources,
+                sources: sourceIds,
                 platform,
               });
             }}

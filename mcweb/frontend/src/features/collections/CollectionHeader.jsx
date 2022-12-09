@@ -9,8 +9,8 @@ import { Outlet, Link, useParams } from 'react-router-dom';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
-import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
-import { platformDisplayName } from '../ui/uiUtil';
+import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
+import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 
 export default function CollectionHeader() {
   const params = useParams();
@@ -18,14 +18,15 @@ export default function CollectionHeader() {
   const collectionId = Number(params.collectionId);
 
   const {
-    data,
-    isLoading,
+    data: collection,
+    isFetching,
   } = useGetCollectionQuery(collectionId);
-  const collection = data;
 
-  if (isLoading) {
+  if (isFetching) {
     return (<CircularProgress size={75} />);
   }
+
+  const PlatformIcon = platformIcon(collection.platform);
 
   return (
     <>
@@ -40,6 +41,8 @@ export default function CollectionHeader() {
                 {collectionId}
               </span>
               <h1>
+                <PlatformIcon  fontSize="large" />
+                &nbsp;
                 {collection.name}
               </h1>
             </div>
@@ -52,13 +55,14 @@ export default function CollectionHeader() {
             <div className="col-12">
               <Button variant="outlined">
                 <a href={`/search/${urlSerializer({
-                  queryList: ['*'],
+                  queryList: defaultPlatformQuery(collection.platform),
                   anyAll: 'any',
                   negatedQueryList: [],
                   startDate: dayjs().subtract(35, 'day'),
                   endDate: dayjs().subtract(5, 'day'),
-                  collections: [data],
-                  platform: PROVIDER_NEWS_WAYBACK_MACHINE,
+                  collections: [collection],
+                  sources: [],
+                  platform: defaultPlatformProvider(collection.platform),
                   advanced: false,
                 })}`} target="_blank">Search Content</a>
               </Button>

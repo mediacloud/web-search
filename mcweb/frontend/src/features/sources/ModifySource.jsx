@@ -15,11 +15,8 @@ import { platformDisplayName } from '../ui/uiUtil';
 import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
-import {
-  useGetSourceQuery,
-  useUpdateSourceMutation,
-}
-  from '../../app/services/sourceApi';
+import { useGetSourceQuery, useUpdateSourceMutation} from '../../app/services/sourceApi';
+import DirectorySearch from '../../features/directory/DirectorySearch';
 
 export default function ModifySource() {
   const params = useParams();
@@ -179,20 +176,27 @@ export default function ModifySource() {
 
       <div className="row">
         <div className="col-12">
+          <hr />
+        </div>
+      </div>
 
-          <h2> Add to Collection (enter the collection ID): </h2>
-          <input type="text" value={collectionId} onChange={(e) => setCollectionId(Number(e.target.value))} />
-
-          <Button onClick={() => {
+      <div className="row">
+        <div className="col-3">
+          <h2>Add to Collection:</h2>
+        </div>
+        <div className="col-7">
+          <DirectorySearch searchSources={false} onSelected={(e, value) => setCollectionId(value.id)} />
+        </div>
+        <div className="col-2">
+          <Button onClick={async () => {
             const assoc = { source_id: sourceId, collection_id: collectionId };
             const collection = collectionData.data;
-            createSourceCollectionAssociation(assoc);
+            await createSourceCollectionAssociation(assoc);
             setCollectionId('');
           }}
           >
-            Add Collection
+            Save
           </Button>
-
         </div>
       </div>
 

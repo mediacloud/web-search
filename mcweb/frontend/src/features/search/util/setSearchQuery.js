@@ -44,7 +44,13 @@ const sizeQuery = (query) => {
 const formatCollections = (collections) => collections.map((collection) => {
   let [id, name] = collection.split('>');
   id = Number(id);
-  return { id, name };
+  return { id, name, type: 'collection' };
+});
+
+const formatSources = (sources) => sources.map((source) => {
+  let [id, name] = source.split('>');
+  id = Number(id);
+  return { id, name, type: 'source' };
 });
 
 const setSearchQuery = (searchParams, dispatch) => {
@@ -56,6 +62,7 @@ const setSearchQuery = (searchParams, dispatch) => {
   let endDate = searchParams.get('end');
   const platform = searchParams.get('p');
   let collections = searchParams.get('cs');
+  let sources = searchParams.get('ss');
   const anyAll = searchParams.get('any');
   let queryString = searchParams.get('qs');
 
@@ -71,8 +78,10 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   startDate = startDate ? dayjs(startDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
   endDate = endDate ? dayjs(endDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
-  collections = collections ? decode(collections).split(',') : null;
+  collections = collections ? decode(collections).split(',') : [];
   collections = formatCollections(collections);
+  sources = sources ? decode(sources).split(',') : [];
+  sources = formatSources(sources);
 
   if (queryString) {
     dispatch(setQueryString(queryString));
@@ -93,10 +102,9 @@ const setSearchQuery = (searchParams, dispatch) => {
   if (anyAll) {
     dispatch(setAnyAll(anyAll));
   }
-  if (collections) {
-    dispatch(addSelectedMedia(collections));
-    dispatch(setPreviewSelectedMedia(collections));
-  }
+
+  dispatch(addSelectedMedia(collections.concat(sources)));
+  dispatch(setPreviewSelectedMedia(collections.concat(sources)));
 
   dispatch(setSearchTime(dayjs().unix()));
   return null;

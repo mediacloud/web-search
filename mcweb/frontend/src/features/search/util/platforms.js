@@ -34,3 +34,18 @@ export const latestAllowedEndDate = (provider) => {
   if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return today.subtract('4', 'day');
   return today;
 };
+
+export const defaultPlatformProvider = (platform) => {
+  if (platform == PLATFORM_TWITTER) return PROVIDER_TWITTER_TWITTER;
+  if (platform == PLATFORM_REDDIT) return PROVIDER_REDDIT_PUSHSHIFT;
+  if (platform == PLATFORM_YOUTUBE) return PROVIDER_YOUTUBE_YOUTUBE;
+  if (platform == "online_news") return PROVIDER_NEWS_WAYBACK_MACHINE;
+}
+
+export const defaultPlatformQuery = (platform) => {
+  if (platform == "online_news") return ['*'];
+  if (platform == PLATFORM_REDDIT) return ['*'];
+  // can't search everything on these, so try a smiley!
+  if (platform == PLATFORM_TWITTER) return ['🙂'];
+  if (platform == PLATFORM_YOUTUBE) return ['🙂']
+}

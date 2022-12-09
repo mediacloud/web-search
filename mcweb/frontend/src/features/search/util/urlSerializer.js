@@ -1,7 +1,11 @@
 import dayjs from 'dayjs';
 
-const formatCollections = (collectionsArray) => collectionsArray.map((collection) => (
-  `${collection.id}>${collection.name}`
+const formatCollections = (collectionsArray) => collectionsArray.map((c) => (
+  `${c.id}>${c.name}`
+));
+
+const formatSources = (sourcesArray) => sourcesArray.map((s) => (
+  `${s.id}>${s.label || s.name}`
 ));
 
 const queryListHelper = (queryList) => {
@@ -19,6 +23,7 @@ const urlSerializer = (queryObject) => {
     startDate,
     endDate,
     collections,
+    sources,
     platform,
     anyAll,
     advanced,
@@ -36,11 +41,13 @@ const urlSerializer = (queryObject) => {
   const end = dayjs(endDate).format('MM-DD-YYYY');
   let collectionsFormatted = formatCollections(collections).join(',');
   collectionsFormatted = encode(collectionsFormatted);
+  let sourcesFormatted = formatSources(sources).join(',');
+  sourcesFormatted = encode(sourcesFormatted);
 
   if (advanced) {
-    return `?qs=${qs}&start=${start}&end=${end}&p=${platform}&cs=${collectionsFormatted}&any=${anyAll}`;
+    return `?qs=${qs}&start=${start}&end=${end}&p=${platform}&ss=${sourcesFormatted}&cs=${collectionsFormatted}&any=${anyAll}`;
   }
-  return `?q=${query}&nq=${negatedQuery}&start=${start}&end=${end}&p=${platform}&cs=${collectionsFormatted}&any=${anyAll}`;
+  return `?q=${query}&nq=${negatedQuery}&start=${start}&end=${end}&p=${platform}&ss=${sourcesFormatted}&cs=${collectionsFormatted}&any=${anyAll}`;
 };
 
 export default urlSerializer;

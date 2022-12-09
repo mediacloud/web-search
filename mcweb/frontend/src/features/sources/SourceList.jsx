@@ -5,17 +5,18 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
-import { useListSourcesQuery, PAGE_SIZE } from  '../../app/services/sourceApi';
+import { useListSourcesQuery } from  '../../app/services/sourceApi';
+import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import { googleFaviconUrl, asNumber } from '../ui/uiUtil';
+import { sourceFavIcon, asNumber } from '../ui/uiUtil';
 
 export default function SourceList(props) {
-  const { collectionId, edit, isOnlineNews } = props;
+  const { collectionId, edit } = props;
   const [page, setPage] = useState(0);
   const {
     data: sources,
     isLoading,
-  } = useListSourcesQuery({collectionId, page});
+  } = useListSourcesQuery({collection_id: collectionId, page});
 
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
@@ -26,7 +27,7 @@ export default function SourceList(props) {
   }
 
   return (
-    <div>
+    <>
       <h2>
         Sources (
         {asNumber(sources.count)}
@@ -39,62 +40,59 @@ export default function SourceList(props) {
           color="primary"
           onChange={(evt, value) => setPage(value-1)}/>
       )}
-      <table width="100%">
-        <thead>
-          <tr>
-            <th colSpan="2">Name</th>
-            {isOnlineNews && (<th>Stories per Week</th>)}
-            {edit && (<th></th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {sources.results.map((source) => (
-            <tr key={source.id}>
-              <td>
-                <a href={source.homepage} target="_new">
+      { (sources.count > 0) && (
+        <table width="100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Content per Week</th>
+              {edit && (<th></th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {sources.results.map((source) => (
+              <tr key={source.id}>
+                <td>
                   <img
                     className="google-icon"
-                    src={googleFaviconUrl(source.homepage || `https://{source.domain}`)}
+                    src={sourceFavIcon(source)}
                     alt="{source.name}"
+                    width="32px"
                   />
-                </a>
-              </td>
-              <td>
-                <Link to={`/sources/${source.id}`}>
-                  {source.label || source.name}
-                </Link>
-              </td>
-              {isOnlineNews && (<td class="numeric">{asNumber(source.stories_per_week)}</td>)}
-              {edit && (
-                <td>
-                  <IconButton
-                    aria-label="remove"
-                    onClick={() => {
-                      deleteSourceCollectionAssociation({
-                        source_id: source.id,
-                        collection_id: collectionId,
-                      });
-                    }}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
+                  <Link to={`/sources/${source.id}`}>
+                    {source.label || source.name}
+                  </Link>
                 </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                <td className="numeric">{asNumber(source.stories_per_week)}</td>
+                {edit && (
+                  <td>
+                    <IconButton
+                      aria-label="remove"
+                      onClick={() => {
+                        deleteSourceCollectionAssociation({
+                          source_id: source.id,
+                          collection_id: collectionId,
+                        });
+                      }}
+                    >
+                      <HighlightOffIcon />
+                    </IconButton>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </>
   );
 }
 
 SourceList.propTypes = {
   collectionId: PropTypes.number.isRequired,
   edit: PropTypes.bool,
-  isOnlineNews: PropTypes.bool,
 };
 
 SourceList.defaultProps = {
   edit: false,
-  isOnlineNews: false,
 };

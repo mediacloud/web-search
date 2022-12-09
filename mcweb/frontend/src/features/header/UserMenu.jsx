@@ -33,7 +33,7 @@ const UserMenu = () => {
     await logout().unwrap();
     dispatch(setCredentials(null));
     navigate('/');
-    enqueueSnackbar("You've been logged out", { variant: 'success' });
+    enqueueSnackbar("You've been logged out", { variant: 'info' });
     // need to save the new csrf Token
     saveCsrfToken();
     setAnchorElUser(null);

@@ -1,24 +1,28 @@
 import * as React from 'react';
+import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
-import { platformDisplayName } from '../ui/uiUtil';
+import urlSerializer from '../search/util/urlSerializer';
+import { platformDisplayName, platformIcon } from '../ui/uiUtil';
+import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
 
 export default function SourceHeader() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
   const {
-    data,
+    data: source,
     isLoading,
   } = useGetSourceQuery(sourceId);
-  const source = data;
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
+
+  const PlatformIcon = platformIcon(source.platform);
 
   return (
     <>
@@ -33,6 +37,8 @@ export default function SourceHeader() {
                 {sourceId}
               </span>
               <h1>
+                <PlatformIcon fontSize="large" />
+                &nbsp;
                 {source.label || source.name}
               </h1>
             </div>
@@ -43,6 +49,22 @@ export default function SourceHeader() {
         <div className="container">
           <div className="row">
             <div className="col-12">
+            <Button variant="outlined">
+                <a href={`/search/${urlSerializer({
+                  queryList: defaultPlatformQuery(source.platform),
+                  anyAll: 'any',
+                  negatedQueryList: [],
+                  startDate: dayjs().subtract(35, 'day'),
+                  endDate: dayjs().subtract(5, 'day'),
+                  collections: [],
+                  sources: [source],
+                  platform: defaultPlatformProvider(source.platform),
+                  advanced: false,
+                })}`} target="_blank">Search Content</a>
+              </Button>
+              <Button variant="outlined">
+                <a href={source.homepage} target="_blank">Visit Homepage</a>
+              </Button>
               <Permissioned role={ROLE_STAFF}>
                 <>
                   <Button variant="outlined" endIcon={<LockOpenIcon />}>

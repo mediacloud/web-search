@@ -53,22 +53,32 @@ class Source(models.Model):
     media_type = models.CharField(max_length=100, choices=SourceMediaTypes.choices, blank=True, null=True)
 
     @classmethod
-    def create_new_source(cls, source: Dict):
+    def create_from_dict(cls, source_info: Dict):
         new_source = Source()
-        new_source.name = source["name"] if source["name"] is not None else None
-        new_source.url_search_string = source["url_search_string"] if source["url_search_string"] is not None else None
-        new_source.label = source["label"] if source["label"] is not None else None
-        new_source.homepage = source["homepage"] if source["homepage"] is not None else None
-        new_source.notes = source["notes"] if source["notes"] is not None else None
-        new_source.service = source["service"] if source["service"] is not None else None
-        new_source.stories_per_week = source["stories_per_week"] if source["stories_per_week"] is not None else None
-        new_source.pub_country = source["pub_country"] if source["pub_country"] is not None else None
-        new_source.pub_state = source["pub_state"] if source["pub_state"] is not None else None
-        new_source.primary_language = source["primary_language"] if source["primary_language"] is not None else None
-        new_source.media_type = source["media_type"] if source["media_type"] is not None else None
+        cls._set_from_dict(new_source, source_info)
         new_source.save()
         new_source = Source.objects.get(pk=new_source.pk)
         return new_source
+
+    def update_from_dict(self, source_info: Dict):
+        Source._set_from_dict(self, source_info)
+        self.save()
+        return self
+
+    @classmethod
+    def _set_from_dict(cls, obj, source: Dict):
+        obj.name = source.get("name", None)
+        obj.platform = source.get("platform", None)
+        obj.url_search_string = source.get("url_search_string", None)
+        obj.label = source.get("label", None)
+        obj.homepage = source.get("homepage", None)
+        obj.notes = source.get("notes", None)
+        obj.service = source.get("service", None)
+        obj.stories_per_week = source.get("stories_per_week", None)
+        obj.pub_country = source.get("pub_country", None)
+        obj.pub_state = source.get("pub_state", None)
+        obj.primary_language = source.get("primary_language", None)
+        obj.media_type = source.get("media_type", None)
 
 
 class Feed(models.Model):

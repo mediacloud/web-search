@@ -7,11 +7,11 @@ from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from django.db.models import Case, When
+from django.db.models import Case, When, Q
 from rest_framework import viewsets, permissions
 import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
-from typing import List
+from typing import List, Optional
 
 from . import RSS_FETCHER_USER, RSS_FETCHER_PASS, RSS_FETCHER_URL
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
@@ -22,15 +22,16 @@ from .permissions import IsGetOrIsStaff
 from util.send_emails import send_source_upload_email
 
 
-def _featured_collection_ids() -> List:
+def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(this_dir, 'data', 'featured-collections.json')
     with open(file_path) as json_file:
         data = json.load(json_file)
         list_ids = []
         for collection in data['featuredCollections']['entries']:
-            for cid in collection['tags']:
-                list_ids.append(cid)
+            if (platform is None) or (collection['platform'] == platform):
+                for cid in collection['collections']:
+                    list_ids.append(cid)
         return list_ids
 
 
@@ -50,12 +51,20 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     # overriden to support filtering all endpoints by collection id
     def get_queryset(self):
+        queryset = super().get_queryset()
         # add in optional filters
         source_id = self.request.query_params.get("source_id")
         if source_id is not None:
             source_id = int(source_id)  # validation: should throw a ValueError back up the chain
-            return super().get_queryset().filter(source__id=source_id)
-        return super().get_queryset()
+            queryset = queryset.filter(source__id=source_id)
+        platform = self.request.query_params.get("platform")
+        if platform is not None:
+            # TODO: validate this is a valid platform type
+            queryset = queryset.filter(platform=platform)
+        name = self.request.query_params.get("name")
+        if name is not None:
+            queryset = queryset.filter(name__icontains=name)
+        return queryset
 
     def get_serializer_class(self):
         serializer_class = self.serializer_class
@@ -64,8 +73,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     @cache_by_kwargs()
-    def _cached_serialized_featured_collections(self) -> str:
-        featured_collection_ids = _featured_collection_ids()
+    def _cached_serialized_featured_collections(self, platform) -> str:
+        featured_collection_ids = _featured_collection_ids(platform)
         ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
         featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
                                                     id__in=featured_collection_ids).order_by(ordered_cases)
@@ -75,7 +84,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def featured(self, request):
-        data = self._cached_serialized_featured_collections()
+        data = self._cached_serialized_featured_collections(request.data.get('platform', None))
         response = Response({"collections":data})
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
@@ -90,13 +99,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
         json_data = open(file_path)  
         deserial_data = json.load(json_data) 
         return Response({"countries": deserial_data})
-
-    @action(detail=False)
-    def search(self, request):
-        query = request.query_params["query"]
-        collections = self.queryset.filter(name__icontains=query)[:self.MAX_SEARCH_RESULTS]
-        serializer = self.serializer_class(collections, many=True)
-        return Response({"collections": serializer.data})
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
@@ -141,42 +143,63 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
     # overriden to support filtering all endpoints by collection id
     def get_queryset(self):
+        queryset = super().get_queryset()
         collection_id = self.request.query_params.get("collection_id")
         if collection_id is not None:
             collection_id = int(collection_id)  # validation: should throw a ValueError back up the chain
-            return super().get_queryset().filter(collections__id=collection_id)
-        return super().get_queryset()
+            queryset = queryset.filter(collections__id=collection_id)
+        platform = self.request.query_params.get("platform")
+        if platform is not None:
+            # TODO: check if the platform is a valid option
+            queryset = queryset.filter(platform=platform)
+        name = self.request.query_params.get("name")
+        if name is not None:
+            queryset = queryset.filter(Q(name__icontains=name) | Q(label__icontains=name))
+        return queryset
 
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):
         collection = Collection.objects.get(pk=request.data['collection_id'])
         email_title = "Updating collection {}".format(collection.name)
         email_text = ""
-        queryset = Source.objects.all()
+        queryset = Source.objects
+        counts = dict(updated=0, skipped=0, created=0)
         for row in request.data['sources']:
+            # skip empty rows
             if len(row.keys()) <= 1:
                 continue
-            if len(row['id']) > 0 and row['id'] != 'null':
+            # check if this is an update
+            if row.get('id', None) and (row['id'] > 0) and (row['id'] != 'null'):
                 existing_source = queryset.filter(pk=row['id'])
-                canonical_domain = existing_source[0].name
             else:
-                canonical_domain = urls.canonical_domain(row['homepage'])
-                existing_source = queryset.filter(name=canonical_domain)
+                # if online news, need to make check if canonical domain exists
+                if row['platform'] == Source.SourcePlatforms.ONLINE_NEWS:
+                    canonical_domain = urls.canonical_domain(row['homepage'])
+                    # call filter here, not get, so we can check for multiple matches (url_query_string case)
+                    existing_source = queryset.filter(name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
+                else:
+                    # a diff platform, so just check for unique name (ie. twitter handle, subreddit name, YT channel)
+                    existing_source = queryset.filter(name=row['name'], platform=row['platform'])
+            # Making a new one
             if len(existing_source) == 0:
-                existing_source = Source.create_new_source(row)
-                email_text += "\n {}: created new source".format(
-                    canonical_domain)
-            elif len(existing_source) > 1:
+                existing_source = Source.create_from_dict(row)
+                email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
+                counts['created'] += 1
+            # Updating unique match
+            elif len(existing_source) == 1:
                 existing_source = existing_source[0]
-                email_text += "\n {}: updated existing source".format(
-                    canonical_domain)
+                existing_source.update_from_dict(row)
+                email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
+                counts['updated'] += 1
+            # Request to update non-unique match, so skip and force them to do it by hand
             else:
-                existing_source = existing_source[0]
-                email_text += "\n {}: updated existing source".format(
-                    canonical_domain)
+                email_text += "\n ⚠️ {}: multiple matches - cowardly skipping so you can do it by hand existing source".\
+                    format(existing_source[0]['name'])
+                counts['skipped'] += 1
+                continue
             collection.source_set.add(existing_source)
         send_source_upload_email(email_title, email_text, request.user.email)
-        return Response({'title': email_title, 'text': email_text})
+        return Response(counts)
 
     @action(methods=['GET'], detail=False)
     def download_csv(self, request):
