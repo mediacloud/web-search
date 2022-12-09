@@ -12,16 +12,22 @@ import {
   PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-import { setPlatform } from './querySlice';
+import { setPlatform, resetSelectedAndPreviewMedia } from './querySlice';
 
 export default function PlatformPicker() {
   const { platform } = useSelector((state) => state.query);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleChangePlatform = (event) => {
-    dispatch(setPlatform(event.target.value));
-    enqueueSnackbar('We removed your collections', { variant: 'warning' });
+  const providersOfSamePlatform = (provider1, provider2) => provider1.split("-")[0] == provider2.split("-")[0];
+
+  const handleChangePlatform = async (event) => {
+    const newPlatform = event.target.value;
+    await dispatch(setPlatform(newPlatform));
+    if (!providersOfSamePlatform(platform, newPlatform)) {
+      await dispatch(resetSelectedAndPreviewMedia());
+      enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
+    }
   };
 
   return (

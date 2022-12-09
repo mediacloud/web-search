@@ -36,6 +36,13 @@ const querySlice = createSlice({
       previewCollections: [...state.collections, ...payload.filter(c => c.type == 'collection')],
       previewSources: [...state.sources, ...payload.filter(c => c.type == 'source')],
     }),
+    resetSelectedAndPreviewMedia:  (state, { payload }) => ({
+      ...state,
+      collections: [],
+      previewCollections: [],
+      sources: [],
+      previewSources: [],
+    }),
     removeSelectedMedia: (state, { payload }) => ({
       ...state,
       collections: payload.type == 'collection' ? state.collections.filter((c) => c.id !== payload.id) : state.collections,
@@ -53,20 +60,14 @@ const querySlice = createSlice({
       previewCollections: state.previewCollections.filter((c) => c.id !== payload.id),
       previewSources: state.previewSources.filter((s) => s.id !== payload.id),
     }),
+
+    // TODO: these all could be combined into on single setQueryProperty: (state, { payload }) => ({ ...state, ...payload }),
     setStartDate: (state, { payload }) => ({ ...state, startDate: payload }),
     setEndDate: (state, { payload }) => ({ ...state, endDate: payload }),
     setQueryString: (state, { payload }) => ({ ...state, queryString: payload }),
     setQueryList: (state, { payload }) => ({ ...state, queryList: payload }),
     setNegatedQueryList: (state, { payload }) => ({ ...state, negatedQueryList: payload }),
-    setPlatform: (state, { payload }) => ({
-      ...state,
-      platform: payload,
-      // we also need to rest the collections and sources when the platform changes, because they are platform specific
-      collections: [],
-      previewCollections: [],
-      sources: [],
-      previewSources: [],
-    }),
+    setPlatform: (state, { payload }) => ({...state, platform: payload}),
     setSearchTime: (state, { payload }) => ({ ...state, lastSearchTime: payload }),
     setAnyAll: (state, { payload }) => ({ ...state, anyAll: payload }),
     setAdvanced: (state, { payload }) => ({ ...state, advanced: payload }),
@@ -88,7 +89,7 @@ export const {
   setAnyAll,
   setPreviewSelectedMedia,
   setAdvanced,
-  resetSelectedMedia,
+  resetSelectedAndPreviewMedia,
 } = querySlice.actions;
 
 export default querySlice.reducer;
