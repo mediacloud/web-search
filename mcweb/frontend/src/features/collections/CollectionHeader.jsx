@@ -9,7 +9,7 @@ import { Outlet, Link, useParams } from 'react-router-dom';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
-import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
+import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 
 export default function CollectionHeader() {
@@ -18,10 +18,9 @@ export default function CollectionHeader() {
   const collectionId = Number(params.collectionId);
 
   const {
-    data,
+    data: collection,
     isLoading,
   } = useGetCollectionQuery(collectionId);
-  const collection = data;
 
   if (isLoading) {
     return (<CircularProgress size={75} />);
@@ -56,13 +55,14 @@ export default function CollectionHeader() {
             <div className="col-12">
               <Button variant="outlined">
                 <a href={`/search/${urlSerializer({
-                  queryList: ['*'],
+                  queryList: defaultPlatformQuery(collection.platform),
                   anyAll: 'any',
                   negatedQueryList: [],
                   startDate: dayjs().subtract(35, 'day'),
                   endDate: dayjs().subtract(5, 'day'),
-                  collections: [data],
-                  platform: PROVIDER_NEWS_WAYBACK_MACHINE,
+                  collections: [collection],
+                  sources: [],
+                  platform: defaultPlatformProvider(collection.platform),
                   advanced: false,
                 })}`} target="_blank">Search Content</a>
               </Button>

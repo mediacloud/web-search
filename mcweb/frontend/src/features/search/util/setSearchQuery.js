@@ -47,6 +47,12 @@ const formatCollections = (collections) => collections.map((collection) => {
   return { id, name };
 });
 
+const formatSources = (sources) => sources.map((source) => {
+  let [id, name] = source.split('>');
+  id = Number(id);
+  return { id, name };
+});
+
 const setSearchQuery = (searchParams, dispatch) => {
   dayjs.extend(customParseFormat);
   // param keys are set in ./urlSerializer.js
@@ -56,6 +62,7 @@ const setSearchQuery = (searchParams, dispatch) => {
   let endDate = searchParams.get('end');
   const platform = searchParams.get('p');
   let collections = searchParams.get('cs');
+  let sources = searchParams.get('ss');
   const anyAll = searchParams.get('any');
   let queryString = searchParams.get('qs');
 
@@ -71,8 +78,10 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   startDate = startDate ? dayjs(startDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
   endDate = endDate ? dayjs(endDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
-  collections = collections ? decode(collections).split(',') : null;
+  collections = collections ? decode(collections).split(',') : [];
   collections = formatCollections(collections);
+  sources = sources ? decode(sources).split(',') : [];
+  sources = formatSources(sources);
 
   if (queryString) {
     dispatch(setQueryString(queryString));

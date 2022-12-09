@@ -32,6 +32,7 @@ export default function Search() {
     startDate,
     endDate,
     collections,
+    sources,
     platform,
     anyAll,
     advanced,
@@ -45,6 +46,7 @@ export default function Search() {
     endDate,
     platform,
     collections,
+    sources,
     anyAll,
     advanced,
   };
@@ -85,20 +87,13 @@ export default function Search() {
                 <em>2</em>
                 Pick your collections
               </h3>
-              {[PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
-                <>
-                  <SelectedMedia onRemove={removeSelectedMedia} collections={collections} />
-                  <MediaPicker />
-                  <p className="help">
-                    Choose individual sources or collections to be searched.
-                    Our system includes collections for a large range of countries,
-                    in multiple languages.
-                  </p>
-                </>
-              )}
-              {![PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
-                <p>Currently unsupported</p>
-              )}
+              <SelectedMedia onRemove={removeSelectedMedia} collections={collections} />
+              <MediaPicker />
+              <p className="help">
+                Choose individual sources or collections to be searched.
+                Our system includes collections for a large range of countries,
+                in multiple languages.
+              </p>
             </div>
           </div>
 

@@ -3,6 +3,7 @@ import requests
 import dateparser
 from typing import List, Dict
 import logging
+from django.apps import apps
 
 from .provider import ContentProvider
 from .exceptions import UnsupportedOperationException
@@ -32,7 +33,7 @@ class TwitterTwitterProvider(ContentProvider):
         """
         # sample of historical tweets
         params = {
-            "query": query,
+            "query": self._assembled_query_str(query, **kwargs),
             "max_results": limit,
             "start_time": start_date.isoformat("T") + "Z",
             "end_time": self._fix_end_date(end_date).isoformat("T") + "Z",
@@ -41,6 +42,31 @@ class TwitterTwitterProvider(ContentProvider):
         }
         results = self._cached_query("tweets/search/all", params)
         return TwitterTwitterProvider._tweets_to_rows(results)
+
+    @classmethod
+    def _assembled_query_str(cls, query: str, **kwargs) -> str:
+        # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
+        Source = apps.get_model('sources', 'Source')
+        # Collection = apps.get_model('sources', 'Collection')
+        usernames = []
+        # turn media ids into list of usernames
+        media_ids = kwargs['sources'] if 'sources' in kwargs else []
+        selected_sources = Source.objects.filter(id__in=media_ids)
+        usernames += [s.name for s in selected_sources]
+        # turn collections ids into list of usernames
+        collection_ids = kwargs['collections'] if 'collections' in kwargs else []
+        selected_sources = Source.objects.filter(collections__id__in=collection_ids)
+        usernames += [s.name for s in selected_sources]
+        # need to put all those filters in single query string
+        if len(usernames) == 0:
+            assembled_query = query
+        else:
+            assembled_query = query + " (" + " OR ".join(["from:{}".format(name) for name in usernames]) + ")"
+        # check if query too long
+        # @see https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-all
+        if len(assembled_query) > 1024:
+            raise RuntimeError("Twitter's max query length is 1024 characters. Try changing collections.")
+        return assembled_query
 
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
         results = self.count_over_time(query, start_date, end_date, **kwargs)  # use the cached counts being made already
@@ -59,7 +85,7 @@ class TwitterTwitterProvider(ContentProvider):
         :return:
         """
         params = dict(
-            query=query,
+            query=self._assembled_query_str(query, **kwargs),
             granularity='day',
             start_time=start_date.isoformat("T") + "Z",
             end_time=self._fix_end_date(end_date).isoformat("T") + "Z",
@@ -91,7 +117,7 @@ class TwitterTwitterProvider(ContentProvider):
         next_token = None
         more_data = True
         params = {
-            "query": query,
+            "query": self._assembled_query_str(query, **kwargs),
             "max_results": page_size,
             "start_time": start_date.isoformat("T") + "Z",
             "end_time": self._fix_end_date(end_date).isoformat("T") + "Z",

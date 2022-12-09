@@ -84,13 +84,13 @@ class QuotaHistory(models.Model):
         return matching
 
     @classmethod
-    def increment(cls, user_id: int, provider: str, amount: int = 1) -> int:
+    def increment(cls, user_id: int, is_staff: bool, provider: str, amount: int = 1) -> int:
         matching = cls.current_for(user_id, provider)
         matching.hits += amount
         matching.save()
         # raise an error if they are at quota
         quota = Profile.user_provider_quota(user_id, provider)
-        if quota <= matching.hits:
+        if (quota <= matching.hits) and not is_staff:
             raise OverQuotaException(provider, quota)
         return matching.hits
 

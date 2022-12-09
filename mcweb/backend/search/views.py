@@ -51,10 +51,10 @@ def total_count(request):
     relevant_count = provider.count(query_str, start_date, end_date, collections=collections)
     try:
         total_content_count = provider.count(provider.everything_query(), start_date, end_date, collections=collections)
-        QuotaHistory.increment(request.user.id, provider_name, 2)
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     except QueryingEverythingUnsupportedQuery as e:
         total_content_count = None
-        QuotaHistory.increment(request.user.id, provider_name)
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
@@ -70,7 +70,7 @@ def count_over_time(request):
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
         results = provider.count_over_time(query_str, start_date, end_date, collections=collections)
-    QuotaHistory.increment(request.user.id, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     #logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
     return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
                         status=200)
@@ -82,7 +82,7 @@ def sample(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
-    QuotaHistory.increment(request.user.id, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json",
                         status=200)
 
@@ -98,7 +98,7 @@ def download_counts_over_time_csv(request):
     except UnsupportedOperationException:
         counts_data = provider.count_over_time(query_str, start_date, end_date, collections=collections)
         normalized = False
-    QuotaHistory.increment(request.user.id, provider_name, 2)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     filename = "mc-{}-{}-counts.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -132,7 +132,7 @@ def download_all_content_csv(request):
     def data_generator():
         first_page = True
         for page in provider.all_items(query_str, start_date, end_date, collections=collections):
-            QuotaHistory.increment(request.user.id, provider_name)
+            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
             if first_page:  # send back column names, which differ by platform
                 yield sorted(list(page[0].keys()))
             for story in page:

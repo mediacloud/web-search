@@ -1,7 +1,6 @@
 import datetime as dt
 from typing import List, Dict
 import dateparser
-import requests
 import logging
 from mediacloud.api import MediaCloud
 import mcmetadata
@@ -222,7 +221,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         Source = apps.get_model('sources', 'Source')
         # Collection = apps.get_model('sources', 'Collection')
         domains = []
-        # turn media ids into domains
+        # turn media ids into list of domains
         media_ids = kwargs['sources'] if 'sources' in kwargs else []
         selected_sources = Source.objects.filter(id__in=media_ids)
         domains += [s.name for s in selected_sources]
