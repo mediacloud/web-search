@@ -58,7 +58,15 @@ const querySlice = createSlice({
     setQueryString: (state, { payload }) => ({ ...state, queryString: payload }),
     setQueryList: (state, { payload }) => ({ ...state, queryList: payload }),
     setNegatedQueryList: (state, { payload }) => ({ ...state, negatedQueryList: payload }),
-    setPlatform: (state, { payload }) => ({ ...state, platform: payload }),
+    setPlatform: (state, { payload }) => ({
+      ...state,
+      platform: payload,
+      // we also need to rest the collections and sources when the platform changes, because they are platform specific
+      collections: [],
+      previewCollections: [],
+      sources: [],
+      previewSources: [],
+    }),
     setSearchTime: (state, { payload }) => ({ ...state, lastSearchTime: payload }),
     setAnyAll: (state, { payload }) => ({ ...state, anyAll: payload }),
     setAdvanced: (state, { payload }) => ({ ...state, advanced: payload }),
@@ -80,6 +88,7 @@ export const {
   setAnyAll,
   setPreviewSelectedMedia,
   setAdvanced,
+  resetSelectedMedia,
 } = querySlice.actions;
 
 export default querySlice.reducer;

@@ -1,14 +1,6 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useSnackbar } from 'notistack';
 import { useSelector, useDispatch } from 'react-redux';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import YouTubeIcon from '@mui/icons-material/YouTube';
@@ -20,50 +12,17 @@ import {
   PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-import { closeModal } from '../../ui/uiSlice';
 import { setPlatform } from './querySlice';
 
 export default function PlatformPicker() {
   const { platform } = useSelector((state) => state.query);
   const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleChangePlatform = (event) => {
     dispatch(setPlatform(event.target.value));
-    dispatch(closeModal());
+    enqueueSnackbar('We removed your collections', { variant: 'warning' });
   };
-
-  const [open, setOpen] = useState(true);
-  if (platform === 'Choose a Platform') {
-    return (
-      <div>
-        {/* <Button variant="outlined" onClick={handleClickOpen}>
-                    Open form dialog
-                </Button> */}
-        <Dialog open={open} onClose={() => setOpen(false)}>
-          <DialogTitle>Choose A Platform</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              First, Choose a Platform to query against.
-            </DialogContentText>
-            <Select
-              value="Choose A Platform"
-              onChange={handleChangePlatform}
-            >
-              <MenuItem defaultValue disabled value="Choose A Platform">Choose A Platform</MenuItem>
-              <MenuItem value={PROVIDER_NEWS_WAYBACK_MACHINE}>News: Media Cloud</MenuItem>
-              <MenuItem value={PROVIDER_NEWS_MEDIA_CLOUD}>Media Cloud</MenuItem>
-              <MenuItem value={PROVIDER_REDDIT_PUSHSHIFT}>Reddit</MenuItem>
-              <MenuItem value={PROVIDER_TWITTER_TWITTER}>Twitter</MenuItem>
-              <MenuItem value={PROVIDER_YOUTUBE_YOUTUBE}>Youtube</MenuItem>
-            </Select>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpen(false)}>Cancel</Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    );
-  }
 
   return (
     <div className="row">

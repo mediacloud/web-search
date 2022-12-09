@@ -24,7 +24,7 @@ export default function UploadSources(props) {
           const results = await uploadSources({ sources: uploadInfo.data, collection_id: collectionId });
           setUpdating(false);
           enqueueSnackbar(`Created ${results.data.created}. Updated ${results.data.updated}. Skipped ${results.data.skipped}.`,
-            { variant: 'success' });
+            { variant: 'info' });
         }}
       >
         {({
