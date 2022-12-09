@@ -15,7 +15,7 @@ export default function SourceList(props) {
   const {
     data: sources,
     isLoading,
-  } = useListSourcesQuery({collectionId, page});
+  } = useListSourcesQuery({collection_id: collectionId, page});
 
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
