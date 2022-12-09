@@ -1,11 +1,12 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import { useGetFeaturedCollectionsQuery } from '../../../../app/services/collectionsApi';
 import CollectionSelectionTable from './CollectionSelectionTable';
 
-export default function FeaturedCollectionsPicker() {
-  const { data, isLoading } = useGetFeaturedCollectionsQuery();
+export default function FeaturedCollectionsPicker({ platform }) {
+  const { data, isLoading } = useGetFeaturedCollectionsQuery({platform});
 
   const { previewCollections } = useSelector((state) => state.query);
 
@@ -22,4 +23,8 @@ export default function FeaturedCollectionsPicker() {
       />
     </div>
   );
+}
+
+FeaturedCollectionsPicker.propTypes = {
+  platform: PropTypes.string.isRequired,
 }

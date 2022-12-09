@@ -4,8 +4,8 @@ import { toSearchUrlParams } from './queryUtil';
 export const collectionsApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getFeaturedCollections: builder.query({
-      query: () => ({
-        url: 'collections/featured/',
+      query: (params) => ({
+        url: `collections/featured/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
     }),

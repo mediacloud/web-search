@@ -16,7 +16,7 @@ export default function MediaPicker() {
   const [value, setValue] = React.useState(0);
   // const [tab, setTab] = useState('featuredCollections');
   const dispatch = useDispatch();
-  const { previewCollections } = useSelector((state) => state.query);
+  const { previewCollections, platform } = useSelector((state) => state.query);
   const [open, setOpen] = useState(false);
 
   return (
@@ -73,7 +73,7 @@ export default function MediaPicker() {
               {value === 0 && (
                 <>
                   <h2>Featured Collections</h2>
-                  <FeaturedCollectionsPicker />
+                  <FeaturedCollectionsPicker platform={platform.split("-")[0]} />
                 </>
               )}
             </div>
@@ -81,7 +81,7 @@ export default function MediaPicker() {
               {value === 1 && (
                 <>
                   <h2>Search All Collections</h2>
-                  <CollectionSearchPicker />
+                  <CollectionSearchPicker platform={platform.split("-")[0]} />
                 </>
               )}
             </div>

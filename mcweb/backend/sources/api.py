@@ -11,7 +11,7 @@ from django.db.models import Case, When, Q
 from rest_framework import viewsets, permissions
 import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
-from typing import List
+from typing import List, Optional
 
 from . import RSS_FETCHER_USER, RSS_FETCHER_PASS, RSS_FETCHER_URL
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
@@ -22,15 +22,16 @@ from .permissions import IsGetOrIsStaff
 from util.send_emails import send_source_upload_email
 
 
-def _featured_collection_ids() -> List:
+def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(this_dir, 'data', 'featured-collections.json')
     with open(file_path) as json_file:
         data = json.load(json_file)
         list_ids = []
         for collection in data['featuredCollections']['entries']:
-            for cid in collection['tags']:
-                list_ids.append(cid)
+            if platform and (collection['platform'] == platform):
+                for cid in collection['collections']:
+                    list_ids.append(cid)
         return list_ids
 
 
@@ -72,8 +73,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     @cache_by_kwargs()
-    def _cached_serialized_featured_collections(self) -> str:
-        featured_collection_ids = _featured_collection_ids()
+    def _cached_serialized_featured_collections(self, platform) -> str:
+        featured_collection_ids = _featured_collection_ids(platform)
         ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
         featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
                                                     id__in=featured_collection_ids).order_by(ordered_cases)
@@ -83,7 +84,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def featured(self, request):
-        data = self._cached_serialized_featured_collections()
+        data = self._cached_serialized_featured_collections(request.data.get('platform', None))
         response = Response({"collections":data})
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"

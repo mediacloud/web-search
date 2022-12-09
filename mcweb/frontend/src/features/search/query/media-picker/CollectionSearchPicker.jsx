@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { CircularProgress } from '@mui/material';
@@ -8,7 +9,7 @@ import CollectionSelectionTable from './CollectionSelectionTable';
 import { useLazyListCollectionsQuery } from '../../../../app/services/collectionsApi';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 
-export default function CollectionSearchPicker() {
+export default function CollectionSearchPicker({ platform }) {
   const [query, setQuery] = useState('');
   const [trigger, {
     isLoading, data,
@@ -26,7 +27,7 @@ export default function CollectionSearchPicker() {
             <TextField fullWidth label="collection name" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
           <div className="col-6">
-            <Button size="large" variant="contained" onClick={() => trigger({name: query})}>
+            <Button size="large" variant="contained" onClick={() => trigger({platform, name: query})}>
               Search
             </Button>
           </div>
@@ -60,4 +61,8 @@ export default function CollectionSearchPicker() {
 
     </div>
   );
+}
+
+CollectionSearchPicker.propTypes = {
+  platform: PropTypes.string.isRequired,
 }
