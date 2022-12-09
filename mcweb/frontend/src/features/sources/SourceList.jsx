@@ -5,7 +5,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
-import { useListSourcesQuery, PAGE_SIZE } from  '../../app/services/sourceApi';
+import { useListSourcesQuery } from  '../../app/services/sourceApi';
+import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { sourceFavIcon, asNumber } from '../ui/uiUtil';
 

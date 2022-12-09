@@ -1,8 +1,6 @@
 import managerApi from './managerApi';
 import { toSearchUrlParams } from './queryUtil';
 
-export const PAGE_SIZE = 100;
-
 export const sourceApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getSource: builder.query({

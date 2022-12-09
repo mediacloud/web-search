@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
-import { useListCollectionsQuery, PAGE_SIZE } from '../../app/services/collectionsApi';
+import { useListCollectionsQuery } from '../../app/services/collectionsApi';
+import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { asNumber, platformIcon } from '../ui/uiUtil';
 

@@ -161,31 +161,44 @@ class SourcesViewSet(viewsets.ModelViewSet):
         collection = Collection.objects.get(pk=request.data['collection_id'])
         email_title = "Updating collection {}".format(collection.name)
         email_text = ""
-        queryset = Source.objects.all()
+        queryset = Source.objects
+        counts = dict(updated=0, skipped=0, created=0)
         for row in request.data['sources']:
+            # skip empty rows
             if len(row.keys()) <= 1:
                 continue
-            if len(row['id']) > 0 and row['id'] != 'null':
+            # check if this is an update
+            if row.get('id', None) and (row['id'] > 0) and (row['id'] != 'null'):
                 existing_source = queryset.filter(pk=row['id'])
-                canonical_domain = existing_source[0].name
             else:
-                canonical_domain = urls.canonical_domain(row['homepage'])
-                existing_source = queryset.filter(name=canonical_domain)
+                # if online news, need to make check if canonical domain exists
+                if row['platform'] == Source.SourcePlatforms.ONLINE_NEWS:
+                    canonical_domain = urls.canonical_domain(row['homepage'])
+                    # call filter here, not get, so we can check for multiple matches (url_query_string case)
+                    existing_source = queryset.filter(name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
+                else:
+                    # a diff platform, so just check for unique name (ie. twitter handle, subreddit name, YT channel)
+                    existing_source = queryset.filter(name=row['name'], platform=row['platform'])
+            # Making a new one
             if len(existing_source) == 0:
-                existing_source = Source.create_new_source(row)
-                email_text += "\n {}: created new source".format(
-                    canonical_domain)
-            elif len(existing_source) > 1:
+                existing_source = Source.create_from_dict(row)
+                email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
+                counts['created'] += 1
+            # Updating unique match
+            elif len(existing_source) == 1:
                 existing_source = existing_source[0]
-                email_text += "\n {}: updated existing source".format(
-                    canonical_domain)
+                existing_source.update_from_dict(row)
+                email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
+                counts['updated'] += 1
+            # Request to update non-unique match, so skip and force them to do it by hand
             else:
-                existing_source = existing_source[0]
-                email_text += "\n {}: updated existing source".format(
-                    canonical_domain)
+                email_text += "\n ⚠️ {}: multiple matches - cowardly skipping so you can do it by hand existing source".\
+                    format(existing_source[0]['name'])
+                counts['skipped'] += 1
+                continue
             collection.source_set.add(existing_source)
         send_source_upload_email(email_title, email_text, request.user.email)
-        return Response({'title': email_title, 'text': email_text})
+        return Response(counts)
 
     @action(methods=['GET'], detail=False)
     def download_csv(self, request):
