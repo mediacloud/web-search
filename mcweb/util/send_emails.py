@@ -2,7 +2,7 @@ import threading
 import logging
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
-from mcweb.settings import EMAIL_HOST
+from settings import EMAIL_HOST
 
 logger = logging.getLogger(__name__)
 
