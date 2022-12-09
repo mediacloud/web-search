@@ -1,23 +1,25 @@
+import PropTypes from 'prop-types';
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLazyListCollectionsQuery } from '../../app/services/collectionsApi';
 import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
-import { platformDisplayName } from '../ui/uiUtil';
-import { useNavigate } from 'react-router-dom';
+import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
 
-const MIN_QUERY_LEN = 2;
-const MAX_RESULTS = 5;  // per endpoint
-const MIN_POLL_MILLISECS = 500;
-const MAX_MATCH_DISPLAY_LEN = 50;
+const MIN_QUERY_LEN = 2;  // don't query for super short things
+const MAX_RESULTS = 10;  // per endpoint
+const MIN_POLL_MILLISECS = 500; // throttle requests
+const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 // @see https://mui.com/material-ui/react-autocomplete/#load-on-open
-export default function DirectorySearch() {
+export default function DirectorySearch({searchCollections, searchSources}) {
     const [lastRequestTime, setLastRequestTime] = React.useState(0);
     const [open, setOpen] = React.useState(false);
-    const [options, setOptions] = React.useState([]);
+    const [collectionOptions, setCollectionOptions] = React.useState([]);
+    const [sourceOptions, setSourceOptions] = React.useState([]);
     const [searchStr, setSearchStr] = React.useState('');
     const navigate = useNavigate();
     const [collectionTrigger, {
@@ -34,14 +36,15 @@ export default function DirectorySearch() {
             return undefined;
         }
         if (active && collectionSearchResults) {
-            const existingOptionIds = options.filter(o => o.type == 'collection').map(o => o.id);
+            const existingOptionIds = collectionOptions.filter(o => o.type == 'collection').map(o => o.id);
             const newOptions = collectionSearchResults.results.filter(c => !existingOptionIds.includes(c.id));
-            setOptions([...options, ...newOptions.slice(0,MAX_RESULTS).map(c => ({
+            setCollectionOptions(newOptions.slice(0,MAX_RESULTS).map(c => ({
+                displayGroup: 'Collections',
                 type: 'collection',
                 id: c.id,
                 value: c.id,
-                label: `Collection: ${c.name.substring(0, MAX_MATCH_DISPLAY_LEN)} (${platformDisplayName(c.platform)})`
-            }))]);
+                label: `${trimStringForDisplay(c.name, MAX_MATCH_DISPLAY_LEN)} (${platformDisplayName(c.platform)})`
+            })));
         }
         return () => {
             active = false;
@@ -56,14 +59,15 @@ export default function DirectorySearch() {
             return undefined;
         }
         if (active && sourceSearchResults) {
-            const existingOptionIds = options.filter(o => o.type == 'source').map(o => o.id);
+            const existingOptionIds = sourceOptions.filter(o => o.type == 'source').map(o => o.id);
             const newOptions = sourceSearchResults.results.filter(s => !existingOptionIds.includes(s.id));
-            setOptions([...options, ...newOptions.slice(0,MAX_RESULTS).map(s => ({
+            setSourceOptions(newOptions.slice(0,MAX_RESULTS).map(s => ({
+                displayGroup: 'Sources',
                 type: 'source',
                 id: s.id,
                 value: s.id,
-                label: `Source: ${(s.label || s.name).substring(0, MAX_MATCH_DISPLAY_LEN)} (${platformDisplayName(s.platform)})`
-            }))]);
+                label: `${trimStringForDisplay(s.label || s.name, MAX_MATCH_DISPLAY_LEN)} (${platformDisplayName(s.platform)})`
+            })));
         }
         return () => {
             active = false;
@@ -74,7 +78,8 @@ export default function DirectorySearch() {
 
     useEffect(() => {
         if (!open) {
-          setOptions([]);
+          setSourceOptions([]);
+          setCollectionOptions([]);
         }
     }, [open]);
 
@@ -92,7 +97,8 @@ export default function DirectorySearch() {
             isOptionEqualToValue={(option, value) => option.id === value.id}
             getOptionLabel={(option) => option.label}
             noOptionsText="No matches"
-            options={options}
+            groupBy={(option) => option.displayGroup}
+            options={[...collectionOptions, ...sourceOptions]}
             loading={somethingIsFetching}
             onChange={(e, value) => {   /** called when an option is clicked */
                 if (value.type=="collection") {
@@ -106,22 +112,24 @@ export default function DirectorySearch() {
                 <TextField
                     {...params}
                     label="Search for Collections or Sources"
+                    disabled={somethingIsFetching}
                     InputProps={{
-                    ...params.InputProps,
-                    endAdornment: (
-                        <React.Fragment>
-                        {somethingIsFetching ? <CircularProgress color="inherit" size={20} /> : null}
-                        {params.InputProps.endAdornment}
-                        </React.Fragment>
-                    ),
+                        ...params.InputProps,
+                        endAdornment: (
+                            <React.Fragment>
+                            {somethingIsFetching ? <CircularProgress color="inherit" size={20} /> : null}
+                            {params.InputProps.endAdornment}
+                            </React.Fragment>
+                        ),
                     }}
                     onChange={({target: {value}}) => {
-                        setOptions([]);
+                        setSourceOptions([]);
+                        setCollectionOptions([]);
                         // only search if str is long enough, and if we haven't searched recently
                         if ((value.length > MIN_QUERY_LEN) && (Date.now() > (lastRequestTime + MIN_POLL_MILLISECS))) {
                             setLastRequestTime(Date.now());
-                            collectionTrigger({name: value});
                             sourceTrigger({name: value});
+                            collectionTrigger({name: value});
                         }
                     }}
                 />
@@ -129,3 +137,14 @@ export default function DirectorySearch() {
         />
     );
 }
+
+
+DirectorySearch.propTypes = {
+    searchCollections: PropTypes.bool,
+    searchSources: PropTypes.bool,
+};
+
+DirectorySearch.defaultProps = {
+    searchCollections: true,
+    searchSources: true,
+};

@@ -70,4 +70,11 @@ export const platformIcon = (platform) => {
     return NewspaperIcon;
 }
 
-export default assetUrl;
+// trim a string by adding unicode ellipses char if it is too long
+export const trimStringForDisplay = (str, maxLen) => {
+    if (str.length >= maxLen) {
+        return `${str.substring(0, maxLen)}…`;
+    }
+    return str;
+}
+
