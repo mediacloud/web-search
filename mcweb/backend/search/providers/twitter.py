@@ -65,7 +65,8 @@ class TwitterTwitterProvider(ContentProvider):
         # check if query too long
         # @see https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-all
         if len(assembled_query) > 1024:
-            raise RuntimeError("Twitter's max query length is 1024 characters. Try changing collections.")
+            raise RuntimeError("Twitter's max query length is 1024 characters - your query is {} characters. "
+                               "Try changing collections.".format(len(assembled_query)))
         return assembled_query
 
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:

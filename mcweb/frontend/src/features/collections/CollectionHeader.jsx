@@ -19,10 +19,10 @@ export default function CollectionHeader() {
 
   const {
     data: collection,
-    isLoading,
+    isFetching,
   } = useGetCollectionQuery(collectionId);
 
-  if (isLoading) {
+  if (isFetching) {
     return (<CircularProgress size={75} />);
   }
 
