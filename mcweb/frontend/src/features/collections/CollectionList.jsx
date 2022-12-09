@@ -15,7 +15,7 @@ export default function CollectionList(props) {
   const {
     data: collections,
     isLoading,
-  } = useListCollectionsQuery({sourceId, page});
+  } = useListCollectionsQuery({source_id: sourceId, page});
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
@@ -37,46 +37,48 @@ export default function CollectionList(props) {
           color="primary"
           onChange={(evt, value) => setPage(value-1)}/>
       )}
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Sources</th>
-            {edit && <th></th>}
-          </tr>
-        </thead>
-        <tbody>
-          {collections.results.map((collection) => {
-            const PlatformIcon = platformIcon(collection.platform);
-            return (
-              <tr key={collection.id}>
-                <td>
-                  <PlatformIcon fontSize="small" />
-                  &nbsp;
-                  <Link to={`/collections/${collection.id}`}>
-                    {collection.name}
-                  </Link>
-                </td>
-                <td className="numeric">{asNumber(collection.source_count)}</td>
-                { edit && (
+      {(collections.count > 0) && (
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Sources</th>
+              {edit && <th></th>}
+            </tr>
+          </thead>
+          <tbody>
+            {collections.results.map((collection) => {
+              const PlatformIcon = platformIcon(collection.platform);
+              return (
+                <tr key={collection.id}>
                   <td>
-                    <IconButton
-                      aria-label="remove"
-                      onClick={() => {
-                        deleteSourceCollectionAssociation({
-                          source_id: sourceId,
-                          collection_id: collection.id,
-                        });
-                      }}
-                    >
-                      <HighlightOffIcon />
-                    </IconButton>
+                    <PlatformIcon fontSize="small" />
+                    &nbsp;
+                    <Link to={`/collections/${collection.id}`}>
+                      {collection.name}
+                    </Link>
                   </td>
-                )}
-              </tr>
-          )})}
-        </tbody>
-      </table>
+                  <td className="numeric">{asNumber(collection.source_count)}</td>
+                  { edit && (
+                    <td>
+                      <IconButton
+                        aria-label="remove"
+                        onClick={() => {
+                          deleteSourceCollectionAssociation({
+                            source_id: sourceId,
+                            collection_id: collection.id,
+                          });
+                        }}
+                      >
+                        <HighlightOffIcon />
+                      </IconButton>
+                    </td>
+                  )}
+                </tr>
+            )})}
+          </tbody>
+        </table>
+      )}
     </>
   );
 }

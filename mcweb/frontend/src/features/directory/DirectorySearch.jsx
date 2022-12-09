@@ -15,7 +15,7 @@ const MIN_POLL_MILLISECS = 500; // throttle requests
 const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 // @see https://mui.com/material-ui/react-autocomplete/#load-on-open
-export default function DirectorySearch({searchCollections, searchSources}) {
+export default function DirectorySearch({searchCollections, searchSources, onSelected}) {
     const [lastRequestTime, setLastRequestTime] = React.useState(0);
     const [open, setOpen] = React.useState(false);
     const [collectionOptions, setCollectionOptions] = React.useState([]);
@@ -83,6 +83,15 @@ export default function DirectorySearch({searchCollections, searchSources}) {
         }
     }, [open]);
 
+    const defaultSelectionHandler = (e, value) => {
+        if (value.type=="collection") {
+            navigate(`/collections/${value.id}`);
+        }
+        if (value.type=="source") {
+            navigate(`/sources/${value.id}`);
+        }
+    };
+
     return (
         <Autocomplete
             id="quick-directory-search"
@@ -100,14 +109,7 @@ export default function DirectorySearch({searchCollections, searchSources}) {
             groupBy={(option) => option.displayGroup}
             options={[...collectionOptions, ...sourceOptions]}
             loading={somethingIsFetching}
-            onChange={(e, value) => {   /** called when an option is clicked */
-                if (value.type=="collection") {
-                    navigate(`/collections/${value.id}`);
-                }
-                if (value.type=="source") {
-                    navigate(`/sources/${value.id}`);
-                }
-            }}
+            onChange={onSelected || defaultSelectionHandler}
             renderInput={(params) => (
                 <TextField
                     {...params}
@@ -142,9 +144,11 @@ export default function DirectorySearch({searchCollections, searchSources}) {
 DirectorySearch.propTypes = {
     searchCollections: PropTypes.bool,
     searchSources: PropTypes.bool,
+    onSelected: PropTypes.func,
 };
 
 DirectorySearch.defaultProps = {
     searchCollections: true,
     searchSources: true,
+    onSelected: null,
 };

@@ -26,7 +26,7 @@ export default function SourceList(props) {
   }
 
   return (
-    <div>
+    <>
       <h2>
         Sources (
         {asNumber(sources.count)}
@@ -39,49 +39,51 @@ export default function SourceList(props) {
           color="primary"
           onChange={(evt, value) => setPage(value-1)}/>
       )}
-      <table width="100%">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Content per Week</th>
-            {edit && (<th></th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {sources.results.map((source) => (
-            <tr key={source.id}>
-              <td>
-                <img
-                  className="google-icon"
-                  src={sourceFavIcon(source)}
-                  alt="{source.name}"
-                  width="32px"
-                />
-                <Link to={`/sources/${source.id}`}>
-                  {source.label || source.name}
-                </Link>
-              </td>
-              <td className="numeric">{asNumber(source.stories_per_week)}</td>
-              {edit && (
-                <td>
-                  <IconButton
-                    aria-label="remove"
-                    onClick={() => {
-                      deleteSourceCollectionAssociation({
-                        source_id: source.id,
-                        collection_id: collectionId,
-                      });
-                    }}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
-                </td>
-              )}
+      { (sources.count > 0) && (
+        <table width="100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Content per Week</th>
+              {edit && (<th></th>)}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {sources.results.map((source) => (
+              <tr key={source.id}>
+                <td>
+                  <img
+                    className="google-icon"
+                    src={sourceFavIcon(source)}
+                    alt="{source.name}"
+                    width="32px"
+                  />
+                  <Link to={`/sources/${source.id}`}>
+                    {source.label || source.name}
+                  </Link>
+                </td>
+                <td className="numeric">{asNumber(source.stories_per_week)}</td>
+                {edit && (
+                  <td>
+                    <IconButton
+                      aria-label="remove"
+                      onClick={() => {
+                        deleteSourceCollectionAssociation({
+                          source_id: source.id,
+                          collection_id: collectionId,
+                        });
+                      }}
+                    >
+                      <HighlightOffIcon />
+                    </IconButton>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </>
   );
 }
 
