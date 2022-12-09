@@ -19,30 +19,39 @@ const querySlice = createSlice({
     collections: DEFAULT_COLLECTIONS,
     previewCollections: DEFAULT_COLLECTIONS,
     sources: [],
+    previewSources: [],
     lastSearchTime: dayjs().unix(),
     anyAll: 'any',
     advanced: false,
   },
 
   reducers: {
-    addSelectedMedia: (state, { payload }) => ({ ...state, collections: payload }),
-    removeSelectedMedia: (state, { payload }) => ({
+    addSelectedMedia: (state, { payload }) => ({
       ...state,
-      collections: state.collections.filter((collection) => collection.id !== payload),
-      previewCollections: state.previewCollections.filter(
-        (collection) => collection.id !== payload,
-      ),
+      collections: payload.filter(c => c.type == 'collection'),
+      sources: payload.filter(c => c.type == 'source'),
     }),
     addPreviewSelectedMedia: (state, { payload }) => ({
       ...state,
-      previewCollections: [...state.previewCollections, payload],
+      collections: payload.filter(c => c.type == 'collection'),
+      sources: payload.filter(c => c.type == 'source'),
     }),
-    setPreviewSelectedMedia: (state, { payload }) => ({ ...state, previewCollections: payload }),
+    removeSelectedMedia: (state, { payload }) => ({
+      ...state,
+      collections: payload.type == 'collection' ? state.collections.filter((c) => c.id !== payload.id) : collections,
+      previewCollections: state.previewCollections.filter((c) => c.id !== payload.id),
+      sources: payload.type == 'sources' ? state.sources.filter((s) => s.id !== payload.id) : sources,
+      previewSources: state.previewSources.filter((s) => s.id !== payload.id),
+    }),
+    setPreviewSelectedMedia: (state, { payload }) => ({
+      ...state,
+      previewCollections: payload.filter(c => c.type == 'collection'),
+      previewSources: payload.filter(c => c.type == 'source'),
+    }),
     removePreviewSelectedMedia: (state, { payload }) => ({
       ...state,
-      previewCollections: state.previewCollections.filter(
-        (collection) => collection.id !== payload,
-      ),
+      previewCollections: state.previewCollections.filter((c) => c.id !== payload.id),
+      previewSources: state.previewSources.filter((s) => s.id !== payload.id),
     }),
     setStartDate: (state, { payload }) => ({ ...state, startDate: payload }),
     setEndDate: (state, { payload }) => ({ ...state, endDate: payload }),

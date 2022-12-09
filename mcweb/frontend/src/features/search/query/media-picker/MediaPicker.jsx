@@ -16,7 +16,7 @@ export default function MediaPicker() {
   const [value, setValue] = React.useState(0);
   // const [tab, setTab] = useState('featuredCollections');
   const dispatch = useDispatch();
-  const { previewCollections, platform } = useSelector((state) => state.query);
+  const { previewCollections, previewSources, platform } = useSelector((state) => state.query);
   const [open, setOpen] = useState(false);
 
   return (
@@ -54,6 +54,7 @@ export default function MediaPicker() {
                 <SelectedMedia
                   onRemove={removePreviewSelectedMedia}
                   collections={previewCollections}
+                  sources={previewSources}
                 />
                 <Button
                   variant="contained"

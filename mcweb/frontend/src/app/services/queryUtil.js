@@ -2,6 +2,9 @@
 export const PAGE_SIZE = 100;
 
 export const toSearchUrlParams = (params) => {
+  if (params === undefined) {
+    return '';
+  }
   let queryParams = {};
   queryParams.limit = PAGE_SIZE;
   if (params.page) {

@@ -85,9 +85,9 @@ export default function Search() {
             <div className="query-section">
               <h3>
                 <em>2</em>
-                Pick your collections
+                Pick collections and sources
               </h3>
-              <SelectedMedia onRemove={removeSelectedMedia} collections={collections} />
+              <SelectedMedia onRemove={removeSelectedMedia} collections={collections} sources={sources} />
               <MediaPicker />
               <p className="help">
                 Choose individual sources or collections to be searched.
@@ -101,7 +101,7 @@ export default function Search() {
             <div className="query-section">
               <h3>
                 <em>3</em>
-                Pick your dates
+                Pick dates
               </h3>
               <SearchDatePicker />
             </div>

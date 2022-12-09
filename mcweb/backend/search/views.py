@@ -2,6 +2,7 @@ import json
 import logging
 import csv
 import time
+from typing import List, Dict
 import collections as py_collections
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
@@ -16,6 +17,9 @@ from .providers.exceptions import ProviderException
 from backend.users.exceptions import OverQuotaException
 
 logger = logging.getLogger(__name__)
+
+
+#def _search_props_for_provider(collections: List, sources: List) -> Dict:
 
 
 def error_response(msg: str):
@@ -42,11 +46,12 @@ def handle_provider_errors(func):
             return error_response(str(e))
     return _handler
 
+
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def total_count(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    start_date, end_date, query_str, collections, sources, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     relevant_count = provider.count(query_str, start_date, end_date, collections=collections)
     try:
@@ -59,11 +64,12 @@ def total_count(request):
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
+
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def count_over_time(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    start_date, end_date, query_str, collections, sources, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     try:
         results = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
@@ -75,22 +81,24 @@ def count_over_time(request):
     return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
                         status=200)
 
+
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def sample(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    start_date, end_date, query_str, collections, sources, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     sample_stories = provider.sample(query_str, start_date, end_date, collections=collections)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json",
                         status=200)
 
+
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request, 'GET')
+    start_date, end_date, query_str, collections, sources, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
     try:
         counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, collections=collections)
@@ -115,11 +123,12 @@ def download_counts_over_time_csv(request):
             writer.writerow([day["date"], day["count"]])
     return response
 
+
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_all_content_csv(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request, 'GET')
+    start_date, end_date, query_str, collections, sources, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
     # don't allow gigantic downloads
     count = provider.count(query_str, start_date, end_date, collections=collections)

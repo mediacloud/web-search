@@ -44,13 +44,13 @@ const sizeQuery = (query) => {
 const formatCollections = (collections) => collections.map((collection) => {
   let [id, name] = collection.split('>');
   id = Number(id);
-  return { id, name };
+  return { id, name, type: 'collection' };
 });
 
 const formatSources = (sources) => sources.map((source) => {
   let [id, name] = source.split('>');
   id = Number(id);
-  return { id, name };
+  return { id, name, type: 'source' };
 });
 
 const setSearchQuery = (searchParams, dispatch) => {
@@ -102,10 +102,9 @@ const setSearchQuery = (searchParams, dispatch) => {
   if (anyAll) {
     dispatch(setAnyAll(anyAll));
   }
-  if (collections) {
-    dispatch(addSelectedMedia(collections));
-    dispatch(setPreviewSelectedMedia(collections));
-  }
+
+  dispatch(addSelectedMedia(collections.concat(sources)));
+  dispatch(setPreviewSelectedMedia(collections.concat(sources)));
 
   dispatch(setSearchTime(dayjs().unix()));
   return null;

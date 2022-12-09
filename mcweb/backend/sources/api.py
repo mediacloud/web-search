@@ -29,7 +29,7 @@ def _featured_collection_ids(platform: Optional[str]) -> List:
         data = json.load(json_file)
         list_ids = []
         for collection in data['featuredCollections']['entries']:
-            if platform and (collection['platform'] == platform):
+            if (platform is None) or (collection['platform'] == platform):
                 for cid in collection['collections']:
                     list_ids.append(cid)
         return list_ids

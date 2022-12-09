@@ -31,11 +31,7 @@ export default function DirectorySearch({searchCollections, searchSources, onSel
     
     // handle collection search results  
     useEffect(() => {
-        let active = true;
-        if (!isCollectonSearchFetching) {
-            return undefined;
-        }
-        if (active && collectionSearchResults) {
+        if (collectionSearchResults) {
             const existingOptionIds = collectionOptions.filter(o => o.type == 'collection').map(o => o.id);
             const newOptions = collectionSearchResults.results.filter(c => !existingOptionIds.includes(c.id));
             setCollectionOptions(newOptions.slice(0,MAX_RESULTS).map(c => ({
@@ -46,19 +42,12 @@ export default function DirectorySearch({searchCollections, searchSources, onSel
                 label: `${trimStringForDisplay(c.name, MAX_MATCH_DISPLAY_LEN)} (${platformDisplayName(c.platform)})`
             })));
         }
-        return () => {
-            active = false;
-        };
-    }, [isCollectonSearchFetching]);
+    }, [collectionSearchResults]);
 
 
     // handle source search results  
     useEffect(() => {
-        let active = true;
-        if (!isSourceSearchFetching) {
-            return undefined;
-        }
-        if (active && sourceSearchResults) {
+        if (sourceSearchResults) {
             const existingOptionIds = sourceOptions.filter(o => o.type == 'source').map(o => o.id);
             const newOptions = sourceSearchResults.results.filter(s => !existingOptionIds.includes(s.id));
             setSourceOptions(newOptions.slice(0,MAX_RESULTS).map(s => ({
@@ -69,10 +58,7 @@ export default function DirectorySearch({searchCollections, searchSources, onSel
                 label: `${trimStringForDisplay(s.label || s.name, MAX_MATCH_DISPLAY_LEN)} (${platformDisplayName(s.platform)})`
             })));
         }
-        return () => {
-            active = false;
-        };
-    }, [isSourceSearchFetching]);
+    }, [sourceSearchResults]);
 
     const somethingIsFetching = isCollectonSearchFetching || isSourceSearchFetching;
 
@@ -98,7 +84,7 @@ export default function DirectorySearch({searchCollections, searchSources, onSel
             open={open}
             filterOptions={(x) => x} /* let the server filter optons */
             onOpen={() => {
-                setOpen(true);
+                
             }}
             onClose={() => {
                 setOpen(false);
@@ -124,14 +110,18 @@ export default function DirectorySearch({searchCollections, searchSources, onSel
                             </React.Fragment>
                         ),
                     }}
-                    onChange={({target: {value}}) => {
-                        setSourceOptions([]);
-                        setCollectionOptions([]);
-                        // only search if str is long enough, and if we haven't searched recently
-                        if ((value.length > MIN_QUERY_LEN) && (Date.now() > (lastRequestTime + MIN_POLL_MILLISECS))) {
-                            setLastRequestTime(Date.now());
-                            sourceTrigger({name: value});
-                            collectionTrigger({name: value});
+                    onKeyUp={(event) => {
+                        if (event.key== 'Enter') {
+                            const value = event.target.value;
+                            setOpen(true);
+                            setSourceOptions([]);
+                            setCollectionOptions([]);
+                            // only search if str is long enough
+                            if (value.length > MIN_QUERY_LEN) {
+                                setLastRequestTime(Date.now());
+                                sourceTrigger({name: value});
+                                collectionTrigger({name: value});
+                            }
                         }
                     }}
                 />
