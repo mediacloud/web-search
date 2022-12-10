@@ -104,14 +104,22 @@ class CollectionViewSet(viewsets.ModelViewSet):
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
     permission_classes = [
-        permissions.IsAuthenticated
-
+        IsGetOrIsStaff
     ]
     serializer_class = FeedsSerializer
 
-    @action(methods=['post'], detail=False)
-    def sources_feeds(self, request):
-        source_id = request.data["source_id"]
+    # overriden to support filtering all endpoints
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        source_id = self.request.query_params.get("source_id")
+        if source_id is not None:
+            source_id = int(source_id)  # validation: should throw a ValueError back up the chain
+            queryset = queryset.filter(source_id=source_id)
+        return queryset
+
+    @action(detail=False)
+    def details(self, request):
+        source_id = self.request.query_params.get("source_id")
         if RSS_FETCHER_USER and RSS_FETCHER_PASS:
             auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
         else:

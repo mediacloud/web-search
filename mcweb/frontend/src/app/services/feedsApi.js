@@ -1,13 +1,19 @@
 import managerApi from './managerApi';
+import { toSearchUrlParams } from './queryUtil';
 
 export const feedsApi = managerApi.injectEndpoints({
 
   endpoints: (builder) => ({
-    getSourceFeeds: builder.mutation({
-      query: (sourceId) => ({
-        url: '/feeds/sources_feeds/',
-        method: 'POST',
-        body: { source_id: sourceId },
+    listFeeds: builder.query({
+      query: (params) => ({
+          url: `feeds/?${toSearchUrlParams(params)}`,
+          method: 'GET',
+      }),
+    }),
+    listFeedDetails: builder.query({
+      query: (params) => ({
+        url: `feeds/details/?${toSearchUrlParams(params)}`,
+        method: 'GET',
       }),
     }),
 
@@ -15,5 +21,6 @@ export const feedsApi = managerApi.injectEndpoints({
 });
 
 export const {
-  useGetSourceFeedsMutation,
+  useListFeedsQuery,
+  useListFeedDetailsQuery,
 } = feedsApi;
