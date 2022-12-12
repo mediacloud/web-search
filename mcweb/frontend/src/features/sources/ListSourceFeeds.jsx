@@ -35,6 +35,15 @@ function ListSourceFeeds() {
 
   if (!feeds) return null;
 
+  // merge the two datasets
+  let mergedFeeds = [];
+  if (feeds && feeds.results && feedDetails.feeds) {
+    mergedFeeds = feeds.results.map(f => ({
+      ...f,
+      'details': feedDetails.feeds.find(fd => fd.id == f.id),
+    }));
+  }
+  
   return (
     <div className="container">
       <div className="row">
@@ -53,6 +62,8 @@ function ListSourceFeeds() {
             <th>Name</th>
             <th>URL</th>
             <th>Admin enabled?</th>
+            <th>System enabled?</th>
+            <th>System status</th>
             <th>Last Attempt</th>
             <th>Last Success</th>
             <Permissioned role={ROLE_STAFF}>
@@ -61,13 +72,15 @@ function ListSourceFeeds() {
           </tr>
         </thead>
         <tbody>
-          {feeds.results.map((feed) => (
+          {mergedFeeds.map((feed) => (
             <tr key={feed.id}>
               <td>{feed.name}</td>
               <td><a target="_blank" href={`${feed.url}`} rel="noreferrer">{feed.url}</a></td>
               <td>{feed.admin_rss_enabled ? '✅' : '❌'}</td>
-              <td>{feed.last_fetch_attempt ? dayjs(feed.last_fetch_attempt).format('MM/DD/YYYY') : '?'}</td>
-              <td>{feed.last_fetch_success ? dayjs(feed.last_fetch_success).format('MM/DD/YYYY') : '?'}</td>
+              <td>{(feed.details && feed.details.system_enabled) ? '✅' : '❌'}</td>
+              <td>{(feed.details && feed.details.system_status) ? feed.details.system_status : '?'}</td>
+              <td>{(feed.details && feed.details.last_fetch_attempt) ? dayjs(feed.details.last_fetch_attempt).format('MM/DD/YYYY hh:mm:ss') : '?'}</td>
+              <td>{(feed.details && feed.details.last_fetch_success) ? dayjs(feed.details.last_fetch_success).format('MM/DD/YYYY hh:mm:ss') : '?'}</td>
               <td>
                 <Permissioned role={ROLE_STAFF}>
                   <>
