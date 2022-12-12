@@ -3,6 +3,7 @@ import json
 import os
 import requests
 import requests.auth
+import datetime as dt
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
@@ -115,6 +116,11 @@ class FeedsViewSet(viewsets.ModelViewSet):
         if source_id is not None:
             source_id = int(source_id)  # validation: should throw a ValueError back up the chain
             queryset = queryset.filter(source_id=source_id)
+        modified_since = self.request.query_params.get("modified_since")  # in epoch times
+        if modified_since is not None:
+            modified_since = int(modified_since)  # validation: should throw a ValueError back up the chain
+            modified_since = dt.datetime.fromtimestamp(modified_since)
+            queryset = queryset.filter(modified_at__gte=modified_since)
         return queryset
 
     @action(detail=False)
