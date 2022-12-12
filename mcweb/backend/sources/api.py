@@ -116,11 +116,12 @@ class FeedsViewSet(viewsets.ModelViewSet):
         if source_id is not None:
             source_id = int(source_id)  # validation: should throw a ValueError back up the chain
             queryset = queryset.filter(source_id=source_id)
+        # the rss-fetcher wants to know which feeds were changed since last time it checked
         modified_since = self.request.query_params.get("modified_since")  # in epoch times
         if modified_since is not None:
             modified_since = int(modified_since)  # validation: should throw a ValueError back up the chain
             modified_since = dt.datetime.fromtimestamp(modified_since)
-            queryset = queryset.filter(modified_at__gte=modified_since)
+            queryset = queryset.filter(modified_at__gte=modified_since).order_by('modified_at')
         return queryset
 
     @action(detail=False)
