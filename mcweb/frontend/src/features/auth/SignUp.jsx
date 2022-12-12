@@ -41,7 +41,7 @@ export default function SignUp() {
 
   return (
     <div>
-      <Container maxWidth="xs">
+      <Container maxWidth="md">
         <CssBaseline />
         <Box
           sx={{
@@ -152,7 +152,9 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
+                  multiline
                   name="notes"
+                  rows={4}
                   label="Tell us a little about why you want to use Media Cloud"
                   type="text"
                   onChange={handleChange}
