@@ -78,6 +78,11 @@ table {
       &.numeric {
         text-align: right;
       }
+
+      button {
+        margin-right: $padding-s !important;
+      }
+
     }
   }
 }

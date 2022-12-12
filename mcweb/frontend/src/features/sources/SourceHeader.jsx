@@ -65,13 +65,13 @@ export default function SourceHeader() {
               <Button variant="outlined">
                 <a href={source.homepage} target="_blank">Visit Homepage</a>
               </Button>
+              <Button variant="outlined">
+                <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
+              </Button>
               <Permissioned role={ROLE_STAFF}>
                 <>
                   <Button variant="outlined" endIcon={<LockOpenIcon />}>
                     <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
-                  </Button>
-                  <Button variant="outlined" endIcon={<LockOpenIcon />}>
-                    <Link to={`/sources/${sourceId}/feeds`}>Manage Feeds</Link>
                   </Button>
                 </>
               </Permissioned>

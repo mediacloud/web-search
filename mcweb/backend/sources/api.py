@@ -3,6 +3,7 @@ import json
 import os
 import requests
 import requests.auth
+import datetime as dt
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
@@ -104,14 +105,27 @@ class CollectionViewSet(viewsets.ModelViewSet):
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
     permission_classes = [
-        permissions.IsAuthenticated
-
+        IsGetOrIsStaff
     ]
     serializer_class = FeedsSerializer
 
-    @action(methods=['post'], detail=False)
-    def sources_feeds(self, request):
-        source_id = request.data["source_id"]
+    # overriden to support filtering all endpoints
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        source_id = self.request.query_params.get("source_id")
+        if source_id is not None:
+            source_id = int(source_id)  # validation: should throw a ValueError back up the chain
+            queryset = queryset.filter(source_id=source_id)
+        modified_since = self.request.query_params.get("modified_since")  # in epoch times
+        if modified_since is not None:
+            modified_since = int(modified_since)  # validation: should throw a ValueError back up the chain
+            modified_since = dt.datetime.fromtimestamp(modified_since)
+            queryset = queryset.filter(modified_at__gte=modified_since)
+        return queryset
+
+    @action(detail=False)
+    def details(self, request):
+        source_id = self.request.query_params.get("source_id")
         if RSS_FETCHER_USER and RSS_FETCHER_PASS:
             auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
         else:

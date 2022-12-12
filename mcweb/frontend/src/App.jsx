@@ -24,7 +24,7 @@ import CollectionHeader from './features/collections/CollectionHeader';
 import GeographicNewsCollections from './features/collections/GeographicNewsCollections';
 import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
-import FeedShow from './features/feeds/FeedShow';
+import ListSourceFeeds from './features/sources/ListSourceFeeds';
 import SourceHeader from './features/sources/SourceHeader';
 
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -134,7 +134,7 @@ function App() {
               path=":sourceId/feeds"
               element={(
                 <RequireAuth>
-                  <FeedShow />
+                  <ListSourceFeeds />
                 </RequireAuth>
               )}
             />
