@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
-import { useListSourcesQuery } from  '../../app/services/sourceApi';
+import { useListSourcesQuery } from '../../app/services/sourceApi';
 import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { sourceFavIcon, asNumber } from '../ui/uiUtil';
@@ -16,8 +16,7 @@ export default function SourceList(props) {
   const {
     data: sources,
     isLoading,
-  } = useListSourcesQuery({collection_id: collectionId, page});
-
+  } = useListSourcesQuery({ collection_id: collectionId, page });
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
@@ -36,9 +35,10 @@ export default function SourceList(props) {
       { (Math.ceil(sources.count / PAGE_SIZE) > 1) && (
         <Pagination
           count={Math.ceil(sources.count / PAGE_SIZE)}
-          page={page+1}
+          page={page + 1}
           color="primary"
-          onChange={(evt, value) => setPage(value-1)}/>
+          onChange={(evt, value) => setPage(value - 1)}
+        />
       )}
       { (sources.count > 0) && (
         <table width="100%">
@@ -46,7 +46,7 @@ export default function SourceList(props) {
             <tr>
               <th>Name</th>
               <th>Content per Week</th>
-              {edit && (<th></th>)}
+              {edit && (<th>Admin</th>)}
             </tr>
           </thead>
           <tbody>

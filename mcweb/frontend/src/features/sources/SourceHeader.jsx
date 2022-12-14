@@ -49,31 +49,36 @@ export default function SourceHeader() {
         <div className="container">
           <div className="row">
             <div className="col-12">
-            <Button variant="outlined">
-                <a href={`/search/${urlSerializer({
-                  queryList: defaultPlatformQuery(source.platform),
-                  anyAll: 'any',
-                  negatedQueryList: [],
-                  startDate: dayjs().subtract(35, 'day'),
-                  endDate: dayjs().subtract(5, 'day'),
-                  collections: [],
-                  sources: [source],
-                  platform: defaultPlatformProvider(source.platform),
-                  advanced: false,
-                })}`} target="_blank">Search Content</a>
+              <Button variant="outlined">
+                <a
+                  href={`/search/${urlSerializer({
+                    queryList: defaultPlatformQuery(source.platform),
+                    anyAll: 'any',
+                    negatedQueryList: [],
+                    startDate: dayjs().subtract(35, 'day'),
+                    endDate: dayjs().subtract(5, 'day'),
+                    collections: [],
+                    sources: [source],
+                    platform: defaultPlatformProvider(source.platform),
+                    advanced: false,
+                  })}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Search Content
+
+                </a>
               </Button>
               <Button variant="outlined">
-                <a href={source.homepage} target="_blank">Visit Homepage</a>
+                <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
               </Button>
               <Button variant="outlined">
                 <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
               </Button>
               <Permissioned role={ROLE_STAFF}>
-                <>
-                  <Button variant="outlined" endIcon={<LockOpenIcon />}>
-                    <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
-                  </Button>
-                </>
+                <Button variant="outlined" endIcon={<LockOpenIcon />}>
+                  <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
+                </Button>
               </Permissioned>
             </div>
           </div>

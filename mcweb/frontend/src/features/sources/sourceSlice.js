@@ -19,13 +19,19 @@ const sourceSlice = createSlice({
   name: 'sources',
   initialState: {},
   reducers: {
-    setSource: (state, { payload }) => {
-      state[payload.sources.id] = payload.sources;
-    },
+    setSource: (state, { payload }) => ({
+      ...state,
+      [payload.sources.id]: payload.sources,
+    }),
     setSources: (state, { payload }) => {
+      const newVals = {};
       payload.sources.forEach((source) => {
-        state[source.id] = source;
+        newVals[source.id] = source;
       });
+      return {
+        ...state,
+        ...newVals,
+      };
     },
   },
 });

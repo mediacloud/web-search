@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Pagination from '@mui/material/Pagination';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -20,12 +20,12 @@ function ListSourceFeeds() {
   const {
     data: feeds,
     isLoading: feedsAreLoading,
-  } = useListFeedsQuery({source_id: sourceId});
+  } = useListFeedsQuery({ source_id: sourceId });
   // ...and also their latest from the RSS-fetcher
   const {
     data: feedDetails,
     isLoading: feedsDetailsAreLoading,
-  } = useListFeedDetailsQuery({source_id: sourceId});
+  } = useListFeedDetailsQuery({ source_id: sourceId });
 
   const isLoading = feedsAreLoading || feedsDetailsAreLoading;
 
@@ -38,23 +38,28 @@ function ListSourceFeeds() {
   // merge the two datasets
   let mergedFeeds = [];
   if (feeds && feeds.results && feedDetails.feeds) {
-    mergedFeeds = feeds.results.map(f => ({
+    mergedFeeds = feeds.results.map((f) => ({
       ...f,
-      'details': feedDetails.feeds.find(fd => fd.id == f.id),
+      details: feedDetails.feeds.find((fd) => fd.id === f.id),
     }));
   }
-  
+
   return (
     <div className="container">
       <div className="row">
-        <h1 className="col-12">Feeds ({asNumber(feeds.count)})</h1>
+        <h1 className="col-12">
+          Feeds (
+          {asNumber(feeds.count)}
+          )
+        </h1>
       </div>
       {(Math.ceil(feeds.count / PAGE_SIZE) > 1) && (
         <Pagination
           count={Math.ceil(feeds.count / PAGE_SIZE)}
-          page={page+1}
+          page={page + 1}
           color="primary"
-          onChange={(evt, value) => setPage(value-1)}/>
+          onChange={(evt, value) => setPage(value - 1)}
+        />
       )}
       <table>
         <thead>
@@ -67,7 +72,7 @@ function ListSourceFeeds() {
             <th>Last Attempt</th>
             <th>Last Success</th>
             <Permissioned role={ROLE_STAFF}>
-              <th></th>
+              <th>Admin</th>
             </Permissioned>
           </tr>
         </thead>
@@ -92,7 +97,7 @@ function ListSourceFeeds() {
                     </Button>
                   </>
                 </Permissioned>
-                </td>
+              </td>
             </tr>
           ))}
         </tbody>
