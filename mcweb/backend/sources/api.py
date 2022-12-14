@@ -121,7 +121,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
         if modified_since is not None:
             modified_since = int(modified_since)  # validation: should throw a ValueError back up the chain
             modified_since = dt.datetime.fromtimestamp(modified_since)
-            queryset = queryset.filter(modified_at__gte=modified_since).order_by('modified_at')
+            queryset = queryset.filter(modified_at__gte=modified_since).order_by('modified_at', 'id')
         return queryset
 
     @action(detail=False)
