@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router'
 // import { useCSVDownloader } from 'react-papaparse';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -15,8 +14,8 @@ import { platformDisplayName } from '../ui/uiUtil';
 import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
-import { useGetSourceQuery, useUpdateSourceMutation} from '../../app/services/sourceApi';
-import DirectorySearch from '../../features/directory/DirectorySearch';
+import { useGetSourceQuery, useUpdateSourceMutation } from '../../app/services/sourceApi';
+import DirectorySearch from '../directory/DirectorySearch';
 
 export default function ModifySource() {
   const params = useParams();
@@ -50,25 +49,24 @@ export default function ModifySource() {
   useEffect(() => {
     if (data) {
       const formData = {
-        id: data.id, name: data.name, notes: data.notes, homepage: data.homepage, label: data.label, platform: data.platform,
+        id: data.id,
+        name: data.name,
+        notes: data.notes,
+        homepage: data.homepage,
+        label: data.label,
+        platform: data.platform,
       };
       setFormState(formData);
     }
   }, [data]);
   const [collectionId, setCollectionId] = useState('');
 
-  const collectionData = useGetCollectionQuery(collectionId);
+  // const collectionData = useGetCollectionQuery(collectionId);
 
   const [createSourceCollectionAssociation] = useCreateSourceCollectionAssociationMutation();
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
@@ -157,11 +155,11 @@ export default function ModifySource() {
             variant="contained"
             onClick={async () => {
               try {
-                const updatedSource = await updateSource(formState).unwrap()
+                await updateSource(formState).unwrap();
                 enqueueSnackbar('Saved changes', { variant: 'success' });
                 navigate(`/sources/${sourceId}`);
               } catch (err) {
-                console.log(err);
+                // console.log(err);
                 const errorMsg = `Failed - ${err.data.message}`;
                 enqueueSnackbar(errorMsg, { variant: 'error' });
               }
@@ -190,7 +188,6 @@ export default function ModifySource() {
         <div className="col-2">
           <Button onClick={async () => {
             const assoc = { source_id: sourceId, collection_id: collectionId };
-            const collection = collectionData.data;
             await createSourceCollectionAssociation(assoc);
             setCollectionId('');
           }}

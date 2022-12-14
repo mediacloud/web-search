@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 import { useCSVReader } from 'react-papaparse';
 import { useSnackbar } from 'notistack';
 import Button from '@mui/material/Button';
-import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 import { CircularProgress } from '@mui/material';
+import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 
 export default function UploadSources(props) {
   const { collectionId } = props;
   const { enqueueSnackbar } = useSnackbar();
-  const [ updating, setUpdating ] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [uploadSources, { isLoading: isUpdating }] = useUploadSourcesMutation();
 
   const { CSVReader } = useCSVReader();
@@ -23,8 +23,10 @@ export default function UploadSources(props) {
           setUpdating(true);
           const results = await uploadSources({ sources: uploadInfo.data, collection_id: collectionId });
           setUpdating(false);
-          enqueueSnackbar(`Created ${results.data.created}. Updated ${results.data.updated}. Skipped ${results.data.skipped}.`,
-            { variant: 'info' });
+          enqueueSnackbar(
+            `Created ${results.data.created}. Updated ${results.data.updated}. Skipped ${results.data.skipped}.`,
+            { variant: 'info' },
+          );
         }}
       >
         {({
@@ -37,7 +39,13 @@ export default function UploadSources(props) {
             </Button>
             {(isUpdating || updating) && <CircularProgress />}
             <div>
-              {acceptedFile && (<i>Upload: {acceptedFile.name}</i>)}
+              {acceptedFile && (
+              <i>
+                Upload:
+                {' '}
+                {acceptedFile.name}
+              </i>
+              )}
             </div>
           </div>
         )}

@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { TextField, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router'
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -114,7 +113,7 @@ export default function ModifyCollection() {
                   name: formState.name,
                   notes: formState.notes,
                   platform: formState.platform,
-                }).unwrap()
+                }).unwrap();
                 enqueueSnackbar('Saved changes', { variant: 'success' });
                 navigate(`/collections/${collectionId}`);
               } catch (err) {

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import CollectionList from '../collections/CollectionList';
@@ -10,7 +10,6 @@ export default function SourceShow() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
 
-  const location = useLocation();
   const {
     data: source,
     isLoading,
@@ -21,33 +20,43 @@ export default function SourceShow() {
   }
 
   return (
-      <div className="container">
-        
-        {(source.platform==="online_news") && (
-          <StatPanel items={[
-              { label: 'First Story', value: source.first_story },
-              { label: 'Stories per Week', value: source.stories_per_week },
-              { label: 'Publication Country', value: source.pub_country },
-              { label: 'Publication State', value: source.pub_state },
-              { label: 'Primary Language', value: source.primary_language },
-              { label: 'Media Type', value: source.media_type },
-            ]}
-          />
-        )}
+    <div className="container">
 
-        <div className="row">
-          <div className="col-6">
-            <p><b>Homepage</b>: <a href={source.homepage} target="_blank">{source.homepage}</a></p>
-            {source.notes && (<p><b>Notes</b>{source.notes}</p>)}
-          </div>
+      {(source.platform === 'online_news') && (
+        <StatPanel items={[
+          { label: 'First Story', value: source.first_story },
+          { label: 'Stories per Week', value: source.stories_per_week },
+          { label: 'Publication Country', value: source.pub_country },
+          { label: 'Publication State', value: source.pub_state },
+          { label: 'Primary Language', value: source.primary_language },
+          { label: 'Media Type', value: source.media_type },
+        ]}
+        />
+      )}
+
+      <div className="row">
+        <div className="col-6">
+          <p>
+            <b>Homepage</b>
+            :
+            {' '}
+            <a href={source.homepage} target="_blank" rel="noreferrer">{source.homepage}</a>
+          </p>
+          {source.notes && (
+            <p>
+              <b>Notes</b>
+              {source.notes}
+            </p>
+          )}
         </div>
-
-        <div className="row">
-          <div className="col-6">
-            <CollectionList sourceId={sourceId} />
-          </div>
-        </div>
-
       </div>
+
+      <div className="row">
+        <div className="col-6">
+          <CollectionList sourceId={sourceId} />
+        </div>
+      </div>
+
+    </div>
   );
 }
