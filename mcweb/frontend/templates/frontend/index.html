@@ -12,6 +12,11 @@
             document.settings = {};
             document.settings.appVersion = "{{ version }}";
             document.settings.availableProviders = {{ providers|safe }};
+            {% if system_alert != None %}
+                document.settings.systemAlert = "{{ system_alert|safe }}";
+            {% else %}
+                document.settings.systemAlert = undefined;
+            {% endif %}            
         </script>
 
     </head>

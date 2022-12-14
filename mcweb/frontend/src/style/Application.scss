@@ -141,3 +141,12 @@ dl {
     font-size: 18px;
   }
 }
+
+.warning {
+  background-color: $warning-color;
+}
+
+#system-warning {
+  padding: $padding-s;
+  text-align: center;
+}

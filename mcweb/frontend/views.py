@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 ANALYTICS_MATOMO_DOMAIN = os.getenv('ANALYTICS_MATOMO_DOMAIN', None)
 ANALYTICS_MATOMO_SITE_ID = os.getenv('ANALYTICS_MATOMO_SITE_ID', None)
 
+SYSTEM_ALERT = os.getenv('SYSTEM_ALERT', None)
+
 
 @ensure_csrf_cookie
 def index(request):
@@ -19,4 +21,5 @@ def index(request):
         providers=providers.available_provider_names(),
         analytics_matomo_domain=ANALYTICS_MATOMO_DOMAIN,
         analytics_matomo_id=ANALYTICS_MATOMO_SITE_ID,
+        system_alert=SYSTEM_ALERT,
     ))
