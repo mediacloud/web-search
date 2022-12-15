@@ -4,7 +4,7 @@ from subprocess import call
 import glob
 import tempfile
 
-from ...models import Collection, Source, Feed, SourcePlatforms
+from ...models import Collection, Source, Feed
 
 
 def _run_psql_command(cmd: str):
@@ -13,7 +13,7 @@ def _run_psql_command(cmd: str):
 
 
 class Command(BaseCommand):
-    help = 'Wipe and import all collections, sources, associations between them, and feeds.'
+    help = 'Wipe and import all collections, sources, associations between them, feeds, and reset postgres seqeuences.'
 
     def handle(self, *args, **options):
         file_dir = tempfile.gettempdir()  # prints the current temporary directory
@@ -56,7 +56,7 @@ class Command(BaseCommand):
               "'{}' CSV QUOTE '\"' HEADER".format(sources_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW(), platform='{}'".format(
-            SourcePlatforms.ONLINE_NEWS.value))
+            Source.SourcePlatforms.ONLINE_NEWS.value))
         _run_psql_command("UPDATE sources_source SET primary_language=NULL WHERE primary_language='none'")
         _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_source\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_source\";")
         
@@ -72,10 +72,11 @@ class Command(BaseCommand):
         # wipe and import Collections
         self.stdout.write(self.style.SUCCESS('Importing collections'))
         Collection.objects.all().delete()
-        cmd = "\\copy sources_collection (id, name, notes) from '{}' CSV QUOTE '\"' HEADER".format(
+        cmd = "\\copy sources_collection (id, name, public, notes) from '{}' CSV QUOTE '\"' HEADER".format(
             collection_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_collection SET created_at=NOW(), modified_at=NOW()")
+        _run_psql_command("UPDATE sources_collection SET public=True WHERE public is NULL")
         _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_collection\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_collection\";")
 
         # wipe and import source-collection links
