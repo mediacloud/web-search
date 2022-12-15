@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import Pagination from '@mui/material/Pagination';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { PAGE_SIZE } from '../../app/services/queryUtil';
-import { useListFeedsQuery, useListFeedDetailsQuery } from '../../app/services/feedsApi';
+import { useListFeedsQuery, useListFeedDetailsQuery, useUpdateFeedMutation } from '../../app/services/feedsApi';
 import { asNumber } from '../ui/uiUtil';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
@@ -26,6 +26,8 @@ function ListSourceFeeds() {
     data: feedDetails,
     isLoading: feedsDetailsAreLoading,
   } = useListFeedDetailsQuery({ source_id: sourceId });
+
+  const [updateFeed, updateResults] = useUpdateFeedMutation();
 
   const isLoading = feedsAreLoading || feedsDetailsAreLoading;
 
@@ -89,7 +91,12 @@ function ListSourceFeeds() {
               <td>
                 <Permissioned role={ROLE_STAFF}>
                   <>
-                    <Button variant="outlined" startIcon={<EditIcon />}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<EditIcon />}
+                      component={Link}
+                      to={`/sources/${sourceId}/feeds/${feed.id}/edit`}
+                    >
                       Edit
                     </Button>
                     <Button variant="outlined" startIcon={<DeleteIcon />}>

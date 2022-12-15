@@ -25,6 +25,7 @@ import GeographicNewsCollections from './features/collections/GeographicNewsColl
 import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
 import ListSourceFeeds from './features/sources/ListSourceFeeds';
+import ModifyFeed from './features/feeds/ModifyFeed';
 import SourceHeader from './features/sources/SourceHeader';
 
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -135,6 +136,14 @@ function App() {
               element={(
                 <RequireAuth>
                   <ListSourceFeeds />
+                </RequireAuth>
+              )}
+            />
+            <Route
+              path=":sourceId/feeds/:feedId/edit"
+              element={(
+                <RequireAuth>
+                  <ModifyFeed />
                 </RequireAuth>
               )}
             />

@@ -27,7 +27,15 @@ class FeedsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feed
-        fields = '__all__'
+        fields = ['id','url', 'admin_rss_enabled', 'source', 'name']
+
+    def update(self, instance, validated_data):
+        instance.url = validated_data.get('url', instance.url)
+        instance.admin_rss_enabled = validated_data.get('admin', instance.admin_rss_enabled)
+        instance.source = validated_data.get('source', instance.source)
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        return instance
 
 
 class SourcesSerializer(serializers.ModelSerializer):
