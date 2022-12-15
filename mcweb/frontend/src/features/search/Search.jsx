@@ -17,6 +17,7 @@ import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
 import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
+import ShareSearchDialogue from './util/ShareSearchDialogue';
 
 export default function Search() {
   const dispatch = useDispatch();
@@ -63,7 +64,7 @@ export default function Search() {
           <div className="col">
             <PlatformPicker />
           </div>
-        </div>
+        </div> 
       </div>
 
       {!advanced && (
@@ -113,7 +114,17 @@ export default function Search() {
       <div className="search-button-wrapper">
         <div className="container">
           <div className="row">
-            <div className="col-12">
+          
+          <div className="col-11">
+          <ShareSearchDialogue
+                    className="float-start"
+                    onClick={() => setOpen(true)}
+                    openDialog={open}
+                  />
+              
+            </div>
+
+            <div className="col-1">
               {/* Submit */}
               <Button
                 className="float-end"
