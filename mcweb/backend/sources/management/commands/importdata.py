@@ -56,7 +56,7 @@ class Command(BaseCommand):
               "'{}' CSV QUOTE '\"' HEADER".format(sources_path)
         _run_psql_command(cmd)
         _run_psql_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW(), platform='{}'".format(
-            Source.SourcePlatforms.ONLINE_NEWS.value))
+            Source.SourcePlatforms.ONLINE_NEWS))
         _run_psql_command("UPDATE sources_source SET primary_language=NULL WHERE primary_language='none'")
         _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_source\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_source\";")
         
@@ -75,7 +75,8 @@ class Command(BaseCommand):
         cmd = "\\copy sources_collection (id, name, public, notes) from '{}' CSV QUOTE '\"' HEADER".format(
             collection_path)
         _run_psql_command(cmd)
-        _run_psql_command("UPDATE sources_collection SET created_at=NOW(), modified_at=NOW()")
+        _run_psql_command("UPDATE sources_collection SET created_at=NOW(), modified_at=NOW(), platform='{}'".format(
+            Source.SourcePlatforms.ONLINE_NEWS))
         _run_psql_command("UPDATE sources_collection SET public=True WHERE public is NULL")
         _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_collection\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_collection\";")
 

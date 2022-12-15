@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Pagination from '@mui/material/Pagination';
 import CircularProgress from '@mui/material/CircularProgress';
 import PropTypes from 'prop-types';
+import ShieldIcon from '@mui/icons-material/Shield';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
@@ -16,7 +17,7 @@ export default function CollectionList(props) {
   const {
     data: collections,
     isLoading,
-  } = useListCollectionsQuery({source_id: sourceId, page});
+  } = useListCollectionsQuery({ source_id: sourceId, page });
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
@@ -34,9 +35,10 @@ export default function CollectionList(props) {
       {(Math.ceil(collections.count / PAGE_SIZE) > 1) && (
         <Pagination
           count={Math.ceil(collections.count / PAGE_SIZE)}
-          page={page+1}
+          page={page + 1}
           color="primary"
-          onChange={(evt, value) => setPage(value-1)}/>
+          onChange={(evt, value) => setPage(value - 1)}
+        />
       )}
       {(collections.count > 0) && (
         <table>
@@ -44,7 +46,7 @@ export default function CollectionList(props) {
             <tr>
               <th>Name</th>
               <th>Sources</th>
-              {edit && <th></th>}
+              {edit && <th>Admin</th>}
             </tr>
           </thead>
           <tbody>
@@ -58,6 +60,7 @@ export default function CollectionList(props) {
                     <Link to={`/collections/${collection.id}`}>
                       {collection.name}
                     </Link>
+                    {!collection.public && <ShieldIcon fontSize="small" titleAccess="private" />}
                   </td>
                   <td className="numeric">{asNumber(collection.source_count)}</td>
                   { edit && (
@@ -76,7 +79,8 @@ export default function CollectionList(props) {
                     </td>
                   )}
                 </tr>
-            )})}
+              );
+            })}
           </tbody>
         </table>
       )}

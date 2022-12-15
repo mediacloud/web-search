@@ -14,13 +14,13 @@ class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         #fields = ['id', 'name', 'notes', 'platform']
-        fields = ['id', 'name', 'notes', 'platform', 'source_count']
+        fields = ['id', 'name', 'notes', 'platform', 'source_count', 'public']
 
 
 class CollectionWriteSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Collection
-        fields = ['id', 'name', 'notes', 'platform']
+        fields = ['id', 'name', 'notes', 'platform', 'public']
 
 
 class FeedsSerializer(serializers.ModelSerializer):

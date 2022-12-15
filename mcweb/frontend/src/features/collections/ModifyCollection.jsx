@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import InputLabel from '@mui/material/InputLabel';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import { useSnackbar } from 'notistack';
@@ -23,13 +26,15 @@ export default function ModifyCollection() {
 
   // form state for text fields
   const [formState, setFormState] = useState({
-    id: 0, name: '', notes: '', platform: 'online_news',
+    id: 0, name: '', notes: '', platform: 'online_news', public: true,
   });
 
   // formState declaration
-  const handleChange = ({ target: { name, value } }) => (
-    setFormState((prev) => ({ ...prev, [name]: value }))
-  );
+  const handleChange = ({ target }) => {
+    const newValue = (target.type === 'checkbox') ? target.checked : target.value;
+    console.log(newValue);
+    setFormState((prev) => ({ ...prev, [target.name]: newValue }));
+  };
 
   // rtk operations
   const [updateCollection] = useUpdateCollectionMutation();
@@ -43,6 +48,7 @@ export default function ModifyCollection() {
         name: data.name,
         notes: data.notes ? data.notes : '',
         platform: data.platform,
+        public: data.public,
       };
       setFormState(formData);
     }
@@ -104,20 +110,25 @@ export default function ModifyCollection() {
           </FormControl>
           <br />
           <br />
+          <FormGroup>
+            <FormControlLabel control={<Checkbox name="public" checked={formState.public} onChange={handleChange} />} label="Public?" />
+          </FormGroup>
+          <br />
+          <br />
           <Button
             variant="contained"
             onClick={async () => {
               try {
-                const updatedCollection = await updateCollection({
+                await updateCollection({
                   id: formState.id,
                   name: formState.name,
                   notes: formState.notes,
                   platform: formState.platform,
+                  public: formState.public,
                 }).unwrap();
                 enqueueSnackbar('Saved changes', { variant: 'success' });
                 navigate(`/collections/${collectionId}`);
               } catch (err) {
-                console.log(err);
                 const errorMsg = `Failed - ${err.data.message}`;
                 enqueueSnackbar(errorMsg, { variant: 'error' });
               }
