@@ -76,7 +76,7 @@ export default function SourceHeader() {
                 <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
               </Button>
               <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" endIcon={<LockOpenIcon />}>
+                <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin only" />}>
                   <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
                 </Button>
               </Permissioned>
