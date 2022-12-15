@@ -16,6 +16,12 @@ export const feedsApi = managerApi.injectEndpoints({
         method: 'GET',
       }),
     }),
+    getFeedHistory: builder.query({
+      query: (params) => ({
+        url: `feeds/history/?${toSearchUrlParams(params)}`,
+        method: 'GET',
+      }),
+    }),
     getFeed: builder.query({
       query: (feedId) => ({
         url: `feeds/${feedId}/`,
@@ -38,4 +44,5 @@ export const {
   useListFeedDetailsQuery,
   useUpdateFeedMutation,
   useGetFeedQuery,
+  useGetFeedHistoryQuery,
 } = feedsApi;

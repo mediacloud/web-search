@@ -3,21 +3,21 @@ import { useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import dayjs from 'dayjs';
-import { useUpdateFeedMutation, useGetFeedQuery } from '../../app/services/feedsApi';
+import { useUpdateFeedMutation, useGetFeedQuery, useGetFeedHistoryQuery } from '../../app/services/feedsApi';
 
 function ModifyFeed() {
   const params = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const feedId = Number(params.feedId); // get collection id from wildcard
-
+  const {
+    data: feedHistory,
+    isLoading: feedHistoryLoading,
+  } = useGetFeedHistoryQuery({ feed_id: feedId });
   const { data, isLoading } = useGetFeedQuery(feedId);
   const [updateFeed, updateResults] = useUpdateFeedMutation(feedId);
 
