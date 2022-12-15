@@ -12,7 +12,7 @@ class Collection(models.Model):
         YOUTUBE = "youtube"
 
     # UI should verify uniqueness
-    name = models.CharField(max_length=255, null=False, blank=False)
+    name = models.CharField(max_length=255, unique=True, null=False, blank=False)
     notes = models.TextField(null=True, blank=True)
     platform = models.CharField(max_length=100, choices=CollectionPlatforms.choices, null=True,
                                 default=CollectionPlatforms.ONLINE_NEWS)
