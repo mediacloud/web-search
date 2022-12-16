@@ -25,7 +25,7 @@ function ModifyFeed() {
     name: '',
     notes: '',
     url: '',
-    admin: true,
+    admin_rss_enabled: true,
     system: true,
     status: 'working',
     attempt: dayjs().format(),
@@ -39,7 +39,7 @@ function ModifyFeed() {
   );
 
   const handleCheck = () => (
-    setFormState((prev) => ({ ...prev, admin: !prev.admin }))
+    setFormState((prev) => ({ ...prev, admin_rss_enabled: !prev.admin_rss_enabled }))
   );
 
   useEffect(() => {
@@ -48,7 +48,7 @@ function ModifyFeed() {
         id: data.id,
         name: data.name,
         url: data.url,
-        admin: data.admin_rss_enabled,
+        admin_rss_enabled: data.admin_rss_enabled,
         source: data.source,
         created: dayjs(data.created_at).format(),
         modified: dayjs(data.modified_at).format(),
@@ -93,7 +93,8 @@ function ModifyFeed() {
           <br />
           <br />
           <FormControl>
-            <FormControlLabel control={<Checkbox onChange={handleCheck} checked={formState.admin} />} label="Admin enabled?" />
+            <FormControlLabel control={<Checkbox onChange={handleCheck} checked={formState.admin_rss_enabled} />} label="Admin enabled?" />
+            {console.log(formState)}
           </FormControl>
           <br />
           <br />

@@ -30,8 +30,9 @@ class FeedsSerializer(serializers.ModelSerializer):
         fields = ['id','url', 'admin_rss_enabled', 'source', 'name']
 
     def update(self, instance, validated_data):
+        print(validated_data)
         instance.url = validated_data.get('url', instance.url)
-        instance.admin_rss_enabled = validated_data.get('admin', instance.admin_rss_enabled)
+        instance.admin_rss_enabled = validated_data.get('admin_rss_enabled', instance.admin_rss_enabled)
         instance.source = validated_data.get('source', instance.source)
         instance.name = validated_data.get('name', instance.name)
         instance.save()
