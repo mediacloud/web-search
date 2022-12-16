@@ -40,18 +40,18 @@ export default function GeographicNewsCollections() {
                 </tr>
               </thead>
               <tbody>
-              {countryAndCollections.collections.map((collection) => (
-                <tr key={collection.tags_id} className="row">
-                  <td className="col-4">
-                    <Link to={`/collections/${collection.tags_id}`} target="_blank" rel="noopener noreferrer">
-                      {collection.label}
-                    </Link>
-                  </td>
-                  <td className="col-8">
-                    {collection.description}
-                  </td>
-                </tr>
-              ))}
+                {countryAndCollections.collections.map((collection) => (
+                  <tr key={collection.tags_id} className="row">
+                    <td className="col-4">
+                      <Link to={`/collections/${collection.tags_id}`} target="_blank" rel="noopener noreferrer">
+                        {collection.label}
+                      </Link>
+                    </td>
+                    <td className="col-8">
+                      {collection.description}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

@@ -143,11 +143,9 @@ class FeedsViewSet(viewsets.ModelViewSet):
             auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
         else:
             auth = None
-        response = requests.get(f'{RSS_FETCHER_URL}/api/feeds/{feed_id}', auth=auth)
-        feeds = response.json()
-        print(feeds)
-        # feeds = feeds["results"]
-        return Response({"feeds": feeds})
+        response = requests.get(f'{RSS_FETCHER_URL}/api/feeds/{feed_id}/history', auth=auth)
+        feed_history = response.json()
+        return Response({"feed": feed_history})
 
 
 class SourcesViewSet(viewsets.ModelViewSet):

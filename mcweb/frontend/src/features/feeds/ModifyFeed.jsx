@@ -8,16 +8,14 @@ import CircularProgress from '@mui/material/CircularProgress';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import dayjs from 'dayjs';
+import FeedHistory from './FeedHistory';
 import { useUpdateFeedMutation, useGetFeedQuery, useGetFeedHistoryQuery } from '../../app/services/feedsApi';
 
 function ModifyFeed() {
   const params = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const feedId = Number(params.feedId); // get collection id from wildcard
-  const {
-    data: feedHistory,
-    isLoading: feedHistoryLoading,
-  } = useGetFeedHistoryQuery({ feed_id: feedId });
+
   const { data, isLoading } = useGetFeedQuery(feedId);
   const [updateFeed, updateResults] = useUpdateFeedMutation(feedId);
 
@@ -116,6 +114,7 @@ function ModifyFeed() {
           >
             Save
           </Button>
+          <FeedHistory feedId={feedId} />
         </div>
       </div>
     </div>
