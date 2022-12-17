@@ -135,7 +135,18 @@ class FeedsViewSet(viewsets.ModelViewSet):
         feeds = response.json()
         feeds = feeds["results"]
         return Response({"feeds": feeds})
-
+    
+    @action(detail=False)
+    def feed_details(self, request):
+        feed_id = self.request.query_params.get("feed_id")
+        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
+            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
+        else:
+            auth = None
+        response = requests.get(f'{RSS_FETCHER_URL}/api/feeds/{feed_id}', auth=auth)
+        feed_details = response.json()
+        return Response({"feed": feed_details})
+    
     @action(detail=False)
     def history(self, request):
         feed_id = self.request.query_params.get("feed_id")

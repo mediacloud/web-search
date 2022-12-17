@@ -1,92 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
-import TextField from '@mui/material/TextField';
+
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import dayjs from 'dayjs';
-import { useGetFeedQuery, useGetFeedHistoryQuery } from '../../app/services/feedsApi';
+import FeedHistory from './FeedHistory';
+import StatPanel from '../ui/StatPanel';
+import { useGetFeedHistoryQuery, useGetFeedQuery, useGetFeedDetailsQuery } from '../../app/services/feedsApi';
 
 function FeedShow() {
   const params = useParams();
-  const { enqueueSnackbar } = useSnackbar();
-  const feedId = Number(params.feedId); // get collection id from wildcard
-  const {
-    data: feedHistory,
-    isLoading: feedHistoryLoading,
-  } = useGetFeedHistoryQuery({ feed_id: feedId });
-  const { data, isLoading } = useGetFeedQuery(feedId);
+  const feedId = Number(params.feedId);
 
-  if (isLoading) {
+  const {
+    data: feedData,
+    isLoading: feedDataLoading,
+  } = useGetFeedQuery(feedId);
+
+  const {
+    data: feedDetails,
+    isLoading: feedDetailsLoading,
+  } = useGetFeedDetailsQuery({ feed_id: feedId });
+
+  if (feedDataLoading || feedDetailsLoading) {
     return <CircularProgress size="75px" />;
   }
 
+  if (!feedData || !feedDetails) return null;
+
   return (
     <div className="container">
+      {/* Possible categories if merge feedData and feedDetails */}
+      {/* active  */}
+      {/* url  */}
+      {/* system_enabled  */}
+      {/* system_status  */}
+      {/* created at */}
+      {/* last_fetch_attempt */}
+      {/* last_fetch_failures */}
+      {/* last_fetch_success */}
+      {/* last_new_stories */}
+      {/* name (==name) */}
+      {/* next_fetch_attempt */}
+      {/* queued */}
+      {/* sources_id */}
+      {/* <StatPanel items={[
+        { label: 'First Story', value: source.first_story },
+        { label: 'Stories per Week', value: source.stories_per_week },
+        { label: 'Publication Country', value: source.pub_country },
+        { label: 'Publication State', value: source.pub_state },
+        { label: 'Primary Language', value: source.primary_language },
+        { label: 'Media Type', value: source.media_type },
+      ]}
+      /> */}
+      {console.log('Details', feedDetails)}
+      {console.log('Info', feedData)}
       <div className="row">
-        <h1 className="col-12">
-          Feeds (
-          {asNumber(feeds.count)}
-          )
-        </h1>
+        <div className="col-6" />
       </div>
-      {(Math.ceil(feeds.count / PAGE_SIZE) > 1) && (
-      <Pagination
-        count={Math.ceil(feeds.count / PAGE_SIZE)}
-        page={page + 1}
-        color="primary"
-        onChange={(evt, value) => setPage(value - 1)}
-      />
-      )}
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>URL</th>
-            <th>Admin enabled?</th>
-            <th>System enabled?</th>
-            <th>System status</th>
-            <th>Last Attempt</th>
-            <th>Last Success</th>
-            <Permissioned role={ROLE_STAFF}>
-              <th>Admin</th>
-            </Permissioned>
-          </tr>
-        </thead>
-        <tbody>
-          {mergedFeeds.map((feed) => (
-            <tr key={feed.id}>
-              <td>{feed.name}</td>
-              <td><a target="_blank" href={`${feed.url}`} rel="noreferrer">{feed.url}</a></td>
-              <td>{feed.admin_rss_enabled ? '✅' : '❌'}</td>
-              <td>{(feed.details && feed.details.system_enabled) ? '✅' : '❌'}</td>
-              <td>{(feed.details && feed.details.system_status) ? feed.details.system_status : '?'}</td>
-              <td>{(feed.details && feed.details.last_fetch_attempt) ? dayjs(feed.details.last_fetch_attempt).format('MM/DD/YYYY hh:mm:ss') : '?'}</td>
-              <td>{(feed.details && feed.details.last_fetch_success) ? dayjs(feed.details.last_fetch_success).format('MM/DD/YYYY hh:mm:ss') : '?'}</td>
-              <td>
-                <Permissioned role={ROLE_STAFF}>
-                  <>
-                    <Button
-                      variant="outlined"
-                      startIcon={<EditIcon />}
-                      component={Link}
-                      to={`/sources/${sourceId}/feeds/${feed.id}/edit`}
-                    >
-                      Edit
-                    </Button>
-                    <Button variant="outlined" startIcon={<DeleteIcon />}>
-                      Delete
-                    </Button>
-                  </>
-                </Permissioned>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+      <div className="row">
+        <div className="col-6">
+          <FeedHistory feedId={feedId} />
+        </div>
+      </div>
+
     </div>
   );
 }

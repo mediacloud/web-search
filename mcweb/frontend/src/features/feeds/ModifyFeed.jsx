@@ -94,7 +94,6 @@ function ModifyFeed() {
           <br />
           <FormControl>
             <FormControlLabel control={<Checkbox onChange={handleCheck} checked={formState.admin_rss_enabled} />} label="Admin enabled?" />
-            {console.log(formState)}
           </FormControl>
           <br />
           <br />
