@@ -11,11 +11,11 @@ class Collection(models.Model):
         YOUTUBE = "youtube"
 
     # UI should verify uniqueness
-    name = models.CharField(max_length=255, null=False, blank=False)  # TODO: unique=True
+    name = models.CharField(max_length=255, null=False, blank=False, unique=True)  
     notes = models.TextField(null=True, blank=True)
     platform = models.CharField(max_length=100, choices=CollectionPlatforms.choices, null=True,
                                 default=CollectionPlatforms.ONLINE_NEWS)
-    public = models.BooleanField(default=True, null=True, blank=True)  # TODO: null=False, blank=False
+    public = models.BooleanField(default=True, null=False, blank=False)  
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
