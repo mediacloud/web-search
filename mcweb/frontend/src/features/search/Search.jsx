@@ -154,7 +154,7 @@ export default function Search() {
                 endIcon={<IosShare />}>
                 Share this Search
               </Button>
-              <Dialog
+              <Dialog 
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="alert-dialog-title"
