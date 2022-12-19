@@ -38,7 +38,7 @@ function Header() {
                   { /* need to do an a link here to a new window so that it does
                     NOT go throug hthe Router */ }
                   <a href="/adminauth/user/" target="_blank">
-                    <Button variant="text" endIcon={<LockOpenIcon />}>Admin</Button>
+                    <Button variant="text" endIcon={<LockOpenIcon titleAccess="admin only" />}>Admin</Button>
                   </a>
                 </Permissioned>
                 <UserMenu />
