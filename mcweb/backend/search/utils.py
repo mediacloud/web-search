@@ -93,6 +93,6 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
 
 def _for_media_cloud(collections: List, sources: List) -> Dict:
     return dict(
-        tags_ids=[c['id'] for c in collections],
-        media_ids=[s['id'] for s in sources]
+        tags_ids=[c for c in collections],
+        media_ids=[s for s in sources]
     )
