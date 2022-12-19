@@ -1,11 +1,11 @@
 // import PropTypes from 'prop-types';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Button } from '@mui/material';
 import * as React from 'react';
-import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import dayjs from 'dayjs';
-import { Button } from '@mui/material';
+import ShieldIcon from '@mui/icons-material/Shield';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Outlet, Link, useParams } from 'react-router-dom';
+import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -41,9 +41,10 @@ export default function CollectionHeader() {
                 {collectionId}
               </span>
               <h1>
-                <PlatformIcon  fontSize="large" />
+                <PlatformIcon fontSize="large" titleAccess={platformDisplayName(collection.platform)} />
                 &nbsp;
                 {collection.name}
+                {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
               </h1>
             </div>
           </div>
@@ -54,21 +55,28 @@ export default function CollectionHeader() {
           <div className="row">
             <div className="col-12">
               <Button variant="outlined">
-                <a href={`/search/${urlSerializer({
-                  queryList: defaultPlatformQuery(collection.platform),
-                  anyAll: 'any',
-                  negatedQueryList: [],
-                  startDate: dayjs().subtract(35, 'day'),
-                  endDate: dayjs().subtract(5, 'day'),
-                  collections: [collection],
-                  sources: [],
-                  platform: defaultPlatformProvider(collection.platform),
-                  advanced: false,
-                })}`} target="_blank">Search Content</a>
+                <a
+                  href={`/search/${urlSerializer({
+                    queryList: defaultPlatformQuery(collection.platform),
+                    anyAll: 'any',
+                    negatedQueryList: [],
+                    startDate: dayjs().subtract(35, 'day'),
+                    endDate: dayjs().subtract(5, 'day'),
+                    collections: [collection],
+                    sources: [],
+                    platform: defaultPlatformProvider(collection.platform),
+                    advanced: false,
+                  })}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Search Content
+
+                </a>
               </Button>
               <DownloadSourcesCsv collectionId={collectionId} />
               <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" endIcon={<LockOpenIcon />}>
+                <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin only" />}>
                   <Link to={`${collectionId}/edit`}>Edit</Link>
                 </Button>
               </Permissioned>

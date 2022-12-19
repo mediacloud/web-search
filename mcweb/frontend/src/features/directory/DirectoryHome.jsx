@@ -33,10 +33,10 @@ export default function DirectoryHome() {
               </Button>
               <Permissioned role={ROLE_STAFF}>
                 <>
-                  <Button variant="outlined" endIcon={<LockOpenIcon />}>
+                  <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin only" />}>
                     <Link to="/collections/create">Create Collection</Link>
                   </Button>
-                  <Button variant="outlined" endIcon={<LockOpenIcon />}>
+                  <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin only" />}>
                     <Link to="/sources/create">Create Source</Link>
                   </Button>
                 </>

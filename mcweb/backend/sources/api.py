@@ -53,6 +53,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
     # overriden to support filtering all endpoints by collection id
     def get_queryset(self):
         queryset = super().get_queryset()
+        # non-staff can only see public collections
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(public=True)
         # add in optional filters
         source_id = self.request.query_params.get("source_id")
         if source_id is not None:

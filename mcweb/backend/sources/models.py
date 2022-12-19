@@ -1,5 +1,4 @@
 from django.db import models
-from enum import Enum
 from typing import Dict
 
 
@@ -12,12 +11,19 @@ class Collection(models.Model):
         YOUTUBE = "youtube"
 
     # UI should verify uniqueness
-    name = models.CharField(max_length=255, null=False, blank=False)
+    name = models.CharField(max_length=255, null=False, blank=False)  # TODO: unique=True
     notes = models.TextField(null=True, blank=True)
     platform = models.CharField(max_length=100, choices=CollectionPlatforms.choices, null=True,
                                 default=CollectionPlatforms.ONLINE_NEWS)
+    public = models.BooleanField(default=True, null=True, blank=True)  # TODO: null=False, blank=False
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
+
+    class Meta:
+        indexes = [
+            # useful for search filtering
+            models.Index(fields=['platform'], name='collection platform'),
+        ]
 
 
 class Source(models.Model):
@@ -51,6 +57,16 @@ class Source(models.Model):
     pub_state = models.CharField(max_length=200, null=True, blank=True)
     primary_language = models.CharField(max_length=5, null=True, blank=True)
     media_type = models.CharField(max_length=100, choices=SourceMediaTypes.choices, blank=True, null=True)
+
+    class Meta:
+        indexes = [
+            # useful for search filtering
+            models.Index(fields=['platform'], name='source platform'),
+        ]
+        constraints = [
+            models.UniqueConstraint(fields=('name', 'platform', 'url_search_string'),
+                                    name='unique names within platform'),
+        ]
 
     @classmethod
     def create_from_dict(cls, source_info: Dict):
