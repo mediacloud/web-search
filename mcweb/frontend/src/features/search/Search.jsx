@@ -21,7 +21,7 @@ import CountOverTimeResults from './results/CountOverTimeResults';
 import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
-import deactivateButton from './util/deactivateButton';
+import deactivateButton from './util/deactivateButton'; 
 
 export default function Search() {
   const dispatch = useDispatch();
