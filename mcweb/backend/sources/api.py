@@ -14,12 +14,12 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List, Optional
 
-from . import RSS_FETCHER_USER, RSS_FETCHER_PASS, RSS_FETCHER_URL
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
+from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
 
 
@@ -129,15 +129,9 @@ class FeedsViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def details(self, request):
-        source_id = self.request.query_params.get("source_id")
-        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
-            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
-        else:
-            auth = None
-        response = requests.get(f'{RSS_FETCHER_URL}/api/sources/{source_id}/feeds', auth=auth)
-        feeds = response.json()
-        feeds = feeds["results"]
-        return Response({"feeds": feeds})
+        source_id = int(self.request.query_params.get("source_id"))
+        with RssFetcherApi() as rss:
+            return Response({"feeds": rss.source_feeds(source_id)})
 
 
 class SourcesViewSet(viewsets.ModelViewSet):
