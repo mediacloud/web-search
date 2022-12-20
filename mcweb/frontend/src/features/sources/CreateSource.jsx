@@ -8,6 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useCreateSourceMutation } from '../../app/services/sourceApi';
 import { platformDisplayName, mediaTypeDisplayName } from '../ui/uiUtil';
+import Header from '../ui/Header';
 
 export default function CreateCollection() {
   const navigate = useNavigate();
@@ -24,17 +25,11 @@ export default function CreateCollection() {
 
   return (
     <>
-      <div className="feature-area filled">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <h1>
-                Create a Source
-              </h1>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Header>
+        <h1>
+          Create a Source
+        </h1>
+      </Header>
 
       <div className="container">
         <div className="row">

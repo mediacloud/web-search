@@ -156,6 +156,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
             auth = None
         response = requests.get(f'{RSS_FETCHER_URL}/api/feeds/{feed_id}/history', auth=auth)
         feed_history = response.json()
+        feed_history['results'] = sorted(feed_history['results'], key=lambda d: d['created_at'], reverse=True)
         return Response({"feed": feed_history})
 
 

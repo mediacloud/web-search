@@ -26,6 +26,7 @@ import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
 import ListSourceFeeds from './features/sources/ListSourceFeeds';
 import ModifyFeed from './features/feeds/ModifyFeed';
+import FeedHeader from './features/feeds/FeedHeader';
 import FeedShow from './features/feeds/FeedShow';
 import SourceHeader from './features/sources/SourceHeader';
 
@@ -141,22 +142,6 @@ function App() {
               )}
             />
             <Route
-              path=":sourceId/feeds/:feedId/edit"
-              element={(
-                <RequireAuth>
-                  <ModifyFeed />
-                </RequireAuth>
-              )}
-            />
-            <Route
-              path=":sourceId/feeds/:feedId"
-              element={(
-                <RequireAuth>
-                  <FeedShow />
-                </RequireAuth>
-              )}
-            />
-            <Route
               path=":sourceId/edit"
               element={(
                 <RequireAuth>
@@ -173,6 +158,32 @@ function App() {
               </RequireAuth>
             )}
           />
+
+          <Route
+            path="feeds"
+            element={(
+              <RequireAuth>
+                <FeedHeader />
+              </RequireAuth>
+            )}
+          >
+            <Route
+              path=":feedId"
+              element={(
+                <RequireAuth>
+                  <FeedShow />
+                </RequireAuth>
+              )}
+            />
+            <Route
+              path=":feedId/edit"
+              element={(
+                <RequireAuth>
+                  <ModifyFeed />
+                </RequireAuth>
+              )}
+            />
+          </Route>
 
           <Route path="sign-in" element={<SignIn />} />
           <Route path="reset-password" element={<ResetPassword />} />

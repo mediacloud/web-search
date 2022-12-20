@@ -80,7 +80,7 @@ function ListSourceFeeds() {
           {mergedFeeds.map((feed) => (
             <tr key={feed.id}>
               <td>
-                <Link target="_blank" rel="noreferrer" to={`${feed.id}`}>
+                <Link to={`/feeds/${feed.id}`}>
                   {' '}
                   {feed.name}
                 </Link>

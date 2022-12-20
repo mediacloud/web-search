@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { googleFaviconUrl } from '../ui/uiUtil';
 
 function FeedStories({ feedId }) {
-  return (<h2>Stories Coming Soon</h2>);
+  return (<h2>Stories (Coming Soon)</h2>);
   //   return (
   //     <div className="results-item-wrapper results-sample-stories">
   //       <div className="row">

@@ -33,6 +33,9 @@ export const feedsApi = managerApi.injectEndpoints({
         url: `feeds/${feedId}/`,
         method: 'GET',
       }),
+      providesTags: (result, error, id) => (result
+        ? [{ type: 'Feed', id }]
+        : ['Feed']),
     }),
     updateFeed: builder.mutation({
       query: (params) => ({
@@ -40,6 +43,7 @@ export const feedsApi = managerApi.injectEndpoints({
         method: 'PATCH',
         body: params.feed,
       }),
+      invalidatesTags: ['Feed'],
     }),
 
   }),

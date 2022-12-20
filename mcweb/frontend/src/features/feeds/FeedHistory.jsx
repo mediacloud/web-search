@@ -4,7 +4,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import dayjs from 'dayjs';
 import { useGetFeedHistoryQuery } from '../../app/services/feedsApi';
 
+const utc = require('dayjs/plugin/utc');
+
 function FeedHistory({ feedId }) {
+  dayjs.extend(utc);
+
   const {
     data,
     isLoading,
@@ -32,7 +36,7 @@ function FeedHistory({ feedId }) {
           {data.feed.results.map((feedEvent) => (
             <tr key={feedEvent.id} className="row">
               <td className="col-4">{feedEvent.event}</td>
-              <td className="col-4">{dayjs(feedEvent.created_at).format('MM/DD/YYYY HH:mm:ss')}</td>
+              <td className="col-4">{dayjs.utc(feedEvent.created_at).local().format('MM/DD/YYYY HH:mm:ss')}</td>
               <td className="col-4">{feedEvent.note}</td>
             </tr>
           ))}

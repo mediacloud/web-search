@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -8,30 +8,22 @@ import CircularProgress from '@mui/material/CircularProgress';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import dayjs from 'dayjs';
-import FeedHistory from './FeedHistory';
-import { useUpdateFeedMutation, useGetFeedQuery, useGetFeedHistoryQuery } from '../../app/services/feedsApi';
+import { useUpdateFeedMutation, useGetFeedQuery } from '../../app/services/feedsApi';
 
 function ModifyFeed() {
+  const navigate = useNavigate();
   const params = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const feedId = Number(params.feedId); // get collection id from wildcard
 
   const { data, isLoading } = useGetFeedQuery(feedId);
-  const [updateFeed, updateResults] = useUpdateFeedMutation(feedId);
+  const [updateFeed] = useUpdateFeedMutation(feedId);
 
   // form state for text fields
   const [formState, setFormState] = useState({
-    id: 0,
     name: '',
-    notes: '',
     url: '',
     admin_rss_enabled: true,
-    system: true,
-    status: 'working',
-    attempt: dayjs().format(),
-    success: dayjs().format(),
-    created: dayjs().format(),
-    modified: dayjs().format(),
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -93,7 +85,10 @@ function ModifyFeed() {
           <br />
           <br />
           <FormControl>
-            <FormControlLabel control={<Checkbox onChange={handleCheck} checked={formState.admin_rss_enabled} />} label="Admin enabled?" />
+            <FormControlLabel
+              control={<Checkbox onChange={handleCheck} checked={formState.admin_rss_enabled} />}
+              label="Admin enabled?"
+            />
           </FormControl>
           <br />
           <br />
@@ -101,12 +96,12 @@ function ModifyFeed() {
             variant="contained"
             onClick={async () => {
               try {
-                const updatedFeed = await updateFeed({
+                await updateFeed({
                   feed: formState,
                 });
                 enqueueSnackbar('Saved changes', { variant: 'success' });
+                navigate(`/feeds/${feedId}`);
               } catch (err) {
-                console.log(err);
                 const errorMsg = `Failed - ${err.data.message}`;
                 enqueueSnackbar(errorMsg, { variant: 'error' });
               }
@@ -114,7 +109,6 @@ function ModifyFeed() {
           >
             Save
           </Button>
-          <FeedHistory feedId={feedId} />
         </div>
       </div>
     </div>

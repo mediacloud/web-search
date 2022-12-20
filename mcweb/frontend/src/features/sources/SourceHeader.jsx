@@ -9,6 +9,8 @@ import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
+import Header from '../ui/Header';
+import ControlBar from '../ui/ControlBar';
 
 export default function SourceHeader() {
   const params = useParams();
@@ -26,64 +28,51 @@ export default function SourceHeader() {
 
   return (
     <>
-      <div className="feature-area filled">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <span className="small-label">
-                {platformDisplayName(source.platform)}
-                {' '}
-                Source #
-                {sourceId}
-              </span>
-              <h1>
-                <PlatformIcon titleAccess={source.name} fontSize="large" />
+      <Header>
+        <span className="small-label">
+          {platformDisplayName(source.platform)}
+          {' '}
+          Source #
+          {sourceId}
+        </span>
+        <h1>
+          <PlatformIcon titleAccess={source.name} fontSize="large" />
                 &nbsp;
-                {source.label || source.name}
-              </h1>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="sub-feature">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <Button variant="outlined">
-                <a
-                  href={`/search/${urlSerializer({
-                    queryList: defaultPlatformQuery(source.platform),
-                    anyAll: 'any',
-                    negatedQueryList: [],
-                    startDate: dayjs().subtract(35, 'day'),
-                    endDate: dayjs().subtract(5, 'day'),
-                    collections: [],
-                    sources: [source],
-                    platform: defaultPlatformProvider(source.platform),
-                    advanced: false,
-                  })}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Search Content
-
-                </a>
-              </Button>
-              <Button variant="outlined">
-                <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
-              </Button>
-              <Button variant="outlined">
-                <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
-              </Button>
-              <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin" />}>
-                  <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
-                </Button>
-              </Permissioned>
-            </div>
-          </div>
-        </div>
-      </div>
+          {source.label || source.name}
+        </h1>
+      </Header>
+      <ControlBar>
+        <Button variant="outlined">
+          <a
+            href={`/search/${urlSerializer({
+              queryList: defaultPlatformQuery(source.platform),
+              anyAll: 'any',
+              negatedQueryList: [],
+              startDate: dayjs().subtract(35, 'day'),
+              endDate: dayjs().subtract(5, 'day'),
+              collections: [],
+              sources: [source],
+              platform: defaultPlatformProvider(source.platform),
+              advanced: false,
+            })}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Search Content
+          </a>
+        </Button>
+        <Button variant="outlined">
+          <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
+        </Button>
+        <Button variant="outlined">
+          <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
+        </Button>
+        <Permissioned role={ROLE_STAFF}>
+          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin" />}>
+            <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
+          </Button>
+        </Permissioned>
+      </ControlBar>
       <Outlet />
     </>
   );
