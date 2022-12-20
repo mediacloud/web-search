@@ -2,6 +2,8 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import { NavLink, Link } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+// import BookmarkIcon from '@mui/icons-material/Bookmark';
+// endIcon={<BookmarkIcon />}
 import UserMenu from './UserMenu';
 import { assetUrl } from '../ui/uiUtil';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
@@ -25,7 +27,7 @@ function Header() {
                 {pages.map((page) => (
                   <li key={page}>
                     <NavLink to={page} key={page} className={({ isActive }) => (isActive ? 'active' : undefined)}>
-                      <Button variant="text">{page}</Button>
+                      <Button variant="text" >{page}</Button>
                     </NavLink>
                   </li>
                 ))}

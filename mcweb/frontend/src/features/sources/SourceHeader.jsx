@@ -1,6 +1,8 @@
 import * as React from 'react';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
+import SearchIcon from '@mui/icons-material/Search';
+import HomeIcon from '@mui/icons-material/Home';
 import { CircularProgress } from '@mui/material';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
@@ -49,7 +51,7 @@ export default function SourceHeader() {
         <div className="container">
           <div className="row">
             <div className="col-12">
-              <Button variant="outlined">
+              <Button variant="outlined" endIcon={<SearchIcon />}>
                 <a
                   href={`/search/${urlSerializer({
                     queryList: defaultPlatformQuery(source.platform),
@@ -69,7 +71,7 @@ export default function SourceHeader() {
 
                 </a>
               </Button>
-              <Button variant="outlined">
+              <Button variant="outlined" endIcon={<HomeIcon />}>
                 <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
               </Button>
               <Button variant="outlined">

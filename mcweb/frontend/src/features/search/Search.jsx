@@ -22,6 +22,8 @@ import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton'; 
+import SearchIcon from '@mui/icons-material/Search';
+
 
 export default function Search() {
   const dispatch = useDispatch();
@@ -186,6 +188,7 @@ export default function Search() {
                 className="float-end"
                 variant="contained"
                 disabled={!show}
+                endIcon={<SearchIcon />}
                 onClick={() => {
                   navigate(
                     `/search${urlSerializer(queryObject)}`,

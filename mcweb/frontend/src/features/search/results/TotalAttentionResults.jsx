@@ -11,6 +11,7 @@ import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
+import { Settings } from '@mui/icons-material';
 
 export const supportsNormalizedCount = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
@@ -110,7 +111,7 @@ function TotalAttentionResults() {
               <div className="float-start">
                 {normalized && (
                   <div>
-                    <Button onClick={handleClick}>
+                    <Button onClick={handleClick} endIcon={<Settings />}>
                       View Options
                     </Button>
                     <Menu
