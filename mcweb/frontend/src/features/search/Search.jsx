@@ -22,8 +22,6 @@ import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
-import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
-import ShareSearchDialogue from './util/ShareSearchDialogue';
 
 export default function Search() {
   const dispatch = useDispatch();
