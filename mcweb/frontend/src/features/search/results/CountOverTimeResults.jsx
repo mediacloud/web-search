@@ -16,7 +16,7 @@ import {
 } from '../util/platforms';
 import { supportsNormalizedCount } from './TotalAttentionResults';
 import { Settings } from '@mui/icons-material';
-import DownloadIcon from '@mui/icons-material/Download';
+import DownloadIcon from '@mui/icons-material/Download'; 
 
 export default function CountOverTimeResults() {
   const {
@@ -125,7 +125,7 @@ export default function CountOverTimeResults() {
             <div className="float-start">
               {normalized && (
                 <div>
-                  <Button onClick={handleClick}  endIcon={<Settings />}>
+                  <Button onClick={handleClick}  endIcon={<Settings />}> 
                     View Options
                   </Button>
                   <Menu

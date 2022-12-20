@@ -111,7 +111,7 @@ function TotalAttentionResults() {
               <div className="float-start">
                 {normalized && (
                   <div>
-                    <Button onClick={handleClick} endIcon={<Settings />}>
+                    <Button onClick={handleClick} endIcon={<Settings />}> 
                       View Options
                     </Button>
                     <Menu

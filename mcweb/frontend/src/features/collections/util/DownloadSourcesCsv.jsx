@@ -9,7 +9,7 @@ function DownloadSourcesCsv({ collectionId }) {
   };
   return (
 
-    <Button variant="outlined" endIcon={<DownloadIcon />} onClick={() => handleDownloadRequest()}>
+    <Button variant="outlined" endIcon={<DownloadIcon />} onClick={() => handleDownloadRequest()}> 
       Download Source CSV
     </Button>
   );

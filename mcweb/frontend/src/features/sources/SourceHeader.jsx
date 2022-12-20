@@ -51,7 +51,7 @@ export default function SourceHeader() {
         <div className="container">
           <div className="row">
             <div className="col-12">
-              <Button variant="outlined" endIcon={<SearchIcon />}>
+              <Button variant="outlined" endIcon={<SearchIcon />}> 
                 <a
                   href={`/search/${urlSerializer({
                     queryList: defaultPlatformQuery(source.platform),

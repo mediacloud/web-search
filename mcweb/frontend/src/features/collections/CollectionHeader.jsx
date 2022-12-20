@@ -3,7 +3,7 @@ import { CircularProgress, Button } from '@mui/material';
 import * as React from 'react';
 import dayjs from 'dayjs';
 import ShieldIcon from '@mui/icons-material/Shield';
-import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from '@mui/icons-material/Search'; 
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Outlet, Link, useParams } from 'react-router-dom';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
@@ -55,7 +55,7 @@ export default function CollectionHeader() {
         <div className="container">
           <div className="row">
             <div className="col-12">
-              <Button variant="outlined" endIcon={<SearchIcon />}>
+              <Button variant="outlined" endIcon={<SearchIcon />}> 
                 <a
                   href={`/search/${urlSerializer({
                     queryList: defaultPlatformQuery(collection.platform),
