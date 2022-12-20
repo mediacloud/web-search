@@ -68,8 +68,14 @@ export default function SourceHeader() {
           <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
         </Button>
         <Permissioned role={ROLE_STAFF}>
-          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin" />}>
-            <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
+          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
+            <Link to={`/sources/${sourceId}/edit`}>Refetch Feeds</Link>
+          </Button>
+          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
+            <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>
+          </Button>
+          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-create" />}>
+            <Link to={`/sources/${sourceId}/feeds/create`}>Create Feed</Link>
           </Button>
         </Permissioned>
       </ControlBar>

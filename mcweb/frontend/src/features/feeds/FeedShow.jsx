@@ -55,14 +55,14 @@ function FeedShow() {
             {' '}
             {details.name}
           </p>
-          <p>
+          <div>
             <b>Status</b>
             :
             &nbsp;
             <Chip label={enabledLabel} color={(isEnabled) ? 'success' : 'error'} />
             &nbsp;
             <Chip label={workingLabel} color={(isWorking) ? 'success' : 'error'} />
-          </p>
+          </div>
         </div>
       </div>
 

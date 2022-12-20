@@ -29,6 +29,9 @@ class FeedsSerializer(serializers.ModelSerializer):
         model = Feed
         fields = ['id','url', 'admin_rss_enabled', 'source', 'name']
 
+    def validate_url(self, value):
+        print(value)
+
     def update(self, instance, validated_data):
         print(validated_data)
         instance.url = validated_data.get('url', instance.url)
