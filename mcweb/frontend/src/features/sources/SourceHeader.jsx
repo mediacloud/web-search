@@ -37,7 +37,7 @@ export default function SourceHeader() {
                 {sourceId}
               </span>
               <h1>
-                <PlatformIcon fontSize="large" />
+                <PlatformIcon titleAccess={source.name} fontSize="large" />
                 &nbsp;
                 {source.label || source.name}
               </h1>
@@ -76,7 +76,7 @@ export default function SourceHeader() {
                 <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
               </Button>
               <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" endIcon={<LockOpenIcon />}>
+                <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin" />}>
                   <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
                 </Button>
               </Permissioned>

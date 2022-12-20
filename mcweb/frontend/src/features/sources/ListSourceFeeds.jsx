@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { PAGE_SIZE } from '../../app/services/queryUtil';
-import { useListFeedsQuery, useListFeedDetailsQuery, useUpdateFeedMutation } from '../../app/services/feedsApi';
+import { useListFeedsQuery, useListFeedDetailsQuery } from '../../app/services/feedsApi';
 import { asNumber } from '../ui/uiUtil';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
@@ -26,8 +26,6 @@ function ListSourceFeeds() {
     data: feedDetails,
     isLoading: feedsDetailsAreLoading,
   } = useListFeedDetailsQuery({ source_id: sourceId });
-
-  const [updateFeed, updateResults] = useUpdateFeedMutation();
 
   const isLoading = feedsAreLoading || feedsDetailsAreLoading;
 
@@ -81,13 +79,26 @@ function ListSourceFeeds() {
         <tbody>
           {mergedFeeds.map((feed) => (
             <tr key={feed.id}>
-              <td>{feed.name}</td>
+              <td>
+                <Link target="_blank" rel="noreferrer" to={`${feed.id}`}>
+                  {' '}
+                  {feed.name}
+                </Link>
+              </td>
               <td><a target="_blank" href={`${feed.url}`} rel="noreferrer">{feed.url}</a></td>
               <td>{feed.admin_rss_enabled ? '✅' : '❌'}</td>
               <td>{(feed.details && feed.details.system_enabled) ? '✅' : '❌'}</td>
               <td>{(feed.details && feed.details.system_status) ? feed.details.system_status : '?'}</td>
-              <td>{(feed.details && feed.details.last_fetch_attempt) ? dayjs(feed.details.last_fetch_attempt).format('MM/DD/YYYY hh:mm:ss') : '?'}</td>
-              <td>{(feed.details && feed.details.last_fetch_success) ? dayjs(feed.details.last_fetch_success).format('MM/DD/YYYY hh:mm:ss') : '?'}</td>
+              <td>
+                {(feed.details && feed.details.last_fetch_attempt)
+                  ? dayjs(feed.details.last_fetch_attempt).format('MM/DD/YYYY hh:mm:ss') : '?'}
+
+              </td>
+              <td>
+                {(feed.details && feed.details.last_fetch_success)
+                  ? dayjs(feed.details.last_fetch_success).format('MM/DD/YYYY hh:mm:ss') : '?'}
+
+              </td>
               <td>
                 <Permissioned role={ROLE_STAFF}>
                   <>

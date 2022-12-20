@@ -17,9 +17,10 @@ function FeedHistory({ feedId }) {
   if (!data) return null;
 
   return (
-    <div>
+    <>
       <h1>Feed History</h1>
       <table className="col-12">
+
         <thead>
           <tr className="row">
             <th className="col-4">Event</th>
@@ -27,24 +28,17 @@ function FeedHistory({ feedId }) {
             <th className="col-4">Notes</th>
           </tr>
         </thead>
-        {data.feed.results.map((feedEvent) => (
-        //   <tbody key={feedEvent.id}>
-          <tr key={feedEvent.id} className="row">
-            <td className="col-4">
-              {feedEvent.event}
-            </td>
-            <td className="col-4">
-              {dayjs(feedEvent.created_at).format('MM/DD/YYYY hh:mm:ss')}
-            </td>
-            <td className="col-4">
-              {feedEvent.note}
-            </td>
-          </tr>
-
-        //   </tbody>
-        ))}
+        <tbody>
+          {data.feed.results.map((feedEvent) => (
+            <tr key={feedEvent.id} className="row">
+              <td className="col-4">{feedEvent.event}</td>
+              <td className="col-4">{dayjs(feedEvent.created_at).format('MM/DD/YYYY HH:mm:ss')}</td>
+              <td className="col-4">{feedEvent.note}</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
-    </div>
+    </>
   );
 }
 
