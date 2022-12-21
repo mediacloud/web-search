@@ -57,7 +57,7 @@ export const feedsApi = managerApi.injectEndpoints({
     }),
     createFeed: builder.mutation({
       query: (params) => ({
-        url: 'feeds',
+        url: 'feeds/',
         method: 'POST',
         body: params,
       }),
@@ -65,11 +65,11 @@ export const feedsApi = managerApi.injectEndpoints({
     }),
     deleteFeed: builder.mutation({
       query: (feedId) => ({
-        url: `feeds/${feedId}`,
+        url: `feeds/${feedId}/`,
         method: 'DELETE',
       }),
+      invalidatesTags: ['Feed'],
     }),
-    invalidatesTags: ['Feed'],
   }),
 });
 
@@ -82,4 +82,5 @@ export const {
   useGetFeedDetailsQuery,
   useLazyFetchFeedQuery,
   useCreateFeedMutation,
+  useDeleteFeedMutation,
 } = feedsApi;

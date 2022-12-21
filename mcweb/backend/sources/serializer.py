@@ -46,6 +46,10 @@ class FeedsSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def create(self, validated_data):
+        print(validated_data)
+        return Feed.objects.create(**validated_data)
+
 
 class SourcesSerializer(serializers.ModelSerializer):
     collections = serializers.PrimaryKeyRelatedField(

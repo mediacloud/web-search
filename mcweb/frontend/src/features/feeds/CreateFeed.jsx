@@ -19,7 +19,7 @@ export default function CreateFeed() {
   );
 
   const handleCheck = () => (
-    setFormState((prev) => ({ ...prev, adminEnabled: !prev.admin_rss_enabled }))
+    setFormState((prev) => ({ ...prev, adminEnabled: !prev.adminEnabled }))
   );
 
   const [createFeed] = useCreateFeedMutation();
