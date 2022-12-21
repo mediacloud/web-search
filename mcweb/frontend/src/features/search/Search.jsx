@@ -24,7 +24,6 @@ import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton'; 
 import SearchIcon from '@mui/icons-material/Search';
 
-
 export default function Search() {
   const dispatch = useDispatch();
 
