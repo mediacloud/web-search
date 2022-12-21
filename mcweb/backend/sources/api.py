@@ -14,12 +14,12 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List, Optional
 
-from . import RSS_FETCHER_USER, RSS_FETCHER_PASS, RSS_FETCHER_URL
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
+from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
 
 
@@ -53,6 +53,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
     # overriden to support filtering all endpoints by collection id
     def get_queryset(self):
         queryset = super().get_queryset()
+        # non-staff can only see public collections
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(public=True)
         # add in optional filters
         source_id = self.request.query_params.get("source_id")
         if source_id is not None:
@@ -126,6 +129,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def details(self, request):
+<<<<<<< HEAD
         source_id = self.request.query_params.get("source_id")
         if RSS_FETCHER_USER and RSS_FETCHER_PASS:
             auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
@@ -158,6 +162,11 @@ class FeedsViewSet(viewsets.ModelViewSet):
         feed_history = response.json()
         feed_history['results'] = sorted(feed_history['results'], key=lambda d: d['created_at'], reverse=True)
         return Response({"feed": feed_history})
+=======
+        source_id = int(self.request.query_params.get("source_id"))
+        with RssFetcherApi() as rss:
+            return Response({"feeds": rss.source_feeds(source_id)})
+>>>>>>> main
 
     @action(detail=False)
     def fetch(self, request):
