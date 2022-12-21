@@ -5,7 +5,6 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { useCreateFeedMutation } from '../../app/services/feedsApi';
-import Header from '../ui/Header';
 
 export default function CreateFeed() {
   const navigate = useNavigate();

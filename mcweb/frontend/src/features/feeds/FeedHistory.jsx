@@ -19,7 +19,7 @@ function FeedHistory({ feedId }) {
   }
 
   if (!data) return null;
-
+  // console.log(data);
   return (
     <>
       <h1>Feed History</h1>
@@ -33,7 +33,7 @@ function FeedHistory({ feedId }) {
           </tr>
         </thead>
         <tbody>
-          {data.feed.results.map((feedEvent) => (
+          {data.feed.map((feedEvent) => (
             <tr key={feedEvent.id} className="row">
               <td className="col-4">{feedEvent.event}</td>
               <td className="col-4">{dayjs.utc(feedEvent.created_at).local().format('MM/DD/YYYY HH:mm:ss')}</td>

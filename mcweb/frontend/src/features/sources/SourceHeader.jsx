@@ -4,7 +4,9 @@ import Button from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import { useSnackbar } from 'notistack';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
+import { useLazyFetchFeedQuery } from '../../app/services/feedsApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
@@ -13,12 +15,24 @@ import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 
 export default function SourceHeader() {
+  const { enqueueSnackbar } = useSnackbar();
+
   const params = useParams();
   const sourceId = Number(params.sourceId);
+
   const {
     data: source,
     isLoading,
   } = useGetSourceQuery(sourceId);
+
+  const [fetchFeedTrigger, {
+    isFetching: isFetchFeedFetching, data: fetchFeedResults,
+  }] = useLazyFetchFeedQuery();
+
+  const clickEvent = () => {
+    fetchFeedTrigger({ source_id: sourceId });
+    enqueueSnackbar('Feed Queued!', { variant: 'success' });
+  };
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
@@ -68,8 +82,12 @@ export default function SourceHeader() {
           <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
         </Button>
         <Permissioned role={ROLE_STAFF}>
-          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
-            <Link to={`/sources/${sourceId}/edit`}>Refetch Feeds</Link>
+          <Button
+            variant="outlined"
+            onClick={clickEvent}
+            endIcon={<LockOpenIcon titleAccess="admin-edit" />}
+          >
+            Refetch Feeds
           </Button>
           <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
             <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>

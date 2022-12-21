@@ -24,6 +24,11 @@ export default function FeedHeader() {
     isFetching: isFetchFeedFetching, data: fetchFeedResults,
   }] = useLazyFetchFeedQuery();
 
+  const clickEvent = () => {
+    fetchFeedTrigger({ feed_id: feedId });
+    enqueueSnackbar('Feed Queued!', { variant: 'success' });
+  };
+
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
@@ -51,11 +56,10 @@ export default function FeedHeader() {
           <Button
             variant="outlined"
             endIcon={<LockOpenIcon titleAccess="admin" />}
-            onClick={() => fetchFeedTrigger({ feed_ids: [feedId] })}
+            onClick={clickEvent}
           >
             Fetch Now-ish
           </Button>
-          {/* {fetchFeedResults && (console.log(fetchFeedResults), enqueueSnackbar('Feed Queued!', { variant: 'success' }))} */}
           <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin" />}>
             <Link to={`/feeds/${feedId}/edit`}>Edit</Link>
           </Button>

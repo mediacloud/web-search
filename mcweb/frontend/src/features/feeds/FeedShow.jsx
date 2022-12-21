@@ -34,7 +34,7 @@ function FeedShow() {
 
   if (!feedData || !feedDetails) return null;
 
-  const details = feedDetails.feed.results;
+  const details = feedDetails.feed;
 
   const isEnabled = details.active && feedData.admin_rss_enabled;
   let enabledLabel = isEnabled ? 'enabled' : 'disabled';

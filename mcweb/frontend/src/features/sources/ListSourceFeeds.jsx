@@ -11,11 +11,15 @@ import { useListFeedsQuery, useListFeedDetailsQuery } from '../../app/services/f
 import { asNumber } from '../ui/uiUtil';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
+const relativeTime = require('dayjs/plugin/relativeTime');
+const utc = require('dayjs/plugin/utc');
+
 function ListSourceFeeds() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
   const [page, setPage] = useState(0);
-
+  dayjs.extend(relativeTime);
+  dayjs.extend(utc);
   // query for the list of feeds on this source...
   const {
     data: feeds,
@@ -91,12 +95,12 @@ function ListSourceFeeds() {
               <td>{(feed.details && feed.details.system_status) ? feed.details.system_status : '?'}</td>
               <td>
                 {(feed.details && feed.details.last_fetch_attempt)
-                  ? dayjs(feed.details.last_fetch_attempt).format('MM/DD/YYYY hh:mm:ss') : '?'}
+                  ? dayjs.utc(feed.details.last_fetch_attempt).local().format('MM/DD/YYYY HH:mm:ss') : '?'}
 
               </td>
               <td>
                 {(feed.details && feed.details.last_fetch_success)
-                  ? dayjs(feed.details.last_fetch_success).format('MM/DD/YYYY hh:mm:ss') : '?'}
+                  ? dayjs.utc(feed.details.last_fetch_success).local().format('MM/DD/YYYY HH:mm:ss') : '?'}
 
               </td>
               <td>

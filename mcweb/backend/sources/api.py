@@ -129,57 +129,48 @@ class FeedsViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def details(self, request):
-<<<<<<< HEAD
-        source_id = self.request.query_params.get("source_id")
-        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
-            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
-        else:
-            auth = None
-        response = requests.get(f'{RSS_FETCHER_URL}/api/sources/{source_id}/feeds', auth=auth)
-        feeds = response.json()
-        feeds = feeds["results"]
-        return Response({"feeds": feeds})
-    
-    @action(detail=False)
-    def feed_details(self, request):
-        feed_id = self.request.query_params.get("feed_id")
-        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
-            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
-        else:
-            auth = None
-        response = requests.get(f'{RSS_FETCHER_URL}/api/feeds/{feed_id}', auth=auth)
-        feed_details = response.json()
-        return Response({"feed": feed_details})
-    
-    @action(detail=False)
-    def history(self, request):
-        feed_id = self.request.query_params.get("feed_id")
-        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
-            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
-        else:
-            auth = None
-        response = requests.get(f'{RSS_FETCHER_URL}/api/feeds/{feed_id}/history', auth=auth)
-        feed_history = response.json()
-        feed_history['results'] = sorted(feed_history['results'], key=lambda d: d['created_at'], reverse=True)
-        return Response({"feed": feed_history})
-=======
         source_id = int(self.request.query_params.get("source_id"))
         with RssFetcherApi() as rss:
             return Response({"feeds": rss.source_feeds(source_id)})
->>>>>>> main
+    
+    @action(detail=False)
+    def feed_details(self, request):
+        feed_id = int(self.request.query_params.get("feed_id"))
+        with RssFetcherApi() as rss:
+            return Response({"feed": rss.feed(feed_id)})
+    
+    @action(detail=False)
+    def history(self, request):
+        feed_id = int(self.request.query_params.get("feed_id"))
+        with RssFetcherApi() as rss:
+            feed_history = rss.feed_history(feed_id)
+            feed_history = sorted(feed_history, key=lambda d: d['created_at'], reverse=True)
+            return Response({"feed": feed_history})
 
     @action(detail=False)
     def fetch(self, request):
-        feed_id = int(self.request.query_params.get("feed_ids"))
-        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
-            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
-        else:
-            auth = None
-        response = requests.post(f'{RSS_FETCHER_URL}/api/feeds/{feed_id}/fetch-soon', auth=auth)
-        print(response)
-        fetch_response = response.json()
-        print(fetch_response)
-        return Response({"feed": fetch_response})
+        feed_id = self.request.query_params.get("feed_id", None)
+        source_id = self.request.query_params.get("source_id", None)
+        if feed_id is not None:
+            with RssFetcherApi() as rss:
+                return Response({"fetch_response":rss.feed_fetch_soon(int(feed_id))})
+        
+        response = []
+        if source_id is not None:
+            with RssFetcherApi() as rss:
+                feeds = rss.source_feeds(int(source_id))
+                print(feeds)
+                for feed in feeds:
+                    fetch_response = rss.feed_fetch_soon(int(feed["id"]))
+                    response.append(fetch_response)
+            print(response)
+            return Response({"fetch_response": response})
+        # response = []
+        # with RssFetcherApi() as rss:
+        #     for feed_id in feed_ids:
+        #         fetch_response= rss.feed_fetch_soon(int(feed_id))
+        #         response.append(fetch_response)
+        # return Response({"fetch_response": response})
 
 class SourcesViewSet(viewsets.ModelViewSet):
     queryset = Source.objects.\
