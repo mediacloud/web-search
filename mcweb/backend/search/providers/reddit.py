@@ -52,7 +52,7 @@ class RedditPushshiftProvider(ContentProvider):
                                               start_date=start_date, end_date=end_date,
                                               size=0, track_total_hits=True)
         # self._logger.debug(data)
-        return data['metadata']['total_results']
+        return data['metadata']['es']['hits']['total']['value']
 
     def count_over_time(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> Dict:
         raise UnsupportedOperationException("The PushShift.io API doesn't support aggregated counts")
