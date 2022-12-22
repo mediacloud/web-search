@@ -1,3 +1,4 @@
+import mcmetadata
 from rest_framework import serializers
 from .models import Collection, Feed, Source
 
@@ -13,7 +14,6 @@ class CollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Collection
-        #fields = ['id', 'name', 'notes', 'platform']
         fields = ['id', 'name', 'notes', 'platform', 'source_count', 'public']
 
 
@@ -27,7 +27,27 @@ class FeedsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feed
-        fields = '__all__'
+        fields = ['id','url', 'admin_rss_enabled', 'source', 'name']
+
+    # def validate_url(self, value):
+    #     print(value)
+    #     queryset = Feed.objects.all()
+    #     canonical_domain = mcmetadata.feed_url.normalize(value)
+    #     existing_feed = queryset.filter(url=canonical_domain)
+    #     print(existing_feed)
+    #     if len(existing_feed) != 0:
+    #       raise serializers.ValidationError("This Feed URL is a duplicate")
+
+    def update(self, instance, validated_data):
+        instance.url = validated_data.get('url', instance.url)
+        instance.admin_rss_enabled = validated_data.get('admin_rss_enabled', instance.admin_rss_enabled)
+        instance.source = validated_data.get('source', instance.source)
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        return Feed.objects.create(**validated_data)
 
 
 class SourcesSerializer(serializers.ModelSerializer):

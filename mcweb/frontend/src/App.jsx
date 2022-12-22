@@ -3,6 +3,7 @@ import {
   Route, Navigate, useLocation, Routes, useSearchParams,
 } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import PropTypes from 'prop-types';
 import Homepage from './features/homepage/Homepage';
 
 import Header from './features/header/Header';
@@ -25,6 +26,10 @@ import GeographicNewsCollections from './features/collections/GeographicNewsColl
 import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
 import ListSourceFeeds from './features/sources/ListSourceFeeds';
+import CreateFeed from './features/feeds/CreateFeed';
+import ModifyFeed from './features/feeds/ModifyFeed';
+import FeedHeader from './features/feeds/FeedHeader';
+import FeedShow from './features/feeds/FeedShow';
 import SourceHeader from './features/sources/SourceHeader';
 
 import ModifyCollection from './features/collections/ModifyCollection';
@@ -139,6 +144,14 @@ function App() {
               )}
             />
             <Route
+              path=":sourceId/feeds/create"
+              element={(
+                <RequireAuth>
+                  <CreateFeed />
+                </RequireAuth>
+              )}
+            />
+            <Route
               path=":sourceId/edit"
               element={(
                 <RequireAuth>
@@ -155,6 +168,32 @@ function App() {
               </RequireAuth>
             )}
           />
+
+          <Route
+            path="feeds"
+            element={(
+              <RequireAuth>
+                <FeedHeader />
+              </RequireAuth>
+            )}
+          >
+            <Route
+              path=":feedId"
+              element={(
+                <RequireAuth>
+                  <FeedShow />
+                </RequireAuth>
+              )}
+            />
+            <Route
+              path=":feedId/edit"
+              element={(
+                <RequireAuth>
+                  <ModifyFeed />
+                </RequireAuth>
+              )}
+            />
+          </Route>
 
           <Route path="sign-in" element={<SignIn />} />
           <Route path="reset-password" element={<ResetPassword />} />
@@ -186,5 +225,9 @@ function RequireAuth({ children }) {
   }
   return children;
 }
+
+RequireAuth.propTypes = {
+  children: PropTypes.element.isRequired,
+};
 
 export default App;

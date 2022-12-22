@@ -21,7 +21,7 @@ import CountOverTimeResults from './results/CountOverTimeResults';
 import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
-import deactivateButton from './util/deactivateButton'; 
+import deactivateButton from './util/deactivateButton';
 
 export default function Search() {
   const dispatch = useDispatch();
@@ -39,21 +39,6 @@ export default function Search() {
   const handleClose = () => {
     setOpen(false);
   };
-
-  const handleShare = e => {
-    e.preventDefault()
-    const ahref = `search.mediacloud.org/search${urlSerializer(queryObject)}`
-    switch (e.currentTarget.id) {
-
-      case "copy":
-        navigator.clipboard.writeText(ahref)
-        break
-
-      default:
-        break
-    }
-  };
-
 
   const {
     queryString,
@@ -79,6 +64,19 @@ export default function Search() {
     sources,
     anyAll,
     advanced,
+  };
+
+  const handleShare = (e) => {
+    e.preventDefault();
+    const ahref = `search.mediacloud.org/search${urlSerializer(queryObject)}`;
+    switch (e.currentTarget.id) {
+      case 'copy':
+        navigator.clipboard.writeText(ahref);
+        break;
+
+      default:
+        break;
+    }
   };
 
   useEffect(() => {
@@ -149,10 +147,11 @@ export default function Search() {
                 onClick={handleClickOpen}
                 className="float-end"
                 variant="contained"
-                endIcon={<IosShare />}>
+                endIcon={<IosShare />}
+              >
                 Share this Search
               </Button>
-              <Dialog 
+              <Dialog
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="alert-dialog-title"
@@ -163,7 +162,11 @@ export default function Search() {
                 </DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
-                    <code> {`search.mediacloud.org/search${urlSerializer(queryObject)}`} </code>
+                    <code>
+                      {' '}
+                      {`search.mediacloud.org/search${urlSerializer(queryObject)}`}
+                      {' '}
+                    </code>
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -173,8 +176,12 @@ export default function Search() {
                     startIcon={<ContentCopy />}
                     id="copy"
                     onClick={handleShare}
-                  > copy</Button>
-                  <Button variant="contained" onClick={handleClose} > Close </Button>
+                  >
+                    {' '}
+                    copy
+
+                  </Button>
+                  <Button variant="contained" onClick={handleClose}> Close </Button>
                 </DialogActions>
               </Dialog>
 

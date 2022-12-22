@@ -8,12 +8,13 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { useCreateCollectionMutation } from '../../app/services/collectionsApi';
 import { platformDisplayName } from '../ui/uiUtil';
+import Header from '../ui/Header';
 
 export default function CreateCollection() {
   const navigate = useNavigate();
 
   const [formState, setFormState] = useState({
-    name: '', notes: '', platform: ''
+    name: '', notes: '', platform: '',
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -24,17 +25,11 @@ export default function CreateCollection() {
 
   return (
     <>
-      <div className="feature-area filled">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <h1>
-                Create a Collection
-              </h1>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Header>
+        <h1>
+          Create a Collection
+        </h1>
+      </Header>
 
       <div className="container">
         <div className="row">
@@ -42,7 +37,7 @@ export default function CreateCollection() {
 
             {/* Collection Content */}
             <div className="modifyCollectionContent">
-              
+
               <TextField
                 fullWidth
                 id="text"
@@ -91,7 +86,7 @@ export default function CreateCollection() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
-                  const newCollection = await createCollection({
+                  await createCollection({
                     name: formState.name,
                     notes: formState.notes,
                   }).unwrap()
