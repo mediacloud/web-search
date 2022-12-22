@@ -1,30 +1,35 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
-import { useParams, Link, Outlet } from 'react-router-dom';
+import {
+  useParams, Link, Outlet,
+} from 'react-router-dom';
 import RSSFeedIcon from '@mui/icons-material/RssFeed';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { useSnackbar } from 'notistack';
-import { useGetFeedQuery, useLazyFetchFeedQuery } from '../../app/services/feedsApi';
+import { useGetFeedQuery, useLazyFetchFeedQuery, useDeleteFeedMutation } from '../../app/services/feedsApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
+import AlertDialog from '../ui/AlertDialog';
 
 export default function FeedHeader() {
   const { enqueueSnackbar } = useSnackbar();
+
   const params = useParams();
   const feedId = Number(params.feedId);
+  const [open, setOpen] = useState(false);
 
   const {
     data: feed,
     isLoading,
   } = useGetFeedQuery(feedId);
 
-  const [fetchFeedTrigger, {
-    isFetching: isFetchFeedFetching, data: fetchFeedResults,
-  }] = useLazyFetchFeedQuery();
+  const [fetchFeedTrigger] = useLazyFetchFeedQuery();
 
-  const clickEvent = () => {
+  const [deleteFeed] = useDeleteFeedMutation();
+
+  const fetchNow = () => {
     fetchFeedTrigger({ feed_id: feedId });
     enqueueSnackbar('Feed Queued!', { variant: 'success' });
   };
@@ -56,16 +61,31 @@ export default function FeedHeader() {
           <Button
             variant="outlined"
             endIcon={<LockOpenIcon titleAccess="admin" />}
-            onClick={clickEvent}
+            onClick={fetchNow}
           >
             Fetch Now-ish
           </Button>
           <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin" />}>
             <Link to={`/feeds/${feedId}/edit`}>Edit</Link>
           </Button>
-          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin" />}>
-            Delete
-          </Button>
+
+          <AlertDialog
+            outsideTitle="Delete"
+            title={`Delete ${feed.name}? `}
+            content={`Are you sure you would like to delete RSS Feed #${feed.id}: ${feed.name}?
+                      After confirming, this feed will be permanently deleted.`}
+            dispatchNeeded={false}
+            action={deleteFeed}
+            actionTarget={feed.id}
+            snackbar
+            snackbarText="Feed Deleted!"
+            navigateNeeded
+            navigateTo={`/sources/${feed.source}/feeds/`}
+            onClick={() => setOpen(true)}
+            openDialog={open}
+            variant="outlined"
+            endIcon={<LockOpenIcon titleAccess="admin" />}
+          />
         </Permissioned>
       </ControlBar>
       <Outlet />

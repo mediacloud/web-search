@@ -1,10 +1,9 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { useSnackbar } from 'notistack';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import { useLazyFetchFeedQuery } from '../../app/services/feedsApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
@@ -13,26 +12,18 @@ import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
+import AlertDialog from '../ui/AlertDialog';
 
 export default function SourceHeader() {
-  const { enqueueSnackbar } = useSnackbar();
-
   const params = useParams();
   const sourceId = Number(params.sourceId);
-
+  const [open, setOpen] = useState(false);
   const {
     data: source,
     isLoading,
   } = useGetSourceQuery(sourceId);
 
-  const [fetchFeedTrigger, {
-    isFetching: isFetchFeedFetching, data: fetchFeedResults,
-  }] = useLazyFetchFeedQuery();
-
-  const clickEvent = () => {
-    fetchFeedTrigger({ source_id: sourceId });
-    enqueueSnackbar('Feed Queued!', { variant: 'success' });
-  };
+  const [fetchFeedTrigger] = useLazyFetchFeedQuery();
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
@@ -75,26 +66,41 @@ export default function SourceHeader() {
             Search Content
           </a>
         </Button>
+
         <Button variant="outlined">
           <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
         </Button>
+
         <Button variant="outlined">
           <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
         </Button>
+
         <Permissioned role={ROLE_STAFF}>
-          <Button
+          <AlertDialog
+            outsideTitle="Refetch Feeds"
+            title={`Refetch all of ${source.name} feeds`}
+            content="Are you sure you would like to refetch all feeds for this source?
+                      After confirming the feeds will be queued for refetching.
+                      You can check back at this page in a few minutes to see changes"
+            dispatchNeeded={false}
+            action={fetchFeedTrigger}
+            actionTarget={{ source_id: sourceId }}
+            snackbar
+            snackbarText="Feeds Queued!"
+            onClick={() => setOpen(true)}
+            openDialog={open}
             variant="outlined"
-            onClick={clickEvent}
             endIcon={<LockOpenIcon titleAccess="admin-edit" />}
-          >
-            Refetch Feeds
-          </Button>
+          />
+
           <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
             <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>
           </Button>
+
           <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-create" />}>
             <Link to={`/sources/${sourceId}/feeds/create`}>Create Feed</Link>
           </Button>
+
         </Permissioned>
       </ControlBar>
       <Outlet />

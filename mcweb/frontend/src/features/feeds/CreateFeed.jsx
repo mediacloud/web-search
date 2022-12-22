@@ -63,8 +63,8 @@ export default function CreateFeed() {
           <Button
             variant="contained"
             onClick={async () => {
-              const newFeed = await createFeed(formState).unwrap();
-              navigate(`/feeds/${newFeed.id}`);
+              await createFeed(formState).unwrap();
+              navigate(`/sources/${sourceId}/feeds`);
             }}
           >
             Create

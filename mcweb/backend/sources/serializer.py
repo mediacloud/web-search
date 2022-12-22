@@ -47,7 +47,6 @@ class FeedsSerializer(serializers.ModelSerializer):
         return instance
 
     def create(self, validated_data):
-        print(validated_data)
         return Feed.objects.create(**validated_data)
 
 

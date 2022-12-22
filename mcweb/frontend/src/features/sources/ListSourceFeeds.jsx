@@ -10,6 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useListFeedsQuery, useListFeedDetailsQuery, useDeleteFeedMutation } from '../../app/services/feedsApi';
 import { asNumber } from '../ui/uiUtil';
+import AlertDialog from '../ui/AlertDialog';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
 const relativeTime = require('dayjs/plugin/relativeTime');
@@ -22,7 +23,7 @@ function ListSourceFeeds() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
   const [page, setPage] = useState(0);
-
+  const [open, setOpen] = useState(false);
   // query for the list of feeds on this source...
   const {
     data: feeds,
@@ -124,9 +125,23 @@ function ListSourceFeeds() {
                     >
                       Edit
                     </Button>
-                    <Button value={feed.id} variant="outlined" onClick={clickEvent} startIcon={<DeleteIcon />}>
-                      Delete
-                    </Button>
+
+                    <AlertDialog
+                      outsideTitle="Delete"
+                      title={`Delete ${feed.name}? `}
+                      content={`Are you sure you would like to delete RSS Feed #${feed.id}: ${feed.name}?
+                      After confirming, this feed will be permanently deleted.`}
+                      dispatchNeeded={false}
+                      action={deleteFeed}
+                      actionTarget={feed.id}
+                      snackbar
+                      snackbarText="Feed Deleted!"
+                      onClick={() => setOpen(true)}
+                      openDialog={open}
+                      variant="outlined"
+                      endIcon={<DeleteIcon titleAccess="delete-feed" />}
+                    />
+
                   </>
                 </Permissioned>
               </td>
