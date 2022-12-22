@@ -121,7 +121,7 @@ function ListSourceFeeds() {
                       variant="outlined"
                       startIcon={<EditIcon />}
                       component={Link}
-                      to={`/sources/${sourceId}/feeds/${feed.id}/edit`}
+                      to={`/feeds/${feed.id}/edit`}
                     >
                       Edit
                     </Button>
