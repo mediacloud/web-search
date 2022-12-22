@@ -144,18 +144,18 @@ function App() {
               )}
             />
             <Route
-              path=":sourceId/feeds/create"
-              element={(
-                <RequireAuth>
-                  <CreateFeed />
-                </RequireAuth>
-              )}
-            />
-            <Route
               path=":sourceId/edit"
               element={(
                 <RequireAuth>
                   <ModifySource />
+                </RequireAuth>
+                )}
+            />
+            <Route
+              path=":sourceId/feeds/create"
+              element={(
+                <RequireAuth>
+                  <CreateFeed />
                 </RequireAuth>
               )}
             />
