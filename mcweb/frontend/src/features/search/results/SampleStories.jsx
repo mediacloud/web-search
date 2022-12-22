@@ -139,7 +139,7 @@ export default function SampleStories() {
         <div className="float-end">
           <Button
             variant="text"
-            endIcon={<DownloadIcon />}
+            endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
             onClick={() => {
               handleDownloadRequest({
                 query: fullQuery,

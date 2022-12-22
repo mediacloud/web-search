@@ -42,21 +42,6 @@ export default function Search() {
     setOpen(false);
   };
 
-  const handleShare = e => {
-    e.preventDefault()
-    const ahref = `search.mediacloud.org/search${urlSerializer(queryObject)}`
-    switch (e.currentTarget.id) {
-
-      case "copy":
-        navigator.clipboard.writeText(ahref)
-        break
-
-      default:
-        break
-    }
-  };
-
-
   const {
     queryString,
     queryList,
@@ -81,6 +66,19 @@ export default function Search() {
     sources,
     anyAll,
     advanced,
+  };
+
+  const handleShare = (e) => {
+    e.preventDefault();
+    const ahref = `search.mediacloud.org/search${urlSerializer(queryObject)}`;
+    switch (e.currentTarget.id) {
+      case 'copy':
+        navigator.clipboard.writeText(ahref);
+        break;
+
+      default:
+        break;
+    }
   };
 
   useEffect(() => {
@@ -151,10 +149,11 @@ export default function Search() {
                 onClick={handleClickOpen}
                 className="float-end"
                 variant="contained"
-                endIcon={<IosShare />}>
+                endIcon={<IosShare titleAccess="share this search"/>}
+              >
                 Share this Search
               </Button>
-              <Dialog 
+              <Dialog
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="alert-dialog-title"
@@ -165,18 +164,26 @@ export default function Search() {
                 </DialogTitle>
                 <DialogContent>
                   <DialogContentText id="alert-dialog-description">
-                    <code> {`search.mediacloud.org/search${urlSerializer(queryObject)}`} </code>
+                    <code>
+                      {' '}
+                      {`search.mediacloud.org/search${urlSerializer(queryObject)}`}
+                      {' '}
+                    </code>
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
 
                   <Button
                     variant="outlined"
-                    startIcon={<ContentCopy />}
+                    startIcon={<ContentCopy titleAccess="copy this search"/>}
                     id="copy"
                     onClick={handleShare}
-                  > copy</Button>
-                  <Button variant="contained" onClick={handleClose} > Close </Button>
+                  >
+                    {' '}
+                    copy
+
+                  </Button>
+                  <Button variant="contained" onClick={handleClose}> Close </Button>
                 </DialogActions>
               </Dialog>
 
@@ -188,7 +195,7 @@ export default function Search() {
                 className="float-end"
                 variant="contained"
                 disabled={!show}
-                endIcon={<SearchIcon />}
+                endIcon={<SearchIcon titleAccess="search this query"/>}
                 onClick={() => {
                   navigate(
                     `/search${urlSerializer(queryObject)}`,

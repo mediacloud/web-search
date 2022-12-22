@@ -17,7 +17,7 @@ export default function Homepage() {
                 <br />
                 for media analysis.
               </h1>
-              <Link to="/search"><Button variant="contained" endIcon={<SearchIcon />}>Search Now</Button></Link>
+              <Link to="/search"><Button variant="contained" endIcon={<SearchIcon titleAccess="search online news and social media"/>}>Search Now</Button></Link>
             </div>
           </div>
         </div>

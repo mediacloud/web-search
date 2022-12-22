@@ -55,7 +55,7 @@ export default function CollectionHeader() {
         <div className="container">
           <div className="row">
             <div className="col-12">
-              <Button variant="outlined" endIcon={<SearchIcon />}>
+              <Button variant="outlined" endIcon={<SearchIcon titleAccess="search this collection"/>}>
                 <a
                   href={`/search/${urlSerializer({
                     queryList: defaultPlatformQuery(collection.platform),
