@@ -35,7 +35,7 @@ class RedditPushshiftProvider(ContentProvider):
         """
         data = self._cached_submission_search(q=query,
                                               start_date=start_date, end_date=end_date,
-                                              size=limit,  sort='desc', sort_type='score', **kwargs)
+                                              size=limit,  order='desc', order_type='score', **kwargs)
         cleaned_data = [self._submission_to_row(item) for item in data['data'][:limit]]
         return cleaned_data
 
