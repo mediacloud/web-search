@@ -52,7 +52,7 @@ export default function SignUp() {
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
+            <LockOutlinedIcon titleAccess="admin only"/>
 
           </Avatar>
 

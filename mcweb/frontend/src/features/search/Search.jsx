@@ -9,6 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContentText from '@mui/material/DialogContentText';
 import { ContentCopy, IosShare } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import SearchIcon from '@mui/icons-material/Search';
 import { searchApi } from '../../app/services/searchApi';
 import PlatformPicker from './query/PlatformPicker';
 import SelectedMedia from './query/SelectedMedia';
@@ -147,7 +148,7 @@ export default function Search() {
                 onClick={handleClickOpen}
                 className="float-end"
                 variant="contained"
-                endIcon={<IosShare />}
+                endIcon={<IosShare titleAccess="share this search" />}
               >
                 Share this Search
               </Button>
@@ -173,7 +174,7 @@ export default function Search() {
 
                   <Button
                     variant="outlined"
-                    startIcon={<ContentCopy />}
+                    startIcon={<ContentCopy titleAccess="copy this search" />}
                     id="copy"
                     onClick={handleShare}
                   >
@@ -193,6 +194,7 @@ export default function Search() {
                 className="float-end"
                 variant="contained"
                 disabled={!show}
+                endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
                   navigate(
                     `/search${urlSerializer(queryObject)}`,

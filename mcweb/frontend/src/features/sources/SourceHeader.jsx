@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
+import SearchIcon from '@mui/icons-material/Search';
+import HomeIcon from '@mui/icons-material/Home';
 import { CircularProgress } from '@mui/material';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useGetSourceQuery, useDeleteSourceMutation } from '../../app/services/sourceApi';
 import { useLazyFetchFeedQuery } from '../../app/services/feedsApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
@@ -49,7 +52,7 @@ export default function SourceHeader() {
         </h1>
       </Header>
       <ControlBar>
-        <Button variant="outlined">
+        <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
             href={`/search/${urlSerializer({
               queryList: defaultPlatformQuery(source.platform),
@@ -69,11 +72,11 @@ export default function SourceHeader() {
           </a>
         </Button>
 
-        <Button variant="outlined">
+        <Button variant="outlined" endIcon={<HomeIcon titleAccess="visit this sources homepage" />}>
           <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
         </Button>
 
-        <Button variant="outlined">
+        <Button variant="outlined" endIcon={<ListAltIcon titleAccess="source's feeds page" />}>
           <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
         </Button>
 

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { CircularProgress, Button } from '@mui/material';
 import dayjs from 'dayjs';
+import ShieldIcon from '@mui/icons-material/Shield';
+import SearchIcon from '@mui/icons-material/Search';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Outlet, Link, useParams } from 'react-router-dom';
 import { useGetCollectionQuery, useDeleteCollectionMutation } from '../../app/services/collectionsApi';
@@ -44,10 +46,11 @@ export default function CollectionHeader() {
           <PlatformIcon fontSize="large" />
                 &nbsp;
           {collection.name}
+          {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
         </h1>
       </Header>
       <ControlBar>
-        <Button variant="outlined">
+        <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
             href={`/search/${urlSerializer({
               queryList: defaultPlatformQuery(collection.platform),
@@ -69,7 +72,7 @@ export default function CollectionHeader() {
         </Button>
         <DownloadSourcesCsv collectionId={collectionId} />
         <Permissioned role={ROLE_STAFF}>
-          <Button variant="outlined" endIcon={<LockOpenIcon />}>
+          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
             <Link to={`${collectionId}/edit`}>Edit</Link>
           </Button>
           <AlertDialog

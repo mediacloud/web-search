@@ -15,6 +15,8 @@ import {
   PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 import { supportsNormalizedCount } from './TotalAttentionResults';
+import { Settings } from '@mui/icons-material';
+import DownloadIcon from '@mui/icons-material/Download';
 
 export default function CountOverTimeResults() {
   const {
@@ -123,7 +125,7 @@ export default function CountOverTimeResults() {
             <div className="float-start">
               {normalized && (
                 <div>
-                  <Button onClick={handleClick}>
+                  <Button onClick={handleClick}  endIcon={<Settings titleAccess="view other chart viewing options" />}>
                     View Options
                   </Button>
                   <Menu
@@ -175,6 +177,7 @@ export default function CountOverTimeResults() {
           <div className="float-end">
             <Button
               variant="text"
+              endIcon={<DownloadIcon titleAccess="download attention over time results"/>}
               onClick={() => {
                 handleDownloadRequest({
                   query: fullQuery(),
