@@ -34,10 +34,9 @@ export const sourceApi = managerApi.injectEndpoints({
       invalidatesTags: ['Source'],
     }),
     deleteSource: builder.mutation({
-      query: ({ id }) => ({
+      query: (id) => ({
         url: `sources/${id}/`,
         method: 'DELETE',
-        body: { ...id },
       }),
     }),
     uploadSources: builder.mutation({
