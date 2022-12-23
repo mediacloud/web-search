@@ -12,6 +12,8 @@ import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
+import Header from '../ui/Header';
+import ControlBar from '../ui/ControlBar';
 
 export default function CollectionHeader() {
   const params = useParams();
@@ -31,60 +33,48 @@ export default function CollectionHeader() {
 
   return (
     <>
-      <div className="feature-area filled">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <span className="small-label">
-                {platformDisplayName(collection.platform)}
-                {' '}
-                Collection #
-                {collectionId}
-              </span>
-              <h1>
-                <PlatformIcon fontSize="large" titleAccess={platformDisplayName(collection.platform)} />
+      <Header>
+        <span className="small-label">
+          {platformDisplayName(collection.platform)}
+          {' '}
+          Collection #
+          {collectionId}
+        </span>
+        <h1>
+          <PlatformIcon fontSize="large" />
                 &nbsp;
-                {collection.name}
-                {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
-              </h1>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="sub-feature">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <Button variant="outlined" endIcon={<SearchIcon titleAccess="search this collection"/>}>
-                <a
-                  href={`/search/${urlSerializer({
-                    queryList: defaultPlatformQuery(collection.platform),
-                    anyAll: 'any',
-                    negatedQueryList: [],
-                    startDate: dayjs().subtract(35, 'day'),
-                    endDate: dayjs().subtract(5, 'day'),
-                    collections: [collection],
-                    sources: [],
-                    platform: defaultPlatformProvider(collection.platform),
-                    advanced: false,
-                  })}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Search Content
+          {collection.name}
+          {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
+        </h1>
+      </Header>
+      <ControlBar>
+        <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
+          <a
+            href={`/search/${urlSerializer({
+              queryList: defaultPlatformQuery(collection.platform),
+              anyAll: 'any',
+              negatedQueryList: [],
+              startDate: dayjs().subtract(35, 'day'),
+              endDate: dayjs().subtract(5, 'day'),
+              collections: [collection],
+              sources: [],
+              platform: defaultPlatformProvider(collection.platform),
+              advanced: false,
+            })}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Search Content
 
-                </a>
-              </Button>
-              <DownloadSourcesCsv collectionId={collectionId} />
-              <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin only" />}>
-                  <Link to={`${collectionId}/edit`}>Edit</Link>
-                </Button>
-              </Permissioned>
-            </div>
-          </div>
-        </div>
-      </div>
+          </a>
+        </Button>
+        <DownloadSourcesCsv collectionId={collectionId} />
+        <Permissioned role={ROLE_STAFF}>
+          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
+            <Link to={`${collectionId}/edit`}>Edit</Link>
+          </Button>
+        </Permissioned>
+      </ControlBar>
       <Outlet />
     </>
   );

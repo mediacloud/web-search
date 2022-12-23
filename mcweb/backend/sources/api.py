@@ -132,6 +132,34 @@ class FeedsViewSet(viewsets.ModelViewSet):
         source_id = int(self.request.query_params.get("source_id"))
         with RssFetcherApi() as rss:
             return Response({"feeds": rss.source_feeds(source_id)})
+    
+    @action(detail=False)
+    def feed_details(self, request):
+        feed_id = int(self.request.query_params.get("feed_id"))
+        with RssFetcherApi() as rss:
+            return Response({"feed": rss.feed(feed_id)})
+    
+    @action(detail=False)
+    def history(self, request):
+        feed_id = int(self.request.query_params.get("feed_id"))
+        with RssFetcherApi() as rss:
+            feed_history = rss.feed_history(feed_id)
+            feed_history = sorted(feed_history, key=lambda d: d['created_at'], reverse=True)
+            return Response({"feed": feed_history})
+
+    @action(detail=False)
+    def fetch(self, request):
+        feed_id = self.request.query_params.get("feed_id", None)
+        source_id = self.request.query_params.get("source_id", None)
+        total = 0
+        with RssFetcherApi() as rss:
+            if feed_id is not None:
+                total += rss.feed_fetch_soon(int(feed_id))
+        
+            if source_id is not None:
+                total += rss.source_fetch_soon(int(source_id))
+
+        return Response({"fetch_response": total})
 
 
 class SourcesViewSet(viewsets.ModelViewSet):

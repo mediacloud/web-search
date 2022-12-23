@@ -3,20 +3,15 @@ import { useSelector } from 'react-redux';
 
 import Permissioned, { ROLE_STAFF } from './Permissioned';
 import { selectCurrentUser } from './authSlice';
+import Header from '../ui/Header';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
   return (
     <>
-      <div className="feature-area filled">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <h1>Profile</h1>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Header>
+        <h1>Profile</h1>
+      </Header>
       <div className="container profile">
         <dl>
           <dt>Account Username:</dt>

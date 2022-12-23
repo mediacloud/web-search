@@ -9,7 +9,7 @@ const formatSources = (sourcesArray) => sourcesArray.map((s) => (
 ));
 
 const queryListHelper = (queryList) => {
-  const filtered = queryList.filter((queryPhrase) => queryPhrase.length >= 1);
+  const filtered = queryList ? queryList.filter((queryPhrase) => queryPhrase.length >= 1) : [];
   return filtered.join(',');
 };
 

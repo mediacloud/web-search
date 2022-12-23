@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import SearchIcon from '@mui/icons-material/Search';
@@ -6,19 +6,27 @@ import HomeIcon from '@mui/icons-material/Home';
 import { CircularProgress } from '@mui/material';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
+import { useLazyFetchFeedQuery } from '../../app/services/feedsApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
+import Header from '../ui/Header';
+import ControlBar from '../ui/ControlBar';
+import AlertDialog from '../ui/AlertDialog';
 
 export default function SourceHeader() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
+  const [open, setOpen] = useState(false);
   const {
     data: source,
     isLoading,
   } = useGetSourceQuery(sourceId);
+
+  const [fetchFeedTrigger] = useLazyFetchFeedQuery();
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
@@ -28,64 +36,76 @@ export default function SourceHeader() {
 
   return (
     <>
-      <div className="feature-area filled">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <span className="small-label">
-                {platformDisplayName(source.platform)}
-                {' '}
-                Source #
-                {sourceId}
-              </span>
-              <h1>
-                <PlatformIcon fontSize="large" />
+      <Header>
+        <span className="small-label">
+          {platformDisplayName(source.platform)}
+          {' '}
+          Source #
+          {sourceId}
+        </span>
+        <h1>
+          <PlatformIcon titleAccess={source.name} fontSize="large" />
                 &nbsp;
-                {source.label || source.name}
-              </h1>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="sub-feature">
-        <div className="container">
-          <div className="row">
-            <div className="col-12">
-              <Button variant="outlined" endIcon={<SearchIcon titleAccess="search this source"/>}>
-                <a
-                  href={`/search/${urlSerializer({
-                    queryList: defaultPlatformQuery(source.platform),
-                    anyAll: 'any',
-                    negatedQueryList: [],
-                    startDate: dayjs().subtract(35, 'day'),
-                    endDate: dayjs().subtract(5, 'day'),
-                    collections: [],
-                    sources: [source],
-                    platform: defaultPlatformProvider(source.platform),
-                    advanced: false,
-                  })}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Search Content
+          {source.label || source.name}
+        </h1>
+      </Header>
+      <ControlBar>
+        <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
+          <a
+            href={`/search/${urlSerializer({
+              queryList: defaultPlatformQuery(source.platform),
+              anyAll: 'any',
+              negatedQueryList: [],
+              startDate: dayjs().subtract(35, 'day'),
+              endDate: dayjs().subtract(5, 'day'),
+              collections: [],
+              sources: [source],
+              platform: defaultPlatformProvider(source.platform),
+              advanced: false,
+            })}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Search Content
+          </a>
+        </Button>
 
-                </a>
-              </Button>
-              <Button variant="outlined" endIcon={<HomeIcon titleAccess="return to the homepage" />}>
-                <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
-              </Button>
-              <Button variant="outlined">
-                <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
-              </Button>
-              <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin only" />}>
-                  <Link to={`/sources/${sourceId}/edit`}>Edit</Link>
-                </Button>
-              </Permissioned>
-            </div>
-          </div>
-        </div>
-      </div>
+        <Button variant="outlined" endIcon={<HomeIcon titleAccess="visit this sources homepage" />}>
+          <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
+        </Button>
+
+        <Button variant="outlined" endIcon={<ListAltIcon titleAccess="source's feeds page" />}>
+          <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
+        </Button>
+
+        <Permissioned role={ROLE_STAFF}>
+          <AlertDialog
+            outsideTitle="Refetch Feeds"
+            title={`Refetch all of ${source.name} feeds`}
+            content="Are you sure you would like to refetch all feeds for this source?
+                      After confirming the feeds will be queued for refetching.
+                      You can check back at this page in a few minutes to see changes"
+            dispatchNeeded={false}
+            action={fetchFeedTrigger}
+            actionTarget={{ source_id: sourceId }}
+            snackbar
+            snackbarText="Feeds Queued!"
+            onClick={() => setOpen(true)}
+            openDialog={open}
+            variant="outlined"
+            endIcon={<LockOpenIcon titleAccess="admin-edit" />}
+          />
+
+          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
+            <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>
+          </Button>
+
+          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-create" />}>
+            <Link to={`/sources/${sourceId}/feeds/create`}>Create Feed</Link>
+          </Button>
+
+        </Permissioned>
+      </ControlBar>
       <Outlet />
     </>
   );

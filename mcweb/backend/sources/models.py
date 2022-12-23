@@ -98,7 +98,7 @@ class Source(models.Model):
 
 
 class Feed(models.Model):
-    url = models.TextField(null=False, blank=False)
+    url = models.TextField(null=False, blank=False, unique=True)
     admin_rss_enabled = models.BooleanField(default=False, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)

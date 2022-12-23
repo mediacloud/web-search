@@ -2,6 +2,7 @@ import React from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Link } from 'react-router-dom';
 import { useGetGlobalCollectionsQuery } from '../../app/services/collectionsApi';
+import Header from '../ui/Header';
 
 export default function GeographicNewsCollections() {
   const { data, isLoading } = useGetGlobalCollectionsQuery();
@@ -17,16 +18,10 @@ export default function GeographicNewsCollections() {
   }
   return (
     <>
-      <div className="feature-area filled">
-        <div className="container">
-          <div className="row">
-            <div className="col-8">
-              <h1>Geographic Online News Collections</h1>
-              <p>We have curated a set of collections by geography. For each country below we have a national collection, which includes media sources that report about the whole country. For many countries we also have state- or province-level collections, for media sources that are published in and focus on that part of the country.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Header columns={8}>
+        <h1>Geographic Online News Collections</h1>
+        <p>We have curated a set of collections by geography. For each country below we have a national collection, which includes media sources that report about the whole country. For many countries we also have state- or province-level collections, for media sources that are published in and focus on that part of the country.</p>
+      </Header>
 
       <div className="container">
         {data.countries.map((countryAndCollections) => (
@@ -40,18 +35,18 @@ export default function GeographicNewsCollections() {
                 </tr>
               </thead>
               <tbody>
-              {countryAndCollections.collections.map((collection) => (
-                <tr key={collection.tags_id} className="row">
-                  <td className="col-4">
-                    <Link to={`/collections/${collection.tags_id}`} target="_blank" rel="noopener noreferrer">
-                      {collection.label}
-                    </Link>
-                  </td>
-                  <td className="col-8">
-                    {collection.description}
-                  </td>
-                </tr>
-              ))}
+                {countryAndCollections.collections.map((collection) => (
+                  <tr key={collection.tags_id} className="row">
+                    <td className="col-4">
+                      <Link to={`/collections/${collection.tags_id}`} target="_blank" rel="noopener noreferrer">
+                        {collection.label}
+                      </Link>
+                    </td>
+                    <td className="col-8">
+                      {collection.description}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>

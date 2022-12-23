@@ -102,6 +102,13 @@ class RssFetcherApi:
         """return list dicts of rss-fetcher Feeds rows"""
         return self._get_list(f"sources/{source_id}/feeds")
 
+    def source_fetch_soon(self, source_id: int):
+        """
+        POST request to fetch all source feeds soon.
+        returns count of updated feeds
+        """
+        return int(self._post(f"sources/{source_id}/fetch-soon"))
+
     ################ stories methods
 
     def stories_fetched_by_day(self) -> List[Dict[str, Any]]:
@@ -149,3 +156,5 @@ if __name__ == '__main__':
 
         s = rss.stories_by_source()
         assert len(s) > 10
+
+        # print("soon:", rss.source_fetch_soon(1))  # returns number of feeds updated
