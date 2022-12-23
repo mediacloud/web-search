@@ -7,7 +7,7 @@ import { CircularProgress } from '@mui/material';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import { useGetSourceQuery } from '../../app/services/sourceApi';
+import { useGetSourceQuery, useDeleteSourceMutation } from '../../app/services/sourceApi';
 import { useLazyFetchFeedQuery } from '../../app/services/feedsApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -20,13 +20,15 @@ import AlertDialog from '../ui/AlertDialog';
 export default function SourceHeader() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
-  const [open, setOpen] = useState(false);
+  const [openRefetch, setOpenRefetch] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
   const {
     data: source,
     isLoading,
   } = useGetSourceQuery(sourceId);
 
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
+  const [deleteSource] = useDeleteSourceMutation();
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
@@ -90,8 +92,8 @@ export default function SourceHeader() {
             actionTarget={{ source_id: sourceId }}
             snackbar
             snackbarText="Feeds Queued!"
-            onClick={() => setOpen(true)}
-            openDialog={open}
+            onClick={() => setOpenRefetch(true)}
+            openDialog={openRefetch}
             variant="outlined"
             endIcon={<LockOpenIcon titleAccess="admin-edit" />}
           />
@@ -103,6 +105,24 @@ export default function SourceHeader() {
           <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-create" />}>
             <Link to={`/sources/${sourceId}/feeds/create`}>Create Feed</Link>
           </Button>
+
+          <AlertDialog
+            outsideTitle="Delete Source"
+            title={`Delete ${platformDisplayName(source.platform)} Source #${sourceId}: ${source.name}`}
+            content={`Are you sure you want to delete ${platformDisplayName(source.platform)}
+                Source #${sourceId}: ${source.name} permanently?`}
+            dispatchNeeded={false}
+            action={deleteSource}
+            actionTarget={sourceId}
+            snackbar
+            snackbarText="Source Deleted!"
+            onClick={() => setOpenDelete(true)}
+            openDialog={openDelete}
+            variant="outlined"
+            navigateNeeded
+            navigateTo="/directory"
+            endIcon={<LockOpenIcon titleAccess="admin-delete" />}
+          />
 
         </Permissioned>
       </ControlBar>
