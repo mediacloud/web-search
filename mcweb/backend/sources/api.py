@@ -122,9 +122,26 @@ class FeedsViewSet(viewsets.ModelViewSet):
         # the rss-fetcher wants to know which feeds were changed since last time it checked
         modified_since = self.request.query_params.get("modified_since")  # in epoch times
         if modified_since is not None:
-            modified_since = int(modified_since)  # validation: should throw a ValueError back up the chain
+            modified_since = float(modified_since)  # validation: should throw a ValueError back up the chain
             modified_since = dt.datetime.fromtimestamp(modified_since)
-            queryset = queryset.filter(modified_at__gte=modified_since).order_by('modified_at', 'id')
+            queryset = queryset.filter(modified_at__gte=modified_since)
+        # passed a "now" value returned by /api/version
+        modified_before = self.request.query_params.get("modified_before")  # in epoch times
+        if modified_before is not None:
+            modified_before = float(modified_before)  # validation: should throw a ValueError back up the chain
+            modified_before = dt.datetime.fromtimestamp(modified_before)
+            queryset = queryset.filter(modified_at__lt=modified_before)
+
+        if modified_since is not None or modified_before is not None:
+            if modified_before is not None:
+                # closed ended.
+                # order by id so that pages are invariant
+                queryset = queryset.order_by('id')
+            else:
+                # open ended (not used by rss-fetcher)
+                # make sure newest entries at end, and pages are invariant
+                queryset = queryset.order_by('modified_at', 'id')
+            
         return queryset
 
     @action(detail=False)
