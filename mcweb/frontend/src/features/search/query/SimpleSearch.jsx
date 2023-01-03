@@ -2,9 +2,9 @@ import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import QueryList from './QueryList';
-import { setAnyAll } from './querySlice';
+import { setAnyAll, setAdvanced } from './querySlice';
 import QueryPreview from './QueryPreview';
-import SearchAlertDialog from '../util/SearchAlertDialog';
+import SearchAlertDialog from '../../ui/AlertDialog';
 
 export default function SimpleSearch() {
   const { anyAll } = useSelector((state) => state.query);
@@ -69,9 +69,15 @@ export default function SimpleSearch() {
             <div className="container">
               <div className="row">
                 <div className="col-12">
-
                   <SearchAlertDialog
+                    outsideTitle="Edit this query in advanced mode"
+                    title="Switch to Advanced Search"
+                    content="Are you sure you would like to switch to advanced search?
+                      After confirming you will not be able to switch back to simple search."
                     className="float-start"
+                    dispatchNeeded
+                    action={setAdvanced}
+                    actionTarget
                     onClick={() => setOpen(true)}
                     openDialog={open}
                   />

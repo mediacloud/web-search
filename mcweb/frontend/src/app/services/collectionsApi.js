@@ -11,8 +11,8 @@ export const collectionsApi = managerApi.injectEndpoints({
     }),
     listCollections: builder.query({
       query: (params) => ({
-          url: `collections/?${toSearchUrlParams(params)}`,
-          method: 'GET',
+        url: `collections/?${toSearchUrlParams(params)}`,
+        method: 'GET',
       }),
     }),
     getGlobalCollections: builder.query({
@@ -46,10 +46,9 @@ export const collectionsApi = managerApi.injectEndpoints({
       invalidatesTags: ['SelectedCollection'],
     }),
     deleteCollection: builder.mutation({
-      query: ({ id }) => ({
+      query: (id) => ({
         url: `collections/${id}/`,
         method: 'DELETE',
-        body: { ...id },
       }),
     }),
   }),

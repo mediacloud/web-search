@@ -14,12 +14,12 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List, Optional
 
-from . import RSS_FETCHER_USER, RSS_FETCHER_PASS, RSS_FETCHER_URL
 from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
+from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
 
 
@@ -53,6 +53,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
     # overriden to support filtering all endpoints by collection id
     def get_queryset(self):
         queryset = super().get_queryset()
+        # non-staff can only see public collections
+        if not self.request.user.is_staff:
+            queryset = queryset.filter(public=True)
         # add in optional filters
         source_id = self.request.query_params.get("source_id")
         if source_id is not None:
@@ -119,22 +122,61 @@ class FeedsViewSet(viewsets.ModelViewSet):
         # the rss-fetcher wants to know which feeds were changed since last time it checked
         modified_since = self.request.query_params.get("modified_since")  # in epoch times
         if modified_since is not None:
-            modified_since = int(modified_since)  # validation: should throw a ValueError back up the chain
+            modified_since = float(modified_since)  # validation: should throw a ValueError back up the chain
             modified_since = dt.datetime.fromtimestamp(modified_since)
-            queryset = queryset.filter(modified_at__gte=modified_since).order_by('modified_at', 'id')
+            queryset = queryset.filter(modified_at__gte=modified_since)
+        # passed a "now" value returned by /api/version
+        modified_before = self.request.query_params.get("modified_before")  # in epoch times
+        if modified_before is not None:
+            modified_before = float(modified_before)  # validation: should throw a ValueError back up the chain
+            modified_before = dt.datetime.fromtimestamp(modified_before)
+            queryset = queryset.filter(modified_at__lt=modified_before)
+
+        if modified_since is not None or modified_before is not None:
+            if modified_before is not None:
+                # closed ended.
+                # order by id so that pages are invariant
+                queryset = queryset.order_by('id')
+            else:
+                # open ended (not used by rss-fetcher)
+                # make sure newest entries at end, and pages are invariant
+                queryset = queryset.order_by('modified_at', 'id')
+            
         return queryset
 
     @action(detail=False)
     def details(self, request):
-        source_id = self.request.query_params.get("source_id")
-        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
-            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
-        else:
-            auth = None
-        response = requests.get(f'{RSS_FETCHER_URL}/api/sources/{source_id}/feeds', auth=auth)
-        feeds = response.json()
-        feeds = feeds["results"]
-        return Response({"feeds": feeds})
+        source_id = int(self.request.query_params.get("source_id"))
+        with RssFetcherApi() as rss:
+            return Response({"feeds": rss.source_feeds(source_id)})
+    
+    @action(detail=False)
+    def feed_details(self, request):
+        feed_id = int(self.request.query_params.get("feed_id"))
+        with RssFetcherApi() as rss:
+            return Response({"feed": rss.feed(feed_id)})
+    
+    @action(detail=False)
+    def history(self, request):
+        feed_id = int(self.request.query_params.get("feed_id"))
+        with RssFetcherApi() as rss:
+            feed_history = rss.feed_history(feed_id)
+            feed_history = sorted(feed_history, key=lambda d: d['created_at'], reverse=True)
+            return Response({"feed": feed_history})
+
+    @action(detail=False)
+    def fetch(self, request):
+        feed_id = self.request.query_params.get("feed_id", None)
+        source_id = self.request.query_params.get("source_id", None)
+        total = 0
+        with RssFetcherApi() as rss:
+            if feed_id is not None:
+                total += rss.feed_fetch_soon(int(feed_id))
+        
+            if source_id is not None:
+                total += rss.source_fetch_soon(int(source_id))
+
+        return Response({"fetch_response": total})
 
 
 class SourcesViewSet(viewsets.ModelViewSet):

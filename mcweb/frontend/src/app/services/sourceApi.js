@@ -9,8 +9,8 @@ export const sourceApi = managerApi.injectEndpoints({
         method: 'GET',
       }),
       providesTags: (result, error, id) => (result
-        ? [{ type: 'SelectedSource', id }]
-        : ['SelectedSource']),
+        ? [{ type: 'Source', id }]
+        : ['Source']),
     }),
     listSources: builder.query({
       query: (params) => ({
@@ -31,13 +31,12 @@ export const sourceApi = managerApi.injectEndpoints({
         method: 'PATCH',
         body: { ...source },
       }),
-      invalidatesTags: ['SelectedSource'],
+      invalidatesTags: ['Source'],
     }),
     deleteSource: builder.mutation({
-      query: ({ id }) => ({
+      query: (id) => ({
         url: `sources/${id}/`,
         method: 'DELETE',
-        body: { ...id },
       }),
     }),
     uploadSources: builder.mutation({

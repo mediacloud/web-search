@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
+import DownloadIcon from '@mui/icons-material/Download';
 
 function DownloadSourcesCsv({ collectionId }) {
   const handleDownloadRequest = () => {
@@ -8,7 +9,7 @@ function DownloadSourcesCsv({ collectionId }) {
   };
   return (
 
-    <Button variant="outlined" onClick={() => handleDownloadRequest()}>
+    <Button variant="outlined" endIcon={<DownloadIcon titleAccess='download source information as a CSV' />} onClick={() => handleDownloadRequest()}>
       Download Source CSV
     </Button>
   );

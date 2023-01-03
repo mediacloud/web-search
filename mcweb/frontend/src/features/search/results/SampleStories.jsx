@@ -4,6 +4,8 @@ import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import DownloadIcon from '@mui/icons-material/Download';
+
 
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
@@ -35,8 +37,8 @@ export default function SampleStories() {
 
   const [query, { isLoading, data }] = useGetSampleStoriesMutation();
 
-  const collectionIds = collections.map(c => c.id);
-  const sourceIds = sources.map(s => s.id);
+  const collectionIds = collections.map((c) => c.id);
+  const sourceIds = sources.map((s) => s.id);
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-all-content-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
@@ -137,6 +139,7 @@ export default function SampleStories() {
         <div className="float-end">
           <Button
             variant="text"
+            endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
             onClick={() => {
               handleDownloadRequest({
                 query: fullQuery,
