@@ -16,7 +16,7 @@ export default function SelectedMedia({ onRemove, collections, sources }) {
             <Link target="_blank" to={`/sources/${source.id}`}>
               {source.label || source.name}
             </Link>
-            <IconButton size="small" aria-label="remove" onClick={() => dispatch(onRemove({type: 'source', id: source.id}))}>
+            <IconButton size="small" aria-label="remove" onClick={() => dispatch(onRemove({ type: 'source', id: source.id }))}>
               <RemoveCircleIcon sx={{ color: '#d24527' }} />
             </IconButton>
           </div>
@@ -26,7 +26,11 @@ export default function SelectedMedia({ onRemove, collections, sources }) {
             <Link target="_blank" to={`/collections/${collection.id}`}>
               {collection.name}
             </Link>
-            <IconButton size="small" aria-label="remove" onClick={() => dispatch(onRemove({type: 'collection', id: collection.id}))}>
+            <IconButton
+              size="small"
+              aria-label="remove"
+              onClick={() => dispatch(onRemove({ type: 'collection', id: collection.id }))}
+            >
               <RemoveCircleIcon sx={{ color: '#d24527' }} />
             </IconButton>
           </div>

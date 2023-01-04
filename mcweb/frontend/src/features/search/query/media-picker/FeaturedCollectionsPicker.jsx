@@ -6,7 +6,7 @@ import { useGetFeaturedCollectionsQuery } from '../../../../app/services/collect
 import CollectionSelectionTable from './CollectionSelectionTable';
 
 export default function FeaturedCollectionsPicker({ platform }) {
-  const { data, isLoading } = useGetFeaturedCollectionsQuery({platform});
+  const { data, isLoading } = useGetFeaturedCollectionsQuery({ platform });
 
   const { previewCollections } = useSelector((state) => state.query);
 
@@ -27,4 +27,4 @@ export default function FeaturedCollectionsPicker({ platform }) {
 
 FeaturedCollectionsPicker.propTypes = {
   platform: PropTypes.string.isRequired,
-}
+};
