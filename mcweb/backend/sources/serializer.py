@@ -27,7 +27,7 @@ class FeedsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feed
-        fields = ['id','url', 'admin_rss_enabled', 'source', 'name']
+        fields = ['id','url', 'admin_rss_enabled', 'source', 'name', 'created_at', 'modified_at']
 
     # def validate_url(self, value):
     #     print(value)
