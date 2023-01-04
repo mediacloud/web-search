@@ -12,21 +12,23 @@ import {
   PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-import { setPlatform, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS } from './querySlice';
+import {
+  setPlatform, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS,
+} from './querySlice';
 
 export default function PlatformPicker() {
   const { platform, collections, sources } = useSelector((state) => state.query);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const providersOfSamePlatform = (provider1, provider2) => provider1.split("-")[0] == provider2.split("-")[0];
+  const providersOfSamePlatform = (provider1, provider2) => provider1.split('-')[0] === provider2.split('-')[0];
 
   const handleChangePlatform = async (event) => {
     const newPlatform = event.target.value;
     await dispatch(setPlatform(newPlatform));
     const hasSomeMedia = (collections.length + sources.length) > 0;
     const samePlatform = providersOfSamePlatform(platform, newPlatform);
-/*
+    /*
     hasSomeMedia && samePlatform: nothing
     !hasSomeMedia && samePlatform: nothing
     hasSomeMedia && !samePlatform: reset
@@ -36,10 +38,10 @@ export default function PlatformPicker() {
       if (!hasSomeMedia) {
         if ([PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(newPlatform)) {
           await dispatch(addSelectedMedia(DEFAULT_ONLINE_NEWS_COLLECTIONS));
-          enqueueSnackbar("We reset your collections to work with this platform.", { variant: 'warning' });
+          enqueueSnackbar('We reset your collections to work with this platform.', { variant: 'warning' });
         } else {
           await dispatch(resetSelectedAndPreviewMedia());
-          enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });  
+          enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
         }
       } else {
         await dispatch(resetSelectedAndPreviewMedia());
@@ -67,14 +69,14 @@ export default function PlatformPicker() {
                 (Wayback Machine)
               </ToggleButton>
             )}
-            {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
+            {/* {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
               <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
                 <NewspaperIcon fontSize="large" />
                 Online News
                 <br />
                 (Media Cloud)
               </ToggleButton>
-            )}
+            )} */}
             {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
               <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
                 <RedditIcon fontSize="large" />
