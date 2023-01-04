@@ -23,8 +23,8 @@ export default function FeaturedCollections() {
               <div className="col-4" key={collection.id}>
                 <div key={`featured-collection-${collection.id}`} className="featured-collection">
                   <em>
-                  {platformDisplayName(collection.platform)}
-                   </em>
+                    {platformDisplayName(collection.platform)}
+                  </em>
                   <Link to={`/collections/${collection.id}`}>
                     <h3>{collection.name}</h3>
                   </Link>
