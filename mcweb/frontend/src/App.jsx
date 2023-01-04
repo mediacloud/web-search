@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Route, Navigate, useLocation, Routes, useSearchParams,
+  Route, Navigate, useLocation, Routes, useSearchParams, Switch
 } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -15,7 +15,7 @@ import SignIn from './features/auth/SignIn';
 import SignUp from './features/auth/SignUp';
 import ResetPassword from './features/auth/ResetPassword';
 import ConfirmedReset from './features/auth/ConfirmedReset';
-
+import BadURL from './app/badURL/BadURL';
 // pages
 import CollectionShow from './features/collections/CollectionShow';
 import DirectoryHome from './features/directory/DirectoryHome';
@@ -36,6 +36,7 @@ import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import setSearchQuery from './features/search/util/setSearchQuery';
+
 
 function App() {
   const { lastSearchTime } = useSelector((state) => state.query);
@@ -207,6 +208,11 @@ function App() {
                 <Account />
               </RequireAuth>
             )}
+          />
+
+          <Route
+            path="*"
+            element={<BadURL />}
           />
 
         </Routes>
