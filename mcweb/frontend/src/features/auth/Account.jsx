@@ -5,7 +5,7 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
 import { useDeleteUserMutation } from '../../app/services/authApi';
-import { selectCurrentUser } from './authSlice';
+import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
 
@@ -39,7 +39,8 @@ function Account() {
           <AlertDialog
             outsideTitle="Delete Account"
             title="Delete your account? "
-            content="Are you sure you would like to permanently delete your account and all associated information? "
+            content="Are you sure you would like to permanently delete your account, all account data and history in our system?
+            this cannot be undone. "
             dispatchNeeded={false}
             action={deleteUser}
             actionTarget={currentUser.id}
@@ -47,6 +48,7 @@ function Account() {
             snackbarText="Account Deleted!"
             navigateNeeded
             navigateTo="/"
+            secondAction={setCredentials}
             onClick={() => setOpen(true)}
             openDialog={open}
             variant="outlined"

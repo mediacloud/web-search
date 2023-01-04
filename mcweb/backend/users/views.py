@@ -195,6 +195,7 @@ def logout(request):
 def delete_user(request):
     logging.debug('deleting user')
     current_user = request.user
+    auth.logout(request)
     try: 
         current_user.delete()
         data = json.dumps({'message': "User Deleted"})
