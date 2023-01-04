@@ -5,6 +5,7 @@ const slice = createSlice({
   initialState: { user: null, isLoggedIn: false },
   reducers: {
     setCredentials: (state, { payload }) => {
+      console.log(payload);
       state.user = payload;
       state.isLoggedIn = state.user && state.user.isActive;
     },
