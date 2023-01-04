@@ -42,6 +42,10 @@
 // results styling
 @import '../features/search/results/styles/sample-stories';
 
+// bad error styling 
+@import '../app/badURL/badURL';
+
+
 body {
   font-family: $body-font-families;
   background-color: $primary-black;
