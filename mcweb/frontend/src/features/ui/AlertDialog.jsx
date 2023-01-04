@@ -30,17 +30,21 @@ export default function AlertDialog({
     setOpen(false);
   };
 
-  const handleClick = () => {
-    if (navigateNeeded) {
-      navigate(navigateTo);
-    }
+  const handleClick = async () => {
     if (dispatchNeeded) {
-      dispatch(action(actionTarget));
+      try {
+        await dispatch(action(actionTarget));
+      } catch (error) {
+        enqueueSnackbar(error, { variant: 'error' });
+      }
     } else {
       action(actionTarget);
     }
     if (snackbar) {
       enqueueSnackbar(snackbarText, { variant: 'success' });
+    }
+    if (navigateNeeded) {
+      navigate(navigateTo);
     }
     handleClose();
   };

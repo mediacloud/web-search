@@ -196,14 +196,11 @@ def delete_user(request):
     logging.debug('deleting user')
     current_user = request.user
     try: 
-        # user = User.objects.get(pk=current_user)
         current_user.delete()
         data = json.dumps({'message': "User Deleted"})
     except Exception as e:
         data = json.dumps({'error': e})
-
-    print(current_user.id)
-    # data = json.dumps({'message': "User Deleted"})
+    
     return HttpResponse(data, content_type='application/json')
 
 
