@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Route, Navigate, useLocation, Routes, useSearchParams, Switch
+  Route, Navigate, useLocation, Routes, useSearchParams
 } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
