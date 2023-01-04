@@ -1,8 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
-import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate } from '../util/platforms';
+import { PROVIDER_NEWS_WAYBACK_MACHINE, latestAllowedEndDate } from '../util/platforms';
 
-const DEFAULT_PROVIDER = PROVIDER_NEWS_MEDIA_CLOUD;
+const DEFAULT_PROVIDER = PROVIDER_NEWS_WAYBACK_MACHINE;
 export const DEFAULT_ONLINE_NEWS_COLLECTIONS = [{
   type: 'collection',
   id: 34412234,
