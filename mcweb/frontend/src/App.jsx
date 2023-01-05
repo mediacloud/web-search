@@ -15,7 +15,7 @@ import SignIn from './features/auth/SignIn';
 import SignUp from './features/auth/SignUp';
 import ResetPassword from './features/auth/ResetPassword';
 import ConfirmedReset from './features/auth/ConfirmedReset';
-
+import BadURL from './features/ui/BadURL';
 // pages
 import CollectionShow from './features/collections/CollectionShow';
 import DirectoryHome from './features/directory/DirectoryHome';
@@ -207,6 +207,11 @@ function App() {
                 <Account />
               </RequireAuth>
             )}
+          />
+
+          <Route
+            path="*"
+            element={<BadURL />}
           />
 
         </Routes>
