@@ -85,6 +85,7 @@ export default function FeedHeader() {
             openDialog={open}
             variant="outlined"
             endIcon={<LockOpenIcon titleAccess="admin" />}
+            secondAction={false}
           />
         </Permissioned>
       </ControlBar>

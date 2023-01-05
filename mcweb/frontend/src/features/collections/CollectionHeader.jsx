@@ -91,6 +91,7 @@ export default function CollectionHeader() {
             navigateNeeded
             navigateTo="/directory"
             endIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            secondAction={false}
           />
         </Permissioned>
       </ControlBar>

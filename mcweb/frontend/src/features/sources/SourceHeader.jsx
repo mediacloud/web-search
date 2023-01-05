@@ -96,6 +96,7 @@ export default function SourceHeader() {
             openDialog={openRefetch}
             variant="outlined"
             endIcon={<LockOpenIcon titleAccess="admin-edit" />}
+            secondAction={false}
           />
 
           <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
@@ -122,6 +123,7 @@ export default function SourceHeader() {
             navigateNeeded
             navigateTo="/directory"
             endIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            secondAction={false}
           />
 
         </Permissioned>
