@@ -46,9 +46,11 @@ export default function SourceHeader() {
           {sourceId}
         </span>
         <h1>
-          <PlatformIcon titleAccess={source.name} fontSize="large" />
+          <Link style={{ textDecoration: 'none', color: 'black' }} to={`/sources/${sourceId}`}>
+            <PlatformIcon titleAccess={source.name} fontSize="large" />
                 &nbsp;
-          {source.label || source.name}
+            {source.label || source.name}
+          </Link>
         </h1>
       </Header>
       <ControlBar>

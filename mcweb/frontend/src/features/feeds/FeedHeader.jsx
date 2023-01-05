@@ -46,8 +46,10 @@ export default function FeedHeader() {
           {feed.id}
         </span>
         <h1>
-          <RSSFeedIcon titleAccess={feed.name} fontSize="large" />
-          {feed.name || `Feed #${feed.id}`}
+          <Link style={{ textDecoration: 'none', color: 'black' }} to={`/feeds/${feedId}`}>
+            <RSSFeedIcon titleAccess={feed.name} fontSize="large" />
+            {feed.name || `Feed #${feed.id}`}
+          </Link>
         </h1>
       </Header>
       <ControlBar>
