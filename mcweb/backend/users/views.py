@@ -26,6 +26,10 @@ def reset_password(request):
     logger.debug(request)
     logger.debug("reset password") 
 
+    data = json.dumps({"message": "hello"})
+
+    return HttpResponse(data, content_type='application/json')
+
 
 
 
