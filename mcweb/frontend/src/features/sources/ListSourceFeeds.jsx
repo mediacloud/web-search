@@ -140,6 +140,7 @@ function ListSourceFeeds() {
                       openDialog={open}
                       variant="outlined"
                       endIcon={<DeleteIcon titleAccess="delete-feed" />}
+                      secondAction={false}
                     />
 
                   </>

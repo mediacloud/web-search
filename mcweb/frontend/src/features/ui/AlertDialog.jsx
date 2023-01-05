@@ -105,7 +105,7 @@ AlertDialog.propTypes = {
   endIcon: PropTypes.element,
   navigateNeeded: PropTypes.bool,
   navigateTo: PropTypes.string,
-  secondAction: PropTypes.func,
+  secondAction: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
 };
 
 AlertDialog.defaultProps = {
