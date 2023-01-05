@@ -11,26 +11,22 @@ import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import { useResetPasswordSendEmailQuery, useEmailExistsQuery } from '../../app/services/authApi';
+import { useResetPasswordMutation } from '../../app/services/authApi';
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [formState, setFormState] = useState({
-    email: '', verification: '',
-  });
 
-  const [skip, setSkip] = useState(false);
+  const [email, setEmail] = useState("")
 
-  const key = useResetPasswordSendEmailQuery(formState.email, { skip });
-  const verify = useEmailExistsQuery(formState.email);
+  const [reset, {isResetting} ] = useResetPasswordMutation();
 
-  const handleChange = ({ target: { name, value } }) => (
-    setFormState((prev) => ({ ...prev, [name]: value }))
-  );
 
-  const [isShown, setIsShown] = useState(false);
+
+  const handleChange = (event) => {
+     setEmail(event.target.value)
+  }
 
   return (
     <div style={{ paddingTop: '100px' }}>
@@ -46,7 +42,7 @@ export default function ResetPassword() {
         >
 
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon titleAccess="admin only"/>
+            <LockOutlinedIcon titleAccess="admin only" />
           </Avatar>
 
           <Typography component="h1" variant="h5">
@@ -60,77 +56,37 @@ export default function ResetPassword() {
             sx={{ mt: 1 }}
           >
             {/* Email  */}
-            {!isShown && (
               <TextField
                 margin="normal"
                 required
                 fullWidth
                 id="text"
                 label="Email"
-                name="email"
                 autoComplete="Email"
                 autoFocus
                 onChange={handleChange}
               />
-            )}
-            {/* Verification Code */}
-            {isShown && (
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="text"
-                label="Verification Code"
-                name="verification"
-                autoFocus
-                onChange={handleChange}
-              />
-            )}
-            {/* Does the email exist in the DB */}
-            {!isShown && (
+           
+            {/* Sending Email */}
               <Button
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
-                  const exists = verify.data.Exists;
+                  console.log(email)
 
-                  if (exists) {
-                    enqueueSnackbar('Email Sent', { variant: 'success' });
+                  try {
+                    const resetPassword = await reset(email).unwrap();
 
-                    // calls key query when email exists
-                    setSkip(false);
-
-                    // set show to true to change scene
-                    setIsShown(true);
-                  } else {
-                    enqueueSnackbar('Email does not exist', { variant: 'error' });
+                    console.log(resetPassword)
+                  } catch (err) {
+                    console.log(err); 
                   }
                 }}
               >
                 Send Login Link
               </Button>
-            )}
 
-            {/* Is the users key the real key? */}
-            {isShown && (
-              <Button
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                onClick={async () => {
-                  // comparing the textFeild with the returned key from sendEmail
-                  if (formState.verification === key.data.Key) {
-                    enqueueSnackbar('Verified', { variant: 'success' });
-                    navigate('confirmed');
-                  } else {
-                    enqueueSnackbar('Incorrect Verification', { variant: 'error' });
-                  }
-                }}
-              >
-                Verify
-              </Button>
-            )}
 
           </Box>
         </Box>
