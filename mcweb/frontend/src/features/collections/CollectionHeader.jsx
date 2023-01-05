@@ -43,10 +43,12 @@ export default function CollectionHeader() {
           {collectionId}
         </span>
         <h1>
-          <PlatformIcon fontSize="large" />
+          <Link style={{ textDecoration: 'none', color: 'black' }} to={`/collections/${collectionId}`}>
+            <PlatformIcon fontSize="large" />
                 &nbsp;
-          {collection.name}
-          {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
+            {collection.name}
+            {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
+          </Link>
         </h1>
       </Header>
       <ControlBar>
