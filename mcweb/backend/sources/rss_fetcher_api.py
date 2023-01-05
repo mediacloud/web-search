@@ -34,7 +34,7 @@ class RssFetcherApi:
         #logger.debug("__exit__")
         self._session.close()
 
-    def _request(self, method: str, path: str, **kws) -> Any:
+    def _request(self, method: str, path: str) -> Any:
         if RSS_FETCHER_USER and RSS_FETCHER_PASS:
             auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
         else:
@@ -43,8 +43,10 @@ class RssFetcherApi:
         if not RSS_FETCHER_URL:
             raise RssFetcherError('RSS_FETCHER_URL not set')
 
+        hdrs = { 'User-Agent': __name__ }
+
         url = f'{RSS_FETCHER_URL}/api/{path}'
-        response = self._session.request(method, url, auth=auth, **kws)
+        response = self._session.request(method, url, auth=auth, headers=hdrs)
 
         logger.debug(f"{method} {url}: status: {response.status_code} data: {len(response.text)} bytes")
         if response.status_code != 200:
@@ -61,8 +63,8 @@ class RssFetcherApi:
     def _get(self, path: str) -> Any:
         return self._request('GET', path)
 
-    def _post(self, path: str, **kws) -> Any:
-        return self._request('POST', path, **kws)
+    def _post(self, path: str) -> Any:
+        return self._request('POST', path)
 
     # helpers to check return type
 
@@ -89,12 +91,19 @@ class RssFetcherApi:
         # NOTE: takes ?limit=N
         return self._get_list(f"feeds/{feed_id}/history")
 
-    def feed_fetch_soon(self, feed_id: int):
+    def feed_fetch_soon(self, feed_id: int) -> int:
         """
         POST request to fetch a feed soon;
         returns count of updated feeds (0 or 1)
         """
         return int(self._post(f"feeds/{feed_id}/fetch-soon"))
+
+    def feed_stories(self, feed_id: int) -> List[Dict[str, Any]]:
+        """
+        GET request to fetch recent stories fetched from feed
+        returns list of Dict
+        """
+        return self._get_list(f"feeds/{feed_id}/stories")
 
     ################ sources methods
 
@@ -108,6 +117,13 @@ class RssFetcherApi:
         returns count of updated feeds
         """
         return int(self._post(f"sources/{source_id}/fetch-soon"))
+
+    def source_stories(self, source_id: int) -> List[Dict[str, Any]]:
+        """
+        GET request to fetch recent stories fetched from source feeds
+        returns list of Dict
+        """
+        return self._get_list(f"sources/{source_id}/stories")
 
     ################ stories methods
 
@@ -134,19 +150,36 @@ class RssFetcherApi:
                 for d in r.get('sources')]
 
 if __name__ == '__main__':
+    # test run via:
+    # venv/bin/python -m backend.sources.rss_fetcher_api
+    # from mcweb directory
+
     logging.basicConfig(level=logging.DEBUG)
 
     with RssFetcherApi() as rss:
+        # tested against staging-rss-fetcher.ifill.angwin:
 
-        f = rss.feed(49677)      # NYT Top Stories
-        assert f['url'] == 'http://www.nytimes.com/services/xml/rss/nyt/GlobalHome.xml'
+        SRC = 1                 # NYT
+        FEED = 49677            # NYT Top Stories
+        FURL = 'http://www.nytimes.com/services/xml/rss/nyt/GlobalHome.xml'
 
-        assert len(rss.feed_history(49677)) > 10
+        f = rss.feed(FEED)
+        assert f['url'] == FURL
 
-        #rss.feed_fetch_soon(49677) # should return 0 or 1
+        assert len(rss.feed_history(FEED)) > 10
 
-        f = rss.source_feeds(1)     # NYT
+        s = rss.feed_stories(FEED)
+        #print("fs", s)
+        assert len(s) > 10
+
+        #rss.feed_fetch_soon(FEED) # should return 0 or 1
+
+        f = rss.source_feeds(SRC)
         assert len(f) > 10
+
+        s = rss.source_stories(SRC)
+        #print("ss", s)
+        assert len(s) > 10
 
         s = rss.stories_fetched_by_day()
         assert len(s) > 2
@@ -157,4 +190,4 @@ if __name__ == '__main__':
         s = rss.stories_by_source()
         assert len(s) > 10
 
-        # print("soon:", rss.source_fetch_soon(1))  # returns number of feeds updated
+        # print("soon:", rss.source_fetch_soon(SRC))  # returns number of feeds updated
