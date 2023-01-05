@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 
 export default function AlertDialog({
   openDialog, outsideTitle, title, content, action, actionTarget, dispatchNeeded,
-  snackbar, snackbarText, variant, endIcon, navigateNeeded, navigateTo,
+  snackbar, snackbarText, variant, endIcon, navigateNeeded, navigateTo, secondAction,
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
@@ -30,17 +30,24 @@ export default function AlertDialog({
     setOpen(false);
   };
 
-  const handleClick = () => {
-    if (navigateNeeded) {
-      navigate(navigateTo);
-    }
+  const handleClick = async () => {
     if (dispatchNeeded) {
-      dispatch(action(actionTarget));
+      try {
+        await dispatch(action(actionTarget));
+      } catch (error) {
+        enqueueSnackbar(error, { variant: 'error' });
+      }
     } else {
       action(actionTarget);
     }
+    if (secondAction) {
+      dispatch(secondAction());
+    }
     if (snackbar) {
       enqueueSnackbar(snackbarText, { variant: 'success' });
+    }
+    if (navigateNeeded) {
+      navigate(navigateTo);
     }
     handleClose();
   };
@@ -98,6 +105,7 @@ AlertDialog.propTypes = {
   endIcon: PropTypes.element,
   navigateNeeded: PropTypes.bool,
   navigateTo: PropTypes.string,
+  secondAction: PropTypes.func,
 };
 
 AlertDialog.defaultProps = {
@@ -107,4 +115,5 @@ AlertDialog.defaultProps = {
   endIcon: null,
   navigateNeeded: false,
   navigateTo: '',
+  secondAction: null,
 };

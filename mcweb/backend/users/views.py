@@ -190,6 +190,20 @@ def logout(request):
     data = json.dumps({'message': "Logged Out"})
     return HttpResponse(data, content_type='application/json')
 
+@login_required(redirect_field_name='/auth/login')
+@require_http_methods(["DELETE"])
+def delete_user(request):
+    logging.debug('deleting user')
+    current_user = request.user
+    auth.logout(request)
+    try: 
+        current_user.delete()
+        data = json.dumps({'message': "User Deleted"})
+    except Exception as e:
+        data = json.dumps({'error': e})
+    
+    return HttpResponse(data, content_type='application/json')
+
 
 def _serialized_current_user(request) -> str:
     current_user = request.user
