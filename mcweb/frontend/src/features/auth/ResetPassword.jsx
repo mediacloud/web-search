@@ -73,12 +73,11 @@ export default function ResetPassword() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
-                  console.log(email)
 
                   try {
                     const resetPassword = await reset(email).unwrap();
 
-                    console.log(resetPassword)
+                    console.log(resetPassword.message)
                   } catch (err) {
                     console.log(err); 
                   }
