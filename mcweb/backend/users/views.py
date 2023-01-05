@@ -19,6 +19,16 @@ from .models import Profile
 logger = logging.getLogger(__name__)
 
 
+# reset password 
+
+@require_http_methods(["POST"])
+def reset_password(request):
+    logger.debug(request)
+    logger.debug("reset password") 
+
+
+
+
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 def profile(request):
