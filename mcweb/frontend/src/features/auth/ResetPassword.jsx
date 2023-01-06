@@ -18,15 +18,17 @@ export default function ResetPassword() {
   const { enqueueSnackbar } = useSnackbar();
 
 
-  const [email, setEmail] = useState("")
+  const [formState, setFormState] = React.useState({
+    username: ''
+  });
+
+  const handleChange = ({ target: { name, value } }) => (
+    setFormState((prev) => ({ ...prev, [name]: value }))
+  );
 
   const [reset, {isResetting} ] = useResetPasswordMutation();
 
 
-
-  const handleChange = (event) => {
-     setEmail(event.target.value)
-  }
 
   return (
     <div style={{ paddingTop: '100px' }}>
@@ -62,6 +64,7 @@ export default function ResetPassword() {
                 fullWidth
                 id="text"
                 label="Email"
+                name="email"
                 autoComplete="Email"
                 autoFocus
                 onChange={handleChange}
@@ -75,7 +78,8 @@ export default function ResetPassword() {
                 onClick={async () => {
 
                   try {
-                    const resetPassword = await reset(email).unwrap();
+
+                    const resetPassword = await reset(formState).unwrap();
 
                     console.log(resetPassword.message)
                   } catch (err) {

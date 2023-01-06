@@ -23,11 +23,15 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(["POST"])
 def reset_password(request):
-    logger.debug(request)
-    logger.debug("reset password") 
+   
+    payload = json.loads(request.body)
+
+    email = payload.get('email')
+
+    logger.debug(email)
+
 
     data = json.dumps({"message": "hello"})
-
     return HttpResponse(data, content_type='application/json')
 
 
@@ -46,6 +50,7 @@ def profile(request):
 @require_http_methods(["POST"])
 def login(request):
     payload = json.loads(request.body)
+    logger.debug(payload)
     entered_username = payload.get('username', None)
     entered_password = payload.get('password', None)
     user = auth.authenticate(username=entered_username, password=entered_password)

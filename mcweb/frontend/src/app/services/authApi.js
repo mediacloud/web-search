@@ -57,7 +57,6 @@ export const {
   useLogoutMutation,
   useLoginMutation,
   useRegisterMutation,
-
   useResetPasswordMutation,
   useDeleteUserMutation,
 } = api;
