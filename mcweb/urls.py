@@ -10,7 +10,7 @@ urlpatterns = [
     path('api/search/', include('backend.search.urls')),
     path('api/sources/', include('backend.sources.urls')),
     path('api/version', version),
-    path('api/', include('djoser.urls')),
+    path(r'^auth/', include('djoser.urls')),
     re_path(r'^(?:.*)/?', include('frontend.urls')),
 
 ]

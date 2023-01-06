@@ -11,7 +11,7 @@ import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import { useResetPasswordMutation } from '../../app/services/authApi';
+import { useResetPasswordMutation } from '../../app/services/resetPasswordApi';
 
 export default function ResetPassword() {
   const navigate = useNavigate();

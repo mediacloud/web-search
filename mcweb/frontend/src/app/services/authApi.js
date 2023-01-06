@@ -36,13 +36,6 @@ export const api = createApi({
         body: { ...credentials },
       }),
     }),
-    resetPassword: builder.mutation({
-      query: (credentials) => ({
-        url: '/users/reset_password/',
-        method: 'POST',
-        body: { ...credentials },
-      }),
-    }),
     deleteUser: builder.mutation({
       query: () => ({
         url: 'delete-user',
@@ -57,6 +50,5 @@ export const {
   useLogoutMutation,
   useLoginMutation,
   useRegisterMutation,
-  useResetPasswordMutation,
   useDeleteUserMutation,
 } = api;
