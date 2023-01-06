@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "backend.sources",
     "backend.search",
     "backend.users",
+    "djoser",
 ]
 
 MIDDLEWARE = [
@@ -227,3 +228,18 @@ try:
     )
 except ImproperlyConfigured:
     logger.debug("Sentry DSN not configured")
+
+
+# #configure Djoser 
+# DJOSER = {
+#     "USER_ID_FIELD": "username",
+#     "LOGIN_FIELD": "email",
+#     "SEND_ACTIVATION_EMAIL": True,
+#     "ACTIVATION_URL": "activate/{uid}/{token}",
+
+#     # the reset link
+#     "PASSWORD_RESET_CONFIRM_URL": "reset-password/{uid}/{token}",
+#     'SERIALIZERS': {
+#         'token_create': 'apps.accounts.serializers.CustomTokenCreateSerializer',
+#     },
+# }
