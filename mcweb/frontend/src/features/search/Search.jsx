@@ -147,7 +147,8 @@ export default function Search() {
               <Button
                 onClick={handleClickOpen}
                 className="float-end"
-                variant="contained"
+                variant="outlined"
+                sx={{ marginRight: 3 }}
                 endIcon={<IosShare titleAccess="share this search" />}
               >
                 Share this Search
