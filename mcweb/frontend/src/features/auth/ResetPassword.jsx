@@ -19,15 +19,14 @@ export default function ResetPassword() {
 
 
   const [formState, setFormState] = React.useState({
-    username: ''
+    email: ''
   });
 
   const handleChange = ({ target: { name, value } }) => (
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
 
-  const [reset, {isResetting} ] = useResetPasswordMutation();
-
+  const [reset, { isResetting }] = useResetPasswordMutation();
 
 
   return (
@@ -58,37 +57,37 @@ export default function ResetPassword() {
             sx={{ mt: 1 }}
           >
             {/* Email  */}
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="text"
-                label="Email"
-                name="email"
-                autoComplete="Email"
-                autoFocus
-                onChange={handleChange}
-              />
-           
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="text"
+              label="Email"
+              name="email"
+              autoComplete="Email"
+              autoFocus
+              onChange={handleChange}
+            />
+
             {/* Sending Email */}
-              <Button
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-                onClick={async () => {
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={async () => {
 
-                  try {
+                try {
 
-                    const resetPassword = await reset(formState).unwrap();
+                  const resetPassword = await reset(formState).unwrap();
 
-                    console.log(resetPassword.message)
-                  } catch (err) {
-                    console.log(err); 
-                  }
-                }}
-              >
-                Send Login Link
-              </Button>
+                  // console.log(resetPassword)
+                } catch (err) {
+                  console.log(err);
+                }
+              }}
+            >
+              Send Login Link
+            </Button>
 
 
           </Box>
