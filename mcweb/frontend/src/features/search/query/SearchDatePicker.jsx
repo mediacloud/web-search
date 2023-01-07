@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { setStartDate, setEndDate } from './querySlice';
 import { latestAllowedEndDate } from '../util/platforms';
+import DefaultDates from './DefaultDates';
 
 export default function SearchDatePicker() {
   const dispatch = useDispatch();
@@ -59,6 +60,10 @@ export default function SearchDatePicker() {
         Each platform has different limitations on how recent your search can be.
         The start and end dates are inclusive.
       </p>
+
+      <DefaultDates />
+
+
     </>
   );
 }
