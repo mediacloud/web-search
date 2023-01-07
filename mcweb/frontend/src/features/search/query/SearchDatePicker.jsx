@@ -61,8 +61,11 @@ export default function SearchDatePicker() {
         The start and end dates are inclusive.
       </p>
 
-      <DefaultDates />
+      <DefaultDates amountOfTime="1" typeOfTime="month" message="Last Month" />
 
+      <DefaultDates amountOfTime="3" typeOfTime="month" message="Last 3 Months" />
+
+      <DefaultDates amountOfTime="1" typeOfTime="year" message="Last Year" />
 
     </>
   );
