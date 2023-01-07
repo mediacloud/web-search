@@ -1,12 +1,11 @@
 import React from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { setStartDate, setEndDate } from './querySlice';
+import { setStartDate } from './querySlice';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import urlSerializer from '../util/urlSerializer';
 import { searchApi } from '../../../app/services/searchApi';
 import { setSearchTime } from './querySlice';
-import deactvateButton from "../util/deactivateButton";
 
 
 import { Link } from "@mui/material";
