@@ -2,6 +2,11 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setStartDate, setEndDate } from './querySlice';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
+import urlSerializer from '../util/urlSerializer';
+import { searchApi } from '../../../app/services/searchApi';
+import { setSearchTime } from './querySlice';
+
 import { latestAllowedEndDate } from '../util/platforms';
 import { useSnackbar } from 'notistack';
 
@@ -10,69 +15,40 @@ import { Link } from '@mui/material';
 
 export default function DefaultDates() {
   const dispatch = useDispatch();
-  const { enqueueSnackbar } = useSnackbar();
-
-  const { platform, startDate, endDate } = useSelector((state) => state.query);
+  const navigate = useNavigate();
 
 
+  const {
+    queryString,
+    queryList,
+    negatedQueryList,
+    startDate,
+    endDate,
+    collections,
+    sources,
+    platform,
+    anyAll,
+    advanced,
+  } = useSelector((state) => state.query);
 
-  // useEffect( () => {
-  // dispatch(setStartDate()
-  // 
-  // }, [platform])
-
-
-
+  const queryObject = {
+    queryList,
+    negatedQueryList,
+    queryString,
+    startDate,
+    endDate,
+    platform,
+    collections,
+    sources,
+    anyAll,
+    advanced,
+  };
+  
   return (
     <>
 
-      <Link
-        underline="hover"
-        component="button"
-        variant="body2"
-        sx={{ marginRight: 3 }}
+    <h1>Hello</h1>
 
-        onClick={() => {
-
-          const month = endDate.substring(0, 2) - 1;
-          const day = endDate.substring(3, 5);
-          const year = endDate.substring(6);
-
-
-          const datet = dayjs(new Date(year, month, day)).subtract(1, 'month').format('MM/DD/YYYY');
-
-
-
-        }}
-      >
-        Last Month
-      </Link>
-
-      <Link
-        underline="hover"
-        component="button"
-        variant="body2"
-        sx={{ marginRight: 3 }}
-
-        onClick={() => {
-
-        }}
-      >
-        Last 3 Months
-      </Link>
-
-      <Link
-        underline="hover"
-        component="button"
-        variant="body2"
-        sx={{ marginRight: 3 }}
-
-        onClick={() => {
-          console.log("I'm a button.");
-        }}
-      >
-        Last Year
-      </Link>
     </>
   );
 }
