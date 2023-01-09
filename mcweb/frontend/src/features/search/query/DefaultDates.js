@@ -1,8 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { setStartDate, setEndDate } from './querySlice';
+import { setStartDate } from './querySlice';
 import dayjs from 'dayjs';
-import { useNavigate } from 'react-router-dom';
 
 import { Link } from "@mui/material";
 
@@ -10,14 +9,12 @@ export default function DefaultDates({ amountOfTime, typeOfTime, message }) {
 
   const dispatch = useDispatch();
 
-
   const {
     endDate,
   } = useSelector((state) => state.query);
 
 
   return (
-
 
     <Link
       underline="hover"
@@ -35,7 +32,5 @@ export default function DefaultDates({ amountOfTime, typeOfTime, message }) {
       {message}
     </Link>
 
-
   )
-
 }
