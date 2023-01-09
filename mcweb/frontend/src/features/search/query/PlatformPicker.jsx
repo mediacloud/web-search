@@ -13,7 +13,7 @@ import {
 } from '../util/platforms';
 
 import {
-  setPlatform, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS,
+  setQueryProperty, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS,
 } from './querySlice';
 
 export default function PlatformPicker() {
@@ -25,7 +25,7 @@ export default function PlatformPicker() {
 
   const handleChangePlatform = async (event) => {
     const newPlatform = event.target.value;
-    await dispatch(setPlatform(newPlatform));
+    await dispatch(setQueryProperty({ platform: newPlatform }));
     const hasSomeMedia = (collections.length + sources.length) > 0;
     const samePlatform = providersOfSamePlatform(platform, newPlatform);
     /*
