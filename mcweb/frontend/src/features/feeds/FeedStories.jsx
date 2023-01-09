@@ -2,17 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useListFeedStoriesQuery } from '../../app/services/feedsApi';
-import { googleFaviconUrl } from '../ui/uiUtil';
+import { useListStoriesQuery } from '../../app/services/feedsApi';
 
-function FeedStories({ feedId }) {
-  const { data, isLoading } = useListFeedStoriesQuery({ feed_id: feedId });
+function FeedStories({ feedId, feed, sourceId }) {
+  const { data, isLoading } = useListStoriesQuery(feed ? { feed_id: feedId } : { source_id: sourceId });
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
   if (!data) return null;
-  console.log(data);
-  // return (<h2>Stories (Coming Soon)</h2>);
+
   return (
     <div className="results-item-wrapper results-sample-stories">
       <div className="row">
@@ -27,22 +25,13 @@ function FeedStories({ feedId }) {
 
                 <tr className="row">
                   <th className="col-9">Title</th>
-                  {/* <th>Source</th> */}
                   <th className="col-3">Publication Date</th>
                 </tr>
               </thead>
               <tbody>
                 {data.stories.map((sampleStory) => (
-                  <tr className="row">
+                  <tr key={sampleStory.url} className="row">
                     <td className="col-10"><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
-                    {/* <td>
-                      <img
-                        className="google-icon"
-                        src={googleFaviconUrl(sampleStory.domain)}
-                        alt={`${sampleStory.domain}`}
-                      />
-                      <a href={sampleStory.domain} target="_blank" rel="noreferrer">{sampleStory.domain}</a>
-                    </td> */}
                     <td className="col-2">{dayjs(sampleStory.published_at).format('MM-DD-YY')}</td>
                   </tr>
                 ))}
@@ -56,7 +45,14 @@ function FeedStories({ feedId }) {
 }
 
 FeedStories.propTypes = {
-  feedId: PropTypes.number.isRequired,
+  feedId: PropTypes.number,
+  feed: PropTypes.bool.isRequired,
+  sourceId: PropTypes.number,
+};
+
+FeedStories.defaultProps = {
+  sourceId: null,
+  feedId: null,
 };
 
 export default FeedStories;

@@ -19,9 +19,9 @@ export const feedsApi = managerApi.injectEndpoints({
         method: 'GET',
       }),
     }),
-    listFeedStories: builder.query({
+    listStories: builder.query({
       query: (params) => ({
-        url: `feeds/feed-stories/?${toSearchUrlParams(params)}`,
+        url: `feeds/stories/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
     }),
@@ -89,5 +89,5 @@ export const {
   useLazyFetchFeedQuery,
   useCreateFeedMutation,
   useDeleteFeedMutation,
-  useListFeedStoriesQuery,
+  useListStoriesQuery,
 } = feedsApi;
