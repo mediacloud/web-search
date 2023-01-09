@@ -7,7 +7,7 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import queryGenerator from '../util/queryGenerator';
 import setLanguage from '../util/setLanguage';
-import { setQueryString } from './querySlice';
+import { setQueryProperty } from './querySlice';
 
 function AdvancedSearch() {
   const dispatch = useDispatch();
@@ -27,8 +27,7 @@ function AdvancedSearch() {
   }, [platform]);
 
   useEffect(() => {
-    dispatch(setQueryString(queryString
-      || queryGenerator(queryList, negatedQueryList, platform, anyAll)));
+    dispatch(setQueryProperty({ queryString: queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll) }));
   }, [advanced]);
 
   const [query, setQuery] = useState(
@@ -37,7 +36,7 @@ function AdvancedSearch() {
 
   const handleChange = (queryArg) => {
     setQuery(queryArg);
-    dispatch(setQueryString(queryArg));
+    dispatch(setQueryProperty({ queryString: queryArg }));
   };
 
   return (
