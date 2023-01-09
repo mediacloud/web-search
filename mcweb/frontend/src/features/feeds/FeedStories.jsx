@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useListStoriesQuery } from '../../app/services/feedsApi';
 
 function FeedStories({ feedId, feed, sourceId }) {
-  const { data, isLoading } = useListStoriesQuery(feed ? { feed_id: feedId } : { source_id: sourceId });
+  const { data, isLoading } = useListStoriesQuery(feed ? { feed_id: Number(feedId) } : { source_id: Number(sourceId) });
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
