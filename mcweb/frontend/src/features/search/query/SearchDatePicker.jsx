@@ -6,7 +6,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
-import { setStartDate, setEndDate } from './querySlice';
+import { setQueryProperty } from './querySlice';
 import { latestAllowedEndDate } from '../util/platforms';
 import DefaultDates from './DefaultDates';
 
@@ -15,11 +15,11 @@ export default function SearchDatePicker() {
   const { enqueueSnackbar } = useSnackbar();
   const { platform, startDate, endDate } = useSelector((state) => state.query);
   const handleChangeFromDate = (newValue) => {
-    dispatch(setStartDate(dayjs(newValue).format('MM/DD/YYYY')));
+    dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY') }));
   };
 
   const handleChangeToDate = (newValue) => {
-    dispatch(setEndDate(dayjs(newValue).format('MM/DD/YYYY')));
+    dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY') }));
   };
 
   useEffect(() => {

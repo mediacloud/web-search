@@ -1,18 +1,9 @@
-import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 
 import {
-  setQueryList,
-  setNegatedQueryList,
-  setStartDate,
-  setEndDate,
-  setPlatform,
-  setAnyAll,
+  setQueryProperty,
   addSelectedMedia,
   setPreviewSelectedMedia,
-  setAdvanced,
-  setQueryString,
-  setSearchTime,
 } from '../query/querySlice';
 
 const customParseFormat = require('dayjs/plugin/customParseFormat');
@@ -84,29 +75,30 @@ const setSearchQuery = (searchParams, dispatch) => {
   sources = formatSources(sources);
 
   if (queryString) {
-    dispatch(setQueryString(queryString));
-    dispatch(setAdvanced(true));
+    dispatch(setQueryProperty({ queryString }));
+    dispatch(setQueryProperty({ advanced: true }));
   } else {
-    dispatch(setQueryList(query));
-    dispatch(setNegatedQueryList(negatedQuery));
+    dispatch(setQueryProperty({ queryList: query }));
+    dispatch(setQueryProperty({ negatedQueryList: negatedQuery }));
   }
   if (startDate) {
-    dispatch(setStartDate(startDate));
+    dispatch(setQueryProperty({ startDate }));
   }
   if (endDate) {
-    dispatch(setEndDate(endDate));
+    dispatch(setQueryProperty({ endDate }));
   }
   if (platform) {
-    dispatch(setPlatform(platform));
+    dispatch(setQueryProperty({ platform }));
   }
   if (anyAll) {
-    dispatch(setAnyAll(anyAll));
+    dispatch(setQueryProperty({ anyAll }));
   }
 
   dispatch(addSelectedMedia(collections.concat(sources)));
   dispatch(setPreviewSelectedMedia(collections.concat(sources)));
 
-  dispatch(setSearchTime(dayjs().unix()));
+  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix() }));
+
   return null;
 };
 

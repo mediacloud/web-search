@@ -68,34 +68,17 @@ const querySlice = createSlice({
       previewSources: state.previewSources.filter((s) => s.id !== payload.id),
     }),
 
-    // TODO: these all could be combined into on single setQueryProperty: (state, { payload }) => ({ ...state, ...payload }),
-    setStartDate: (state, { payload }) => ({ ...state, startDate: payload }),
-    setEndDate: (state, { payload }) => ({ ...state, endDate: payload }),
-    setQueryString: (state, { payload }) => ({ ...state, queryString: payload }),
-    setQueryList: (state, { payload }) => ({ ...state, queryList: payload }),
-    setNegatedQueryList: (state, { payload }) => ({ ...state, negatedQueryList: payload }),
-    setPlatform: (state, { payload }) => ({ ...state, platform: payload }),
-    setSearchTime: (state, { payload }) => ({ ...state, lastSearchTime: payload }),
-    setAnyAll: (state, { payload }) => ({ ...state, anyAll: payload }),
-    setAdvanced: (state, { payload }) => ({ ...state, advanced: payload }),
+    setQueryProperty: (state, { payload }) => ({ ...state, ...payload }),
   },
 });
 
 export const {
   addSelectedMedia,
   removeSelectedMedia,
-  setStartDate,
-  setEndDate,
-  setQueryString,
-  setQueryList,
-  setNegatedQueryList,
-  setPlatform,
-  setSearchTime,
+  setQueryProperty,
   addPreviewSelectedMedia,
   removePreviewSelectedMedia,
-  setAnyAll,
   setPreviewSelectedMedia,
-  setAdvanced,
   resetSelectedAndPreviewMedia,
 } = querySlice.actions;
 
