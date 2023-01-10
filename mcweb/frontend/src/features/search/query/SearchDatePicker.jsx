@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -23,6 +24,7 @@ export default function SearchDatePicker() {
   };
 
   useEffect(() => {
+    dispatch(setEndDate(latestAllowedEndDate(platform).format('MM/DD/YYYY')));
     if (dayjs(endDate) > latestAllowedEndDate(platform)) {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
