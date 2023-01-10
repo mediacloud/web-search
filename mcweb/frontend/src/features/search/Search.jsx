@@ -2,11 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContentText from '@mui/material/DialogContentText';
 import { ContentCopy, IosShare } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -23,6 +18,7 @@ import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
+import AlertDialog from '../ui/AlertDialog';
 
 export default function Search() {
   const dispatch = useDispatch();
@@ -37,39 +33,15 @@ export default function Search() {
     setOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   const {
-    queryString,
-    queryList,
-    negatedQueryList,
-    startDate,
-    endDate,
     collections,
     sources,
-    platform,
-    anyAll,
     advanced,
   } = useSelector((state) => state.query);
 
-  const queryObject = {
-    queryList,
-    negatedQueryList,
-    queryString,
-    startDate,
-    endDate,
-    platform,
-    collections,
-    sources,
-    anyAll,
-    advanced,
-  };
-
   const handleShare = (e) => {
     e.preventDefault();
-    const ahref = `search.mediacloud.org/search${urlSerializer(queryObject)}`;
+    const ahref = `search.mediacloud.org/search${urlSerializer(useSelector((state) => state.query))}`;
     switch (e.currentTarget.id) {
       case 'copy':
         navigator.clipboard.writeText(ahref);
@@ -81,8 +53,8 @@ export default function Search() {
   };
 
   useEffect(() => {
-    setShow(deactivateButton(queryObject));
-  }, [queryObject]);
+    setShow(deactivateButton(useSelector((state) => state.query)));
+  }, [useSelector((state) => state.query)]);
 
   return (
     <div className="search-container">
@@ -95,14 +67,9 @@ export default function Search() {
         </div>
       </div>
 
-      {!advanced && (
-        <div className="container">
-          <SimpleSearch />
-        </div>
-      )}
-
       {advanced && (
         <div className="container">
+          <SimpleSearch />
           <AdvancedSearch />
         </div>
       )}
@@ -153,40 +120,23 @@ export default function Search() {
               >
                 Share this Search
               </Button>
-              <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
+              <AlertDialog
+                openDialog={open}
+                outsideTitle="Share this Search"
+                title="Share this Search"
+                content={<code>{`search.mediacloud.org/search${urlSerializer(useSelector((state) => state.query))}`}</code>}
+                action={handleShare}
+                actionTarget
+                snackbar
+                snackbarText="Search copied to clipboard!"
+                dispatchNeeded={false}
+                onClick={() => setOpen(true)}
+                variant="outlined"
+                endIcon={<ContentCopy titleAccess="copy this search" />}
+                secondAction={false}
               >
-                <DialogTitle id="alert-dialog-title">
-                  Share this Search
-                </DialogTitle>
-                <DialogContent>
-                  <DialogContentText id="alert-dialog-description">
-                    <code>
-                      {' '}
-                      {`search.mediacloud.org/search${urlSerializer(queryObject)}`}
-                      {' '}
-                    </code>
-                  </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-
-                  <Button
-                    variant="outlined"
-                    startIcon={<ContentCopy titleAccess="copy this search" />}
-                    id="copy"
-                    onClick={handleShare}
-                  >
-                    {' '}
-                    copy
-
-                  </Button>
-                  <Button variant="contained" onClick={handleClose}> Close </Button>
-                </DialogActions>
-              </Dialog>
-
+                <Button id="copy">copy</Button>
+              </AlertDialog>
             </div>
 
             <div className="col-1">
@@ -198,7 +148,7 @@ export default function Search() {
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
                   navigate(
-                    `/search${urlSerializer(queryObject)}`,
+                    `/search${urlSerializer(useSelector((state) => state.query))}`,
                     { options: { replace: true } },
                   );
                   dispatch(searchApi.util.resetApiState());
