@@ -6,7 +6,6 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import DownloadIcon from '@mui/icons-material/Download';
 
-
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
@@ -68,7 +67,6 @@ export default function SampleStories() {
     );
   }
   if (!data) return null;
-
   const content = (
     <div className="results-item-wrapper results-sample-stories">
       <div className="row">

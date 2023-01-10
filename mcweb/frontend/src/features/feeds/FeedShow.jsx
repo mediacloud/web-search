@@ -111,7 +111,7 @@ function FeedShow() {
           <FeedHistory feedId={feedId} />
         </div>
         <div className="col-6">
-          <FeedStories feedId={feedId} />
+          <FeedStories feed feedId={feedId} />
         </div>
       </div>
 
