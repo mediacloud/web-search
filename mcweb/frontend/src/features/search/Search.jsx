@@ -33,15 +33,17 @@ export default function Search() {
     setOpen(true);
   };
 
+  const queryState = useSelector((state) => state.query);
+
   const {
     collections,
     sources,
     advanced,
-  } = useSelector((state) => state.query);
+  } = queryState;
 
   const handleShare = (e) => {
     e.preventDefault();
-    const ahref = `search.mediacloud.org/search${urlSerializer(useSelector((state) => state.query))}`;
+    const ahref = `search.mediacloud.org/search${urlSerializer(queryState)}`;
     switch (e.currentTarget.id) {
       case 'copy':
         navigator.clipboard.writeText(ahref);
@@ -53,8 +55,8 @@ export default function Search() {
   };
 
   useEffect(() => {
-    setShow(deactivateButton(useSelector((state) => state.query)));
-  }, [useSelector((state) => state.query)]);
+    setShow(deactivateButton(queryState));
+  }, [queryState]);
 
   return (
     <div className="search-container">
@@ -67,12 +69,14 @@ export default function Search() {
         </div>
       </div>
 
-      {advanced && (
-        <div className="container">
-          <SimpleSearch />
-          <AdvancedSearch />
-        </div>
-      )}
+      <div className="container">
+        {advanced && (
+        <AdvancedSearch />
+        )}
+        {!advanced && (
+        <SimpleSearch />
+        )}
+      </div>
 
       <div className="container">
         <div className="row">
@@ -124,7 +128,7 @@ export default function Search() {
                 openDialog={open}
                 outsideTitle="Share this Search"
                 title="Share this Search"
-                content={<code>{`search.mediacloud.org/search${urlSerializer(useSelector((state) => state.query))}`}</code>}
+                content={<code>{`search.mediacloud.org/search${urlSerializer(queryState)}`}</code>}
                 action={handleShare}
                 actionTarget
                 snackbar
@@ -148,7 +152,7 @@ export default function Search() {
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
                   navigate(
-                    `/search${urlSerializer(useSelector((state) => state.query))}`,
+                    `/search${urlSerializer(queryState)}`,
                     { options: { replace: true } },
                   );
                   dispatch(searchApi.util.resetApiState());
