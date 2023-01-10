@@ -7,16 +7,12 @@ import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { Settings } from '@mui/icons-material';
+import DownloadIcon from '@mui/icons-material/Download';
 import queryGenerator from '../util/queryGenerator';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
-import {
-  PROVIDER_NEWS_MEDIA_CLOUD,
-  PROVIDER_NEWS_WAYBACK_MACHINE,
-} from '../util/platforms';
 import { supportsNormalizedCount } from './TotalAttentionResults';
-import { Settings } from '@mui/icons-material';
-import DownloadIcon from '@mui/icons-material/Download';
 
 export default function CountOverTimeResults() {
   const {
@@ -55,8 +51,8 @@ export default function CountOverTimeResults() {
 
   const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
-  const collectionIds = collections.map(c => c.id);
-  const sourceIds = sources.map(s => s.id);
+  const collectionIds = collections.map((c) => c.id);
+  const sourceIds = sources.map((s) => s.id);
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
@@ -120,12 +116,11 @@ export default function CountOverTimeResults() {
           normalized={normalized}
         />
         <div className="clearfix">
-          {(platform === PROVIDER_NEWS_MEDIA_CLOUD
-          || platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+          {supportsNormalizedCount(platform) && (
             <div className="float-start">
               {normalized && (
                 <div>
-                  <Button onClick={handleClick}  endIcon={<Settings titleAccess="view other chart viewing options" />}>
+                  <Button onClick={handleClick} endIcon={<Settings titleAccess="view other chart viewing options" />}>
                     View Options
                   </Button>
                   <Menu
@@ -142,8 +137,7 @@ export default function CountOverTimeResults() {
                       handleClose();
                     }}
                     >
-                      View Story Count
-
+                      View Content Count
                     </MenuItem>
                   </Menu>
                 </div>
@@ -167,7 +161,7 @@ export default function CountOverTimeResults() {
                       handleClose();
                     }}
                     >
-                      View Normalized Story Percentage (default)
+                      View Normalized Content Percentage (default)
                     </MenuItem>
                   </Menu>
                 </div>
@@ -177,7 +171,7 @@ export default function CountOverTimeResults() {
           <div className="float-end">
             <Button
               variant="text"
-              endIcon={<DownloadIcon titleAccess="download attention over time results"/>}
+              endIcon={<DownloadIcon titleAccess="download attention over time results" />}
               onClick={() => {
                 handleDownloadRequest({
                   query: fullQuery(),

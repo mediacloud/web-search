@@ -5,13 +5,13 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { Settings } from '@mui/icons-material';
 import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
-import { Settings } from '@mui/icons-material';
 
 export const supportsNormalizedCount = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
@@ -45,8 +45,8 @@ function TotalAttentionResults() {
 
   const [query, { isLoading, data, error }] = useGetTotalCountMutation();
 
-  const collectionIds = collections.map(c => c.id);
-  const sourceIds = sources.map(s => s.id);
+  const collectionIds = collections.map((c) => c.id);
+  const sourceIds = sources.map((s) => s.id);
 
   // using EPSILON in the denominator here prevents against div by zero errors
   // (which returns infinity in JS)
@@ -106,12 +106,11 @@ function TotalAttentionResults() {
             />
           )}
           <div className="clearfix">
-            {(platform === PROVIDER_NEWS_MEDIA_CLOUD
-            || platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+            {supportsNormalizedCount(platform) && (
               <div className="float-start">
                 {normalized && (
                   <div>
-                    <Button onClick={handleClick} endIcon={<Settings titleAccess="view other chart viewing options"/>}>
+                    <Button onClick={handleClick} endIcon={<Settings titleAccess="view other chart viewing options" />}>
                       View Options
                     </Button>
                     <Menu
