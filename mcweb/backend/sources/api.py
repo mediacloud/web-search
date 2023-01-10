@@ -150,12 +150,26 @@ class FeedsViewSet(viewsets.ModelViewSet):
         with RssFetcherApi() as rss:
             return Response({"feeds": rss.source_feeds(source_id)})
     
-    @action(detail=False)
+    @action(detail=False, url_path='feed-details')
     def feed_details(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
         with RssFetcherApi() as rss:
             return Response({"feed": rss.feed(feed_id)})
-    
+
+    @action(detail=False)
+    def stories(self, request):
+        feed_id = self.request.query_params.get("feed_id", None)
+        source_id = self.request.query_params.get("source_id", None)
+        
+        with RssFetcherApi() as rss:
+            if feed_id is not None:
+                stories = rss.feed_stories(int(feed_id))
+
+            if source_id is not None:
+                stories = rss.source_stories(int(source_id))
+
+        return Response({"stories": stories })
+
     @action(detail=False)
     def history(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))

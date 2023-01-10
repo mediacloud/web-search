@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import { setQueryList, setNegatedQueryList } from './querySlice';
+import { setQueryProperty } from './querySlice';
 
 export default function QueryList({ negated }) {
   const dispatch = useDispatch();
@@ -21,9 +21,9 @@ export default function QueryList({ negated }) {
     setServiceList(list);
 
     if (negated) {
-      dispatch(setNegatedQueryList(list));
+      dispatch(setQueryProperty({ negatedQueryList: list }));
     } else {
-      dispatch(setQueryList(list));
+      dispatch(setQueryProperty({ queryList: list }));
     }
   };
 
@@ -34,9 +34,9 @@ export default function QueryList({ negated }) {
     setServiceList(list);
 
     if (negated) {
-      dispatch(setNegatedQueryList(list));
+      dispatch(setQueryProperty({ negatedQueryList: list }));
     } else {
-      dispatch(setQueryList(list));
+      dispatch(setQueryProperty({ queryList: list }));
     }
   };
 
@@ -47,9 +47,9 @@ export default function QueryList({ negated }) {
     setServiceList(list);
 
     if (negated) {
-      dispatch(setNegatedQueryList(list));
+      dispatch(setQueryProperty({ negatedQueryList: list }));
     } else {
-      dispatch(setQueryList(list));
+      dispatch(setQueryProperty({ queryList: list }));
     }
   };
 

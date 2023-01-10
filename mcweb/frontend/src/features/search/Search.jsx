@@ -16,7 +16,7 @@ import SelectedMedia from './query/SelectedMedia';
 import SearchDatePicker from './query/SearchDatePicker';
 import SimpleSearch from './query/SimpleSearch';
 import SampleStories from './results/SampleStories';
-import { setSearchTime, removeSelectedMedia } from './query/querySlice';
+import { setQueryProperty, removeSelectedMedia } from './query/querySlice';
 import TotalAttentionResults from './results/TotalAttentionResults';
 import CountOverTimeResults from './results/CountOverTimeResults';
 import AdvancedSearch from './query/AdvancedSearch';
@@ -202,7 +202,7 @@ export default function Search() {
                     { options: { replace: true } },
                   );
                   dispatch(searchApi.util.resetApiState());
-                  dispatch(setSearchTime(dayjs().unix()));
+                  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix() }));
                 }}
               >
                 Search
