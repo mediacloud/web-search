@@ -80,6 +80,7 @@ export default function SimpleSearch() {
                     actionTarget
                     onClick={() => setOpen(true)}
                     openDialog={open}
+                    confirmButtonText="confirm"
                   />
                 </div>
               </div>

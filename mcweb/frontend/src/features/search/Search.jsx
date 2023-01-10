@@ -115,15 +115,6 @@ export default function Search() {
           <div className="row">
 
             <div className="col-11">
-              <Button
-                onClick={handleClickOpen}
-                className="float-end"
-                variant="outlined"
-                sx={{ marginRight: 3 }}
-                endIcon={<IosShare titleAccess="share this search" />}
-              >
-                Share this Search
-              </Button>
               <AlertDialog
                 openDialog={open}
                 outsideTitle="Share this Search"
@@ -138,9 +129,9 @@ export default function Search() {
                 variant="outlined"
                 endIcon={<ContentCopy titleAccess="copy this search" />}
                 secondAction={false}
-              >
-                <Button id="copy">copy</Button>
-              </AlertDialog>
+                className="float-end"
+                confirmButtonText="copy"
+              />
             </div>
 
             <div className="col-1">
