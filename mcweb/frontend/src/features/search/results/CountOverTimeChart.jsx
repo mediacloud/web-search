@@ -65,7 +65,7 @@ export default function CountOverTimeChart({ data, normalized }) {
 
   if (normalized) {
     options.yAxis.labels.format = '{value:.1f}%';
-    options.tooltip.pointFormat = '{point.x:%b. %e %y} - {point.y:.2f}% of stories';
+    options.tooltip.pointFormat = '{point.x:%b. %e %y} - {point.y:.2f}% of content';
   }
   return (
     <div>
