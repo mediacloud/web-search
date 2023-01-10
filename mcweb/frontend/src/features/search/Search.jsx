@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
-import { ContentCopy, IosShare } from '@mui/icons-material';
+import { ContentCopy } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import { searchApi } from '../../app/services/searchApi';
@@ -28,10 +28,6 @@ export default function Search() {
   const [show, setShow] = useState(false);
 
   const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const queryState = useSelector((state) => state.query);
 
