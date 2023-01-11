@@ -24,7 +24,7 @@ export default function SearchDatePicker() {
   };
 
   useEffect(() => {
-    dispatch(setQueryProperty({ endDate: latestAllowedEndDate(platform).format('MM/DD/YYYY') }));
+    // dispatch(setQueryProperty({ endDate: latestAllowedEndDate(platform).format('MM/DD/YYYY') }));
     if (dayjs(endDate) > latestAllowedEndDate(platform)) {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
@@ -63,11 +63,11 @@ export default function SearchDatePicker() {
         The start and end dates are inclusive.
       </p>
 
-      <DefaultDates amountOfTime="1" typeOfTime="month" message="Last Month" />
+      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="month" message="Last Month" />
 
-      <DefaultDates amountOfTime="3" typeOfTime="month" message="Last 3 Months" />
+      <DefaultDates platform={platform} amountOfTime="3" typeOfTime="month" message="Last 3 Months" />
 
-      <DefaultDates amountOfTime="1" typeOfTime="year" message="Last Year" />
+      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="year" message="Last Year" />
 
     </>
   );

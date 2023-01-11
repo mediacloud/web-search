@@ -1,18 +1,18 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 import { Link } from '@mui/material';
 import PropTypes from 'prop-types';
 import { setQueryProperty } from './querySlice';
+import { latestAllowedEndDate } from '../util/platforms';
 
-export default function DefaultDates({ amountOfTime, typeOfTime, message }) {
+export default function DefaultDates({
+  amountOfTime, typeOfTime, message, platform,
+}) {
   const dispatch = useDispatch();
 
-  const {
-    endDate,
-  } = useSelector((state) => state.query);
-
+  const endDate = latestAllowedEndDate(platform);
   return (
 
     <Link
@@ -21,6 +21,8 @@ export default function DefaultDates({ amountOfTime, typeOfTime, message }) {
       variant="body2"
       sx={{ marginRight: 3 }}
       onClick={() => {
+        dispatch(setQueryProperty({ endDate: latestAllowedEndDate(endDate).format('MM/DD/YYYY') }));
+
         const day = dayjs(endDate, 'MM-DD-YYYY').subtract(amountOfTime, typeOfTime).format('MM/DD/YYYY');
 
         dispatch(setQueryProperty({ startDate: day }));
@@ -33,7 +35,8 @@ export default function DefaultDates({ amountOfTime, typeOfTime, message }) {
 }
 
 DefaultDates.propTypes = {
-  amountOfTime: PropTypes.func.isRequired,
-  typeOfTime: PropTypes.func.isRequired,
-  message: PropTypes.func.isRequired,
+  amountOfTime: PropTypes.string.isRequired,
+  typeOfTime: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
+  platform: PropTypes.string.isRequired,
 };
