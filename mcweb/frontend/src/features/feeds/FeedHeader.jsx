@@ -88,6 +88,7 @@ export default function FeedHeader() {
             variant="outlined"
             endIcon={<LockOpenIcon titleAccess="admin" />}
             secondAction={false}
+            confirmButtonText="Delete"
           />
         </Permissioned>
       </ControlBar>

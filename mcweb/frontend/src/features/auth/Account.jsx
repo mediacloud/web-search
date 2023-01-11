@@ -52,6 +52,7 @@ function Account() {
             openDialog={open}
             variant="outlined"
             endIcon={<DeleteIcon titleAccess="delete account" />}
+            confirmButtonText="Delete"
           />
         </Alert>
       </div>
