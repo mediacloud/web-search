@@ -220,12 +220,26 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
 
     @classmethod
     def _assembled_query_str(cls, query: str, **kwargs) -> str:
+        # turn the domains into a filter
         domains = kwargs.get('domains', [])
-        # need to put all those filters in single query string
-        q = query
+        domain_clause = ""
         if len(domains) > 0:
-            q += " AND (domain:({}))".format(" OR ".join(domains))
+            domain_clause += "domain:({})".format(" OR ".join(domains))
+        # turn the url_search_string clauses into a filter, if any
+        filters = kwargs.get('filters', [])
+        filter_clause = ""
+        if len(filters) > 0:
+            filter_clause += " OR ".join(filters)
+        # now assemble both
+        q = query
+        if (len(domain_clause) > 0) and (len(filter_clause) > 0):
+            q += f" AND (({domain_clause}) OR ({filter_clause}))"
+        elif len(domain_clause) > 0:
+            q += f" AND ({domain_clause})"
+        elif len(filter_clause) > 0:
+            q += f" AND ({filter_clause})"
         return q
+
 
     @classmethod
     def _matches_to_rows(cls, matches: List) -> List:
