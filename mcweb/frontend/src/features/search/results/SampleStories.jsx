@@ -66,7 +66,6 @@ export default function SampleStories() {
     );
   }
   if (!data) return null;
-
   const content = (
     <div className="results-item-wrapper results-sample-stories">
       <div className="row">

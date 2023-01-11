@@ -13,7 +13,6 @@ function Account() {
   const currentUser = useSelector(selectCurrentUser);
   const [open, setOpen] = useState(false);
   const [deleteUser] = useDeleteUserMutation();
-  console.log(currentUser);
   return (
     <>
       <Header>

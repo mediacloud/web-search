@@ -74,8 +74,18 @@ def _for_twitter_api(collections: List, sources: List) -> Dict:
 
 
 def _for_reddit_pushshift(collections: List, sources: List) -> Dict:
-    # TODO: filter by a list of subreddits
-    return dict()
+    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
+    Source = apps.get_model('sources', 'Source')
+    subreddits = []
+    # turn media ids into list of subreddits
+    selected_sources = Source.objects.filter(id__in=sources)
+    subreddits += [s.name for s in selected_sources]
+    # turn collections ids into list of subreddits
+    selected_sources = Source.objects.filter(collections__id__in=collections)
+    subreddits += [s.name for s in selected_sources]
+    # clean up names
+    subreddits = [s.replace('/r/', '') for s in subreddits]
+    return dict(subreddits=subreddits)
 
 
 def _for_wayback_machine(collections: List, sources: List) -> Dict:

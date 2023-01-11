@@ -5,6 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import StatPanel from '../ui/StatPanel';
+import FeedStories from '../feeds/FeedStories';
 
 export default function SourceShow() {
   const params = useParams();
@@ -54,6 +55,9 @@ export default function SourceShow() {
       <div className="row">
         <div className="col-6">
           <CollectionList sourceId={sourceId} />
+        </div>
+        <div className="col-6">
+          <FeedStories feed={false} sourceId={sourceId} />
         </div>
       </div>
 

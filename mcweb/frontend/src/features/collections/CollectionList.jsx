@@ -27,11 +27,11 @@ export default function CollectionList(props) {
 
   return (
     <>
-      <h2>
+      <h1>
         Collections (
         {asNumber(collections.count)}
         )
-      </h2>
+      </h1>
       {(Math.ceil(collections.count / PAGE_SIZE) > 1) && (
         <Pagination
           count={Math.ceil(collections.count / PAGE_SIZE)}

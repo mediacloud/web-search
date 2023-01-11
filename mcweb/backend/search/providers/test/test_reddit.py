@@ -10,41 +10,38 @@ class RedditPushshiftProviderTest(TestCase):
         self._provider = RedditPushshiftProvider()
 
     def test_count(self):
-        results = self._provider.count("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
-                                        dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
-        assert results > 0
+        total_matching = self._provider.count("Trump", dt.datetime(2022, 11, 1), dt.datetime(2022, 11, 10))
+        assert total_matching > 0
 
     def test_subreddits(self):
-        results = self._provider.sample("professor", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
-                                        dt.datetime.strptime("2019-02-01", "%Y-%m-%d"),
-                                        subreddits=['NEU'])
-        for post in results:
+        mathching_posts = self._provider.sample("professor", dt.datetime(2022, 11, 1), dt.datetime(2022, 12, 1),
+                                                subreddits=['NEU'])
+        assert len(mathching_posts) > 0
+        for post in mathching_posts:
             assert post['subreddit'] == 'NEU'
 
     def test_sample(self):
-        results = self._provider.sample("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
-                                        dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
+        sample_posts = self._provider.sample("Trump", dt.datetime(2022, 11, 1), dt.datetime(2022, 12, 1))
+        assert len(sample_posts) > 0
         last_score = 9999999999999
-        for post in results:
+        for post in sample_posts:
             assert last_score >= post['score']
             last_score = post['score']
             assert 'language' in post
             assert len(post['language']) == 2
 
-    """
     def test_count_over_time(self):
-        results = self._provider.count_over_time("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
-                                                 dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
-        for item in results['counts']:
-            assert 'date' in item
-            assert 'count' in item
+        results = self._provider.count_over_time("Trump", dt.datetime(2022, 11, 1), dt.datetime(2022, 12, 1))
+        assert 'counts' in results
+        assert isinstance(results['counts'], list) is True
+        assert len(results['counts']) == 28
+        # make sure dates are unique
+        dates = [d['date'] for d in results['counts']]
+        assert len(set(dates)) == len(dates)
 
     def test_normalized_count_over_time(self):
-        results = self._provider.normalized_count_over_time("Trump",
-                                                            dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
-                                                            dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
+        results = self._provider.normalized_count_over_time("Biden", dt.datetime(2022, 11, 1), dt.datetime(2022, 12, 1))
         assert 'counts' in results
         assert 'total' in results
         assert results['total'] > 0
         assert 'normalized_total' in results
-    """
