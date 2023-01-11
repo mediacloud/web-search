@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='source',
             name='media_type',
-            field=models.CharField(choices=[(backend.sources.models.MediaTypes['AUDIO_BROADCAST'], 'audio_broadcast'), (backend.sources.models.MediaTypes['DIGITAL_NATIVE'], 'digital_native'), (backend.sources.models.MediaTypes['PRINT_NATIVE'], 'print_native'), (backend.sources.models.MediaTypes['OTHER'], 'other'), (backend.sources.models.MediaTypes['VIDEO_BROADCAST'], 'video_broadcast')], max_length=100, null=True),
+            field=models.CharField(choices=[(backend.sources.models.Source.SourceMediaTypes['AUDIO_BROADCAST'], 'audio_broadcast'), (backend.sources.models.Source.SourceMediaTypes['DIGITAL_NATIVE'], 'digital_native'), (backend.sources.models.Source.SourceMediaTypes['PRINT_NATIVE'], 'print_native'), (backend.sources.models.Source.SourceMediaTypes['OTHER'], 'other'), (backend.sources.models.Source.SourceMediaTypes['VIDEO_BROADCAST'], 'video_broadcast')], max_length=100, null=True),
         ),
         migrations.AddField(
             model_name='source',

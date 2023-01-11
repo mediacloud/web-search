@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -6,26 +6,27 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
-import { setStartDate, setEndDate } from './querySlice';
+import { setQueryProperty } from './querySlice';
 import { latestAllowedEndDate } from '../util/platforms';
 
 export default function SearchDatePicker() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const { platform, startDate, endDate } = useSelector((state) => state.query);
-
   const handleChangeFromDate = (newValue) => {
-    dispatch(setStartDate(dayjs(newValue).format('MM/DD/YYYY')));
+    dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY') }));
   };
 
   const handleChangeToDate = (newValue) => {
-    dispatch(setEndDate(dayjs(newValue).format('MM/DD/YYYY')));
+    dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY') }));
   };
 
-  if (dayjs(endDate) > latestAllowedEndDate(platform)) {
-    handleChangeToDate(latestAllowedEndDate(platform));
-    enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
-  }
+  useEffect(() => {
+    if (dayjs(endDate) > latestAllowedEndDate(platform)) {
+      handleChangeToDate(latestAllowedEndDate(platform));
+      enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
+    }
+  }, [platform]);
 
   return (
     <>

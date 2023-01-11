@@ -10,7 +10,7 @@ const managerApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Source', 'Collection'],
+  tagTypes: ['Source', 'Collection', 'Feed'],
   endpoints: () => ({}),
 });
 

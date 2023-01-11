@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Route, Navigate, useLocation, Routes, useSearchParams,
 } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import PropTypes from 'prop-types';
 import Homepage from './features/homepage/Homepage';
 
 import Header from './features/header/Header';
@@ -14,13 +15,20 @@ import SignIn from './features/auth/SignIn';
 import SignUp from './features/auth/SignUp';
 import ResetPassword from './features/auth/ResetPassword';
 import ConfirmedReset from './features/auth/ConfirmedReset';
-
+import BadURL from './features/ui/BadURL';
 // pages
-import Collections from './features/collections/CollectionShow';
-import CollectionsHome from './features/collections/CollectionsHome';
+import CollectionShow from './features/collections/CollectionShow';
+import DirectoryHome from './features/directory/DirectoryHome';
 import CreateCollection from './features/collections/CreateCollection';
+import CreateSource from './features/sources/CreateSource';
+import CollectionHeader from './features/collections/CollectionHeader';
+import GeographicNewsCollections from './features/collections/GeographicNewsCollections';
 import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
+import ListSourceFeeds from './features/sources/ListSourceFeeds';
+import CreateFeed from './features/feeds/CreateFeed';
+import ModifyFeed from './features/feeds/ModifyFeed';
+import FeedHeader from './features/feeds/FeedHeader';
 import FeedShow from './features/feeds/FeedShow';
 import SourceHeader from './features/sources/SourceHeader';
 
@@ -32,17 +40,16 @@ import setSearchQuery from './features/search/util/setSearchQuery';
 function App() {
   const { lastSearchTime } = useSelector((state) => state.query);
   const [searchParams] = useSearchParams();
-  const [trigger, setTrigger] = useState(false);
+  const [trigger, setTrigger] = useState(true);
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    if (searchParams.get('start')) {
-      setTrigger(true);
+    if (trigger && searchParams.get('start')) {
+      setSearchQuery(searchParams, dispatch);
+      setTrigger(false);
     }
   }, [lastSearchTime]);
-
-  if (trigger && searchParams.get('start')) {
-    setSearchQuery(searchParams);
-    setTrigger(false);
-  }
 
   return (
     <>
@@ -52,28 +59,10 @@ function App() {
           <Route index element={<Homepage />} />
 
           <Route
-            path="collections/:collectionId/modify-collection"
+            path="directory"
             element={(
               <RequireAuth>
-                <ModifyCollection />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="collections/:collectionId"
-            element={(
-              <RequireAuth>
-                <Collections />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="collections/create"
-            element={(
-              <RequireAuth>
-                <CreateCollection />
+                <DirectoryHome />
               </RequireAuth>
             )}
           />
@@ -82,11 +71,45 @@ function App() {
             path="collections"
             element={(
               <RequireAuth>
-                <CollectionsHome />
+                <CollectionHeader />
+              </RequireAuth>
+            )}
+          >
+
+            <Route
+              path=":collectionId"
+              element={(
+                <RequireAuth>
+                  <CollectionShow />
+                </RequireAuth>
+            )}
+            />
+            <Route
+              path=":collectionId/edit"
+              element={(
+                <RequireAuth>
+                  <ModifyCollection />
+                </RequireAuth>
+            )}
+            />
+
+          </Route>
+          <Route
+            path="collections/create"
+            element={(
+              <RequireAuth>
+                <CreateCollection />
               </RequireAuth>
             )}
           />
-
+          <Route
+            path="collections/news/geographic"
+            element={(
+              <RequireAuth>
+                <GeographicNewsCollections />
+              </RequireAuth>
+            )}
+          />
           <Route
             path="search"
             element={(
@@ -116,15 +139,57 @@ function App() {
               path=":sourceId/feeds"
               element={(
                 <RequireAuth>
+                  <ListSourceFeeds />
+                </RequireAuth>
+              )}
+            />
+            <Route
+              path=":sourceId/edit"
+              element={(
+                <RequireAuth>
+                  <ModifySource />
+                </RequireAuth>
+                )}
+            />
+            <Route
+              path=":sourceId/feeds/create"
+              element={(
+                <RequireAuth>
+                  <CreateFeed />
+                </RequireAuth>
+              )}
+            />
+          </Route>
+          <Route
+            path="sources/create"
+            element={(
+              <RequireAuth>
+                <CreateSource />
+              </RequireAuth>
+            )}
+          />
+
+          <Route
+            path="feeds"
+            element={(
+              <RequireAuth>
+                <FeedHeader />
+              </RequireAuth>
+            )}
+          >
+            <Route
+              path=":feedId"
+              element={(
+                <RequireAuth>
                   <FeedShow />
                 </RequireAuth>
               )}
             />
             <Route
-              path=":sourceId/modify-source"
+              path=":feedId/edit"
               element={(
                 <RequireAuth>
-                  <ModifySource />
+                  <ModifyFeed />
                 </RequireAuth>
               )}
             />
@@ -144,6 +209,11 @@ function App() {
             )}
           />
 
+          <Route
+            path="*"
+            element={<BadURL />}
+          />
+
         </Routes>
       </div>
       <Footer />
@@ -160,5 +230,9 @@ function RequireAuth({ children }) {
   }
   return children;
 }
+
+RequireAuth.propTypes = {
+  children: PropTypes.element.isRequired,
+};
 
 export default App;

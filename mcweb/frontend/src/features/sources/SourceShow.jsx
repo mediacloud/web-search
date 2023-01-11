@@ -1,85 +1,66 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import {
-  useParams, Link, Route, Routes, useLocation, Outlet,
-} from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import SourceHeader from './SourceHeader';
 import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import StatPanel from '../ui/StatPanel';
-import FeedShow from '../feeds/FeedShow';
+import FeedStories from '../feeds/FeedStories';
 
 export default function SourceShow() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
 
-  const location = useLocation();
   const {
-    data,
+    data: source,
     isLoading,
   } = useGetSourceQuery(sourceId);
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
-    <>
+    <div className="container">
 
-      {/* <SourceHeader sourceId={sourceId} /> */}
-
-      <div className="sub-feature">
-        <div className="container">
-          <div className="row">
-            <div className="col-2">
-              <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" component={Link} to="modify-source">
-                  Modify Source
-                  <p>{data.notes}</p>
-                </Button>
-              </Permissioned>
-            </div>
-            <div className="col-3">
-              <Permissioned role={ROLE_STAFF}>
-                <Button variant="outlined" component={Link} to="feeds">
-                  Modify this Source's Feeds
-                </Button>
-
-              </Permissioned>
-            </div>
-          </div>
-        </div>
-      </div>
-      <Outlet />
-      <div className="container">
-
+      {(source.platform === 'online_news') && (
         <StatPanel items={[
-          { label: 'First Story', value: data.first_story },
-          { label: 'Stories per Week', value: data.stories_per_week },
-          { label: 'Publication Country', value: data.pub_country },
-          { label: 'Publication State', value: data.pub_state },
-          { label: 'Primary Language', value: data.primary_language },
-          { label: 'Media Type', value: data.media_type },
+          { label: 'First Story', value: source.first_story },
+          { label: 'Stories per Week', value: source.stories_per_week },
+          { label: 'Publication Country', value: source.pub_country },
+          { label: 'Publication State', value: source.pub_state },
+          { label: 'Primary Language', value: source.primary_language },
+          { label: 'Media Type', value: source.media_type },
         ]}
         />
+      )}
 
-        <div className="row">
-          <div className="col-6">
-            <CollectionList sourceId={sourceId} />
-          </div>
+      <div className="row">
+        <div className="col-6">
+          <p>
+            <b>Homepage</b>
+            :
+            {' '}
+            <a href={source.homepage} target="_blank" rel="noreferrer">{source.homepage}</a>
+          </p>
+          {source.notes && (
+            <p>
+              <b>Notes</b>
+              {source.notes}
+            </p>
+          )}
         </div>
-
       </div>
 
-    </>
+      <div className="row">
+        <div className="col-6">
+          <CollectionList sourceId={sourceId} />
+        </div>
+        <div className="col-6">
+          <FeedStories feed={false} sourceId={sourceId} />
+        </div>
+      </div>
+
+    </div>
   );
 }

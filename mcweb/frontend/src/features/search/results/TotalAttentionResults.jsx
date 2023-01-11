@@ -5,6 +5,7 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { Settings } from '@mui/icons-material';
 import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
@@ -44,7 +45,8 @@ function TotalAttentionResults() {
 
   const [query, { isLoading, data, error }] = useGetTotalCountMutation();
 
-  const collectionIds = collections.map((collection) => collection.id);
+  const collectionIds = collections.map((c) => c.id);
+  const sourceIds = sources.map((s) => s.id);
 
   // using EPSILON in the denominator here prevents against div by zero errors
   // (which returns infinity in JS)
@@ -58,7 +60,7 @@ function TotalAttentionResults() {
         startDate,
         endDate,
         collections: collectionIds,
-        sources,
+        sources: sourceIds,
         platform,
       });
       setNormalized(supportsNormalizedCount(platform));
@@ -91,7 +93,7 @@ function TotalAttentionResults() {
         <div className="col-8">
           {(error) && (
             <Alert severity="warning">
-              Our access doesn&apos;t support fetching total attention data.
+              Sorry, but something went wrong.
               (
               {error.data.note}
               )
@@ -104,12 +106,11 @@ function TotalAttentionResults() {
             />
           )}
           <div className="clearfix">
-            {(platform === PROVIDER_NEWS_MEDIA_CLOUD
-            || platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+            {supportsNormalizedCount(platform) && (
               <div className="float-start">
                 {normalized && (
                   <div>
-                    <Button onClick={handleClick}>
+                    <Button onClick={handleClick} endIcon={<Settings titleAccess="view other chart viewing options" />}>
                       View Options
                     </Button>
                     <Menu

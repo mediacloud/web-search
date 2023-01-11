@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='collection',
             name='platform',
-            field=models.CharField(choices=[(backend.sources.models.CollectionPlatforms['ONLINE_NEWS'], 'online_news'), (backend.sources.models.CollectionPlatforms['REDDIT'], 'digital_native'), (backend.sources.models.CollectionPlatforms['YOUTUBE'], 'youtube')], default='online_news', max_length=100, null=True),
+            field=models.CharField(choices=[(backend.sources.models.Collection.CollectionPlatforms['ONLINE_NEWS'], 'online_news'), (backend.sources.models.Collection.CollectionPlatforms['REDDIT'], 'digital_native'), (backend.sources.models.Collection.CollectionPlatforms['YOUTUBE'], 'youtube')], default='online_news', max_length=100, null=True),
         ),
     ]

@@ -1,71 +1,89 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import Pagination from '@mui/material/Pagination';
 import CircularProgress from '@mui/material/CircularProgress';
 import PropTypes from 'prop-types';
+import ShieldIcon from '@mui/icons-material/Shield';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
-
-import { useGetSourceAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { useListCollectionsQuery } from '../../app/services/collectionsApi';
+import { PAGE_SIZE } from '../../app/services/queryUtil';
+import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { asNumber, platformIcon } from '../ui/uiUtil';
 
 export default function CollectionList(props) {
   const { sourceId, edit } = props;
+  const [page, setPage] = useState(0);
   const {
-    data,
+    data: collections,
     isLoading,
-  } = useGetSourceAssociationsQuery(sourceId);
+  } = useListCollectionsQuery({ source_id: sourceId, page });
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
     <>
-      <h2>
+      <h1>
         Collections (
-        {data.collections.length}
+        {asNumber(collections.count)}
         )
-      </h2>
-      <table>
-        <thead>
-          <tr>
-            <th colSpan={edit ? 2 : 1}>Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.collections.map((collection) => (
-            <tr key={collection.id}>
-              <td>
-                <Link to={`/collections/${collection.id}`}>
-                  {collection.name}
-                </Link>
-              </td>
-              { edit && (
-                <td>
-                  <IconButton
-                    aria-label="remove"
-                    onClick={() => {
-                      deleteSourceCollectionAssociation({
-                        source_id: sourceId,
-                        collection_id: collection.id,
-                      });
-                    }}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
-                </td>
-              )}
+      </h1>
+      {(Math.ceil(collections.count / PAGE_SIZE) > 1) && (
+        <Pagination
+          count={Math.ceil(collections.count / PAGE_SIZE)}
+          page={page + 1}
+          color="primary"
+          onChange={(evt, value) => setPage(value - 1)}
+        />
+      )}
+      {(collections.count > 0) && (
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Sources</th>
+              {edit && <th>Admin</th>}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {collections.results.map((collection) => {
+              const PlatformIcon = platformIcon(collection.platform);
+              return (
+                <tr key={collection.id}>
+                  <td>
+                    <PlatformIcon fontSize="small" />
+                    &nbsp;
+                    <Link to={`/collections/${collection.id}`}>
+                      {collection.name}
+                    </Link>
+                    {!collection.public && <ShieldIcon fontSize="small" titleAccess="private" />}
+                  </td>
+                  <td className="numeric">{asNumber(collection.source_count)}</td>
+                  { edit && (
+                    <td>
+                      <IconButton
+                        aria-label="remove"
+                        onClick={() => {
+                          deleteSourceCollectionAssociation({
+                            source_id: sourceId,
+                            collection_id: collection.id,
+                          });
+                        }}
+                      >
+                        <HighlightOffIcon />
+                      </IconButton>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </>
   );
 }

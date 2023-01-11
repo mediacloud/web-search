@@ -1,82 +1,90 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import Pagination from '@mui/material/Pagination';
 import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
-
-import { useGetCollectionAssociationsQuery, useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { useListSourcesQuery } from '../../app/services/sourceApi';
+import { PAGE_SIZE } from '../../app/services/queryUtil';
+import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { sourceFavIcon, asNumber } from '../ui/uiUtil';
 
 export default function SourceList(props) {
   const { collectionId, edit } = props;
+  const [page, setPage] = useState(0);
   const {
-    data,
+    data: sources,
     isLoading,
-  } = useGetCollectionAssociationsQuery(collectionId);
+  } = useListSourcesQuery({ collection_id: collectionId, page });
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
 
   // if loading
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
-    <div>
+    <>
       <h2>
         Sources (
-        {data.sources.length}
+        {asNumber(sources.count)}
         )
       </h2>
-      <table width="100%">
-        <thead>
-          <tr>
-            <th colSpan={edit ? 3 : 2}>Name</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.sources.map((source) => (
-            <tr key={source.id}>
-              <td>
-                <a href={source.homepage} target="_new">
+      { (Math.ceil(sources.count / PAGE_SIZE) > 1) && (
+        <Pagination
+          count={Math.ceil(sources.count / PAGE_SIZE)}
+          page={page + 1}
+          color="primary"
+          onChange={(evt, value) => setPage(value - 1)}
+        />
+      )}
+      { (sources.count > 0) && (
+        <table width="100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Content per Week</th>
+              {edit && (<th>Admin</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {sources.results.map((source) => (
+              <tr key={source.id}>
+                <td>
                   <img
                     className="google-icon"
-                    src={`https://www.google.com/s2/favicons?domain=${source.name}`}
+                    src={sourceFavIcon(source)}
                     alt="{source.name}"
+                    width="32px"
                   />
-                </a>
-              </td>
-              <td>
-                <Link to={`/sources/${source.id}`}>
-                  {source.label || source.name}
-                </Link>
-              </td>
-              {edit && (
-                <td>
-                  <IconButton
-                    aria-label="remove"
-                    onClick={() => {
-                      deleteSourceCollectionAssociation({
-                        source_id: source.id,
-                        collection_id: collectionId,
-                      });
-                    }}
-                  >
-                    <HighlightOffIcon />
-                  </IconButton>
+                  <Link to={`/sources/${source.id}`}>
+                    {source.label || source.name}
+                  </Link>
                 </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                <td className="numeric">{asNumber(source.stories_per_week)}</td>
+                {edit && (
+                  <td>
+                    <IconButton
+                      aria-label="remove"
+                      onClick={() => {
+                        deleteSourceCollectionAssociation({
+                          source_id: source.id,
+                          collection_id: collectionId,
+                        });
+                      }}
+                    >
+                      <HighlightOffIcon />
+                    </IconButton>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </>
   );
 }
 

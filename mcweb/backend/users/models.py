@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 import datetime as dt
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 from ..search.providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER,\
     PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, \
     PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD
@@ -80,12 +84,20 @@ class QuotaHistory(models.Model):
         return matching
 
     @classmethod
-    def increment(cls, user_id: int, provider: str, amount: int = 1) -> int:
+    def increment(cls, user_id: int, is_staff: bool, provider: str, amount: int = 1) -> int:
         matching = cls.current_for(user_id, provider)
         matching.hits += amount
         matching.save()
         # raise an error if they are at quota
         quota = Profile.user_provider_quota(user_id, provider)
-        if quota <= matching.hits:
+        if (quota <= matching.hits) and not is_staff:
             raise OverQuotaException(provider, quota)
         return matching.hits
+
+
+# make sure every user gets an automatically generated API Token
+# @see https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

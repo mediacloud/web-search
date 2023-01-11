@@ -12,8 +12,13 @@
 // collection styling
 @import '../features/collections/style/collection';
 @import '../features/collections/style/modify-collection';
+@import '../features/collections/style/geo-collection';
 
 // source styling
+
+// feed styling
+@import '../features/feeds/style/feed-show';
+@import '../features/feeds/style/feed-stories';
 
 // componenets
 @import '../features/header/header';
@@ -38,6 +43,10 @@
 // results styling
 @import '../features/search/results/styles/sample-stories';
 
+// bad error styling 
+@import '../features/ui/style/badURL';
+
+
 body {
   font-family: $body-font-families;
   background-color: $primary-black;
@@ -50,6 +59,7 @@ body {
 }
 
 table {
+  margin-top: $padding-s;
   thead {
     th {
       background-color: $primary-black;
@@ -72,6 +82,15 @@ table {
         margin-right: $padding-xs;
         vertical-align: bottom;
       }
+
+      &.numeric {
+        text-align: right;
+      }
+
+      button {
+        margin-right: $padding-s !important;
+      }
+
     }
   }
 }
@@ -111,6 +130,14 @@ table {
   border-bottom: 1px solid $primary-off-white;
   padding-bottom: $padding-m;
   margin-bottom: $padding-m;
+
+  button {
+    margin-right: $padding-s;
+
+    a {
+      text-decoration: none;
+    }
+  }
 }
 
 
@@ -121,4 +148,13 @@ dl {
   dd {
     font-size: 18px;
   }
+}
+
+.warning {
+  background-color: $warning-color;
+}
+
+#system-warning {
+  padding: $padding-s;
+  text-align: center;
 }

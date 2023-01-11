@@ -19,10 +19,11 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from django.core.exceptions import ImproperlyConfigured
 
+
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "1.0.0"
+VERSION = "1.2.8"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -36,7 +37,8 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = environ.Env(DEBUG=(bool, False))
 
-ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost']
+# app.process for access from rss-fetcher
+ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web']
 
 # Application definition
 
@@ -48,11 +50,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "frontend",
     "backend.sources",
     "backend.search",
     "backend.users",
-    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -137,16 +139,27 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
 
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
 
-    
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
 }
+# disable nice API browsing in production
+if DEBUG:
+    REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+
 
 APPEND_SLASH = False
 

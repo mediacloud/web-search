@@ -2,24 +2,6 @@ import managerApi from './managerApi';
 
 export const sourcesCollectionsApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSourceAssociations: builder.query({
-      query: (id) => ({
-        url: `sources-collections/${id}/`,
-        method: 'GET',
-      }),
-      providesTags: (result) => (result
-        ? [...result.collections.map(({ id }) => ({ type: 'Collection', id })), 'Collection']
-        : ['Collection']),
-    }),
-    getCollectionAssociations: builder.query({
-      query: (id) => ({
-        url: `sources-collections/${id}/?collection=true`,
-        method: 'GET',
-      }),
-      providesTags: (result) => (result
-        ? [...result.sources.map(({ id }) => ({ type: 'Source', id })), 'Source']
-        : ['Source']),
-    }),
     createSourceCollectionAssociation: builder.mutation({
       query: (payload) => ({
         url: 'sources-collections/',
@@ -39,8 +21,6 @@ export const sourcesCollectionsApi = managerApi.injectEndpoints({
 });
 
 export const {
-  useGetSourceAssociationsQuery,
-  useGetCollectionAssociationsQuery,
   useCreateSourceCollectionAssociationMutation,
   useDeleteSourceCollectionAssociationMutation,
 } = sourcesCollectionsApi;

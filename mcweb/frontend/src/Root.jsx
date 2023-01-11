@@ -63,7 +63,7 @@ function Root() {
   return (
     <Provider store={getStore()}>
       <ThemeProvider theme={theme}>
-        <SnackbarProvider maxSnack={3} autoHideDuration={1500}>
+        <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
           <Box>
             <BrowserRouter>
               <App />

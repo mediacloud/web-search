@@ -1,75 +1,120 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useParams, Link } from 'react-router-dom';
+import Chip from '@mui/material/Chip';
 import dayjs from 'dayjs';
-import { useGetSourceFeedsMutation } from '../../app/services/feedsApi';
+
+import FeedHistory from './FeedHistory';
+import FeedStories from './FeedStories';
+
+import { useGetFeedQuery, useGetFeedDetailsQuery } from '../../app/services/feedsApi';
+
+const relativeTime = require('dayjs/plugin/relativeTime');
+const utc = require('dayjs/plugin/utc');
 
 function FeedShow() {
+  dayjs.extend(relativeTime);
+  dayjs.extend(utc);
   const params = useParams();
-  const sourceId = Number(params.sourceId);
+  const feedId = Number(params.feedId);
 
-  const [getFeeds, { isLoading, data }] = useGetSourceFeedsMutation();
+  const {
+    data: feedData,
+    isLoading: feedDataLoading,
+  } = useGetFeedQuery(feedId);
 
-  useEffect(() => {
-    getFeeds(sourceId);
-  }, []);
+  const {
+    data: feedDetails,
+    isLoading: feedDetailsLoading,
+  } = useGetFeedDetailsQuery({ feed_id: feedId });
 
-  if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+  if (feedDataLoading || feedDetailsLoading) {
+    return <CircularProgress size="75px" />;
   }
 
-  if (!data) return null;
+  if (!feedData || !feedDetails) return null;
+
+  const details = feedDetails.feed;
+
+  const isEnabled = details.active && feedData.admin_rss_enabled;
+  let enabledLabel = isEnabled ? 'enabled' : 'disabled';
+  if (!isEnabled) {
+    enabledLabel += (feedData.admin_rss_enabled) ? ' (by admin)' : ' (by system)';
+  }
+  const isWorking = details.system_status === 'Working';
+  const workingLabel = isWorking ? 'working' : 'not working';
 
   return (
     <div className="container">
+
       <div className="row">
-        <h1 className="col-12">Feeds</h1>
+        <div className="col-12">
+          <h3>Basic Info</h3>
+          <p>
+            <b>Internal Name:</b>
+            {' '}
+            {details.name}
+          </p>
+          <div>
+            <b>Status</b>
+            :
+            &nbsp;
+            <Chip label={enabledLabel} color={(isEnabled) ? 'success' : 'error'} />
+            &nbsp;
+            <Chip label={workingLabel} color={(isWorking) ? 'success' : 'error'} />
+          </div>
+        </div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th colSpan={1}>Name</th>
 
-            <th colSpan={1}>URL</th>
+      <div className="row">
+        <div className="col-12">
+          <h3>Fetch Info</h3>
+          <ul>
+            <li>
+              Last New Story:
+              {' '}
+              {`${dayjs.utc(details.last_new_stories).local().fromNow()}
+               (${dayjs.utc(details.last_new_stories).local().format('MM/DD/YYYY HH:mm:ss')})`}
+            </li>
+            <li>
+              Last Fetch Attempt:
+              {' '}
+              {`${dayjs.utc(details.last_fetch_attempt).local().fromNow()}
+               (${dayjs.utc(details.last_fetch_attempt).local().format('MM/DD/YYYY HH:mm:ss')})`}
+            </li>
+            <li>
+              Last Fetch Success:
+              {' '}
+              {`${dayjs.utc(details.last_fetch_success).local().fromNow()}
+               (${dayjs.utc(details.last_fetch_success).local().format('MM/DD/YYYY HH:mm:ss')})`}
+            </li>
+            <li>
+              Next Fetch Attempt:
+              {' '}
+              {`${dayjs.utc(details.next_fetch_attempt).local().fromNow()}
+               (${dayjs.utc(details.next_fetch_attempt).local().format('MM/DD/YYYY HH:mm:ss')})`}
+              {details.queued && 'a fetch attempt is currently in the queue'}
+            </li>
+            <li>
+              Fetch Failures in a Row:
+              {' '}
+              {details.last_fetch_failures}
+              {' '}
+              (to many of these and the system will disable this feed)
+            </li>
+          </ul>
+        </div>
+      </div>
 
-            <th colSpan={1}>Last Attempt</th>
+      <div className="row">
+        <div className="col-6">
+          <FeedHistory feedId={feedId} />
+        </div>
+        <div className="col-6">
+          <FeedStories feed feedId={feedId} />
+        </div>
+      </div>
 
-            <th colSpan={1}>Last Success</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.feeds.map((feed) => (
-            <tr key={feed.id}>
-              <td>
-                <p>
-                  {feed.name}
-                </p>
-              </td>
-              <td>
-                <a target="_blank" href={`${feed.url}`} rel="noreferrer">
-                  {feed.url}
-                </a>
-              </td>
-              <td>
-                <p>
-                  {dayjs(feed.last_fetch_attempt).format('MM/DD/YYYY')}
-                </p>
-              </td>
-              <td>
-                <p>
-                  {dayjs(feed.last_fetch_success).format('MM/DD/YYYY')}
-                </p>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }

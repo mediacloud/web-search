@@ -5,15 +5,16 @@ import logging
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
-from django.core import serializers
 import humps
-import threading
 from django.core.mail import send_mail
 import settings
+from django.apps import apps
 from django.contrib.auth.decorators import login_required
-from .models import Profile
 from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
+from django.core import serializers
+from .models import Profile
+
 
 logger = logging.getLogger(__name__)
 
@@ -189,31 +190,30 @@ def logout(request):
     data = json.dumps({'message': "Logged Out"})
     return HttpResponse(data, content_type='application/json')
 
+@login_required(redirect_field_name='/auth/login')
+@require_http_methods(["DELETE"])
+def delete_user(request):
+    logging.debug('deleting user')
+    current_user = request.user
+    auth.logout(request)
+    try: 
+        current_user.delete()
+        data = json.dumps({'message': "User Deleted"})
+    except Exception as e:
+        data = json.dumps({'error': e})
+    
+    return HttpResponse(data, content_type='application/json')
+
 
 def _serialized_current_user(request) -> str:
     current_user = request.user
     serialized_data = serializers.serialize('json', [current_user, ])
     data = json.loads(serialized_data)[0]['fields']
+    # pull in the user token too
+    Token = apps.get_model('authtoken', 'Token')
+    token = Token.objects.get(user=current_user)
+    data['token'] = token.key
+    # return it nicely
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
 
-def activate_user(request, uidb64, token):
-
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        print(uid)
-        user = User.objects.get(pk = uid)
-    except Exception as e:
-        user = None
-        print(e)
-        data = json.dumps({'message': str(e)})
-    if user and generate_token.check_token(user, token):
-        print(user)
-        user.profile.registered = True 
-        user.profile.save()
-
-        logging.debug('Account Activated')
-        auth.login(request, user)
-        return redirect('/api/auth/activate-success')
-    data = user
-    return HttpResponse(data, content_type='application/json', status=400)

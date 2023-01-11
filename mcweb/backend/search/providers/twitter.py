@@ -13,11 +13,15 @@ TWITTER_API_URL = 'https://api.twitter.com/2/'
 
 
 class TwitterTwitterProvider(ContentProvider):
+    """
+    All these endpoints accept a `usernames: List[str]` keyword arg.
+    """
 
     def __init__(self, bearer_token=None):
         super(TwitterTwitterProvider, self).__init__()
         self._logger = logging.getLogger(__name__)
         self._bearer_token = bearer_token
+        self._session = requests.Session()  # better performance to put all HTTP through this one object
 
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10, **kwargs) -> List[Dict]:
         """
@@ -31,7 +35,7 @@ class TwitterTwitterProvider(ContentProvider):
         """
         # sample of historical tweets
         params = {
-            "query": query,
+            "query": self._assembled_query_str(query, **kwargs),
             "max_results": limit,
             "start_time": start_date.isoformat("T") + "Z",
             "end_time": self._fix_end_date(end_date).isoformat("T") + "Z",
@@ -40,6 +44,21 @@ class TwitterTwitterProvider(ContentProvider):
         }
         results = self._cached_query("tweets/search/all", params)
         return TwitterTwitterProvider._tweets_to_rows(results)
+
+    @classmethod
+    def _assembled_query_str(cls, query: str, **kwargs) -> str:
+        usernames = kwargs.get('usernames', [])
+        # need to put all those filters in single query string
+        if len(usernames) == 0:
+            assembled_query = query
+        else:
+            assembled_query = query + " (" + " OR ".join(["from:{}".format(name) for name in usernames]) + ")"
+        # check if query too long
+        # @see https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/get-tweets-search-all
+        if len(assembled_query) > 1024:
+            raise RuntimeError("Twitter's max query length is 1024 characters - your query is {} characters. "
+                               "Try changing collections.".format(len(assembled_query)))
+        return assembled_query
 
     def count(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> int:
         results = self.count_over_time(query, start_date, end_date, **kwargs)  # use the cached counts being made already
@@ -58,7 +77,7 @@ class TwitterTwitterProvider(ContentProvider):
         :return:
         """
         params = dict(
-            query=query,
+            query=self._assembled_query_str(query, **kwargs),
             granularity='day',
             start_time=start_date.isoformat("T") + "Z",
             end_time=self._fix_end_date(end_date).isoformat("T") + "Z",
@@ -91,7 +110,7 @@ class TwitterTwitterProvider(ContentProvider):
         next_token = None
         more_data = True
         params = {
-            "query": query,
+            "query": self._assembled_query_str(query, **kwargs),
             "max_results": page_size,
             "start_time": start_date.isoformat("T") + "Z",
             "end_time": self._fix_end_date(end_date).isoformat("T") + "Z",
@@ -130,11 +149,13 @@ class TwitterTwitterProvider(ContentProvider):
             'Content-type': 'application/json',
             'Authorization': "Bearer {}".format(self._bearer_token)
         }
-        r = requests.get(TWITTER_API_URL+endpoint, headers=headers, params=params)
+        r = self._session.get(TWITTER_API_URL+endpoint, headers=headers, params=params)
         return r.json()
 
     @classmethod
     def _add_author_to_tweets(cls, results: Dict) -> None:
+        if cls._no_results(results):
+            return
         user_id_lookup = {u['id']: u for u in results['includes']['users']}
         for t in results['data']:
             t['author'] = user_id_lookup[t['author_id']]
@@ -142,7 +163,15 @@ class TwitterTwitterProvider(ContentProvider):
     @classmethod
     def _tweets_to_rows(cls, results: Dict) -> List:
         TwitterTwitterProvider._add_author_to_tweets(results)
+        if cls._no_results(results):
+            return []
         return [TwitterTwitterProvider._tweet_to_row(t) for t in results['data']]
+
+
+    @classmethod
+    def _no_results(self, results):
+        return results['meta']['result_count'] == 0
+
 
     @classmethod
     def _tweet_to_row(cls, item: Dict) -> Dict:

@@ -12,6 +12,9 @@ from util.cache import cache_by_kwargs
 
 
 class OnlineNewsMediaCloudProvider(ContentProvider):
+    """
+    All these endpoints accept `tags_ids: List[int]` and `media_ids: List[int]` keyword args.
+    """
 
     def __init__(self, api_key):
         super(OnlineNewsMediaCloudProvider, self).__init__()
@@ -130,9 +133,7 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         :param kwargs: sources and collections
         :return:
         """
-        media_ids = kwargs['sources'] if 'sources' in kwargs else []
-        tags_ids = kwargs['collections'] if 'collections' in kwargs else []
-        q = cls._query_from_parts(query, media_ids, tags_ids)
+        q = cls._query_from_parts(query, kwargs.get('media_ids', []), kwargs.get('tags_ids', []))
         fq = MediaCloud.dates_as_query_clause(start_date, end_date)
         return q, fq
 
@@ -176,6 +177,9 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
 
 
 class OnlineNewsWaybackMachineProvider(ContentProvider):
+    """
+    All these endpoints accept a `domains: List[str]` keyword arg.
+    """
 
     DEFAULT_COLLECTION = "mediacloud"
 
@@ -203,11 +207,10 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         return {'counts': results}
 
     @cache_by_kwargs()
-    def item(self, item_id: str, collection: str = DEFAULT_COLLECTION) -> Dict:
+    def item(self, item_id: str) -> Dict:
         return self._client.article(item_id)
 
-    def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
-                  collection: str = DEFAULT_COLLECTION, **kwargs):
+    def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000, **kwargs):
         for page in self._client.all_articles(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs):
             yield self._matches_to_rows(page)
 
@@ -226,18 +229,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
 
     @classmethod
     def _assembled_query_str(cls, query: str, **kwargs) -> str:
-        # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
-        Source = apps.get_model('sources', 'Source')
-        # Collection = apps.get_model('sources', 'Collection')
-        domains = []
-        # turn media ids into domains
-        media_ids = kwargs['sources'] if 'sources' in kwargs else []
-        selected_sources = Source.objects.filter(id__in=media_ids)
-        domains += [s.name for s in selected_sources]
-        # turn collections ids into list of domains
-        collection_ids = kwargs['collections'] if 'collections' in kwargs else []
-        selected_sources = Source.objects.filter(collections__id__in=collection_ids)
-        domains += [s.name for s in selected_sources]
+        domains = kwargs.get('domains', [])
         # need to put all those filters in single query string
         q = query
         if len(domains) > 0:

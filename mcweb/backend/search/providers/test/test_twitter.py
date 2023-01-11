@@ -13,6 +13,7 @@ class TwitterTwitterProviderTest(TestCase):
         self._provider = TwitterTwitterProvider(TWITTER_API_BEARER_TOKEN)
         self._now = dt.datetime.now() - dt.timedelta(minutes=1)  # can't query for right now
         self._5_days_ago = dt.datetime.now() - dt.timedelta(days=5)
+        self._30_days_ago = dt.datetime.now() - dt.timedelta(days=30)
 
     def test_sample(self):
         results = self._provider.sample(TERM, start_date=self._5_days_ago, end_date=self._now)
@@ -26,6 +27,12 @@ class TwitterTwitterProviderTest(TestCase):
     def test_count(self):
         results = self._provider.count(TERM, start_date=self._5_days_ago, end_date=self._now)
         assert results > 0
+
+    def test_usernames(self):
+        results = self._provider.count(TERM, start_date=self._5_days_ago, end_date=self._now)
+        assert results > 0
+        user_results = self._provider.count(TERM, start_date=self._30_days_ago, end_date=self._now, usernames=['elonmusk'])
+        assert results > user_results
 
     def test_count_over_time(self):
         results = self._provider.count_over_time(TERM, start_date=self._5_days_ago, end_date=self._now)

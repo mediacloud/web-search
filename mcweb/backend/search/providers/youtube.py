@@ -94,6 +94,7 @@ class YouTubeYouTubeProvider(ContentProvider):
     @cache_by_kwargs()
     def _fetch_results_from_api(self, query: str, start_date: dt.datetime, end_date: dt.datetime,
                                 limit: int = 20, order: str = "relevance", page_token: str = None) -> dict:
+        # default returns items sorted by relevant
         params = {
             'key': self._api_key,
             'q': query,

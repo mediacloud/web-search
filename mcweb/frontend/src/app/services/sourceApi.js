@@ -1,6 +1,7 @@
 import managerApi from './managerApi';
+import { toSearchUrlParams } from './queryUtil';
 
-export const sourcesApi = managerApi.injectEndpoints({
+export const sourceApi = managerApi.injectEndpoints({
   endpoints: (builder) => ({
     getSource: builder.query({
       query: (id) => ({
@@ -11,7 +12,13 @@ export const sourcesApi = managerApi.injectEndpoints({
         ? [{ type: 'Source', id }]
         : ['Source']),
     }),
-    postSource: builder.mutation({
+    listSources: builder.query({
+      query: (params) => ({
+        url: `sources/?${toSearchUrlParams(params)}`,
+        method: 'GET',
+      }),
+    }),
+    createSource: builder.mutation({
       query: (source) => ({
         url: 'sources/',
         method: 'POST',
@@ -24,12 +31,12 @@ export const sourcesApi = managerApi.injectEndpoints({
         method: 'PATCH',
         body: { ...source },
       }),
+      invalidatesTags: ['Source'],
     }),
     deleteSource: builder.mutation({
-      query: ({ id }) => ({
+      query: (id) => ({
         url: `sources/${id}/`,
         method: 'DELETE',
-        body: { ...id },
       }),
     }),
     uploadSources: builder.mutation({
@@ -45,8 +52,10 @@ export const sourcesApi = managerApi.injectEndpoints({
 
 export const {
   useGetSourceQuery,
-  usePostSourceMutation,
+  useListSourcesQuery,
+  useLazyListSourcesQuery,
+  useCreateSourceMutation,
   useUpdateSourceMutation,
   useDeleteSourceMutation,
   useUploadSourcesMutation,
-} = sourcesApi;
+} = sourceApi;

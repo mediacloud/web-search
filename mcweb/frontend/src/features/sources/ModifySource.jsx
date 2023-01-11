@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 // import { useCSVDownloader } from 'react-papaparse';
 import TextField from '@mui/material/TextField';
@@ -9,24 +9,21 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-
-import SourceHeader from './SourceHeader';
+import { useSnackbar } from 'notistack';
+import { platformDisplayName } from '../ui/uiUtil';
 import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
-import {
-  useGetSourceQuery,
-  useUpdateSourceMutation,
-  // useDeleteSourceMutation,
-  // usePostSourceMutation,
-}
-  from '../../app/services/sourceApi';
+import { useGetSourceQuery, useUpdateSourceMutation } from '../../app/services/sourceApi';
+import DirectorySearch from '../directory/DirectorySearch';
 
 export default function ModifySource() {
   const params = useParams();
+  const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   const sourceId = Number(params.sourceId);
   const [formState, setFormState] = React.useState({
-    id: '', name: '', notes: '', homepage: '', label: '', service: '', platform: '', url_search_string: '',
+    name: '', notes: '', homepage: '', label: '', service: '', platform: '', url_search_string: '',
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -52,25 +49,24 @@ export default function ModifySource() {
   useEffect(() => {
     if (data) {
       const formData = {
-        id: data.id, name: data.name, notes: data.notes, homepage: data.homepage, label: data.label,
+        id: data.id,
+        name: data.name,
+        notes: data.notes,
+        homepage: data.homepage,
+        label: data.label,
+        platform: data.platform,
       };
       setFormState(formData);
     }
   }, [data]);
   const [collectionId, setCollectionId] = useState('');
 
-  const collectionData = useGetCollectionQuery(collectionId);
+  // const collectionData = useGetCollectionQuery(collectionId);
 
   const [createSourceCollectionAssociation] = useCreateSourceCollectionAssociationMutation();
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
 
   return (
@@ -78,26 +74,32 @@ export default function ModifySource() {
 
       <div className="row">
         <div className="col-6">
-          <h2>Modify this Source</h2>
+          <h2>Edit Source</h2>
         </div>
       </div>
       <div className="row">
         <div className="col-8">
+
           <FormControl fullWidth>
-            <InputLabel id="source-platform-label">Platform</InputLabel>
+            <InputLabel id="type-select-label">Platform</InputLabel>
             <Select
-              labelId="source-platform-label"
-              value={data.platform}
+              labelId="type-select-label"
+              id="type-select"
+              value={formState.platform}
+              name="platform"
               label="Platform"
               onChange={handleChange}
             >
-              <MenuItem value="online_news">Online News</MenuItem>
-              <MenuItem value="youtube">YouTube</MenuItem>
-              <MenuItem value="reddit">Reddit</MenuItem>
+              <MenuItem value="online_news">{platformDisplayName('online_news')}</MenuItem>
+              <MenuItem value="reddit">{platformDisplayName('reddit')}</MenuItem>
+              <MenuItem value="twitter">{platformDisplayName('twitter')}</MenuItem>
+              <MenuItem value="youtube">{platformDisplayName('youtube')}</MenuItem>
             </Select>
           </FormControl>
+
           <br />
           <br />
+
           <TextField
             fullWidth
             name="name"
@@ -152,10 +154,18 @@ export default function ModifySource() {
           <Button
             variant="contained"
             onClick={async () => {
-              const updateCollection = await updateSource(formState).unwrap();
+              try {
+                await updateSource(formState).unwrap();
+                enqueueSnackbar('Saved changes', { variant: 'success' });
+                navigate(`/sources/${sourceId}`);
+              } catch (err) {
+                // console.log(err);
+                const errorMsg = `Failed - ${err.data.message}`;
+                enqueueSnackbar(errorMsg, { variant: 'error' });
+              }
             }}
           >
-            Update
+            Save
           </Button>
         </div>
       </div>
@@ -164,20 +174,26 @@ export default function ModifySource() {
 
       <div className="row">
         <div className="col-12">
+          <hr />
+        </div>
+      </div>
 
-          <h2> Add to Collection (enter the collection ID): </h2>
-          <input type="text" value={collectionId} onChange={(e) => setCollectionId(Number(e.target.value))} />
-
-          <Button onClick={() => {
+      <div className="row">
+        <div className="col-3">
+          <h2>Add to Collection:</h2>
+        </div>
+        <div className="col-7">
+          <DirectorySearch searchSources={false} onSelected={(e, value) => setCollectionId(value.id)} />
+        </div>
+        <div className="col-2">
+          <Button onClick={async () => {
             const assoc = { source_id: sourceId, collection_id: collectionId };
-            const collection = collectionData.data;
-            createSourceCollectionAssociation(assoc);
+            await createSourceCollectionAssociation(assoc);
             setCollectionId('');
           }}
           >
-            Add Collection
+            Save
           </Button>
-
         </div>
       </div>
 

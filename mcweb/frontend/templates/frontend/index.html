@@ -12,6 +12,11 @@
             document.settings = {};
             document.settings.appVersion = "{{ version }}";
             document.settings.availableProviders = {{ providers|safe }};
+            {% if system_alert != None %}
+                document.settings.systemAlert = "{{ system_alert|safe }}";
+            {% else %}
+                document.settings.systemAlert = undefined;
+            {% endif %}            
         </script>
 
     </head>
@@ -26,7 +31,7 @@
 
 
         {% if analytics_matomo_domain and analytics_matomo_id %}
-            <script src="{% static "frontend/main.js" %}">
+            <script>
               var _paq = window._paq = window._paq || [];
               /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
               _paq.push(['trackPageView']);

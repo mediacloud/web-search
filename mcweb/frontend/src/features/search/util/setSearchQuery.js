@@ -1,19 +1,12 @@
-import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 
 import {
-  setQueryList,
-  setNegatedQueryList,
-  setStartDate,
-  setEndDate,
-  setPlatform,
-  setAnyAll,
+  setQueryProperty,
   addSelectedMedia,
   setPreviewSelectedMedia,
-  setAdvanced,
-  setQueryString,
-  setSearchTime,
 } from '../query/querySlice';
+
+const customParseFormat = require('dayjs/plugin/customParseFormat');
 
 const formatQuery = (query) => {
   if (query === null) return null;
@@ -40,12 +33,19 @@ const sizeQuery = (query) => {
 };
 
 const formatCollections = (collections) => collections.map((collection) => {
-  const [id, name] = collection.split('>');
-  return { id, name };
+  let [id, name] = collection.split('>');
+  id = Number(id);
+  return { id, name, type: 'collection' };
 });
 
-const setSearchQuery = (searchParams) => {
-  const dispatch = useDispatch();
+const formatSources = (sources) => sources.map((source) => {
+  let [id, name] = source.split('>');
+  id = Number(id);
+  return { id, name, type: 'source' };
+});
+
+const setSearchQuery = (searchParams, dispatch) => {
+  dayjs.extend(customParseFormat);
   // param keys are set in ./urlSerializer.js
   let query = searchParams.get('q');
   let negatedQuery = searchParams.get('nq');
@@ -53,6 +53,7 @@ const setSearchQuery = (searchParams) => {
   let endDate = searchParams.get('end');
   const platform = searchParams.get('p');
   let collections = searchParams.get('cs');
+  let sources = searchParams.get('ss');
   const anyAll = searchParams.get('any');
   let queryString = searchParams.get('qs');
 
@@ -66,37 +67,38 @@ const setSearchQuery = (searchParams) => {
 
   queryString = queryString ? decode(queryString) : null;
 
-  startDate = startDate ? dayjs(startDate).format('MM/DD/YYYY') : null;
-  endDate = endDate ? dayjs(endDate).format('MM/DD/YYYY') : null;
-
-  collections = collections ? decode(collections).split(',') : null;
+  startDate = startDate ? dayjs(startDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
+  endDate = endDate ? dayjs(endDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
+  collections = collections ? decode(collections).split(',') : [];
   collections = formatCollections(collections);
+  sources = sources ? decode(sources).split(',') : [];
+  sources = formatSources(sources);
 
   if (queryString) {
-    dispatch(setQueryString(queryString));
-    dispatch(setAdvanced(true));
+    dispatch(setQueryProperty({ queryString }));
+    dispatch(setQueryProperty({ advanced: true }));
   } else {
-    dispatch(setQueryList(query));
-    dispatch(setNegatedQueryList(negatedQuery));
+    dispatch(setQueryProperty({ queryList: query }));
+    dispatch(setQueryProperty({ negatedQueryList: negatedQuery }));
   }
   if (startDate) {
-    dispatch(setStartDate(startDate));
+    dispatch(setQueryProperty({ startDate }));
   }
   if (endDate) {
-    dispatch(setEndDate(endDate));
+    dispatch(setQueryProperty({ endDate }));
   }
   if (platform) {
-    dispatch(setPlatform(platform));
+    dispatch(setQueryProperty({ platform }));
   }
   if (anyAll) {
-    dispatch(setAnyAll(anyAll));
-  }
-  if (collections) {
-    dispatch(addSelectedMedia(collections));
-    dispatch(setPreviewSelectedMedia(collections));
+    dispatch(setQueryProperty({ anyAll }));
   }
 
-  dispatch(setSearchTime(dayjs().unix()));
+  dispatch(addSelectedMedia(collections.concat(sources)));
+  dispatch(setPreviewSelectedMedia(collections.concat(sources)));
+
+  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix() }));
+
   return null;
 };
 
