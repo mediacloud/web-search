@@ -99,6 +99,7 @@ export default function SourceHeader() {
             variant="outlined"
             endIcon={<LockOpenIcon titleAccess="admin-edit" />}
             secondAction={false}
+            confirmButtonText="refetch feeds"
           />
 
           <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
@@ -126,6 +127,7 @@ export default function SourceHeader() {
             navigateTo="/directory"
             endIcon={<LockOpenIcon titleAccess="admin-delete" />}
             secondAction={false}
+            confirmButtonText="delete"
           />
 
         </Permissioned>
