@@ -21,7 +21,7 @@ export default function DefaultDates({
       variant="body2"
       sx={{ marginRight: 3 }}
       onClick={() => {
-        dispatch(setQueryProperty({ endDate: latestAllowedEndDate(endDate).format('MM/DD/YYYY') }));
+        dispatch(setQueryProperty({ endDate: endDate.format('MM/DD/YYYY') }));
 
         const day = dayjs(endDate, 'MM-DD-YYYY').subtract(amountOfTime, typeOfTime).format('MM/DD/YYYY');
 
