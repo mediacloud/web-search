@@ -102,7 +102,7 @@ export default function CountOverTimeResults() {
     // const msg = data.note;
     content = (
       <Alert severity="warning">
-        Our access doesn&apos;t support fetching attention over time data.
+        Sorry, but something went wrong.
         (
         {error.data.note}
         )

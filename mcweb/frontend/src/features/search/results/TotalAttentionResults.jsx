@@ -93,7 +93,7 @@ function TotalAttentionResults() {
         <div className="col-8">
           {(error) && (
             <Alert severity="warning">
-              Our access doesn&apos;t support fetching total attention data.
+              Sorry, but something went wrong.
               (
               {error.data.note}
               )
