@@ -3,18 +3,15 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_TWITTER_TWITTER,
 } from '../util/platforms';
+import OrderedWordCloud from './OrderedWordCloud';
 
-const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER].includes(platform);
-
-export default function SampleStories() {
+export default function TopWords() {
   const {
     queryList,
     queryString,
@@ -54,57 +51,46 @@ export default function SampleStories() {
   }, [lastSearchTime]);
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return <CircularProgress size="75px" />;
   }
   if (!data) return null;
 
-  const content = (
-    <div className="results-item-wrapper results-sample-stories">
-      <div className="row">
-        <div className="col-4">
-          <h2>Top Words</h2>
-          <p>
-            This is a sample of the content that matched your queries.
-            Click the menu on the bottom  right to download a CSV of all the
-            matching content and associated metadata.
-          </p>
-          { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+  return (
+    <>
+      <div className="results-item-wrapper results-top-words">
+        <div className="row">
+          <div className="col-4">
+            <h2>Top Words</h2>
+            <p>
+              This is a sample-based list of the top words in content matching your query.
+            </p>
+            { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
             <p>
               These results are from a random sample of news stories.
             </p>
-          )}
-          { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
+            )}
+            { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
             <p>
-              These results are from the titles of the top scoring Reddit submissions.
+              These results are from a sample titles from top scoring Reddit submissions.
             </p>
-          )}
-          { (platform === PROVIDER_TWITTER_TWITTER) && (
+            )}
+            { (platform === PROVIDER_TWITTER_TWITTER) && (
             <p>
-              These results are from the most recent Tweets.
+              These results are from a sample of the text from the most recent Tweets.
             </p>
-          )}
-          { (platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+            )}
+            { (platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
             <p>
-              These results are from a random sample of 5000 news stories.
+              These results are from a sample of titles from 5000 random news stories.
             </p>
-          )}
-        </div>
-        <div className="col-8">
-          Results here...
+            )}
+          </div>
+          <div className="col-8">
+            <OrderedWordCloud width={600} color="#000" data={data} />
+          </div>
         </div>
       </div>
-    </div>
-  );
 
-  let platformSpecficContent;
-  if (supportsDownload(platform)) {
-    platformSpecficContent = (
       <div className="clearfix">
         <div className="float-end">
           <Button
@@ -124,12 +110,7 @@ export default function SampleStories() {
           </Button>
         </div>
       </div>
-    );
-  }
-  return (
-    <>
-      {content}
-      {platformSpecficContent}
+
     </>
   );
 }
