@@ -37,17 +37,9 @@ export default function Search() {
     advanced,
   } = queryState;
 
-  const handleShare = (e) => {
-    e.preventDefault();
+  const handleShare = () => {
     const ahref = `search.mediacloud.org/search${urlSerializer(queryState)}`;
-    switch (e.currentTarget.id) {
-      case 'copy':
-        navigator.clipboard.writeText(ahref);
-        break;
-
-      default:
-        break;
-    }
+    navigator.clipboard.writeText(ahref);
   };
 
   useEffect(() => {
