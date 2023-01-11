@@ -32,7 +32,6 @@ export default function ModifyCollection() {
   // formState declaration
   const handleChange = ({ target }) => {
     const newValue = (target.type === 'checkbox') ? target.checked : target.value;
-    console.log(newValue);
     setFormState((prev) => ({ ...prev, [target.name]: newValue }));
   };
 

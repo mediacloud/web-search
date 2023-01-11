@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { Link } from '@mui/material';
 import PropTypes from 'prop-types';
-import { setStartDate } from './querySlice';
+import { setQueryProperty } from './querySlice';
 
 export default function DefaultDates({ amountOfTime, typeOfTime, message }) {
   const dispatch = useDispatch();
@@ -23,7 +23,7 @@ export default function DefaultDates({ amountOfTime, typeOfTime, message }) {
       onClick={() => {
         const day = dayjs(endDate, 'MM-DD-YYYY').subtract(amountOfTime, typeOfTime).format('MM/DD/YYYY');
 
-        dispatch(setStartDate(day));
+        dispatch(setQueryProperty({ startDate: day }));
       }}
     >
       {message}
