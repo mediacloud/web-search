@@ -173,9 +173,9 @@ class TwitterTwitterProvider(ContentProvider):
             'media_url': 'https://twitter.com/{}'.format(item['author']['username']),
             'id': item['id'],
             'title': item['text'],
-            'publish_date': dateparser.parse(item['created_at']),
+            'publish_date': dt.datetime.strptime(item['created_at'], '%Y-%m-%dT%H:%M:%S.%f%z'),
             'url': link,
-            'last_updated': dateparser.parse(item['created_at']),
+            'last_updated': dt.datetime.strptime(item['created_at'], '%Y-%m-%dT%H:%M:%S.%f%z'),
             'author': item['author']['name'],
             'language': top_detected(item['text']),  # guess the language cause Twitter oddly doesn't
             'retweet_count': item['public_metrics']['retweet_count'],
