@@ -16,6 +16,7 @@ class Collection(models.Model):
     platform = models.CharField(max_length=100, choices=CollectionPlatforms.choices, null=True,
                                 default=CollectionPlatforms.ONLINE_NEWS)
     public = models.BooleanField(default=True, null=False, blank=False)  
+    featured = models.BooleanField(default=False, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 

@@ -74,7 +74,7 @@ export default function MediaPicker() {
               {value === 0 && (
                 <>
                   <h2>Featured Collections</h2>
-                  <FeaturedCollectionsPicker platform={platform.split("-")[0]} />
+                  <FeaturedCollectionsPicker platform={platform.split('-')[0]} />
                 </>
               )}
             </div>
@@ -82,7 +82,7 @@ export default function MediaPicker() {
               {value === 1 && (
                 <>
                   <h2>Search All Collections</h2>
-                  <CollectionSearchPicker platform={platform.split("-")[0]} />
+                  <CollectionSearchPicker platform={platform.split('-')[0]} />
                 </>
               )}
             </div>

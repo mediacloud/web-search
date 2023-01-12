@@ -21,7 +21,7 @@ from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
 from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
-
+from ..search.providers import available_provider_names
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -62,8 +62,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
             source_id = int(source_id)  # validation: should throw a ValueError back up the chain
             queryset = queryset.filter(source__id=source_id)
         platform = self.request.query_params.get("platform")
-        if platform is not None:
-            # TODO: validate this is a valid platform type
+        if platform is not None: # and [all platforms].includes(platform)
+            # if available_provider_names().count(platform) > 0: # test validation
+                # TODO: validate this is a valid platform type
             queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
@@ -78,17 +79,21 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     @cache_by_kwargs()
     def _cached_serialized_featured_collections(self, platform) -> str:
-        featured_collection_ids = _featured_collection_ids(platform)
-        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
-        featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
-                                                    id__in=featured_collection_ids).order_by(ordered_cases)
+        if platform == 'onlinenews':
+            featured_collection_ids = _featured_collection_ids('online_news')
+            ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
+            featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
+                                                        id__in=featured_collection_ids).order_by(ordered_cases)
+        else:
+            queryset = self.queryset.filter(platform=platform)
+            featured_collections = queryset.filter(featured=True)
 
         serializer = self.serializer_class(featured_collections, many=True)
         return serializer.data
 
     @action(detail=False)
     def featured(self, request):
-        data = self._cached_serialized_featured_collections(request.data.get('platform', None))
+        data = self._cached_serialized_featured_collections(request.query_params.get('platform', None))
         response = Response({"collections":data})
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
