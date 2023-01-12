@@ -21,7 +21,7 @@ from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
 from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
-from ..search.providers import available_provider_names
+from ..search.providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -34,6 +34,9 @@ def _featured_collection_ids(platform: Optional[str]) -> List:
                 for cid in collection['collections']:
                     list_ids.append(cid)
         return list_ids
+
+def _all_platforms() -> List:
+    return [PLATFORM_YOUTUBE, PLATFORM_REDDIT, PLATFORM_TWITTER, 'onlinenews']
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -62,10 +65,12 @@ class CollectionViewSet(viewsets.ModelViewSet):
             source_id = int(source_id)  # validation: should throw a ValueError back up the chain
             queryset = queryset.filter(source__id=source_id)
         platform = self.request.query_params.get("platform")
-        if platform is not None: # and [all platforms].includes(platform)
-            # if available_provider_names().count(platform) > 0: # test validation
+        if platform is not None and _all_platforms().count(platform) > 0: # test validation? _all_platforms().count(platform) > 0
                 # TODO: validate this is a valid platform type
-            queryset = queryset.filter(platform=platform)
+            if platform == "onlinenews":
+                queryset = queryset.filter(platform="online_news")
+            else:
+                queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
             queryset = queryset.filter(name__icontains=name)
