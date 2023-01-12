@@ -1,6 +1,5 @@
 import datetime as dt
 import requests
-import dateparser
 from typing import List, Dict
 import logging
 
@@ -10,7 +9,7 @@ from util.cache import cache_by_kwargs
 from .language import top_detected
 
 TWITTER_API_URL = 'https://api.twitter.com/2/'
-
+TWITTER_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 class TwitterTwitterProvider(ContentProvider):
     """
@@ -98,8 +97,8 @@ class TwitterTwitterProvider(ContentProvider):
         to_return = []
         for d in data:
             to_return.append({
-                'date': dateparser.parse(d['start']),
-                'timestamp': dateparser.parse(d['start']).timestamp(),
+                'date': dt.datetime.strptime(d['start'], TWITTER_DATE_FORMAT),
+                'timestamp': dt.datetime.strptime(d['start'], TWITTER_DATE_FORMAT).timestamp(),
                 'count': d['tweet_count'],
             })
         return {'counts': to_return}
@@ -173,9 +172,9 @@ class TwitterTwitterProvider(ContentProvider):
             'media_url': 'https://twitter.com/{}'.format(item['author']['username']),
             'id': item['id'],
             'title': item['text'],
-            'publish_date': dateparser.parse(item['created_at']),
+            'publish_date': dt.datetime.strptime(item['created_at'], TWITTER_DATE_FORMAT),
             'url': link,
-            'last_updated': dateparser.parse(item['created_at']),
+            'last_updated': dt.datetime.strptime(item['created_at'], TWITTER_DATE_FORMAT),
             'author': item['author']['name'],
             'language': top_detected(item['text']),  # guess the language cause Twitter oddly doesn't
             'retweet_count': item['public_metrics']['retweet_count'],
