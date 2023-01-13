@@ -292,11 +292,11 @@ class SourcesViewSet(viewsets.ModelViewSet):
             first_page = True
             for source in source_associations:
                 if first_page:  # send back columun names, which differ by platform
-                    yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes',
+                    yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform',
                 'stories_per_week', 'first_story', 'publication_country', 'publication_state',
                 'primary_langauge', 'media_type'])
                 yield ([source.id, source.name, source.url_search_string, source.label,
-                             source.homepage, source.notes, source.stories_per_week,
+                             source.homepage, source.notes, source.platform, source.stories_per_week,
                              source.first_story, source.pub_country, source.pub_state, source.primary_language,
                              source.media_type])
                 first_page = False
