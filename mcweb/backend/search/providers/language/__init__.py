@@ -38,7 +38,7 @@ def top_detected(text: str) -> str:
     return guesses[0][0][0].replace('__label__', '')
 
 
-def _stopwords_for_language(lang_code: str) -> List:
+def stopwords_for_language(lang_code: str) -> List:
     # manage the _stopwords_by_language dict, from alpha2 to list
     if len(lang_code) != 2:
         raise RuntimeError('Invalid language "{}" - use 2 letter alpha code'.format(lang_code))
@@ -55,7 +55,7 @@ def _stopwords_for_language(lang_code: str) -> List:
 
 
 def terms_without_stopwords(lang_code: str, text: str) -> List[str]:
-    lang_stopwords = _stopwords_for_language(lang_code)
+    lang_stopwords = stopwords_for_language(lang_code)
     terms = text.split()
     ok_terms = [w for w in terms if w.lower() not in lang_stopwords]
     return ok_terms
