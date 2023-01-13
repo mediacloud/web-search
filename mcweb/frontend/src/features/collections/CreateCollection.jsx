@@ -89,6 +89,7 @@ export default function CreateCollection() {
                   await createCollection({
                     name: formState.name,
                     notes: formState.notes,
+                    platform: formState.platform,
                   }).unwrap()
                     .then((collection) => navigate(`/collections/${collection.id}`));
                 }}
