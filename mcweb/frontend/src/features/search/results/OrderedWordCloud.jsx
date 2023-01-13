@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
 const OrderedWordCloudRenderer = {
 
-  render: (data, termColor, exent, config) => {
+  render: (wrapperEl, canvasEl, data, termColor, exent, config) => {
     // setup the wrapper svg
     const innerWidth = config.width - (2 * config.padding);
-    const svg = d3.create('svg')
+    const wrapper = d3.select(wrapperEl);
+    const svg = wrapper.append('svg')
       .attr('height', config.height)
       .attr('width', config.width)
       .attr('id', 'ordered-word-cloud')
@@ -20,7 +21,7 @@ const OrderedWordCloudRenderer = {
     const wordWrapper = svg.append('g')
       .attr('transform', `translate(${2 * config.padding},0)`);
     const sizeRange = { min: config.minFontSize, max: config.maxFontSize };
-    const fullExtent = exent || d3.extent(data, (d) => d.tfnorm);
+    const fullExtent = exent || d3.extent(data, (d) => d.ratio);
 
     // start layout loop
     while ((y >= wordListHeight) && (sizeRange.max > sizeRange.min)) {
@@ -37,21 +38,11 @@ const OrderedWordCloudRenderer = {
         .classed('selected', (d) => d.term === config.selectedTerm)
         .attr('font-size', (d) => OrderedWordCloudRenderer.fontSizeComputer(d, fullExtent, sizeRange))
         .text((d) => d.term)
-        .attr('font-weight', 'bold')
-        .on('mouseover', (d) => {
-          const { event } = d3;
-          d3.select(event.target).attr('fill', config.linkColor)
-            .attr('cursor', 'pointer');
-        })
-        .on('mouseout', () => {
-          const { event } = d3;
-          d3.select(event.target).attr('fill', config.textColor)
-            .attr('cursor', 'arrow');
-        });
+        .attr('font-weight', 'bold');
 
       // Layout
       y = 0;
-      const leftHeight = OrderedWordCloudRenderer.listCloudLayout(wordNodes, innerWidth, fullExtent, sizeRange);
+      const leftHeight = OrderedWordCloudRenderer.listCloudLayout(canvasEl, wordNodes, innerWidth, fullExtent, sizeRange);
       y = Math.max(y, leftHeight);
       sizeRange.max -= 1;
     }
@@ -60,14 +51,14 @@ const OrderedWordCloudRenderer = {
     return svg.node();
   },
 
-  listCloudLayout: (wordNodes, width, extent, sizeRange) => {
-    const canvasContext2d = DOM.context2d(300, 300);
+  listCloudLayout: (canvasEl, wordNodes, width, extent, sizeRange) => {
+    const canvasContext2d = canvasEl.getContext('2d');
     let x = 0;
     if (typeof (wordNodes) === 'undefined') {
       return x;
     }
     wordNodes.attr('x', (d) => {
-      const fs = fontSizeComputer(d, extent, sizeRange);
+      const fs = OrderedWordCloudRenderer.fontSizeComputer(d, extent, sizeRange);
       canvasContext2d.font = `bold ${fs}px Lato`; // crazy hack for IE compat, instead of simply this.getComputedTextLength()
       const metrics = canvasContext2d.measureText(d.term);
       const textLength = metrics.width + 4; // give it a little horizontal spacing between words
@@ -83,7 +74,7 @@ const OrderedWordCloudRenderer = {
     wordNodes.attr('y', (d, index, data) => { // need closure here for d3.select to work right on the element
       const xPosition = d3.select(data[index]).attr('x');
       if (xPosition === '0') { // WTF does this come out as a string???!?!?!?!
-        const height = 1.2 * fontSizeComputer(d, extent, sizeRange);
+        const height = 1.2 * OrderedWordCloudRenderer.fontSizeComputer(d, extent, sizeRange);
         y += height;
         y = Math.max(y, height);
         lastAdded = height;
@@ -95,44 +86,54 @@ const OrderedWordCloudRenderer = {
 
   fontSizeComputer: (term, extent, sizeRange) => {
     const size = sizeRange.min + (((sizeRange.max - sizeRange.min)
-            * (Math.log(term.tfnorm) - Math.log(extent[0]))) / (Math.log(extent[1]) - Math.log(extent[0])));
+            * (Math.log(term.ratio) - Math.log(extent[0]))) / (Math.log(extent[1]) - Math.log(extent[0])));
     return size;
   },
 
 };
 
-const OrderedWordCloud = ({ width, color, data }) => {
-  const ref = React.useRef();
+export default function OrderedWordCloud({ width, color, data }) {
+  const canvasRef = useRef(null);
+  const d3WrapperRef = useRef(null);
 
-  React.useEffect(() => {
-    OrderedWordCloudRenderer.render(
-      data,
-      color,
-      null,
-      {
-        width,
-        height: 250,
-        maxTerms: 100,
-        maxFontSize: 30,
-        minFontSize: 12,
-        padding: 0,
-        selectedTerm: null,
-      },
-      d3.select(ref.current),
+  useEffect(
+    () => {
+      if (data && canvasRef && d3WrapperRef) {
+        OrderedWordCloudRenderer.render(
+          d3WrapperRef.current,
+          canvasRef.current,
+          data,
+          color,
+          null,
+          {
+            width,
+            height: 250,
+            maxTerms: 100,
+            maxFontSize: 30,
+            minFontSize: 12,
+            padding: 0,
+            selectedTerm: null,
+          },
+        );
+      }
+    },
+    [data, d3WrapperRef.current, canvasRef.current],
+  );
 
-    );
-    return () => {};
-  }, data);
-  return ref;
-};
+  return (
+    <>
+      <div ref={d3WrapperRef} />
+      <canvas ref={canvasRef} />
+    </>
+  );
+}
 
 OrderedWordCloud.propTypes = {
   width: PropTypes.number.isRequired,
-  color: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     term: PropTypes.string.isRequired,
     count: PropTypes.number.isRequired,
+    ratio: PropTypes.number.isRequired,
   })).isRequired,
 };
-
-export default OrderedWordCloud;

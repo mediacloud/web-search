@@ -217,9 +217,10 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
         # for now just return top terms in article titles
+        sample_size = 5000
         results = self._client.terms(self._assembled_query_str(query, **kwargs), start_date, end_date,
                                      self._client.TERM_FIELD_TITLE, self._client.TERM_AGGREGATION_TOP)
-        return [dict(term=t, count=c) for t, c in results.items()]
+        return [dict(term=t, count=c, ratio=c/sample_size) for t, c in results.items()]
 
     def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
                 **kwargs) -> List[Dict]:

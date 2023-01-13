@@ -86,7 +86,7 @@ export default function TopWords() {
             )}
           </div>
           <div className="col-8">
-            <OrderedWordCloud width={600} color="#000" data={data} />
+            <OrderedWordCloud width={600} color="#000" data={data.words} />
           </div>
         </div>
       </div>
