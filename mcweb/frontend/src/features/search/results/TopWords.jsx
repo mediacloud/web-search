@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '@mui/material/Button';
+import DownloadIcon from '@mui/icons-material/Download';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
@@ -72,16 +73,19 @@ export default function TopWords() {
             { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
             <p>
               These results are from a sample titles from top scoring Reddit submissions.
+              Common terms (ie. stopwords) have been removed based on the language of each submission.
             </p>
             )}
             { (platform === PROVIDER_TWITTER_TWITTER) && (
             <p>
               These results are from a sample of the text from the most recent Tweets.
+              Common terms (ie. stopwords) have been removed based on the language of each Tweet.
             </p>
             )}
             { (platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
             <p>
               These results are from a sample of titles from 5000 random news stories.
+              Common terms (ie. stopwords) from languages that have more than 15% of the results have been removed.
             </p>
             )}
           </div>
@@ -95,6 +99,7 @@ export default function TopWords() {
         <div className="float-end">
           <Button
             variant="text"
+            endIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
             onClick={() => {
               handleDownloadRequest({
                 query: fullQuery,
