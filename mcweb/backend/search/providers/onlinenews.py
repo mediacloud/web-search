@@ -239,7 +239,6 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
                      if t.lower() not in stopwords]
         return top_terms
 
-
     def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
                 **kwargs) -> List[Dict]:
         results = self._client.top_sources(self._assembled_query_str(query, **kwargs), start_date, end_date)

@@ -46,7 +46,7 @@ class ContentProvider(ABC):
 
     def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
                 **kwargs) -> List[Dict]:
-        raise NotImplementedError("Doesn't support top words.")
+        raise NotImplementedError("Doesn't support top sources.")
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
                   **kwargs):
