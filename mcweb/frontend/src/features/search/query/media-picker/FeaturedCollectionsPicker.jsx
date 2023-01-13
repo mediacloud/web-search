@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import { useGetFeaturedCollectionsQuery } from '../../../../app/services/collectionsApi';
-import CollectionSelectionTable from './CollectionSelectionTable';
+import CollectionSelectionTable from './MediaPickerSelectionTable';
 
 export default function FeaturedCollectionsPicker({ platform }) {
   const { data, isLoading } = useGetFeaturedCollectionsQuery({ platform });

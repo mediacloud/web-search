@@ -7,7 +7,7 @@ import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
 import { Link } from 'react-router-dom';
 import { asNumber } from '../../../ui/uiUtil';
 
-export default function CollectionSelectionTable({
+export default function MediaPickerSelectionTable({
   selected, matching, onAdd, onRemove, collection,
 }) {
   const dispatch = useDispatch();
@@ -65,7 +65,7 @@ export default function CollectionSelectionTable({
   );
 }
 
-CollectionSelectionTable.propTypes = {
+MediaPickerSelectionTable.propTypes = {
   onRemove: PropTypes.func.isRequired,
   onAdd: PropTypes.func.isRequired,
   matching: PropTypes.arrayOf(PropTypes.shape({

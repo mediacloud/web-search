@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { CircularProgress } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import CollectionSelectionTable from './CollectionSelectionTable';
+import MediaPickerSelectionTable from './MediaPickerSelectionTable';
 import { useLazyListSourcesQuery } from '../../../../app/services/sourceApi';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 
@@ -47,11 +47,12 @@ export default function SourceSearchPicker({ platform }) {
                 {query}
                 &quot;
               </p>
-              <CollectionSelectionTable
+              <MediaPickerSelectionTable
                 selected={previewSources}
                 matching={data.results}
                 onAdd={addPreviewSelectedMedia}
                 onRemove={removePreviewSelectedMedia}
+                collection={false}
               />
             </>
             )}
