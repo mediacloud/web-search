@@ -222,7 +222,10 @@ class SourcesViewSet(viewsets.ModelViewSet):
         platform = self.request.query_params.get("platform")
         if platform is not None:
             # TODO: check if the platform is a valid option
-            queryset = queryset.filter(platform=platform)
+            if platform == 'onlinenews':
+                queryset = queryset.filter(platform='online_news')
+            else:
+                queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
             queryset = queryset.filter(Q(name__icontains=name) | Q(label__icontains=name))
