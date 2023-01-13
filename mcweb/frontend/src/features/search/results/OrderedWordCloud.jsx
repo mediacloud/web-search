@@ -2,6 +2,14 @@ import React, { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
+/**
+ * The approach here is to keep the d3 rendering isolated from the react as much as possible. So the React
+ * component just delegates rendering to the rendered object, which is just a set of funcitons that use d3
+ * to actually do the work. Note that the React component needs to pass in the element to render to, and a
+ * canvas to the renderer, so it uses `useRef` and `useEffect` to get the d3 code to render to the virtual DOM
+ * it is building.
+ */
+
 const OrderedWordCloudRenderer = {
 
   render: (wrapperEl, canvasEl, data, termColor, exent, config) => {
@@ -120,10 +128,11 @@ export default function OrderedWordCloud({ width, color, data }) {
     [data, d3WrapperRef.current, canvasRef.current],
   );
 
+  // the canvas item is required to compute font metrics for the terms in the word cloud
   return (
     <>
       <div ref={d3WrapperRef} />
-      <canvas ref={canvasRef} />
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
     </>
   );
 }
