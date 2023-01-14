@@ -55,7 +55,12 @@ def stopwords_for_language(lang_code: str) -> List:
 
 
 def terms_without_stopwords(lang_code: str, text: str) -> List[str]:
-    lang_stopwords = stopwords_for_language(lang_code)
+    try:
+        lang_stopwords = stopwords_for_language(lang_code)
+    except RuntimeError:
+        # no stopwords for this langauge, so just let them all through
+        logger.info(f"No stopwords for {lang_code}")
+        lang_stopwords = []
     terms = text.split()
     ok_terms = [w for w in terms if w.lower() not in lang_stopwords]
     return ok_terms

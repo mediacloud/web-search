@@ -75,7 +75,8 @@ class RedditPushshiftProvider(ContentProvider):
         last_date = start_date
         more_data = True
         item_count = 0
-        while more_data and ((limit is not None) and (item_count < limit)):
+        limit = kwargs['limit'] if 'limit' in kwargs else None
+        while more_data and (limit and item_count < limit):
             # page through by time
             page = self._cached_submission_search(q=query, start_date=last_date, end_date=end_date,
                                                   size=page_size, sort='created_utc', order='asc',

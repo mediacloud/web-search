@@ -150,6 +150,11 @@ class TwitterTwitterProvider(ContentProvider):
             'Authorization': "Bearer {}".format(self._bearer_token)
         }
         r = self._session.get(TWITTER_API_URL+endpoint, headers=headers, params=params)
+        if r.status_code != 200:
+            try:
+                raise RuntimeError(r.json()['title'])
+            except:
+                raise RuntimeError(f"Error code {r.status_code}")
         return r.json()
 
     @classmethod

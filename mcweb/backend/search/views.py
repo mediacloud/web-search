@@ -97,7 +97,7 @@ def words(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     sample_stories = provider.words(query_str, start_date, end_date, collections=collections)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": sample_stories}, default=str), content_type="application/json",
                         status=200)
 
@@ -108,7 +108,7 @@ def download_words_csv(request):
     start_date, end_date, query_str, collections, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
     top_terms = provider.words(query_str, start_date, end_date, collections=collections, sample_size=5000)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     filename = "mc-{}-{}-top-words.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
