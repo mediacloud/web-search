@@ -62,7 +62,7 @@ def terms_without_stopwords(lang_code: str, text: str) -> List[str]:
         logger.info(f"No stopwords for {lang_code}")
         lang_stopwords = []
     terms = text.split()
-    ok_terms = [w for w in terms if w.lower() not in lang_stopwords]
+    ok_terms = [w.lower() for w in terms if w.lower() not in lang_stopwords]
     return ok_terms
 
 """
