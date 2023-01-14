@@ -53,7 +53,7 @@ export default function TopWords() {
   }, [lastSearchTime]);
 
   if (isLoading) {
-    return <CircularProgress size="75px" />;
+    return (<div><CircularProgress size="75px" /></div>);
   }
 
   if ((data === undefined) && (error === undefined)) {

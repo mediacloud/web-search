@@ -84,13 +84,7 @@ export default function CountOverTimeResults() {
   }, [lastSearchTime]);
 
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return (<div><CircularProgress size="75px" /></div>);
   }
 
   if ((data === undefined) && (error === undefined)) {
