@@ -18,7 +18,6 @@ export default function MediaPickerSelectionTable({
         <tr>
           <th>Name</th>
           <th>Description</th>
-          <th>Platform</th>
           {collection && (
             <th>Sources</th>
           )}
