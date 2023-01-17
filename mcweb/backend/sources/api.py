@@ -21,7 +21,7 @@ from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
 from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
-
+from ..search.providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -34,6 +34,9 @@ def _featured_collection_ids(platform: Optional[str]) -> List:
                 for cid in collection['collections']:
                     list_ids.append(cid)
         return list_ids
+
+def _all_platforms() -> List:
+    return [PLATFORM_YOUTUBE, PLATFORM_REDDIT, PLATFORM_TWITTER, 'onlinenews']
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -62,9 +65,12 @@ class CollectionViewSet(viewsets.ModelViewSet):
             source_id = int(source_id)  # validation: should throw a ValueError back up the chain
             queryset = queryset.filter(source__id=source_id)
         platform = self.request.query_params.get("platform")
-        if platform is not None:
-            # TODO: validate this is a valid platform type
-            queryset = queryset.filter(platform=platform)
+        if platform is not None and _all_platforms().count(platform) > 0: # test validation? _all_platforms().count(platform) > 0
+                # TODO: validate this is a valid platform type
+            if platform == "onlinenews":
+                queryset = queryset.filter(platform="online_news")
+            else:
+                queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
             queryset = queryset.filter(name__icontains=name)
@@ -78,17 +84,21 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     @cache_by_kwargs()
     def _cached_serialized_featured_collections(self, platform) -> str:
-        featured_collection_ids = _featured_collection_ids(platform)
-        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
-        featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
-                                                    id__in=featured_collection_ids).order_by(ordered_cases)
+        if platform == 'onlinenews':
+            featured_collection_ids = _featured_collection_ids('online_news')
+            ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
+            featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
+                                                        id__in=featured_collection_ids).order_by(ordered_cases)
+        else:
+            queryset = self.queryset.filter(platform=platform)
+            featured_collections = queryset.filter(featured=True)
 
         serializer = self.serializer_class(featured_collections, many=True)
         return serializer.data
 
     @action(detail=False)
     def featured(self, request):
-        data = self._cached_serialized_featured_collections(request.data.get('platform', None))
+        data = self._cached_serialized_featured_collections(request.query_params.get('platform', None))
         response = Response({"collections":data})
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
@@ -285,11 +295,11 @@ class SourcesViewSet(viewsets.ModelViewSet):
             first_page = True
             for source in source_associations:
                 if first_page:  # send back columun names, which differ by platform
-                    yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes',
+                    yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform',
                 'stories_per_week', 'first_story', 'publication_country', 'publication_state',
                 'primary_langauge', 'media_type'])
                 yield ([source.id, source.name, source.url_search_string, source.label,
-                             source.homepage, source.notes, source.stories_per_week,
+                             source.homepage, source.notes, source.platform, source.stories_per_week,
                              source.first_story, source.pub_country, source.pub_state, source.primary_language,
                              source.media_type])
                 first_page = False

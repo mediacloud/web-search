@@ -13,6 +13,7 @@ export default function FeaturedCollectionsPicker({ platform }) {
   if (isLoading) {
     return (<div>Loading...</div>);
   }
+
   return (
     <div className="container featured-collections-container">
       <CollectionSelectionTable
