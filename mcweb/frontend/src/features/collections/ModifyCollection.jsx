@@ -26,7 +26,7 @@ export default function ModifyCollection() {
 
   // form state for text fields
   const [formState, setFormState] = useState({
-    id: 0, name: '', notes: '', platform: 'online_news', public: true,
+    id: 0, name: '', notes: '', platform: 'online_news', public: true, featured: false,
   });
 
   // formState declaration
@@ -48,6 +48,7 @@ export default function ModifyCollection() {
         notes: data.notes ? data.notes : '',
         platform: data.platform,
         public: data.public,
+        featured: data.featured,
       };
       setFormState(formData);
     }
@@ -110,7 +111,26 @@ export default function ModifyCollection() {
           <br />
           <br />
           <FormGroup>
-            <FormControlLabel control={<Checkbox name="public" checked={formState.public} onChange={handleChange} />} label="Public?" />
+            <FormControlLabel
+              control={(
+                <Checkbox
+                  name="public"
+                  checked={formState.public}
+                  onChange={handleChange}
+                />
+)}
+              label="Public?"
+            />
+            <FormControlLabel
+              control={(
+                <Checkbox
+                  name="featured"
+                  checked={formState.featured}
+                  onChange={handleChange}
+                />
+              )}
+              label="Featured?"
+            />
           </FormGroup>
           <br />
           <br />
@@ -124,6 +144,7 @@ export default function ModifyCollection() {
                   notes: formState.notes,
                   platform: formState.platform,
                   public: formState.public,
+                  featured: formState.featured,
                 }).unwrap();
                 enqueueSnackbar('Saved changes', { variant: 'success' });
                 navigate(`/collections/${collectionId}`);

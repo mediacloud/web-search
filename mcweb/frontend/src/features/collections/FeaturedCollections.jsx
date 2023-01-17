@@ -6,7 +6,7 @@ import { platformDisplayName } from '../ui/uiUtil';
 import { useGetFeaturedCollectionsQuery } from '../../app/services/collectionsApi';
 
 export default function FeaturedCollections() {
-  const { data, isLoading } = useGetFeaturedCollectionsQuery();
+  const { data, isLoading } = useGetFeaturedCollectionsQuery({ platform: 'onlinenews' });
   const featuredCollections = data;
   return (
     <div className="featured-collections-wrapper">

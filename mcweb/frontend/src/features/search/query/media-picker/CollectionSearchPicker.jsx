@@ -27,7 +27,7 @@ export default function CollectionSearchPicker({ platform }) {
             <TextField fullWidth label="collection name" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
           <div className="col-6">
-            <Button size="large" variant="contained" onClick={() => trigger({platform, name: query})}>
+            <Button size="large" variant="contained" onClick={() => trigger({ platform, name: query })}>
               Search
             </Button>
           </div>
@@ -65,4 +65,4 @@ export default function CollectionSearchPicker({ platform }) {
 
 CollectionSearchPicker.propTypes = {
   platform: PropTypes.string.isRequired,
-}
+};
