@@ -253,7 +253,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
             if len(row.keys()) <= 1:
                 continue
             # check if this is an update
-            if row.get('id', None) and (row['id'] > 0) and (row['id'] != 'null'):
+            if row.get('id', None) and (int(row['id']) > 0) and (row['id'] != 'null'):
                 existing_source = queryset.filter(pk=row['id'])
             else:
                 # if online news, need to make check if canonical domain exists
@@ -296,8 +296,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
             for source in source_associations:
                 if first_page:  # send back columun names, which differ by platform
                     yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform',
-                'stories_per_week', 'first_story', 'publication_country', 'publication_state',
-                'primary_langauge', 'media_type'])
+                'stories_per_week', 'first_story', 'pub_country', 'pub_state',
+                'primary_language', 'media_type'])
                 yield ([source.id, source.name, source.url_search_string, source.label,
                              source.homepage, source.notes, source.platform, source.stories_per_week,
                              source.first_story, source.pub_country, source.pub_state, source.primary_language,
