@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import DownloadIcon from '@mui/icons-material/Download';
+import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
@@ -103,9 +104,18 @@ export default function TopWords() {
     <div className="results-item-wrapper clearfix">
       <div className="row">
         <div className="col-4">
-          <h2>Top Words</h2>
+          <h2>
+            Top Words
+            {' '}
+            <Chip color="warning" label="experimental" />
+          </h2>
           <p>
-            This is a sample-based list of the top words in content matching your query.
+            This is an
+            {' '}
+            <i>experimental</i>
+            {' '}
+            sample-based list of the top words in content matching your query.
+            We have not strongly validated the results as representative. Use at your own risk.
           </p>
           { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
           <p>
