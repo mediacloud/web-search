@@ -31,7 +31,7 @@ import ModifyFeed from './features/feeds/ModifyFeed';
 import FeedHeader from './features/feeds/FeedHeader';
 import FeedShow from './features/feeds/FeedShow';
 import SourceHeader from './features/sources/SourceHeader';
-
+import StoryShow from './features/stories/StoryShow';
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
 import { selectIsLoggedIn } from './features/auth/authSlice';
@@ -63,6 +63,15 @@ function App() {
             element={(
               <RequireAuth>
                 <DirectoryHome />
+              </RequireAuth>
+            )}
+          />
+
+          <Route
+            path="story/:platform/:storyId"
+            element={(
+              <RequireAuth>
+                <StoryShow />
               </RequireAuth>
             )}
           />

@@ -40,6 +40,12 @@ export const searchApi = createApi({
         body: { queryObject },
       }),
     }),
+    getStoryDetails: builder.query({
+      query: (storyId) => ({
+        url: `story?storyId=${storyId}`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -51,4 +57,5 @@ export const {
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,
+  useGetStoryDetailsQuery,
 } = searchApi;

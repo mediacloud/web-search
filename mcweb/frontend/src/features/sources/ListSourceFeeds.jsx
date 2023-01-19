@@ -3,7 +3,6 @@ import Pagination from '@mui/material/Pagination';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useParams, Link } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { useSnackbar } from 'notistack';
 import Button from '@mui/material/Button';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -19,7 +18,6 @@ const utc = require('dayjs/plugin/utc');
 function ListSourceFeeds() {
   dayjs.extend(relativeTime);
   dayjs.extend(utc);
-  const { enqueueSnackbar } = useSnackbar();
   const params = useParams();
   const sourceId = Number(params.sourceId);
   const [page, setPage] = useState(0);
@@ -35,7 +33,7 @@ function ListSourceFeeds() {
     isLoading: feedsDetailsAreLoading,
   } = useListFeedDetailsQuery({ source_id: sourceId });
 
-  const [deleteFeed, deleteFeedResults] = useDeleteFeedMutation();
+  const [deleteFeed] = useDeleteFeedMutation();
 
   const isLoading = feedsAreLoading || feedsDetailsAreLoading;
 
@@ -54,10 +52,10 @@ function ListSourceFeeds() {
     }));
   }
 
-  const clickEvent = (e) => {
-    deleteFeed(e.target.value);
-    enqueueSnackbar('Feed Queued!', { variant: 'success' });
-  };
+  // const clickEvent = (e) => {
+  //   deleteFeed(e.target.value);
+  //   enqueueSnackbar('Feed Queued!', { variant: 'success' });
+  // };
 
   return (
     <div className="container">

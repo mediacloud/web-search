@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
@@ -12,6 +12,7 @@ import {
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
+import Permissioned, { ROLE_STAFF } from '../../auth/Permissioned';
 
 const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER].includes(platform);
@@ -40,6 +41,11 @@ export default function SampleStories() {
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-all-content-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  };
+
+  const getStoryId = (url) => {
+    const parts = url.split('/');
+    return parts[(parts.length - 1)];
   };
 
   useEffect(() => {
@@ -120,6 +126,19 @@ export default function SampleStories() {
                     <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
                   </td>
                   <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+                  <Permissioned role={ROLE_STAFF}>
+                    <td>
+                      <Button
+                        variant="outlined"
+                        component={Link}
+                        target="_blank"
+                        rel="noreferrer"
+                        to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
+                      >
+                        Info
+                      </Button>
+                    </td>
+                  </Permissioned>
                 </tr>
               ))}
             </tbody>
