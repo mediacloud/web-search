@@ -50,8 +50,8 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
               **kwargs) -> List[Dict]:
         assembled_query = self._assembled_query_str(query, **kwargs)
         # first figure out the dominant languages, so we can remove appropriate stopwords
-        top_languages = self.languages.top_languages(assembled_query, start_date, end_date, **kwargs)
-        represented_languages = [i['name'] for i in top_languages if i['ratio'] > 0.1]
+        top_languages = self.languages(assembled_query, start_date, end_date, limit=100, **kwargs)
+        represented_languages = [i['language'] for i in top_languages if i['ratio'] > 0.1]
         stopwords = []
         for lang in represented_languages:
             try:
