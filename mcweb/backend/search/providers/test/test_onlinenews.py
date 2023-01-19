@@ -1,56 +1,8 @@
 from django.test import TestCase
 
-from .. import MEDIA_CLOUD_API_KEY
-from ..onlinenews import OnlineNewsMediaCloudProvider, OnlineNewsWaybackMachineProvider
+from ..onlinenews import OnlineNewsWaybackMachineProvider
 
 import datetime as dt
-
-
-class OnlineNewsMediaCloudProviderTest(TestCase):
-
-    def setUp(self):
-        self._provider = OnlineNewsMediaCloudProvider(MEDIA_CLOUD_API_KEY)
-
-    def test_count(self):
-        results = self._provider.count("Trump", dt.datetime.strptime("2022-03-01", "%Y-%m-%d"),
-                                       dt.datetime.strptime("2022-04-01", "%Y-%m-%d"))
-        assert results > 0
-
-    def test_sample(self):
-        results = self._provider.sample("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
-                                        dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
-        for post in results:
-            assert 'url' in post
-
-    def test_item(self):
-        stories_id = '123123'
-        story = self._provider.item(stories_id)
-        assert story['media_name'] == 'boston.com'
-        assert story['id'] == int(stories_id)
-        assert len(story['title']) > 0
-
-    def test_words(self):
-        results = self._provider.words("coronavirus", dt.datetime(2022, 4, 1), dt.datetime(2022, 4, 5))
-        last_count = 99999999999
-        for item in results:
-            assert last_count >= item['count']
-            last_count = item['count']
-
-    def test_count_over_time(self):
-        results = self._provider.count_over_time("Trump", dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
-                                                 dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
-        for item in results['counts']:
-            assert 'date' in item
-            assert 'count' in item
-
-    def test_normalized_count_over_time(self):
-        results = self._provider.normalized_count_over_time("Trump",
-                                                            dt.datetime.strptime("2019-01-01", "%Y-%m-%d"),
-                                                            dt.datetime.strptime("2019-02-01", "%Y-%m-%d"))
-        assert 'counts' in results
-        assert 'total' in results
-        assert results['total'] > 0
-        assert 'normalized_total' in results
 
 
 class OnlineNewsWaybackMachineProviderTest(TestCase):

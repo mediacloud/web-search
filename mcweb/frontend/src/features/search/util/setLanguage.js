@@ -1,7 +1,6 @@
 import Prism from 'prismjs';
 
 import {
-  PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_TWITTER_TWITTER,
   PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_REDDIT_PUSHSHIFT,
@@ -34,7 +33,7 @@ Prism.languages.youtube = {
 
 const setLanguage = (platform) => {
   let language;
-  if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
+  if (platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
     language = Prism.languages.news;
   } else if (platform === PROVIDER_REDDIT_PUSHSHIFT) {
     language = Prism.languages.reddit;
