@@ -57,3 +57,16 @@ class TwitterTwitterProviderTest(TestCase):
             last_count = item['count']
             assert last_ratio >= item['ratio']
             last_ratio = item['ratio']
+
+    def test_languages(self):
+        results = self._provider.languages(TERM, start_date=dt.datetime.now() - dt.timedelta(days=45),
+                                           end_date=self._now)
+        last_count = 99999999999
+        last_ratio = 1
+        assert len(results) > 0
+        for item in results:
+            assert len(item['language']) == 2
+            assert last_count >= item['count']
+            last_count = item['count']
+            assert last_ratio >= item['ratio']
+            last_ratio = item['ratio']

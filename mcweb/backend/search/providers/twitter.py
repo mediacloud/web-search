@@ -130,6 +130,10 @@ class TwitterTwitterProvider(ContentProvider):
             next_token = results['meta']['next_token'] if 'next_token' in results['meta'] else None
             more_data = next_token is not None
 
+    def languages(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10, **kwargs) -> List[Dict]:
+        # use the helper because we need to sample from most recent tweets
+        return self._sampled_languages(query, start_date, end_date, **kwargs)
+
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
         # use the helper because we need to sample from most recent tweets

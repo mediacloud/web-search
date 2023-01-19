@@ -87,6 +87,10 @@ class RedditPushshiftProvider(ContentProvider):
             more_data = len(page['data']) >= (page_size-10)
             last_date = self._to_date(page['data'][-1]['created_utc']) if more_data else None
 
+    def languages(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10, **kwargs) -> List[Dict]:
+        # use the helper because we need to sample from most recent tweets
+        return self._sampled_languages(query, start_date, end_date, **kwargs)
+
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
         # use the helper because we need to sample from most recent tweets

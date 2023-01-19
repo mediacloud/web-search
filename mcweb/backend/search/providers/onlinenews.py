@@ -217,12 +217,8 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
         assembled_query = self._assembled_query_str(query, **kwargs)
-        # need total matching count to compute language ratios
-        matching_count = self.count(assembled_query, start_date, end_date, **kwargs)
         # first figure out the dominant languages, so we can remove appropriate stopwords
-        top_languages = self._client.top_languages(assembled_query, start_date, end_date, **kwargs)
-        for item in top_languages:
-            item['ratio'] = item['value'] / matching_count
+        top_languages = self.languages.top_languages(assembled_query, start_date, end_date, **kwargs)
         represented_languages = [i['name'] for i in top_languages if i['ratio'] > 0.1]
         stopwords = []
         for lang in represented_languages:
@@ -238,6 +234,17 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         top_terms = [dict(term=t.lower(), count=c, ratio=c/sample_size) for t, c in results.items()
                      if t.lower() not in stopwords]
         return top_terms
+
+    def languages(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10,
+                  **kwargs) -> List[Dict]:
+        assembled_query = self._assembled_query_str(query, **kwargs)
+        matching_count = self.count(assembled_query, start_date, end_date, **kwargs)
+        top_languages = self._client.top_languages(assembled_query, start_date, end_date, **kwargs)
+        for item in top_languages:
+            item['ratio'] = item['value'] / matching_count
+            item['language'] = item['name']
+            del item['name']
+        return top_languages[:limit]
 
     def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
                 **kwargs) -> List[Dict]:
