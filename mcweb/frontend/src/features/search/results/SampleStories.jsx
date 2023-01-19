@@ -1,9 +1,10 @@
-import * as React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
@@ -38,6 +39,8 @@ export default function SampleStories() {
 
   const collectionIds = collections.map((c) => c.id);
   const sourceIds = sources.map((s) => s.id);
+
+  const [open, setOpen] = useState(false);
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-all-content-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
@@ -129,6 +132,7 @@ export default function SampleStories() {
       </>
     );
   }
+
   return (
     <div className="results-item-wrapper clearfix">
       <div className="row">
