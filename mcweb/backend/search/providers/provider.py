@@ -4,7 +4,6 @@ import datetime as dt
 import datetime
 from operator import itemgetter
 from abc import ABC
-import mediacloud.api
 import collections
 from .exceptions import QueryingEverythingUnsupportedQuery
 from .language import terms_without_stopwords
@@ -102,7 +101,7 @@ def add_missing_dates_to_split_story_counts(counts, start, end, period="day"):
     new_counts = []
     current = start.date()
     while current <= end.date():
-        date_string = current.strftime(mediacloud.api.MediaCloud.SENTENCE_PUBLISH_DATE_FORMAT)
+        date_string = current.strftime("%Y-%m-%d %H:%M:%S")
         existing_count = next((r for r in counts if r['date'] == date_string), None)
         if existing_count:
             new_counts.append(existing_count)
