@@ -141,6 +141,7 @@ function ListSourceFeeds() {
                       variant="outlined"
                       endIcon={<DeleteIcon titleAccess="delete-feed" />}
                       secondAction={false}
+                      confirmButtonText="Delete"
                     />
 
                   </>

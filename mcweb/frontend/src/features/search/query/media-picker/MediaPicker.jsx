@@ -11,6 +11,7 @@ import { addSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import CollectionSearchPicker from './CollectionSearchPicker';
 import SelectedMedia from '../SelectedMedia';
 import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
+import SourceSearchPicker from './SourceSearchPicker';
 
 export default function MediaPicker() {
   const [value, setValue] = React.useState(0);
@@ -74,7 +75,7 @@ export default function MediaPicker() {
               {value === 0 && (
                 <>
                   <h2>Featured Collections</h2>
-                  <FeaturedCollectionsPicker platform={platform.split("-")[0]} />
+                  <FeaturedCollectionsPicker platform={platform.split('-')[0]} />
                 </>
               )}
             </div>
@@ -82,7 +83,7 @@ export default function MediaPicker() {
               {value === 1 && (
                 <>
                   <h2>Search All Collections</h2>
-                  <CollectionSearchPicker platform={platform.split("-")[0]} />
+                  <CollectionSearchPicker platform={platform.split('-')[0]} />
                 </>
               )}
             </div>
@@ -90,7 +91,7 @@ export default function MediaPicker() {
               {value === 2 && (
                 <>
                   <h2>Search All Sources</h2>
-                  <p>🚧 Coming soon</p>
+                  <SourceSearchPicker platform={platform.split('-')[0]} />
                 </>
               )}
             </div>

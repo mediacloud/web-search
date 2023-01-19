@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -8,6 +9,7 @@ import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { setQueryProperty } from './querySlice';
 import { latestAllowedEndDate } from '../util/platforms';
+import DefaultDates from './DefaultDates';
 
 export default function SearchDatePicker() {
   const dispatch = useDispatch();
@@ -22,6 +24,7 @@ export default function SearchDatePicker() {
   };
 
   useEffect(() => {
+    // dispatch(setQueryProperty({ endDate: latestAllowedEndDate(platform).format('MM/DD/YYYY') }));
     if (dayjs(endDate) > latestAllowedEndDate(platform)) {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
@@ -59,6 +62,13 @@ export default function SearchDatePicker() {
         Each platform has different limitations on how recent your search can be.
         The start and end dates are inclusive.
       </p>
+
+      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="month" message="Last Month" />
+
+      <DefaultDates platform={platform} amountOfTime="3" typeOfTime="month" message="Last 3 Months" />
+
+      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="year" message="Last Year" />
+
     </>
   );
 }

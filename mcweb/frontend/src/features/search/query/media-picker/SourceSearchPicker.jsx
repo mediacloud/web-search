@@ -6,15 +6,15 @@ import { CircularProgress } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MediaPickerSelectionTable from './MediaPickerSelectionTable';
-import { useLazyListCollectionsQuery } from '../../../../app/services/collectionsApi';
+import { useLazyListSourcesQuery } from '../../../../app/services/sourceApi';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 
-export default function CollectionSearchPicker({ platform }) {
+export default function SourceSearchPicker({ platform }) {
   const [query, setQuery] = useState('');
   const [trigger, {
     isLoading, data,
-  }] = useLazyListCollectionsQuery();
-  const { previewCollections } = useSelector((state) => state.query);
+  }] = useLazyListSourcesQuery();
+  const { previewSources } = useSelector((state) => state.query);
 
   return (
     <div className="collection-search-picker-container">
@@ -24,7 +24,7 @@ export default function CollectionSearchPicker({ platform }) {
 
           {/* CollectionSearch */}
           <div className="col-6">
-            <TextField fullWidth label="collection name" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <TextField fullWidth label="source name" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
           <div className="col-6">
             <Button size="large" variant="contained" onClick={() => trigger({ platform, name: query })}>
@@ -37,24 +37,24 @@ export default function CollectionSearchPicker({ platform }) {
           <div className="col-12">
 
             {/* CollectionSearch results? */}
-            { isLoading && <CircularProgress size={75} /> }
+            {isLoading && <CircularProgress size={75} />}
             {data && (
-              <>
-                <p>
-                  {data.count}
-                  {' '}
-                  Collections matching &quot;
-                  {query}
-                  &quot;
-                </p>
-                <MediaPickerSelectionTable
-                  selected={previewCollections}
-                  matching={data.results}
-                  onAdd={addPreviewSelectedMedia}
-                  onRemove={removePreviewSelectedMedia}
-                  collection
-                />
-              </>
+            <>
+              <p>
+                {data.count}
+                {' '}
+                Sources matching &quot;
+                {query}
+                &quot;
+              </p>
+              <MediaPickerSelectionTable
+                selected={previewSources}
+                matching={data.results}
+                onAdd={addPreviewSelectedMedia}
+                onRemove={removePreviewSelectedMedia}
+                collection={false}
+              />
+            </>
             )}
           </div>
         </div>
@@ -64,6 +64,6 @@ export default function CollectionSearchPicker({ platform }) {
   );
 }
 
-CollectionSearchPicker.propTypes = {
+SourceSearchPicker.propTypes = {
   platform: PropTypes.string.isRequired,
 };
