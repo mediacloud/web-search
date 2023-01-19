@@ -10,10 +10,10 @@ import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-export const supportsNormalizedCount = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD,
+export const supportsNormalizedCount = (platform) => [
   PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
 
 function TotalAttentionResults() {

@@ -9,12 +9,12 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
 
-const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
+const supportsDownload = (platform) => [PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER].includes(platform);
 
 export default function SampleStories() {
@@ -90,7 +90,7 @@ export default function SampleStories() {
               <tr key={`story-${sampleStory.id}`}>
                 <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
                 <td>
-                  {[PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
+                  {[PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
                   <img
                     className="google-icon"
                     src={googleFaviconUrl(sampleStory.media_url)}
@@ -139,11 +139,6 @@ export default function SampleStories() {
             Click the menu on the bottom  right to download a CSV of all the
             matching content and associated metadata.
           </p>
-          { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
-          <p>
-            These results are a random sample of news stories that matched your searches.
-          </p>
-          )}
           { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
           <p>
             These results are the top scoring Reddit submissions that matched your
