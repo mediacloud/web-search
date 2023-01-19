@@ -3,30 +3,20 @@ import PropTypes from 'prop-types';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import exporting from 'highcharts/modules/exporting';
-import { useSelector } from 'react-redux';
-import queryGenerator from '../util/queryGenerator';
 
 exporting(Highcharts);
 
-export default function TotalAttentionChart({ data, normalized }) {
-  const {
-    queryString,
-    queryList,
-    negatedQueryList,
-    platform,
-    anyAll,
-  } = useSelector((state) => state.query);
-
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
-
+export default function TotalAttentionChart({
+  normalized, height, title, series,
+}) {
   const options = {
     chart: {
       type: 'bar',
-      height: '200px',
+      height,
     },
-    title: { text: '' },
+    title: { text: title },
     xAxis: {
-      categories: [`${fullQuery}`, 'Total Stories Count'],
+      categories: [series.map((s) => s.name)],
       title: {
         text: null,
       },
@@ -39,7 +29,7 @@ export default function TotalAttentionChart({ data, normalized }) {
       },
       labels: {
         overflow: 'justify',
-        format: '{value}',
+        format: normalized ? '{value: .2f}%' : '{value}',
       },
     },
     plotOptions: {
@@ -54,21 +44,17 @@ export default function TotalAttentionChart({ data, normalized }) {
     credits: {
       enabled: false,
     },
-    series: [{
-      color: '#2f2d2b',
-      name: `query: ${fullQuery}`,
+    series: series.map((s) => ({
+      color: s.color,
+      name: s.name,
       data: [{
-        y: data,
+        y: s.value,
         dataLabels: {
-          format: `{point.y: ${data}}`,
+          format: normalized ? `{point.y: ${s.value.toPrecision(4)} %}` : `{point.y: ${s.value}}`,
         },
       }],
-    }],
+    })),
   };
-  if (normalized) {
-    options.yAxis.labels.format = '{value: .2f}%';
-    options.series[0].data[0].dataLabels = { format: `{point.y: ${data.toPrecision(4)} %}` };
-  }
 
   return (
     <div>
@@ -78,6 +64,17 @@ export default function TotalAttentionChart({ data, normalized }) {
 }
 
 TotalAttentionChart.propTypes = {
-  data: PropTypes.number.isRequired,
   normalized: PropTypes.bool.isRequired,
+  height: PropTypes.number,
+  title: PropTypes.string.isRequired,
+  series: PropTypes.arrayOf(PropTypes.shape({
+    color: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    value: PropTypes.number.isRequired,
+  })).isRequired,
+
+};
+
+TotalAttentionChart.defaultProps = {
+  height: 200,
 };

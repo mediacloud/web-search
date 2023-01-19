@@ -10,10 +10,10 @@ import TotalAttentionChart from './TotalAttentionChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-export const supportsNormalizedCount = (platform) => [
+export const supportsNormalizedCount = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
 
 function TotalAttentionResults() {
@@ -101,8 +101,14 @@ function TotalAttentionResults() {
           )}
           {(error === undefined) && (
             <TotalAttentionChart
-              data={(normalized) ? normalizeData(data) : data.count.relevant}
+              series={[{
+                value: (normalized) ? normalizeData(data) : data.count.relevant,
+                name: fullQuery,
+                color: '#2f2d2b',
+              }]}
               normalized={normalized}
+              title="Total Stories Count"
+              height={200}
             />
           )}
           <div className="clearfix">
