@@ -5,10 +5,14 @@ import datetime
 from operator import itemgetter
 from abc import ABC
 import mediacloud.api
+import collections
 from .exceptions import QueryingEverythingUnsupportedQuery
+from .language import terms_without_stopwords
 
 # helpful for turning any date into the standard Media Cloud date format
 MC_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+DEFAULT_WORDS_SAMPLE = 500
 
 
 class ContentProvider(ABC):
@@ -39,6 +43,10 @@ class ContentProvider(ABC):
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
         raise NotImplementedError("Doesn't support top words.")
+
+    def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+                **kwargs) -> List[Dict]:
+        raise NotImplementedError("Doesn't support top sources.")
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 1000,
                   **kwargs):
@@ -71,6 +79,21 @@ class ContentProvider(ABC):
         :return: a query string that can be used to capture matching "everything" 
         """
         return '*'
+
+    # use this if you need to sample some content for top words
+    def _sampled_title_words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+                             **kwargs) -> List[Dict]:
+        # support sample_size kwarg
+        sample_size = kwargs['sample_size'] if 'sample_size' in kwargs else DEFAULT_WORDS_SAMPLE
+        # grab a sample and count terms as we page through it
+        sampled_count = 0
+        counts = collections.Counter()
+        for page in self.all_items(query, start_date, end_date, limit=sample_size):
+            sampled_count += len(page)
+            [counts.update(terms_without_stopwords(t['language'], t['title'])) for t in page]
+        # clean up results
+        results = [dict(term=w, count=c, ratio=c/sampled_count) for w, c in counts.most_common(limit)]
+        return results
 
 
 def add_missing_dates_to_split_story_counts(counts, start, end, period="day"):

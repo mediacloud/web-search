@@ -6,7 +6,7 @@ from mediacloud.api import MediaCloud
 import mcmetadata
 from django.apps import apps
 from waybacknews.searchapi import SearchApiClient
-
+from .language import stopwords_for_language
 from .provider import ContentProvider
 from util.cache import cache_by_kwargs
 
@@ -109,7 +109,9 @@ class OnlineNewsMediaCloudProvider(ContentProvider):
         :return:
         """
         q, fq = self._format_query(query, start_date, end_date, **kwargs)
-        top_words = self._mc_client.wordCount(q, fq)[:limit]
+        top_words = self._mc_client.wordCount(q, fq, sample_size=5000)[:limit]
+        for t in top_words:
+            t['ratio'] = t['count']/5000
         return top_words
 
     @cache_by_kwargs()
@@ -214,9 +216,34 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
 
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
-        results = self._client.terms(self._assembled_query_str(query, **kwargs), start_date, end_date,
+        assembled_query = self._assembled_query_str(query, **kwargs)
+        # need total matching count to compute language ratios
+        matching_count = self.count(assembled_query, start_date, end_date, **kwargs)
+        # first figure out the dominant languages, so we can remove appropriate stopwords
+        top_languages = self._client.top_languages(assembled_query, start_date, end_date, **kwargs)
+        for item in top_languages:
+            item['ratio'] = item['value'] / matching_count
+        represented_languages = [i['name'] for i in top_languages if i['ratio'] > 0.1]
+        stopwords = []
+        for lang in represented_languages:
+            try:
+                stopwords += stopwords_for_language(lang)
+            except RuntimeError:
+                pass  # not stopwords for language, just let them all pass through
+        # for now just return top terms in article titles
+        sample_size = 5000
+        results = self._client.terms(assembled_query, start_date, end_date,
                                      self._client.TERM_FIELD_TITLE, self._client.TERM_AGGREGATION_TOP)
-        return [dict(term=t, count=c) for t, c in results.items()]
+        # and clean up results to return
+        top_terms = [dict(term=t.lower(), count=c, ratio=c/sample_size) for t, c in results.items()
+                     if t.lower() not in stopwords]
+        return top_terms
+
+    def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+                **kwargs) -> List[Dict]:
+        results = self._client.top_sources(self._assembled_query_str(query, **kwargs), start_date, end_date)
+        cleaned_sources = [dict(source=t['name'], count=t['value']) for t in results]
+        return cleaned_sources
 
     @classmethod
     def _assembled_query_str(cls, query: str, **kwargs) -> str:

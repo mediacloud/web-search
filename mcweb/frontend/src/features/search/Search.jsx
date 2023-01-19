@@ -18,6 +18,7 @@ import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
+import TopWords from './results/TopWords';
 import AlertDialog from '../ui/AlertDialog';
 
 export default function Search() {
@@ -150,6 +151,7 @@ export default function Search() {
           <CountOverTimeResults />
           <TotalAttentionResults />
           <SampleStories />
+          <TopWords />
         </div>
       </div>
 

@@ -105,6 +105,7 @@ class TwitterTwitterProvider(ContentProvider):
 
     def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 500,
                   **kwargs):
+        limit = kwargs['limit'] if 'limit' in kwargs else None
         next_token = None
         more_data = True
         params = {
@@ -115,7 +116,8 @@ class TwitterTwitterProvider(ContentProvider):
             "tweet.fields": ",".join(["author_id", "created_at", "public_metrics"]),
             "expansions": "author_id",
         }
-        while more_data:
+        item_count = 0
+        while more_data and ((limit is not None) and (item_count < limit)):
             params['next_token'] = next_token
             results = self._cached_query("tweets/search/all", params)
             result_count = results['meta']['result_count']
@@ -124,8 +126,14 @@ class TwitterTwitterProvider(ContentProvider):
                 continue
             page = TwitterTwitterProvider._tweets_to_rows(results)
             yield page
+            item_count += len(page)
             next_token = results['meta']['next_token'] if 'next_token' in results['meta'] else None
             more_data = next_token is not None
+
+    def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+              **kwargs) -> List[Dict]:
+        # use the helper because we need to sample from most recent tweets
+        return self._sampled_title_words(query, start_date, end_date, limit, **kwargs)
 
     @cache_by_kwargs()
     def _cached_query(self, endpoint: str, params: Dict = None) -> Dict:
@@ -141,6 +149,11 @@ class TwitterTwitterProvider(ContentProvider):
             'Authorization': "Bearer {}".format(self._bearer_token)
         }
         r = self._session.get(TWITTER_API_URL+endpoint, headers=headers, params=params)
+        if r.status_code != 200:
+            try:
+                raise RuntimeError(r.json()['title'])
+            except:
+                raise RuntimeError(f"Error code {r.status_code}")
         return r.json()
 
     @classmethod
