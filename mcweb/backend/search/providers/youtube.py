@@ -73,6 +73,10 @@ class YouTubeYouTubeProvider(ContentProvider):
         stories = [self._content_to_row(v) for v in videos]
         return stories
 
+    def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
+              **kwargs) -> List[Dict]:
+        raise UnsupportedOperationException("We can't sample enough videos quickly to show top words in video titles.")
+
     @classmethod
     def _content_to_row(cls, item):
         try:
