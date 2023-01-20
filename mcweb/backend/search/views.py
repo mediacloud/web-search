@@ -72,7 +72,6 @@ def count_over_time(request):
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
         results = provider.count_over_time(query_str, start_date, end_date, **provider_props)
-    print(results)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     #logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
     return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
