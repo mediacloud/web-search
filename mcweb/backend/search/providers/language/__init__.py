@@ -45,7 +45,7 @@ def stopwords_for_language(lang_code: str) -> List:
     if lang_code not in _stopwords_by_language:
         file_path = os.path.join(this_dir, '{}_stop_words.txt'.format(lang_code))
         if not os.path.exists(file_path):
-            logger.warning('Language "{}" has no stopwords list, accepting all terms'.format(lang_code))
+            logger.info('Language "{}" has no stopwords list, accepting all terms'.format(lang_code))
             return []
         with open(file_path) as f:
             lines = f.read().splitlines()
