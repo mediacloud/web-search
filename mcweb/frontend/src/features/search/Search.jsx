@@ -22,7 +22,7 @@ import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
 import TopWords from './results/TopWords';
 import AlertDialog from '../ui/AlertDialog';
-import { PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
+import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from './util/platforms';
 
 export default function Search() {
   const dispatch = useDispatch();
@@ -98,8 +98,13 @@ export default function Search() {
               </h3>
               {platform === PROVIDER_NEWS_WAYBACK_MACHINE && (
                 <Alert severity="warning">
-                  Search dates limited to currently available data.
-                  Backfill of historical data in progress.
+                  Your dates have been limited to the range of available data.
+                  We are still working with the Wayback Machine to ingest the historical data.
+                </Alert>
+              )}
+              {platform === PROVIDER_REDDIT_PUSHSHIFT && (
+                <Alert severity="warning">
+                  PushShift.io moved to a new server; data before 11/1/22 unavailable.
                 </Alert>
               )}
               <SearchDatePicker />
