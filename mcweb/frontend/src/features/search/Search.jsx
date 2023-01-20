@@ -14,6 +14,7 @@ import SampleStories from './results/SampleStories';
 import { setQueryProperty, removeSelectedMedia } from './query/querySlice';
 import TotalAttentionResults from './results/TotalAttentionResults';
 import CountOverTimeResults from './results/CountOverTimeResults';
+import TopLanguages from './results/TopLanguages';
 import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
@@ -152,6 +153,7 @@ export default function Search() {
           <TotalAttentionResults />
           <SampleStories />
           <TopWords />
+          <TopLanguages />
         </div>
       </div>
 

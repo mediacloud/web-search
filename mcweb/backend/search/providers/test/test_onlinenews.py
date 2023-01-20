@@ -121,6 +121,18 @@ class OnlineNewsWaybackMachineProviderTest(TestCase):
         source_names = [r['source'] for r in results]
         assert len(source_names) == len(set(source_names))
 
+    def test_languages(self):
+        results = self._provider.languages("Trump", dt.datetime(2022, 11, 1), dt.datetime(2022, 12, 1))
+        last_count = 99999999999
+        last_ratio = 1
+        assert len(results) > 0
+        for item in results:
+            assert len(item['language']) == 2
+            assert last_count >= item['count']
+            last_count = item['count']
+            assert last_ratio >= item['ratio']
+            last_ratio = item['ratio']
+
 '''
     def test_top_tlds(self):
         results = self._provider.top_tlds("coronavirus", dt.datetime(2022, 11, 1), dt.datetime(2022, 11, 10))
@@ -130,12 +142,4 @@ class OnlineNewsWaybackMachineProviderTest(TestCase):
             assert r['value'] <= last_count
             last_count = r['value']
 
-    def test_top_languages(self):
-        results = self._provider.top_languages("coronavirus", dt.datetime(2022, 11, 1), dt.datetime(2022, 11, 10))
-        assert len(results) > 0
-        last_count = 999999999999
-        for r in results:
-            assert r['value'] <= last_count
-            last_count = r['value']
-            assert len(r['name']) == 2
 '''

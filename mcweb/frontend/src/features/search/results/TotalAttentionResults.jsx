@@ -6,7 +6,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@mui/icons-material';
-import TotalAttentionChart from './TotalAttentionChart';
+import BarChart from './BarChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
@@ -100,9 +100,15 @@ function TotalAttentionResults() {
             </Alert>
           )}
           {(error === undefined) && (
-            <TotalAttentionChart
-              data={(normalized) ? normalizeData(data) : data.count.relevant}
+            <BarChart
+              series={[{
+                data: [{ key: fullQuery, value: (normalized) ? normalizeData(data) : data.count.relevant }],
+                name: 'Matching Content',
+                color: '#2f2d2b',
+              }]}
               normalized={normalized}
+              title="Total Stories Count"
+              height={200}
             />
           )}
           <div className="clearfix">

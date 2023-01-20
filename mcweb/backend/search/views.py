@@ -72,7 +72,6 @@ def count_over_time(request):
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
         results = provider.count_over_time(query_str, start_date, end_date, **provider_props)
-    print(results)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     #logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
     return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
@@ -89,6 +88,38 @@ def sample(request):
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json",
                         status=200)
+
+
+@handle_provider_errors
+@require_http_methods(["POST"])
+def languages(request):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+    provider = providers.provider_by_name(provider_name)
+    sample_stories = provider.languages(query_str, start_date, end_date, **provider_props)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    return HttpResponse(json.dumps({"languages": sample_stories}, default=str), content_type="application/json",
+                        status=200)
+
+
+@require_http_methods(["GET"])
+@action(detail=False)
+def download_languages_csv(request):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
+    provider = providers.provider_by_name(provider_name)
+    top_terms = provider.languages(query_str, start_date, end_date, **provider_props, sample_size=5000, limit=100)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    filename = "mc-{}-{}-top-languages.csv".format(provider_name, _filename_timestamp())
+    response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
+    )
+    writer = csv.writer(response)
+    # TODO: extract into a constant (global)
+    cols = ['language', 'count', 'ratio']
+    writer.writerow(cols)
+    for t in top_terms:
+        writer.writerow([t["language"], t["count"], t['ratio']])
+    return response
 
 
 @handle_provider_errors

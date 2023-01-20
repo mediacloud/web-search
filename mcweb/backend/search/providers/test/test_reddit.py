@@ -45,3 +45,15 @@ class RedditPushshiftProviderTest(TestCase):
         assert 'total' in results
         assert results['total'] > 0
         assert 'normalized_total' in results
+
+    def test_languages(self):
+        results = self._provider.languages("Trump", dt.datetime(2022, 11, 1), dt.datetime(2022, 12, 1))
+        last_count = 99999999999
+        last_ratio = 1
+        assert len(results) > 0
+        for item in results:
+            assert len(item['language']) == 2
+            assert last_count >= item['count']
+            last_count = item['count']
+            assert last_ratio >= item['ratio']
+            last_ratio = item['ratio']
