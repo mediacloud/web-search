@@ -6,7 +6,7 @@ import exporting from 'highcharts/modules/exporting';
 
 exporting(Highcharts);
 
-export default function TotalAttentionChart({
+export default function BarChart({
   normalized, height, title, series,
 }) {
   const options = {
@@ -16,7 +16,7 @@ export default function TotalAttentionChart({
     },
     title: { text: title },
     xAxis: {
-      categories: [series.map((s) => s.name)],
+      categories: series[0].data.map((d) => d.key),
       title: {
         text: null,
       },
@@ -24,12 +24,12 @@ export default function TotalAttentionChart({
     yAxis: {
       min: 0,
       title: {
-        text: 'Matching Items',
+        text: normalized ? 'Percentage' : 'Count',
         align: 'high',
       },
       labels: {
         overflow: 'justify',
-        format: normalized ? '{value: .2f}%' : '{value}',
+        format: normalized ? '{value: .2f}%' : '{value.toLocaleString()}',
       },
     },
     plotOptions: {
@@ -40,19 +40,19 @@ export default function TotalAttentionChart({
         pointStart: 0,
       },
     },
-    legend: { enabled: false },
+    legend: { enabled: true },
     credits: {
       enabled: false,
     },
     series: series.map((s) => ({
       color: s.color,
       name: s.name,
-      data: [{
-        y: s.value,
+      data: s.data.map((d) => ({
+        y: d.value,
         dataLabels: {
-          format: normalized ? `{point.y: ${s.value.toPrecision(4)} %}` : `{point.y: ${s.value}}`,
+          format: normalized ? `{point.y: ${d.value.toPrecision(4)} %}` : `{point.y: ${d.value.toLocaleString()}}`,
         },
-      }],
+      })),
     })),
   };
 
@@ -63,18 +63,21 @@ export default function TotalAttentionChart({
   );
 }
 
-TotalAttentionChart.propTypes = {
+BarChart.propTypes = {
   normalized: PropTypes.bool.isRequired,
   height: PropTypes.number,
   title: PropTypes.string.isRequired,
   series: PropTypes.arrayOf(PropTypes.shape({
     color: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    value: PropTypes.number.isRequired,
+    data: PropTypes.arrayOf(PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      value: PropTypes.number.isRequired,
+    })),
   })).isRequired,
 
 };
 
-TotalAttentionChart.defaultProps = {
+BarChart.defaultProps = {
   height: 200,
 };

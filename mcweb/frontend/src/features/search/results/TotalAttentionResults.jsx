@@ -6,14 +6,14 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@mui/icons-material';
-import TotalAttentionChart from './TotalAttentionChart';
+import BarChart from './BarChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-export const supportsNormalizedCount = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD,
+export const supportsNormalizedCount = (platform) => [
   PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
 
 function TotalAttentionResults() {
@@ -100,10 +100,10 @@ function TotalAttentionResults() {
             </Alert>
           )}
           {(error === undefined) && (
-            <TotalAttentionChart
+            <BarChart
               series={[{
-                value: (normalized) ? normalizeData(data) : data.count.relevant,
-                name: fullQuery,
+                data: [{ key: fullQuery, value: (normalized) ? normalizeData(data) : data.count.relevant }],
+                name: 'Matching Content',
                 color: '#2f2d2b',
               }]}
               normalized={normalized}
