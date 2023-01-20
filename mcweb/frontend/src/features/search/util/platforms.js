@@ -29,6 +29,11 @@ export const latestAllowedEndDate = (provider) => {
   return today;
 };
 
+export const earliestAllowedStartDate = (provider) => {
+  if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return dayjs('2022-08-01');
+  return dayjs('2010-01-01');
+};
+
 export const defaultPlatformProvider = (platform) => {
   if (platform == PLATFORM_TWITTER) return PROVIDER_TWITTER_TWITTER;
   if (platform == PLATFORM_REDDIT) return PROVIDER_REDDIT_PUSHSHIFT;

@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
-import { ContentCopy } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import ContentCopy from '@mui/icons-material/ContentCopy';
 import SearchIcon from '@mui/icons-material/Search';
+import Alert from '@mui/material/Alert';
 import { searchApi } from '../../app/services/searchApi';
 import PlatformPicker from './query/PlatformPicker';
 import SelectedMedia from './query/SelectedMedia';
@@ -21,6 +22,7 @@ import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
 import TopWords from './results/TopWords';
 import AlertDialog from '../ui/AlertDialog';
+import { PROVIDER_NEWS_WAYBACK_MACHINE } from './util/platforms';
 
 export default function Search() {
   const dispatch = useDispatch();
@@ -37,6 +39,7 @@ export default function Search() {
     collections,
     sources,
     advanced,
+    platform,
   } = queryState;
 
   const handleShare = () => {
@@ -93,6 +96,12 @@ export default function Search() {
                 <em>3</em>
                 Pick dates
               </h3>
+              {platform === PROVIDER_NEWS_WAYBACK_MACHINE && (
+                <Alert severity="warning">
+                  Search dates limited to currently available data.
+                  Backfill of historical data in progress.
+                </Alert>
+              )}
               <SearchDatePicker />
             </div>
           </div>

@@ -8,13 +8,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { setQueryProperty } from './querySlice';
-import { latestAllowedEndDate } from '../util/platforms';
+import { earliestAllowedStartDate, latestAllowedEndDate } from '../util/platforms';
 import DefaultDates from './DefaultDates';
 
 export default function SearchDatePicker() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const { platform, startDate, endDate } = useSelector((state) => state.query);
+
   const handleChangeFromDate = (newValue) => {
     dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY') }));
   };
@@ -29,11 +30,15 @@ export default function SearchDatePicker() {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
     }
+    if (dayjs(startDate) < earliestAllowedStartDate(platform)) {
+      handleChangeFromDate(earliestAllowedStartDate(platform));
+      enqueueSnackbar('Changed your start date to match this platform limit', { variant: 'warning' });
+    }
   }, [platform]);
 
   return (
     <>
-      <div className="date-picker-wrapper">
+      <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
             required
@@ -44,6 +49,7 @@ export default function SearchDatePicker() {
             disableFuture
             disableHighlightToday
             maxDate={endDate}
+            minDate={dayjs(earliestAllowedStartDate(platform).format('MM/DD/YYYY'))}
             renderInput={(params) => <TextField {...params} />}
           />
           <DatePicker
@@ -53,6 +59,7 @@ export default function SearchDatePicker() {
             onChange={handleChangeToDate}
             disableFuture
             disableHighlightToday
+            minDate={dayjs(earliestAllowedStartDate(platform).format('MM/DD/YYYY')).add('1', 'day')}
             maxDate={dayjs(latestAllowedEndDate(platform).format('MM/DD/YYYY'))}
             renderInput={(params) => <TextField {...params} />}
           />
