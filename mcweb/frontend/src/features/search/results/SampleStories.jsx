@@ -1,9 +1,11 @@
-import * as React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
@@ -39,8 +41,22 @@ export default function SampleStories() {
   const collectionIds = collections.map((c) => c.id);
   const sourceIds = sources.map((s) => s.id);
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-all-content-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  };
+
+  const getStoryId = (url) => {
+    const parts = url.split('/');
+    return parts[(parts.length - 1)];
   };
 
   useEffect(() => {
@@ -100,6 +116,42 @@ export default function SampleStories() {
                   <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
                 </td>
                 <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+                <td>
+                  <Button
+                    variant="outlined"
+                    onClick={handleClick}
+                    aria-controls={open ? 'basic-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
+                  >
+                    Info
+                  </Button>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                  >
+                    <MenuItem>
+                      <a href={sampleStory.url} target="_blank" rel="noreferrer">
+                        visit original URL
+                      </a>
+                    </MenuItem>
+                    <MenuItem>
+                      <a href={sampleStory.archived_url} target="_blank" rel="noreferrer">
+                        visit archived content (on Wayback Machine)
+                      </a>
+                    </MenuItem>
+                    <MenuItem>
+                      <Link
+                        to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        view extracted content
+                      </Link>
+                    </MenuItem>
+                  </Menu>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -157,7 +209,7 @@ export default function SampleStories() {
           )}
         </div>
         <div className="col-8">
-          { content }
+          {content}
         </div>
       </div>
     </div>

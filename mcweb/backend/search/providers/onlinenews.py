@@ -27,6 +27,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
                **kwargs) -> List[Dict]:
         results = self._client.sample(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs)
+        print(results)
         return self._matches_to_rows(results)
 
     @cache_by_kwargs()
@@ -109,6 +110,8 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
             'publish_date': dateparser.parse(match['publication_date']),
             'url': match['url'],
             'language': match['language'],
+            'archived_url': match['archive_playback_url'],
+            'article_url': match['article_url'],
         }
 
     def __repr__(self):
