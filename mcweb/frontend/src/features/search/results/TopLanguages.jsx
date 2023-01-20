@@ -114,7 +114,6 @@ export default function TopLanguages() {
                 }]}
                 normalized
                 title="Top Languages"
-                xAxis="Language"
                 height={100 + (data.languages.length * 40)}
               />
               <div className="clearfix">
