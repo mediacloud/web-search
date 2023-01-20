@@ -46,6 +46,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
         for page in self._client.all_articles(self._assembled_query_str(query, **kwargs), start_date, end_date, **kwargs):
             yield self._matches_to_rows(page)
 
+    @cache_by_kwargs()
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
         assembled_query = self._assembled_query_str(query, **kwargs)
@@ -67,6 +68,7 @@ class OnlineNewsWaybackMachineProvider(ContentProvider):
                      if t.lower() not in stopwords]
         return top_terms
 
+    @cache_by_kwargs()
     def languages(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10,
                   **kwargs) -> List[Dict]:
         assembled_query = self._assembled_query_str(query, **kwargs)
