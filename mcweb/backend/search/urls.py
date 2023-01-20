@@ -10,4 +10,6 @@ urlpatterns = [
     path('download-counts-over-time-csv', views.download_counts_over_time_csv),
     path('download-all-content-csv', views.download_all_content_csv),
     path('story', views.story_detail),
+    path('languages', views.languages),
+    path('download-top-languages-csv', views.download_languages_csv)
 ]

@@ -8,7 +8,7 @@ import RedditIcon from '@mui/icons-material/Reddit';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_TWITTER_TWITTER,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER,
   PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
@@ -36,7 +36,7 @@ export default function PlatformPicker() {
 */
     if (!samePlatform) {
       if (!hasSomeMedia) {
-        if ([PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(newPlatform)) {
+        if ([PROVIDER_NEWS_WAYBACK_MACHINE].includes(newPlatform)) {
           await dispatch(addSelectedMedia(DEFAULT_ONLINE_NEWS_COLLECTIONS));
           enqueueSnackbar('We reset your collections to work with this platform.', { variant: 'warning' });
         } else {
@@ -69,14 +69,6 @@ export default function PlatformPicker() {
                 (Wayback Machine)
               </ToggleButton>
             )}
-            {/* {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
-              <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
-                <NewspaperIcon fontSize="large" />
-                Online News
-                <br />
-                (Media Cloud)
-              </ToggleButton>
-            )} */}
             {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
               <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
                 <RedditIcon fontSize="large" />

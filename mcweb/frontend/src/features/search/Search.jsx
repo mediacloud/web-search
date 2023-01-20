@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
-import { ContentCopy } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import ContentCopy from '@mui/icons-material/ContentCopy';
 import SearchIcon from '@mui/icons-material/Search';
+import Alert from '@mui/material/Alert';
 import { searchApi } from '../../app/services/searchApi';
 import PlatformPicker from './query/PlatformPicker';
 import SelectedMedia from './query/SelectedMedia';
@@ -14,12 +15,14 @@ import SampleStories from './results/SampleStories';
 import { setQueryProperty, removeSelectedMedia } from './query/querySlice';
 import TotalAttentionResults from './results/TotalAttentionResults';
 import CountOverTimeResults from './results/CountOverTimeResults';
+import TopLanguages from './results/TopLanguages';
 import AdvancedSearch from './query/AdvancedSearch';
 import MediaPicker from './query/media-picker/MediaPicker';
 import urlSerializer from './util/urlSerializer';
 import deactivateButton from './util/deactivateButton';
 import TopWords from './results/TopWords';
 import AlertDialog from '../ui/AlertDialog';
+import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from './util/platforms';
 
 export default function Search() {
   const dispatch = useDispatch();
@@ -36,6 +39,7 @@ export default function Search() {
     collections,
     sources,
     advanced,
+    platform,
   } = queryState;
 
   const handleShare = () => {
@@ -92,6 +96,17 @@ export default function Search() {
                 <em>3</em>
                 Pick dates
               </h3>
+              {platform === PROVIDER_NEWS_WAYBACK_MACHINE && (
+                <Alert severity="warning">
+                  Your dates have been limited to the range of available data.
+                  We are still working with the Wayback Machine to ingest the historical data.
+                </Alert>
+              )}
+              {platform === PROVIDER_REDDIT_PUSHSHIFT && (
+                <Alert severity="warning">
+                  PushShift.io moved to a new server; data before 11/1/22 unavailable.
+                </Alert>
+              )}
               <SearchDatePicker />
             </div>
           </div>
@@ -152,6 +167,7 @@ export default function Search() {
           <TotalAttentionResults />
           <SampleStories />
           <TopWords />
+          <TopLanguages />
         </div>
       </div>
 

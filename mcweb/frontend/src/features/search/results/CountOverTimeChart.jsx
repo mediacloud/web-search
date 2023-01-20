@@ -53,6 +53,9 @@ export default function CountOverTimeChart({ data, normalized }) {
         },
       },
     },
+    credits: {
+      enabled: false,
+    },
     legend: { enabled: false },
     colors: ['#2f2d2b'],
     series: [

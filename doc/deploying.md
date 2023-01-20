@@ -41,8 +41,7 @@ dokku config:set --no-restart mcweb \
     CACHE_URL=$(dokku redis:info mcweb-cache --dsn)
     SECRET_KEY=SOME_RANDOM_STR \
     TWITTER_API_BEARER_TOKEN=YOUR_TOKEN \
-    YOUTUBE_API_KEY=YOUR_YT_API_KEY \
-    MEDIA_CLOUD_API_KEY=YOUR_MC_API_KEY \
+    YOUTUBE_API_KEY=YOUR_YT_API_KEY
 ```
 5. setup the domain: `dokku domains:add mcweb search.mediacloud.org`
 6. on your local machine setup the remote: `git remote add mcweb-prod dokku@<SERVER>:mcweb`
