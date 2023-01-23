@@ -31,6 +31,7 @@ import ModifyFeed from './features/feeds/ModifyFeed';
 import FeedHeader from './features/feeds/FeedHeader';
 import FeedShow from './features/feeds/FeedShow';
 import SourceHeader from './features/sources/SourceHeader';
+import ReleaseNotes from './features/info/ReleaseNotes';
 
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
@@ -64,6 +65,13 @@ function App() {
               <RequireAuth>
                 <DirectoryHome />
               </RequireAuth>
+            )}
+          />
+
+          <Route
+            path="release-notes"
+            element={(
+              <ReleaseNotes />
             )}
           />
 
