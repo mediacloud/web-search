@@ -74,8 +74,6 @@ export default function SearchDatePicker() {
 
       <DefaultDates platform={platform} amountOfTime="3" typeOfTime="month" message="Last 3 Months" />
 
-      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="year" message="Last Year" />
-
     </>
   );
 }
