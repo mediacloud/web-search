@@ -46,12 +46,9 @@ class YouTubeYouTubeProvider(ContentProvider):
         :param kwargs:
         :return:
         """
-        results = self._fetch_results_from_api(query, start_date, end_date)
-        total = results['pageInfo']['totalResults']
-        if total == 1000000:
-            raise UnsupportedOperationException("The YouTube API doesn't provide exact counts when there are more "
-                                                "than 1 million matches")
-        return total
+        # results['pageInfo']['totalResults'] _looks_ like the right thing, but doesn't limit to the
+        # publishedBefore nad publishedAfter values :-(
+        raise UnsupportedOperationException("The YouTube API provide matching video counts")
 
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
                **kwargs) -> List[Dict]:
@@ -64,14 +61,35 @@ class YouTubeYouTubeProvider(ContentProvider):
         :return:
         """
         results = self._fetch_results_from_api(query, start_date, end_date, limit, order="viewCount")
-        # make sure we pull out only the videos (even through we requested only videos
+        videos = self._only_videos(results['items'])
+        return self._content_to_rows(videos)
+
+    @classmethod
+    def _only_videos(cls, items: List[Dict]) -> List[Dict]:
+        # sometimes YT sends back things that aren't videos 🤷🏽‍♂️ so we make sure we pull out only the videos
+        # (even through we requested only videos)
         videos = []
-        for search_result in results['items']:
+        for search_result in items:
             if search_result["id"]["kind"] == "youtube#video":
                 videos.append(search_result)
-        # format them like stories to return
-        stories = [self._content_to_row(v) for v in videos]
-        return stories
+        return videos
+
+    def all_items(self, query: str, start_date: dt.datetime, end_date: dt.datetime, page_size: int = 50,
+                  **kwargs):
+        limit = kwargs['limit'] if 'limit' in kwargs else None
+        total_results = 0
+        more_pages = True
+        next_page_token = None
+        while more_pages and (limit is None or (total_results < limit)):
+            page = self._fetch_results_from_api(query, start_date, end_date, page_size, order="viewCount",
+                                                page_token=next_page_token)
+            if 'nextPageToken' in page:
+                more_pages = True
+                next_page_token = page['nextPageToken']
+            else:
+                more_pages = False
+            videos = self._only_videos(page['items'])
+            yield self._content_to_rows(videos)
 
     def languages(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10, **kwargs) -> List[Dict]:
         raise UnsupportedOperationException("We can't sample enough videos quickly to show top languages in video titles.")
@@ -81,7 +99,11 @@ class YouTubeYouTubeProvider(ContentProvider):
         raise UnsupportedOperationException("We can't sample enough videos quickly to show top words in video titles.")
 
     @classmethod
-    def _content_to_row(cls, item):
+    def _content_to_rows(cls, videos: List[Dict]) -> List[Dict]:
+        return [cls._content_to_row(v) for v in videos]
+
+    @classmethod
+    def _content_to_row(cls, item: Dict) -> Dict:
         try:
             publish_date = dateutil.parser.parse(item['snippet']['publishedAt']).strftime(MC_DATE_FORMAT)
         except ValueError:
@@ -93,9 +115,11 @@ class YouTubeYouTubeProvider(ContentProvider):
             'author': item['snippet']['channelTitle'],
             'publish_date': publish_date,
             'title': item['snippet']['title'],
+            'description': item['snippet']['description'],
             'media_name': item['snippet']['channelTitle'],
             'media_url': "https://www.youtube.com/channel/{}".format(item['snippet']['channelId']),
-            'url': "https://www.youtube.com/watch?v={}".format(item['id']['videoId'])
+            'url': "https://www.youtube.com/watch?v={}".format(item['id']['videoId']),
+            'thumbnail': item['snippet']['thumbnails']['default']['url']
         }
 
     @cache_by_kwargs()
