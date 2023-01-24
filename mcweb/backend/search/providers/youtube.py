@@ -48,7 +48,7 @@ class YouTubeYouTubeProvider(ContentProvider):
         """
         # results['pageInfo']['totalResults'] _looks_ like the right thing, but doesn't limit to the
         # publishedBefore nad publishedAfter values :-(
-        raise UnsupportedOperationException("The YouTube API provide matching video counts")
+        raise UnsupportedOperationException("The YouTube API doesn't provide matching video counts")
 
     def sample(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 20,
                **kwargs) -> List[Dict]:
