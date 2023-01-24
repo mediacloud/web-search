@@ -55,6 +55,7 @@ export default function SampleStories() {
   };
 
   const getStoryId = (url) => {
+    if (!url) return null;
     const parts = url.split('/');
     return parts[(parts.length - 1)];
   };
@@ -116,42 +117,45 @@ export default function SampleStories() {
                   <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
                 </td>
                 <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
-                <td>
-                  <Button
-                    variant="outlined"
-                    onClick={handleClick}
-                    aria-controls={open ? 'basic-menu' : undefined}
-                    aria-haspopup="true"
-                    aria-expanded={open ? 'true' : undefined}
-                  >
-                    Info
-                  </Button>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                  >
-                    <MenuItem>
-                      <a href={sampleStory.url} target="_blank" rel="noreferrer">
-                        visit original URL
-                      </a>
-                    </MenuItem>
-                    <MenuItem>
-                      <a href={sampleStory.archived_url} target="_blank" rel="noreferrer">
-                        visit archived content (on Wayback Machine)
-                      </a>
-                    </MenuItem>
-                    <MenuItem>
-                      <Link
-                        to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        view extracted content
-                      </Link>
-                    </MenuItem>
-                  </Menu>
-                </td>
+                {[PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
+
+                  <td>
+                    <Button
+                      variant="outlined"
+                      onClick={handleClick}
+                      aria-controls={open ? 'basic-menu' : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={open ? 'true' : undefined}
+                    >
+                      Info
+                    </Button>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={open}
+                      onClose={handleClose}
+                    >
+                      <MenuItem>
+                        <a href={sampleStory.url} target="_blank" rel="noreferrer">
+                          visit original URL
+                        </a>
+                      </MenuItem>
+                      <MenuItem>
+                        <a href={sampleStory.archived_url} target="_blank" rel="noreferrer">
+                          visit archived content (on Wayback Machine)
+                        </a>
+                      </MenuItem>
+                      <MenuItem>
+                        <Link
+                          to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          view extracted content
+                        </Link>
+                      </MenuItem>
+                    </Menu>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
