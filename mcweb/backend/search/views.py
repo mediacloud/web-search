@@ -202,13 +202,15 @@ def download_counts_over_time_csv(request):
 def download_all_content_csv(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
-    # don't allow gigantic downloads
-    count = provider.count(query_str, start_date, end_date, **provider_props)
-    if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
-        return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
-    elif count > 500000 and request.user.is_staff:
-        return HttpResponseBadRequest("Too many matches to download, make sure there are < 500,000")
-
+    # try to not allow allow gigantic downloads
+    try:
+        count = provider.count(query_str, start_date, end_date, **provider_props)
+        if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
+            return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
+        elif count > 500000 and request.user.is_staff:
+            return HttpResponseBadRequest("Too many matches to download, make sure there are < 500,000")
+    except UnsupportedOperationException:
+        logger.warning("Can't count results for download in {}... continuing anyway".format(provider_name))
     # we want to stream the results back to the user row by row (based on paging through results)
     def data_generator():
         first_page = True

@@ -16,9 +16,6 @@ import {
 } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
 
-const supportsDownload = (platform) => [PROVIDER_NEWS_WAYBACK_MACHINE,
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER].includes(platform);
-
 export default function SampleStories() {
   const {
     queryList,
@@ -160,28 +157,26 @@ export default function SampleStories() {
             ))}
           </tbody>
         </table>
-        {(supportsDownload(platform)) && (
-          <div className="clearfix">
-            <div className="float-end">
-              <Button
-                variant="text"
-                endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
-                onClick={() => {
-                  handleDownloadRequest({
-                    query: fullQuery,
-                    startDate,
-                    endDate,
-                    collections: collectionIds,
-                    sources: sourceIds,
-                    platform,
-                  });
-                }}
-              >
-                Download CSV of All Content
-              </Button>
-            </div>
+        <div className="clearfix">
+          <div className="float-end">
+            <Button
+              variant="text"
+              endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
+              onClick={() => {
+                handleDownloadRequest({
+                  query: fullQuery,
+                  startDate,
+                  endDate,
+                  collections: collectionIds,
+                  sources: sourceIds,
+                  platform,
+                });
+              }}
+            >
+              Download CSV of All Content
+            </Button>
           </div>
-        )}
+        </div>
       </>
     );
   }
