@@ -14,6 +14,7 @@ from .utils import parse_query
 from ..users.models import QuotaHistory
 from .providers.exceptions import ProviderException
 from backend.users.exceptions import OverQuotaException
+from .providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +73,6 @@ def count_over_time(request):
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
         results = provider.count_over_time(query_str, start_date, end_date, **provider_props)
-    print(results)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     #logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
     return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
@@ -90,13 +90,57 @@ def sample(request):
     return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json",
                         status=200)
 
+@login_required(redirect_field_name='/auth/login')
+@handle_provider_errors
+@require_http_methods(["GET"])
+def story_detail(request):
+    story_id = request.GET.get("storyId")
+    provider_name = providers.provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE)
+    provider = providers.provider_by_name(provider_name)
+    story_details = provider.item(story_id)
+    # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    return HttpResponse(json.dumps({"story": story_details }, default=str), content_type="application/json",
+                        status=200)
+
+
+@handle_provider_errors
+@require_http_methods(["POST"])
+def languages(request):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+    provider = providers.provider_by_name(provider_name)
+    sample_stories = provider.languages(query_str, start_date, end_date, **provider_props)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    return HttpResponse(json.dumps({"languages": sample_stories}, default=str), content_type="application/json",
+                        status=200)
+
+
+@require_http_methods(["GET"])
+@action(detail=False)
+def download_languages_csv(request):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
+    provider = providers.provider_by_name(provider_name)
+    top_terms = provider.languages(query_str, start_date, end_date, **provider_props, sample_size=5000, limit=100)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    filename = "mc-{}-{}-top-languages.csv".format(provider_name, _filename_timestamp())
+    response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
+    )
+    writer = csv.writer(response)
+    # TODO: extract into a constant (global)
+    cols = ['language', 'count', 'ratio']
+    writer.writerow(cols)
+    for t in top_terms:
+        writer.writerow([t["language"], t["count"], t['ratio']])
+    return response
+
 
 @handle_provider_errors
 @require_http_methods(["POST"])
 def words(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request)
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
-    sample_stories = provider.words(query_str, start_date, end_date, collections=collections)
+    sample_stories = provider.words(query_str, start_date, end_date, **provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": sample_stories}, default=str), content_type="application/json",
                         status=200)
@@ -105,9 +149,9 @@ def words(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_words_csv(request):
-    start_date, end_date, query_str, collections, provider_name = parse_query(request, 'GET')
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
-    top_terms = provider.words(query_str, start_date, end_date, collections=collections, sample_size=5000)
+    top_terms = provider.words(query_str, start_date, end_date, **provider_props, sample_size=5000)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     filename = "mc-{}-{}-top-words.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(

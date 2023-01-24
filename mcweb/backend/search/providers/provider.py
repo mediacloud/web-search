@@ -4,7 +4,6 @@ import datetime as dt
 import datetime
 from operator import itemgetter
 from abc import ABC
-import mediacloud.api
 import collections
 from .exceptions import QueryingEverythingUnsupportedQuery
 from .language import terms_without_stopwords
@@ -13,6 +12,7 @@ from .language import terms_without_stopwords
 MC_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 DEFAULT_WORDS_SAMPLE = 500
+DEFAULT_LANGUAGE_SAMPLE = 1000
 
 
 class ContentProvider(ABC):
@@ -43,6 +43,9 @@ class ContentProvider(ABC):
     def words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
               **kwargs) -> List[Dict]:
         raise NotImplementedError("Doesn't support top words.")
+
+    def languages(self, query: str, start_date: dt.datetime, end_date: dt.datetime, **kwargs) -> List[Dict]:
+        raise NotImplementedError("Doesn't support top languages.")
 
     def sources(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
                 **kwargs) -> List[Dict]:
@@ -80,6 +83,21 @@ class ContentProvider(ABC):
         """
         return '*'
 
+    # use this if you need to sample some content for top languages
+    def _sampled_languages(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 10,
+                               **kwargs) -> List[Dict]:
+        # support sample_size kwarg
+        sample_size = kwargs['sample_size'] if 'sample_size' in kwargs else DEFAULT_LANGUAGE_SAMPLE
+        # grab a sample and count terms as we page through it
+        sampled_count = 0
+        counts = collections.Counter()
+        for page in self.all_items(query, start_date, end_date, limit=sample_size):
+            sampled_count += len(page)
+            [counts.update(t['language'] for t in page)]
+        # clean up results
+        results = [dict(language=w, count=c, ratio=c/sampled_count) for w, c in counts.most_common()]
+        return results[:limit]
+
     # use this if you need to sample some content for top words
     def _sampled_title_words(self, query: str, start_date: dt.datetime, end_date: dt.datetime, limit: int = 100,
                              **kwargs) -> List[Dict]:
@@ -102,7 +120,7 @@ def add_missing_dates_to_split_story_counts(counts, start, end, period="day"):
     new_counts = []
     current = start.date()
     while current <= end.date():
-        date_string = current.strftime(mediacloud.api.MediaCloud.SENTENCE_PUBLISH_DATE_FORMAT)
+        date_string = current.strftime("%Y-%m-%d %H:%M:%S")
         existing_count = next((r for r in counts if r['date'] == date_string), None)
         if existing_count:
             new_counts.append(existing_count)

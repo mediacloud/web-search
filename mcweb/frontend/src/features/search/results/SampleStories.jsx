@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import Alert from '@mui/material/Alert';
@@ -10,12 +11,12 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
 
-const supportsDownload = (platform) => [PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
+const supportsDownload = (platform) => [PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER].includes(platform);
 
 export default function SampleStories() {
@@ -39,11 +40,22 @@ export default function SampleStories() {
 
   const collectionIds = collections.map((c) => c.id);
   const sourceIds = sources.map((s) => s.id);
-
-  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-all-content-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  };
+
+  const getStoryId = (url) => {
+    const parts = url.split('/');
+    return parts[(parts.length - 1)];
   };
 
   useEffect(() => {
@@ -93,7 +105,7 @@ export default function SampleStories() {
               <tr key={`story-${sampleStory.id}`}>
                 <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
                 <td>
-                  {[PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
+                  {[PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
                   <img
                     className="google-icon"
                     src={googleFaviconUrl(sampleStory.media_url)}
@@ -103,6 +115,42 @@ export default function SampleStories() {
                   <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
                 </td>
                 <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+                <td>
+                  <Button
+                    variant="outlined"
+                    onClick={handleClick}
+                    aria-controls={open ? 'basic-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={open ? 'true' : undefined}
+                  >
+                    Info
+                  </Button>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                  >
+                    <MenuItem>
+                      <a href={sampleStory.url} target="_blank" rel="noreferrer">
+                        visit original URL
+                      </a>
+                    </MenuItem>
+                    <MenuItem>
+                      <a href={sampleStory.archived_url} target="_blank" rel="noreferrer">
+                        visit archived content (on Wayback Machine)
+                      </a>
+                    </MenuItem>
+                    <MenuItem>
+                      <Link
+                        to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        view extracted content
+                      </Link>
+                    </MenuItem>
+                  </Menu>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -143,11 +191,6 @@ export default function SampleStories() {
             Click the menu on the bottom  right to download a CSV of all the
             matching content and associated metadata.
           </p>
-          { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
-          <p>
-            These results are a random sample of news stories that matched your searches.
-          </p>
-          )}
           { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
           <p>
             These results are the top scoring Reddit submissions that matched your
@@ -166,7 +209,7 @@ export default function SampleStories() {
           )}
         </div>
         <div className="col-8">
-          { content }
+          {content}
         </div>
       </div>
     </div>
