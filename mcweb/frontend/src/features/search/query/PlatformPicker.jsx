@@ -27,7 +27,7 @@ export default function PlatformPicker() {
     const newPlatform = event.target.value;
     await dispatch(setQueryProperty({ platform: newPlatform }));
     const hasSomeMedia = (collections.length + sources.length) > 0;
-    const samePlatform = providersOfSamePlatform(platform, newPlatform);
+    const samePlatform = platform && newPlatform ? providersOfSamePlatform(platform, newPlatform) : null;
     /*
     hasSomeMedia && samePlatform: nothing
     !hasSomeMedia && samePlatform: nothing
