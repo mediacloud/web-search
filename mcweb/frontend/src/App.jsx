@@ -31,7 +31,7 @@ import ModifyFeed from './features/feeds/ModifyFeed';
 import FeedHeader from './features/feeds/FeedHeader';
 import FeedShow from './features/feeds/FeedShow';
 import SourceHeader from './features/sources/SourceHeader';
-import ReleaseNotes from './features/info/ReleaseNotes';
+import ReleaseNotes from './features/about/ReleaseNotes';
 
 import StoryShow from './features/stories/StoryShow';
 import ModifyCollection from './features/collections/ModifyCollection';
