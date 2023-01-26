@@ -11,8 +11,6 @@ export default function ReleaseNotes() {
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             {release.version} - {release.date}
           </h2>
-
-          <h5>Changes</h5>
           <ul>
             {release.notes.map((note) => (
               <li key={note}>

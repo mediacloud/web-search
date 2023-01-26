@@ -59,9 +59,6 @@ const UserMenu = () => {
           <MenuItem onClick={handleLogout}>
             Logout
           </MenuItem>
-          <MenuItem component={NavLink} to="release-notes" onClick={handleCloseUserMenu}>
-            Release Notes
-          </MenuItem>
         </Menu>
       </>
     );
