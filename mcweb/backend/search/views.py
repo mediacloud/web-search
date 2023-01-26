@@ -10,15 +10,14 @@ from rest_framework.decorators import action
 import backend.util.csv_stream as csv_stream
 from .utils import parse_query
 from ..users.models import QuotaHistory
-from utils.cache import django_caching_interface
 from backend.users.exceptions import OverQuotaException
-
 import mc_providers as providers
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
 from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE
 from mc_providers.exceptions import ProviderException
 from mc_providers.cache import CachingManager
 
+from util.cache import django_caching_interface
 logger = logging.getLogger(__name__)
 
 #This is where we set the caching manager and the cache_time

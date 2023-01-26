@@ -35,7 +35,7 @@ def cache_by_kwargs(time_secs: int = 60*60*24):
     return decorator
 
 #Function to pass to the caching interface 
-class django_caching_interface()
+class django_caching_interface():
     def __init__(self, time_secs: int = 60*60*24):
         self.time_secs = time_secs
         
