@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { useGetStoryDetailsQuery } from '../../app/services/searchApi';
 
@@ -18,29 +19,20 @@ export default function StoryShow() {
   const { story } = data;
   return (
     <div className="container" style={{ paddingTop: 50 }}>
+      <Alert severity="info" sx={{ width: '40%', marginBottom: 2 }}>
+        Extracted story information provided by Wayback Machine
+      </Alert>
       <h1 className="row">{story.title}</h1>
       <div className="row">
         <h5>
-          Originally published on
-          {' '}
-          {story.publication_date}
-          {' '}
-          in
-          {' '}
-          <b>
-            {story.domain}
-          </b>
-          . Collected on
-          {' '}
-          {story.capture_time}
-          .
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          Originally published on {story.publication_date} in <b>{story.domain}</b>. Collected on {story.capture_time}.
         </h5>
       </div>
 
       <div className="clearfix">
         <h3 className="float-start">Story Text</h3>
         <h6 className="float-end">
-          {' '}
           <a target="_blank" href={story.archive_playback_url} rel="noreferrer">
             <OpenInNewIcon />
           </a>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
@@ -8,6 +8,8 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 import DownloadIcon from '@mui/icons-material/Download';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
@@ -31,6 +33,8 @@ export default function SampleStories() {
     advanced,
   } = useSelector((state) => state.query);
 
+  const [lastSearchTimePlatform, setLastSearchTimePlatform] = useState(platform);
+
   const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [query, { isLoading, data, error }] = useGetSampleStoriesMutation();
@@ -40,6 +44,7 @@ export default function SampleStories() {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -57,6 +62,13 @@ export default function SampleStories() {
     return parts[(parts.length - 1)];
   };
 
+  const sampleStoryLink = (provider, url) => {
+    if (provider === PROVIDER_NEWS_WAYBACK_MACHINE && url) {
+      return `/story/${provider}/${getStoryId(url)}`;
+    }
+    return null;
+  };
+
   useEffect(() => {
     if ((queryList[0].length !== 0 || (advanced && queryString !== 0))) {
       query({
@@ -69,6 +81,7 @@ export default function SampleStories() {
 
       });
     }
+    setLastSearchTimePlatform(platform);
   }, [lastSearchTime]);
 
   if (isLoading) {
@@ -104,17 +117,16 @@ export default function SampleStories() {
               <tr key={`story-${sampleStory.id}`}>
                 <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
                 <td>
-                  {[PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
                   <img
                     className="google-icon"
                     src={googleFaviconUrl(sampleStory.media_url)}
                     alt="{sampleStory.media_name}"
                   />
-                  )}
                   <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
                 </td>
                 <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
-                {[PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && (
+                {([PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform)
+                && lastSearchTimePlatform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
 
                   <td>
                     <Button
@@ -123,6 +135,7 @@ export default function SampleStories() {
                       aria-controls={open ? 'basic-menu' : undefined}
                       aria-haspopup="true"
                       aria-expanded={open ? 'true' : undefined}
+                      endIcon={<KeyboardArrowDownIcon />}
                     >
                       Info
                     </Button>
@@ -143,11 +156,11 @@ export default function SampleStories() {
                       </MenuItem>
                       <MenuItem>
                         <Link
-                          to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
+                          to={sampleStoryLink(platform, sampleStory.article_url)}
                           target="_blank"
                           rel="noreferrer"
                         >
-                          view extracted content
+                          view extracted content (from Wayback Machine)
                         </Link>
                       </MenuItem>
                     </Menu>
