@@ -62,13 +62,6 @@ export default function SampleStories() {
     return parts[(parts.length - 1)];
   };
 
-  const sampleStoryLink = (provider, url) => {
-    if (provider === PROVIDER_NEWS_WAYBACK_MACHINE && url) {
-      return `/story/${provider}/${getStoryId(url)}`;
-    }
-    return null;
-  };
-
   useEffect(() => {
     if ((queryList[0].length !== 0 || (advanced && queryString !== 0))) {
       query({
@@ -156,7 +149,7 @@ export default function SampleStories() {
                       </MenuItem>
                       <MenuItem>
                         <Link
-                          to={sampleStoryLink(platform, sampleStory.article_url)}
+                          to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
                           target="_blank"
                           rel="noreferrer"
                         >
