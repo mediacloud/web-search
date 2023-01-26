@@ -7,17 +7,22 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import action
-import backend.search.providers as providers
-from backend.search.providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
 import backend.util.csv_stream as csv_stream
 from .utils import parse_query
 from ..users.models import QuotaHistory
-from .providers.exceptions import ProviderException
+from utils.cache import django_caching_interface
 from backend.users.exceptions import OverQuotaException
-from .providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE
+
+import mc_providers as providers
+from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
+from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE
+from mc_providers.exceptions import ProviderException
+from mc_providers.cache import CachingManager
 
 logger = logging.getLogger(__name__)
 
+#This is where we set the caching manager and the cache_time
+CachingManager.caching_function = django_caching_interface(time_secs = 60*60*24)
 
 def error_response(msg: str):
     return HttpResponseBadRequest(json.dumps(dict(

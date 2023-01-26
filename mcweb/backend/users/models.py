@@ -5,10 +5,13 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
-from ..search.providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER,\
+
+
+from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER,\
     PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, \
     PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE
-from ..search.providers.exceptions import UnknownProviderException
+from mc_providers import UnknownProviderException
+
 from .exceptions import OverQuotaException
 
 

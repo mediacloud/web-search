@@ -1,7 +1,7 @@
 django==4.1.*
 djangorestframework==3.14.*
 django-rest-knox==4.2.*
-psycopg2==2.9.*
+psycopg2-binary==2.9.*
 djangorestframework-simplejwt[crypto]==5.2.*
 pyhumps==3.8.*
 django-environ==0.9.*
@@ -16,3 +16,4 @@ sentry-sdk==1.11.*
 requests  # let the other dependencies sort out which is the right version
 wayback-news-search==1.0.*
 fasttext==0.9.*
+mc-providers==0.1.*

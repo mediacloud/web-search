@@ -21,7 +21,8 @@ from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
 from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
-from ..search.providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
+
+from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
