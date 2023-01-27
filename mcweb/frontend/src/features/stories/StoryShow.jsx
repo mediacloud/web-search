@@ -19,10 +19,15 @@ export default function StoryShow() {
   const { story } = data;
   return (
     <div className="container" style={{ paddingTop: 50 }}>
-      <Alert severity="info" sx={{ width: '40%', marginBottom: 2 }}>
-        Extracted story information provided by Wayback Machine
-      </Alert>
-      <h1 className="row">{story.title}</h1>
+      <div className="row">
+        <h1>{story.title}</h1>
+      </div>
+      <div className="row" style={{ marginLeft: 1 }}>
+        <Alert severity="info" sx={{ width: '40%', marginBottom: 2 }}>
+          Extracted story information provided by Wayback Machine
+        </Alert>
+      </div>
+
       <div className="row">
         <h5>
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
@@ -39,7 +44,9 @@ export default function StoryShow() {
         </h6>
 
       </div>
-      <p className="row">{story.snippet}</p>
+      <div className="row">
+        <p>{story.snippet}</p>
+      </div>
     </div>
   );
 }
