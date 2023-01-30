@@ -66,14 +66,15 @@ function Header() {
                   >
                     <div className="container" style={{ marginLeft: 5 }}>
                       <div className="row">
-                        <h6 className="col-8">Recent Changes</h6>
-                        <p className="col-4">
+                        <h5 className="col-8">Recent Changes</h5>
+                        <p className="col-4" style={{ color: '#e5e5e5' }}>
                           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
                           {dayjs(date).fromNow()}
                         </p>
                       </div>
                       <Divider />
-                      <div className="row">
+                      {/* <br /> */}
+                      <div className="row" style={{ paddingTop: 10 }}>
                         <Chip className="col-2" label="new" color="success" />
                         <p className="col-10">{notes[0]}</p>
                       </div>
