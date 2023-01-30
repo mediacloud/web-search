@@ -41,7 +41,6 @@ export default function SampleStories() {
 
   const collectionIds = collections.map((c) => c.id);
   const sourceIds = sources.map((s) => s.id);
-
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -186,6 +185,7 @@ export default function SampleStories() {
       </>
     );
   }
+
   return (
     <div className="results-item-wrapper clearfix">
       <div className="row">
