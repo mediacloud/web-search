@@ -4,6 +4,7 @@
         "remove media cloud legacy integration",
         "add top language experimental feature",
         "search bug fixes related to default dates and social media search crashing",
+        "add support for downloading youtube samples",
         "add release notes"] 
   },
   {"version": "v1.2.9", "date": "2023-01-17", 
