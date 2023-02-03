@@ -1,7 +1,7 @@
 import mcmetadata
+import pycountry
 from rest_framework import serializers
 from .models import Collection, Feed, Source
-
 
 # Serializers in Django REST Framework are responsible for converting objects
 # into data types understandable by javascript and
@@ -62,8 +62,21 @@ class SourceSerializer(serializers.ModelSerializer):
                   'media_type', 'collections']
         extra_kwargs = {'collections': {'required': False}}
 
+    def validate_pub_country(self, value):
+        """
+        Check that publication country is valid
+        """
+
+        country = pycountry.countries.get(alpha_3=value)
+        print("validating")
+        if country is None:
+            raise serializers.ValidationError(f"{value} aplha_3 country code not found")
+        return value
+    
     def create(self, validated_data):
         return Source.objects.create(**validated_data)
+
+    
 
 
 class SourcesViewSerializer(serializers.ModelSerializer):

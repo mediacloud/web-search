@@ -247,6 +247,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         collection = Collection.objects.get(pk=request.data['collection_id'])
         email_title = "Updating collection {}".format(collection.name)
         email_text = ""
+        errors = "\n Errors: "
         queryset = Source.objects
         counts = dict(updated=0, skipped=0, created=0)
         for row in request.data['sources']:
@@ -267,31 +268,43 @@ class SourcesViewSet(viewsets.ModelViewSet):
                     existing_source = queryset.filter(name=row['name'], platform=row['platform'])
             # Making a new one
             if len(existing_source) == 0:
-                new_source = {}
-                cleaned_source = Source._clean_source(new_source, row)
-                serializer = SourceSerializer(data=cleaned_source)
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(data=cleaned_source_input)
                 if serializer.is_valid():
                     existing_source = serializer.save()
+                    email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
+                    counts['created'] += 1
                     print(existing_source)
                 else:
                     print(serializer.errors)
+                    email_text += f"\n ⚠️ {row['name']}: {serializer.errors}"
+                    counts['skipped'] +=1
+                    continue
                 # existing_source = Source.create_from_dict(row)
-                email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
-                counts['created'] += 1
             # Updating unique match
             elif len(existing_source) == 1:
                 existing_source = existing_source[0]
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(existing_source, data=cleaned_source_input)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    print(existing_source)
+                    email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
+                    counts['updated'] += 1
+                else:
+                    print(serializer.errors)
+                    email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
+                    counts['skipped'] +=1
+                    continue
                 # existing_source.update_from_dict(row)
-                email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
-                counts['updated'] += 1
             # Request to update non-unique match, so skip and force them to do it by hand
             else:
                 email_text += "\n ⚠️ {}: multiple matches - cowardly skipping so you can do it by hand existing source".\
-                    format(existing_source[0]['name'])
+                    format(existing_source[0].name)
                 counts['skipped'] += 1
                 continue
             collection.source_set.add(existing_source)
-        # send_source_upload_email(email_title, email_text, request.user.email)
+        send_source_upload_email(email_title, email_text, request.user.email)
         return Response(counts)
 
     @action(methods=['GET'], detail=False)

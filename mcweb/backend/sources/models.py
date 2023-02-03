@@ -122,7 +122,8 @@ class Source(models.Model):
             obj.media_type = media_type
 
     @classmethod
-    def _clean_source(cls, obj, source: Dict):
+    def _clean_source(cls, source: Dict):
+        obj={}
         name = source.get("name", None)
         if name is not None and len(name) > 0:
             obj["name"] = name
