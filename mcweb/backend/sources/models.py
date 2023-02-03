@@ -28,7 +28,7 @@ class Collection(models.Model):
 
 
 class Source(models.Model):
-    collections = models.ManyToManyField(Collection)
+    collections = models.ManyToManyField(Collection, blank=True)
 
     class SourcePlatforms(models.TextChoices):
         ONLINE_NEWS = "online_news"
@@ -121,6 +121,47 @@ class Source(models.Model):
         if media_type is not None and len(media_type) > 0:
             obj.media_type = media_type
 
+    @classmethod
+    def _clean_source(cls, obj, source: Dict):
+        name = source.get("name", None)
+        if name is not None and len(name) > 0:
+            obj["name"] = name
+        platform = source.get("platform", None)
+        if platform is not None and len(platform) > 0:
+            obj["platform"] = platform
+        url_search_string = source.get("url_search_string", None)
+        if url_search_string is not None and len(url_search_string) > 0:
+            obj["url_search_string"] = url_search_string
+        label = source.get("label", None)
+        if label is not None and len(label) > 0:
+            obj["label"] = label
+        homepage = source.get("homepage", None)
+        if homepage is not None and len(homepage) > 0:
+            obj["homepage"] = homepage
+        notes = source.get("notes", None)
+        if notes is not None and len(notes) > 0:
+            obj["notes"] = notes
+        service = source.get("service", None)
+        if service is not None and len(service) > 0:
+            obj["service"] = service
+        stories_per_week = source.get("stories_per_week", None)
+        if stories_per_week is not None and len(stories_per_week) > 0:
+            obj["stories_per_week"] = stories_per_week
+        pub_country = source.get("pub_country", None)
+        if pub_country is not None and len(pub_country) > 0:
+            obj["pub_country"] = pub_country
+        pub_state = source.get("pub_state", None)
+        if pub_state is not None and len(pub_state) > 0:
+            obj["pub_state"] = pub_state
+        primary_language = source.get("primary_language", None)
+        if primary_language is not None and len(primary_language) > 0:
+            obj["primary_language"] = primary_language
+        media_type = source.get("media_type", None)
+        if media_type is not None and len(media_type) > 0:
+            obj["media_type"] = media_type
+        return obj
+
+    
 class Feed(models.Model):
     url = models.TextField(null=False, blank=False, unique=True)
     admin_rss_enabled = models.BooleanField(default=False, null=True)

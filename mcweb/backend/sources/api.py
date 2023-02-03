@@ -14,7 +14,7 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List, Optional
 
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
+from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
@@ -121,7 +121,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
     permission_classes = [
         IsGetOrIsStaff
     ]
-    serializer_class = FeedsSerializer
+    serializer_class = FeedSerializer
 
     # overriden to support filtering all endpoints
     def get_queryset(self):
@@ -213,7 +213,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         IsGetOrIsStaff
     ]
     serializers_by_action = {
-        'default': SourcesSerializer,
+        'default': SourceSerializer,
         'list': SourcesViewSerializer,
         'retrieve': SourcesViewSerializer,
     }
@@ -267,13 +267,21 @@ class SourcesViewSet(viewsets.ModelViewSet):
                     existing_source = queryset.filter(name=row['name'], platform=row['platform'])
             # Making a new one
             if len(existing_source) == 0:
-                existing_source = Source.create_from_dict(row)
+                new_source = {}
+                cleaned_source = Source._clean_source(new_source, row)
+                serializer = SourceSerializer(data=cleaned_source)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    print(existing_source)
+                else:
+                    print(serializer.errors)
+                # existing_source = Source.create_from_dict(row)
                 email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
                 counts['created'] += 1
             # Updating unique match
             elif len(existing_source) == 1:
                 existing_source = existing_source[0]
-                existing_source.update_from_dict(row)
+                # existing_source.update_from_dict(row)
                 email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
                 counts['updated'] += 1
             # Request to update non-unique match, so skip and force them to do it by hand
@@ -283,7 +291,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 counts['skipped'] += 1
                 continue
             collection.source_set.add(existing_source)
-        send_source_upload_email(email_title, email_text, request.user.email)
+        # send_source_upload_email(email_title, email_text, request.user.email)
         return Response(counts)
 
     @action(methods=['GET'], detail=False)

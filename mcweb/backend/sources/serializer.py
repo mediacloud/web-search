@@ -23,7 +23,7 @@ class CollectionWriteSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'notes', 'platform', 'public', 'featured']
 
 
-class FeedsSerializer(serializers.ModelSerializer):
+class FeedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feed
@@ -50,17 +50,20 @@ class FeedsSerializer(serializers.ModelSerializer):
         return Feed.objects.create(**validated_data)
 
 
-class SourcesSerializer(serializers.ModelSerializer):
-    collections = serializers.PrimaryKeyRelatedField(
-        many=True, write_only=True, queryset=Collection.objects.all()
-    )
+class SourceSerializer(serializers.ModelSerializer):
+    # collections = serializers.PrimaryKeyRelatedField(
+    #     many=True, write_only=True, queryset=Collection.objects.all()
+    # )
 
     class Meta:
         model = Source
         fields = ['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform', 'stories_per_week',
                   'first_story', 'created_at', 'modified_at', 'pub_country', 'pub_state', 'primary_language',
-                  'media_type',
-                  'collections']
+                  'media_type', 'collections']
+        extra_kwargs = {'collections': {'required': False}}
+
+    def create(self, validated_data):
+        return Source.objects.create(**validated_data)
 
 
 class SourcesViewSerializer(serializers.ModelSerializer):
