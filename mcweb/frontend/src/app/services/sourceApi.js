@@ -17,6 +17,10 @@ export const sourceApi = managerApi.injectEndpoints({
         url: `sources/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
+      providesTags: ({ results }) => (
+        results
+          ? [...results.map(({ id }) => ({ type: 'Source', id }))] : ['Source']
+      ),
     }),
     createSource: builder.mutation({
       query: (source) => ({
@@ -24,6 +28,7 @@ export const sourceApi = managerApi.injectEndpoints({
         method: 'POST',
         body: { ...source },
       }),
+      invalidatesTags: ['Source'],
     }),
     updateSource: builder.mutation({
       query: (source) => ({
@@ -38,6 +43,7 @@ export const sourceApi = managerApi.injectEndpoints({
         url: `sources/${id}/`,
         method: 'DELETE',
       }),
+      invalidatesTags: ['Source'],
     }),
     uploadSources: builder.mutation({
       query: (data) => ({

@@ -8,12 +8,16 @@ export const collectionsApi = managerApi.injectEndpoints({
         url: `collections/featured/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
+      providesTags: ({ collections }) => (collections
+        ? [...collections.map(({ id }) => ({ type: 'Collection', id }))] : ['Collection']),
     }),
     listCollections: builder.query({
       query: (params) => ({
         url: `collections/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
+      providesTags: ({ results }) => (results
+        ? [...results.map(({ id }) => ({ type: 'Collection', id }))] : ['Collection']),
     }),
     getGlobalCollections: builder.query({
       query: () => ({
@@ -27,8 +31,8 @@ export const collectionsApi = managerApi.injectEndpoints({
         method: 'GET',
       }),
       providesTags: (result, error, id) => (result
-        ? [{ type: 'SelectedCollection', id }]
-        : ['SelectedCollection']),
+        ? [{ type: 'Collection', id }]
+        : ['Collection']),
     }),
     createCollection: builder.mutation({
       query: (collection) => ({
@@ -36,6 +40,7 @@ export const collectionsApi = managerApi.injectEndpoints({
         method: 'POST',
         body: { ...collection },
       }),
+      invalidatesTags: ['Collection'],
     }),
     updateCollection: builder.mutation({
       query: (collection) => ({
@@ -43,13 +48,14 @@ export const collectionsApi = managerApi.injectEndpoints({
         method: 'PATCH',
         body: { ...collection },
       }),
-      invalidatesTags: ['SelectedCollection'],
+      invalidatesTags: ['Collection'],
     }),
     deleteCollection: builder.mutation({
       query: (id) => ({
         url: `collections/${id}/`,
         method: 'DELETE',
       }),
+      invalidatesTags: ['Collection'],
     }),
   }),
 });

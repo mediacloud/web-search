@@ -67,7 +67,6 @@ class SourceSerializer(serializers.ModelSerializer):
         Check that publication country code is valid ISO 3166-1 alpha-3
         """
         country = pycountry.countries.get(alpha_3=value)
-        print("validating")
         if country is None:
             raise serializers.ValidationError(f"{value}: ISO 3166-1 aplha_3 country code not found")
         return value
@@ -77,7 +76,6 @@ class SourceSerializer(serializers.ModelSerializer):
         Check that publication state code is valid ISO 3166-2
         """
         country = pycountry.subdivisions.get(code=value)
-        print("validating")
         if country is None:
             raise serializers.ValidationError(f"{value}: ISO 3166-2 publication state code not found")
         return value
@@ -87,7 +85,6 @@ class SourceSerializer(serializers.ModelSerializer):
         Check that language code is valid ISO 639-1
         """
         country = pycountry.languages.get(alpha_2=value)
-        print("validating")
         if country is None:
             raise serializers.ValidationError(f"{value}: ISO 639-1 language code not found")
         return value
@@ -96,8 +93,6 @@ class SourceSerializer(serializers.ModelSerializer):
         return Source.objects.create(**validated_data)
 
     
-
-
 class SourcesViewSerializer(serializers.ModelSerializer):
     collection_count = serializers.IntegerField()
 
