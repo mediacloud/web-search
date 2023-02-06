@@ -274,9 +274,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                     existing_source = serializer.save()
                     email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
                     counts['created'] += 1
-                    print(existing_source)
                 else:
-                    print(serializer.errors)
                     email_text += f"\n ⚠️ {row['name']}: {serializer.errors}"
                     counts['skipped'] +=1
                     continue
@@ -288,11 +286,9 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 serializer = SourceSerializer(existing_source, data=cleaned_source_input)
                 if serializer.is_valid():
                     existing_source = serializer.save()
-                    print(existing_source)
                     email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
                     counts['updated'] += 1
                 else:
-                    print(serializer.errors)
                     email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
                     counts['skipped'] +=1
                     continue
