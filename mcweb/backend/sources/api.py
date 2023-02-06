@@ -247,7 +247,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
         collection = Collection.objects.get(pk=request.data['collection_id'])
         email_title = "Updating collection {}".format(collection.name)
         email_text = ""
-        errors = "\n Errors: "
         queryset = Source.objects
         counts = dict(updated=0, skipped=0, created=0)
         for row in request.data['sources']:
