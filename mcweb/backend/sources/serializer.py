@@ -61,16 +61,35 @@ class SourceSerializer(serializers.ModelSerializer):
                   'first_story', 'created_at', 'modified_at', 'pub_country', 'pub_state', 'primary_language',
                   'media_type', 'collections']
         extra_kwargs = {'collections': {'required': False}}
-
+    
     def validate_pub_country(self, value):
         """
-        Check that publication country is valid
+        Check that publication country code is valid ISO 3166-1 alpha-3
         """
-
         country = pycountry.countries.get(alpha_3=value)
         print("validating")
         if country is None:
-            raise serializers.ValidationError(f"{value} aplha_3 country code not found")
+            raise serializers.ValidationError(f"{value}: ISO 3166-1 aplha_3 country code not found")
+        return value
+
+    def validate_pub_state(self, value):
+        """
+        Check that publication state code is valid ISO 3166-2
+        """
+        country = pycountry.subdivisions.get(code=value)
+        print("validating")
+        if country is None:
+            raise serializers.ValidationError(f"{value}: ISO 3166-2 publication state code not found")
+        return value
+
+    def validate_primary_language(self, value):
+        """
+        Check that language code is valid ISO 639-1
+        """
+        country = pycountry.languages.get(alpha_2=value)
+        print("validating")
+        if country is None:
+            raise serializers.ValidationError(f"{value}: ISO 639-1 language code not found")
         return value
     
     def create(self, validated_data):
