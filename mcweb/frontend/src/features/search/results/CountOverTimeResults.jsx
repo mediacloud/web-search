@@ -87,10 +87,10 @@ export default function CountOverTimeResults() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (data) {
+    if (data || error) {
       executeScroll();
     }
-  }, [data]);
+  }, [data, error]);
 
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
