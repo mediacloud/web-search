@@ -14,7 +14,7 @@ import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List, Optional
 
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
+from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
@@ -121,7 +121,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
     permission_classes = [
         IsGetOrIsStaff
     ]
-    serializer_class = FeedsSerializer
+    serializer_class = FeedSerializer
 
     # overriden to support filtering all endpoints
     def get_queryset(self):
@@ -213,7 +213,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         IsGetOrIsStaff
     ]
     serializers_by_action = {
-        'default': SourcesSerializer,
+        'default': SourceSerializer,
         'list': SourcesViewSerializer,
         'retrieve': SourcesViewSerializer,
     }
@@ -267,19 +267,35 @@ class SourcesViewSet(viewsets.ModelViewSet):
                     existing_source = queryset.filter(name=row['name'], platform=row['platform'])
             # Making a new one
             if len(existing_source) == 0:
-                existing_source = Source.create_from_dict(row)
-                email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
-                counts['created'] += 1
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(data=cleaned_source_input)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
+                    counts['created'] += 1
+                else:
+                    email_text += f"\n ⚠️ {row['name']}: {serializer.errors}"
+                    counts['skipped'] +=1
+                    continue
+                # existing_source = Source.create_from_dict(row)
             # Updating unique match
             elif len(existing_source) == 1:
                 existing_source = existing_source[0]
-                existing_source.update_from_dict(row)
-                email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
-                counts['updated'] += 1
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(existing_source, data=cleaned_source_input)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
+                    counts['updated'] += 1
+                else:
+                    email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
+                    counts['skipped'] +=1
+                    continue
+                # existing_source.update_from_dict(row)
             # Request to update non-unique match, so skip and force them to do it by hand
             else:
                 email_text += "\n ⚠️ {}: multiple matches - cowardly skipping so you can do it by hand existing source".\
-                    format(existing_source[0]['name'])
+                    format(existing_source[0].name)
                 counts['skipped'] += 1
                 continue
             collection.source_set.add(existing_source)

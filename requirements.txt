@@ -17,3 +17,4 @@ requests  # let the other dependencies sort out which is the right version
 wayback-news-search==1.0.*
 fasttext==0.9.*
 mc-providers==0.1.*
+pycountry==22.3.*
