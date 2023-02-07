@@ -19,7 +19,6 @@ export default function SelectedMedia({ onRemove, collections, sources }) {
               style={{
                 display: 'block',
                 whiteSpace: 'normal',
-                overflow: 'hidden',
                 width: '100%',
               }}
             >
@@ -38,7 +37,6 @@ export default function SelectedMedia({ onRemove, collections, sources }) {
               style={{
                 display: 'block',
                 whiteSpace: 'normal',
-                overflow: 'hidden',
                 width: '100%',
               }}
             >
