@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Chip from '@mui/material/Chip';
 import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import { NavLink, Link } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import dayjs from 'dayjs';
@@ -79,10 +80,25 @@ function Header() {
                         <p className="col-10">{notes[0]}</p>
                       </div>
                       <Divider />
-                      <Link to="release-notes" onClick={handleClose}>
-                        Read More Release Notes
-                      </Link>
                     </div>
+                    <Link
+                      to="release-notes"
+                      onClick={handleClose}
+                      style={{ textDecoration: 'none', color: 'black' }}
+                    >
+                      <MenuItem>
+                        Read More Release Notes
+                      </MenuItem>
+                    </Link>
+                    <Link
+                      to="about-search"
+                      onClick={handleClose}
+                      style={{ textDecoration: 'none', color: 'black' }}
+                    >
+                      <MenuItem>
+                        About Search API
+                      </MenuItem>
+                    </Link>
                   </Menu>
                 </li>
               </ul>
