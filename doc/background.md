@@ -24,8 +24,9 @@ otherwise need to ask techies "when is the last time ... ran?"
 
 table name: bgtasks??
 
+
 column     | type     | description
------------+----------+-------------------------
+-----------|----------|-------------------------
 id         | bigint   | unique id from sequence
 user       | string   | initiating user
 type       | string   | job type (from a controlled set)
@@ -50,7 +51,7 @@ partition table by status:  have bgtasks_completed??
 table name: bgevents
 
 column     | type     | description
------------+----------+------------------------
+-----------|----------|------------------------
 id         | bigint   | unique id from sequence
 event      | string   | from limited set: started, completed, failed, progress?
 bgtasks_id | bigint   | bgtasks table id (NOT a foreign key??)
