@@ -213,49 +213,127 @@ export default function AboutSearch() {
           </ul>
         </div>
       </div>
-      <h2>Copy Search</h2>
-      <ul>
-        <li>
-          Ability to copy a url of an in progress query or a query that has been run, to share with others.
-        </li>
-      </ul>
-      <h2>Results</h2>
-      <ul>
-        <li>Total Attention</li>
-        <ul>
-          <li>
-            See the total number of hits and the % of stories your topic was for a time period
-          </li>
-        </ul>
-        <li>Attention Over Time</li>
-        <ul>
-          <li>
-            Check day by day what the number of hits or % of stories your topic was for a time period
-          </li>
-        </ul>
-        <li>Sample Results</li>
-        <ul>
-          <li>
-            Get a small sample of results from your query, will change depending on platform
-          </li>
+      <br />
+      <div className="row">
+        <div className="col-6">
+
+          <h2>Copy Search</h2>
           <ul>
             <li>
-              Option to download all results for each platform
+              Ability to copy a url of an in progress query or a query that has been run, to share with others.
             </li>
           </ul>
-        </ul>
-        <li>Words (experimental)</li>
-        <ul>
-          <li>
-            Experimental feature to see words that appear most often in results
-          </li>
-        </ul>
-        <li>Languages (experimental)</li>
-        <ul>
-          <li>
-            Experimental feature to see what languages that appear most often in results
-          </li>
-        </ul>
+        </div>
+        <img
+          src={assetUrl('img/copy_search.png')}
+          alt="screenshot of copy search modal"
+          width="100%"
+          className="col-6"
+          style={{ border: '1px solid black' }}
+        />
+      </div>
+      <br />
+      <br />
+      <br />
+      <h2>Results</h2>
+      <ul>
+        <div className="row">
+          <div className="col-6">
+            <li>Total Attention</li>
+            <ul>
+              <li>
+                See the total number of hits and the % of stories your topic was for a time period
+              </li>
+            </ul>
+          </div>
+          <img
+            src={assetUrl('img/total_attention.png')}
+            alt="screenshot of total attention"
+            width="100%"
+            className="col-6"
+            style={{ border: '1px solid black' }}
+          />
+        </div>
+        <br />
+        <div className="row">
+          <img
+            src={assetUrl('img/attention_over_time_annotated.png')}
+            alt="screenshot of attention over time"
+            width="100%"
+            className="col-6"
+            style={{ border: '1px solid black' }}
+          />
+          <div className="col-6">
+
+            <li>Attention Over Time</li>
+            <ul>
+              <li>
+                Check day by day what the number of hits or % of stories your topic was for a time period
+              </li>
+            </ul>
+          </div>
+        </div>
+        <br />
+        <div className="row">
+          <div className="col-6">
+            <li>Sample Results</li>
+            <ul>
+              <li>
+                Get a small sample of results from your query, will change depending on platform
+              </li>
+              <ul>
+                <li>
+                  Option to download all results for each platform
+                </li>
+              </ul>
+            </ul>
+          </div>
+          <img
+            src={assetUrl('img/sample_content.png')}
+            alt="screenshot of sample_content"
+            width="100%"
+            className="col-6"
+            style={{ border: '1px solid black' }}
+          />
+        </div>
+        <br />
+        <div className="row">
+          <img
+            src={assetUrl('img/top_words.png')}
+            alt="screenshot of sample_content"
+            width="100%"
+            className="col-6"
+            style={{ border: '1px solid black' }}
+          />
+          <div className="col-6">
+
+            <li>Words (experimental)</li>
+            <ul>
+              <li>
+                Experimental feature to see words that appear most often in results
+              </li>
+            </ul>
+          </div>
+        </div>
+        <br />
+        <div className="row">
+          <div className="col-6">
+
+            <li>Languages (experimental)</li>
+            <ul>
+              <li>
+                Experimental feature to see what languages that appear most often in results
+              </li>
+            </ul>
+          </div>
+          <img
+            src={assetUrl('img/top_languages.png')}
+            alt="screenshot of sample_content"
+            width="100%"
+            className="col-6"
+            style={{ border: '1px solid black' }}
+          />
+        </div>
       </ul>
     </div>
   );
