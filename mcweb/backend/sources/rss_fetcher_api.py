@@ -125,6 +125,20 @@ class RssFetcherApi:
         """
         return self._get_list(f"sources/{source_id}/stories")
 
+    def source_stories_fetched_by_day(self, source_id: int) -> List[Dict[str, Any]]:
+        """
+        GET request to fetch counts of recent stories by fetched_at date
+        returns list of Dict: {"date": "YYYY-MM-DD", "count": N}
+        """
+        return self._get_list(f"sources/{source_id}/stories/fetched-by-day")
+
+    def source_stories_published_by_day(self, source_id: int) -> List[Dict[str, Any]]:
+        """
+        GET request to fetch counts of recent stories by published_at date
+        returns list of Dict: {"date": "YYYY-MM-DD", "count": N}
+        """
+        return self._get_list(f"sources/{source_id}/stories/published-by-day")
+
     ################ stories methods
 
     def stories_fetched_by_day(self) -> List[Dict[str, Any]]:
@@ -156,30 +170,48 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.DEBUG)
 
+    DUMP = False                # XXX take command line arg/option!
+
     with RssFetcherApi() as rss:
         # tested against staging-rss-fetcher.ifill.angwin:
 
         SRC = 1                 # NYT
-        FEED = 49677            # NYT Top Stories
-        FURL = 'http://www.nytimes.com/services/xml/rss/nyt/GlobalHome.xml'
+        FEED = 10               # NYT Baseball
+        FURL = 'http://www.nytimes.com/services/xml/rss/nyt/Baseball.xml'
+
+        ################ feed
 
         f = rss.feed(FEED)
+        if DUMP: print(f)
         assert f['url'] == FURL
 
-        assert len(rss.feed_history(FEED)) > 10
+        fh = rss.feed_history(FEED)
+        assert len(fh) > 10
 
         s = rss.feed_stories(FEED)
-        #print("fs", s)
-        assert len(s) > 10
+        if DUMP: print("fs", s)
+        assert len(s) > 1
 
         #rss.feed_fetch_soon(FEED) # should return 0 or 1
+
+        ################ source
 
         f = rss.source_feeds(SRC)
         assert len(f) > 10
 
         s = rss.source_stories(SRC)
-        #print("ss", s)
+        if DUMP: print("ss", s)
         assert len(s) > 10
+
+        s = rss.source_stories_published_by_day(SRC)
+        if DUMP: print("ss", s)
+        assert len(s) > 10
+
+        s = rss.source_stories_fetched_by_day(SRC)
+        if DUMP: print("ss", s)
+        assert len(s) > 10
+
+        ################ stories
 
         s = rss.stories_fetched_by_day()
         assert len(s) > 2
@@ -189,5 +221,8 @@ if __name__ == '__main__':
 
         s = rss.stories_by_source()
         assert len(s) > 10
+        if DUMP:
+            for row in s:
+                print(row[0], round(row[1]*7))
 
         # print("soon:", rss.source_fetch_soon(SRC))  # returns number of feeds updated
