@@ -1,6 +1,8 @@
 import mcmetadata
 import pycountry
+import json
 from rest_framework import serializers
+import mcmetadata.urls as urls
 from .models import Collection, Feed, Source
 
 # Serializers in Django REST Framework are responsible for converting objects
@@ -59,8 +61,36 @@ class SourceSerializer(serializers.ModelSerializer):
         model = Source
         fields = ['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform', 'stories_per_week',
                   'first_story', 'created_at', 'modified_at', 'pub_country', 'pub_state', 'primary_language',
-                  'media_type', 'collections']
+                  'media_type']
         extra_kwargs = {'collections': {'required': False}}
+    
+    def validate_homepage(self, value):
+        """
+        Check that homepage is present
+        """
+       
+        if value is None:
+            raise serializers.ValidationError(f"homepage is required")
+        return value
+        
+
+    def validate_name(self, value):
+        """
+        Check that name is normalized version of homepage, ensure name is unique in db
+        """
+        
+        self_id = self.initial_data.get('id', None) 
+        homepage = self.initial_data["homepage"]
+        canonical_domain = urls.canonical_domain(homepage)
+        platform = self.initial_data["platform"]
+        existing_sources = Source.objects.filter(name__exact=value)
+        if existing_sources.exists():
+             if existing_sources[0].id != self_id and self_id is not None:
+                raise serializers.ValidationError(f"name: {value} already exists")
+        if platform == "online_news":
+            if canonical_domain != value:
+                raise serializers.ValidationError(f"name: {value} does not match the canonicalized version of homepage: {homepage}")
+        return value
     
     def validate_pub_country(self, value):
         """
@@ -91,6 +121,9 @@ class SourceSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         return Source.objects.create(**validated_data)
+
+  
+        
 
     
 class SourcesViewSerializer(serializers.ModelSerializer):
