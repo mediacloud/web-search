@@ -1,5 +1,6 @@
 from django.db import models
 from typing import Dict
+import mcmetadata.urls as urls
 
 
 class Collection(models.Model):
@@ -46,7 +47,7 @@ class Source(models.Model):
     name = models.CharField(max_length=1000, null=True)
     url_search_string = models.CharField(max_length=1000, blank=True, null=True)
     label = models.CharField(max_length=255, null=True, blank=True)
-    homepage = models.CharField(max_length=4000, null=True, blank=True)
+    homepage = models.CharField(max_length=4000, null=False, blank=False)
     notes = models.TextField(null=True, blank=True)
     platform = models.CharField(max_length=100, choices=SourcePlatforms.choices, null=True,
                                 default=SourcePlatforms.ONLINE_NEWS)
@@ -77,6 +78,7 @@ class Source(models.Model):
         new_source = Source.objects.get(pk=new_source.pk)
         return new_source
 
+    @classmethod
     def update_from_dict(self, source_info: Dict):
         Source._set_from_dict(self, source_info)
         self.save()
@@ -124,21 +126,27 @@ class Source(models.Model):
     @classmethod
     def _clean_source(cls, source: Dict):
         obj={}
-        name = source.get("name", None)
-        if name is not None and len(name) > 0:
-            obj["name"] = name.strip()
         platform = source.get("platform", None)
         if platform is not None and len(platform) > 0:
             obj["platform"] = platform.strip()
+        
+        homepage = source.get("homepage", None)
+        if homepage is not None and len(homepage) > 0:
+            obj["homepage"] = homepage.strip()
+        
+        name = source.get("name", None)
+        if name is not None and len(name) > 0:
+            obj["name"] = name.strip()
+        if platform == 'online_news':
+            if (name is None or len(name) == 0) and len(homepage) > 0:
+                obj["name"] = urls.canonical_domain(homepage)
+        
         url_search_string = source.get("url_search_string", None)
         if url_search_string is not None and len(url_search_string) > 0:
             obj["url_search_string"] = url_search_string.strip()
         label = source.get("label", None)
         if label is not None and len(label) > 0:
             obj["label"] = label.strip()
-        homepage = source.get("homepage", None)
-        if homepage is not None and len(homepage) > 0:
-            obj["homepage"] = homepage.strip()
         notes = source.get("notes", None)
         if notes is not None and len(notes) > 0:
             obj["notes"] = notes.strip()

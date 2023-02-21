@@ -13,7 +13,7 @@ from rest_framework import viewsets, permissions
 import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List, Optional
-
+from rest_framework.exceptions import APIException
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
@@ -242,6 +242,32 @@ class SourcesViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(Q(name__icontains=name) | Q(label__icontains=name))
         return queryset
 
+
+    def create(self, request):
+        cleaned_data = Source._clean_source(request.data)
+        serializer = SourceSerializer(data=cleaned_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"source": serializer.data})
+        else:
+            error_string = str(serializer.errors) 
+            print(error_string)
+            # error_string = str(error_string['name'][0])
+            raise APIException(f"{error_string}")
+
+
+    def partial_update(self, request, pk=None):
+        instance = self.get_object()
+        serializer = SourceSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"source": serializer.data})
+        else:
+            error_string = serializer.errors 
+            error_string = str(error_string['name'][0])
+            raise APIException(f"{error_string}")
+
+
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):
         collection = Collection.objects.get(pk=request.data['collection_id'])
@@ -338,7 +364,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collections_queryset = Collection.objects.all()
             collection = get_object_or_404(collections_queryset, pk=pk)
             source_associations = collection.source_set.all()
-            serializer = SourcesSerializer(source_associations, many=True)
+            serializer = SourceSerializer(source_associations, many=True)
             return Response({'sources': serializer.data})
         else:
             sources_queryset = Source.objects.all()

@@ -1,7 +1,5 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-// import { useCSVDownloader } from 'react-papaparse';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
@@ -9,11 +7,12 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import Modal from '@mui/material/Modal';
+import Alert from '@mui/material/Alert';
 import { useSnackbar } from 'notistack';
 import { platformDisplayName } from '../ui/uiUtil';
 import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import { useGetCollectionQuery } from '../../app/services/collectionsApi';
 import { useGetSourceQuery, useUpdateSourceMutation } from '../../app/services/sourceApi';
 import DirectorySearch from '../directory/DirectorySearch';
 
@@ -22,6 +21,7 @@ export default function ModifySource() {
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const sourceId = Number(params.sourceId);
+
   const [formState, setFormState] = React.useState({
     name: '', notes: '', homepage: '', label: '', service: '', platform: '', url_search_string: '',
   });
@@ -30,16 +30,11 @@ export default function ModifySource() {
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
 
-  // const { CSVDownloader, Type } = useCSVDownloader();
-
-  // create
-  // const [post, { setPost }] = usePostSourceMutation();
-
   // update
   const [updateSource] = useUpdateSourceMutation();
 
-  // delete
-  // const [remove, { setRemove }] = useDeleteSourceMutation();
+  const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const {
     data,
@@ -59,6 +54,7 @@ export default function ModifySource() {
       setFormState(formData);
     }
   }, [data]);
+
   const [collectionId, setCollectionId] = useState('');
 
   // const collectionData = useGetCollectionQuery(collectionId);
@@ -71,7 +67,26 @@ export default function ModifySource() {
 
   return (
     <div className="container">
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Alert severity="error">
 
+          <div
+            className="container"
+
+          >
+            <h3>Error While Updating Source</h3>
+            <p>
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              {errorMessage}
+            </p>
+          </div>
+        </Alert>
+      </Modal>
       <div className="row">
         <div className="col-6">
           <h2>Edit Source</h2>
@@ -104,7 +119,9 @@ export default function ModifySource() {
             fullWidth
             name="name"
             label="name"
-            helperText="This is the unique identified for this source within our system. Don't change this unless you know what you're doing. For news sources this should be the unique domain name."
+            helperText="This is the unique identified for this source within our system.
+            Don't change this unless you know what you're doing.
+            For news sources this should be the unique domain name."
             value={formState.name ? formState.name : 'enter name'}
             onChange={handleChange}
           />
@@ -147,22 +164,25 @@ export default function ModifySource() {
             label="URL Search String"
             value={formState.url_search_string ? formState.url_search_string : null}
             onChange={handleChange}
-            helperText="For a very small number of news sources, we want to search within a subdomain (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string here, such as '*news.bbc.co.uk/nigeria/*'."
+            helperText="For a very small number of news sources, we want to search within a subdomain
+            (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string here,
+            such as '*news.bbc.co.uk/nigeria/*'."
           />
           <br />
           <br />
           <Button
             variant="contained"
-            onClick={async () => {
-              try {
-                await updateSource(formState).unwrap();
-                enqueueSnackbar('Saved changes', { variant: 'success' });
-                navigate(`/sources/${sourceId}`);
-              } catch (err) {
-                // console.log(err);
-                const errorMsg = `Failed - ${err.data.message}`;
-                enqueueSnackbar(errorMsg, { variant: 'error' });
-              }
+            onClick={() => {
+              updateSource(formState)
+                .then((payload) => {
+                  if (payload.error) {
+                    setErrorMessage(payload.error.data.detail);
+                    setOpen(true);
+                  } else {
+                    enqueueSnackbar('Saved changes', { variant: 'success' });
+                    navigate(`/sources/${sourceId}`);
+                  }
+                });
             }}
           >
             Save
