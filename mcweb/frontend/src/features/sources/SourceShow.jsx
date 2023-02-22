@@ -56,9 +56,11 @@ export default function SourceShow() {
         <div className="col-6">
           <CollectionList sourceId={sourceId} />
         </div>
-        <div className="col-6">
-          <FeedStories feed={false} sourceId={sourceId} />
-        </div>
+        {source.platform === 'online_news' && (
+          <div className="col-6">
+            <FeedStories feed={false} sourceId={sourceId} />
+          </div>
+        )}
       </div>
 
     </div>
