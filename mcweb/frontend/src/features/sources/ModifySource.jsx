@@ -50,6 +50,7 @@ export default function ModifySource() {
         homepage: data.homepage,
         label: data.label,
         platform: data.platform,
+        url_search_string: data.url_search_string,
       };
       setFormState(formData);
     }

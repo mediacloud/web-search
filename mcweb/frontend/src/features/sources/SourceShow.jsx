@@ -38,11 +38,15 @@ export default function SourceShow() {
       <div className="row">
         <div className="col-6">
           <p>
-            <b>Homepage</b>
-            :
-            {' '}
-            <a href={source.homepage} target="_blank" rel="noreferrer">{source.homepage}</a>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            <b>Homepage</b>: <a href={source.homepage} target="_blank" rel="noreferrer">{source.homepage}</a>
           </p>
+          {source.url_search_string && (
+          <p>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            <b>URL Search String</b>: {source.url_search_string}
+          </p>
+          )}
           {source.notes && (
             <p>
               <b>Notes</b>
