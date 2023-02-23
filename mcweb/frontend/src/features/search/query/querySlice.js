@@ -15,21 +15,24 @@ const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 
 const querySlice = createSlice({
   name: 'query',
-  initialState: {
-    queryString: '',
-    queryList: [[], [], []],
-    negatedQueryList: [[], [], []],
-    platform: DEFAULT_PROVIDER,
-    startDate,
-    endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
-    collections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
-    previewCollections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
-    sources: [],
-    previewSources: [],
-    lastSearchTime: dayjs().unix(),
-    anyAll: 'any',
-    advanced: false,
-  },
+  initialState:
+  [
+    {
+      queryString: '',
+      queryList: [[], [], []],
+      negatedQueryList: [[], [], []],
+      platform: DEFAULT_PROVIDER,
+      startDate,
+      endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
+      collections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+      previewCollections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+      sources: [],
+      previewSources: [],
+      lastSearchTime: dayjs().unix(),
+      anyAll: 'any',
+      advanced: false,
+    },
+  ],
 
   reducers: {
     addSelectedMedia: (state, { payload }) => ({

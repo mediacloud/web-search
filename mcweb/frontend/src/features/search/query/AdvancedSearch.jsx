@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import PropTypes from 'prop-types';
 import Alert from '@mui/material/Alert';
 import Editor from 'react-simple-code-editor';
 import { highlight } from 'prismjs/components/prism-core';
@@ -9,7 +10,7 @@ import queryGenerator from '../util/queryGenerator';
 import setLanguage from '../util/setLanguage';
 import { setQueryProperty } from './querySlice';
 
-function AdvancedSearch() {
+function AdvancedSearch({ queryIndex }) {
   const dispatch = useDispatch();
   const {
     queryString,
@@ -18,7 +19,7 @@ function AdvancedSearch() {
     platform,
     anyAll,
     advanced,
-  } = useSelector((state) => state.query);
+  } = useSelector((state) => state.query[queryIndex]);
 
   let language = platform ? setLanguage(platform) : null;
 
@@ -79,5 +80,9 @@ function AdvancedSearch() {
     </div>
   );
 }
+
+AdvancedSearch.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+};
 
 export default AdvancedSearch;

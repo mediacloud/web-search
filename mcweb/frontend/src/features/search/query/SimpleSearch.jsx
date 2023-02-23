@@ -1,13 +1,13 @@
-import * as React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import QueryList from './QueryList';
 import { setQueryProperty } from './querySlice';
 import QueryPreview from './QueryPreview';
 import SearchAlertDialog from '../../ui/AlertDialog';
 
-export default function SimpleSearch() {
-  const { anyAll } = useSelector((state) => state.query);
+export default function SimpleSearch({ queryIndex }) {
+  const { anyAll } = useSelector((state) => state.query[queryIndex]);
 
   const dispatch = useDispatch();
 
@@ -41,7 +41,7 @@ export default function SimpleSearch() {
               </select>
               of these phrases:
             </div>
-            <QueryList negated={false} />
+            <QueryList queryIndex={queryIndex} negated={false} />
           </div>
         </div>
 
@@ -55,7 +55,7 @@ export default function SimpleSearch() {
               {' '}
               of these phrases:
             </div>
-            <QueryList negated />
+            <QueryList queryIndex={queryIndex} negated />
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export default function SimpleSearch() {
           <div className="query-section">
             <h3>&nbsp;</h3>
             <div className="description">Your query preview:</div>
-            <QueryPreview />
+            <QueryPreview queryIndex={queryIndex} />
           </div>
           <div className=".search-button-wrapper">
             <div className="container">
@@ -91,3 +91,7 @@ export default function SimpleSearch() {
     </div>
   );
 }
+
+SimpleSearch.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+};

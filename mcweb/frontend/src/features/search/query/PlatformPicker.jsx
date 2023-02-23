@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSnackbar } from 'notistack';
 import { useSelector, useDispatch } from 'react-redux';
+import PropTypes from 'prop-types';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import YouTubeIcon from '@mui/icons-material/YouTube';
@@ -16,8 +17,8 @@ import {
   setQueryProperty, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS,
 } from './querySlice';
 
-export default function PlatformPicker() {
-  const { platform, collections, sources } = useSelector((state) => state.query);
+export default function PlatformPicker({ queryIndex }) {
+  const { platform, collections, sources } = useSelector((state) => state.query[queryIndex]);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -99,3 +100,7 @@ export default function PlatformPicker() {
     </div>
   );
 }
+
+PlatformPicker.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+};

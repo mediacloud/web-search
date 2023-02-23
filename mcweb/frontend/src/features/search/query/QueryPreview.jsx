@@ -1,15 +1,15 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import queryGenerator from '../util/queryGenerator';
 
-export default function QueryPreview() {
+export default function QueryPreview({ queryIndex }) {
   const {
     queryList,
     negatedQueryList,
     platform,
     anyAll,
-  } = useSelector((state) => state.query);
+  } = useSelector((state) => state.query[queryIndex]);
 
   let query = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
@@ -28,3 +28,7 @@ export default function QueryPreview() {
     </>
   );
 }
+
+QueryPreview.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+};

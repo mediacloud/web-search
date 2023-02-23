@@ -1,13 +1,13 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { setQueryProperty } from './querySlice';
 
-export default function QueryList({ negated }) {
+export default function QueryList({ negated, queryIndex }) {
   const dispatch = useDispatch();
-  const { anyAll, queryList, negatedQueryList } = useSelector((state) => state.query);
+  const { anyAll, queryList, negatedQueryList } = useSelector((state) => state.query[queryIndex]);
   const [serviceList, setServiceList] = useState(negated ? negatedQueryList : queryList);
 
   useEffect(() => {
@@ -174,3 +174,8 @@ export default function QueryList({ negated }) {
     );
   }
 }
+
+QueryList.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+  negated: PropTypes.bool.isRequired,
+};

@@ -5,10 +5,10 @@ import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySli
 import { useGetFeaturedCollectionsQuery } from '../../../../app/services/collectionsApi';
 import MediaPickerSelectionTable from './MediaPickerSelectionTable';
 
-export default function FeaturedCollectionsPicker({ platform }) {
+export default function FeaturedCollectionsPicker({ platform, queryIndex }) {
   const { data, isLoading } = useGetFeaturedCollectionsQuery({ platform });
 
-  const { previewCollections } = useSelector((state) => state.query);
+  const { previewCollections } = useSelector((state) => state.query[queryIndex]);
 
   if (isLoading) {
     return (<div>Loading...</div>);
@@ -29,4 +29,5 @@ export default function FeaturedCollectionsPicker({ platform }) {
 
 FeaturedCollectionsPicker.propTypes = {
   platform: PropTypes.string.isRequired,
+  queryIndex: PropTypes.number.isRequired,
 };

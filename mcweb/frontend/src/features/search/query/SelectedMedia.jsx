@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 export default function SelectedMedia({ onRemove, collections, sources }) {
   const dispatch = useDispatch();
   // note: this only supports collections right now, but needs to support sources too
+
   return (
     <div className="selected-media-container">
       <div className="selected-media-item-list">

@@ -31,9 +31,11 @@ export default function Search() {
 
   const [show, setShow] = useState(false);
 
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
-  const queryState = useSelector((state) => state.query);
+  const [queryIndex, setQueryIndex] = useState(0);
+
+  const queryState = useSelector((state) => state.query[queryIndex]);
 
   const {
     collections,
@@ -57,17 +59,17 @@ export default function Search() {
       <div className="container">
         <div className="row">
           <div className="col">
-            <PlatformPicker />
+            <PlatformPicker queryIndex={queryIndex} />
           </div>
         </div>
       </div>
 
       <div className="container">
         {advanced && (
-        <AdvancedSearch />
+        <AdvancedSearch queryIndex={queryIndex} />
         )}
         {!advanced && (
-        <SimpleSearch />
+        <SimpleSearch queryIndex={queryIndex} />
         )}
       </div>
 
@@ -81,7 +83,7 @@ export default function Search() {
                 Pick collections and sources
               </h3>
               <SelectedMedia onRemove={removeSelectedMedia} collections={collections} sources={sources} />
-              <MediaPicker />
+              <MediaPicker queryIndex={queryIndex} />
               <p className="help">
                 Choose individual sources or collections to be searched.
                 Our system includes collections for a large range of countries,
@@ -107,7 +109,7 @@ export default function Search() {
                   PushShift.io moved to a new server; data before 11/1/22 unavailable.
                 </Alert>
               )}
-              <SearchDatePicker />
+              <SearchDatePicker queryIndex={queryIndex} />
             </div>
           </div>
 
@@ -161,7 +163,7 @@ export default function Search() {
         </div>
       </div>
 
-      <div className="search-results-wrapper">
+      {/* <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
           <TotalAttentionResults />
@@ -169,7 +171,7 @@ export default function Search() {
           <TopWords />
           <TopLanguages />
         </div>
-      </div>
+      </div> */}
 
     </div>
   );
