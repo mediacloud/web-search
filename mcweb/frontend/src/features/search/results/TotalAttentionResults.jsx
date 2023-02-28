@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@mui/icons-material';
@@ -106,7 +105,7 @@ function TotalAttentionResults() {
                 <Alert severity="warning">No content has matched this query</Alert>
               )}
               {normalizeData(data) === 100 && (
-                <Alert severity="warning"> You searched &apos;*&apos; and received 100% results </Alert>
+                <Alert severity="warning"> This query has returned 100% attention </Alert>
               )}
               <BarChart
                 series={[
