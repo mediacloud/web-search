@@ -29,7 +29,7 @@ export default function Search() {
 
   const navigate = useNavigate();
 
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
 
   const [open, setOpen] = useState(false);
 
@@ -49,9 +49,9 @@ export default function Search() {
     navigator.clipboard.writeText(ahref);
   };
 
-  useEffect(() => {
-    setShow(deactivateButton(queryState));
-  }, [queryState]);
+  // useEffect(() => {
+  //   setShow(deactivateButton(queryState));
+  // }, [queryState]);
 
   return (
     <div className="search-container">
@@ -153,7 +153,7 @@ export default function Search() {
                     { options: { replace: true } },
                   );
                   dispatch(searchApi.util.resetApiState());
-                  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix() }));
+                  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix(), queryIndex, property: 'lastSearchTime' }));
                 }}
               >
                 Search
@@ -163,15 +163,15 @@ export default function Search() {
         </div>
       </div>
 
-      {/* <div className="search-results-wrapper">
+      <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
-          <TopWords />
-          <TopLanguages />
+          {/* <TotalAttentionResults /> */}
+          {/* <SampleStories /> */}
+          {/* <TopWords /> */}
+          {/* <TopLanguages /> */}
         </div>
-      </div> */}
+      </div>
 
     </div>
   );

@@ -14,7 +14,7 @@ export default function SimpleSearch({ queryIndex }) {
   const [open, setOpen] = useState(false);
 
   const handleChangeAnyAll = (event) => {
-    dispatch(setQueryProperty({ anyAll: event.target.value }));
+    dispatch(setQueryProperty({ anyAll: event.target.value, queryIndex, property: 'anyAll' }));
   };
 
   return (

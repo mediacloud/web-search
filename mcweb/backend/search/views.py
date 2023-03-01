@@ -70,17 +70,25 @@ def total_count(request):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def count_over_time(request):
-    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
-    provider = providers.provider_by_name(provider_name)
-    try:
-        results = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
-    except UnsupportedOperationException:
-        # for platforms that don't support querying over time
-        results = provider.count_over_time(query_str, start_date, end_date, **provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
-    #logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
-    return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
+    print("testing")
+    payload = json.loads(request.body).get("queryObject")
+    response = []
+    for query in payload:
+        print(query) 
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+        provider = providers.provider_by_name(provider_name)
+        try:
+            results = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+        except UnsupportedOperationException:
+            # for platforms that don't support querying over time
+            results = provider.count_over_time(query_str, start_date, end_date, **provider_props)
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+        #logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
+        response.append(results)
+    return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
                         status=200)
+    # return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
+    #                     status=200)
 
 
 @login_required(redirect_field_name='/auth/login')

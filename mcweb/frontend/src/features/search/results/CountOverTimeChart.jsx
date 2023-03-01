@@ -11,7 +11,7 @@ export default function CountOverTimeChart({ data, normalized }) {
     negatedQueryList,
     platform,
     anyAll,
-  } = useSelector((state) => state.query);
+  } = useSelector((state) => state.query[0]);
 
   const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 

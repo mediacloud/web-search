@@ -13,21 +13,24 @@ import queryGenerator from '../util/queryGenerator';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
+import prepareQueries from '../util/prepareQueries';
 
 export default function CountOverTimeResults() {
+  const queryState = useSelector((state) => state.query);
+
   const {
-    queryList,
-    queryString,
-    negatedQueryList,
+    // queryList,
+    // queryString,
+    // negatedQueryList,
     platform,
-    startDate,
-    endDate,
-    collections,
-    sources,
+    // startDate,
+    // endDate,
+    // collections,
+    // sources,
     lastSearchTime,
-    anyAll,
-    advanced,
-  } = useSelector((state) => state.query);
+    // anyAll,
+    // advanced,
+  } = queryState[0];
 
   const [normalized, setNormalized] = useState(true);
 
@@ -39,20 +42,20 @@ export default function CountOverTimeResults() {
 
   const open = Boolean(anchorEl);
 
-  const fullQuery = () => {
-    let queryReturn = '';
-    if (queryString) {
-      queryReturn = queryString;
-    } else {
-      queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
-    }
-    return queryReturn;
-  };
+  // const fullQuery = () => {
+  //   let queryReturn = '';
+  //   if (queryString) {
+  //     queryReturn = queryString;
+  //   } else {
+  //     queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  //   }
+  //   return queryReturn;
+  // };
 
-  const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
+  const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
-  const collectionIds = collections.map((c) => c.id);
-  const sourceIds = sources.map((s) => s.id);
+  // const collectionIds = collections.map((c) => c.id);
+  // const sourceIds = sources.map((s) => s.id);
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
@@ -73,17 +76,19 @@ export default function CountOverTimeResults() {
   const executeScroll = () => myRef.current.scrollIntoView();
 
   useEffect(() => {
-    if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
-      query({
-        query: fullQuery(),
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources: sourceIds,
-        platform,
-      });
-      setNormalized(supportsNormalizedCount(platform));
-    }
+    // if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
+    // dispatchQuery({
+    //   query: fullQuery(),
+    //   startDate,
+    //   endDate,
+    //   collections: collectionIds,
+    //   sources: sourceIds,
+    //   platform,
+    // });
+    const preparedQueries = prepareQueries(queryState);
+    dispatchQuery(preparedQueries);
+    setNormalized(supportsNormalizedCount(platform));
+    // }
   }, [lastSearchTime]);
 
   useEffect(() => {
@@ -100,6 +105,7 @@ export default function CountOverTimeResults() {
     return null;
   }
 
+  console.log(data);
   let content;
   if (error) {
     // const msg = data.note;
@@ -172,7 +178,7 @@ export default function CountOverTimeResults() {
             </div>
           )}
           <div className="float-end">
-            <Button
+            {/* <Button
               variant="text"
               endIcon={<DownloadIcon titleAccess="download attention over time results" />}
               onClick={() => {
@@ -187,7 +193,7 @@ export default function CountOverTimeResults() {
               }}
             >
               Download CSV
-            </Button>
+            </Button> */}
           </div>
         </div>
       </>

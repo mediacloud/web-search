@@ -28,7 +28,11 @@ function AdvancedSearch({ queryIndex }) {
   }, [platform]);
 
   useEffect(() => {
-    dispatch(setQueryProperty({ queryString: queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll) }));
+    dispatch(setQueryProperty({
+      queryString: queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll),
+      queryIndex,
+      property: 'queryString',
+    }));
   }, [advanced]);
 
   const [query, setQuery] = useState(
@@ -37,7 +41,7 @@ function AdvancedSearch({ queryIndex }) {
 
   const handleChange = (queryArg) => {
     setQuery(queryArg);
-    dispatch(setQueryProperty({ queryString: queryArg }));
+    dispatch(setQueryProperty({ queryString: queryArg, queryIndex, property: 'queryString' }));
   };
 
   return (

@@ -46,12 +46,12 @@ function App() {
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (trigger && searchParams.get('start')) {
-      setSearchQuery(searchParams, dispatch);
-      setTrigger(false);
-    }
-  }, [lastSearchTime]);
+  // useEffect(() => {
+  //   if (trigger && searchParams.get('start')) {
+  //     setSearchQuery(searchParams, dispatch);
+  //     setTrigger(false);
+  //   }
+  // }, [lastSearchTime]);
 
   return (
     <>

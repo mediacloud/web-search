@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, current } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 import { PROVIDER_NEWS_WAYBACK_MACHINE, latestAllowedEndDate } from '../util/platforms';
 
@@ -19,7 +19,7 @@ const querySlice = createSlice({
   [
     {
       queryString: '',
-      queryList: [[], [], []],
+      queryList: [['test'], [], []],
       negatedQueryList: [[], [], []],
       platform: DEFAULT_PROVIDER,
       startDate,
@@ -71,7 +71,13 @@ const querySlice = createSlice({
       previewSources: state.previewSources.filter((s) => s.id !== payload.id),
     }),
 
-    setQueryProperty: (state, { payload }) => ({ ...state, ...payload }),
+    // setQueryProperty: (state, { payload }) => ({ ...state, ...payload }),
+
+    setQueryProperty: (state, { payload }) => {
+      const queryProperty = payload.property;
+      const currentQuerySlice = state[payload.queryIndex];
+      currentQuerySlice[queryProperty] = payload[queryProperty];
+    },
   },
 });
 
@@ -83,6 +89,7 @@ export const {
   removePreviewSelectedMedia,
   setPreviewSelectedMedia,
   resetSelectedAndPreviewMedia,
+  setQueryPropertyPartDuex,
 } = querySlice.actions;
 
 export default querySlice.reducer;

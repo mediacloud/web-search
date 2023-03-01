@@ -18,11 +18,11 @@ export default function SearchDatePicker({ queryIndex }) {
   const { platform, startDate, endDate } = useSelector((state) => state.query[queryIndex]);
 
   const handleChangeFromDate = (newValue) => {
-    dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY') }));
+    dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
   };
 
   const handleChangeToDate = (newValue) => {
-    dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY') }));
+    dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
   };
 
   useEffect(() => {

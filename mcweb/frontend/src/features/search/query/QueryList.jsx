@@ -21,9 +21,9 @@ export default function QueryList({ negated, queryIndex }) {
     setServiceList(list);
 
     if (negated) {
-      dispatch(setQueryProperty({ negatedQueryList: list }));
+      dispatch(setQueryProperty({ negatedQueryList: list, queryIndex, property: 'negatedQueryList' }));
     } else {
-      dispatch(setQueryProperty({ queryList: list }));
+      dispatch(setQueryProperty({ queryList: list, queryIndex, property: 'queryList' }));
     }
   };
 
@@ -34,9 +34,9 @@ export default function QueryList({ negated, queryIndex }) {
     setServiceList(list);
 
     if (negated) {
-      dispatch(setQueryProperty({ negatedQueryList: list }));
+      dispatch(setQueryProperty({ negatedQueryList: list, queryIndex, property: 'negatedQueryList' }));
     } else {
-      dispatch(setQueryProperty({ queryList: list }));
+      dispatch(setQueryProperty({ queryList: list, queryIndex, property: 'queryList' }));
     }
   };
 
@@ -47,9 +47,9 @@ export default function QueryList({ negated, queryIndex }) {
     setServiceList(list);
 
     if (negated) {
-      dispatch(setQueryProperty({ negatedQueryList: list }));
+      dispatch(setQueryProperty({ negatedQueryList: list, queryIndex, property: 'negatedQueryList' }));
     } else {
-      dispatch(setQueryProperty({ queryList: list }));
+      dispatch(setQueryProperty({ queryList: list, queryIndex, property: 'queryList' }));
     }
   };
 
