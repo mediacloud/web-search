@@ -50,7 +50,7 @@ Deploying
 ---------
 
 1. update the version number in `settings.py` (ie. "0.1.1")
-2. once we have a changelog, update the changelog to note changes/fixes
+2. update the changelog to note changes/fixes to json object `web-search/mcweb/frontend/static/about/release_history.json`
 3. run all the tests to make sure they still pass: `python mcweb/manage.py test`
 4. commit and tag the release with the version number (ie. "v0.1.1")
 5. push the tag to the server: `git push mcweb-prod v0.1.1:main`
