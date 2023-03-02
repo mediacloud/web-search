@@ -33,7 +33,8 @@ function TotalAttentionResults() {
     advanced,
   } = useSelector((state) => state.query);
 
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const fullQuery = queryString
+    || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [normalized, setNormalized] = useState(true);
 
@@ -86,9 +87,9 @@ function TotalAttentionResults() {
         <div className="col-4">
           <h2>Total Attention</h2>
           <p>
-            Compare the total number of items that matched your queries.
-            Use the &quot;view options&quot; menu to switch between
-            story counts and a percentage (if supported).
+            Compare the total number of items that matched your queries. Use the
+            &quot;view options&quot; menu to switch between story counts and a
+            percentage (if supported).
           </p>
         </div>
         <div className="col-8">
@@ -102,10 +103,16 @@ function TotalAttentionResults() {
           {error === undefined && (
             <div>
               {normalizeData(data) === 0 && (
-                <Alert severity="warning">No content has matched this query</Alert>
+                <Alert severity="warning">
+                  No content has matched this query
+                </Alert>
               )}
               {normalizeData(data) === 100 && (
-                <Alert severity="warning"> This query has returned 100% attention </Alert>
+                <Alert severity="warning">
+                  {' '}
+                  This query has returned 100% attention
+                  {' '}
+                </Alert>
               )}
               <BarChart
                 series={[
@@ -113,16 +120,17 @@ function TotalAttentionResults() {
                     data: [
                       {
                         key: fullQuery,
-                        value: normalized
-                          ? normalizeData(data)
-                          : data.count.relevant,
+                        value: normalizeData(data) === 100
+                          ? data.count.relevant
+                          : (normalized && normalizeData(data))
+                          || data.count.relevant,
                       },
                     ],
                     name: 'Matching Content',
                     color: '#2f2d2b',
                   },
                 ]}
-                normalized={normalized}
+                normalized={normalized && normalizeData(data) !== 100}
                 title="Total Stories Count"
                 height={200}
               />
@@ -131,7 +139,7 @@ function TotalAttentionResults() {
           <div className="clearfix">
             {supportsNormalizedCount(platform) && (
               <div className="float-start">
-                {normalized && (
+                {normalized && normalizeData(data) !== 100 && (
                   <div>
                     <Button
                       onClick={handleClick}
@@ -161,7 +169,7 @@ function TotalAttentionResults() {
                     </Menu>
                   </div>
                 )}
-                {!normalized && (
+                {!normalized && normalizeData(data) !== 100 && (
                   <div>
                     <Button onClick={handleClick}>View Options</Button>
                     <Menu
