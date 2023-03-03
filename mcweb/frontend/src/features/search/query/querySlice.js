@@ -19,6 +19,21 @@ const querySlice = createSlice({
   [
     {
       queryString: '',
+      queryList: [['covid'], [], []],
+      negatedQueryList: [[], [], []],
+      platform: DEFAULT_PROVIDER,
+      startDate,
+      endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
+      collections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+      previewCollections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+      sources: [],
+      previewSources: [],
+      lastSearchTime: dayjs().unix(),
+      anyAll: 'any',
+      advanced: false,
+    },
+    {
+      queryString: '',
       queryList: [['test'], [], []],
       negatedQueryList: [[], [], []],
       platform: DEFAULT_PROVIDER,

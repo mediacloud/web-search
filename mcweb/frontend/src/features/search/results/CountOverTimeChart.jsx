@@ -57,14 +57,11 @@ export default function CountOverTimeChart({ data, normalized }) {
       enabled: false,
     },
     legend: { enabled: false },
-    colors: ['#2f2d2b'],
-    series: [
-      {
-        name: `query: ${fullQuery}`,
-        data,
-      },
-    ],
+    colors: ['#2f2d2b', '#d24527', '#2f2d2b', '#d23716', '#f7a44e'],
+    series: data,
   };
+
+  console.log(options);
 
   if (normalized) {
     options.yAxis.labels.format = '{value:.1f}%';

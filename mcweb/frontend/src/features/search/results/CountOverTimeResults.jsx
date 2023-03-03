@@ -14,22 +14,17 @@ import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
 import prepareQueries from '../util/prepareQueries';
+import cleanCountOverTimeData from '../util/cleanCountOverTimeData';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
 
   const {
-    // queryList,
-    // queryString,
-    // negatedQueryList,
+    queryList,
+    queryString,
     platform,
-    // startDate,
-    // endDate,
-    // collections,
-    // sources,
     lastSearchTime,
-    // anyAll,
-    // advanced,
+    advanced,
   } = queryState[0];
 
   const [normalized, setNormalized] = useState(true);
@@ -42,53 +37,21 @@ export default function CountOverTimeResults() {
 
   const open = Boolean(anchorEl);
 
-  // const fullQuery = () => {
-  //   let queryReturn = '';
-  //   if (queryString) {
-  //     queryReturn = queryString;
-  //   } else {
-  //     queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
-  //   }
-  //   return queryReturn;
-  // };
-
   const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
-
-  // const collectionIds = collections.map((c) => c.id);
-  // const sourceIds = sources.map((s) => s.id);
 
   const handleDownloadRequest = (queryObject) => {
     window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
   };
 
-  const dateHelper = (dateString) => {
-    dayjs.extend(utc);
-    const newDate = dayjs(dateString, 'YYYY-MM-DD').valueOf();
-    return newDate;
-  };
-
-  const cleanData = (oldData) => oldData.map((r) => [
-    dateHelper(r.date),
-    normalized ? r.ratio * 100 : r.count,
-  ]);
-
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
 
   useEffect(() => {
-    // if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
-    // dispatchQuery({
-    //   query: fullQuery(),
-    //   startDate,
-    //   endDate,
-    //   collections: collectionIds,
-    //   sources: sourceIds,
-    //   platform,
-    // });
-    const preparedQueries = prepareQueries(queryState);
-    dispatchQuery(preparedQueries);
-    setNormalized(supportsNormalizedCount(platform));
-    // }
+    if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
+      const preparedQueries = prepareQueries(queryState);
+      dispatchQuery(preparedQueries);
+      setNormalized(supportsNormalizedCount(platform));
+    }
   }, [lastSearchTime]);
 
   useEffect(() => {
@@ -121,7 +84,8 @@ export default function CountOverTimeResults() {
     content = (
       <>
         <CountOverTimeChart
-          data={cleanData(data.count_over_time.counts)}
+          data={cleanCountOverTimeData(data.count_over_time, normalized, queryState)}
+          // data={cleanData(data.count_over_time[0].counts)}
           normalized={normalized}
         />
         <div className="clearfix">

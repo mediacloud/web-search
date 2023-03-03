@@ -49,9 +49,9 @@ export default function Search() {
     navigator.clipboard.writeText(ahref);
   };
 
-  // useEffect(() => {
-  //   setShow(deactivateButton(queryState));
-  // }, [queryState]);
+  useEffect(() => {
+    setShow(deactivateButton(queryState));
+  }, [queryState]);
 
   return (
     <div className="search-container">
