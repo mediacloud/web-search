@@ -6,7 +6,7 @@ djangorestframework-simplejwt[crypto]==5.2.*
 pyhumps==3.8.*
 django-environ==0.9.*
 dj-database-url==1.0.*
-mediacloud-metadata==0.7.*
+mediacloud-metadata==0.9.*
 python-dateutil==2.8.*
 dateparser==1.1.*
 django-redis==5.2.*
@@ -18,3 +18,5 @@ wayback-news-search==1.0.*
 fasttext==0.9.*
 mc-providers==0.1.*
 pycountry==22.3.*
+django-background-tasks-updated==1.2.* # need >= 1.2.6
+feed-seeker==1.0.*

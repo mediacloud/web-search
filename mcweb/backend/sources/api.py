@@ -23,6 +23,7 @@ from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
 
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
+from .tasks import schedule_scrape_source, get_completed_tasks, get_pending_tasks
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -350,6 +351,34 @@ class SourcesViewSet(viewsets.ModelViewSet):
         filename = "Collection-{}-{}-sources-{}.csv".format(collection_id, collection.name, _filename_timestamp())
         streamer = csv_stream.CSVStream(filename, data_generator)
         return streamer.stream()
+
+    # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
+    @action(methods=['post'], detail=False, url_path='rescrape-feeds')
+    def rescrape_feeds(self, request):
+        # maybe take multiple ids?  Or just add a method to rescrape a source
+        source_id = int(self.request.query_params.get("source_id"))
+        return Response(schedule_scrape_source(source_id, request.user))
+
+    # NOTE!!!! {completed,pending}-tasks are ***NOT***
+    # directory/sources specific (list all background tasks)!!
+
+    # returns list of CompletedTasks (maybe belongs in a CompletedTaskView?)
+    @action(detail=False, url_path='completed-tasks')
+    def completed_tasks(self, request):
+        """
+        Returns completed tasks for the current user.
+        """
+        # lists all tasks for user (None lists all tasks)
+        return Response(get_completed_tasks(request.user))
+
+    # returns list of Tasks (maybe belongs in a TaskView?)
+    @action(detail=False, url_path='pending-tasks')
+    def pending_tasks(self, request):
+        """
+        Returns pending tasks for the current user.
+        """
+        # lists all tasks for user (None lists all tasks)
+        return Response(get_pending_tasks(request.user))
 
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):

@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "backend.sources",
     "backend.search",
     "backend.users",
+    "background_task",
 ]
 
 MIDDLEWARE = [
