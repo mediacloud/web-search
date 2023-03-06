@@ -1,20 +1,9 @@
 import * as React from 'react';
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import { useSelector } from 'react-redux';
-import queryGenerator from '../util/queryGenerator';
+import PropTypes from 'prop-types';
 
 export default function CountOverTimeChart({ data, normalized }) {
-  const {
-    queryString,
-    queryList,
-    negatedQueryList,
-    platform,
-    anyAll,
-  } = useSelector((state) => state.query[0]);
-
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
-
   const options = {
     chart: {
       type: 'spline',
@@ -61,8 +50,6 @@ export default function CountOverTimeChart({ data, normalized }) {
     series: data,
   };
 
-  console.log(options);
-
   if (normalized) {
     options.yAxis.labels.format = '{value:.1f}%';
     options.tooltip.pointFormat = '{point.x:%b. %e %y} - {point.y:.2f}% of content';
@@ -73,3 +60,30 @@ export default function CountOverTimeChart({ data, normalized }) {
     </div>
   );
 }
+
+CountOverTimeChart.propTypes = {
+  data: PropTypes.shape({
+    counts: PropTypes.shape({
+      count: PropTypes.number,
+      date: PropTypes.string,
+      ratio: PropTypes.number,
+      total_count: PropTypes.number,
+    }),
+    normalized_total: PropTypes.number,
+    total: PropTypes.number,
+  }),
+  normalized: PropTypes.bool.isRequired,
+};
+
+CountOverTimeChart.defaultProps = {
+  data: {
+    counts: {
+      count: 0,
+      date: '',
+      ration: 0,
+      total_count: 0,
+    },
+    normalized_total: 0,
+    total: 0,
+  },
+};

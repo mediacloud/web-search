@@ -1,6 +1,7 @@
 import queryGenerator from './queryGenerator';
 
 export default function prepareQueries(queryState) {
+  debugger;
   const queryArray = queryState.map((singleQuery) => {
     const {
       queryList,
