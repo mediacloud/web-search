@@ -35,23 +35,35 @@ const querySlice = createSlice({
   ],
 
   reducers: {
-    addSelectedMedia: (state, { payload }) => ({
-      ...state,
-      collections: payload.filter((c) => c.type === 'collection'),
-      sources: payload.filter((c) => c.type === 'source'),
-    }),
+    addSelectedMedia: (state, { payload }) => {
+      const { queryIndex, sourceOrCollection } = payload;
+      const currentSlice = state[queryIndex];
+      currentSlice.collections = sourceOrCollection.filter((c) => c.type === 'collection');
+      currentSlice.sources = sourceOrCollection.filter((c) => c.type === 'source');
+    },
+    // addSelectedMedia: (state, { payload }) => ({
+    //   ...state,
+    //   collections: payload.filter((c) => c.type === 'collection'),
+    //   sources: payload.filter((c) => c.type === 'source'),
+    // }),
     addPreviewSelectedMedia: (state, { payload }) => ({
       ...state,
       previewCollections: [...state.previewCollections, ...payload.filter((c) => c.type === 'collection')],
       previewSources: [...state.previewSources, ...payload.filter((c) => c.type === 'source')],
     }),
-    resetSelectedAndPreviewMedia: (state) => ({
-      ...state,
-      collections: [],
-      previewCollections: [],
-      sources: [],
-      previewSources: [],
-    }),
+    resetSelectedAndPreviewMedia: (state, { payload }) => {
+      const { queryIndex } = payload;
+      const currentSlice = state[queryIndex];
+      currentSlice.collections = [];
+      currentSlice.sources = [];
+    },
+    // resetSelectedAndPreviewMedia: (state) => ({
+    //   ...state,
+    //   collections: [],
+    //   previewCollections: [],
+    //   sources: [],
+    //   previewSources: [],
+    // }),
     removeSelectedMedia: (state, { payload }) => ({
       ...state,
       collections: payload.type === 'collection' ? state.collections.filter((c) => c.id !== payload.id) : state.collections,

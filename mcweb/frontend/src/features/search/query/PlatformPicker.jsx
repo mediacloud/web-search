@@ -38,14 +38,14 @@ export default function PlatformPicker({ queryIndex }) {
     if (!samePlatform) {
       if (!hasSomeMedia) {
         if ([PROVIDER_NEWS_WAYBACK_MACHINE].includes(newPlatform)) {
-          await dispatch(addSelectedMedia(DEFAULT_ONLINE_NEWS_COLLECTIONS));
+          await dispatch(addSelectedMedia({ sourceOrCollection: DEFAULT_ONLINE_NEWS_COLLECTIONS, queryIndex }));
           enqueueSnackbar('We reset your collections to work with this platform.', { variant: 'warning' });
         } else {
-          await dispatch(resetSelectedAndPreviewMedia());
+          await dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
           enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
         }
       } else {
-        await dispatch(resetSelectedAndPreviewMedia());
+        await dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
         enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
       }
     }
