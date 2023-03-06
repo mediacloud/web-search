@@ -70,7 +70,7 @@ def _return_task(task):
     """
     helper to return JSON representation of a Task.
     """
-    # probably should return a subset!
+    # probably should return a subset of fields?
     # (or provide a serializer?)
     return { key: (value.isoformat() if isinstance(value, dt.datetime) else value)
              for key, value in task.__dict__.items() if key[0] != '_' }
@@ -99,11 +99,11 @@ def schedule_scrape_source(source_id, user):
 
     # maybe check if re-scraped recently????
 
+    name_or_home = source.name or source.homepage
 
     # NOTE! Will remove any other pending scrapes for same source
-    # rather than queuing a duplicate. Returns a Task object,
-    # the new user will "steal" the task
-    name_or_home = source.name or source.homepage
+    # rather than queuing a duplicate; the new user will "steal" the task
+    # (leaving no trace of the old one). Returns a Task object.
     task = _scrape_source(source_id, source.homepage, creator=user,
                           verbose_name=f"rescrape {name_or_home}",
                           remove_existing_tasks=True)
