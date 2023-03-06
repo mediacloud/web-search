@@ -10,11 +10,13 @@ import BarChart from './BarChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT,
+  PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
-export const supportsNormalizedCount = (platform) => [
-  PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
+export const supportsNormalizedCount = (platform) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
 
 function TotalAttentionResults() {
   const {
@@ -31,7 +33,8 @@ function TotalAttentionResults() {
     advanced,
   } = useSelector((state) => state.query);
 
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const fullQuery = queryString
+    || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [normalized, setNormalized] = useState(true);
 
@@ -50,11 +53,10 @@ function TotalAttentionResults() {
 
   // using EPSILON in the denominator here prevents against div by zero errors
   // (which returns infinity in JS)
-  const normalizeData = (oldData) => 100 * (oldData.count.relevant
-    / (oldData.count.total + Number.EPSILON));
+  const normalizeData = (oldData) => 100 * (oldData.count.relevant / (oldData.count.total + Number.EPSILON));
 
   useEffect(() => {
-    if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
+    if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
       query({
         query: fullQuery,
         startDate,
@@ -85,38 +87,66 @@ function TotalAttentionResults() {
         <div className="col-4">
           <h2>Total Attention</h2>
           <p>
-            Compare the total number of items that matched your queries.
-            your queries. Use the &quot;view options&quot; menu to switch between story counts
-            and a percentage (if supported).
+            Compare the total number of items that matched your queries. Use the
+            &quot;view options&quot; menu to switch between story counts and a
+            percentage (if supported).
           </p>
         </div>
         <div className="col-8">
-          {(error) && (
+          {error && (
             <Alert severity="warning">
-              Sorry, but something went wrong.
-              (
+              Sorry, but something went wrong. (
               {error.data.note}
               )
             </Alert>
           )}
-          {(error === undefined) && (
-            <BarChart
-              series={[{
-                data: [{ key: fullQuery, value: (normalized) ? normalizeData(data) : data.count.relevant }],
-                name: 'Matching Content',
-                color: '#2f2d2b',
-              }]}
-              normalized={normalized}
-              title="Total Stories Count"
-              height={200}
-            />
+          {error === undefined && (
+            <div>
+              {normalizeData(data) === 0 && (
+                <Alert severity="warning">
+                  No content has matched this query
+                </Alert>
+              )}
+              {normalizeData(data) === 100 && (
+                <Alert severity="warning">
+                  {' '}
+                  This query has returned 100% attention
+                  {' '}
+                </Alert>
+              )}
+              <BarChart
+                series={[
+                  {
+                    data: [
+                      {
+                        key: fullQuery,
+                        value: normalizeData(data) === 100
+                          ? data.count.relevant
+                          : (normalized && normalizeData(data))
+                          || data.count.relevant,
+                      },
+                    ],
+                    name: 'Matching Content',
+                    color: '#2f2d2b',
+                  },
+                ]}
+                normalized={normalized && normalizeData(data) !== 100}
+                title="Total Stories Count"
+                height={200}
+              />
+            </div>
           )}
           <div className="clearfix">
             {supportsNormalizedCount(platform) && (
               <div className="float-start">
-                {normalized && (
+                {normalized && normalizeData(data) !== 100 && (
                   <div>
-                    <Button onClick={handleClick} endIcon={<Settings titleAccess="view other chart viewing options" />}>
+                    <Button
+                      onClick={handleClick}
+                      endIcon={
+                        <Settings titleAccess="view other chart viewing options" />
+                      }
+                    >
                       View Options
                     </Button>
                     <Menu
@@ -128,22 +158,20 @@ function TotalAttentionResults() {
                         'aria-labelledby': 'basic-button',
                       }}
                     >
-                      <MenuItem onClick={() => {
-                        setNormalized(false);
-                        handleClose();
-                      }}
+                      <MenuItem
+                        onClick={() => {
+                          setNormalized(false);
+                          handleClose();
+                        }}
                       >
                         View Story Count
-
                       </MenuItem>
                     </Menu>
                   </div>
                 )}
-                {!normalized && (
+                {!normalized && normalizeData(data) !== 100 && (
                   <div>
-                    <Button onClick={handleClick}>
-                      View Options
-                    </Button>
+                    <Button onClick={handleClick}>View Options</Button>
                     <Menu
                       id="basic-menu"
                       anchorEl={anchorEl}
@@ -153,10 +181,11 @@ function TotalAttentionResults() {
                         'aria-labelledby': 'basic-button',
                       }}
                     >
-                      <MenuItem onClick={() => {
-                        setNormalized(true);
-                        handleClose();
-                      }}
+                      <MenuItem
+                        onClick={() => {
+                          setNormalized(true);
+                          handleClose();
+                        }}
                       >
                         View Normalized Story Percentage (default)
                       </MenuItem>
