@@ -3,6 +3,7 @@ import { setupListeners } from '@reduxjs/toolkit/query/react';
 
 import { api as authApi } from './services/authApi';
 import { searchApi } from './services/searchApi';
+import { savedsearchApi } from './services/savedsearchApi';
 import managerApi from './services/managerApi';
 
 import authReducer from '../features/auth/authSlice';
@@ -29,6 +30,8 @@ const setupStore = () => {
       // api responsible for all Sources or Collections CRUD
       [managerApi.reducerPath]: managerApi.reducer,
 
+      [savedsearchApi.reducerPath]: savedsearchApi.reducer,
+
       ui: uiReducer,
 
       query: queryReducer,
@@ -42,6 +45,7 @@ const setupStore = () => {
       authApi.middleware,
       searchApi.middleware,
       managerApi.middleware,
+      savedsearchApi.middleware,
       rtkQueryErrorLogger,
     ),
 
