@@ -23,11 +23,11 @@ import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
 
 const MIN_QUERY_LEN = 1; // don't query for super short things
 const MAX_RESULTS = 10; // per endpoint
-const MIN_POLL_MILLISECS = 500; // throttle requests
+// const MIN_POLL_MILLISECS = 500; // throttle requests
 const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 function ModifyFeed() {
-  const [lastRequestTime, setLastRequestTime] = useState(0);
+  // const [lastRequestTime, setLastRequestTime] = useState(0);
   const [open, setOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedSource, setSelectedSource] = useState({
@@ -208,7 +208,7 @@ function ModifyFeed() {
 
                     // only search if str is long enough
                     if (value.length > MIN_QUERY_LEN) {
-                      setLastRequestTime(Date.now());
+                      // setLastRequestTime(Date.now());
                       sourceTrigger({ name: value });
                     }
                   }
