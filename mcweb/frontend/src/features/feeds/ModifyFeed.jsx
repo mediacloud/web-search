@@ -1,42 +1,40 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useSnackbar } from "notistack";
-import {
-  TextField,
-  Autocomplete,
-  Button,
-  Checkbox,
-  CircularProgress,
-  FormControl,
-  FormControlLabel,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from "@mui/material";
-import dayjs from "dayjs";
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Autocomplete from '@mui/material/Autocomplete';
+import dayjs from 'dayjs';
 import {
   useUpdateFeedMutation,
   useGetFeedQuery,
-} from "../../app/services/feedsApi";
-import { useLazyListSourcesQuery } from "../../app/services/sourceApi";
-import { platformDisplayName, trimStringForDisplay } from "../ui/uiUtil";
+} from '../../app/services/feedsApi';
+import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
+import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
 
-const MIN_QUERY_LEN = 2; // don't query for super short things
+const MIN_QUERY_LEN = 1; // don't query for super short things
 const MAX_RESULTS = 10; // per endpoint
 const MIN_POLL_MILLISECS = 500; // throttle requests
 const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 function ModifyFeed() {
-  const [lastRequestTime, setLastRequestTime] = React.useState(0);
-  const [open, setOpen] = React.useState(false);
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const [selectedSource, setSelectedSource] = React.useState({
-    id: "",
-    label: "",
+  const [lastRequestTime, setLastRequestTime] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedSource, setSelectedSource] = useState({
+    id: '',
+    label: '',
   });
-  const [sourceOptions, setSourceOptions] = React.useState([]);
+  const [sourceOptions, setSourceOptions] = useState([]);
   const [
     sourceTrigger,
     { isFetching: isSourceSearchFetching, data: sourceSearchResults },
@@ -45,39 +43,38 @@ function ModifyFeed() {
   const params = useParams();
   const autocompleteRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
-  const feedId = Number(params.feedId); // get collection id from wildcard
+  const feedId = Number(params.feedId);
   const { data, isLoading } = useGetFeedQuery(feedId);
   const [updateFeed] = useUpdateFeedMutation(feedId);
 
   // form state for text fields
   const [formState, setFormState] = useState({
-    name: "",
-    url: "",
+    name: '',
+    url: '',
     admin_rss_enabled: true,
   });
 
-  const handleChange = ({ target: { name, value } }) =>
-    setFormState((prev) => ({ ...prev, [name]: value }));
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
 
-  const handleChangeSource = () => {
-    setFormState((prev) => ({ ...prev, ["source"]: selectedSource.id }));
-    handleClose();
-  };
-
-  const handleCheck = () =>
-    setFormState((prev) => ({
-      ...prev,
-      admin_rss_enabled: !prev.admin_rss_enabled,
-    }));
-
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
   const handleClose = () => {
     setOpenDialog(false);
     if (autocompleteRef.current) {
       autocompleteRef.current.clearValue();
     }
+  };
+
+  const handleChangeSource = () => {
+    setFormState((prev) => ({ ...prev, source: selectedSource.id }));
+    handleClose();
+  };
+
+  const handleCheck = () => setFormState((prev) => ({
+    ...prev,
+    admin_rss_enabled: !prev.admin_rss_enabled,
+  }));
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
   };
 
   useEffect(() => {
@@ -94,26 +91,27 @@ function ModifyFeed() {
       setFormState(formData);
     }
   }, [data]);
+
   // handle source search results
   useEffect(() => {
     if (sourceSearchResults) {
       const existingOptionIds = sourceOptions
-        .filter((o) => o.type == "source")
+        .filter((o) => o.type == 'source')
         .map((o) => o.id);
       const newOptions = sourceSearchResults.results.filter(
-        (s) => !existingOptionIds.includes(s.id)
+        (s) => !existingOptionIds.includes(s.id),
       );
       setSourceOptions(
         newOptions.slice(0, MAX_RESULTS).map((s) => ({
-          displayGroup: "Sources",
-          type: "source",
+          displayGroup: 'Sources',
+          type: 'source',
           id: s.id,
           value: s.id,
           label: `${trimStringForDisplay(
             s.label || s.name,
-            MAX_MATCH_DISPLAY_LEN
+            MAX_MATCH_DISPLAY_LEN,
           )} (${platformDisplayName(s.platform)})`,
-        }))
+        })),
       );
     }
   }, [sourceSearchResults]);
@@ -177,7 +175,7 @@ function ModifyFeed() {
             onClose={() => {
               setOpen(false);
             }}
-            blurOnSelect={true}
+            blurOnSelect
             isOptionEqualToValue={(option, value) => option.id === value.id}
             getOptionLabel={(option) => option.label}
             noOptionsText="No matches"
@@ -203,7 +201,7 @@ function ModifyFeed() {
                   ),
                 }}
                 onKeyUp={(event) => {
-                  if (event.key == "Enter") {
+                  if (event.key === 'Enter') {
                     const { value } = event.target;
                     setOpen(true);
                     setSourceOptions([]);
@@ -220,12 +218,12 @@ function ModifyFeed() {
           />
           <FormControl>
             <FormControlLabel
-              control={
+              control={(
                 <Checkbox
                   onChange={handleCheck}
                   checked={formState.admin_rss_enabled}
                 />
-              }
+              )}
               label="Admin enabled?"
             />
           </FormControl>
@@ -238,11 +236,11 @@ function ModifyFeed() {
                 await updateFeed({
                   feed: formState,
                 });
-                enqueueSnackbar("Saved changes", { variant: "success" });
+                enqueueSnackbar('Saved changes', { variant: 'success' });
                 navigate(`/feeds/${feedId}`);
               } catch (err) {
                 const errorMsg = `Failed - ${err.data.message}`;
-                enqueueSnackbar(errorMsg, { variant: "error" });
+                enqueueSnackbar(errorMsg, { variant: 'error' });
               }
             }}
           >
@@ -255,11 +253,14 @@ function ModifyFeed() {
             aria-describedby="alert-dialog-description"
           >
             <DialogTitle id="alert-dialog-title">
-              Assign new source?
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              Assign feed {formState.name} to new source?
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
-                This will move current feed to {selectedSource.label}
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                Please confirm you would like to move current feed to {selectedSource.label}.
+                Then, click save, to save this change.
               </DialogContentText>
             </DialogContent>
             <DialogActions>
