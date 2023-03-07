@@ -13,8 +13,8 @@ from rest_framework import viewsets, permissions
 import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List, Optional
-
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
+from rest_framework.exceptions import APIException
+from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
@@ -22,6 +22,7 @@ from .permissions import IsGetOrIsStaff
 from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
 
+from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -34,6 +35,9 @@ def _featured_collection_ids(platform: Optional[str]) -> List:
                 for cid in collection['collections']:
                     list_ids.append(cid)
         return list_ids
+
+def _all_platforms() -> List:
+    return [PLATFORM_YOUTUBE, PLATFORM_REDDIT, PLATFORM_TWITTER, 'onlinenews']
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -62,9 +66,12 @@ class CollectionViewSet(viewsets.ModelViewSet):
             source_id = int(source_id)  # validation: should throw a ValueError back up the chain
             queryset = queryset.filter(source__id=source_id)
         platform = self.request.query_params.get("platform")
-        if platform is not None:
-            # TODO: validate this is a valid platform type
-            queryset = queryset.filter(platform=platform)
+        if platform is not None and _all_platforms().count(platform) > 0: # test validation? _all_platforms().count(platform) > 0
+                # TODO: validate this is a valid platform type
+            if platform == "onlinenews":
+                queryset = queryset.filter(platform="online_news")
+            else:
+                queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
             queryset = queryset.filter(name__icontains=name)
@@ -78,17 +85,21 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     @cache_by_kwargs()
     def _cached_serialized_featured_collections(self, platform) -> str:
-        featured_collection_ids = _featured_collection_ids(platform)
-        ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
-        featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
-                                                    id__in=featured_collection_ids).order_by(ordered_cases)
+        if platform == 'onlinenews':
+            featured_collection_ids = _featured_collection_ids('online_news')
+            ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
+            featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
+                                                        id__in=featured_collection_ids).order_by(ordered_cases)
+        else:
+            queryset = self.queryset.filter(platform=platform)
+            featured_collections = queryset.filter(featured=True)
 
         serializer = self.serializer_class(featured_collections, many=True)
         return serializer.data
 
     @action(detail=False)
     def featured(self, request):
-        data = self._cached_serialized_featured_collections(request.data.get('platform', None))
+        data = self._cached_serialized_featured_collections(request.query_params.get('platform', None))
         response = Response({"collections":data})
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
@@ -110,7 +121,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
     permission_classes = [
         IsGetOrIsStaff
     ]
-    serializer_class = FeedsSerializer
+    serializer_class = FeedSerializer
 
     # overriden to support filtering all endpoints
     def get_queryset(self):
@@ -202,7 +213,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         IsGetOrIsStaff
     ]
     serializers_by_action = {
-        'default': SourcesSerializer,
+        'default': SourceSerializer,
         'list': SourcesViewSerializer,
         'retrieve': SourcesViewSerializer,
     }
@@ -222,11 +233,40 @@ class SourcesViewSet(viewsets.ModelViewSet):
         platform = self.request.query_params.get("platform")
         if platform is not None:
             # TODO: check if the platform is a valid option
-            queryset = queryset.filter(platform=platform)
+            if platform == 'onlinenews':
+                queryset = queryset.filter(platform='online_news')
+            else:
+                queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
             queryset = queryset.filter(Q(name__icontains=name) | Q(label__icontains=name))
         return queryset
+
+
+    def create(self, request):
+        cleaned_data = Source._clean_source(request.data)
+        serializer = SourceSerializer(data=cleaned_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"source": serializer.data})
+        else:
+            error_string = str(serializer.errors) 
+            print(error_string)
+            # error_string = str(error_string['name'][0])
+            raise APIException(f"{error_string}")
+
+
+    def partial_update(self, request, pk=None):
+        instance = self.get_object()
+        serializer = SourceSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"source": serializer.data})
+        else:
+            error_string = serializer.errors 
+            error_string = str(error_string['name'][0])
+            raise APIException(f"{error_string}")
+
 
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):
@@ -240,7 +280,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
             if len(row.keys()) <= 1:
                 continue
             # check if this is an update
-            if row.get('id', None) and (row['id'] > 0) and (row['id'] != 'null'):
+            if row.get('id', None) and (int(row['id']) > 0) and (row['id'] != 'null'):
                 existing_source = queryset.filter(pk=row['id'])
             else:
                 # if online news, need to make check if canonical domain exists
@@ -253,19 +293,35 @@ class SourcesViewSet(viewsets.ModelViewSet):
                     existing_source = queryset.filter(name=row['name'], platform=row['platform'])
             # Making a new one
             if len(existing_source) == 0:
-                existing_source = Source.create_from_dict(row)
-                email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
-                counts['created'] += 1
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(data=cleaned_source_input)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
+                    counts['created'] += 1
+                else:
+                    email_text += f"\n ⚠️ {row['name']}: {serializer.errors}"
+                    counts['skipped'] +=1
+                    continue
+                # existing_source = Source.create_from_dict(row)
             # Updating unique match
             elif len(existing_source) == 1:
                 existing_source = existing_source[0]
-                existing_source.update_from_dict(row)
-                email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
-                counts['updated'] += 1
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(existing_source, data=cleaned_source_input)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
+                    counts['updated'] += 1
+                else:
+                    email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
+                    counts['skipped'] +=1
+                    continue
+                # existing_source.update_from_dict(row)
             # Request to update non-unique match, so skip and force them to do it by hand
             else:
                 email_text += "\n ⚠️ {}: multiple matches - cowardly skipping so you can do it by hand existing source".\
-                    format(existing_source[0]['name'])
+                    format(existing_source[0].name)
                 counts['skipped'] += 1
                 continue
             collection.source_set.add(existing_source)
@@ -282,11 +338,11 @@ class SourcesViewSet(viewsets.ModelViewSet):
             first_page = True
             for source in source_associations:
                 if first_page:  # send back columun names, which differ by platform
-                    yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes',
-                'stories_per_week', 'first_story', 'publication_country', 'publication_state',
-                'primary_langauge', 'media_type'])
+                    yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform',
+                'stories_per_week', 'first_story', 'pub_country', 'pub_state',
+                'primary_language', 'media_type'])
                 yield ([source.id, source.name, source.url_search_string, source.label,
-                             source.homepage, source.notes, source.stories_per_week,
+                             source.homepage, source.notes, source.platform, source.stories_per_week,
                              source.first_story, source.pub_country, source.pub_state, source.primary_language,
                              source.media_type])
                 first_page = False
@@ -308,7 +364,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collections_queryset = Collection.objects.all()
             collection = get_object_or_404(collections_queryset, pk=pk)
             source_associations = collection.source_set.all()
-            serializer = SourcesSerializer(source_associations, many=True)
+            serializer = SourceSerializer(source_associations, many=True)
             return Response({'sources': serializer.data})
         else:
             sources_queryset = Source.objects.all()

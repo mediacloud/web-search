@@ -1,4 +1,4 @@
-from backend.search.providers import PLATFORM_TWITTER
+from mc_providers import PLATFORM_TWITTER
 
 
 class OverQuotaException(Exception):

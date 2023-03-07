@@ -15,7 +15,7 @@ export const sourcesCollectionsApi = managerApi.injectEndpoints({
         url: `sources-collections/${ids.source_id}/?collection_id=${ids.collection_id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, ids) => [{ type: 'Collection', id: ids.collection_id }, { type: 'Source', id: ids.source_id }],
+      invalidatesTags: ['Collection', 'Source'],
     }),
   }),
 });

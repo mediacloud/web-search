@@ -13,6 +13,7 @@ import PropTypes from 'prop-types';
 export default function AlertDialog({
   openDialog, outsideTitle, title, content, action, actionTarget, dispatchNeeded,
   snackbar, snackbarText, variant, endIcon, navigateNeeded, navigateTo, secondAction,
+  confirmButtonText,
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
@@ -83,7 +84,7 @@ export default function AlertDialog({
               }
             autoFocus
           >
-            Confirm
+            {confirmButtonText}
           </Button>
         </DialogActions>
       </Dialog>
@@ -95,7 +96,7 @@ AlertDialog.propTypes = {
   openDialog: PropTypes.bool.isRequired,
   outsideTitle: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  content: PropTypes.string.isRequired,
+  content: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   action: PropTypes.func.isRequired,
   actionTarget: PropTypes.oneOfType([PropTypes.object, PropTypes.bool, PropTypes.number]).isRequired,
   dispatchNeeded: PropTypes.bool.isRequired,
@@ -106,6 +107,7 @@ AlertDialog.propTypes = {
   navigateNeeded: PropTypes.bool,
   navigateTo: PropTypes.string,
   secondAction: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
+  confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 };
 
 AlertDialog.defaultProps = {

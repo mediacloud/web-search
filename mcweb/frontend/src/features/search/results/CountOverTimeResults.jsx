@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -69,6 +69,9 @@ export default function CountOverTimeResults() {
     normalized ? r.ratio * 100 : r.count,
   ]);
 
+  const myRef = useRef(null);
+  const executeScroll = () => myRef.current.scrollIntoView();
+
   useEffect(() => {
     if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
       query({
@@ -83,14 +86,14 @@ export default function CountOverTimeResults() {
     }
   }, [lastSearchTime]);
 
+  useEffect(() => {
+    if (data || error) {
+      executeScroll();
+    }
+  }, [data, error]);
+
   if (isLoading) {
-    return (
-      <div>
-        {' '}
-        <CircularProgress size="75px" />
-        {' '}
-      </div>
-    );
+    return (<div><CircularProgress size="75px" /></div>);
   }
 
   if ((data === undefined) && (error === undefined)) {
@@ -191,7 +194,7 @@ export default function CountOverTimeResults() {
     );
   }
   return (
-    <div className="results-item-wrapper clearfix">
+    <div ref={myRef} className="results-item-wrapper clearfix">
       <div className="row">
         <div className="col-4">
           <h2>Attention Over Time</h2>

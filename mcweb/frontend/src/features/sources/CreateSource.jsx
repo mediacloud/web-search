@@ -1,11 +1,13 @@
-import { TextField, Button } from '@mui/material';
-import * as React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
+import Alert from '@mui/material/Alert';
+import Modal from '@mui/material/Modal';
 import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
 import { useCreateSourceMutation } from '../../app/services/sourceApi';
 import { platformDisplayName, mediaTypeDisplayName } from '../ui/uiUtil';
 import Header from '../ui/Header';
@@ -21,6 +23,8 @@ export default function CreateCollection() {
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
 
+  const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [createSource] = useCreateSourceMutation();
 
   return (
@@ -32,6 +36,25 @@ export default function CreateCollection() {
       </Header>
 
       <div className="container">
+        <Modal
+          open={open}
+          onClose={() => setOpen(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Alert severity="error">
+
+            <div
+              className="container"
+            >
+              <h3>Error While Creating Source</h3>
+              <p>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                {errorMessage}
+              </p>
+            </div>
+          </Alert>
+        </Modal>
         <div className="row">
           <div className="col-12">
 
@@ -58,7 +81,8 @@ export default function CreateCollection() {
               fullWidth
               name="name"
               label="name"
-              helperText="This is the unique identified for this source within our system. Don't change this unless you know what you're doing. For news sources this should be the unique domain name."
+              helperText="This is the unique identified for this source within our system. Don't change this unless you
+              know what you're doing. For news sources this should be the unique domain name."
               value={formState.name}
               onChange={handleChange}
             />
@@ -82,6 +106,7 @@ export default function CreateCollection() {
               label="Homepage"
               value={formState.homepage}
               onChange={handleChange}
+              required
             />
             <br />
             <br />
@@ -120,7 +145,9 @@ export default function CreateCollection() {
               label="URL Search String"
               value={formState.url_search_string}
               onChange={handleChange}
-              helperText="For a very small number of news sources, we want to search within a subdomain (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string here, such as '*news.bbc.co.uk/nigeria/*'."
+              helperText="For a very small number of news sources, we want to search within a subdomain
+              (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string
+              here, such as '*news.bbc.co.uk/nigeria/*'."
             />
             <br />
             <br />
@@ -128,8 +155,18 @@ export default function CreateCollection() {
             <Button
               variant="contained"
               onClick={async () => {
-                const newSource = await createSource(formState).unwrap();
-                navigate(`/sources/${newSource.id}`);
+                createSource(formState)
+                  .then((payload) => {
+                    if (payload.error) {
+                      setErrorMessage(payload.error.data.detail);
+                      setOpen(true);
+                    } else {
+                      const sourceId = payload.data.source.id;
+                      navigate(`/sources/${sourceId}`);
+                    }
+                  });
+                // const newSource = await createSource(formState).unwrap();
+                // navigate(`/sources/${newSource.id}`);
               }}
             >
               Create

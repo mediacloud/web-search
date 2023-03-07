@@ -3,6 +3,7 @@ import { CircularProgress, Button } from '@mui/material';
 import dayjs from 'dayjs';
 import ShieldIcon from '@mui/icons-material/Shield';
 import SearchIcon from '@mui/icons-material/Search';
+import Chip from '@mui/material/Chip';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Outlet, Link, useParams } from 'react-router-dom';
 import { useGetCollectionQuery, useDeleteCollectionMutation } from '../../app/services/collectionsApi';
@@ -50,6 +51,9 @@ export default function CollectionHeader() {
             {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
           </Link>
         </h1>
+        {collection.featured && (
+          <Chip label="Featured Collection" color="success" />
+        )}
       </Header>
       <ControlBar>
         <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
@@ -94,6 +98,7 @@ export default function CollectionHeader() {
             navigateTo="/directory"
             endIcon={<LockOpenIcon titleAccess="admin-delete" />}
             secondAction={false}
+            confirmButtonText="Delete"
           />
         </Permissioned>
       </ControlBar>

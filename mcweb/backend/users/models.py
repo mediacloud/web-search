@@ -5,10 +5,13 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
-from ..search.providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER,\
+
+
+from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER,\
     PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, \
-    PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD
-from ..search.providers.exceptions import UnknownProviderException
+    PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE
+from mc_providers import UnknownProviderException
+
 from .exceptions import OverQuotaException
 
 
@@ -20,7 +23,6 @@ class Profile(models.Model):
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
     # fields that store user-specific weekly quota for each provider, to block system abuse
-    quota_mediacloud_legacy = models.IntegerField(default=100000, null=False)
     quota_wayback_machine = models.IntegerField(default=100000, null=False)
     quota_reddit_pushshift = models.IntegerField(default=10000, null=False)
     quota_twitter = models.IntegerField(default=10, null=False)
@@ -37,8 +39,6 @@ class Profile(models.Model):
             return self.quota_reddit_pushshift
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
             return self.quota_wayback_machine
-        if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
-            return self.quota_mediacloud_legacy
         raise UnknownProviderException(provider)
 
     @classmethod

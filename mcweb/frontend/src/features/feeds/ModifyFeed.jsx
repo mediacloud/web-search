@@ -78,7 +78,7 @@ function ModifyFeed() {
             fullWidth
             label="URL"
             id="outlined-multiline-static"
-            name="notes"
+            name="url"
             value={formState.url}
             onChange={handleChange}
           />

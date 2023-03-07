@@ -41,8 +41,7 @@ dokku config:set --no-restart mcweb \
     CACHE_URL=$(dokku redis:info mcweb-cache --dsn)
     SECRET_KEY=SOME_RANDOM_STR \
     TWITTER_API_BEARER_TOKEN=YOUR_TOKEN \
-    YOUTUBE_API_KEY=YOUR_YT_API_KEY \
-    MEDIA_CLOUD_API_KEY=YOUR_MC_API_KEY \
+    YOUTUBE_API_KEY=YOUR_YT_API_KEY
 ```
 5. setup the domain: `dokku domains:add mcweb search.mediacloud.org`
 6. on your local machine setup the remote: `git remote add mcweb-prod dokku@<SERVER>:mcweb`
@@ -51,7 +50,7 @@ Deploying
 ---------
 
 1. update the version number in `settings.py` (ie. "0.1.1")
-2. once we have a changelog, update the changelog to note changes/fixes
+2. update the changelog to note changes/fixes to json object `web-search/mcweb/frontend/static/about/release_history.json`
 3. run all the tests to make sure they still pass: `python mcweb/manage.py test`
 4. commit and tag the release with the version number (ie. "v0.1.1")
 5. push the tag to the server: `git push mcweb-prod v0.1.1:main`

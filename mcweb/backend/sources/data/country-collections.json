@@ -6513,6 +6513,19 @@
   {
     "collections": [
       {
+        "description": "Media is largely about Baden-Württemberg, Germany - State & Local",
+        "is_static": false,
+        "label": "Baden-Württemberg, Germany - State & Local",
+        "show_on_media": true,
+        "show_on_stories": false,
+        "tag": "geo_DE-BW",
+        "tag_set_description": "Tags in this set indicate that the media source covers a certain geographic area",
+        "tag_set_label": "Geographic Collections",
+        "tag_set_name": "geographic_collection",
+        "tag_sets_id": 15765102,
+        "tags_id": 262985085
+      },
+      {
         "description": "Media is largely about Bayern, Germany - State & Local",
         "is_static": false,
         "label": "Bayern, Germany - State & Local",
@@ -6615,6 +6628,19 @@
         "tag_set_name": "geographic_collection",
         "tag_sets_id": 15765102,
         "tags_id": 38379821
+      },
+      {
+        "description": "Media is largely about Mecklenburg-Vorpommern, Germany - State & Local",
+        "is_static": false,
+        "label": "Mecklenburg-Vorpommern, Germany - State & Local",
+        "show_on_media": true,
+        "show_on_stories": false,
+        "tag": "geo_DE-MV",
+        "tag_set_description": "Tags in this set indicate that the media source covers a certain geographic area",
+        "tag_set_label": "Geographic Collections",
+        "tag_set_name": "geographic_collection",
+        "tag_sets_id": 15765102,
+        "tags_id": 262985084
       },
       {
         "description": "Media is largely about Niedersachsen, Germany - State & Local",

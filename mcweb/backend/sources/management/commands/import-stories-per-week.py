@@ -32,7 +32,7 @@ class Command(BaseCommand):
             for row in csv_reader:
                 try:
                     source = Source.objects.get(id=int(row['sources_id']))
-                    source.stories_per_week = round(7 * (int(row['count']) / 15))
+                    source.stories_per_week = round((int(float(row['count'])) / 4))
                     source.save()
                 except ObjectDoesNotExist as e:
                     logger.error("Unknown source id {}".format(row['media_id']))

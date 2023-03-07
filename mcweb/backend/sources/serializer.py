@@ -1,7 +1,9 @@
 import mcmetadata
+import pycountry
+import json
 from rest_framework import serializers
+import mcmetadata.urls as urls
 from .models import Collection, Feed, Source
-
 
 # Serializers in Django REST Framework are responsible for converting objects
 # into data types understandable by javascript and
@@ -14,16 +16,16 @@ class CollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Collection
-        fields = ['id', 'name', 'notes', 'platform', 'source_count', 'public']
+        fields = ['id', 'name', 'notes', 'platform', 'source_count', 'public', 'featured']
 
 
 class CollectionWriteSerializer(serializers.ModelSerializer):
     class Meta: 
         model = Collection
-        fields = ['id', 'name', 'notes', 'platform', 'public']
+        fields = ['id', 'name', 'notes', 'platform', 'public', 'featured']
 
 
-class FeedsSerializer(serializers.ModelSerializer):
+class FeedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feed
@@ -50,19 +52,82 @@ class FeedsSerializer(serializers.ModelSerializer):
         return Feed.objects.create(**validated_data)
 
 
-class SourcesSerializer(serializers.ModelSerializer):
-    collections = serializers.PrimaryKeyRelatedField(
-        many=True, write_only=True, queryset=Collection.objects.all()
-    )
+class SourceSerializer(serializers.ModelSerializer):
+    # collections = serializers.PrimaryKeyRelatedField(
+    #     many=True, write_only=True, queryset=Collection.objects.all()
+    # )
 
     class Meta:
         model = Source
         fields = ['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform', 'stories_per_week',
                   'first_story', 'created_at', 'modified_at', 'pub_country', 'pub_state', 'primary_language',
-                  'media_type',
-                  'collections']
+                  'media_type']
+        extra_kwargs = {'collections': {'required': False}}
+    
+    def validate_homepage(self, value):
+        """
+        Check that homepage is present
+        """
+       
+        if value is None:
+            raise serializers.ValidationError(f"homepage is required")
+        return value
+        
 
+    def validate_name(self, value):
+        """
+        Check that name is normalized version of homepage, ensure name is unique in db
+        """
+        
+        self_id = self.initial_data.get('id', None) 
+        homepage = self.initial_data["homepage"]
+        canonical_domain = urls.canonical_domain(homepage)
+        platform = self.initial_data["platform"]
+        url_search_string = self.initial_data.get("url_search_string", None)
+        existing_sources = Source.objects.filter(name__exact=value)
+        if url_search_string is None or len(url_search_string) == 0:
+            if existing_sources.exists():
+                if existing_sources[0].id != self_id and self_id is not None:
+                    raise serializers.ValidationError(f"name: {value} already exists")
+            if platform == "online_news":
+                if canonical_domain != value:
+                    raise serializers.ValidationError(f"name: {value} does not match the canonicalized version of homepage: {homepage}")
+        return value
+    
+    def validate_pub_country(self, value):
+        """
+        Check that publication country code is valid ISO 3166-1 alpha-3
+        """
+        country = pycountry.countries.get(alpha_3=value)
+        if country is None:
+            raise serializers.ValidationError(f"{value}: ISO 3166-1 aplha_3 country code not found")
+        return value
 
+    def validate_pub_state(self, value):
+        """
+        Check that publication state code is valid ISO 3166-2
+        """
+        country = pycountry.subdivisions.get(code=value)
+        if country is None:
+            raise serializers.ValidationError(f"{value}: ISO 3166-2 publication state code not found")
+        return value
+
+    def validate_primary_language(self, value):
+        """
+        Check that language code is valid ISO 639-1
+        """
+        country = pycountry.languages.get(alpha_2=value)
+        if country is None:
+            raise serializers.ValidationError(f"{value}: ISO 639-1 language code not found")
+        return value
+    
+    def create(self, validated_data):
+        return Source.objects.create(**validated_data)
+
+  
+        
+
+    
 class SourcesViewSerializer(serializers.ModelSerializer):
     collection_count = serializers.IntegerField()
 
