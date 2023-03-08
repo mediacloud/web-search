@@ -56,12 +56,13 @@ export default function MediaPicker({ queryIndex }) {
                   onRemove={removePreviewSelectedMedia}
                   collections={previewCollections}
                   sources={previewSources}
+                  queryIndex={queryIndex}
                 />
                 <Button
                   variant="contained"
                   onClick={() => {
                     setOpen(false);
-                    dispatch(addSelectedMedia([...previewCollections, ...previewSources]));
+                    dispatch(addSelectedMedia({ sourceOrCollection: [...previewCollections, ...previewSources], queryIndex }));
                   }}
                 >
                   Confirm

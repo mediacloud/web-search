@@ -5,7 +5,9 @@ import { useDispatch } from 'react-redux';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
 import IconButton from '@mui/material/IconButton';
 
-export default function SelectedMedia({ onRemove, collections, sources }) {
+export default function SelectedMedia({
+  onRemove, collections, sources, queryIndex,
+}) {
   const dispatch = useDispatch();
   // note: this only supports collections right now, but needs to support sources too
 
@@ -25,7 +27,11 @@ export default function SelectedMedia({ onRemove, collections, sources }) {
             >
               {source.label || source.name}
             </Link>
-            <IconButton size="small" aria-label="remove" onClick={() => dispatch(onRemove({ type: 'source', id: source.id }))}>
+            <IconButton
+              size="small"
+              aria-label="remove"
+              onClick={() => dispatch(onRemove({ sourceOrCollection: { type: 'source', id: source.id }, queryIndex }))}
+            >
               <RemoveCircleIcon sx={{ color: '#d24527' }} />
             </IconButton>
           </div>
@@ -47,7 +53,7 @@ export default function SelectedMedia({ onRemove, collections, sources }) {
             <IconButton
               size="small"
               aria-label="remove"
-              onClick={() => dispatch(onRemove({ type: 'collection', id: collection.id }))}
+              onClick={() => dispatch(onRemove({ sourceOrCollection: { type: 'collection', id: collection.id }, queryIndex }))}
             >
               <RemoveCircleIcon sx={{ color: '#d24527' }} />
             </IconButton>
@@ -68,4 +74,9 @@ SelectedMedia.propTypes = {
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
   })).isRequired,
+  queryIndex: PropTypes.number,
+};
+
+SelectedMedia.defaultProps = {
+  queryIndex: 0,
 };

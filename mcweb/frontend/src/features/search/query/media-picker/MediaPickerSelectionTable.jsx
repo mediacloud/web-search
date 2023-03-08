@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { asNumber } from '../../../ui/uiUtil';
 
 export default function MediaPickerSelectionTable({
-  selected, matching, onAdd, onRemove, collection,
+  selected, matching, onAdd, onRemove, collection, queryIndex,
 }) {
   const dispatch = useDispatch();
   const alreadySelected = (cid) => selected.map((c) => c.id).includes(cid);
@@ -42,7 +42,9 @@ export default function MediaPickerSelectionTable({
                 <IconButton
                   size="sm"
                   aria-label="add"
-                  onClick={() => dispatch(onAdd([{ ...c, type: collection ? 'collection' : 'source' }]))}
+                  onClick={() => dispatch(onAdd(
+                    { sourceOrCollection: [{ ...c, type: collection ? 'collection' : 'source' }], queryIndex },
+                  ))}
                 >
                   <AddCircleIcon sx={{ color: '#d24527' }} />
                 </IconButton>
@@ -51,7 +53,9 @@ export default function MediaPickerSelectionTable({
                 <IconButton
                   size="sm"
                   aria-label="remove"
-                  onClick={() => dispatch(onRemove({ ...c, type: collection ? 'collection' : 'source' }))}
+                  onClick={() => dispatch(onRemove(
+                    { sourceOrCollection: { ...c, type: collection ? 'collection' : 'source' }, queryIndex },
+                  ))}
                 >
                   <RemoveCircleIcon sx={{ color: '#d24527' }} />
                 </IconButton>
@@ -76,4 +80,9 @@ MediaPickerSelectionTable.propTypes = {
     name: PropTypes.string.isRequired,
   })).isRequired,
   collection: PropTypes.bool.isRequired,
+  queryIndex: PropTypes.number,
+};
+
+MediaPickerSelectionTable.defaultProps = {
+  queryIndex: 0,
 };

@@ -52,6 +52,7 @@ export default function CollectionSearchPicker({ platform, queryIndex }) {
                   onAdd={addPreviewSelectedMedia}
                   onRemove={removePreviewSelectedMedia}
                   collection
+                  queryIndex={queryIndex}
                 />
               </>
             )}
