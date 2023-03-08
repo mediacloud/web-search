@@ -286,6 +286,7 @@ export default function ModifyCollection() {
               />
             )}
           />
+          <br />
           <UploadSources collectionId={collectionId} />
         </div>
       </div>
