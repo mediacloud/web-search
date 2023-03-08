@@ -10,6 +10,7 @@ export const savedsearchApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['SavedSearch'],
 
   endpoints: (builder) => ({
     createSavedSearch: builder.mutation({
@@ -34,11 +35,14 @@ export const savedsearchApi = createApi({
         url: 'savedsearch/',
         method: 'GET',
       }),
+      providesTags: (result, error, id) => (result
+        ? [{ type: 'SavedSearch', id }]
+        : ['SavedSearch']),
     }),
     updateSavedSearch: builder.mutation({
       query: (savedsearch) => ({
         url: `savedsearch/${savedsearch.id}`,
-        method: 'PUT',
+        method: 'PATCH',
         body: { ...savedsearch },
       }),
       invalidatesTags: ['SavedSearch'],
