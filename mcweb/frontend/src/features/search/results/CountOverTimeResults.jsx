@@ -68,7 +68,6 @@ export default function CountOverTimeResults() {
     return null;
   }
 
-  console.log(data);
   let content;
   if (error) {
     // const msg = data.note;

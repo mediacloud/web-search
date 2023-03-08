@@ -46,6 +46,7 @@ const formatSources = (sources) => sources.map((source) => {
 
 const setSearchQuery = (searchParams, dispatch) => {
   dayjs.extend(customParseFormat);
+  const queryIndex = 0;
   // param keys are set in ./urlSerializer.js
   let query = searchParams.get('q');
   let negatedQuery = searchParams.get('nq');
@@ -75,29 +76,29 @@ const setSearchQuery = (searchParams, dispatch) => {
   sources = formatSources(sources);
 
   if (queryString) {
-    dispatch(setQueryProperty({ queryString }));
-    dispatch(setQueryProperty({ advanced: true }));
+    dispatch(setQueryProperty({ queryString, queryIndex, property: 'queryString' }));
+    dispatch(setQueryProperty({ advanced: true, queryIndex, property: 'advanced' }));
   } else {
-    dispatch(setQueryProperty({ queryList: query }));
-    dispatch(setQueryProperty({ negatedQueryList: negatedQuery }));
+    dispatch(setQueryProperty({ queryList: query, queryIndex, property: 'queryList' }));
+    dispatch(setQueryProperty({ negatedQueryList: negatedQuery, queryIndex, property: 'negatedQueryList' }));
   }
   if (startDate) {
-    dispatch(setQueryProperty({ startDate }));
+    dispatch(setQueryProperty({ startDate, queryIndex, property: 'startDate' }));
   }
   if (endDate) {
-    dispatch(setQueryProperty({ endDate }));
+    dispatch(setQueryProperty({ endDate, queryIndex, property: 'endDate' }));
   }
   if (platform) {
-    dispatch(setQueryProperty({ platform }));
+    dispatch(setQueryProperty({ platform, queryIndex, property: 'platform' }));
   }
   if (anyAll) {
-    dispatch(setQueryProperty({ anyAll }));
+    dispatch(setQueryProperty({ anyAll, queryIndex, property: 'anyAll' }));
   }
 
-  dispatch(addSelectedMedia(collections.concat(sources)));
-  dispatch(setPreviewSelectedMedia(collections.concat(sources)));
+  dispatch(addSelectedMedia({ sourceOrCollection: collections.concat(sources), queryIndex }));
+  dispatch(setPreviewSelectedMedia({ sourceOrCollection: collections.concat(sources), queryIndex }));
 
-  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix() }));
+  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix(), queryIndex, property: 'lastSearchTime' }));
 
   return null;
 };
