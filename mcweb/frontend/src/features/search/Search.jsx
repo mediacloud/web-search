@@ -51,7 +51,7 @@ export default function Search({ queryIndex }) {
   useEffect(() => {
     setShow(deactivateButton(queryState));
   }, [queryState]);
-
+  console.log(collections);
   return (
     <div className="search-container">
 
@@ -147,10 +147,10 @@ export default function Search({ queryIndex }) {
                 disabled={!show}
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
-                  navigate(
-                    `/search${urlSerializer(queryState)}`,
-                    { options: { replace: true } },
-                  );
+                  // navigate(
+                  //   `/search${urlSerializer(queryState)}`,
+                  //   { options: { replace: true } },
+                  // );
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setQueryProperty({ lastSearchTime: dayjs().unix(), queryIndex, property: 'lastSearchTime' }));
                 }}

@@ -106,6 +106,26 @@ const querySlice = createSlice({
         },
       );
     },
+    setPlatform: (state, { payload }) => {
+      const newState = [
+        {
+          queryString: '',
+          queryList: [[], [], []],
+          negatedQueryList: [[], [], []],
+          platform: `${payload}`,
+          startDate,
+          endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
+          collections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+          previewCollections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+          sources: [],
+          previewSources: [],
+          lastSearchTime: dayjs().unix(),
+          anyAll: 'any',
+          advanced: false,
+        },
+      ];
+      return newState;
+    },
   },
 });
 
@@ -118,6 +138,7 @@ export const {
   setPreviewSelectedMedia,
   resetSelectedAndPreviewMedia,
   addQuery,
+  setPlatform,
 } = querySlice.actions;
 
 export default querySlice.reducer;

@@ -14,7 +14,7 @@ import {
 } from '../util/platforms';
 
 import {
-  setQueryProperty, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS,
+  setQueryProperty, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS, setPlatform,
 } from './querySlice';
 
 export default function PlatformPicker({ queryIndex }) {
@@ -26,7 +26,7 @@ export default function PlatformPicker({ queryIndex }) {
 
   const handleChangePlatform = async (event) => {
     const newPlatform = event.target.value;
-    await dispatch(setQueryProperty({ platform: newPlatform, queryIndex, property: 'platform' }));
+    await dispatch(setPlatform(newPlatform));
     const hasSomeMedia = (collections.length + sources.length) > 0;
     const samePlatform = platform && newPlatform ? providersOfSamePlatform(platform, newPlatform) : null;
     /*

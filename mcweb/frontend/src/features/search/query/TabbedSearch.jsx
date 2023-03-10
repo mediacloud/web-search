@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
@@ -14,7 +14,7 @@ export default function TabbedSearch() {
   const [value, setValue] = useState(0);
 
   const queryState = useSelector((state) => state.query);
-
+  const { platform } = queryState[0];
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -25,9 +25,13 @@ export default function TabbedSearch() {
     setValue(qsLength);
   };
 
+  useEffect(() => {
+    setValue(0);
+  }, [platform]);
+
   return (
     <div className="container">
-      <PlatformPicker queryIndex={0} />
+      <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
@@ -74,6 +78,10 @@ TabPanel.propTypes = {
   children: PropTypes.node,
   index: PropTypes.number.isRequired,
   value: PropTypes.number.isRequired,
+};
+
+TabPanel.defaultProps = {
+  children: null,
 };
 
 function a11yProps(index) {
