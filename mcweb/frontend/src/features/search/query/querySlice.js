@@ -85,6 +85,27 @@ const querySlice = createSlice({
       const currentQuerySlice = state[payload.queryIndex];
       currentQuerySlice[queryProperty] = payload[queryProperty];
     },
+    addQuery: (state, { payload }) => {
+      const freezeState = state;
+      const { platform } = payload;
+      freezeState.push(
+        {
+          queryString: '',
+          queryList: [[], [], []],
+          negatedQueryList: [[], [], []],
+          platform: `${platform}`,
+          startDate,
+          endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
+          collections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+          previewCollections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+          sources: [],
+          previewSources: [],
+          lastSearchTime: dayjs().unix(),
+          anyAll: 'any',
+          advanced: false,
+        },
+      );
+    },
   },
 });
 
@@ -96,7 +117,7 @@ export const {
   removePreviewSelectedMedia,
   setPreviewSelectedMedia,
   resetSelectedAndPreviewMedia,
-  setQueryPropertyPartDuex,
+  addQuery,
 } = querySlice.actions;
 
 export default querySlice.reducer;

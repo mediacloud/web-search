@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
@@ -24,7 +25,7 @@ import TopWords from './results/TopWords';
 import AlertDialog from '../ui/AlertDialog';
 import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from './util/platforms';
 
-export default function Search() {
+export default function Search({ queryIndex }) {
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -32,8 +33,6 @@ export default function Search() {
   const [show, setShow] = useState(true);
 
   const [open, setOpen] = useState(false);
-
-  const [queryIndex, setQueryIndex] = useState(0);
 
   const queryState = useSelector((state) => state.query[queryIndex]);
 
@@ -59,7 +58,7 @@ export default function Search() {
       <div className="container">
         <div className="row">
           <div className="col">
-            <PlatformPicker queryIndex={queryIndex} />
+            {/* <PlatformPicker queryIndex={queryIndex} /> */}
           </div>
         </div>
       </div>
@@ -176,3 +175,7 @@ export default function Search() {
     </div>
   );
 }
+
+Search.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+};
