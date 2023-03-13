@@ -246,7 +246,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         cleaned_data = Source._clean_source(request.data)
-        serializer = SourceSerializer(data=cleaned_data)
+        serializer = SourceSerializer(data=cleaned_data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response({"source": serializer.data})
@@ -356,7 +356,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=False, url_path='rescrape-feeds')
     def rescrape_feeds(self, request):
         # maybe take multiple ids?  Or just add a method to rescrape a source
-        source_id = int(self.request.query_params.get("source_id"))
+        source_id = int(request.data["source_id"])
         return Response(schedule_scrape_source(source_id, request.user))
 
     # NOTE!!!! {completed,pending}-tasks are ***NOT***
