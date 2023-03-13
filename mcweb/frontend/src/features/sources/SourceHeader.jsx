@@ -30,14 +30,10 @@ export default function SourceHeader() {
 
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
   const [deleteSource] = useDeleteSourceMutation();
-  const [scrapeForFeeds, { error }] = useRescrapeForFeedsMutation();
+  const [scrapeForFeeds] = useRescrapeForFeedsMutation();
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
-  }
-
-  if (error) {
-    console.log(error);
   }
 
   const PlatformIcon = platformIcon(source.platform);
