@@ -4,6 +4,7 @@ import json
 from rest_framework import serializers
 import mcmetadata.urls as urls
 from .models import Collection, Feed, Source
+from .tasks import schedule_scrape_source
 
 # Serializers in Django REST Framework are responsible for converting objects
 # into data types understandable by javascript and
@@ -122,7 +123,14 @@ class SourceSerializer(serializers.ModelSerializer):
         return value
     
     def create(self, validated_data):
-        return Source.objects.create(**validated_data)
+        new_source = Source.objects.create(**validated_data)
+        user = None
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        if new_source:
+            schedule_scrape_source(new_source.id, user)
+        return new_source
 
   
         

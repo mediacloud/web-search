@@ -7,7 +7,7 @@ import { CircularProgress } from '@mui/material';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import { useGetSourceQuery, useDeleteSourceMutation } from '../../app/services/sourceApi';
+import { useGetSourceQuery, useDeleteSourceMutation, useRescrapeForFeedsMutation } from '../../app/services/sourceApi';
 import { useLazyFetchFeedQuery } from '../../app/services/feedsApi';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -22,6 +22,7 @@ export default function SourceHeader() {
   const sourceId = Number(params.sourceId);
   const [openRefetch, setOpenRefetch] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
+  const [openRescrape, setOpenRescrape] = useState(false);
   const {
     data: source,
     isLoading,
@@ -29,9 +30,14 @@ export default function SourceHeader() {
 
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
   const [deleteSource] = useDeleteSourceMutation();
+  const [scrapeForFeeds, { error }] = useRescrapeForFeedsMutation();
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
+  }
+
+  if (error) {
+    console.log(error);
   }
 
   const PlatformIcon = platformIcon(source.platform);
@@ -128,6 +134,25 @@ export default function SourceHeader() {
             endIcon={<LockOpenIcon titleAccess="admin-delete" />}
             secondAction={false}
             confirmButtonText="delete"
+          />
+
+          <AlertDialog
+            outsideTitle="Rescrape Source"
+            title={`Rescrape Source ${source.name} for new Feeds`}
+            content={`Are you sure you would like to rescrape ${source.name} for new feeds?
+             Confirming will place this source in a queue to be rescraped for new feeds`}
+            dispatchNeeded={false}
+            action={scrapeForFeeds}
+            actionTarget={sourceId}
+            snackbar
+            snackbarText="Source Queued for Rescraping"
+            onClick={() => setOpenRescrape(true)}
+            openDialog={openRescrape}
+            variant="outlined"
+            navigateNeeded={false}
+            endIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            secondAction={false}
+            confirmButtonText="Rescrape"
           />
 
         </Permissioned>
