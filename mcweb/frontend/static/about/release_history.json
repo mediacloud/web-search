@@ -1,4 +1,11 @@
 [  
+  {"version": "v1.3.3",
+    "date": "2023-03-13",
+    "notes": ["message added when total attention is 100% or 0%",
+        "add rescrape for feeds on sources (admin only)",
+        "new source search bar in collection edit page, to add source to collection"
+    ]
+  },
   {"version": "v1.3.2",
     "date": "2023-03-01",
     "notes": ["improvements to source creation and editing",
