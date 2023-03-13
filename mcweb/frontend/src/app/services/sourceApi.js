@@ -54,14 +54,11 @@ export const sourceApi = managerApi.injectEndpoints({
       invalidatesTags: ['Source'],
     }),
     rescrapeForFeeds: builder.mutation({
-      query: (sourceId) => {
-        console.log(sourceId);
-        return {
-          url: 'sources/rescrape-feeds/',
-          method: 'POST',
-          body: { source_id: sourceId },
-        };
-      },
+      query: (sourceId) => ({
+        url: 'sources/rescrape-feeds/',
+        method: 'POST',
+        body: { source_id: sourceId },
+      }),
     }),
   }),
 });
