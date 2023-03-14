@@ -28,7 +28,7 @@ export default function TaskList({ completed }) {
     return (
       <div className="container">
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        <h1>You have no {title}</h1>
+        <h1 className="feed-story-title">No {title}</h1>
       </div>
     );
   }
