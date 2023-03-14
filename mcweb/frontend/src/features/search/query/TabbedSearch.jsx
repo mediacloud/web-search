@@ -21,7 +21,7 @@ export default function TabbedSearch() {
 
   const handleAddQuery = () => {
     const qsLength = queryState.length;
-    dispatch(addQuery(queryState[0].platform));
+    dispatch(addQuery(platform));
     setValue(qsLength);
   };
 

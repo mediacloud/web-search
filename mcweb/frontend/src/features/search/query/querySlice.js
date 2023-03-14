@@ -87,17 +87,16 @@ const querySlice = createSlice({
     },
     addQuery: (state, { payload }) => {
       const freezeState = state;
-      const { platform } = payload;
       freezeState.push(
         {
           queryString: '',
           queryList: [[], [], []],
           negatedQueryList: [[], [], []],
-          platform: `${platform}`,
+          platform: payload,
           startDate,
           endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
-          collections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
-          previewCollections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+          collections: [],
+          previewCollections: [],
           sources: [],
           previewSources: [],
           lastSearchTime: dayjs().unix(),
@@ -115,8 +114,8 @@ const querySlice = createSlice({
           platform: `${payload}`,
           startDate,
           endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
-          collections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
-          previewCollections: DEFAULT_ONLINE_NEWS_COLLECTIONS,
+          collections: [],
+          previewCollections: [],
           sources: [],
           previewSources: [],
           lastSearchTime: dayjs().unix(),
@@ -125,6 +124,13 @@ const querySlice = createSlice({
         },
       ];
       return newState;
+    },
+    setLastSearchTime: (state, { payload }) => {
+      const freezeState = state;
+
+      freezeState.forEach((qS) => {
+        qS.lastSearchTime = payload;
+      });
     },
   },
 });
@@ -139,6 +145,7 @@ export const {
   resetSelectedAndPreviewMedia,
   addQuery,
   setPlatform,
+  setLastSearchTime,
 } = querySlice.actions;
 
 export default querySlice.reducer;

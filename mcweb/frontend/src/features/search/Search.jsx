@@ -13,7 +13,7 @@ import SelectedMedia from './query/SelectedMedia';
 import SearchDatePicker from './query/SearchDatePicker';
 import SimpleSearch from './query/SimpleSearch';
 import SampleStories from './results/SampleStories';
-import { setQueryProperty, removeSelectedMedia } from './query/querySlice';
+import { setQueryProperty, removeSelectedMedia, setLastSearchTime } from './query/querySlice';
 import TotalAttentionResults from './results/TotalAttentionResults';
 import CountOverTimeResults from './results/CountOverTimeResults';
 import TopLanguages from './results/TopLanguages';
@@ -27,7 +27,6 @@ import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from './util
 
 export default function Search({ queryIndex }) {
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
   const [show, setShow] = useState(true);
@@ -51,7 +50,6 @@ export default function Search({ queryIndex }) {
   useEffect(() => {
     setShow(deactivateButton(queryState));
   }, [queryState]);
-  console.log(collections);
   return (
     <div className="search-container">
 
@@ -152,7 +150,7 @@ export default function Search({ queryIndex }) {
                   //   { options: { replace: true } },
                   // );
                   dispatch(searchApi.util.resetApiState());
-                  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix(), queryIndex, property: 'lastSearchTime' }));
+                  dispatch(setLastSearchTime(dayjs().unix()));
                 }}
               >
                 Search

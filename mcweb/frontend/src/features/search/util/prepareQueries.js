@@ -17,7 +17,7 @@ export default function prepareQueries(queryState) {
 
     const fullQuery = () => {
       let queryReturn = '';
-      if (queryString) {
+      if (queryString.length !== 0) {
         queryReturn = queryString;
       } else {
         queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
@@ -27,7 +27,9 @@ export default function prepareQueries(queryState) {
 
     const collectionIds = collections.map((c) => c.id);
     const sourceIds = sources.map((s) => s.id);
-
+    console.log(fullQuery());
+    console.log(queryList);
+    debugger;
     return {
 
       query: fullQuery(),
@@ -38,6 +40,6 @@ export default function prepareQueries(queryState) {
       platform,
     };
   });
-
+  console.log(queryArray);
   return queryArray;
 }

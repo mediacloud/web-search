@@ -13,6 +13,7 @@ import queryGenerator from '../util/queryGenerator';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
+import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import cleanCountOverTimeData from '../util/cleanCountOverTimeData';
 
@@ -20,11 +21,8 @@ export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
 
   const {
-    queryList,
-    queryString,
     platform,
     lastSearchTime,
-    advanced,
   } = queryState[0];
 
   const [normalized, setNormalized] = useState(true);
@@ -39,15 +37,15 @@ export default function CountOverTimeResults() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
-  const handleDownloadRequest = (queryObject) => {
-    window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
-  };
+  // const handleDownloadRequest = (queryObject) => {
+  //   window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  // };
 
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
 
   useEffect(() => {
-    if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
+    if (checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
