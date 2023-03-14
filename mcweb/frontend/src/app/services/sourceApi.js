@@ -60,6 +60,18 @@ export const sourceApi = managerApi.injectEndpoints({
         body: { source_id: sourceId },
       }),
     }),
+    getPendingTasks: builder.query({
+      query: () => ({
+        url: 'sources/pending-tasks/',
+        method: 'GET',
+      }),
+    }),
+    getCompletedTasks: builder.query({
+      query: () => ({
+        url: 'sources/completed-tasks/',
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -72,4 +84,6 @@ export const {
   useDeleteSourceMutation,
   useUploadSourcesMutation,
   useRescrapeForFeedsMutation,
+  useGetPendingTasksQuery,
+  useGetCompletedTasksQuery,
 } = sourceApi;

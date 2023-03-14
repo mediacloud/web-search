@@ -8,6 +8,7 @@ import { useDeleteUserMutation } from '../../app/services/authApi';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
+import TaskList from '../tasks/TaskList';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
@@ -55,6 +56,16 @@ function Account() {
             confirmButtonText="Delete"
           />
         </Alert>
+        <div className="row">
+          <div className="col-6">
+            <TaskList completed={false} />
+          </div>
+
+          <div className="col-6">
+            <TaskList completed />
+          </div>
+        </div>
+
       </div>
     </>
   );
