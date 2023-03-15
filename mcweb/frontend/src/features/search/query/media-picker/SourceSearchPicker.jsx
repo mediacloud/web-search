@@ -53,6 +53,7 @@ export default function SourceSearchPicker({ platform, queryIndex }) {
                 onAdd={addPreviewSelectedMedia}
                 onRemove={removePreviewSelectedMedia}
                 collection={false}
+                queryIndex={queryIndex}
               />
             </>
             )}

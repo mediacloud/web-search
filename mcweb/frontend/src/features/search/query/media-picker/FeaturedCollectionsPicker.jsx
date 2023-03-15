@@ -13,7 +13,6 @@ export default function FeaturedCollectionsPicker({ platform, queryIndex }) {
   if (isLoading) {
     return (<div>Loading...</div>);
   }
-
   return (
     <div className="container featured-collections-container">
       <MediaPickerSelectionTable
@@ -22,6 +21,7 @@ export default function FeaturedCollectionsPicker({ platform, queryIndex }) {
         onAdd={addPreviewSelectedMedia}
         onRemove={removePreviewSelectedMedia}
         collection
+        queryIndex={queryIndex}
       />
     </div>
   );

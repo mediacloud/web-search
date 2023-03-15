@@ -139,7 +139,7 @@ export default function Search({ queryIndex }) {
 
             <div className="col-1">
               {/* Submit */}
-              <Button
+              {/* <Button
                 className="float-end"
                 variant="contained"
                 disabled={!show}
@@ -154,21 +154,21 @@ export default function Search({ queryIndex }) {
                 }}
               >
                 Search
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="search-results-wrapper">
+      {/* <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          {/* <TotalAttentionResults /> */}
-          {/* <SampleStories /> */}
-          {/* <TopWords /> */}
-          {/* <TopLanguages /> */}
+          <TotalAttentionResults />
+          <SampleStories />
+          <TopWords />
+          <TopLanguages />
         </div>
-      </div>
+      </div> */}
 
     </div>
   );

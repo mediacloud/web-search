@@ -12,6 +12,7 @@ export default function MediaPickerSelectionTable({
 }) {
   const dispatch = useDispatch();
   const alreadySelected = (cid) => selected.map((c) => c.id).includes(cid);
+
   return (
     <table>
       <tbody>
@@ -80,9 +81,5 @@ MediaPickerSelectionTable.propTypes = {
     name: PropTypes.string.isRequired,
   })).isRequired,
   collection: PropTypes.bool.isRequired,
-  queryIndex: PropTypes.number,
-};
-
-MediaPickerSelectionTable.defaultProps = {
-  queryIndex: 0,
+  queryIndex: PropTypes.number.isRequired,
 };
