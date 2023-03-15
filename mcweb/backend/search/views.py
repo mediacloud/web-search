@@ -63,7 +63,7 @@ def total_count(request):
             total_content_count.append(provider.count(provider.everything_query(), start_date, end_date, **provider_props))
             QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
         except QueryingEverythingUnsupportedQuery as e:
-            total_content_count = None
+            total_content_count = []
             QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
         # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
@@ -101,12 +101,12 @@ def count_over_time(request):
 def sample(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
-
-    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
-    provider = providers.provider_by_name(provider_name)
-    sample_stories = provider.sample(query_str, start_date, end_date, **provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
-    return HttpResponse(json.dumps({"sample": sample_stories }, default=str), content_type="application/json",
+    for query in payload:
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+        provider = providers.provider_by_name(provider_name)
+        response.append(provider.sample(query_str, start_date, end_date, **provider_props))
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    return HttpResponse(json.dumps({"sample": response }, default=str), content_type="application/json",
                         status=200)
 
 @login_required(redirect_field_name='/auth/login')

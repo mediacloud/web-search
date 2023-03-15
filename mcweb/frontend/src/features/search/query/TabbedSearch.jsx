@@ -13,6 +13,7 @@ import Search from '../Search';
 import PlatformPicker from './PlatformPicker';
 import CountOverTimeResults from '../results/CountOverTimeResults';
 import TotalAttentionResults from '../results/TotalAttentionResults';
+import SampleStories from '../results/SampleStories';
 // import urlSerializer from '../util/urlSerializer';
 import { searchApi } from '../../../app/services/searchApi';
 import deactivateButton from '../util/deactivateButton';
@@ -112,7 +113,7 @@ export default function TabbedSearch() {
         <div className="container">
           <CountOverTimeResults />
           <TotalAttentionResults />
-          {/* <SampleStories /> */}
+          <SampleStories />
           {/* <TopWords /> */}
           {/* <TopLanguages /> */}
         </div>

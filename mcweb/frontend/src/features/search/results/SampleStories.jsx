@@ -17,30 +17,26 @@ import {
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
+import checkForBlankQuery from '../util/checkForBlankQuery';
+import prepareQueries from '../util/prepareQueries';
 
 export default function SampleStories() {
+  const queryState = useSelector((state) => state.query);
   const {
-    queryList,
-    queryString,
-    negatedQueryList,
     platform,
     startDate,
     endDate,
-    collections,
-    sources,
     lastSearchTime,
-    anyAll,
-    advanced,
-  } = useSelector((state) => state.query);
+  } = queryState[0];
 
   const [lastSearchTimePlatform, setLastSearchTimePlatform] = useState(platform);
 
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  // const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
-  const [query, { isLoading, data, error }] = useGetSampleStoriesMutation();
+  const [dispatchQuery, { isLoading, data, error }] = useGetSampleStoriesMutation();
 
-  const collectionIds = collections.map((c) => c.id);
-  const sourceIds = sources.map((s) => s.id);
+  // const collectionIds = collections.map((c) => c.id);
+  // const sourceIds = sources.map((s) => s.id);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -61,17 +57,25 @@ export default function SampleStories() {
     return parts[(parts.length - 1)];
   };
 
-  useEffect(() => {
-    if ((queryList[0].length !== 0 || (advanced && queryString !== 0))) {
-      query({
-        query: fullQuery,
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources: sourceIds,
-        platform,
+  // useEffect(() => {
+  //   if ((queryList[0].length !== 0 || (advanced && queryString !== 0))) {
+  //     query({
+  //       query: fullQuery,
+  //       startDate,
+  //       endDate,
+  //       collections: collectionIds,
+  //       sources: sourceIds,
+  //       platform,
 
-      });
+  //     });
+  //   }
+  //   setLastSearchTimePlatform(platform);
+  // }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (checkForBlankQuery(queryState)) {
+      const preparedQueries = prepareQueries(queryState);
+      dispatchQuery(preparedQueries);
     }
     setLastSearchTimePlatform(platform);
   }, [lastSearchTime]);
@@ -99,7 +103,7 @@ export default function SampleStories() {
     content = (
       <>
         <table>
-          <tbody>
+          {/* <tbody>
             <tr>
               <th>Title</th>
               <th>Source</th>
@@ -160,9 +164,9 @@ export default function SampleStories() {
                 )}
               </tr>
             ))}
-          </tbody>
+          </tbody> */}
         </table>
-        <div className="clearfix">
+        {/* <div className="clearfix">
           <div className="float-end">
             <Button
               variant="text"
@@ -181,11 +185,11 @@ export default function SampleStories() {
               Download CSV of All Content
             </Button>
           </div>
-        </div>
+        </div> */}
       </>
     );
   }
-
+  console.log(data);
   return (
     <div className="results-item-wrapper clearfix">
       <div className="row">
