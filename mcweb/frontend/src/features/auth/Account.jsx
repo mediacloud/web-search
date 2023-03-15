@@ -56,16 +56,17 @@ function Account() {
             confirmButtonText="Delete"
           />
         </Alert>
-        <div className="row">
-          <div className="col-6">
-            <TaskList completed={false} />
-          </div>
+        <Permissioned role={ROLE_STAFF}>
+          <div className="row">
+            <div className="col-6">
+              <TaskList completed={false} />
+            </div>
 
-          <div className="col-6">
-            <TaskList completed />
+            <div className="col-6">
+              <TaskList completed />
+            </div>
           </div>
-        </div>
-
+        </Permissioned>
       </div>
     </>
   );
