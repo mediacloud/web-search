@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import SearchIcon from '@mui/icons-material/Search';
 import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import {
