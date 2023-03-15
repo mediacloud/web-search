@@ -15,7 +15,7 @@ import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
-import cleanCountOverTimeData from '../util/cleanCountOverTimeData';
+import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -81,7 +81,7 @@ export default function CountOverTimeResults() {
     content = (
       <>
         <CountOverTimeChart
-          data={cleanCountOverTimeData(data.count_over_time, normalized, queryState)}
+          data={prepareCountOverTimeData(data.count_over_time, normalized, queryState)}
           // data={cleanData(data.count_over_time[0].counts)}
           normalized={normalized}
         />

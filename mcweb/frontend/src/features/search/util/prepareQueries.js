@@ -1,7 +1,6 @@
 import queryGenerator from './queryGenerator';
 
 export default function prepareQueries(queryState) {
-  debugger;
   const queryArray = queryState.map((singleQuery) => {
     const {
       queryList,
@@ -27,9 +26,6 @@ export default function prepareQueries(queryState) {
 
     const collectionIds = collections.map((c) => c.id);
     const sourceIds = sources.map((s) => s.id);
-    console.log(fullQuery());
-    console.log(queryList);
-    debugger;
     return {
 
       query: fullQuery(),
@@ -40,6 +36,6 @@ export default function prepareQueries(queryState) {
       platform,
     };
   });
-  console.log(queryArray);
+
   return queryArray;
 }

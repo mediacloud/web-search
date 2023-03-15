@@ -113,11 +113,11 @@ export default function Search({ queryIndex }) {
         </div>
       </div>
 
-      <div className="search-button-wrapper">
+      {/* <div className="search-button-wrapper">
         <div className="container">
-          <div className="row">
+          <div className="row"> */}
 
-            <div className="col-11">
+      {/* <div className="col-11">
               <AlertDialog
                 openDialog={open}
                 outsideTitle="Share this Search"
@@ -135,30 +135,30 @@ export default function Search({ queryIndex }) {
                 className="float-end"
                 confirmButtonText="copy"
               />
-            </div>
+            </div> */}
 
-            <div className="col-1">
-              {/* Submit */}
-              {/* <Button
+      {/* <div className="col-1">
+              Submit
+              <Button
                 className="float-end"
                 variant="contained"
                 disabled={!show}
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
-                  // navigate(
-                  //   `/search${urlSerializer(queryState)}`,
-                  //   { options: { replace: true } },
-                  // );
+                  navigate(
+                    `/search${urlSerializer(queryState)}`,
+                    { options: { replace: true } },
+                  );
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
                 }}
               >
                 Search
-              </Button> */}
-            </div>
-          </div>
+              </Button>
+            </div> */}
+      {/* </div>
         </div>
-      </div>
+      </div> */}
 
       {/* <div className="search-results-wrapper">
         <div className="container">

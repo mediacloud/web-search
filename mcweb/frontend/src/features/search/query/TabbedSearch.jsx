@@ -12,6 +12,7 @@ import { addQuery, setLastSearchTime } from './querySlice';
 import Search from '../Search';
 import PlatformPicker from './PlatformPicker';
 import CountOverTimeResults from '../results/CountOverTimeResults';
+import TotalAttentionResults from '../results/TotalAttentionResults';
 // import urlSerializer from '../util/urlSerializer';
 import { searchApi } from '../../../app/services/searchApi';
 import deactivateButton from '../util/deactivateButton';
@@ -42,7 +43,7 @@ export default function TabbedSearch() {
   // }, [queryState]);
 
   return (
-    <div className="container">
+    <div className="container search-container">
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -110,7 +111,7 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          {/* <TotalAttentionResults /> */}
+          <TotalAttentionResults />
           {/* <SampleStories /> */}
           {/* <TopWords /> */}
           {/* <TopLanguages /> */}

@@ -12,26 +12,22 @@ import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
+import checkForBlankQuery from '../util/checkForBlankQuery';
+import prepareQueries from '../util/prepareQueries';
+import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 
 export const supportsNormalizedCount = (platform) => [
   PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
 
 function TotalAttentionResults() {
-  const {
-    queryString,
-    queryList,
-    negatedQueryList,
-    platform,
-    startDate,
-    endDate,
-    collections,
-    sources,
-    lastSearchTime,
-    anyAll,
-    advanced,
-  } = useSelector((state) => state.query);
+  const queryState = useSelector((state) => state.query);
 
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const {
+    platform,
+    lastSearchTime,
+  } = queryState[0];
+
+  // const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   const [normalized, setNormalized] = useState(true);
 
@@ -43,26 +39,34 @@ function TotalAttentionResults() {
 
   const open = Boolean(anchorEl);
 
-  const [query, { isLoading, data, error }] = useGetTotalCountMutation();
+  const [dispatchQuery, { isLoading, data, error }] = useGetTotalCountMutation();
 
-  const collectionIds = collections.map((c) => c.id);
-  const sourceIds = sources.map((s) => s.id);
+  // const collectionIds = collections.map((c) => c.id);
+  // const sourceIds = sources.map((s) => s.id);
 
   // using EPSILON in the denominator here prevents against div by zero errors
   // (which returns infinity in JS)
-  const normalizeData = (oldData) => 100 * (oldData.count.relevant
-    / (oldData.count.total + Number.EPSILON));
+  // const normalizeData = (oldData) => 100 * (oldData.count.relevant
+  //   / (oldData.count.total + Number.EPSILON));
+
+  // useEffect(() => {
+  //   if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
+  //     query({
+  //       query: fullQuery,
+  //       startDate,
+  //       endDate,
+  //       collections: collectionIds,
+  //       sources: sourceIds,
+  //       platform,
+  //     });
+  //     setNormalized(supportsNormalizedCount(platform));
+  //   }
+  // }, [lastSearchTime]);
 
   useEffect(() => {
-    if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
-      query({
-        query: fullQuery,
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources: sourceIds,
-        platform,
-      });
+    if (checkForBlankQuery(queryState)) {
+      const preparedQueries = prepareQueries(queryState);
+      dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
   }, [lastSearchTime]);
@@ -70,14 +74,18 @@ function TotalAttentionResults() {
   if (isLoading) {
     return (
       <div>
-        {' '}
+        {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
         <CircularProgress size="75px" />
-        {' '}
       </div>
     );
   }
 
   if (!data && !error) return null;
+
+  const seriesData = () => {
+    const series = [];
+    console.log(data);
+  };
 
   return (
     <div className="results-item-wrapper">
@@ -99,13 +107,16 @@ function TotalAttentionResults() {
               )
             </Alert>
           )}
+          {console.log(data, queryState, normalized)}
+          {console.log(prepareTotalAttentionData(data, queryState, normalized))}
           {(error === undefined) && (
             <BarChart
-              series={[{
-                data: [{ key: fullQuery, value: (normalized) ? normalizeData(data) : data.count.relevant }],
-                name: 'Matching Content',
-                color: '#2f2d2b',
-              }]}
+              // series={[{
+              //   data: [{ key: fullQuery, value: (normalized) ? normalizeData(data) : data.count.relevant }],
+              //   name: 'Matching Content',
+              //   color: '#2f2d2b',
+              // }]}
+              series={prepareTotalAttentionData(data, queryState, normalized)}
               normalized={normalized}
               title="Total Stories Count"
               height={200}

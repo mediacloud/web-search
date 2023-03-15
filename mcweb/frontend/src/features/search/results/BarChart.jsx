@@ -55,7 +55,7 @@ export default function BarChart({
       })),
     })),
   };
-
+  console.log(normalized, height, title, series);
   return (
     <div>
       <HighchartsReact options={options} highcharts={Highcharts} />

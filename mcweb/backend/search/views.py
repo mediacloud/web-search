@@ -56,7 +56,7 @@ def total_count(request):
     total_content_count = []
     relevant_count = []
     for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
         provider = providers.provider_by_name(provider_name)
         relevant_count.append(provider.count(query_str, start_date, end_date, **provider_props))
         try:
