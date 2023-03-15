@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import queryGenerator from './queryGenerator';
+import queryTitle from './queryTitle';
 
 const dateHelper = (dateString) => {
   dayjs.extend(utc);
@@ -8,29 +8,7 @@ const dateHelper = (dateString) => {
   return newDate;
 };
 
-const fullQuery = (queryList, negatedQueryList, platform, anyAll, queryString) => {
-  let queryReturn = '';
-  if (queryString) {
-    queryReturn = queryString;
-  } else {
-    queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
-  }
-  return queryReturn;
-};
-
-const queryTitle = (queryState, queryIndex) => {
-  const {
-    queryList,
-    queryString,
-    negatedQueryList,
-    platform,
-    anyAll,
-  } = queryState[queryIndex];
-
-  return fullQuery(queryList, negatedQueryList, platform, anyAll, queryString);
-};
-
-const cleanCountOverTimeData = (results, normalized, queryState) => {
+const prepareCountOverTimeData = (results, normalized, queryState) => {
   const series = [];
 
   results.forEach((result, i) => {
@@ -47,4 +25,4 @@ const cleanCountOverTimeData = (results, normalized, queryState) => {
   return series;
 };
 
-export default cleanCountOverTimeData;
+export default prepareCountOverTimeData;
