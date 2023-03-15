@@ -32,19 +32,14 @@ const colors = ['#2f2d2b', '#d24527', '#2f2d2b', '#d23716', '#f7a44e'];
 const prepareTotalAttentionData = (results, queryState, normalized) => {
   const series = [];
   const { relevant, total } = results.count;
-  debugger;
   relevant.forEach((result, i) => {
-    const data = {};
-    data.key = queryTitle(queryState, i);
-    data.value = normalized ? normalizeData(relevant[i], total[i]) : result.count.relevant[i];
-    series.push({ data, name: 'Matching Content', color: colors[i] });
+    const prepareData = {};
+    const name = queryTitle(queryState, i);
+    prepareData.key = 'Matching Content';
+    prepareData.value = normalized ? normalizeData(relevant[i], total[i]) : relevant[i];
+    series.push({ data: [prepareData], name, color: colors[i] });
   });
+  return series;
 };
-
-// series={[{
-//     data: [{ key: fullQuery, value: (normalized) ? normalizeData(data) : data.count.relevant }],
-//     name: 'Matching Content',
-//     color: '#2f2d2b',
-//   }]}
 
 export default prepareTotalAttentionData;

@@ -106,21 +106,30 @@ const querySlice = createSlice({
       );
     },
     setPlatform: (state, { payload }) => {
+      const {
+        queryString,
+        queryList,
+        negatedQueryList,
+        startDate: start,
+        anyAll,
+        advanced,
+        lastSearchTime,
+      } = state[0];
       const newState = [
         {
-          queryString: '',
-          queryList: [[], [], []],
-          negatedQueryList: [[], [], []],
+          queryString,
+          queryList,
+          negatedQueryList,
           platform: `${payload}`,
-          startDate,
+          startDate: start,
           endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
           collections: [],
           previewCollections: [],
           sources: [],
           previewSources: [],
-          lastSearchTime: dayjs().unix(),
-          anyAll: 'any',
-          advanced: false,
+          lastSearchTime,
+          anyAll,
+          advanced,
         },
       ];
       return newState;
