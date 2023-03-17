@@ -59,7 +59,7 @@ export default function TopWords() {
   if ((data === undefined) && (error === undefined)) {
     return null;
   }
-
+  console.log(data);
   let content;
   if (error) {
     // const msg = data.note;
@@ -104,15 +104,13 @@ export default function TopWords() {
       <div className="row">
         <div className="col-4">
           <h2>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             Top Words
-            {' '}
             <Chip color="warning" label="experimental" />
           </h2>
           <p>
-            This is an
-            {' '}
-            <i>experimental</i>
-            {' '}
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            This is an <i>experimental</i>
             sample-based list of the top words in content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>

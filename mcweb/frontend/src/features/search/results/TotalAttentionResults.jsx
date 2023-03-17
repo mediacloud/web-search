@@ -81,7 +81,7 @@ function TotalAttentionResults() {
   }
 
   if (!data && !error) return null;
-
+  console.log(data);
   return (
     <div className="results-item-wrapper">
       <div className="row">
