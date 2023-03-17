@@ -3,7 +3,7 @@ import json
 from typing import List, Dict
 from django.apps import apps
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
-    PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT,\
+    PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
 
 
@@ -50,6 +50,8 @@ def search_props_for_provider(provider, collections: List, sources: List) -> Dic
         return _for_reddit_pushshift(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
         return _for_wayback_machine(collections, sources)
+    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
+        return _for_media_cloud(collections, sources)
     return {}
 
 
@@ -101,6 +103,6 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
 
 def _for_media_cloud(collections: List, sources: List) -> Dict:
     return dict(
-        tags_ids=[c for c in collections],
-        media_ids=[s for s in sources]
+        collections=collections,
+        sources=sources
     )
