@@ -9,7 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 import OrderedWordCloud from './OrderedWordCloud';
 
@@ -116,6 +116,11 @@ export default function TopWords() {
             sample-based list of the top words in content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
+          { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+          <p>
+            These results are from a random sample of news stories.
+          </p>
+          )}
           { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
           <p>
             These results are from a sample titles from top scoring Reddit submissions.
