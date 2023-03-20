@@ -298,6 +298,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 serializer = SourceSerializer(data=cleaned_source_input)
                 if serializer.is_valid():
                     existing_source = serializer.save()
+                    schedule_scrape_source(existing_source.id, request.user)
                     email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
                     counts['created'] += 1
                 else:
