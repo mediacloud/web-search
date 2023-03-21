@@ -38,7 +38,7 @@ export default function ModifyCollection() {
 
   // form state for text fields
   const [formState, setFormState] = useState({
-    id: 0, name: '', notes: '', platform: 'online_news', public: true, featured: false,
+    id: 0, name: '', notes: '', platform: 'online_news', public: true, featured: false, rescrape: true,
   });
 
   const [open, setOpen] = useState(false);
@@ -84,6 +84,7 @@ export default function ModifyCollection() {
         platform: data.platform,
         public: data.public,
         featured: data.featured,
+        rescrape: true,
       };
       setFormState(formData);
     }
@@ -287,8 +288,25 @@ export default function ModifyCollection() {
             )}
           />
           <br />
-          <UploadSources collectionId={collectionId} />
+
         </div>
+
+        <div style={{ display: 'flex' }}>
+
+          <FormControlLabel
+            control={(
+              <Checkbox
+                name="rescrape"
+                checked={formState.rescrape}
+                onChange={handleChange}
+              />
+              )}
+            label="Automatically discover RSS feeds in new sources?"
+          />
+
+          <UploadSources className="col-6" collectionId={collectionId} rescrape={formState.rescrape} />
+        </div>
+
       </div>
 
       <Dialog
