@@ -272,6 +272,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):
         collection = Collection.objects.get(pk=request.data['collection_id'])
+        rescrape = request.data['rescrape']
         email_title = "Updating collection {}".format(collection.name)
         email_text = ""
         queryset = Source.objects
@@ -298,6 +299,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 serializer = SourceSerializer(data=cleaned_source_input)
                 if serializer.is_valid():
                     existing_source = serializer.save()
+                    if rescrape:
+                        schedule_scrape_source(existing_source.id, request.user)
                     email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
                     counts['created'] += 1
                 else:
