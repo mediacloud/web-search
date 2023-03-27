@@ -12,7 +12,8 @@ from background_task import background
 from background_task.models import Task, CompletedTask
 from feed_seeker import generate_feed_urls
 from mcmetadata.feeds import normalize_url
-
+from django.core.management import call_command
+from django.utils import timezone
 # from sources app:
 from .models import Feed, Source
 
@@ -65,6 +66,23 @@ def _scrape_source(source_id, homepage):
 
     # send email????
     logger.info(f"==== finished _scrape_source(source_id, homepage)")
+
+
+run_at = dt.time(hour=14, minute=32)
+# Calculate the number of days until next Friday
+today = dt.date.today()
+days_until_friday = (4 - today.weekday()) % 7
+# Calculate the datetime when the task should run
+next_friday = today + dt.timedelta(days=days_until_friday)
+run_datetime = dt.datetime.combine(next_friday, run_at)
+
+@background(schedule=run_datetime, queue='weekly-import')
+def import_stories_per_week():
+    try:
+        print("xyz")
+        call_command('import-stories-per-week')
+    except Exception as e:
+        print(f"Failed to run import-stories-per-week: {e}")
 
 def _return_task(task):
     """
