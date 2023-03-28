@@ -43,7 +43,7 @@ class Command(BaseCommand):
                 stories_fetched = rss.source_stories_fetched_by_day(source_id) 
                 # print(stories_fetched)
                 
-
+                source = Source.objects.get(pk=source_id)
                 counts = [d['count'] for d in stories_fetched]  # extract the count values
                 mean = np.mean(counts) 
                 std_dev = np.std(counts)  
@@ -54,8 +54,8 @@ class Command(BaseCommand):
                 mean_published = np.mean(counts_published)  
                 std_dev_published = np.std(counts_published)  
 
-                if (std_dev * 2)< todays_count :
-                    email += f"Source {source_id} has a count of {todays_count}, which is more than two standard deviations above the mean ({mean})\n"
+                if (std_dev * 2) > mean :
+                    email += f"Source {source_id}: {source.name} has a count of {todays_count}, which is more than two standard deviations above the mean ({mean})\n"
             
             if(email):
                 send_alert_email(email)
