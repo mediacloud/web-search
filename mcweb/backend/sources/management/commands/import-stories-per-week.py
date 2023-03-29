@@ -37,7 +37,7 @@ class Command(BaseCommand):
                 # in the future may want to default to list of source_ids...we have a list of collections that research would like monitored
                 # first pass maybe run through all sources and find high volume sources
           
-            stories_by_source_refined = [source_id for source_id, stories_per_day in stories_by_source if stories_per_day >= 5]
+            stories_by_source_refined = [source_id for source_id, stories_per_day in stories_by_source if stories_per_day >= 10]
             email=""
             for source_id in stories_by_source_refined:
                 stories_fetched = rss.source_stories_fetched_by_day(source_id) 
@@ -55,9 +55,10 @@ class Command(BaseCommand):
                 std_dev_published = np.std(counts_published)  
 
                 if (std_dev * 2) > mean :
-                    email += f"Source {source_id}: {source.name} has a count of {todays_count}, which is more than two standard deviations above the mean ({mean})\n"
+                    email += f"Source {source_id}: {source.name} has a mean of {mean}, which is more than two standard deviations ({std_dev}) above the mean \n"
             
             if(email):
+                print(email)
                 send_alert_email(email)
            
                 # Update the source's stories_per_week in db:
