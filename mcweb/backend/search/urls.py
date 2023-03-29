@@ -1,5 +1,10 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
+from rest_framework import routers
+from .api import SavedSearchesViewSet
+
+router = routers.DefaultRouter() 
+router.register('savedsearch', SavedSearchesViewSet, 'savedsearch')
 
 urlpatterns = [
     path('total-count', views.total_count),
@@ -11,5 +16,6 @@ urlpatterns = [
     path('download-all-content-csv', views.download_all_content_csv),
     path('story', views.story_detail),
     path('languages', views.languages),
-    path('download-top-languages-csv', views.download_languages_csv)
-]
+    path('download-top-languages-csv', views.download_languages_csv),
+    path('savedsearch', include(router.urls)),
+] 

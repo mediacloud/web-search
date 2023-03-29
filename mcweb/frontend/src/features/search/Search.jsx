@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import SearchIcon from '@mui/icons-material/Search';
 import Alert from '@mui/material/Alert';
+import SaveSearch from './query/savedsearch/SaveSearch';
 import { searchApi } from '../../app/services/searchApi';
 import PlatformPicker from './query/PlatformPicker';
 import SelectedMedia from './query/SelectedMedia';
@@ -116,9 +117,8 @@ export default function Search() {
 
       <div className="search-button-wrapper">
         <div className="container">
-          <div className="row">
-
-            <div className="col-11">
+          <div className="row align-items-center justify-content-between">
+            <div className="col-4">
               <AlertDialog
                 openDialog={open}
                 outsideTitle="Share this Search"
@@ -133,29 +133,27 @@ export default function Search() {
                 variant="outlined"
                 endIcon={<ContentCopy titleAccess="copy this search" />}
                 secondAction={false}
-                className="float-end"
+                className="float-start"
                 confirmButtonText="copy"
               />
             </div>
-
-            <div className="col-1">
-              {/* Submit */}
-              <Button
-                className="float-end"
-                variant="contained"
-                disabled={!show}
-                endIcon={<SearchIcon titleAccess="search this query" />}
-                onClick={() => {
-                  navigate(
-                    `/search${urlSerializer(queryState)}`,
-                    { options: { replace: true } },
-                  );
-                  dispatch(searchApi.util.resetApiState());
-                  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix() }));
-                }}
-              >
-                Search
-              </Button>
+            <div className="col-7 ml-auto">
+              <div className="d-flex justify-content-end">
+                <SaveSearch className="float-end" />
+                <Button
+                  className="float-end ms-2"
+                  variant="contained"
+                  disabled={!show}
+                  endIcon={<SearchIcon titleAccess="search this query" />}
+                  onClick={() => {
+                    navigate(`/search${urlSerializer(queryState)}`, { options: { replace: true } });
+                    dispatch(searchApi.util.resetApiState());
+                    dispatch(setQueryProperty({ lastSearchTime: dayjs().unix() }));
+                  }}
+                >
+                  Search
+                </Button>
+              </div>
             </div>
           </div>
         </div>
