@@ -103,7 +103,7 @@ def run_alert_system():
                         remove_existing_tasks=True)
     return {'task': _return_task(task)}
 
-@background(schedule=run_datetime, queue='weekly-import')
+@background()
 def _alert_system(collection_ids):
         sources = set()
         for collection_id in collection_ids:
