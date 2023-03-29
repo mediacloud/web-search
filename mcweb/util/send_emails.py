@@ -54,6 +54,13 @@ def send_alert_email(email: str):
     if not EMAIL_HOST:
         return
     try:
-        send_mail('Stories per week', email,'system@mediacloud.org', ['e.leon@northeastern.edu'], fail_silently=False)
+        send_mail('Stories per week', 
+                  email,'system@mediacloud.org', 
+                  ['e.leon@northeastern.edu', 
+                   'rebecca@mediacloud.org', 
+                   'ebndulue@mediacloud.org', 
+                   'fernando@mediacloud.org',
+                   'frimpomaa@mediacloud.org'], 
+                  fail_silently=False)
     except Exception as e: 
         logger.exception(e)

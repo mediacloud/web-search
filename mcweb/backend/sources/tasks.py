@@ -121,7 +121,6 @@ def _alert_system(collection_ids):
             email=""
             alert_count = 0
             for source in sources:
-                print(source)
                 stories_fetched = rss.source_stories_fetched_by_day(source.id) 
                 # print(stories_fetched)
                 counts = [d['count'] for d in stories_fetched]  # extract the count values
@@ -137,7 +136,6 @@ def _alert_system(collection_ids):
                 if (std_dev * 2) < mean:
                     email += f"Source {source.id}: {source.name} has a story/day average of {mean} over the last 30 days, which is more than two standard deviations (standard_deviation: {std_dev}) above the mean \n"
                     alert_count += 1
-                    print(email)
             
             if(email):
                 email += f"total alert count = {alert_count} \n"
