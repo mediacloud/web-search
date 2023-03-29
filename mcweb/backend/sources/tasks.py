@@ -7,7 +7,6 @@ Background tasks for "sources" app
 import datetime as dt
 import logging
 import json
-from django.core.serializers.json import DjangoJSONEncoder
 import logging
 
 
