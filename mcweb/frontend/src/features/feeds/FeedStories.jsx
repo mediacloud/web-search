@@ -15,7 +15,7 @@ function FeedStories({ feedId, feed, sourceId }) {
     <div className="results-item-wrapper results-sample-stories">
       <div className="row">
         <div className="col-12">
-          <h1 id="feed-story-title">Stories</h1>
+          <h1 id="feed-story-title">Latest Stories</h1>
         </div>
         <div className="row">
 

@@ -13,7 +13,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import queryGenerator from '../util/queryGenerator';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
@@ -196,6 +196,11 @@ export default function SampleStories() {
             Click the menu on the bottom  right to download a CSV of all the
             matching content and associated metadata.
           </p>
+          { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+          <p>
+            These results are a random sample of news stories that matched your searches.
+          </p>
+          )}
           { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
           <p>
             These results are the top scoring Reddit submissions that matched your

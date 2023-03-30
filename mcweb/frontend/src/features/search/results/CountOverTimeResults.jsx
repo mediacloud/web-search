@@ -99,7 +99,6 @@ export default function CountOverTimeResults() {
   if ((data === undefined) && (error === undefined)) {
     return null;
   }
-
   let content;
   if (error) {
     // const msg = data.note;

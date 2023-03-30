@@ -12,11 +12,12 @@ import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT,
   PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 
 export const supportsNormalizedCount = (platform) =>
   // eslint-disable-next-line implicit-arrow-linebreak
-  [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
+  [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform);
 
 function TotalAttentionResults() {
   const {
@@ -80,7 +81,6 @@ function TotalAttentionResults() {
   }
 
   if (!data && !error) return null;
-
   return (
     <div className="results-item-wrapper">
       <div className="row">
