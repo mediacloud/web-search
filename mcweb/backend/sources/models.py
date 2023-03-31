@@ -144,30 +144,41 @@ class Source(models.Model):
         url_search_string = source.get("url_search_string", None)
         if url_search_string is not None and len(url_search_string) > 0:
             obj["url_search_string"] = url_search_string.strip()
+
         label = source.get("label", None)
         if label is not None and len(label) > 0:
             obj["label"] = label.strip()
+        else:
+            obj["label"] = obj["name"]
+
         notes = source.get("notes", None)
         if notes is not None and len(notes) > 0:
             obj["notes"] = notes.strip()
+
         service = source.get("service", None)
         if service is not None and len(service) > 0:
             obj["service"] = service.strip()
+
         stories_per_week = source.get("stories_per_week", None)
         if stories_per_week is not None and len(stories_per_week) > 0:
             obj["stories_per_week"] = stories_per_week
+
         pub_country = source.get("pub_country", None)
         if pub_country is not None and len(pub_country) > 0:
             obj["pub_country"] = pub_country.strip()
+
         pub_state = source.get("pub_state", None)
         if pub_state is not None and len(pub_state) > 0:
             obj["pub_state"] = pub_state.strip()
+
         primary_language = source.get("primary_language", None)
         if primary_language is not None and len(primary_language) > 0:
             obj["primary_language"] = primary_language.strip()
+
         media_type = source.get("media_type", None)
         if media_type is not None and len(media_type) > 0:
             obj["media_type"] = media_type.strip()
+
         return obj
 
     
