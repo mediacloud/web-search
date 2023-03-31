@@ -57,48 +57,52 @@ const setSearchQuery = (searchParams, dispatch) => {
   let sources = searchParams.get('ss');
   const anyAll = searchParams.get('any');
   let queryString = searchParams.get('qs');
-
+  console.log('QUERY', query);
+  console.log(anyAll, queryString, platform);
   query = query ? decode(query).split(',') : null;
   query = formatQuery(query);
   query = sizeQuery(query);
-
+  console.log(query);
   negatedQuery = negatedQuery ? decode(negatedQuery).split(',') : null;
   negatedQuery = formatQuery(negatedQuery);
   negatedQuery = sizeQuery(negatedQuery);
-
+  console.log(negatedQuery);
   queryString = queryString ? decode(queryString) : null;
 
   startDate = startDate ? dayjs(startDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
+  console.log(startDate);
   endDate = endDate ? dayjs(endDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
+  console.log(endDate);
   collections = collections ? decode(collections).split(',') : [];
   collections = formatCollections(collections);
+  console.log(collections);
   sources = sources ? decode(sources).split(',') : [];
   sources = formatSources(sources);
+  console.log(sources);
+  // if (queryString) {
+  //   dispatch(setQueryProperty({ queryString, queryIndex, property: 'queryString' }));
+  //   dispatch(setQueryProperty({ advanced: true, queryIndex, property: 'advanced' }));
+  // } else {
+  //   dispatch(setQueryProperty({ queryList: query, queryIndex, property: 'queryList' }));
+  //   dispatch(setQueryProperty({ negatedQueryList: negatedQuery, queryIndex, property: 'negatedQueryList' }));
+  // }
+  // if (startDate) {
+  //   dispatch(setQueryProperty({ startDate, queryIndex, property: 'startDate' }));
+  // }
+  // if (endDate) {
+  //   dispatch(setQueryProperty({ endDate, queryIndex, property: 'endDate' }));
+  // }
+  // if (platform) {
+  //   dispatch(setQueryProperty({ platform, queryIndex, property: 'platform' }));
+  // }
+  // if (anyAll) {
+  //   dispatch(setQueryProperty({ anyAll, queryIndex, property: 'anyAll' }));
+  // }
 
-  if (queryString) {
-    dispatch(setQueryProperty({ queryString, queryIndex, property: 'queryString' }));
-    dispatch(setQueryProperty({ advanced: true, queryIndex, property: 'advanced' }));
-  } else {
-    dispatch(setQueryProperty({ queryList: query, queryIndex, property: 'queryList' }));
-    dispatch(setQueryProperty({ negatedQueryList: negatedQuery, queryIndex, property: 'negatedQueryList' }));
-  }
-  if (startDate) {
-    dispatch(setQueryProperty({ startDate, queryIndex, property: 'startDate' }));
-  }
-  if (endDate) {
-    dispatch(setQueryProperty({ endDate, queryIndex, property: 'endDate' }));
-  }
-  if (platform) {
-    dispatch(setQueryProperty({ platform, queryIndex, property: 'platform' }));
-  }
-  if (anyAll) {
-    dispatch(setQueryProperty({ anyAll, queryIndex, property: 'anyAll' }));
-  }
+  // dispatch(addSelectedMedia({ sourceOrCollection: collections.concat(sources), queryIndex }));
+  // dispatch(setPreviewSelectedMedia({ sourceOrCollection: collections.concat(sources), queryIndex }));
 
-  dispatch(addSelectedMedia({ sourceOrCollection: collections.concat(sources), queryIndex }));
-  dispatch(setPreviewSelectedMedia({ sourceOrCollection: collections.concat(sources), queryIndex }));
-
-  dispatch(setQueryProperty({ lastSearchTime: dayjs().unix(), queryIndex, property: 'lastSearchTime' }));
+  // dispatch(setQueryProperty({ lastSearchTime: dayjs().unix(), queryIndex, property: 'lastSearchTime' }));
 
   return null;
 };

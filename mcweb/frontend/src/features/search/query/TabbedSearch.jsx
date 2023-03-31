@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -17,9 +18,12 @@ import SampleStories from '../results/SampleStories';
 // import urlSerializer from '../util/urlSerializer';
 import { searchApi } from '../../../app/services/searchApi';
 import deactivateButton from '../util/deactivateButton';
+import urlSerializer from '../util/urlSerializer';
+import setSearchQuery from '../util/setSearchQuery';
 
 export default function TabbedSearch() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [value, setValue] = useState(0);
   const [show, setShow] = useState(true);
 
@@ -95,10 +99,13 @@ export default function TabbedSearch() {
                 // disabled={!show}
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
-                  // navigate(
-                  //   `/search${urlSerializer(queryState)}`,
-                  //   { options: { replace: true } },
-                  // );
+                  navigate(
+                    `/tabbed${urlSerializer(queryState)}`,
+                    { options: { replace: true } },
+                  );
+                  const serialized = urlSerializer(queryState);
+                  console.log(urlSerializer(queryState));
+
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
                 }}
@@ -111,9 +118,9 @@ export default function TabbedSearch() {
       </div>
       <div className="search-results-wrapper">
         <div className="container">
-          <CountOverTimeResults />
+          {/* <CountOverTimeResults />
           <TotalAttentionResults />
-          <SampleStories />
+          <SampleStories /> */}
           {/* <TopWords /> */}
           {/* <TopLanguages /> */}
         </div>
