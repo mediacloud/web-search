@@ -43,7 +43,7 @@ const urlSerializer = (queryState) => {
 
     const query = queryListHelper(queryList);
     queries.push([encode(query)]);
-    console.log(queries);
+
     const negatedQuery = queryListHelper(negatedQueryList);
     negatedQueries.push(encode(negatedQuery));
 
@@ -51,21 +51,23 @@ const urlSerializer = (queryState) => {
 
     starts.push(dayjs(startDate).format('MM-DD-YYYY'));
     ends.push(dayjs(endDate).format('MM-DD-YYYY'));
+
     platforms.push(platform);
+
     const collectionsFormatted = formatCollections(collections).join(',');
-    collectionArr.push(encode(collectionsFormatted));
+    collectionArr.push([encode(collectionsFormatted)]);
+
     const sourcesFormatted = formatSources(sources).join(',');
-    sourceArr.push(encode(sourcesFormatted));
+    sourceArr.push([encode(sourcesFormatted)]);
+
     anys.push(anyAll);
     adv.push(advanced);
   });
 
-  console.log('QUERIES', queries);
-
   if (adv[0]) {
     return `?qs=${encode(queryStrings)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
   }
-  return `?q=[${encode(queries)}]&nq=${encode(negatedQueries)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
+  return `?q=${encode(queries)}&nq=${encode(negatedQueries)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
 };
 
 export default urlSerializer;

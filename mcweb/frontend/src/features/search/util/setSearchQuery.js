@@ -8,16 +8,22 @@ import {
 
 const customParseFormat = require('dayjs/plugin/customParseFormat');
 
-const formatQuery = (query) => {
-  if (query === null) return null;
-  const finalQuery = new Array(query.length);
-  for (let i = 0; i < query.length; i += 1) {
-    finalQuery[i] = query[i];
-  }
+const decode = (params) => decodeURIComponent(params);
+
+const formatQuery = (queries) => {
+  if (queries === null) return null;
+  // console.log(query);
+  const finalQuery = new Array(queries.length);
+  queries.forEach((query, i) => {
+    const decoded = decode([query]);
+    finalQuery[i] = [decoded];
+  });
+  // console.log(finalQuery);
+  // for (let i = 0; i < query.length; i += 1) {
+  //   finalQuery[i] = query[i];
+  // }
   return finalQuery;
 };
-
-const decode = (params) => decodeURIComponent(params);
 
 // if query length is less than 3 (default size for search) make length 3
 const sizeQuery = (query) => {
@@ -44,41 +50,54 @@ const formatSources = (sources) => sources.map((source) => {
   return { id, name, type: 'source' };
 });
 
+const handleDecode = (param) => {
+  const decoded = decode(param);
+  const split = decoded.split(',');
+  return split;
+};
+
+const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
+  dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
+));
+
 const setSearchQuery = (searchParams, dispatch) => {
   dayjs.extend(customParseFormat);
   const queryIndex = 0;
   // param keys are set in ./urlSerializer.js
   let query = searchParams.get('q');
   let negatedQuery = searchParams.get('nq');
-  let startDate = searchParams.get('start');
-  let endDate = searchParams.get('end');
+  let startDates = searchParams.get('start');
+  let endDates = searchParams.get('end');
   const platform = searchParams.get('p');
   let collections = searchParams.get('cs');
   let sources = searchParams.get('ss');
   const anyAll = searchParams.get('any');
   let queryString = searchParams.get('qs');
-  console.log('QUERY', query);
-  console.log(anyAll, queryString, platform);
-  query = query ? decode(query).split(',') : null;
-  query = formatQuery(query);
-  query = sizeQuery(query);
-  console.log(query);
-  negatedQuery = negatedQuery ? decode(negatedQuery).split(',') : null;
-  negatedQuery = formatQuery(negatedQuery);
-  negatedQuery = sizeQuery(negatedQuery);
-  console.log(negatedQuery);
-  queryString = queryString ? decode(queryString) : null;
 
-  startDate = startDate ? dayjs(startDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
-  console.log(startDate);
-  endDate = endDate ? dayjs(endDate, 'MM/DD/YYYY').format('MM/DD/YYYY') : null;
-  console.log(endDate);
-  collections = collections ? decode(collections).split(',') : [];
-  collections = formatCollections(collections);
+  query = query ? query.split(',') : null;
+  query = formatQuery(query);
+  // query = sizeQuery(query); << needs to be used in final setting of state
+
+  negatedQuery = negatedQuery ? negatedQuery.split(',') : null;
+  negatedQuery = formatQuery(negatedQuery);
+  // negatedQuery = sizeQuery(negatedQuery);
+
+  queryString = queryString ? decode(queryString) : null; // come back to
+
+  startDates = startDates ? handleDecode(startDates) : null;
+
+  startDates = handleDateFormat(startDates);
+
+  endDates = endDates ? handleDecode(endDates) : null;
+  endDates = handleDateFormat(endDates);
+
+  collections = collections ? collections.split(',') : [];
   console.log(collections);
-  sources = sources ? decode(sources).split(',') : [];
+  // collections = formatCollections(collections);
+  // console.log(collections);
+  sources = sources ? sources.split(',') : [];
   sources = formatSources(sources);
-  console.log(sources);
+  // console.log(sources);
   // if (queryString) {
   //   dispatch(setQueryProperty({ queryString, queryIndex, property: 'queryString' }));
   //   dispatch(setQueryProperty({ advanced: true, queryIndex, property: 'advanced' }));
