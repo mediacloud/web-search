@@ -8,10 +8,12 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import SearchIcon from '@mui/icons-material/Search';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import dayjs from 'dayjs';
-import { addQuery, setLastSearchTime } from './querySlice';
+import { addQuery, setLastSearchTime, removeQuery } from './querySlice';
 import Search from '../Search';
 import PlatformPicker from './PlatformPicker';
+import AlertDialog from '../../ui/AlertDialog';
 import CountOverTimeResults from '../results/CountOverTimeResults';
 import TotalAttentionResults from '../results/TotalAttentionResults';
 import SampleStories from '../results/SampleStories';
@@ -39,6 +41,15 @@ export default function TabbedSearch() {
     setValue(qsLength);
   };
 
+  const handleRemoveQuery = (index) => {
+    dispatch(removeQuery(index));
+    if (index === 0) {
+      setValue(0);
+    } else {
+      setValue(index - 1);
+    }
+  };
+
   useEffect(() => {
     setValue(0);
   }, [platform]);
@@ -54,14 +65,20 @@ export default function TabbedSearch() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
-              <Tab label={`Query ${i + 1}`} {...a11yProps(i)} />
+              <Tab key={`Query ${i + 1}`} label={`Query ${i + 1}`} {...a11yProps(i)} />
             ))}
             <Tab label="+ Add Query" onClick={handleAddQuery} />
           </Tabs>
         </Box>
 
         {queryState.map((query, i) => (
-          <TabPanel value={value} index={i}>
+          <TabPanel key={i} value={value} index={i}>
+            <Button
+              onClick={() => handleRemoveQuery(i)}
+              variant="contained"
+            >
+              Remove Query
+            </Button>
             <Search queryIndex={i} />
           </TabPanel>
         ))}
@@ -100,12 +117,9 @@ export default function TabbedSearch() {
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
                   navigate(
-                    `/tabbed${urlSerializer(queryState)}`,
+                    `/search${urlSerializer(queryState)}`,
                     { options: { replace: true } },
                   );
-                  const serialized = urlSerializer(queryState);
-                  console.log(urlSerializer(queryState));
-
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
                 }}
@@ -118,9 +132,9 @@ export default function TabbedSearch() {
       </div>
       <div className="search-results-wrapper">
         <div className="container">
-          {/* <CountOverTimeResults />
+          <CountOverTimeResults />
           <TotalAttentionResults />
-          <SampleStories /> */}
+          <SampleStories />
           {/* <TopWords /> */}
           {/* <TopLanguages /> */}
         </div>

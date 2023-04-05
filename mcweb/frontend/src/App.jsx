@@ -78,7 +78,7 @@ function App() {
           />
 
           <Route
-            path="tabbed"
+            path="search"
             element={(
               <TabbedSearch />
             )}
@@ -136,14 +136,14 @@ function App() {
               </RequireAuth>
             )}
           />
-          <Route
+          {/* <Route
             path="search"
             element={(
               <RequireAuth>
                 <Search />
               </RequireAuth>
             )}
-          />
+          /> */}
 
           <Route
             path="sources"

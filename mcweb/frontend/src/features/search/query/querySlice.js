@@ -13,6 +13,22 @@ export const DEFAULT_ONLINE_NEWS_COLLECTIONS = [{
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 
+const cleanQuery = (platform) => ({
+  queryString: '',
+  queryList: [[], [], []],
+  negatedQueryList: [[], [], []],
+  platform,
+  startDate,
+  endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
+  collections: [],
+  previewCollections: [],
+  sources: [],
+  previewSources: [],
+  lastSearchTime: dayjs().unix(),
+  anyAll: 'any',
+  advanced: false,
+});
+
 const querySlice = createSlice({
   name: 'query',
   initialState:
@@ -141,6 +157,15 @@ const querySlice = createSlice({
         qS.lastSearchTime = payload;
       });
     },
+    removeQuery: (state, { payload }) => {
+      const freezeState = state;
+      if (payload === 0 && freezeState.length === 1) {
+        freezeState.push(cleanQuery(freezeState[0].platform));
+        freezeState.shift();
+      } else {
+        freezeState.splice(payload, payload);
+      }
+    },
   },
 });
 
@@ -155,6 +180,7 @@ export const {
   addQuery,
   setPlatform,
   setLastSearchTime,
+  removeQuery,
 } = querySlice.actions;
 
 export default querySlice.reducer;

@@ -52,10 +52,10 @@ export default function Search({ queryIndex }) {
   }, [queryState]);
   return (
     <div className="search-container">
-
       <div className="container">
         <div className="row">
           <div className="col">
+
             {/* <PlatformPicker queryIndex={queryIndex} /> */}
           </div>
         </div>

@@ -45,7 +45,7 @@ const urlSerializer = (queryState) => {
     queries.push([encode(query)]);
 
     const negatedQuery = queryListHelper(negatedQueryList);
-    negatedQueries.push(encode(negatedQuery));
+    negatedQueries.push([encode(negatedQuery)]);
 
     queryStrings.push(encode(queryString));
 
@@ -63,6 +63,8 @@ const urlSerializer = (queryState) => {
     anys.push(anyAll);
     adv.push(advanced);
   });
+  console.log('URLSERIALIZER', queries);
+  console.log('negatedserial', negatedQueries);
 
   if (adv[0]) {
     return `?qs=${encode(queryStrings)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
