@@ -17,7 +17,9 @@ import AlertDialog from '../../ui/AlertDialog';
 import CountOverTimeResults from '../results/CountOverTimeResults';
 import TotalAttentionResults from '../results/TotalAttentionResults';
 import SampleStories from '../results/SampleStories';
+import TabPanelHelper from '../../ui/TabPanelHelper';
 // import urlSerializer from '../util/urlSerializer';
+import TopLanguages from '../results/TopLanguages';
 import { searchApi } from '../../../app/services/searchApi';
 import deactivateButton from '../util/deactivateButton';
 import urlSerializer from '../util/urlSerializer';
@@ -72,7 +74,7 @@ export default function TabbedSearch() {
         </Box>
 
         {queryState.map((query, i) => (
-          <TabPanel key={i} value={value} index={i}>
+          <TabPanelHelper key={i} value={value} index={i}>
             <Button
               onClick={() => handleRemoveQuery(i)}
               variant="contained"
@@ -80,7 +82,7 @@ export default function TabbedSearch() {
               Remove Query
             </Button>
             <Search queryIndex={i} />
-          </TabPanel>
+          </TabPanelHelper>
         ))}
       </Box>
 
@@ -132,49 +134,17 @@ export default function TabbedSearch() {
       </div>
       <div className="search-results-wrapper">
         <div className="container">
-          <CountOverTimeResults />
-          <TotalAttentionResults />
+          {/* <CountOverTimeResults /> */}
+          {/* <TotalAttentionResults /> */}
           <SampleStories />
           {/* <TopWords /> */}
-          {/* <TopLanguages /> */}
+          <TopLanguages />
         </div>
       </div>
 
     </div>
   );
 }
-
-function TabPanel(props) {
-  const {
-    children, value, index, ...other
-  } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-      <Box sx={{ p: 3 }}>
-        <Typography>{children}</Typography>
-      </Box>
-      )}
-    </div>
-  );
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
-TabPanel.defaultProps = {
-  children: null,
-};
 
 function a11yProps(index) {
   return {

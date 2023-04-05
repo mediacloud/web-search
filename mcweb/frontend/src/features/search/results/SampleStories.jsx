@@ -16,6 +16,7 @@ import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import SampleStoryShow from './SampleStoryShow';
 import queryTitle from '../util/queryTitle';
+import TabPanelHelper from '../../ui/TabPanelHelper';
 
 export default function SampleStories() {
   const queryState = useSelector((state) => state.query);
@@ -90,7 +91,7 @@ export default function SampleStories() {
             </Box>
 
             {data.sample.map((results, i) => (
-              <TabPanel value={value} index={i}>
+              <TabPanelHelper value={value} index={i}>
                 <SampleStoryShow
                   open={open}
                   data={results}
@@ -99,7 +100,7 @@ export default function SampleStories() {
                   handleClose={handleClose}
                   platform={platform}
                 />
-              </TabPanel>
+              </TabPanelHelper>
             ))}
           </Box>
         </div>
@@ -161,37 +162,37 @@ export default function SampleStories() {
   );
 }
 
-function TabPanel(props) {
-  const {
-    children, value, index, ...other
-  } = props;
+// function TabPanel(props) {
+//   const {
+//     children, value, index, ...other
+//   } = props;
 
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-      <Box sx={{ p: 3 }}>
-        <Typography>{children}</Typography>
-      </Box>
-      )}
-    </div>
-  );
-}
+//   return (
+//     <div
+//       role="tabpanel"
+//       hidden={value !== index}
+//       id={`simple-tabpanel-${index}`}
+//       aria-labelledby={`simple-tab-${index}`}
+//       {...other}
+//     >
+//       {value === index && (
+//       <Box sx={{ p: 3 }}>
+//         <Typography>{children}</Typography>
+//       </Box>
+//       )}
+//     </div>
+//   );
+// }
 
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
+// TabPanel.propTypes = {
+//   children: PropTypes.node,
+//   index: PropTypes.number.isRequired,
+//   value: PropTypes.number.isRequired,
+// };
 
-TabPanel.defaultProps = {
-  children: null,
-};
+// TabPanel.defaultProps = {
+//   children: null,
+// };
 
 function a11yProps(index) {
   return {

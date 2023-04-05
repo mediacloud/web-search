@@ -61,11 +61,11 @@ def total_count(request):
         relevant_count.append(provider.count(query_str, start_date, end_date, **provider_props))
         try:
             total_content_count.append(provider.count(provider.everything_query(), start_date, end_date, **provider_props))
-            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+            # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
         except QueryingEverythingUnsupportedQuery as e:
             total_content_count = []
-            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
         # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
@@ -74,11 +74,9 @@ def total_count(request):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def count_over_time(request):
-    print("testing")
     payload = json.loads(request.body).get("queryObject")
     response = []
     for query in payload:
-        print(query) 
         start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
         provider = providers.provider_by_name(provider_name)
         try:
@@ -86,13 +84,11 @@ def count_over_time(request):
         except UnsupportedOperationException:
             # for platforms that don't support querying over time
             results = provider.count_over_time(query_str, start_date, end_date, **provider_props)
-        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
         #logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
         response.append(results)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
                         status=200)
-    # return HttpResponse(json.dumps({"count_over_time": results}, default=str), content_type="application/json",
-    #                     status=200)
 
 
 @login_required(redirect_field_name='/auth/login')
@@ -105,7 +101,7 @@ def sample(request):
         start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
         provider = providers.provider_by_name(provider_name)
         response.append(provider.sample(query_str, start_date, end_date, **provider_props))
-        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"sample": response }, default=str), content_type="application/json",
                         status=200)
 
@@ -127,12 +123,12 @@ def story_detail(request):
 def languages(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
-
-    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
-    provider = providers.provider_by_name(provider_name)
-    sample_stories = provider.languages(query_str, start_date, end_date, **provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
-    return HttpResponse(json.dumps({"languages": sample_stories}, default=str), content_type="application/json",
+    for query in payload:
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+        provider = providers.provider_by_name(provider_name)
+        response.append(provider.languages(query_str, start_date, end_date, **provider_props))
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
                         status=200)
 
 
@@ -162,12 +158,12 @@ def download_languages_csv(request):
 def words(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
-
-    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
-    provider = providers.provider_by_name(provider_name)
-    sample_stories = provider.words(query_str, start_date, end_date, **provider_props)
+    for query in payload:
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+        provider = providers.provider_by_name(provider_name)
+        response.append(provider.words(query_str, start_date, end_date, **provider_props))
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
-    return HttpResponse(json.dumps({"words": sample_stories}, default=str), content_type="application/json",
+    return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
                         status=200)
 
 

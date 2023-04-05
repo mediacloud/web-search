@@ -6,48 +6,45 @@ import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
-import queryGenerator from '../util/queryGenerator';
 import { useGetTopLanguagesMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
 } from '../util/platforms';
+import checkForBlankQuery from '../util/checkForBlankQuery';
+import prepareQueries from '../util/prepareQueries';
+import prepareLanguageData from '../util/prepareLanguageData';
 
 export default function TopLanguages() {
+  const queryState = useSelector((state) => state.query);
+
   const {
-    queryString,
-    queryList,
-    negatedQueryList,
     platform,
-    startDate,
-    endDate,
-    collections,
-    sources,
     lastSearchTime,
-    anyAll,
-    advanced,
-  } = useSelector((state) => state.query);
+  } = queryState[0];
 
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const [dispatchQuery, { isLoading, data, error }] = useGetTopLanguagesMutation();
 
-  const [query, { isLoading, data, error }] = useGetTopLanguagesMutation();
+  // const handleDownloadRequest = (queryObject) => {
+  //   window.location = `/api/search/download-top-languages-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  // };
 
-  const collectionIds = collections.map((c) => c.id);
-  const sourceIds = sources.map((s) => s.id);
-
-  const handleDownloadRequest = (queryObject) => {
-    window.location = `/api/search/download-top-languages-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
-  };
+  // useEffect(() => {
+  //   if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
+  //     dispatchuery({
+  //       query: fullQuery,
+  //       startDate,
+  //       endDate,
+  //       collections: collectionIds,
+  //       sources: sourceIds,
+  //       platform,
+  //     });
+  //   }
+  // }, [lastSearchTime]);
 
   useEffect(() => {
-    if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
-      query({
-        query: fullQuery,
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources: sourceIds,
-        platform,
-      });
+    if (checkForBlankQuery(queryState)) {
+      const preparedQueries = prepareQueries(queryState);
+      dispatchQuery(preparedQueries);
     }
   }, [lastSearchTime]);
 
@@ -105,20 +102,21 @@ export default function TopLanguages() {
           {(error === undefined) && data && (
             <>
               <BarChart
-                series={[{
-                  data: data.languages.map((l) => ({
-                    key: l.language, value: l.ratio * 100,
-                  })),
-                  name: 'Language',
-                  color: '#2f2d2b',
-                }]}
+                series={prepareLanguageData(data)}
+                // series={[{
+                //   data: data.languages.map((l) => ({
+                //     key: l.language, value: l.ratio * 100,
+                //   })),
+                //   name: 'Language',
+                //   color: '#2f2d2b',
+                // }]}
                 normalized
                 title="Top Languages"
                 height={100 + (data.languages.length * 40)}
               />
               <div className="clearfix">
                 <div className="float-end">
-                  <Button
+                  {/* <Button
                     variant="text"
                     endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
                     onClick={() => {
@@ -133,7 +131,7 @@ export default function TopLanguages() {
                     }}
                   >
                     Download CSV of Top Languages
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </>

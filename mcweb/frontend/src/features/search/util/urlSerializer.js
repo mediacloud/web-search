@@ -63,8 +63,6 @@ const urlSerializer = (queryState) => {
     anys.push(anyAll);
     adv.push(advanced);
   });
-  console.log('URLSERIALIZER', queries);
-  console.log('negatedserial', negatedQueries);
 
   if (adv[0]) {
     return `?qs=${encode(queryStrings)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
