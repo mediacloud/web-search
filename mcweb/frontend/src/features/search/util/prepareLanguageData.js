@@ -2,7 +2,7 @@ const colorArray = ['#2f2d2b', '#d24527', '#2f2d2b', '#d23716', '#f7a44e'];
 
 export default function prepareLanguageData(languageData) {
   const series = [];
-
+  console.log(languageData);
   languageData.languages.forEach((queryData, i) => {
     console.log('qd', queryData);
     series.push(

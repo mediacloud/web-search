@@ -1,11 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
+import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopLanguagesMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
@@ -13,6 +17,7 @@ import {
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareLanguageData from '../util/prepareLanguageData';
+import queryTitle from '../util/queryTitle';
 
 export default function TopLanguages() {
   const queryState = useSelector((state) => state.query);
@@ -23,6 +28,11 @@ export default function TopLanguages() {
   } = queryState[0];
 
   const [dispatchQuery, { isLoading, data, error }] = useGetTopLanguagesMutation();
+
+  const [value, setValue] = useState(0);
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   // const handleDownloadRequest = (queryObject) => {
   //   window.location = `/api/search/download-top-languages-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
@@ -53,7 +63,8 @@ export default function TopLanguages() {
   }
 
   if (!data && !error) return null;
-
+  console.log('component', data);
+  const preparedData = prepareLanguageData(data);
   return (
     <div className="results-item-wrapper">
       <div className="row">
@@ -101,7 +112,37 @@ export default function TopLanguages() {
           )}
           {(error === undefined) && data && (
             <>
-              <BarChart
+
+              <div className="container">
+                <Box sx={{ width: '100%' }}>
+                  <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                      {queryState.map((result, i) => (
+                        <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
+                      ))}
+                    </Tabs>
+                  </Box>
+
+                  {preparedData.map((results, i) => (
+                    <TabPanelHelper value={value} index={i}>
+                      <BarChart
+                        series={[results]}
+                // series={[{
+                //   data: data.languages.map((l) => ({
+                //     key: l.language, value: l.ratio * 100,
+                //   })),
+                //   name: 'Language',
+                //   color: '#2f2d2b',
+                // }]}
+                        normalized
+                        title="Top Languages"
+                        height={100 + (results.data.length * 40)}
+                      />
+                    </TabPanelHelper>
+                  ))}
+                </Box>
+              </div>
+              {/* <BarChart
                 series={prepareLanguageData(data)}
                 // series={[{
                 //   data: data.languages.map((l) => ({
@@ -113,7 +154,7 @@ export default function TopLanguages() {
                 normalized
                 title="Top Languages"
                 height={100 + (data.languages.length * 40)}
-              />
+              /> */}
               <div className="clearfix">
                 <div className="float-end">
                   {/* <Button
@@ -140,4 +181,11 @@ export default function TopLanguages() {
       </div>
     </div>
   );
+}
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
 }
