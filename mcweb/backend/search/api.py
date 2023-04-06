@@ -20,7 +20,7 @@ class SavedSearchesViewSet(viewsets.ModelViewSet):
         return queryset
     
     def create(self, request):
-         print("hi")
+        print("hi")
     #     data = {"user_id": request.user.id,
     #             "name": request.get("name"),
     #             "seralized_search": request.get("seralized_search")}
@@ -35,3 +35,4 @@ class SavedSearchesViewSet(viewsets.ModelViewSet):
     #         error_string = str(serializer.errors) 
     #         print(error_string)
     #         raise APIException(f"{error_string}")
+        return Response("hi")

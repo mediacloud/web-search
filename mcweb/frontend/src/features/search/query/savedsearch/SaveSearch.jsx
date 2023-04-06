@@ -11,13 +11,13 @@ export default function SaveSearch() {
   const [open, setOpen] = useState(false);
   const queryState = useSelector((state) => state.query);
 
-  const [createSavedSearch, { error }] = useCreateSavedSearchMutation();
+  const [createSavedSearch, { data, error }] = useCreateSavedSearchMutation();
 
   const handleSaveSearch = async () => {
     const serializedSearch = `search.mediacloud.org/search${urlSerializer(queryState)}`;
-    console.log(serializedSearch);
-    console.log(name);
-    createSavedSearch();
+
+    await createSavedSearch({ name, serializedSearch });
+    console.log(data);
     setOpen(false);
   };
 
@@ -50,7 +50,7 @@ export default function SaveSearch() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={() => createSavedSearch()}>
+          <Button onClick={handleSaveSearch}>
             Save
           </Button>
         </DialogActions>

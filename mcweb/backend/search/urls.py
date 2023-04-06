@@ -17,5 +17,6 @@ urlpatterns = [
     path('story', views.story_detail),
     path('languages', views.languages),
     path('download-top-languages-csv', views.download_languages_csv),
-    path('savedsearch', include(router.urls)),
 ] 
+
+urlpatterns += router.urls
