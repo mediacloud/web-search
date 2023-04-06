@@ -103,7 +103,7 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
     sources_with_url_search_strs = []
     sources_with_url_search_strs += [s for s in selected_sources if s.url_search_string is not None]
     sources_with_url_search_strs += [s for s in selected_sources_in_collections if s.url_search_string is not None]
-    domain_url_filters = ["(domain:{} and url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
+    domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
     return dict(domains=domains, filters=domain_url_filters)
 
 
