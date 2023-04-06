@@ -128,8 +128,6 @@ class SourceSerializer(serializers.ModelSerializer):
         # request = self.context.get("request")
         # if request and hasattr(request, "user"):
         #     user = request.user
-        # if new_source:
-        #     schedule_scrape_source(new_source.id, user)
         return new_source
 
   
