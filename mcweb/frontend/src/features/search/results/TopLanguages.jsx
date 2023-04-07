@@ -54,8 +54,56 @@ export default function TopLanguages() {
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
   }
-
+  let content;
   if (!data && !error) return null;
+
+  if (error) {
+    content = (
+      <Alert severity="warning">
+        Sorry, but something went wrong.
+        (
+        {error.data.note}
+        )
+      </Alert>
+    );
+  } else {
+    content = (
+      <>
+        <BarChart
+          series={[{
+            data: data.languages.map((l) => ({
+              key: l.language, value: l.ratio * 100,
+            })),
+            name: 'Language',
+            color: '#2f2d2b',
+          }]}
+          normalized
+          title="Top Languages"
+          height={100 + (data.languages.length * 40)}
+        />
+        <div className="clearfix">
+          <div className="float-end">
+            <Button
+              variant="text"
+              endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
+              onClick={() => {
+                handleDownloadRequest({
+                  query: fullQuery,
+                  startDate,
+                  endDate,
+                  collections: collectionIds,
+                  sources,
+                  platform,
+                });
+              }}
+            >
+              Download CSV of Top Languages
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="results-item-wrapper">
@@ -94,50 +142,7 @@ export default function TopLanguages() {
           )}
         </div>
         <div className="col-8">
-          {(error) && (
-            <Alert severity="warning">
-              Sorry, but something went wrong.
-              (
-              {error.data.note}
-              )
-            </Alert>
-          )}
-          {(error === undefined) && data && (
-            <>
-              <BarChart
-                series={[{
-                  data: data.languages.map((l) => ({
-                    key: l.language, value: l.ratio * 100,
-                  })),
-                  name: 'Language',
-                  color: '#2f2d2b',
-                }]}
-                normalized
-                title="Top Languages"
-                height={100 + (data.languages.length * 40)}
-              />
-              <div className="clearfix">
-                <div className="float-end">
-                  <Button
-                    variant="text"
-                    endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
-                    onClick={() => {
-                      handleDownloadRequest({
-                        query: fullQuery,
-                        startDate,
-                        endDate,
-                        collections: collectionIds,
-                        sources,
-                        platform,
-                      });
-                    }}
-                  >
-                    Download CSV of Top Languages
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
+          {content}
         </div>
       </div>
     </div>
