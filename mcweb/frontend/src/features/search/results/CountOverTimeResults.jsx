@@ -92,14 +92,14 @@ export default function CountOverTimeResults() {
     }
   }, [data, error]);
 
+  let content;
+
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
   }
 
-  if ((data === undefined) && (error === undefined)) {
-    return null;
-  }
-  let content;
+  if (!data && !error) return null;
+
   if (error) {
     // const msg = data.note;
     content = (

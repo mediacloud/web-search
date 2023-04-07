@@ -56,12 +56,11 @@ export default function TopWords() {
     return (<div><CircularProgress size="75px" /></div>);
   }
 
-  if ((data === undefined) && (error === undefined)) {
-    return null;
-  }
   let content;
+
+  if (!data && !error) return null;
+
   if (error) {
-    // const msg = data.note;
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.

@@ -16,6 +16,7 @@ from background_task.models import Task, CompletedTask
 from feed_seeker import generate_feed_urls
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
+from django.contrib.auth.models import User
 from django.utils import timezone
 import pandas as pd
 import numpy as np
@@ -93,11 +94,13 @@ run_datetime = dt.datetime.combine(next_friday, run_at)
 
 
 def run_alert_system():
+    user = User.objects.get(username='e.leon@northeastern.edu')
     with open('mcweb/backend/sources/data/collections-to-monitor.json') as collection_ids:
         collection_ids = collection_ids.read()
         collection_ids = json.loads(collection_ids)
 
     task = _alert_system(collection_ids,
+                        creator= user,
                         verbose_name=f"source alert system {dt.datetime.now()}",
                         remove_existing_tasks=True)
     return {'task': _return_task(task)}
@@ -132,8 +135,8 @@ def _alert_system(collection_ids):
                 # mean_published = np.mean(counts_published)  
                 # std_dev_published = np.std(counts_published)  
 
-                if (std_dev * 2) < mean:
-                    email += f"Source {source.id}: {source.name} has a story/day average of {mean} over the last 30 days, which is more than two standard deviations (standard_deviation: {std_dev}) above the mean \n"
+                if (std_dev * 3) < mean:
+                    email += f"Source {source.id}: {source.name} has a story/day average of {mean} over the last 30 days, which is more than three standard deviations (single standard_deviation: {std_dev}) above the mean \n"
                     alert_count += 1
             
             if(email):
