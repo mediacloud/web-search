@@ -10,14 +10,17 @@ import BarChart from './BarChart';
 import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_REDDIT_PUSHSHIFT,
+  PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 
-export const supportsNormalizedCount = (platform) => [
-  PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
+export const supportsNormalizedCount = (platform) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform);
 
 function TotalAttentionResults() {
   const queryState = useSelector((state) => state.query);
@@ -58,90 +61,115 @@ function TotalAttentionResults() {
 
   if (!data && !error) return null;
 
+  let content;
+  if (error) {
+    content = (
+      <Alert severity="warning">
+        Sorry, but something went wrong.
+        (
+        {error.data.note}
+        )
+      </Alert>
+    );
+  } else {
+    content = (
+      <>
+        <div>
+          {/* {normalizeData(data) === 0 && (
+          <Alert severity="warning">
+            No content has matched this query
+          </Alert>
+          )}
+          {normalizeData(data) === 100 && (
+          <Alert severity="warning">
+            This query has returned 100% attention
+          </Alert>
+          )} */}
+
+          <BarChart
+            series={prepareTotalAttentionData(data, queryState, normalized)}
+            normalized={normalized}
+            title="Total Stories Count"
+            height={200}
+          />
+        </div>
+
+        <div className="clearfix">
+          {supportsNormalizedCount(platform) && (
+          <div className="float-start">
+            {normalized && (
+            <div>
+              <Button
+                onClick={handleClick}
+                endIcon={
+                  <Settings titleAccess="view other chart viewing options" />
+                      }
+              >
+                View Options
+              </Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setNormalized(false);
+                    handleClose();
+                  }}
+                >
+                  View Story Count
+                </MenuItem>
+              </Menu>
+            </div>
+            )}
+            {!normalized && (
+            <div>
+              <Button onClick={handleClick}>View Options</Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setNormalized(true);
+                    handleClose();
+                  }}
+                >
+                  View Normalized Story Percentage (default)
+                </MenuItem>
+              </Menu>
+            </div>
+            )}
+          </div>
+          )}
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="results-item-wrapper">
       <div className="row">
         <div className="col-4">
           <h2>Total Attention</h2>
           <p>
-            Compare the total number of items that matched your queries.
-            your queries. Use the &quot;view options&quot; menu to switch between story counts
-            and a percentage (if supported).
+            Compare the total number of items that matched your queries. Use the
+            &quot;view options&quot; menu to switch between story counts and a
+            percentage (if supported).
           </p>
         </div>
         <div className="col-8">
-          {(error) && (
-            <Alert severity="warning">
-              Sorry, but something went wrong.
-              (
-              {error.data.note}
-              )
-            </Alert>
-          )}
-
-          {(error === undefined) && (
-            <BarChart
-              series={prepareTotalAttentionData(data, queryState, normalized)}
-              normalized={normalized}
-              title="Total Stories Count"
-              height={200}
-            />
-          )}
-          <div className="clearfix">
-            {supportsNormalizedCount(platform) && (
-              <div className="float-start">
-                {normalized && (
-                  <div>
-                    <Button onClick={handleClick} endIcon={<Settings titleAccess="view other chart viewing options" />}>
-                      View Options
-                    </Button>
-                    <Menu
-                      id="basic-menu"
-                      anchorEl={anchorEl}
-                      open={open}
-                      onClose={handleClose}
-                      MenuListProps={{
-                        'aria-labelledby': 'basic-button',
-                      }}
-                    >
-                      <MenuItem onClick={() => {
-                        setNormalized(false);
-                        handleClose();
-                      }}
-                      >
-                        View Story Count
-
-                      </MenuItem>
-                    </Menu>
-                  </div>
-                )}
-                {!normalized && (
-                  <div>
-                    <Button onClick={handleClick}>
-                      View Options
-                    </Button>
-                    <Menu
-                      id="basic-menu"
-                      anchorEl={anchorEl}
-                      open={open}
-                      onClose={handleClose}
-                      MenuListProps={{
-                        'aria-labelledby': 'basic-button',
-                      }}
-                    >
-                      <MenuItem onClick={() => {
-                        setNormalized(true);
-                        handleClose();
-                      }}
-                      >
-                        View Normalized Story Percentage (default)
-                      </MenuItem>
-                    </Menu>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {content}
         </div>
       </div>
     </div>

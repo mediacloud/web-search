@@ -252,6 +252,11 @@ def download_all_content_csv(request):
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
 
+def add_ratios(words_data):
+    for word in words_data:
+        word["ratio"] = word['count'] / 1000
+    return words_data
+
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())

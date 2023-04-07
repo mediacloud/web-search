@@ -38,19 +38,6 @@ export default function TopLanguages() {
   //   window.location = `/api/search/download-top-languages-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
   // };
 
-  // useEffect(() => {
-  //   if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
-  //     dispatchuery({
-  //       query: fullQuery,
-  //       startDate,
-  //       endDate,
-  //       collections: collectionIds,
-  //       sources: sourceIds,
-  //       platform,
-  //     });
-  //   }
-  // }, [lastSearchTime]);
-
   useEffect(() => {
     if (checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
@@ -61,10 +48,76 @@ export default function TopLanguages() {
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
   }
-
+  let content;
   if (!data && !error) return null;
   console.log('component', data);
   const preparedData = prepareLanguageData(data);
+
+  if (error) {
+    content = (
+      <Alert severity="warning">
+        Sorry, but something went wrong.
+        (
+        {error.data.note}
+        )
+      </Alert>
+    );
+  } else {
+    content = (
+      <>
+        <div className="container">
+          <Box sx={{ width: '100%' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                {queryState.map((result, i) => (
+                  <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
+                ))}
+              </Tabs>
+            </Box>
+
+            {preparedData.map((results, i) => (
+              <TabPanelHelper value={value} index={i}>
+                <BarChart
+                  series={[results]}
+                // series={[{
+                //   data: data.languages.map((l) => ({
+                //     key: l.language, value: l.ratio * 100,
+                //   })),
+                //   name: 'Language',
+                //   color: '#2f2d2b',
+                // }]}
+                  normalized
+                  title="Top Languages"
+                  height={100 + (results.data.length * 40)}
+                />
+              </TabPanelHelper>
+            ))}
+          </Box>
+        </div>
+        <div className="clearfix">
+          <div className="float-end">
+            {/* <Button
+              variant="text"
+              endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
+              onClick={() => {
+                handleDownloadRequest({
+                  query: fullQuery,
+                  startDate,
+                  endDate,
+                  collections: collectionIds,
+                  sources,
+                  platform,
+                });
+              }}
+            >
+              Download CSV of Top Languages
+            </Button> */}
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="results-item-wrapper">
       <div className="row">
@@ -102,81 +155,7 @@ export default function TopLanguages() {
           )}
         </div>
         <div className="col-8">
-          {(error) && (
-            <Alert severity="warning">
-              Sorry, but something went wrong.
-              (
-              {error.data.note}
-              )
-            </Alert>
-          )}
-          {(error === undefined) && data && (
-            <>
-
-              <div className="container">
-                <Box sx={{ width: '100%' }}>
-                  <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                      {queryState.map((result, i) => (
-                        <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
-                      ))}
-                    </Tabs>
-                  </Box>
-
-                  {preparedData.map((results, i) => (
-                    <TabPanelHelper value={value} index={i}>
-                      <BarChart
-                        series={[results]}
-                // series={[{
-                //   data: data.languages.map((l) => ({
-                //     key: l.language, value: l.ratio * 100,
-                //   })),
-                //   name: 'Language',
-                //   color: '#2f2d2b',
-                // }]}
-                        normalized
-                        title="Top Languages"
-                        height={100 + (results.data.length * 40)}
-                      />
-                    </TabPanelHelper>
-                  ))}
-                </Box>
-              </div>
-              {/* <BarChart
-                series={prepareLanguageData(data)}
-                // series={[{
-                //   data: data.languages.map((l) => ({
-                //     key: l.language, value: l.ratio * 100,
-                //   })),
-                //   name: 'Language',
-                //   color: '#2f2d2b',
-                // }]}
-                normalized
-                title="Top Languages"
-                height={100 + (data.languages.length * 40)}
-              /> */}
-              <div className="clearfix">
-                <div className="float-end">
-                  {/* <Button
-                    variant="text"
-                    endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
-                    onClick={() => {
-                      handleDownloadRequest({
-                        query: fullQuery,
-                        startDate,
-                        endDate,
-                        collections: collectionIds,
-                        sources,
-                        platform,
-                      });
-                    }}
-                  >
-                    Download CSV of Top Languages
-                  </Button> */}
-                </div>
-              </div>
-            </>
-          )}
+          {content}
         </div>
       </div>
     </div>

@@ -58,15 +58,14 @@ export default function CountOverTimeResults() {
     }
   }, [data, error]);
 
+  let content;
+
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
   }
 
-  if ((data === undefined) && (error === undefined)) {
-    return null;
-  }
+  if (!data && !error) return null;
 
-  let content;
   if (error) {
     // const msg = data.note;
     content = (

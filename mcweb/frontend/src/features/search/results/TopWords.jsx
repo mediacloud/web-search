@@ -11,7 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 import queryTitle from '../util/queryTitle';
 import prepareQueries from '../util/prepareQueries';
@@ -48,13 +48,11 @@ export default function TopWords() {
     return (<div><CircularProgress size="75px" /></div>);
   }
 
-  if ((data === undefined) && (error === undefined)) {
-    return null;
-  }
-
   let content;
+
+  if (!data && !error) return null;
+
   if (error) {
-    // const msg = data.note;
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.
@@ -112,18 +110,21 @@ export default function TopWords() {
       <div className="row">
         <div className="col-4">
           <h2>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             Top Words
-            {' '}
             <Chip color="warning" label="experimental" />
           </h2>
           <p>
-            This is an
-            {' '}
-            <i>experimental</i>
-            {' '}
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            This is an <i>experimental</i>
             sample-based list of the top words in content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
+          { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+          <p>
+            These results are from a random sample of news stories.
+          </p>
+          )}
           { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
           <p>
             These results are from a sample titles from top scoring Reddit submissions.
