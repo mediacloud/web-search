@@ -16,10 +16,11 @@ import PlatformPicker from './PlatformPicker';
 import AlertDialog from '../../ui/AlertDialog';
 import CountOverTimeResults from '../results/CountOverTimeResults';
 import TotalAttentionResults from '../results/TotalAttentionResults';
+import TopWords from '../results/TopWords';
+import TopLanguages from '../results/TopLanguages';
 import SampleStories from '../results/SampleStories';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 // import urlSerializer from '../util/urlSerializer';
-import TopLanguages from '../results/TopLanguages';
 import { searchApi } from '../../../app/services/searchApi';
 import deactivateButton from '../util/deactivateButton';
 import urlSerializer from '../util/urlSerializer';
@@ -134,11 +135,11 @@ export default function TabbedSearch() {
       </div>
       <div className="search-results-wrapper">
         <div className="container">
-          {/* <CountOverTimeResults /> */}
+          <CountOverTimeResults />
           <TotalAttentionResults />
-          {/* <SampleStories /> */}
-          {/* <TopWords /> */}
-          {/* <TopLanguages /> */}
+          <SampleStories />
+          <TopWords />
+          <TopLanguages />
         </div>
       </div>
 

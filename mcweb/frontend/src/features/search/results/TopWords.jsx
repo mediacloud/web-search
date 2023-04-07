@@ -51,7 +51,7 @@ export default function TopWords() {
   let content;
 
   if (!data && !error) return null;
-
+  console.log(data);
   if (error) {
     content = (
       <Alert severity="warning">
@@ -68,15 +68,16 @@ export default function TopWords() {
           <Box sx={{ width: '100%' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                {data.sample.map((result, i) => (
+                {data.words.map((result, i) => (
                   <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
                 ))}
               </Tabs>
             </Box>
 
-            {data.sample.map((results, i) => (
+            {data.words.map((results, i) => (
               <TabPanelHelper value={value} index={i}>
-                <OrderedWordCloud width={600} color="#000" data={data.words} />
+                {console.log(results)}
+                <OrderedWordCloud width={600} color="#000" data={results} />
               </TabPanelHelper>
             ))}
           </Box>

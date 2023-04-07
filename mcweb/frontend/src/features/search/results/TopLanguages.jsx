@@ -50,8 +50,6 @@ export default function TopLanguages() {
   }
   let content;
   if (!data && !error) return null;
-  console.log('component', data);
-  const preparedData = prepareLanguageData(data);
 
   if (error) {
     content = (
@@ -75,7 +73,7 @@ export default function TopLanguages() {
               </Tabs>
             </Box>
 
-            {preparedData.map((results, i) => (
+            {prepareLanguageData(data).map((results, i) => (
               <TabPanelHelper value={value} index={i}>
                 <BarChart
                   series={[results]}
