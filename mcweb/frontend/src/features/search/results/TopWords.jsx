@@ -51,7 +51,6 @@ export default function TopWords() {
   let content;
 
   if (!data && !error) return null;
-  console.log(data);
   if (error) {
     content = (
       <Alert severity="warning">
@@ -76,7 +75,6 @@ export default function TopWords() {
 
             {data.words.map((results, i) => (
               <TabPanelHelper value={value} index={i}>
-                {console.log(results)}
                 <OrderedWordCloud width={600} color="#000" data={results} />
               </TabPanelHelper>
             ))}

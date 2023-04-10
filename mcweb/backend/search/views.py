@@ -161,7 +161,8 @@ def words(request):
     for query in payload:
         start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
         provider = providers.provider_by_name(provider_name)
-        response.append(provider.words(query_str, start_date, end_date, **provider_props))
+        words = provider.words(query_str, start_date, end_date, **provider_props)
+        response.append(add_ratios(words))
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
                         status=200)
