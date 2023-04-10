@@ -77,7 +77,7 @@ export const searchApi = createApi({
         ? [{ type: 'SavedSearch', id }]
         : ['SavedSearch']),
     }),
-    listSavedSearches: builder.mutation({
+    listSavedSearches: builder.query({
       query: () => ({
         url: 'savedsearch/',
         method: 'GET',
@@ -95,8 +95,8 @@ export const searchApi = createApi({
       invalidatesTags: ['SavedSearch'],
     }),
     deleteSavedSearch: builder.mutation({
-      query: (savedsearchId) => ({
-        url: `savedsearch/${savedsearchId}`,
+      query: (savedsearch) => ({
+        url: `savedsearch/${savedsearch.id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['SavedSearch'],

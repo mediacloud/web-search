@@ -21,18 +21,17 @@ class SavedSearchesViewSet(viewsets.ModelViewSet):
     
     def create(self, request):
         print("hi")
-    #     data = {"user_id": request.user.id,
-    #             "name": request.get("name"),
-    #             "seralized_search": request.get("seralized_search")}
-    #     print(data)
-    #     print("hi")
-    #     serializer = SavedSearchSerializer(data=data)
-    #     print(serializer)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response({"saved search": serializer.data})
-    #     else:
-    #         error_string = str(serializer.errors) 
-    #         print(error_string)
-    #         raise APIException(f"{error_string}")
-        return Response("hi")
+        data = {"user_id": request.user.id,
+                 "name": request.data.get("savedsearch").get("name"),
+                 "serialized_search": request.data.get("savedsearch").get("serializedSearch")}
+        print(data)
+        print("hi")
+        serializer = SavedSearchSerializer(data=data)
+        print(serializer)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"saved search": serializer.data})
+        else:
+            error_string = str(serializer.errors) 
+            print(error_string)
+            raise APIException(f"{error_string}")
