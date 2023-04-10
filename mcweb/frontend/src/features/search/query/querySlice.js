@@ -122,39 +122,17 @@ const querySlice = createSlice({
       );
     },
     setPlatform: (state, { payload }) => {
-      const {
-        queryString,
-        queryList,
-        negatedQueryList,
-        startDate: start,
-        anyAll,
-        advanced,
-        lastSearchTime,
-      } = state[0];
-      const newState = [
-        {
-          queryString,
-          queryList,
-          negatedQueryList,
-          platform: `${payload}`,
-          startDate: start,
-          endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
-          collections: [],
-          previewCollections: [],
-          sources: [],
-          previewSources: [],
-          lastSearchTime,
-          anyAll,
-          advanced,
-        },
-      ];
-      return newState;
+      state.forEach((qS) => {
+        const copyqS = qS;
+        copyqS.platform = payload;
+      });
     },
     setLastSearchTime: (state, { payload }) => {
       const freezeState = state;
 
       freezeState.forEach((qS) => {
-        qS.lastSearchTime = payload;
+        const copyQs = qS;
+        copyQs.lastSearchTime = payload;
       });
     },
     removeQuery: (state, { payload }) => {
