@@ -18,7 +18,7 @@ import {
   useUpdateFeedMutation,
   useGetFeedQuery,
 } from '../../app/services/feedsApi';
-import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
+import { useLazyListSourcesQuery,useGetSourceQuery } from '../../app/services/sourceApi';
 import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
 
 const MIN_QUERY_LEN = 1; // don't query for super short things
@@ -45,6 +45,10 @@ function ModifyFeed() {
   const { enqueueSnackbar } = useSnackbar();
   const feedId = Number(params.feedId);
   const { data, isLoading } = useGetFeedQuery(feedId);
+   const {
+        data: sourceData,
+        isLoading:isSourceLoading,
+      } = useGetSourceQuery(data.source);
   const [updateFeed] = useUpdateFeedMutation(feedId);
 
   // form state for text fields
@@ -88,7 +92,7 @@ function ModifyFeed() {
         created: dayjs(data.created_at).format(),
         modified: dayjs(data.modified_at).format(),
       };
-      setFormState(formData);
+      setFormState(formData);   
     }
   }, [data]);
 
@@ -131,7 +135,7 @@ function ModifyFeed() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isSourceLoading) {
     return <CircularProgress size="75px" />;
   }
 
@@ -169,6 +173,9 @@ function ModifyFeed() {
           <Autocomplete
             ref={autocompleteRef}
             id="quick-directory-search"
+            defaultValue={
+              sourceData.id === formState.source?sourceData: ""
+            }
             open={open}
             filterOptions={(x) => x} /* let the server filter optons */
             onOpen={() => {}}
@@ -176,17 +183,17 @@ function ModifyFeed() {
               setOpen(false);
             }}
             blurOnSelect
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            getOptionLabel={(option) => option.label}
+            isOptionEqualToValue={(option, value) => option?.id === value?.id}
+            getOptionLabel={(option) => option?.label || ''}
             noOptionsText="No matches"
-            groupBy={(option) => option.displayGroup}
+            groupBy={(option) => option?.displayGroup || ''}
             options={[...sourceOptions]}
             loading={somethingIsFetching}
             onChange={defaultSelectionHandler}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Move feed to new source"
+                label="Parent Source"
                 value={formState.source}
                 disabled={somethingIsFetching}
                 InputProps={{
