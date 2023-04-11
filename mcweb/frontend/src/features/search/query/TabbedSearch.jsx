@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import SearchIcon from '@mui/icons-material/Search';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import dayjs from 'dayjs';
 import { addQuery, setLastSearchTime, removeQuery } from './querySlice';
