@@ -3,7 +3,269 @@ import { assetUrl } from '../ui/uiUtil';
 
 export default function AboutSearch() {
   return (
-    <div className="container">
+
+    <div className="about-page">
+      <div className="feature-area">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <h2>Simple Search Tool</h2>
+              <p>
+                Welcome to the search tool! Search phrases are translated automatically into the
+                query syntax supported by the platform you are searching against. This saves you
+                from having to learn the often esoteric syntax for each platform and API.
+              </p>
+              <p>
+                You also have the option to write queries in plain text with syntax highlighting by
+                using the Advanced Search, something users of previous versions of Media Cloud may be
+                familiar with.
+              </p>
+              <ul>
+                <li>
+                  Search phrases are being translated automatically into the query syntax supported by
+                  the platform you are searching against. This saves you from having to learn the esoteric
+                  syntax for each platform and API.
+                </li>
+              </ul>
+            </div>
+            <div className="col-5">
+              <img
+                src={assetUrl('img/simple_search.png')}
+                alt="screenshot of simple search"
+                width="100%"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="feature-area filled">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <img
+                src={assetUrl('img/advaced_search_screen.png')}
+                alt="screenshot of advanced search"
+                width="100%"
+              />
+            </div>
+            <div className="col-5">
+              <h2> Advanced Search</h2>
+              <p>
+                Option to write queries in plain text with syntax highlighting. Import to make sure
+                the query syntax is correct for the chosen platform. Once Advanced search is chosen,
+                there is no going back to your query in the Simple Search view.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="feature-area ">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <h2>Media Picker</h2>
+              <p>
+                Here you can choose collections or sources to search against for each platform tab.
+                Due to how we access each platform&rsquo;s API, cross-platform searches are not currently supported.
+              </p>
+              <ul>
+                <li>
+                  Featured Collections
+                </li>
+                <ul>
+                  <li>
+                    These are curated collections that appear based on platform.
+                  </li>
+                  <li>
+                    Other collections may be available, but these are often the highlights of our
+                    current collections.
+                  </li>
+                </ul>
+                <li>
+                  Search Collection or Sources for Selected Platform
+                </li>
+                <ul>
+                  <li>
+                    Search for any source or collection from our database, based on platform.
+                  </li>
+                  <li>
+                    We recommend finding sources by searching the domain name of the resource you are interested in.
+                  </li>
+                  <li>
+                    You can add multiple collections and/or sources to a search.
+                  </li>
+                </ul>
+              </ul>
+            </div>
+            <div className="col-5">
+              <img
+                src={assetUrl('img/media_picker_modal.png')}
+                alt="screenshot of media picker"
+                width="100%"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="feature-area filled">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <img
+                src={assetUrl('img/date_picker.png')}
+                alt="screenshot of date picker"
+                width="100%"
+              />
+            </div>
+            <div className="col-5">
+              <h2>Date Picker</h2>
+              <p>
+                You are able to limit a search to specific date periods. The dates that are available
+                to search will adjust over time as Media Cloud ingests historical data. Current date
+                fields available are:
+              </p>
+              <ul>
+                <li>Date limits</li>
+                <ul>
+                  <li>Wayback Machine before 8/1/22</li>
+                  <li>Pushshift before 11/1/22</li>
+                </ul>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="feature-area">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <h2>Copy Search</h2>
+              <p>
+                Ability to copy a url of an in progress query or a query that has been run, to share with others.
+
+              </p>
+            </div>
+            <div className="col-5">
+              <img
+                src={assetUrl('img/copy_search.png')}
+                alt="screenshot of copy search modal"
+                width="100%"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <br />
+      <br />
+      <br />
+      <h2>Results</h2>
+      <br />
+      <br />
+      <br />
+      <div className="feature-area">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <h2>Total Attention</h2>
+              <p>
+                See the total number of hits and the % of stories your topic was for a time period
+              </p>
+            </div>
+            <div className="col-5">
+              <img
+                src={assetUrl('img/total_attention.png')}
+                alt="screenshot of total attention"
+                width="100%"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="feature-area filled">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <img
+                src={assetUrl('img/attention_over_time_annotated.png')}
+                alt="screenshot of attention over time"
+                width="100%"
+              />
+            </div>
+            <div className="col-5">
+              <h2> Attention Over Time</h2>
+              <p>
+                Check day by day what the number of hits or % of stories your topic was for a time period
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="feature-area">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <h2>Sample Results</h2>
+              <p>
+                Get a small sample of results from your query, will change depending on platform,
+                option to download for each platform
+              </p>
+            </div>
+            <div className="col-5">
+              <img
+                src={assetUrl('img/sample_content.png')}
+                alt="screenshot of sample_content"
+                width="100%"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="feature-area filled">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <img
+                src={assetUrl('img/top_words.png')}
+                alt="screenshot of sample_content"
+                width="100%"
+              />
+            </div>
+            <div className="col-5">
+              <h2> Words (experimental)</h2>
+              <p>
+                Experimental feature to see words that appear most often in results
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="feature-area">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <h2>Languages (experimental)</h2>
+              <p>
+                Experimental feature to see what languages that appear most often in results
+              </p>
+            </div>
+            <div className="col-5">
+              <img
+                src={assetUrl('img/top_languages.png')}
+                alt="screenshot of sample_content"
+                width="100%"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <h1>API Search Guide</h1>
       <p>
         Media Cloud uses a collection of APIs, in conjunction with our own specialized
@@ -81,260 +343,6 @@ export default function AboutSearch() {
           style={{ marginTop: 100, border: '1px solid black' }}
         />
       </div>
-
-      <div className="row" style={{ marginTop: 20 }}>
-        <div className="col-6">
-          <h2>Simple Search Tool</h2>
-          <p>
-            Welcome to the search tool! Search phrases are translated automatically into the
-            query syntax supported by the platform you are searching against. This saves you
-            from having to learn the often esoteric syntax for each platform and API.
-          </p>
-          <p>
-            You also have the option to write queries in plain text with syntax highlighting by
-            using the Advanced Search, something users of previous versions of Media Cloud may be
-            familiar with.
-          </p>
-          <ul>
-            <li>
-              Search phrases are being translated automatically into the query syntax supported by
-              the platform you are searching against. This saves you from having to learn the esoteric
-              syntax for each platform and API.
-            </li>
-          </ul>
-        </div>
-        <img
-          src={assetUrl('img/simple_search.png')}
-          alt="screenshot of simple search"
-          width="100%"
-          height="50%"
-          className="col-6"
-          style={{ marginTop: 100, border: '1px solid black' }}
-        />
-      </div>
-      <br />
-      <br />
-      <div className="row" style={{ marginTop: 20 }}>
-        <img
-          src={assetUrl('img/advaced_search_screen.png')}
-          alt="screenshot of advanced search"
-          width="100%"
-          className="col-6"
-          style={{ border: '1px solid black' }}
-        />
-        <div className="col-6">
-          <ul>
-            <li>
-              <h4>
-                Advanced Search
-              </h4>
-            </li>
-            <ul>
-
-              <li>
-                Option to write queries in plain text with syntax highlighting. Import to make sure
-                the query syntax is correct for the chosen platform. Once Advanced search is chosen,
-                there is no going back to your query in the Simple Search view.
-              </li>
-            </ul>
-          </ul>
-        </div>
-      </div>
-
-      <div className="row" style={{ marginTop: 60 }}>
-        <div className="col-6">
-
-          <h2>
-            Media Picker
-          </h2>
-          <p>
-            Here you can choose collections or sources to search against for each platform tab.
-            Due to how we access each platform&rsquo;s API, cross-platform searches are not currently supported.
-          </p>
-          <ul>
-            <li>
-              Featured Collections
-            </li>
-            <ul>
-              <li>
-                These are curated collections that appear based on platform.
-              </li>
-              <li>
-                Other collections may be available, but these are often the highlights of our
-                current collections.
-              </li>
-            </ul>
-            <li>
-              Search Collection or Sources for Selected Platform
-            </li>
-            <ul>
-              <li>
-                Search for any source or collection from our database, based on platform.
-              </li>
-              <li>
-                We recommend finding sources by searching the domain name of the resource you are interested in.
-              </li>
-              <li>
-                You can add multiple collections and/or sources to a search.
-              </li>
-            </ul>
-          </ul>
-        </div>
-        <img
-          src={assetUrl('img/media_picker_modal.png')}
-          alt="screenshot of media picker"
-          width="100%"
-          className="col-6"
-          style={{ border: '1px solid black' }}
-        />
-      </div>
-      <div className="row" style={{ marginTop: 60 }}>
-        <img
-          src={assetUrl('img/date_picker.png')}
-          alt="screenshot of date picker"
-          width="100%"
-          className="col-6"
-          style={{ border: '1px solid black' }}
-        />
-        <div className="col-6">
-
-          <h2>Date Picker</h2>
-          <p>
-            You are able to limit a search to specific date periods. The dates that are available
-            to search will adjust over time as Media Cloud ingests historical data. Current date
-            fields available are:
-          </p>
-          <ul>
-            <li>Date limits</li>
-            <ul>
-              <li>Wayback Machine before 8/1/22</li>
-              <li>Pushshift before 11/1/22</li>
-            </ul>
-          </ul>
-        </div>
-      </div>
-      <br />
-      <div className="row">
-        <div className="col-6">
-
-          <h2>Copy Search</h2>
-          <ul>
-            <li>
-              Ability to copy a url of an in progress query or a query that has been run, to share with others.
-            </li>
-          </ul>
-        </div>
-        <img
-          src={assetUrl('img/copy_search.png')}
-          alt="screenshot of copy search modal"
-          width="100%"
-          className="col-6"
-          style={{ border: '1px solid black' }}
-        />
-      </div>
-      <br />
-      <br />
-      <br />
-      <h2>Results</h2>
-      <ul>
-        <div className="row">
-          <div className="col-6">
-            <li>Total Attention</li>
-            <ul>
-              <li>
-                See the total number of hits and the % of stories your topic was for a time period
-              </li>
-            </ul>
-          </div>
-          <img
-            src={assetUrl('img/total_attention.png')}
-            alt="screenshot of total attention"
-            width="100%"
-            className="col-6"
-            style={{ border: '1px solid black' }}
-          />
-        </div>
-        <br />
-        <div className="row">
-          <img
-            src={assetUrl('img/attention_over_time_annotated.png')}
-            alt="screenshot of attention over time"
-            width="100%"
-            className="col-6"
-            style={{ border: '1px solid black' }}
-          />
-          <div className="col-6">
-
-            <li>Attention Over Time</li>
-            <ul>
-              <li>
-                Check day by day what the number of hits or % of stories your topic was for a time period
-              </li>
-            </ul>
-          </div>
-        </div>
-        <br />
-        <div className="row">
-          <div className="col-6">
-            <li>Sample Results</li>
-            <ul>
-              <li>
-                Get a small sample of results from your query, will change depending on platform
-              </li>
-              <ul>
-                <li>
-                  Option to download all results for each platform
-                </li>
-              </ul>
-            </ul>
-          </div>
-          <img
-            src={assetUrl('img/sample_content.png')}
-            alt="screenshot of sample_content"
-            width="100%"
-            className="col-6"
-            style={{ border: '1px solid black' }}
-          />
-        </div>
-        <br />
-        <div className="row">
-          <img
-            src={assetUrl('img/top_words.png')}
-            alt="screenshot of sample_content"
-            width="100%"
-            className="col-6"
-            style={{ border: '1px solid black' }}
-          />
-          <div className="col-6">
-
-            <li>Words (experimental)</li>
-            <ul>
-              <li>
-                Experimental feature to see words that appear most often in results
-              </li>
-            </ul>
-          </div>
-        </div>
-        <br />
-        <div className="row">
-          <div className="col-6">
-
-            <li>Languages (experimental)</li>
-            <ul>
-              <li>
-                Experimental feature to see what languages that appear most often in results
-              </li>
-            </ul>
-          </div>
-          <img
-            src={assetUrl('img/top_languages.png')}
-            alt="screenshot of sample_content"
-            width="100%"
-            className="col-6"
-            style={{ border: '1px solid black' }}
-          />
-        </div>
-      </ul>
     </div>
   );
 }
