@@ -1,10 +1,34 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import Button from '@mui/material/Button';
+import SearchIcon from '@mui/icons-material/Search';
 import { assetUrl } from '../ui/uiUtil';
 
 export default function AboutSearch() {
   return (
 
     <div className="about-page">
+      <div className="feature-area filled">
+        <div className="container">
+          <div className="row">
+            <div className="col-12 text-center">
+              <h1>
+                Media Cloud Search Tool
+              </h1>
+              <Link
+                to="/search"
+              >
+                <Button
+                  variant="contained"
+                  endIcon={<SearchIcon titleAccess="search online news and social media" />}
+                >
+                  Search Now
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="feature-area">
         <div className="container">
           <div className="row">
@@ -32,7 +56,7 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/simple_search.png')}
                 alt="screenshot of simple search"
-                width="100%"
+
               />
             </div>
           </div>
@@ -46,7 +70,7 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/advaced_search_screen.png')}
                 alt="screenshot of advanced search"
-                width="100%"
+
               />
             </div>
             <div className="col-5">
@@ -103,7 +127,7 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/media_picker_modal.png')}
                 alt="screenshot of media picker"
-                width="100%"
+
               />
             </div>
           </div>
@@ -117,7 +141,7 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/date_picker.png')}
                 alt="screenshot of date picker"
-                width="100%"
+
               />
             </div>
             <div className="col-5">
@@ -152,19 +176,23 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/copy_search.png')}
                 alt="screenshot of copy search modal"
-                width="100%"
+
               />
             </div>
           </div>
         </div>
       </div>
-      <br />
-      <br />
-      <br />
-      <h2>Results</h2>
-      <br />
-      <br />
-      <br />
+      <div className="feature-area filled">
+        <div className="container">
+          <div className="row">
+            <div className="col-12 text-center">
+              <h1>
+                Results
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="feature-area">
         <div className="container">
           <div className="row">
@@ -178,7 +206,7 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/total_attention.png')}
                 alt="screenshot of total attention"
-                width="100%"
+
               />
             </div>
           </div>
@@ -192,7 +220,7 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/attention_over_time_annotated.png')}
                 alt="screenshot of attention over time"
-                width="100%"
+
               />
             </div>
             <div className="col-5">
@@ -219,7 +247,7 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/sample_content.png')}
                 alt="screenshot of sample_content"
-                width="100%"
+
               />
             </div>
           </div>
@@ -233,7 +261,7 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/top_words.png')}
                 alt="screenshot of sample_content"
-                width="100%"
+
               />
             </div>
             <div className="col-5">
@@ -259,89 +287,107 @@ export default function AboutSearch() {
               <img
                 src={assetUrl('img/top_languages.png')}
                 alt="screenshot of sample_content"
-                width="100%"
+
               />
             </div>
           </div>
         </div>
       </div>
 
-      <h1>API Search Guide</h1>
-      <p>
-        Media Cloud uses a collection of APIs, in conjunction with our own specialized
-        collections of sources, to provide as much searchable information as we can.
-        While some APIs (like the Wayback Machine) are able to give us more comprehensive
-        data such as complete article text, others (such as Youtube), are more limited in
-        the information they make available to researchers.
-      </p>
-      <p>
-        We&rsquo;ve included a guide here on all of the APIs currently used by the Media Cloud
-        search tool, and what is able to be searched with each one. We are always looking
-        for new ways to enrich our research tools, and will update this page to reflect any
-        changes over time.
-      </p>
-
-      <div className="row">
-        <div className="col-6">
-          <h3>Wayback Machine</h3>
-          <ul>
-            <li style={{ width: '60%' }}>
-              Search against the Wayback Machine&rsquo;s database through an API we developed
-              to be able to search against the large number of sources and collections we
-              have developed. Search is against title text.
-            </li>
-            <li>
-              <a href="https://pypi.org/project/wayback-news-search/">Python Package</a>
-            </li>
-          </ul>
-          <h3>Pushshift.io</h3>
-          <ul>
-            <li style={{ width: '60%' }}>
-              Api for searching reddit, we are able to search against certain subreddits or
-              reddit at large.
-            </li>
-            <li>
-              Supports attention over time, total attention, samples, words, languages
-            </li>
-            <li>
-              <a href="https://reddit-api.readthedocs.io/en/latest/#what-is-the-purpose-of-this-api">Purpose</a>
-            </li>
-          </ul>
-          <h3>Twitter API</h3>
-          <ul>
-            <li>
-              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-              Search against twitter, or individual handles, using <a href="https://developer.twitter.com/en/docs/twitter-api">
-                twitter&rsquo;s api
-                {/* eslint-disable-next-line react/jsx-closing-tag-location */}
-              </a>
-            </li>
-            <li>
-              Supports attention over time, total attention, samples, words, languages
-            </li>
-          </ul>
-          <h3>YouTube API</h3>
-          <ul>
-            <li>
-              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-              We use the <a href="https://developers.google.com/youtube/v3/docs/search/list">
-                data api
-                {/* eslint-disable-next-line react/jsx-closing-tag-location */}
-              </a>
-            </li>
-            <li>
-              This Api is fairly limited, can pretty much only get sample videos
-            </li>
-          </ul>
+      <div className="feature-area filled">
+        <div className="container">
+          <div className="row">
+            <div className="col-12 text-center">
+              <h1>
+                API Search Guide
+              </h1>
+              <p>
+                Media Cloud uses a collection of APIs, in conjunction with our own specialized
+                collections of sources, to provide as much searchable information as we can.
+                While some APIs (like the Wayback Machine) are able to give us more comprehensive
+                data such as complete article text, others (such as Youtube), are more limited in
+                the information they make available to researchers.
+              </p>
+              <p>
+                We&rsquo;ve included a guide here on all of the APIs currently used by the Media Cloud
+                search tool, and what is able to be searched with each one. We are always looking
+                for new ways to enrich our research tools, and will update this page to reflect any
+                changes over time.
+              </p>
+            </div>
+          </div>
         </div>
-        <img
-          src={assetUrl('img/full_search_screen_AM_search_highlighted.png')}
-          alt="screenshot of advanced search"
-          width="100%"
-          height="90%"
-          className="col-6"
-          style={{ marginTop: 100, border: '1px solid black' }}
-        />
+      </div>
+
+      <div className="feature-area">
+        <div className="container">
+          <div className="row">
+            <div className="col-5 offset-1">
+              <h3>Wayback Machine</h3>
+              <ul>
+                <li style={{ width: '60%' }}>
+                  Search against the Wayback Machine&rsquo;s database through an API we developed
+                  to be able to search against the large number of sources and collections we
+                  have developed. Search is against title text.
+                </li>
+                <li>
+                  <a href="https://pypi.org/project/wayback-news-search/">Python Package</a>
+                </li>
+              </ul>
+              <h3>Pushshift.io</h3>
+              <ul>
+                <li style={{ width: '60%' }}>
+                  Api for searching reddit, we are able to search against certain subreddits or
+                  reddit at large.
+                </li>
+                <li>
+                  Supports attention over time, total attention, samples, words, languages
+                </li>
+                <li>
+                  <a href="https://reddit-api.readthedocs.io/en/latest/#what-is-the-purpose-of-this-api">Purpose</a>
+                </li>
+              </ul>
+              <h3>Twitter API</h3>
+              <ul>
+                <li>
+                  {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                  Search against twitter, or
+                  {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+
+                  individual handles, using
+                  {' '}
+                  <a href="https://developer.twitter.com/en/docs/twitter-api">
+                    twitter&rsquo;s api
+                    {/* eslint-disable-next-line react/jsx-closing-tag-location */}
+                  </a>
+                </li>
+                <li>
+                  Supports attention over time, total attention, samples, words, languages
+                </li>
+              </ul>
+              <h3>YouTube API</h3>
+              <ul>
+                <li>
+                  {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                  We use the <a href="https://developers.google.com/youtube/v3/docs/search/list">
+                    data api
+                    {/* eslint-disable-next-line react/jsx-closing-tag-location */}
+                  </a>
+                </li>
+                <li>
+                  This Api is fairly limited, can pretty much only get sample videos
+                </li>
+              </ul>
+            </div>
+            <div className="col-5">
+              <img
+                src={assetUrl('img/full_search_screen_AM_search_highlighted.png')}
+                alt="screenshot of advanced search"
+
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
