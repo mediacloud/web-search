@@ -24,6 +24,7 @@ import deactivateButton from './util/deactivateButton';
 import TopWords from './results/TopWords';
 import AlertDialog from '../ui/AlertDialog';
 import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from './util/platforms';
+import LoadSavedSearches from './query/savedsearch/LoadSavedSearches';
 
 export default function Search() {
   const dispatch = useDispatch();
@@ -139,9 +140,10 @@ export default function Search() {
             </div>
             <div className="col-7 ml-auto">
               <div className="d-flex justify-content-end">
-                <SaveSearch className="float-end" />
+                <SaveSearch className="me-auto" />
+                <LoadSavedSearches className="mx-auto" />
                 <Button
-                  className="float-end ms-2"
+                  className="ms-auto"
                   variant="contained"
                   disabled={!show}
                   endIcon={<SearchIcon titleAccess="search this query" />}

@@ -14,7 +14,7 @@ export default function SaveSearch() {
   const [createSavedSearch] = useCreateSavedSearchMutation();
 
   const handleSaveSearch = async () => {
-    const serializedSearch = `search.mediacloud.org/search${urlSerializer(queryState)}`;
+    const serializedSearch = `https://search.mediacloud.org/search${urlSerializer(queryState)}`;
     await createSavedSearch({ name, serializedSearch });
     setOpen(false);
   };

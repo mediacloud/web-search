@@ -73,7 +73,7 @@ export const searchApi = createApi({
         url: `savedsearch/${id}/`,
         method: 'GET',
       }),
-      providesTags: (result, error, id) => (result
+      providesTags: (result, id) => (result
         ? [{ type: 'SavedSearch', id }]
         : ['SavedSearch']),
     }),
@@ -82,7 +82,7 @@ export const searchApi = createApi({
         url: 'savedsearch/',
         method: 'GET',
       }),
-      providesTags: (result, error, id) => (result
+      providesTags: (result, id) => (result
         ? [{ type: 'SavedSearch', id }]
         : ['SavedSearch']),
     }),
