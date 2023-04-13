@@ -28,8 +28,8 @@ export default function TopWords() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetTopWordsMutation();
 
-  const handleDownloadRequest = (queryObject) => {
-    window.location = `/api/search/download-top-words-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-top-words-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
   };
 
   const [value, setValue] = useState(0);
@@ -82,22 +82,15 @@ export default function TopWords() {
         </div>
         <div className="clearfix">
           <div className="float-end">
-            {/* <Button
+            <Button
               variant="text"
               endIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
               onClick={() => {
-                handleDownloadRequest({
-                  query: fullQuery,
-                  startDate,
-                  endDate,
-                  collections: collectionIds,
-                  sources,
-                  platform,
-                });
+                handleDownloadRequest(queryState);
               }}
             >
               Download CSV of Top Terms
-            </Button> */}
+            </Button>
           </div>
         </div>
 

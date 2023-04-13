@@ -172,14 +172,17 @@ def words(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_words_csv(request):
-    start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
-    provider = providers.provider_by_name(provider_name)
-    if provider_name.split('-')[0] == PLATFORM_REDDIT:
-        top_terms = provider.words(query_str, start_date, end_date, **provider_props)
-        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
-    else: 
-        top_terms = provider.words(query_str, start_date, end_date, **provider_props, sample_size=5000)
-        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+    queryState = json.loads(request.GET.get("qS"))
+    data = []
+    for query in queryState:
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        provider = providers.provider_by_name(provider_name)
+        if provider_name.split('-')[0] == PLATFORM_REDDIT:
+            data.append(provider.words(query_str, start_date, end_date, **provider_props))
+            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+        else: 
+            data.append(provider.words(query_str, start_date, end_date, **provider_props, sample_size=5000))
+            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     filename = "mc-{}-{}-top-words.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -189,8 +192,9 @@ def download_words_csv(request):
     # TODO: extract into a constant (global)
     cols = ['term', 'count', 'ratio']
     writer.writerow(cols)
-    for t in top_terms:
-        writer.writerow([t["term"], t["count"], t['ratio']])
+    for top_terms in data:
+        for t in top_terms:
+            writer.writerow([t["term"], t["count"], t['ratio']])
     return response
 
 
@@ -209,7 +213,7 @@ def download_counts_over_time_csv(request):
             data.append(provider.count_over_time(query_str, start_date, end_date, **provider_props))
             normalized = False
         QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
-        filename = "mc-{}-{}-counts.csv".format(provider_name, _filename_timestamp())
+    filename = "mc-{}-{}-counts.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
