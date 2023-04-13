@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
@@ -9,14 +7,12 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@mui/icons-material';
 import DownloadIcon from '@mui/icons-material/Download';
-import queryGenerator from '../util/queryGenerator';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
-import urlSerializer from '../util/urlSerializer';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -143,14 +139,6 @@ export default function CountOverTimeResults() {
               variant="text"
               endIcon={<DownloadIcon titleAccess="download attention over time results" />}
               onClick={() => {
-                // handleDownloadRequest({
-                //   query: fullQuery(),
-                //   startDate,
-                //   endDate,
-                //   collections: collectionIds,
-                //   sources: sourceIds,
-                //   platform,
-                // });
                 handleDownloadRequest(queryState);
               }}
             >

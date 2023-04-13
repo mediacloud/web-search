@@ -200,17 +200,16 @@ def download_counts_over_time_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-
         start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
         provider = providers.provider_by_name(provider_name)
         try:
-            counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+            data.append(provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props))
             normalized = True
         except UnsupportedOperationException:
-            counts_data = provider.count_over_time(query_str, start_date, end_date, **provider_props)
+            data.append(provider.count_over_time(query_str, start_date, end_date, **provider_props))
             normalized = False
         QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-counts.csv".format(provider_name, _filename_timestamp())
+        filename = "mc-{}-{}-counts.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -219,14 +218,14 @@ def download_counts_over_time_csv(request):
     # TODO: extract into a constant (global)
     cols = ['date', 'count', 'total_count', 'ratio'] if normalized else ['date', 'count']
     writer.writerow(cols)
-    for day in counts_data["counts"]:
-        if 'ratio' in day:
-            writer.writerow([day["date"], day["count"], day["total_count"], day["ratio"]])
-        else:
-            writer.writerow([day["date"], day["count"]])
+    for result in data:
+        for day in result["counts"]:
+            if 'ratio' in day:
+                writer.writerow([day["date"], day["count"], day["total_count"], day["ratio"]])
+            else:
+                writer.writerow([day["date"], day["count"]])
     return response
-    print("hello")
-    return HttpResponse("hi")
+
 
 
 @login_required(redirect_field_name='/auth/login')
