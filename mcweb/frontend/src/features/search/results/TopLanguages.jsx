@@ -34,9 +34,9 @@ export default function TopLanguages() {
     setValue(newValue);
   };
 
-  // const handleDownloadRequest = (queryObject) => {
-  //   window.location = `/api/search/download-top-languages-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
-  // };
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-top-languages-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
 
   useEffect(() => {
     if (checkForBlankQuery(queryState)) {
@@ -77,13 +77,6 @@ export default function TopLanguages() {
               <TabPanelHelper value={value} index={i}>
                 <BarChart
                   series={[results]}
-                // series={[{
-                //   data: data.languages.map((l) => ({
-                //     key: l.language, value: l.ratio * 100,
-                //   })),
-                //   name: 'Language',
-                //   color: '#2f2d2b',
-                // }]}
                   normalized
                   title="Top Languages"
                   height={100 + (results.data.length * 40)}
@@ -94,22 +87,15 @@ export default function TopLanguages() {
         </div>
         <div className="clearfix">
           <div className="float-end">
-            {/* <Button
+            <Button
               variant="text"
               endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
               onClick={() => {
-                handleDownloadRequest({
-                  query: fullQuery,
-                  startDate,
-                  endDate,
-                  collections: collectionIds,
-                  sources,
-                  platform,
-                });
+                handleDownloadRequest(queryState);
               }}
             >
               Download CSV of Top Languages
-            </Button> */}
+            </Button>
           </div>
         </div>
       </>
@@ -126,10 +112,8 @@ export default function TopLanguages() {
             <Chip color="warning" label="experimental" />
           </h2>
           <p>
-            This is an
-            {' '}
-            <i>experimental</i>
-            {' '}
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            This is an <i>experimental</i>
             sample-based list of the top languages of content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>

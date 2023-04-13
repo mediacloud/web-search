@@ -135,11 +135,13 @@ def languages(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_languages_csv(request):
-
-    start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
-    provider = providers.provider_by_name(provider_name)
-    top_terms = provider.languages(query_str, start_date, end_date, **provider_props, sample_size=5000, limit=100)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    queryState = json.loads(request.GET.get("qS"))
+    data = []
+    for query in queryState:
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        provider = providers.provider_by_name(provider_name)
+        data.append(provider.languages(query_str, start_date, end_date, **provider_props, sample_size=5000, limit=100))
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     filename = "mc-{}-{}-top-languages.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -149,8 +151,9 @@ def download_languages_csv(request):
     # TODO: extract into a constant (global)
     cols = ['language', 'count', 'ratio']
     writer.writerow(cols)
-    for t in top_terms:
-        writer.writerow([t["language"], t["count"], t['ratio']])
+    for top_terms in data:
+        for t in top_terms:
+            writer.writerow([t["language"], t["value"], t['ratio']])
     return response
 
 
