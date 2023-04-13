@@ -135,6 +135,7 @@ def languages(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_languages_csv(request):
+
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
     top_terms = provider.languages(query_str, start_date, end_date, **provider_props, sample_size=5000, limit=100)
@@ -196,15 +197,19 @@ def download_words_csv(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
-    start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
-    provider = providers.provider_by_name(provider_name)
-    try:
-        counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
-        normalized = True
-    except UnsupportedOperationException:
-        counts_data = provider.count_over_time(query_str, start_date, end_date, **provider_props)
-        normalized = False
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    queryState = json.loads(request.GET.get("qS"))
+    data = []
+    for query in queryState:
+
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        provider = providers.provider_by_name(provider_name)
+        try:
+            counts_data = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+            normalized = True
+        except UnsupportedOperationException:
+            counts_data = provider.count_over_time(query_str, start_date, end_date, **provider_props)
+            normalized = False
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     filename = "mc-{}-{}-counts.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -220,6 +225,8 @@ def download_counts_over_time_csv(request):
         else:
             writer.writerow([day["date"], day["count"]])
     return response
+    print("hello")
+    return HttpResponse("hi")
 
 
 @login_required(redirect_field_name='/auth/login')

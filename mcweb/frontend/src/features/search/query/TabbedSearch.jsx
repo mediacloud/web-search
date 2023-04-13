@@ -121,7 +121,7 @@ export default function TabbedSearch() {
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
                   navigate(
-                    `/search${urlSerializer(queryState)}`,
+                    `/search?${urlSerializer(queryState)}`,
                     { options: { replace: true } },
                   );
                   dispatch(searchApi.util.resetApiState());

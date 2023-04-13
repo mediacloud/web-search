@@ -46,7 +46,7 @@ export default function CountOverTimeChart({ data, normalized }) {
       enabled: false,
     },
     legend: { enabled: false },
-    colors: ['#2f2d2b', '#d24527', '#2f2d2b', '#d23716', '#f7a44e'],
+    colors: ['#2f2d2b', '#d24527', '#f7a44e', '#334cda', '#d23716'],
     series: data,
   };
 

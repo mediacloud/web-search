@@ -16,6 +16,7 @@ import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
+import urlSerializer from '../util/urlSerializer';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -37,9 +38,9 @@ export default function CountOverTimeResults() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
-  // const handleDownloadRequest = (queryObject) => {
-  //   window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
-  // };
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-counts-over-time-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
 
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
@@ -138,22 +139,23 @@ export default function CountOverTimeResults() {
             </div>
           )}
           <div className="float-end">
-            {/* <Button
+            <Button
               variant="text"
               endIcon={<DownloadIcon titleAccess="download attention over time results" />}
               onClick={() => {
-                handleDownloadRequest({
-                  query: fullQuery(),
-                  startDate,
-                  endDate,
-                  collections: collectionIds,
-                  sources: sourceIds,
-                  platform,
-                });
+                // handleDownloadRequest({
+                //   query: fullQuery(),
+                //   startDate,
+                //   endDate,
+                //   collections: collectionIds,
+                //   sources: sourceIds,
+                //   platform,
+                // });
+                handleDownloadRequest(queryState);
               }}
             >
               Download CSV
-            </Button> */}
+            </Button>
           </div>
         </div>
       </>

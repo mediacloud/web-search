@@ -5,7 +5,7 @@ import queryTitle from './queryTitle';
 const normalizeData = (relevant, total) => 100 * (relevant
     / (total + Number.EPSILON));
 
-const colors = ['#2f2d2b', '#d24527', '#2f2d2b', '#d23716', '#f7a44e'];
+const colors = ['#2f2d2b', '#d24527', '#f7a44e', '#334cda', '#d23716'];
 
 const prepareTotalAttentionData = (results, queryState, normalized) => {
   const series = [];
