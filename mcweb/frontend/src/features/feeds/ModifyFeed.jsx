@@ -41,14 +41,13 @@ function ModifyFeed() {
   ] = useLazyListSourcesQuery();
   const navigate = useNavigate();
   const params = useParams();
-  const autocompleteRef = useRef(null);
   const { enqueueSnackbar } = useSnackbar();
   const feedId = Number(params.feedId);
   const { data, isLoading } = useGetFeedQuery(feedId);
    const {
         data: sourceData,
         isLoading:isSourceLoading,
-      } = useGetSourceQuery(data.source);
+   } = useGetSourceQuery(data.source);
   const [updateFeed] = useUpdateFeedMutation(feedId);
 
   // form state for text fields
@@ -62,9 +61,6 @@ function ModifyFeed() {
 
   const handleClose = () => {
     setOpenDialog(false);
-    if (autocompleteRef.current) {
-      autocompleteRef.current.clearValue();
-    }
   };
 
   const handleChangeSource = () => {
@@ -143,7 +139,7 @@ function ModifyFeed() {
     <div className="container">
       <div className="row">
         <div className="col-12">
-          <h2>Edit Feed </h2>
+          <h2>Edit Feed</h2>
         </div>
       </div>
 
@@ -171,13 +167,9 @@ function ModifyFeed() {
           <br />
           <br />
           <Autocomplete
-            ref={autocompleteRef}
             id="quick-directory-search"
-            defaultValue={
-              sourceData.id === formState.source?sourceData: ""
-            }
             open={open}
-            filterOptions={(x) => x} /* let the server filter optons */
+            filterOptions={(x) => x} // let the server filter optons 
             onOpen={() => {}}
             onClose={() => {
               setOpen(false);
@@ -188,13 +180,13 @@ function ModifyFeed() {
             noOptionsText="No matches"
             groupBy={(option) => option?.displayGroup || ''}
             options={[...sourceOptions]}
+            defaultValue={sourceData|| null}
             loading={somethingIsFetching}
             onChange={defaultSelectionHandler}
             renderInput={(params) => (
               <TextField
                 {...params}
                 label="Parent Source"
-                value={formState.source}
                 disabled={somethingIsFetching}
                 InputProps={{
                   ...params.InputProps,
