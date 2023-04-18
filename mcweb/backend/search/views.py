@@ -140,7 +140,10 @@ def download_languages_csv(request):
     for query in queryState:
         start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
         provider = providers.provider_by_name(provider_name)
-        data.append(provider.languages(query_str, start_date, end_date, **provider_props, sample_size=5000, limit=100))
+        if provider_name.split('-')[0] == PLATFORM_REDDIT:
+            data.append(provider.languages(query_str, start_date, end_date, **provider_props))
+        else: 
+            data.append(provider.languages(query_str, start_date, end_date, **provider_props, sample_size=5000, limit=100))
         QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     filename = "mc-{}-{}-top-languages.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(

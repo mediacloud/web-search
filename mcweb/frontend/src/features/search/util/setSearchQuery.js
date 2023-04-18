@@ -6,7 +6,7 @@ import {
   addQuery,
   setPlatform,
   setLastSearchTime,
-
+  resetSelectedAndPreviewMedia,
 } from '../query/querySlice';
 
 const customParseFormat = require('dayjs/plugin/customParseFormat');
@@ -89,16 +89,31 @@ const setState = (queries, negatedQueries, startDates, endDates, platforms, coll
   anyAlls.forEach((anyAll, i) => {
     dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
   });
+
+  let reset;
   sources.forEach((source, i) => {
-    if (source[0] === null) return null;
+    if (source[0] === null) {
+      reset = true;
+      return null;
+    }
     dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
     dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
+    reset = false;
   });
   collections.forEach((collection, i) => {
-    if (collection[0] === null) return null;
+    if (collection[0] === null) {
+      reset = true;
+      return null;
+    }
     dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
     dispatch(addSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
+    reset = false;
   });
+  if (reset) {
+    for (let i = 0; i < collections.length; i += 1) {
+      dispatch(resetSelectedAndPreviewMedia({ queryIndex: i }));
+    }
+  }
   dispatch(setLastSearchTime(dayjs().unix()));
 };
 
