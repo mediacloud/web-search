@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import PropTypes from 'prop-types';
+import Button from '@mui/material/Button';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
+import DownloadIcon from '@mui/icons-material/Download';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -22,8 +22,6 @@ export default function SampleStories() {
   const queryState = useSelector((state) => state.query);
   const {
     platform,
-    startDate,
-    endDate,
     lastSearchTime,
   } = queryState[0];
 
@@ -41,8 +39,8 @@ export default function SampleStories() {
     setAnchorEl(null);
   };
 
-  const handleDownloadRequest = (queryObject) => {
-    window.location = `/api/search/download-all-content-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
   };
 
   const [value, setValue] = useState(0);
@@ -83,7 +81,7 @@ export default function SampleStories() {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {data.sample.map((result, i) => (
-                  <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
+                  <Tab key={`samples${i + 1}`} label={queryTitle(queryState, i)} {...a11yProps(i)} />
                 ))}
               </Tabs>
             </Box>
@@ -102,26 +100,19 @@ export default function SampleStories() {
             ))}
           </Box>
         </div>
-        {/* <div className="clearfix">
+        <div className="clearfix">
           <div className="float-end">
             <Button
               variant="text"
               endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
               onClick={() => {
-                handleDownloadRequest({
-                  query: fullQuery,
-                  startDate,
-                  endDate,
-                  collections: collectionIds,
-                  sources: sourceIds,
-                  platform,
-                });
+                handleDownloadRequest(queryState);
               }}
             >
               Download CSV of All Content
             </Button>
           </div>
-        </div> */}
+        </div>
       </>
     );
   }
