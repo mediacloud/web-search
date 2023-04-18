@@ -181,10 +181,14 @@ def download_words_csv(request):
         start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
         provider = providers.provider_by_name(provider_name)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
-            data.append(provider.words(query_str, start_date, end_date, **provider_props))
+            words = provider.words(query_str, start_date, end_date, **provider_props)
+            words = add_ratios(words)
+            data.append(words)
             QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
         else: 
-            data.append(provider.words(query_str, start_date, end_date, **provider_props, sample_size=5000))
+            words = provider.words(query_str, start_date, end_date, **provider_props, sample_size=5000)
+            words = add_ratios(words)
+            data.append(words)
             QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     filename = "mc-{}-{}-top-words.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
