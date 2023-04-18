@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Button from '@mui/material/Button';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DownloadIcon from '@mui/icons-material/Download';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -39,10 +37,6 @@ export default function SampleStories() {
     setAnchorEl(null);
   };
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
-
   const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -75,45 +69,30 @@ export default function SampleStories() {
     );
   } else {
     content = (
-      <>
-        <div className="container">
-          <Box sx={{ width: '100%' }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                {data.sample.map((result, i) => (
-                  <Tab key={`samples${i + 1}`} label={queryTitle(queryState, i)} {...a11yProps(i)} />
-                ))}
-              </Tabs>
-            </Box>
-
-            {data.sample.map((results, i) => (
-              <TabPanelHelper value={value} index={i}>
-                <SampleStoryShow
-                  open={open}
-                  data={results}
-                  lSTP={lastSearchTimePlatform}
-                  handleClick={handleClick}
-                  handleClose={handleClose}
-                  platform={platform}
-                />
-              </TabPanelHelper>
-            ))}
+      <div className="container">
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+              {data.sample.map((result, i) => (
+                <Tab key={`samples${i + 1}`} label={queryTitle(queryState, i)} {...a11yProps(i)} />
+              ))}
+            </Tabs>
           </Box>
-        </div>
-        <div className="clearfix">
-          <div className="float-end">
-            <Button
-              variant="text"
-              endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV of All Content
-            </Button>
-          </div>
-        </div>
-      </>
+
+          {data.sample.map((results, i) => (
+            <TabPanelHelper value={value} index={i}>
+              <SampleStoryShow
+                open={open}
+                data={results}
+                lSTP={lastSearchTimePlatform}
+                handleClick={handleClick}
+                handleClose={handleClose}
+                platform={platform}
+              />
+            </TabPanelHelper>
+          ))}
+        </Box>
+      </div>
     );
   }
   return (

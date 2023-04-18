@@ -5,9 +5,9 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Settings } from '@mui/icons-material';
+import DownloadIcon from '@mui/icons-material/Download';
+import Settings from '@mui/icons-material/Settings';
 import BarChart from './BarChart';
-import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT,
@@ -41,6 +41,10 @@ function TotalAttentionResults() {
   const open = Boolean(anchorEl);
 
   const [dispatchQuery, { isLoading, data, error }] = useGetTotalCountMutation();
+
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
 
   useEffect(() => {
     if (checkForBlankQuery(queryState)) {
@@ -152,6 +156,19 @@ function TotalAttentionResults() {
             )}
           </div>
           )}
+        </div>
+        <div className="clearfix">
+          <div className="float-end">
+            <Button
+              variant="text"
+              endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
+              onClick={() => {
+                handleDownloadRequest(queryState);
+              }}
+            >
+              Download CSV of All Content
+            </Button>
+          </div>
         </div>
       </>
     );
