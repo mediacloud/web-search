@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import Alert from '@mui/material/Alert';
 // import PlatformPicker from './query/PlatformPicker';
-import SelectedMedia from './query/SelectedMedia';
-import SearchDatePicker from './query/SearchDatePicker';
-import SimpleSearch from './query/SimpleSearch';
-import { removeSelectedMedia } from './query/querySlice';
-import AdvancedSearch from './query/AdvancedSearch';
-import MediaPicker from './query/media-picker/MediaPicker';
-import urlSerializer from './util/urlSerializer';
-import deactivateButton from './util/deactivateButton';
-import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from './util/platforms';
+import SelectedMedia from './SelectedMedia';
+import SearchDatePicker from './SearchDatePicker';
+import SimpleSearch from './SimpleSearch';
+import { removeSelectedMedia } from './querySlice';
+import AdvancedSearch from './AdvancedSearch';
+import MediaPicker from './media-picker/MediaPicker';
+import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from '../util/platforms';
 
 export default function Search({ queryIndex }) {
-  const [show, setShow] = useState(true);
-
   const queryState = useSelector((state) => state.query[queryIndex]);
 
   const {
@@ -24,15 +20,6 @@ export default function Search({ queryIndex }) {
     advanced,
     platform,
   } = queryState;
-
-  const handleShare = () => {
-    const ahref = `search.mediacloud.org/search${urlSerializer(queryState)}`;
-    navigator.clipboard.writeText(ahref);
-  };
-
-  useEffect(() => {
-    setShow(deactivateButton(queryState));
-  }, [queryState]);
 
   return (
     <div className="search-container">

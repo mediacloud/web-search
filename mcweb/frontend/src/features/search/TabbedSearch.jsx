@@ -1,37 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import SearchIcon from '@mui/icons-material/Search';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ContentCopy from '@mui/icons-material/ContentCopy';
 import dayjs from 'dayjs';
-import { addQuery, setLastSearchTime, removeQuery } from './querySlice';
-import Search from '../Search';
-import PlatformPicker from './PlatformPicker';
-import AlertDialog from '../../ui/AlertDialog';
-import CountOverTimeResults from '../results/CountOverTimeResults';
-import TotalAttentionResults from '../results/TotalAttentionResults';
-import TopWords from '../results/TopWords';
-import TopLanguages from '../results/TopLanguages';
-import SampleStories from '../results/SampleStories';
-import TabPanelHelper from '../../ui/TabPanelHelper';
-// import urlSerializer from '../util/urlSerializer';
-import { searchApi } from '../../../app/services/searchApi';
-import deactivateButton from '../util/deactivateButton';
-import urlSerializer from '../util/urlSerializer';
-import setSearchQuery from '../util/setSearchQuery';
+import { addQuery, setLastSearchTime, removeQuery } from './query/querySlice';
+import Search from './query/Search';
+import PlatformPicker from './query/PlatformPicker';
+import AlertDialog from '../ui/AlertDialog';
+import CountOverTimeResults from './results/CountOverTimeResults';
+import TotalAttentionResults from './results/TotalAttentionResults';
+import TopWords from './results/TopWords';
+import TopLanguages from './results/TopLanguages';
+import SampleStories from './results/SampleStories';
+import TabPanelHelper from '../ui/TabPanelHelper';
+import { searchApi } from '../../app/services/searchApi';
+import deactivateButton from './util/deactivateButton';
+import urlSerializer from './util/urlSerializer';
 
 export default function TabbedSearch() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [value, setValue] = useState(0);
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const queryState = useSelector((state) => state.query);
   const { platform } = queryState[0];
@@ -54,13 +50,18 @@ export default function TabbedSearch() {
     }
   };
 
+  const handleShare = () => {
+    const ahref = `search.mediacloud.org/search${urlSerializer(queryState)}`;
+    navigator.clipboard.writeText(ahref);
+  };
+
   useEffect(() => {
     setValue(0);
   }, [platform]);
 
-  // useEffect(() => {
-  //   setShow(deactivateButton(queryState));
-  // }, [queryState]);
+  useEffect(() => {
+    setShow(deactivateButton(queryState));
+  }, [queryState]);
 
   return (
     <div className="container search-container">
@@ -92,7 +93,7 @@ export default function TabbedSearch() {
         <div className="container">
           <div className="row">
 
-            {/* <div className="col-11">
+            <div className="col-11">
               <AlertDialog
                 openDialog={open}
                 outsideTitle="Share this Search"
@@ -110,14 +111,14 @@ export default function TabbedSearch() {
                 className="float-end"
                 confirmButtonText="copy"
               />
-            </div> */}
+            </div>
 
             <div className="col-1">
               {/* Submit */}
               <Button
                 className="float-end"
                 variant="contained"
-                // disabled={!show}
+                disabled={!show}
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
                   navigate(
