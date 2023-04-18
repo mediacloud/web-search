@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import {
   TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
-import { useCreateSavedSearchMutation } from '../../../../app/services/searchApi';
+import { useCreateSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 import urlSerializer from '../../util/urlSerializer';
 
 export default function SaveSearch() {

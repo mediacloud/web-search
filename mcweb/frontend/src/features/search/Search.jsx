@@ -140,8 +140,8 @@ export default function Search() {
             </div>
             <div className="col-7 ml-auto">
               <div className="d-flex justify-content-end">
-                <SaveSearch className="me-auto" />
-                <LoadSavedSearches className="mx-auto" />
+                <SaveSearch className="float-start" />
+                <LoadSavedSearches className="float-start" />
                 <Button
                   className="ms-auto"
                   variant="contained"

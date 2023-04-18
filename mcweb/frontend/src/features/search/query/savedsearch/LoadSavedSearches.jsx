@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-import { useListSavedSearchesQuery } from '../../../../app/services/searchApi';
+import { useListSavedSearchesQuery } from '../../../../app/services/savedsearchApi';
 
 export default function LoadSavedSearches() {
   const { data } = useListSavedSearchesQuery();

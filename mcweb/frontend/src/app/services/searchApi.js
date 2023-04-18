@@ -10,6 +10,7 @@ export const searchApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['SavedSearch'],
 
   endpoints: (builder) => ({
     getSearch: builder.mutation({
