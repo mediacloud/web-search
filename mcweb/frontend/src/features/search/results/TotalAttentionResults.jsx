@@ -12,11 +12,12 @@ import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT,
   PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 
 export const supportsNormalizedCount = (platform) =>
   // eslint-disable-next-line implicit-arrow-linebreak
-  [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT].includes(platform);
+  [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform);
 
 function TotalAttentionResults() {
   const {
@@ -72,14 +73,122 @@ function TotalAttentionResults() {
   if (isLoading) {
     return (
       <div>
-        {' '}
         <CircularProgress size="75px" />
-        {' '}
       </div>
     );
   }
 
   if (!data && !error) return null;
+
+  let content;
+  if (error) {
+    content = (
+      <Alert severity="warning">
+        Sorry, but something went wrong.
+        (
+        {error.data.note}
+        )
+      </Alert>
+    );
+  } else {
+    content = (
+      <>
+        <div>
+          {normalizeData(data) === 0 && (
+          <Alert severity="warning">
+            No content has matched this query
+          </Alert>
+          )}
+          {normalizeData(data) === 100 && (
+          <Alert severity="warning">
+            This query has returned 100% attention
+          </Alert>
+          )}
+
+          <BarChart
+            series={[
+              {
+                data: [
+                  {
+                    key: fullQuery,
+                    value: normalizeData(data) === 100
+                      ? data.count.relevant
+                      : (normalized && normalizeData(data))
+                          || data.count.relevant,
+                  },
+                ],
+                name: 'Matching Content',
+                color: '#2f2d2b',
+              },
+            ]}
+            normalized={normalized && normalizeData(data) !== 100}
+            title="Total Stories Count"
+            height={200}
+          />
+        </div>
+
+        <div className="clearfix">
+          {supportsNormalizedCount(platform) && (
+          <div className="float-start">
+            {normalized && normalizeData(data) !== 100 && (
+            <div>
+              <Button
+                onClick={handleClick}
+                endIcon={
+                  <Settings titleAccess="view other chart viewing options" />
+                      }
+              >
+                View Options
+              </Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setNormalized(false);
+                    handleClose();
+                  }}
+                >
+                  View Story Count
+                </MenuItem>
+              </Menu>
+            </div>
+            )}
+            {!normalized && normalizeData(data) !== 100 && (
+            <div>
+              <Button onClick={handleClick}>View Options</Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setNormalized(true);
+                    handleClose();
+                  }}
+                >
+                  View Normalized Story Percentage (default)
+                </MenuItem>
+              </Menu>
+            </div>
+            )}
+          </div>
+          )}
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="results-item-wrapper">
@@ -93,108 +202,7 @@ function TotalAttentionResults() {
           </p>
         </div>
         <div className="col-8">
-          {error && (
-            <Alert severity="warning">
-              Sorry, but something went wrong. (
-              {error.data.note}
-              )
-            </Alert>
-          )}
-          {error === undefined && (
-            <div>
-              {normalizeData(data) === 0 && (
-                <Alert severity="warning">
-                  No content has matched this query
-                </Alert>
-              )}
-              {normalizeData(data) === 100 && (
-                <Alert severity="warning">
-                  {' '}
-                  This query has returned 100% attention
-                  {' '}
-                </Alert>
-              )}
-              <BarChart
-                series={[
-                  {
-                    data: [
-                      {
-                        key: fullQuery,
-                        value: normalizeData(data) === 100
-                          ? data.count.relevant
-                          : (normalized && normalizeData(data))
-                          || data.count.relevant,
-                      },
-                    ],
-                    name: 'Matching Content',
-                    color: '#2f2d2b',
-                  },
-                ]}
-                normalized={normalized && normalizeData(data) !== 100}
-                title="Total Stories Count"
-                height={200}
-              />
-            </div>
-          )}
-          <div className="clearfix">
-            {supportsNormalizedCount(platform) && (
-              <div className="float-start">
-                {normalized && normalizeData(data) !== 100 && (
-                  <div>
-                    <Button
-                      onClick={handleClick}
-                      endIcon={
-                        <Settings titleAccess="view other chart viewing options" />
-                      }
-                    >
-                      View Options
-                    </Button>
-                    <Menu
-                      id="basic-menu"
-                      anchorEl={anchorEl}
-                      open={open}
-                      onClose={handleClose}
-                      MenuListProps={{
-                        'aria-labelledby': 'basic-button',
-                      }}
-                    >
-                      <MenuItem
-                        onClick={() => {
-                          setNormalized(false);
-                          handleClose();
-                        }}
-                      >
-                        View Story Count
-                      </MenuItem>
-                    </Menu>
-                  </div>
-                )}
-                {!normalized && normalizeData(data) !== 100 && (
-                  <div>
-                    <Button onClick={handleClick}>View Options</Button>
-                    <Menu
-                      id="basic-menu"
-                      anchorEl={anchorEl}
-                      open={open}
-                      onClose={handleClose}
-                      MenuListProps={{
-                        'aria-labelledby': 'basic-button',
-                      }}
-                    >
-                      <MenuItem
-                        onClick={() => {
-                          setNormalized(true);
-                          handleClose();
-                        }}
-                      >
-                        View Normalized Story Percentage (default)
-                      </MenuItem>
-                    </Menu>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {content}
         </div>
       </div>
     </div>

@@ -145,6 +145,7 @@ def words(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     sample_stories = provider.words(query_str, start_date, end_date, **provider_props)
+    sample_stories = add_ratios(sample_stories)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": sample_stories}, default=str), content_type="application/json",
                         status=200)
@@ -234,6 +235,11 @@ def download_all_content_csv(request):
     filename = "mc-{}-{}-content.csv".format(provider_name, _filename_timestamp())
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
+
+def add_ratios(words_data):
+    for word in words_data:
+        word["ratio"] = word['count'] / 1000
+    return words_data
 
 
 def _filename_timestamp() -> str:
