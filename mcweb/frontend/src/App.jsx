@@ -23,7 +23,6 @@ import CreateCollection from './features/collections/CreateCollection';
 import CreateSource from './features/sources/CreateSource';
 import CollectionHeader from './features/collections/CollectionHeader';
 import GeographicNewsCollections from './features/collections/GeographicNewsCollections';
-import Search from './features/search/Search';
 import SourceShow from './features/sources/SourceShow';
 import ListSourceFeeds from './features/sources/ListSourceFeeds';
 import CreateFeed from './features/feeds/CreateFeed';
@@ -33,7 +32,7 @@ import FeedShow from './features/feeds/FeedShow';
 import SourceHeader from './features/sources/SourceHeader';
 import ReleaseNotes from './features/about/ReleaseNotes';
 import AboutSearch from './features/about/AboutSearch';
-
+import TabbedSearch from './features/search/TabbedSearch';
 import StoryShow from './features/stories/StoryShow';
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
@@ -81,6 +80,13 @@ function App() {
             path="about-search"
             element={(
               <AboutSearch />
+            )}
+          />
+
+          <Route
+            path="search"
+            element={(
+              <TabbedSearch />
             )}
           />
 
@@ -136,14 +142,14 @@ function App() {
               </RequireAuth>
             )}
           />
-          <Route
+          {/* <Route
             path="search"
             element={(
               <RequireAuth>
                 <Search />
               </RequireAuth>
             )}
-          />
+          /> */}
 
           <Route
             path="sources"

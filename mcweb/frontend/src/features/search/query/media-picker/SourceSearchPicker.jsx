@@ -9,12 +9,12 @@ import MediaPickerSelectionTable from './MediaPickerSelectionTable';
 import { useLazyListSourcesQuery } from '../../../../app/services/sourceApi';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 
-export default function SourceSearchPicker({ platform }) {
+export default function SourceSearchPicker({ platform, queryIndex }) {
   const [query, setQuery] = useState('');
   const [trigger, {
     isLoading, data,
   }] = useLazyListSourcesQuery();
-  const { previewSources } = useSelector((state) => state.query);
+  const { previewSources } = useSelector((state) => state.query[queryIndex]);
 
   return (
     <div className="collection-search-picker-container">
@@ -53,6 +53,7 @@ export default function SourceSearchPicker({ platform }) {
                 onAdd={addPreviewSelectedMedia}
                 onRemove={removePreviewSelectedMedia}
                 collection={false}
+                queryIndex={queryIndex}
               />
             </>
             )}
@@ -66,4 +67,5 @@ export default function SourceSearchPicker({ platform }) {
 
 SourceSearchPicker.propTypes = {
   platform: PropTypes.string.isRequired,
+  queryIndex: PropTypes.number.isRequired,
 };

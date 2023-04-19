@@ -1,54 +1,46 @@
-import * as React from 'react';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import DownloadIcon from '@mui/icons-material/Download';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
-import queryGenerator from '../util/queryGenerator';
+import checkForBlankQuery from '../util/checkForBlankQuery';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
+import queryTitle from '../util/queryTitle';
+import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
+import TabPanelHelper from '../../ui/TabPanelHelper';
 
 export default function TopWords() {
+  const queryState = useSelector((state) => state.query);
+
   const {
-    queryList,
-    queryString,
-    negatedQueryList,
     platform,
-    startDate,
-    endDate,
-    collections,
-    sources,
     lastSearchTime,
-    anyAll,
-    advanced,
-  } = useSelector((state) => state.query);
+  } = queryState[0];
 
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const [dispatchQuery, { isLoading, data, error }] = useGetTopWordsMutation();
 
-  const [query, { isLoading, data, error }] = useGetTopWordsMutation();
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-top-words-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
 
-  const collectionIds = collections.map((collection) => collection.id);
-
-  const handleDownloadRequest = (queryObject) => {
-    window.location = `/api/search/download-top-words-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  const [value, setValue] = useState(0);
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
   };
 
   useEffect(() => {
-    if ((queryList[0].length !== 0 || (advanced && queryString !== 0))) {
-      query({
-        query: fullQuery,
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources,
-        platform,
-
-      });
+    if (checkForBlankQuery(queryState)) {
+      const preparedQueries = prepareQueries(queryState);
+      dispatchQuery(preparedQueries);
     }
   }, [lastSearchTime]);
 
@@ -59,7 +51,6 @@ export default function TopWords() {
   let content;
 
   if (!data && !error) return null;
-
   if (error) {
     content = (
       <Alert severity="warning">
@@ -72,21 +63,31 @@ export default function TopWords() {
   } else {
     content = (
       <>
-        <OrderedWordCloud width={600} color="#000" data={data.words} />
+        <div className="container">
+          <Box sx={{ width: '100%' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                {data.words.map((result, i) => (
+
+                  <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
+                ))}
+              </Tabs>
+            </Box>
+
+            {data.words.map((results, i) => (
+              <TabPanelHelper value={value} index={i}>
+                <OrderedWordCloud width={600} color="#000" data={results} />
+              </TabPanelHelper>
+            ))}
+          </Box>
+        </div>
         <div className="clearfix">
           <div className="float-end">
             <Button
               variant="text"
               endIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
               onClick={() => {
-                handleDownloadRequest({
-                  query: fullQuery,
-                  startDate,
-                  endDate,
-                  collections: collectionIds,
-                  sources,
-                  platform,
-                });
+                handleDownloadRequest(queryState);
               }}
             >
               Download CSV of Top Terms
@@ -142,4 +143,11 @@ export default function TopWords() {
       </div>
     </div>
   );
+}
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
 }
