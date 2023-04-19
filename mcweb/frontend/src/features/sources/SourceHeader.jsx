@@ -58,7 +58,7 @@ export default function SourceHeader() {
       <ControlBar>
         <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
-            href={`/search/${urlSerializer({
+            href={`/search/${urlSerializer([{
               queryList: defaultPlatformQuery(source.platform),
               anyAll: 'any',
               negatedQueryList: [],
@@ -68,7 +68,7 @@ export default function SourceHeader() {
               sources: [source],
               platform: defaultPlatformProvider(source.platform),
               advanced: false,
-            })}`}
+            }])}`}
             target="_blank"
             rel="noreferrer"
           >
