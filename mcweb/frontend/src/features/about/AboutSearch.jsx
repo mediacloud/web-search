@@ -32,7 +32,7 @@ export default function AboutSearch() {
       <div className="feature-area">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-4">
               <h2>Simple Search Tool</h2>
               <p>
                 Welcome to the search tool! Search phrases are translated automatically into the
@@ -52,11 +52,11 @@ export default function AboutSearch() {
                 </li>
               </ul>
             </div>
-            <div className="col-5">
+            <div className="col-7">
               <img
-                src={assetUrl('img/simple_search.png')}
+                src={assetUrl('img/simple_search.jpg')}
                 alt="screenshot of simple search"
-
+                style={{ marginTop: '15%' }}
               />
             </div>
           </div>
@@ -66,14 +66,14 @@ export default function AboutSearch() {
       <div className="feature-area filled">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-9">
               <img
-                src={assetUrl('img/advaced_search_screen.png')}
+                src={assetUrl('img/advanced_search.jpg')}
                 alt="screenshot of advanced search"
-
+                style={{ marginTop: '5%' }}
               />
             </div>
-            <div className="col-5">
+            <div className="col-3">
               <h2> Advanced Search</h2>
               <p>
                 Option to write queries in plain text with syntax highlighting. Import to make sure
@@ -88,7 +88,7 @@ export default function AboutSearch() {
       <div className="feature-area ">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-5">
               <h2>Media Picker</h2>
               <p>
                 Here you can choose collections or sources to search against for each platform tab.
@@ -123,9 +123,9 @@ export default function AboutSearch() {
                 </ul>
               </ul>
             </div>
-            <div className="col-5">
+            <div className="col-7">
               <img
-                src={assetUrl('img/media_picker_modal.png')}
+                src={assetUrl('img/media_picker_modal.jpg')}
                 alt="screenshot of media picker"
 
               />
@@ -137,14 +137,14 @@ export default function AboutSearch() {
       <div className="feature-area filled">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-7">
               <img
-                src={assetUrl('img/date_picker.png')}
+                src={assetUrl('img/date_picker.jpg')}
                 alt="screenshot of date picker"
 
               />
             </div>
-            <div className="col-5">
+            <div className="col-4">
               <h2>Date Picker</h2>
               <p>
                 You are able to limit a search to specific date periods. The dates that are available
@@ -165,18 +165,18 @@ export default function AboutSearch() {
       <div className="feature-area">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-3" style={{ marginTop: '5%' }}>
               <h2>Copy Search</h2>
               <p>
-                Ability to copy a url of an in progress query or a query that has been run, to share with others.
+                Copy a url of an in progress query or a query that has been run, to share with others.
 
               </p>
             </div>
-            <div className="col-5">
+            <div className="col-9">
               <img
-                src={assetUrl('img/copy_search.png')}
+                src={assetUrl('img/copy_search.jpg')}
                 alt="screenshot of copy search modal"
-
+                style={{ marginLeft: '15%' }}
               />
             </div>
           </div>
@@ -196,15 +196,15 @@ export default function AboutSearch() {
       <div className="feature-area">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-4">
               <h2>Total Attention</h2>
               <p>
-                See the total number of hits and the % of stories your topic was for a time period
+                See the total number of hits and the % of stories your topic returned for a time period
               </p>
             </div>
-            <div className="col-5">
+            <div className="col-7">
               <img
-                src={assetUrl('img/total_attention.png')}
+                src={assetUrl('img/total_attention.jpg')}
                 alt="screenshot of total attention"
 
               />
@@ -216,14 +216,14 @@ export default function AboutSearch() {
       <div className="feature-area filled">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-9">
               <img
-                src={assetUrl('img/attention_over_time_annotated.png')}
+                src={assetUrl('img/attention_over_time_annotated.jpg')}
                 alt="screenshot of attention over time"
 
               />
             </div>
-            <div className="col-5">
+            <div className="col-3">
               <h2> Attention Over Time</h2>
               <p>
                 Check day by day what the number of hits or % of stories your topic was for a time period
@@ -236,16 +236,16 @@ export default function AboutSearch() {
       <div className="feature-area">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-3">
               <h2>Sample Results</h2>
               <p>
                 Get a small sample of results from your query, will change depending on platform,
                 option to download for each platform
               </p>
             </div>
-            <div className="col-5">
+            <div className="col-9">
               <img
-                src={assetUrl('img/sample_content.png')}
+                src={assetUrl('img/sample_content.jpg')}
                 alt="screenshot of sample_content"
 
               />
@@ -257,14 +257,14 @@ export default function AboutSearch() {
       <div className="feature-area filled">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-8">
               <img
-                src={assetUrl('img/top_words.png')}
+                src={assetUrl('img/top_words.jpg')}
                 alt="screenshot of sample_content"
 
               />
             </div>
-            <div className="col-5">
+            <div className="col-4">
               <h2> Words (experimental)</h2>
               <p>
                 Experimental feature to see words that appear most often in results
@@ -277,15 +277,15 @@ export default function AboutSearch() {
       <div className="feature-area">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-4">
               <h2>Languages (experimental)</h2>
               <p>
                 Experimental feature to see what languages that appear most often in results
               </p>
             </div>
-            <div className="col-5">
+            <div className="col-8">
               <img
-                src={assetUrl('img/top_languages.png')}
+                src={assetUrl('img/top_languages.jpg')}
                 alt="screenshot of sample_content"
 
               />
@@ -297,7 +297,7 @@ export default function AboutSearch() {
       <div className="feature-area filled">
         <div className="container">
           <div className="row">
-            <div className="col-12 text-center">
+            <div className="col-10 text-center">
               <h1>
                 API Search Guide
               </h1>
@@ -306,7 +306,7 @@ export default function AboutSearch() {
                 collections of sources, to provide as much searchable information as we can.
                 While some APIs (like the Wayback Machine) are able to give us more comprehensive
                 data such as complete article text, others (such as Youtube), are more limited in
-                the information they make available to researchers.
+                the information they make available.
               </p>
               <p>
                 We&rsquo;ve included a guide here on all of the APIs currently used by the Media Cloud
@@ -322,7 +322,7 @@ export default function AboutSearch() {
       <div className="feature-area">
         <div className="container">
           <div className="row">
-            <div className="col-5 offset-1">
+            <div className="col-4">
               <h3>Wayback Machine</h3>
               <ul>
                 <li style={{ width: '60%' }}>
@@ -381,9 +381,9 @@ export default function AboutSearch() {
             </div>
             <div className="col-5">
               <img
-                src={assetUrl('img/full_search_screen_AM_search_highlighted.png')}
+                src={assetUrl('img/full_search_screen_AM_search_highlighted.jpg')}
                 alt="screenshot of advanced search"
-
+                style={{ marginTop: '15%' }}
               />
             </div>
           </div>
