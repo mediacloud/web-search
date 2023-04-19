@@ -1,4 +1,32 @@
-[
+[  
+  {"version": "v1.3.4",
+  "date": "2023-04-07",
+  "notes": ["add email alerts for sources",
+      "add support for sources with url search strings in search for WM",
+      "bug fix for search occasionally crashing app",
+      "add option to rescrape for source for feeds when uploading via csv"
+  ]
+  },
+  {"version": "v1.3.3",
+    "date": "2023-03-13",
+    "notes": ["message added when total attention is 100% or 0%",
+        "add rescrape for feeds on sources (admin only)",
+        "new source search bar in collection edit page, to add source to collection"
+    ]
+  },
+  {"version": "v1.3.2",
+    "date": "2023-03-01",
+    "notes": ["improvements to source creation and editing",
+        "minor bug fixes, architecture and style improvements",
+        "addition of collections to geographic collections"
+    ]
+  },
+  {"version": "v1.3.1",
+    "date": "2023-02-08",
+    "notes": ["Update stories per week number for sources",
+        "minor bug fixes, architecture and style improvements"
+    ]
+  },
   {"version": "v1.3.0", "date": "2023-01-25", 
     "notes": ["add information page for online news sample stories",
         "remove media cloud legacy integration",

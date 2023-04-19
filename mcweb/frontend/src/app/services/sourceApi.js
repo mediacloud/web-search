@@ -17,6 +17,10 @@ export const sourceApi = managerApi.injectEndpoints({
         url: `sources/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
+      providesTags: ({ results }) => (
+        results
+          ? [...results.map(({ id }) => ({ type: 'Source', id }))] : ['Source']
+      ),
     }),
     createSource: builder.mutation({
       query: (source) => ({
@@ -24,6 +28,7 @@ export const sourceApi = managerApi.injectEndpoints({
         method: 'POST',
         body: { ...source },
       }),
+      invalidatesTags: ['Source'],
     }),
     updateSource: builder.mutation({
       query: (source) => ({
@@ -38,6 +43,7 @@ export const sourceApi = managerApi.injectEndpoints({
         url: `sources/${id}/`,
         method: 'DELETE',
       }),
+      invalidatesTags: ['Source'],
     }),
     uploadSources: builder.mutation({
       query: (data) => ({
@@ -46,6 +52,25 @@ export const sourceApi = managerApi.injectEndpoints({
         body: data,
       }),
       invalidatesTags: ['Source'],
+    }),
+    rescrapeForFeeds: builder.mutation({
+      query: (sourceId) => ({
+        url: 'sources/rescrape-feeds/',
+        method: 'POST',
+        body: { source_id: sourceId },
+      }),
+    }),
+    getPendingTasks: builder.query({
+      query: () => ({
+        url: 'sources/pending-tasks/',
+        method: 'GET',
+      }),
+    }),
+    getCompletedTasks: builder.query({
+      query: () => ({
+        url: 'sources/completed-tasks/',
+        method: 'GET',
+      }),
     }),
   }),
 });
@@ -58,4 +83,7 @@ export const {
   useUpdateSourceMutation,
   useDeleteSourceMutation,
   useUploadSourcesMutation,
+  useRescrapeForFeedsMutation,
+  useGetPendingTasksQuery,
+  useGetCompletedTasksQuery,
 } = sourceApi;

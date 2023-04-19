@@ -4,11 +4,11 @@ const slice = createSlice({
   name: 'auth',
   initialState: { user: null, isLoggedIn: false },
   reducers: {
-    setCredentials: (state, { payload }) => {
-      state.user = payload;
-      state.isLoggedIn = state.user && state.user.isActive;
-    },
-
+    setCredentials: (state, { payload }) => ({
+      ...state,
+      user: payload,
+      isLoggedIn: payload && payload.isActive,
+    }),
   },
 });
 

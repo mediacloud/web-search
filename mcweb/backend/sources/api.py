@@ -13,8 +13,8 @@ from rest_framework import viewsets, permissions
 import mcmetadata.urls as urls
 from rest_framework.renderers import JSONRenderer
 from typing import List, Optional
-
-from .serializer import CollectionSerializer, FeedsSerializer, SourcesSerializer, SourcesViewSerializer, CollectionWriteSerializer
+from rest_framework.exceptions import APIException
+from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from backend.util import csv_stream
 from util.cache import cache_by_kwargs
 from .models import Collection, Feed, Source
@@ -23,6 +23,7 @@ from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
 
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
+from .tasks import schedule_scrape_source, get_completed_tasks, get_pending_tasks
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -121,7 +122,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
     permission_classes = [
         IsGetOrIsStaff
     ]
-    serializer_class = FeedsSerializer
+    serializer_class = FeedSerializer
 
     # overriden to support filtering all endpoints
     def get_queryset(self):
@@ -213,7 +214,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         IsGetOrIsStaff
     ]
     serializers_by_action = {
-        'default': SourcesSerializer,
+        'default': SourceSerializer,
         'list': SourcesViewSerializer,
         'retrieve': SourcesViewSerializer,
     }
@@ -242,9 +243,36 @@ class SourcesViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(Q(name__icontains=name) | Q(label__icontains=name))
         return queryset
 
+
+    def create(self, request):
+        cleaned_data = Source._clean_source(request.data)
+        serializer = SourceSerializer(data=cleaned_data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"source": serializer.data})
+        else:
+            error_string = str(serializer.errors) 
+            print(error_string)
+            # error_string = str(error_string['name'][0])
+            raise APIException(f"{error_string}")
+
+
+    def partial_update(self, request, pk=None):
+        instance = self.get_object()
+        serializer = SourceSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"source": serializer.data})
+        else:
+            error_string = serializer.errors 
+            error_string = str(error_string['name'][0])
+            raise APIException(f"{error_string}")
+
+
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):
         collection = Collection.objects.get(pk=request.data['collection_id'])
+        rescrape = request.data['rescrape']
         email_title = "Updating collection {}".format(collection.name)
         email_text = ""
         queryset = Source.objects
@@ -267,19 +295,37 @@ class SourcesViewSet(viewsets.ModelViewSet):
                     existing_source = queryset.filter(name=row['name'], platform=row['platform'])
             # Making a new one
             if len(existing_source) == 0:
-                existing_source = Source.create_from_dict(row)
-                email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
-                counts['created'] += 1
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(data=cleaned_source_input)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    if rescrape:
+                        schedule_scrape_source(existing_source.id, request.user)
+                    email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
+                    counts['created'] += 1
+                else:
+                    email_text += f"\n ⚠️ {row['name']}: {serializer.errors}"
+                    counts['skipped'] +=1
+                    continue
+                # existing_source = Source.create_from_dict(row)
             # Updating unique match
             elif len(existing_source) == 1:
                 existing_source = existing_source[0]
-                existing_source.update_from_dict(row)
-                email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
-                counts['updated'] += 1
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(existing_source, data=cleaned_source_input)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
+                    counts['updated'] += 1
+                else:
+                    email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
+                    counts['skipped'] +=1
+                    continue
+                # existing_source.update_from_dict(row)
             # Request to update non-unique match, so skip and force them to do it by hand
             else:
                 email_text += "\n ⚠️ {}: multiple matches - cowardly skipping so you can do it by hand existing source".\
-                    format(existing_source[0]['name'])
+                    format(existing_source[0].name)
                 counts['skipped'] += 1
                 continue
             collection.source_set.add(existing_source)
@@ -309,6 +355,34 @@ class SourcesViewSet(viewsets.ModelViewSet):
         streamer = csv_stream.CSVStream(filename, data_generator)
         return streamer.stream()
 
+    # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
+    @action(methods=['post'], detail=False, url_path='rescrape-feeds')
+    def rescrape_feeds(self, request):
+        # maybe take multiple ids?  Or just add a method to rescrape a source
+        source_id = int(request.data["source_id"])
+        return Response(schedule_scrape_source(source_id, request.user))
+
+    # NOTE!!!! {completed,pending}-tasks are ***NOT***
+    # directory/sources specific (list all background tasks)!!
+
+    # returns list of CompletedTasks (maybe belongs in a CompletedTaskView?)
+    @action(detail=False, url_path='completed-tasks')
+    def completed_tasks(self, request):
+        """
+        Returns completed tasks for the current user.
+        """
+        # lists all tasks for user (None lists all tasks)
+        return Response(get_completed_tasks(request.user))
+
+    # returns list of Tasks (maybe belongs in a TaskView?)
+    @action(detail=False, url_path='pending-tasks')
+    def pending_tasks(self, request):
+        """
+        Returns pending tasks for the current user.
+        """
+        # lists all tasks for user (None lists all tasks)
+        return Response(get_pending_tasks(request.user))
+
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
     
@@ -322,7 +396,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collections_queryset = Collection.objects.all()
             collection = get_object_or_404(collections_queryset, pk=pk)
             source_associations = collection.source_set.all()
-            serializer = SourcesSerializer(source_associations, many=True)
+            serializer = SourceSerializer(source_associations, many=True)
             return Response({'sources': serializer.data})
         else:
             sources_queryset = Source.objects.all()

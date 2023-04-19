@@ -7,21 +7,19 @@ import Button from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 
-export default function UploadSources(props) {
-  const { collectionId } = props;
+export default function UploadSources({ collectionId, rescrape }) {
   const { enqueueSnackbar } = useSnackbar();
   const [updating, setUpdating] = useState(false);
   const [uploadSources, { isLoading: isUpdating }] = useUploadSourcesMutation();
 
   const { CSVReader } = useCSVReader();
-
   return (
     <div>
       <CSVReader
         config={{ header: true }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
-          const results = await uploadSources({ sources: uploadInfo.data, collection_id: collectionId });
+          const results = await uploadSources({ sources: uploadInfo.data, collection_id: collectionId, rescrape });
           setUpdating(false);
           enqueueSnackbar(
             `Created ${results.data.created}. Updated ${results.data.updated}. Skipped ${results.data.skipped}.`,
@@ -56,4 +54,5 @@ export default function UploadSources(props) {
 
 UploadSources.propTypes = {
   collectionId: PropTypes.number.isRequired,
+  rescrape: PropTypes.bool.isRequired,
 };

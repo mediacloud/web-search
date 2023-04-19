@@ -23,7 +23,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "1.3.0"
+VERSION = "1.3.4"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "backend.sources",
     "backend.search",
     "backend.users",
+    "background_task",
 ]
 
 MIDDLEWARE = [

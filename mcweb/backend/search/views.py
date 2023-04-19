@@ -13,7 +13,7 @@ from ..users.models import QuotaHistory
 from backend.users.exceptions import OverQuotaException
 import mc_providers as providers
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
-from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE
+from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_REDDIT
 from mc_providers.exceptions import ProviderException
 from mc_providers.cache import CachingManager
 
@@ -145,6 +145,7 @@ def words(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     sample_stories = provider.words(query_str, start_date, end_date, **provider_props)
+    sample_stories = add_ratios(sample_stories)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": sample_stories}, default=str), content_type="application/json",
                         status=200)
@@ -155,8 +156,12 @@ def words(request):
 def download_words_csv(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request, 'GET')
     provider = providers.provider_by_name(provider_name)
-    top_terms = provider.words(query_str, start_date, end_date, **provider_props, sample_size=5000)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+    if provider_name.split('-')[0] == PLATFORM_REDDIT:
+        top_terms = provider.words(query_str, start_date, end_date, **provider_props)
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+    else: 
+        top_terms = provider.words(query_str, start_date, end_date, **provider_props, sample_size=5000)
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     filename = "mc-{}-{}-top-words.csv".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -230,6 +235,11 @@ def download_all_content_csv(request):
     filename = "mc-{}-{}-content.csv".format(provider_name, _filename_timestamp())
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
+
+def add_ratios(words_data):
+    for word in words_data:
+        word["ratio"] = word['count'] / 1000
+    return words_data
 
 
 def _filename_timestamp() -> str:

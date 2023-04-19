@@ -1,5 +1,6 @@
 from django.db import models
 from typing import Dict
+import mcmetadata.urls as urls
 
 
 class Collection(models.Model):
@@ -28,7 +29,7 @@ class Collection(models.Model):
 
 
 class Source(models.Model):
-    collections = models.ManyToManyField(Collection)
+    collections = models.ManyToManyField(Collection, blank=True)
 
     class SourcePlatforms(models.TextChoices):
         ONLINE_NEWS = "online_news"
@@ -46,7 +47,7 @@ class Source(models.Model):
     name = models.CharField(max_length=1000, null=True)
     url_search_string = models.CharField(max_length=1000, blank=True, null=True)
     label = models.CharField(max_length=255, null=True, blank=True)
-    homepage = models.CharField(max_length=4000, null=True, blank=True)
+    homepage = models.CharField(max_length=4000, null=False, blank=False)
     notes = models.TextField(null=True, blank=True)
     platform = models.CharField(max_length=100, choices=SourcePlatforms.choices, null=True,
                                 default=SourcePlatforms.ONLINE_NEWS)
@@ -77,6 +78,7 @@ class Source(models.Model):
         new_source = Source.objects.get(pk=new_source.pk)
         return new_source
 
+    @classmethod
     def update_from_dict(self, source_info: Dict):
         Source._set_from_dict(self, source_info)
         self.save()
@@ -121,6 +123,65 @@ class Source(models.Model):
         if media_type is not None and len(media_type) > 0:
             obj.media_type = media_type
 
+    @classmethod
+    def _clean_source(cls, source: Dict):
+        obj={}
+        platform = source.get("platform", None)
+        if platform:
+            obj["platform"] = platform.strip()
+        
+        homepage = source.get("homepage", None)
+        if homepage:
+            obj["homepage"] = homepage.strip()
+        
+        name = source.get("name", None)
+        if name:
+            obj["name"] = name.strip()
+        if not name:
+            if platform == 'online_news':
+                    obj["name"] = urls.canonical_domain(homepage)
+        
+        url_search_string = source.get("url_search_string", None)
+        if url_search_string:
+            obj["url_search_string"] = url_search_string.strip()
+
+        label = source.get("label", None)
+        if label:
+            obj["label"] = label.strip()
+        if not label:
+            obj["label"] = obj["name"]
+
+        notes = source.get("notes", None)
+        if notes:
+            obj["notes"] = notes.strip()
+
+        service = source.get("service", None)
+        if service:
+            obj["service"] = service.strip()
+
+        stories_per_week = source.get("stories_per_week", None)
+        if stories_per_week:
+            obj["stories_per_week"] = stories_per_week
+
+        pub_country = source.get("pub_country", None)
+        if pub_country:
+            obj["pub_country"] = pub_country.strip()
+
+        pub_state = source.get("pub_state", None)
+        if pub_state:
+            obj["pub_state"] = pub_state.strip()
+
+        primary_language = source.get("primary_language", None)
+        if primary_language:
+            obj["primary_language"] = primary_language.strip()
+
+        media_type = source.get("media_type", None)
+        if media_type:
+            obj["media_type"] = media_type.strip()
+
+        return obj
+
+    
 class Feed(models.Model):
     url = models.TextField(null=False, blank=False, unique=True)
     admin_rss_enabled = models.BooleanField(default=False, null=True)
