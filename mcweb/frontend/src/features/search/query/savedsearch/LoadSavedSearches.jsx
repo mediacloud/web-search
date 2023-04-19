@@ -1,12 +1,24 @@
-import * as React from 'react';
-import { useState } from 'react';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
-import { useListSavedSearchesQuery } from '../../../../app/services/savedsearchApi';
+import React, { useState } from 'react';
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  IconButton,
+  DialogTitle,
+  DialogActions,
+} from '@mui/material';
+import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useListSavedSearchesQuery, useDeleteSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 
 export default function LoadSavedSearches() {
   const { data } = useListSavedSearchesQuery();
+  const [deleteSavedSearch] = useDeleteSavedSearchMutation();
+
+  const handleDeleteClick = async (id) => {
+    await deleteSavedSearch(id).unwrap();
+  };
+
   const [open, setOpen] = useState(false);
 
   const handleButtonClick = () => {
@@ -22,15 +34,19 @@ export default function LoadSavedSearches() {
   };
 
   return (
-    <div>
-      <Button variant="contained" color="primary" onClick={handleButtonClick}>Load Saved Searches</Button>
+    <>
+      <Button variant="contained" color="primary" onClick={handleButtonClick}>
+        Load Saved Searches
+      </Button>
       <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Saved Searches</DialogTitle>
         <DialogContent>
           <table>
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Search Link</th>
+                <th>Load Search</th>
+                <th>Delete Search</th>
               </tr>
             </thead>
             <tbody>
@@ -40,20 +56,34 @@ export default function LoadSavedSearches() {
                     <Button onClick={() => handleSerializedSearchClick(savedSearch.serialized_search)}>
                       {savedSearch.name}
                     </Button>
-
                   </td>
                   <td>
-                    <Button onClick={() => handleSerializedSearchClick(savedSearch.serialized_search)}>
-                      {savedSearch.serialized_search}
-                    </Button>
-
+                    <IconButton
+                      size="small"
+                      aria-label="load"
+                      onClick={() => handleSerializedSearchClick(savedSearch.serialized_search)}
+                    >
+                      <AddCircleIcon sx={{ color: '#d24527' }} />
+                    </IconButton>
+                  </td>
+                  <td>
+                    <IconButton
+                      size="small"
+                      aria-label="delete"
+                      onClick={() => handleDeleteClick(savedSearch.id)}
+                    >
+                      <DeleteIcon sx={{ color: '#d24527' }} />
+                    </IconButton>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Close</Button>
+        </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }

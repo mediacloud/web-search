@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework import status
 from .serializer import SavedSearchSerializer
 from .models import SavedSearch
 from rest_framework.response import Response
@@ -14,24 +15,24 @@ class SavedSearchesViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         user_id = self.request.user.id
-        print(user_id)
         if self.request.user.is_authenticated:
             queryset = queryset.filter(user_id=user_id)
         return queryset
     
     def create(self, request):
-        print("hi")
         data = {"user_id": request.user.id,
                  "name": request.data.get("savedsearch").get("name"),
                  "serialized_search": request.data.get("savedsearch").get("serializedSearch")}
-        print(data)
-        print("hi")
         serializer = SavedSearchSerializer(data=data)
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
+            print(serializer)
             return Response({"saved search": serializer.data})
         else:
             error_string = str(serializer.errors) 
-            print(error_string)
             raise APIException(f"{error_string}")
+    
+    def destroy(self, request, pk=None):
+        current = self.get_object()
+        current.delete()
+        return Response({'deleted_saved_search_id': pk})

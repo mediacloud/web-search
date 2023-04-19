@@ -48,8 +48,8 @@ export const savedsearchApi = createApi({
       invalidatesTags: ['SavedSearch'],
     }),
     deleteSavedSearch: builder.mutation({
-      query: (savedsearch) => ({
-        url: `savedsearch/${savedsearch.id}`,
+      query: (id) => ({
+        url: `savedsearch/${id}/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['SavedSearch'],
@@ -57,9 +57,6 @@ export const savedsearchApi = createApi({
   }),
 });
 
-// search/attentionOverTime
-// search
-// action: get back Json. Save it to searchResults
 export const {
   useCreateSavedSearchMutation,
   useGetSavedSearchQuery,
