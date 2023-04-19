@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -13,11 +13,11 @@ import SelectedMedia from '../SelectedMedia';
 import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
 import SourceSearchPicker from './SourceSearchPicker';
 
-export default function MediaPicker() {
+export default function MediaPicker({ queryIndex }) {
   const [value, setValue] = React.useState(0);
   // const [tab, setTab] = useState('featuredCollections');
   const dispatch = useDispatch();
-  const { previewCollections, previewSources, platform } = useSelector((state) => state.query);
+  const { previewCollections, previewSources, platform } = useSelector((state) => state.query[queryIndex]);
   const [open, setOpen] = useState(false);
 
   return (
@@ -56,12 +56,13 @@ export default function MediaPicker() {
                   onRemove={removePreviewSelectedMedia}
                   collections={previewCollections}
                   sources={previewSources}
+                  queryIndex={queryIndex}
                 />
                 <Button
                   variant="contained"
                   onClick={() => {
                     setOpen(false);
-                    dispatch(addSelectedMedia([...previewCollections, ...previewSources]));
+                    dispatch(addSelectedMedia({ sourceOrCollection: [...previewCollections, ...previewSources], queryIndex }));
                   }}
                 >
                   Confirm
@@ -75,7 +76,7 @@ export default function MediaPicker() {
               {value === 0 && (
                 <>
                   <h2>Featured Collections</h2>
-                  <FeaturedCollectionsPicker platform={platform.split('-')[0]} />
+                  <FeaturedCollectionsPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
                 </>
               )}
             </div>
@@ -83,7 +84,7 @@ export default function MediaPicker() {
               {value === 1 && (
                 <>
                   <h2>Search All Collections</h2>
-                  <CollectionSearchPicker platform={platform.split('-')[0]} />
+                  <CollectionSearchPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
                 </>
               )}
             </div>
@@ -91,7 +92,7 @@ export default function MediaPicker() {
               {value === 2 && (
                 <>
                   <h2>Search All Sources</h2>
-                  <SourceSearchPicker platform={platform.split('-')[0]} />
+                  <SourceSearchPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
                 </>
               )}
             </div>
@@ -101,3 +102,7 @@ export default function MediaPicker() {
     </div>
   );
 }
+
+MediaPicker.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+};

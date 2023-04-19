@@ -5,37 +5,30 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Settings } from '@mui/icons-material';
+import DownloadIcon from '@mui/icons-material/Download';
+import Settings from '@mui/icons-material/Settings';
 import BarChart from './BarChart';
-import queryGenerator from '../util/queryGenerator';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT,
   PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
+import checkForBlankQuery from '../util/checkForBlankQuery';
+import prepareQueries from '../util/prepareQueries';
+import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 
 export const supportsNormalizedCount = (platform) =>
   // eslint-disable-next-line implicit-arrow-linebreak
   [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform);
 
 function TotalAttentionResults() {
-  const {
-    queryString,
-    queryList,
-    negatedQueryList,
-    platform,
-    startDate,
-    endDate,
-    collections,
-    sources,
-    lastSearchTime,
-    anyAll,
-    advanced,
-  } = useSelector((state) => state.query);
+  const queryState = useSelector((state) => state.query);
 
-  const fullQuery = queryString
-    || queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const {
+    platform,
+    lastSearchTime,
+  } = queryState[0];
 
   const [normalized, setNormalized] = useState(true);
 
@@ -47,25 +40,16 @@ function TotalAttentionResults() {
 
   const open = Boolean(anchorEl);
 
-  const [query, { isLoading, data, error }] = useGetTotalCountMutation();
+  const [dispatchQuery, { isLoading, data, error }] = useGetTotalCountMutation();
 
-  const collectionIds = collections.map((c) => c.id);
-  const sourceIds = sources.map((s) => s.id);
-
-  // using EPSILON in the denominator here prevents against div by zero errors
-  // (which returns infinity in JS)
-  const normalizeData = (oldData) => 100 * (oldData.count.relevant / (oldData.count.total + Number.EPSILON));
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
 
   useEffect(() => {
-    if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
-      query({
-        query: fullQuery,
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources: sourceIds,
-        platform,
-      });
+    if (checkForBlankQuery(queryState)) {
+      const preparedQueries = prepareQueries(queryState);
+      dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
   }, [lastSearchTime]);
@@ -73,6 +57,7 @@ function TotalAttentionResults() {
   if (isLoading) {
     return (
       <div>
+        {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
         <CircularProgress size="75px" />
       </div>
     );
@@ -94,7 +79,7 @@ function TotalAttentionResults() {
     content = (
       <>
         <div>
-          {normalizeData(data) === 0 && (
+          {/* {normalizeData(data) === 0 && (
           <Alert severity="warning">
             No content has matched this query
           </Alert>
@@ -103,25 +88,11 @@ function TotalAttentionResults() {
           <Alert severity="warning">
             This query has returned 100% attention
           </Alert>
-          )}
+          )} */}
 
           <BarChart
-            series={[
-              {
-                data: [
-                  {
-                    key: fullQuery,
-                    value: normalizeData(data) === 100
-                      ? data.count.relevant
-                      : (normalized && normalizeData(data))
-                          || data.count.relevant,
-                  },
-                ],
-                name: 'Matching Content',
-                color: '#2f2d2b',
-              },
-            ]}
-            normalized={normalized && normalizeData(data) !== 100}
+            series={prepareTotalAttentionData(data, queryState, normalized)}
+            normalized={normalized}
             title="Total Stories Count"
             height={200}
           />
@@ -130,7 +101,7 @@ function TotalAttentionResults() {
         <div className="clearfix">
           {supportsNormalizedCount(platform) && (
           <div className="float-start">
-            {normalized && normalizeData(data) !== 100 && (
+            {normalized && (
             <div>
               <Button
                 onClick={handleClick}
@@ -160,7 +131,7 @@ function TotalAttentionResults() {
               </Menu>
             </div>
             )}
-            {!normalized && normalizeData(data) !== 100 && (
+            {!normalized && (
             <div>
               <Button onClick={handleClick}>View Options</Button>
               <Menu
@@ -185,6 +156,19 @@ function TotalAttentionResults() {
             )}
           </div>
           )}
+        </div>
+        <div className="clearfix">
+          <div className="float-end">
+            <Button
+              variant="text"
+              endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
+              onClick={() => {
+                handleDownloadRequest(queryState);
+              }}
+            >
+              Download CSV of All Content
+            </Button>
+          </div>
         </div>
       </>
     );

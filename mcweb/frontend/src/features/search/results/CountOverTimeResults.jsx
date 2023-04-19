@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
@@ -9,25 +7,20 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Settings } from '@mui/icons-material';
 import DownloadIcon from '@mui/icons-material/Download';
-import queryGenerator from '../util/queryGenerator';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
+import checkForBlankQuery from '../util/checkForBlankQuery';
+import prepareQueries from '../util/prepareQueries';
+import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
 
 export default function CountOverTimeResults() {
+  const queryState = useSelector((state) => state.query);
+
   const {
-    queryList,
-    queryString,
-    negatedQueryList,
     platform,
-    startDate,
-    endDate,
-    collections,
-    sources,
     lastSearchTime,
-    anyAll,
-    advanced,
-  } = useSelector((state) => state.query);
+  } = queryState[0];
 
   const [normalized, setNormalized] = useState(true);
 
@@ -39,49 +32,19 @@ export default function CountOverTimeResults() {
 
   const open = Boolean(anchorEl);
 
-  const fullQuery = () => {
-    let queryReturn = '';
-    if (queryString) {
-      queryReturn = queryString;
-    } else {
-      queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
-    }
-    return queryReturn;
+  const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
+
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-counts-over-time-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
   };
-
-  const [query, { isLoading, data, error }] = useGetCountOverTimeMutation();
-
-  const collectionIds = collections.map((c) => c.id);
-  const sourceIds = sources.map((s) => s.id);
-
-  const handleDownloadRequest = (queryObject) => {
-    window.location = `/api/search/download-counts-over-time-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
-  };
-
-  const dateHelper = (dateString) => {
-    dayjs.extend(utc);
-    const newDate = dayjs(dateString, 'YYYY-MM-DD').valueOf();
-    return newDate;
-  };
-
-  const cleanData = (oldData) => oldData.map((r) => [
-    dateHelper(r.date),
-    normalized ? r.ratio * 100 : r.count,
-  ]);
 
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
 
   useEffect(() => {
-    if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
-      query({
-        query: fullQuery(),
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources: sourceIds,
-        platform,
-      });
+    if (checkForBlankQuery(queryState)) {
+      const preparedQueries = prepareQueries(queryState);
+      dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
   }, [lastSearchTime]);
@@ -114,7 +77,8 @@ export default function CountOverTimeResults() {
     content = (
       <>
         <CountOverTimeChart
-          data={cleanData(data.count_over_time.counts)}
+          data={prepareCountOverTimeData(data.count_over_time, normalized, queryState)}
+          // data={cleanData(data.count_over_time[0].counts)}
           normalized={normalized}
         />
         <div className="clearfix">
@@ -175,14 +139,7 @@ export default function CountOverTimeResults() {
               variant="text"
               endIcon={<DownloadIcon titleAccess="download attention over time results" />}
               onClick={() => {
-                handleDownloadRequest({
-                  query: fullQuery(),
-                  startDate,
-                  endDate,
-                  collections: collectionIds,
-                  sources: sourceIds,
-                  platform,
-                });
+                handleDownloadRequest(queryState);
               }}
             >
               Download CSV

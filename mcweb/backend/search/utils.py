@@ -28,7 +28,8 @@ def fill_in_dates(start_date, end_date, existing_counts):
 
 
 def parse_query(request, http_method: str = 'POST') -> tuple:
-    payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
+    # payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
+    payload = request
     provider_name = payload["platform"]
     query_str = payload["query"]
     collections = payload["collections"]
