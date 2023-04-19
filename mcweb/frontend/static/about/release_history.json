@@ -1,4 +1,10 @@
-[  
+[{"version": "v1.4.0",
+  "date": "2023-04-19",
+  "notes": ["add feature comparative search v1, replacing original search",
+    "add about search page, can be found under about tab",
+    "add ability to edit parent source of a feed"
+]
+},
   {"version": "v1.3.4",
   "date": "2023-04-07",
   "notes": ["add email alerts for sources",

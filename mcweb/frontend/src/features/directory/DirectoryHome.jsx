@@ -14,9 +14,10 @@ export default function DirectoryHome() {
       <Header columns={6}>
         <h1>Directory</h1>
         <p>
-          <Link to="/collections/news/geographic">Check the breadth of our global coverage</Link>
-          {' '}
-          by browsing the media sources
+          <Link to="/collections/news/geographic">
+            Check the breadth of our global coverage
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          </Link> by browsing the media sources
           and collections in our directory, and suggesting more to add.
         </p>
       </Header>

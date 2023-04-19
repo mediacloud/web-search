@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -11,17 +12,17 @@ import { setQueryProperty } from './querySlice';
 import { earliestAllowedStartDate, latestAllowedEndDate } from '../util/platforms';
 import DefaultDates from './DefaultDates';
 
-export default function SearchDatePicker() {
+export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const { platform, startDate, endDate } = useSelector((state) => state.query);
+  const { platform, startDate, endDate } = useSelector((state) => state.query[queryIndex]);
 
   const handleChangeFromDate = (newValue) => {
-    dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY') }));
+    dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
   };
 
   const handleChangeToDate = (newValue) => {
-    dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY') }));
+    dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
   };
 
   useEffect(() => {
@@ -77,3 +78,7 @@ export default function SearchDatePicker() {
     </>
   );
 }
+
+SearchDatePicker.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+};
