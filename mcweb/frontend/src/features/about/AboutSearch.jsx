@@ -52,7 +52,7 @@ export default function AboutSearch() {
                 </li>
               </ul>
             </div>
-            <div className="col-7">
+            <div className="col-6">
               <img
                 src={assetUrl('img/simple_search.jpg')}
                 alt="screenshot of simple search"
@@ -88,7 +88,7 @@ export default function AboutSearch() {
       <div className="feature-area ">
         <div className="container">
           <div className="row">
-            <div className="col-5">
+            <div className="col-4">
               <h2>Media Picker</h2>
               <p>
                 Here you can choose collections or sources to search against for each platform tab.
@@ -165,14 +165,14 @@ export default function AboutSearch() {
       <div className="feature-area">
         <div className="container">
           <div className="row">
-            <div className="col-3" style={{ marginTop: '5%' }}>
+            <div className="col-4" style={{ marginTop: '5%' }}>
               <h2>Copy Search</h2>
               <p>
                 Copy a url of an in progress query or a query that has been run, to share with others.
 
               </p>
             </div>
-            <div className="col-9">
+            <div className="col-7">
               <img
                 src={assetUrl('img/copy_search.jpg')}
                 alt="screenshot of copy search modal"
@@ -283,7 +283,7 @@ export default function AboutSearch() {
                 Experimental feature to see what languages that appear most often in results
               </p>
             </div>
-            <div className="col-8">
+            <div className="col-7">
               <img
                 src={assetUrl('img/top_languages.jpg')}
                 alt="screenshot of sample_content"
@@ -322,7 +322,27 @@ export default function AboutSearch() {
       <div className="feature-area">
         <div className="container">
           <div className="row">
-            <div className="col-4">
+            <div className="col-12">
+
+              <img
+                src={assetUrl('img/platform_picker.jpg')}
+                alt="platform picker"
+              />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-6">
+              <h3>Media Cloud Legacy Api</h3>
+              <ul>
+                <li style={{ width: '60%' }}>
+                  Search against Media Cloud&rsquo;s Legacy News API, with access to over 2 billion stories
+                  and hundreads of collections
+                  we have developed.
+                </li>
+                <li>
+                  <a href="https://pypi.org/project/mediacloud-api-legacy/">Python Package</a>
+                </li>
+              </ul>
               <h3>Wayback Machine</h3>
               <ul>
                 <li style={{ width: '60%' }}>
@@ -334,6 +354,9 @@ export default function AboutSearch() {
                   <a href="https://pypi.org/project/wayback-news-search/">Python Package</a>
                 </li>
               </ul>
+            </div>
+            <div className="col-5">
+
               <h3>Pushshift.io</h3>
               <ul>
                 <li style={{ width: '60%' }}>
@@ -379,13 +402,7 @@ export default function AboutSearch() {
                 </li>
               </ul>
             </div>
-            <div className="col-5">
-              <img
-                src={assetUrl('img/full_search_screen_AM_search_highlighted.jpg')}
-                alt="screenshot of advanced search"
-                style={{ marginTop: '15%' }}
-              />
-            </div>
+
           </div>
         </div>
       </div>
