@@ -140,6 +140,8 @@ const querySlice = createSlice({
       if (payload === 0 && freezeState.length === 1) {
         freezeState.push(cleanQuery(freezeState[0].platform));
         freezeState.shift();
+      } else if (payload === 0) {
+        freezeState.shift();
       } else {
         freezeState.splice(payload, payload);
       }
