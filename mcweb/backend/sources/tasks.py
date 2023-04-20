@@ -128,7 +128,7 @@ def _alert_system(collection_ids):
                 # todays_count = counts[-1]
 
                 # stories_published = rss.source_stories_published_by_day(source.id)
-                # counts_published = [d['count'] for d in stories_published]  
+                # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
                 # std_dev_published = np.std(counts_published)  
 
@@ -140,6 +140,13 @@ def _alert_system(collection_ids):
                 email += f"total alert count = {alert_count} \n"
                 send_alert_email(email)
 
+@background()
+def _update_stories_per_week():
+    with RssFetcherApi() as rss:
+        stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
+        for source, stories_per_day in stories_by_source:
+            stories_per_day=round((int(float(stories_per_day)) / 4))
+            Source.update_stories_per_week(source, stories_per_day) 
 
 def _return_task(task):
     """

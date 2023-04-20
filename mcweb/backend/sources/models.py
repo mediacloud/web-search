@@ -170,6 +170,12 @@ class Source(models.Model):
             obj["media_type"] = media_type.strip()
         return obj
 
+    @classmethod
+    def update_stories_per_week(source, weekly_story_count):
+        source=Source.objects.get(pk=source) 
+        source.stories_per_week = weekly_story_count
+        source.save()
+
     
 class Feed(models.Model):
     url = models.TextField(null=False, blank=False, unique=True)
