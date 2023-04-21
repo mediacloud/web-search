@@ -28,7 +28,8 @@ def fill_in_dates(start_date, end_date, existing_counts):
 
 
 def parse_query(request, http_method: str = 'POST') -> tuple:
-    payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
+    # payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
+    payload = request
     provider_name = payload["platform"]
     query_str = payload["query"]
     collections = payload["collections"]
@@ -91,14 +92,20 @@ def _for_reddit_pushshift(collections: List, sources: List) -> Dict:
 def _for_wayback_machine(collections: List, sources: List) -> Dict:
     # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
     Source = apps.get_model('sources', 'Source')
+    # 1. pull out all unique domains that don't have url_search_strs
     domains = []
     # turn media ids into list of domains
     selected_sources = Source.objects.filter(id__in=sources)
-    domains += [s.name for s in selected_sources]
+    domains += [s.name for s in selected_sources if s.url_search_string is None]
     # turn collections ids into list of domains
-    selected_sources = Source.objects.filter(collections__id__in=collections)
-    domains += [s.name for s in selected_sources]
-    return dict(domains=domains)
+    selected_sources_in_collections = Source.objects.filter(collections__id__in=collections)
+    domains += [s.name for s in selected_sources_in_collections if s.url_search_string is None]
+    # 2. pull out all the domains that have url_search_strings and turn those into search clauses
+    sources_with_url_search_strs = []
+    sources_with_url_search_strs += [s for s in selected_sources if s.url_search_string is not None]
+    sources_with_url_search_strs += [s for s in selected_sources_in_collections if s.url_search_string is not None]
+    domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
+    return dict(domains=domains, filters=domain_url_filters)
 
 
 def _for_media_cloud(collections: List, sources: List) -> Dict:

@@ -1,61 +1,106 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
-import queryGenerator from '../util/queryGenerator';
+import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopLanguagesMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
 } from '../util/platforms';
+import checkForBlankQuery from '../util/checkForBlankQuery';
+import prepareQueries from '../util/prepareQueries';
+import prepareLanguageData from '../util/prepareLanguageData';
+import queryTitle from '../util/queryTitle';
 
 export default function TopLanguages() {
+  const queryState = useSelector((state) => state.query);
+
   const {
-    queryString,
-    queryList,
-    negatedQueryList,
     platform,
-    startDate,
-    endDate,
-    collections,
-    sources,
     lastSearchTime,
-    anyAll,
-    advanced,
-  } = useSelector((state) => state.query);
+  } = queryState[0];
 
-  const fullQuery = queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  const [dispatchQuery, { isLoading, data, error }] = useGetTopLanguagesMutation();
 
-  const [query, { isLoading, data, error }] = useGetTopLanguagesMutation();
+  const [value, setValue] = useState(0);
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
-  const collectionIds = collections.map((c) => c.id);
-  const sourceIds = sources.map((s) => s.id);
-
-  const handleDownloadRequest = (queryObject) => {
-    window.location = `/api/search/download-top-languages-csv?queryObject=${encodeURIComponent(JSON.stringify(queryObject))}`;
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-top-languages-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
   };
 
   useEffect(() => {
-    if ((queryList[0].length !== 0) || (advanced && queryString !== 0)) {
-      query({
-        query: fullQuery,
-        startDate,
-        endDate,
-        collections: collectionIds,
-        sources: sourceIds,
-        platform,
-      });
+    if (checkForBlankQuery(queryState)) {
+      const preparedQueries = prepareQueries(queryState);
+      dispatchQuery(preparedQueries);
     }
   }, [lastSearchTime]);
 
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
   }
-
+  let content;
   if (!data && !error) return null;
+
+  if (error) {
+    content = (
+      <Alert severity="warning">
+        Sorry, but something went wrong.
+        (
+        {error.data.note}
+        )
+      </Alert>
+    );
+  } else {
+    content = (
+      <>
+        <div className="container">
+          <Box sx={{ width: '100%' }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+                {queryState.map((result, i) => (
+                  <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
+                ))}
+              </Tabs>
+            </Box>
+
+            {prepareLanguageData(data).map((results, i) => (
+              <TabPanelHelper value={value} index={i}>
+                <BarChart
+                  series={[results]}
+                  normalized
+                  title="Top Languages"
+                  height={100 + (results.data.length * 40)}
+                />
+              </TabPanelHelper>
+            ))}
+          </Box>
+        </div>
+        <div className="clearfix">
+          <div className="float-end">
+            <Button
+              variant="text"
+              endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
+              onClick={() => {
+                handleDownloadRequest(queryState);
+              }}
+            >
+              Download CSV of Top Languages
+            </Button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="results-item-wrapper">
@@ -67,10 +112,8 @@ export default function TopLanguages() {
             <Chip color="warning" label="experimental" />
           </h2>
           <p>
-            This is an
-            {' '}
-            <i>experimental</i>
-            {' '}
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            This is an <i>experimental</i>
             sample-based list of the top languages of content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
@@ -94,52 +137,16 @@ export default function TopLanguages() {
           )}
         </div>
         <div className="col-8">
-          {(error) && (
-            <Alert severity="warning">
-              Sorry, but something went wrong.
-              (
-              {error.data.note}
-              )
-            </Alert>
-          )}
-          {(error === undefined) && data && (
-            <>
-              <BarChart
-                series={[{
-                  data: data.languages.map((l) => ({
-                    key: l.language, value: l.ratio * 100,
-                  })),
-                  name: 'Language',
-                  color: '#2f2d2b',
-                }]}
-                normalized
-                title="Top Languages"
-                height={100 + (data.languages.length * 40)}
-              />
-              <div className="clearfix">
-                <div className="float-end">
-                  <Button
-                    variant="text"
-                    endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
-                    onClick={() => {
-                      handleDownloadRequest({
-                        query: fullQuery,
-                        startDate,
-                        endDate,
-                        collections: collectionIds,
-                        sources,
-                        platform,
-                      });
-                    }}
-                  >
-                    Download CSV of Top Languages
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
+          {content}
         </div>
       </div>
     </div>
   );
+}
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
 }

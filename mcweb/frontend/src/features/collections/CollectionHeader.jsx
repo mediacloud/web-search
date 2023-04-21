@@ -58,7 +58,7 @@ export default function CollectionHeader() {
       <ControlBar>
         <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
-            href={`/search/${urlSerializer({
+            href={`/search/${urlSerializer([{
               queryList: defaultPlatformQuery(collection.platform),
               anyAll: 'any',
               negatedQueryList: [],
@@ -68,7 +68,7 @@ export default function CollectionHeader() {
               sources: [],
               platform: defaultPlatformProvider(collection.platform),
               advanced: false,
-            })}`}
+            }])}`}
             target="_blank"
             rel="noreferrer"
           >
