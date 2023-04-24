@@ -86,7 +86,9 @@ function App() {
           <Route
             path="search"
             element={(
-              <TabbedSearch />
+              <RequireAuth>
+                <TabbedSearch />
+              </RequireAuth>
             )}
           />
 
@@ -114,7 +116,7 @@ function App() {
                 <RequireAuth>
                   <CollectionShow />
                 </RequireAuth>
-            )}
+              )}
             />
             <Route
               path=":collectionId/edit"
@@ -122,7 +124,7 @@ function App() {
                 <RequireAuth>
                   <ModifyCollection />
                 </RequireAuth>
-            )}
+              )}
             />
 
           </Route>
@@ -142,14 +144,6 @@ function App() {
               </RequireAuth>
             )}
           />
-          {/* <Route
-            path="search"
-            element={(
-              <RequireAuth>
-                <Search />
-              </RequireAuth>
-            )}
-          /> */}
 
           <Route
             path="sources"
@@ -181,7 +175,7 @@ function App() {
                 <RequireAuth>
                   <ModifySource />
                 </RequireAuth>
-                )}
+              )}
             />
             <Route
               path=":sourceId/feeds/create"
