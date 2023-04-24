@@ -32,7 +32,8 @@ function Footer() {
           <a href="https://mediacloud.org/support-form" target="_blank" rel="noreferrer">our support form</a>
           .
           <br />
-          Read our&nbsp;
+          Read our
+          {' '}
           <a href="https://mediacloud.org/privacy-policy" target="_blank" rel="noreferrer">privacy policy</a>
           {' '}
           and
@@ -42,7 +43,7 @@ function Footer() {
         </p>
         <p>
           v
-          {document.settings.appVersion}
+          { document.settings.appVersion }
         </p>
       </div>
     </Header>
