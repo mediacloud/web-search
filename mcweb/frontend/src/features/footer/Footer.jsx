@@ -27,7 +27,7 @@ function Footer() {
           {' '}
           or fill out
           {' '}
-          <a href="https://mediacloud.org/support-form" target="_blank" rel="noreferrer">our support form</a>
+          <a href="https://www.mediacloud.org/#contact" target="_blank" rel="noreferrer">our support form</a>
           .
           <br />
           <a href="https://mediacloud.org/privacy-policy" target="_blank" rel="noreferrer">Read our privacy policy</a>
