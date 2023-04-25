@@ -17,7 +17,9 @@ function Footer() {
           {' '}
           <a href="https://web.archive.org" target="_blank" rel="noreferrer">Wayback Machine</a>
           , and the&nbsp;
-          <a href="https://cyber.law.harvard.edu/" target="_blank" rel="noreferrer">Berkman Klein Center for Internet & Society at Harvard University</a>
+          <a href="https://cyber.law.harvard.edu/" target="_blank" rel="noreferrer">
+            Berkman Klein Center for Internet & Society at Harvard University
+          </a>
           .
         </p>
         <p>
@@ -27,10 +29,16 @@ function Footer() {
           {' '}
           or fill out
           {' '}
-          <a href="https://mediacloud.org/support-form" target="_blank" rel="noreferrer">our support form</a>
+          <a href="https://mediacloud.org/#contact" target="_blank" rel="noreferrer">our support form</a>
           .
           <br />
-          <a href="https://mediacloud.org/privacy-policy" target="_blank" rel="noreferrer">Read our privacy policy</a>
+          Read our
+          {' '}
+          <a href="https://mediacloud.org/privacy-policy" target="_blank" rel="noreferrer">privacy policy</a>
+          {' '}
+          and
+          {' '}
+          <a href="https://mediacloud.org/terms-of-use" target="_blank" rel="noreferrer">terms of use</a>
           .
         </p>
         <p>

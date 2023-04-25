@@ -72,21 +72,27 @@ function App() {
           <Route
             path="release-notes"
             element={(
-              <ReleaseNotes />
+              <RequireAuth>
+                <ReleaseNotes />
+              </RequireAuth>
             )}
           />
 
           <Route
             path="about-search"
             element={(
-              <AboutSearch />
+              <RequireAuth>
+                <AboutSearch />
+              </RequireAuth>
             )}
           />
 
           <Route
             path="search"
             element={(
-              <TabbedSearch />
+              <RequireAuth>
+                <TabbedSearch />
+              </RequireAuth>
             )}
           />
 
@@ -142,14 +148,6 @@ function App() {
               </RequireAuth>
             )}
           />
-          {/* <Route
-            path="search"
-            element={(
-              <RequireAuth>
-                <Search />
-              </RequireAuth>
-            )}
-          /> */}
 
           <Route
             path="sources"
