@@ -107,6 +107,8 @@ export default function CollectionHeader() {
             secondAction={false}
             confirmButtonText="Delete"
           />
+          { collection.platform === 'online_news' && (
+
           <AlertDialog
             outsideTitle="Rescrape Collection For Feeds"
             title={`Rescrape Collection #${collectionId}: ${collection.name} for new feeds?`}
@@ -124,6 +126,7 @@ export default function CollectionHeader() {
             secondAction={false}
             confirmButtonText="Rescrape"
           />
+          )}
         </Permissioned>
 
       </ControlBar>
