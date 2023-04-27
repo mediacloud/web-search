@@ -93,26 +93,17 @@ def _scrape_collection(collection_id):
         return _return_error(f"collection {collection_id} not found")
     
     sources = collection.source_set.all()
-
+    email = ""
     for source in sources:
-        print(source)
-
         # check source.homepage not empty??
-    # if not source.homepage:
-    #     return _return_error(f"source {source_id} missing homepage")
-
-    # # maybe check if re-scraped recently????
-
-    # name_or_home = source.name or source.homepage
-
-    # # NOTE! Will remove any other pending scrapes for same source
-    # # rather than queuing a duplicate; the new user will "steal" the task
-    # # (leaving no trace of the old one). Returns a Task object.
-    # task = _scrape_source(source_id, source.homepage, creator=user,
-    #                       verbose_name=f"rescrape {name_or_home}",
-    #                       remove_existing_tasks=True)
-    # return {'task': _return_task(task)}
-    return {'task': "hello"}
+        if not source.homepage:
+            return _return_error(f"source {source.id} missing homepage")
+        scraped_source_text = Source._scrape_source(source.id, source.homepage)
+        email += f"{scraped_source_text} \n"
+        logger.info(f"==== finished _scrape_source {source.name}")
+        
+    # send email????
+    logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name})")
 
 run_at = dt.time(hour=14, minute=32)
 # Calculate the number of days until next Friday
@@ -198,20 +189,6 @@ def schedule_scrape_collection(collection_id, user):
     collection = Collection.objects.get(id=collection_id)
     task = _scrape_collection(collection_id, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
 
-    # check source.homepage not empty??
-    # if not source.homepage:
-    #     return _return_error(f"source {source_id} missing homepage")
-
-    # # maybe check if re-scraped recently????
-
-    # name_or_home = source.name or source.homepage
-
-    # # NOTE! Will remove any other pending scrapes for same source
-    # # rather than queuing a duplicate; the new user will "steal" the task
-    # # (leaving no trace of the old one). Returns a Task object.
-    # task = _scrape_source(source_id, source.homepage, creator=user,
-    #                       verbose_name=f"rescrape {name_or_home}",
-    #                       remove_existing_tasks=True)
     return {'task': _return_task(task)}
 
 
@@ -238,6 +215,7 @@ def schedule_scrape_source(source_id, user):
                           verbose_name=f"rescrape {name_or_home}",
                           remove_existing_tasks=True)
     return {'task': _return_task(task)}
+
 
 
 def get_completed_tasks(user):

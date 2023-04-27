@@ -1,7 +1,13 @@
-from django.db import models
+import logging
 from typing import Dict
-import mcmetadata.urls as urls
 
+from feed_seeker import generate_feed_urls
+from mcmetadata.feeds import normalize_url
+import mcmetadata.urls as urls
+from django.db import models
+
+SCRAPE_TIMEOUT_SECONDS = 120
+logger = logging.getLogger(__name__)
 
 class Collection(models.Model):
 
@@ -180,6 +186,31 @@ class Source(models.Model):
             obj["media_type"] = media_type.strip()
 
         return obj
+    
+    @classmethod
+    def _scrape_source(cls, source_id: int, homepage: str):
+        logger.info(f"==== starting _scrape_source(source_id, homepage)")
+
+        # work around not having a column/index for normalized feed url:
+        # create set of normalized urls of current feeds
+        old_urls = set([normalize_url(feed.url)
+                        for feed in Feed.objects.filter(source_id=source_id)])
+
+        # background_tasks does not implement job timeouts, so use
+        # feed_seeker's; returns a generator, so gobble up returns so that
+        # DB operations are not under the timeout gun.
+        new_urls = list(generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS))
+
+        for url in new_urls:
+            if normalize_url(url) not in old_urls:
+                logger.info(f"scrape_source({source_id}, {homepage}) found new feed {url}")
+                feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
+                feed.save()
+            else:
+                logger.info(f"scrape_source({source_id}, {homepage}) found old feed {url}")
+
+        # send email????
+        return(f"scraped_source({source_id}, {homepage})")
 
     
 class Feed(models.Model):
