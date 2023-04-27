@@ -83,6 +83,37 @@ def _scrape_source(source_id, homepage):
     logger.info(f"==== finished _scrape_source(source_id, homepage)")
 
 
+
+@background()
+def _scrape_collection(collection_id):
+    logger.info(f"==== starting _scrape_collection(collection_id)")
+
+    collection = Collection.objects.get(id=collection_id)
+    if not collection:
+        return _return_error(f"collection {collection_id} not found")
+    
+    sources = collection.source_set.all()
+
+    for source in sources:
+        print(source)
+
+        # check source.homepage not empty??
+    # if not source.homepage:
+    #     return _return_error(f"source {source_id} missing homepage")
+
+    # # maybe check if re-scraped recently????
+
+    # name_or_home = source.name or source.homepage
+
+    # # NOTE! Will remove any other pending scrapes for same source
+    # # rather than queuing a duplicate; the new user will "steal" the task
+    # # (leaving no trace of the old one). Returns a Task object.
+    # task = _scrape_source(source_id, source.homepage, creator=user,
+    #                       verbose_name=f"rescrape {name_or_home}",
+    #                       remove_existing_tasks=True)
+    # return {'task': _return_task(task)}
+    return {'task': "hello"}
+
 run_at = dt.time(hour=14, minute=32)
 # Calculate the number of days until next Friday
 today = dt.date.today()
@@ -90,8 +121,6 @@ days_until_friday = (4 - today.weekday()) % 7
 # Calculate the datetime when the task should run
 next_friday = today + dt.timedelta(days=days_until_friday)
 run_datetime = dt.datetime.combine(next_friday, run_at)
-
-
 
 def run_alert_system():
     user = User.objects.get(username='e.leon@northeastern.edu')
@@ -161,6 +190,29 @@ def _return_error(message):
     """
     logger.info(f"_return_error {message}")
     return {'error': message}
+
+def schedule_scrape_collection(collection_id, user):
+    """
+    call this function from a view action to schedule a (re)scrape for a collection
+    """
+    collection = Collection.objects.get(id=collection_id)
+    task = _scrape_collection(collection_id, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
+
+    # check source.homepage not empty??
+    # if not source.homepage:
+    #     return _return_error(f"source {source_id} missing homepage")
+
+    # # maybe check if re-scraped recently????
+
+    # name_or_home = source.name or source.homepage
+
+    # # NOTE! Will remove any other pending scrapes for same source
+    # # rather than queuing a duplicate; the new user will "steal" the task
+    # # (leaving no trace of the old one). Returns a Task object.
+    # task = _scrape_source(source_id, source.homepage, creator=user,
+    #                       verbose_name=f"rescrape {name_or_home}",
+    #                       remove_existing_tasks=True)
+    return {'task': _return_task(task)}
 
 
 def schedule_scrape_source(source_id, user):

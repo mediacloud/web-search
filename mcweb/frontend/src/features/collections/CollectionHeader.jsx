@@ -6,7 +6,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import Chip from '@mui/material/Chip';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Outlet, Link, useParams } from 'react-router-dom';
-import { useGetCollectionQuery, useDeleteCollectionMutation } from '../../app/services/collectionsApi';
+import {
+  useGetCollectionQuery,
+  useDeleteCollectionMutation,
+  useRescrapeCollectionMutation,
+} from '../../app/services/collectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -27,7 +31,10 @@ export default function CollectionHeader() {
   } = useGetCollectionQuery(collectionId);
 
   const [deleteCollection] = useDeleteCollectionMutation();
+  const [rescrapeCollection] = useRescrapeCollectionMutation();
+
   const [open, setOpen] = useState(false);
+  const [openRescrape, setOpenRescrape] = useState(false);
   if (isFetching) {
     return (<CircularProgress size={75} />);
   }
@@ -100,7 +107,25 @@ export default function CollectionHeader() {
             secondAction={false}
             confirmButtonText="Delete"
           />
+          <AlertDialog
+            outsideTitle="Rescrape Collection For Feeds"
+            title={`Rescrape Collection #${collectionId}: ${collection.name} for new feeds?`}
+            content="Are you sure you want to rescrape each source in this collection for new feeds?"
+            dispatchNeeded={false}
+            action={rescrapeCollection}
+            actionTarget={collectionId}
+            snackbar
+            snackbarText="Collection Queued for rescraping!"
+            onClick={() => setOpenRescrape(true)}
+            openDialog={openRescrape}
+            variant="outlined"
+            navigateNeeded={false}
+            endIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            secondAction={false}
+            confirmButtonText="Rescrape"
+          />
         </Permissioned>
+
       </ControlBar>
       <Outlet />
     </>

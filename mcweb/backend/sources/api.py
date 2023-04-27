@@ -23,7 +23,7 @@ from .rss_fetcher_api import RssFetcherApi
 from util.send_emails import send_source_upload_email
 
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
-from .tasks import schedule_scrape_source, get_completed_tasks, get_pending_tasks
+from .tasks import schedule_scrape_source, get_completed_tasks, get_pending_tasks, schedule_scrape_collection
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -115,6 +115,12 @@ class CollectionViewSet(viewsets.ModelViewSet):
         json_data = open(file_path)  
         deserial_data = json.load(json_data) 
         return Response({"countries": deserial_data})
+    
+    # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
+    @action(methods=['post'], detail=False, url_path='rescrape-collection')
+    def rescrape_feeds(self, request):
+        collection_id = int(request.data["collection_id"])
+        return Response(schedule_scrape_collection(collection_id, request.user))
 
 
 class FeedsViewSet(viewsets.ModelViewSet):
