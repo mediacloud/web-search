@@ -28,6 +28,7 @@ export const PROVIDER_NEWS_MEDIA_CLOUD = providerName(
 export const PROVIDER_REDDIT_PUSHSHIFT = providerName(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT);
 export const PROVIDER_YOUTUBE_YOUTUBE = providerName(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE);
 
+// the latest allowed end date for the type of platform
 export const latestAllowedEndDate = (provider) => {
   const today = dayjs();
   if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return today.subtract('4', 'day');
@@ -35,6 +36,7 @@ export const latestAllowedEndDate = (provider) => {
   return today;
 };
 
+// the earliest starting date for the type of platform
 export const earliestAllowedStartDate = (provider) => {
   if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return dayjs('2022-08-01');
   if (provider === PROVIDER_REDDIT_PUSHSHIFT) return dayjs('2022-11-1');
@@ -42,16 +44,17 @@ export const earliestAllowedStartDate = (provider) => {
 };
 
 export const defaultPlatformProvider = (platform) => {
-  if (platform == PLATFORM_TWITTER) return PROVIDER_TWITTER_TWITTER;
-  if (platform == PLATFORM_REDDIT) return PROVIDER_REDDIT_PUSHSHIFT;
-  if (platform == PLATFORM_YOUTUBE) return PROVIDER_YOUTUBE_YOUTUBE;
-  if (platform == 'online_news') return PROVIDER_NEWS_MEDIA_CLOUD;
+  if (platform === PLATFORM_TWITTER) return PROVIDER_TWITTER_TWITTER;
+  if (platform === PLATFORM_REDDIT) return PROVIDER_REDDIT_PUSHSHIFT;
+  if (platform === PLATFORM_YOUTUBE) return PROVIDER_YOUTUBE_YOUTUBE;
+  if (platform === 'online_news') return PROVIDER_NEWS_MEDIA_CLOUD;
+  return null;
 };
 
 export const defaultPlatformQuery = (platform) => {
-  if (platform == 'online_news') return ['*'];
-  if (platform == PLATFORM_REDDIT) return ['*'];
+  if (platform === 'online_news') return ['*'];
+  if (platform === PLATFORM_REDDIT) return ['*'];
   // can't search everything on these, so try a smiley!
-  if (platform == PLATFORM_TWITTER) return ['🙂'];
-  if (platform == PLATFORM_YOUTUBE) return ['🙂'];
+  if (platform === PLATFORM_TWITTER) return ['🙂'];
+  if (platform === PLATFORM_YOUTUBE) return ['🙂'];
 };
