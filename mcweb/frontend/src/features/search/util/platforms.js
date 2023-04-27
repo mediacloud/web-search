@@ -17,6 +17,7 @@ const providerName = (platform, source) => `${platform}-${source}`;
 
 // synthetic constants to make life easier here
 export const PROVIDER_TWITTER_TWITTER = providerName(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER);
+
 export const PROVIDER_NEWS_WAYBACK_MACHINE = providerName(
   PLATFORM_ONLINE_NEWS,
   PLATFORM_SOURCE_WAYBACK_MACHINE,
@@ -26,6 +27,7 @@ export const PROVIDER_NEWS_MEDIA_CLOUD = providerName(
   PLATFORM_SOURCE_MEDIA_CLOUD,
 );
 export const PROVIDER_REDDIT_PUSHSHIFT = providerName(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT);
+
 export const PROVIDER_YOUTUBE_YOUTUBE = providerName(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE);
 
 // the latest allowed end date for the type of platform
