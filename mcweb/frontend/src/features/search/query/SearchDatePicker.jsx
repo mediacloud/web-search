@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { setQueryProperty } from './querySlice';
-import { earliestAllowedStartDate, latestAllowedEndDate } from '../util/platforms';
+import { earliestAllowedStartDate, latestAllowedEndDate, validateDate } from '../util/platforms';
 import DefaultDates from './DefaultDates';
 
 export default function SearchDatePicker({ queryIndex }) {
@@ -27,32 +27,21 @@ export default function SearchDatePicker({ queryIndex }) {
   // the maximum date off platform (To Date Picker)
   const toDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
 
-  
   const handleChangeFromDate = (newValue) => {
-    const fromDate = dayjs(newValue).format('MM/DD/YYYY');
-
-    const daysBetweenMinAndFrom = dayjs(fromDate).diff(dayjs(fromDateMin), 'day');
-
-    const daysBetweenFromAndMax = dayjs(fromDateMax).diff(dayjs(fromDate), 'day');
-
-    const daysBetweenMinAndMax = dayjs(fromDateMax).diff(dayjs(fromDateMin), 'day');
-
-    if (daysBetweenMinAndFrom <= daysBetweenMinAndMax && daysBetweenFromAndMax <= daysBetweenMinAndMax) {
-      dispatch(setQueryProperty({ startDate: fromDate, queryIndex, property: 'startDate' }));
+    if (validateDate(dayjs(newValue), dayjs(fromDateMin), dayjs(fromDateMax))) {
+      dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
+      enqueueSnackbar('Valid Date', { variant: 'success' });
+    } else {
+      enqueueSnackbar('Invalid Date', { variant: 'warning' });
     }
   };
 
   const handleChangeToDate = (newValue) => {
-    const toDate = dayjs(newValue).format('MM/DD/YYYY');
-
-    const daysBetweenMinAndtoDate = dayjs(toDate).diff(dayjs(toDateMin), 'day');
-
-    const daysBetweenToDateAndMax = dayjs(toDateMax).diff(dayjs(toDate), 'day');
-
-    const daysBetweenMinAndMax = dayjs(toDateMax).diff(dayjs(toDateMin), 'day');
-
-    if (daysBetweenMinAndtoDate <= daysBetweenMinAndMax && daysBetweenToDateAndMax <= daysBetweenMinAndMax) {
-      dispatch(setQueryProperty({ startDate: toDate, queryIndex, property: 'endDate' }));
+    if (validateDate(dayjs(newValue), dayjs(toDateMin), dayjs(toDateMax))) {
+      dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
+      enqueueSnackbar('Valid Date', { variant: 'success' });
+    } else {
+      enqueueSnackbar('Invalid Date', { variant: 'warning' });
     }
   };
 
@@ -84,6 +73,7 @@ export default function SearchDatePicker({ queryIndex }) {
             maxDate={fromDateMax}
             renderInput={(params) => <TextField {...params} />}
           />
+
           <DatePicker
             required
             label="To"
