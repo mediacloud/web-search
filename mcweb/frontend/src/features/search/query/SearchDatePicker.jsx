@@ -17,12 +17,43 @@ export default function SearchDatePicker({ queryIndex }) {
   const { enqueueSnackbar } = useSnackbar();
   const { platform, startDate, endDate } = useSelector((state) => state.query[queryIndex]);
 
+  // the minimum date off platform (From Date Picker)
+  const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
+  // the maximum date based off platform (From Date Picker)
+  const fromDateMax = dayjs(latestAllowedEndDate(platform)).add(-1, 'day').format('MM/DD/YYYY');
+
+  // the minumum date off platform (To Date Picker)
+  const toDateMin = dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY');
+  // the maximum date off platform (To Date Picker)
+  const toDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
+
+  
   const handleChangeFromDate = (newValue) => {
-    dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
+    const fromDate = dayjs(newValue).format('MM/DD/YYYY');
+
+    const daysBetweenMinAndFrom = dayjs(fromDate).diff(dayjs(fromDateMin), 'day');
+
+    const daysBetweenFromAndMax = dayjs(fromDateMax).diff(dayjs(fromDate), 'day');
+
+    const daysBetweenMinAndMax = dayjs(fromDateMax).diff(dayjs(fromDateMin), 'day');
+
+    if (daysBetweenMinAndFrom <= daysBetweenMinAndMax && daysBetweenFromAndMax <= daysBetweenMinAndMax) {
+      dispatch(setQueryProperty({ startDate: fromDate, queryIndex, property: 'startDate' }));
+    }
   };
 
   const handleChangeToDate = (newValue) => {
-    dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
+    const toDate = dayjs(newValue).format('MM/DD/YYYY');
+
+    const daysBetweenMinAndtoDate = dayjs(toDate).diff(dayjs(toDateMin), 'day');
+
+    const daysBetweenToDateAndMax = dayjs(toDateMax).diff(dayjs(toDate), 'day');
+
+    const daysBetweenMinAndMax = dayjs(toDateMax).diff(dayjs(toDateMin), 'day');
+
+    if (daysBetweenMinAndtoDate <= daysBetweenMinAndMax && daysBetweenToDateAndMax <= daysBetweenMinAndMax) {
+      dispatch(setQueryProperty({ startDate: toDate, queryIndex, property: 'endDate' }));
+    }
   };
 
   useEffect(() => {
@@ -49,8 +80,8 @@ export default function SearchDatePicker({ queryIndex }) {
             onChange={handleChangeFromDate}
             disableFuture
             disableHighlightToday
-            maxDate={endDate}
-            minDate={dayjs(earliestAllowedStartDate(platform).format('MM/DD/YYYY'))}
+            minDate={fromDateMin}
+            maxDate={fromDateMax}
             renderInput={(params) => <TextField {...params} />}
           />
           <DatePicker
@@ -60,8 +91,8 @@ export default function SearchDatePicker({ queryIndex }) {
             onChange={handleChangeToDate}
             disableFuture
             disableHighlightToday
-            minDate={dayjs(earliestAllowedStartDate(platform).format('MM/DD/YYYY')).add('1', 'day')}
-            maxDate={dayjs(latestAllowedEndDate(platform).format('MM/DD/YYYY'))}
+            minDate={toDateMin}
+            maxDate={toDateMax}
             renderInput={(params) => <TextField {...params} />}
           />
         </LocalizationProvider>
