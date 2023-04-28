@@ -67,7 +67,7 @@ export default function SearchDatePicker({ queryIndex }) {
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <div className="date-accuracy-alert">
-            <h1 className={`banner ${isFromDateMatching ? 'disable-alert' : 'enable-alert'}`}>Innaccurate Date</h1>
+            <h1 className={`banner ${isFromDateMatching ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
             <DatePicker
               required
               type="date"
@@ -83,7 +83,7 @@ export default function SearchDatePicker({ queryIndex }) {
           </div>
 
           <div className="date-accuracy-alert">
-            <h1 className={`banner ${isToDateMatching ? 'disable-alert' : 'enable-alert'}`}>Innaccurate Date</h1>
+            <h1 className={`banner ${isToDateMatching ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
             <DatePicker
               required
               label="To"
