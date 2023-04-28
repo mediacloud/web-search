@@ -15,10 +15,11 @@ import DefaultDates from './DefaultDates';
 export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const [isFromDateMatching, setIsFromDateMatching] = useState(true);
-  const [isToDateMatching, setIsToDateMatching] = useState(true);
 
   const { platform, startDate, endDate } = useSelector((state) => state.query[queryIndex]);
+
+  const [isFromDateMatching, setIsFromDateMatching] = useState(true);
+  const [isToDateMatching, setIsToDateMatching] = useState(true);
 
   // the minimum date off platform (From Date Picker)
   const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
