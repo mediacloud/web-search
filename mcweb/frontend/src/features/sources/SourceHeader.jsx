@@ -131,6 +131,7 @@ export default function SourceHeader() {
             secondAction={false}
             confirmButtonText="delete"
           />
+          {source.platform === 'online_news' && (
 
           <AlertDialog
             outsideTitle="Rescrape Source"
@@ -150,6 +151,7 @@ export default function SourceHeader() {
             secondAction={false}
             confirmButtonText="Rescrape"
           />
+          )}
 
         </Permissioned>
       </ControlBar>

@@ -57,6 +57,13 @@ export const collectionsApi = managerApi.injectEndpoints({
       }),
       invalidatesTags: ['Collection'],
     }),
+    rescrapeCollection: builder.mutation({
+      query: (collectionId) => ({
+        url: 'collections/rescrape-collection/',
+        method: 'POST',
+        body: { collection_id: collectionId },
+      }),
+    }),
   }),
 });
 
@@ -70,4 +77,5 @@ export const {
   useDeleteCollectionMutation,
   useLazyGetCollectionQuery,
   useGetGlobalCollectionsQuery,
+  useRescrapeCollectionMutation,
 } = collectionsApi;
