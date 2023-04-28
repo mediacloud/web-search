@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import dayjs from 'dayjs';
-import { validateDate } from '../src/features/search/util/platforms';
+import validateDate from '../src/features/search/util/dateValidation';
 
 test('On Max Day ', () => {
   const minDate = dayjs('01/01/2000').format('MM/DD/YYYY');

@@ -9,7 +9,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { setQueryProperty } from './querySlice';
-import { earliestAllowedStartDate, latestAllowedEndDate, validateDate } from '../util/platforms';
+import { earliestAllowedStartDate, latestAllowedEndDate } from '../util/platforms';
+import validateDate from '../util/dateValidation';
 import DefaultDates from './DefaultDates';
 
 export default function SearchDatePicker({ queryIndex }) {
