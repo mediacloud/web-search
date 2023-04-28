@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import { earliestAllowedStartDate } from '../src/features/search/util/platforms';
 
-
 test('PROVIDER_NEWS_WAYBACK_MACHINE', () => {
   const result = dayjs('2022-08-01').format('MM/DD/YYYY');
   const provider = 'onlinenews-waybackmachine';
