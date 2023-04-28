@@ -1,35 +1,22 @@
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
-// export const validateDate = (currentDate, minDate, maxDate) => {
- 
-//    const daysBetweenMinAndtoDate = dayjs(toDate).diff(dayjs(toDateMin), 'day');
+const validateDate = (currentDate, minDate, maxDate) => {
+  const daysBetweenMinAndtoDate = dayjs(currentDate).diff(dayjs(minDate), 'day');
 
-//     const daysBetweenToDateAndMax = dayjs(toDateMax).diff(dayjs(toDate), 'day');
+  const daysBetweenToDateAndMax = dayjs(maxDate).diff(dayjs(currentDate), 'day');
 
-//     const daysBetweenMinAndMax = dayjs(toDateMax).diff(dayjs(toDateMin), 'day');
+  const daysBetweenMinAndMax = dayjs(maxDate).diff(dayjs(minDate), 'day');
 
-//     const currentYear = dayjs(toDate).year();
-//     const minYear = dayjs(toDateMin).year();
-//     const maxYear = dayjs(toDateMax).year();
+  const currentYear = dayjs(currentDate).year();
+  const minYear = dayjs(minDate).year();
+  const maxYear = dayjs(maxDate).year();
 
-//     if (currentYear >= minYear && currentYear <= maxYear) {
-//       if (daysBetweenMinAndtoDate <= daysBetweenMinAndMax && daysBetweenToDateAndMax <= daysBetweenMinAndMax) {
-//         dispatch(setQueryProperty({ endDate: toDate.format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
-//       }
-//     }
+  const isCurrentYearInBetweenMinAndMax = currentYear >= minYear && currentYear <= maxYear;
 
+  const isCurrentDateInBetween = daysBetweenMinAndtoDate <= daysBetweenMinAndMax
+    && daysBetweenToDateAndMax <= daysBetweenMinAndMax;
 
-//   // console.log('Min Date');
-//   // getTime(minDate);
+  return isCurrentYearInBetweenMinAndMax && isCurrentDateInBetween;
+};
 
-//   // console.log('Max Date');
-//   // getTime(maxDate);
-// };
-
-// function getTime(date) {
-//   const day = date.day();
-//   const month = date.month();
-//   const year = date.year();
-
-//   console.log(new Date(year, month, day));
-// }
+export default validateDate;
