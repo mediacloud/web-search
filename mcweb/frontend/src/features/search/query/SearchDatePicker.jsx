@@ -59,6 +59,20 @@ export default function SearchDatePicker({ queryIndex }) {
 
   return (
     <>
+
+      <div>
+        <h1>
+          Start Date:
+          {' '}
+          {startDate}
+        </h1>
+        <h1>
+          End Date:
+          {' '}
+          {endDate}
+        </h1>
+      </div>
+
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
