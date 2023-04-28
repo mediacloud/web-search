@@ -112,7 +112,6 @@ export default function TabbedSearch() {
                 confirmButtonText="copy"
               />
             </div>
-
             <div className="col-1">
               {/* Submit */}
               <Button
