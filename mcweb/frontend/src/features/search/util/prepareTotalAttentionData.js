@@ -12,7 +12,8 @@ const prepareTotalAttentionData = (results, queryState, normalized) => {
   const { relevant, total } = results.count;
   relevant.forEach((result, i) => {
     const prepareData = {};
-    const name = queryTitle(queryState, i);
+    // runs on results, queryState
+    const name = queryTitle(relevant, i);
     prepareData.key = 'Matching Content';
     prepareData.value = normalized ? normalizeData(relevant[i], total[i]) : relevant[i];
     series.push({ data: [prepareData], name, color: colors[i] });

@@ -74,7 +74,7 @@ export default function SampleStories() {
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
               {data.sample.map((result, i) => (
-                <Tab key={`samples${i + 1}`} label={queryTitle(queryState, i)} {...a11yProps(i)} />
+                <Tab key={`samples${i + 1}`} label={queryTitle(result, i)} {...a11yProps(i)} />
               ))}
             </Tabs>
           </Box>
