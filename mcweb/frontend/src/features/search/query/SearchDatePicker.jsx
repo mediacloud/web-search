@@ -63,7 +63,6 @@ export default function SearchDatePicker({ queryIndex }) {
 
   return (
     <>
-
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <div className="date-accuracy-alert">
@@ -107,7 +106,6 @@ export default function SearchDatePicker({ queryIndex }) {
       <DefaultDates platform={platform} amountOfTime="1" typeOfTime="month" message="Last Month" />
 
       <DefaultDates platform={platform} amountOfTime="3" typeOfTime="month" message="Last 3 Months" />
-
     </>
   );
 }
