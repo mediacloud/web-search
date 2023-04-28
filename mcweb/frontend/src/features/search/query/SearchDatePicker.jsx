@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -15,6 +15,9 @@ import DefaultDates from './DefaultDates';
 export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
+  const [isFromDateMatching, setIsFromDateMatching] = useState(true);
+  const [isToDateMatching, setIsToDateMatching] = useState(true);
+
   const { platform, startDate, endDate } = useSelector((state) => state.query[queryIndex]);
 
   // the minimum date off platform (From Date Picker)
@@ -30,18 +33,18 @@ export default function SearchDatePicker({ queryIndex }) {
   const handleChangeFromDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(fromDateMin), dayjs(fromDateMax))) {
       dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
-      enqueueSnackbar('Valid Date', { variant: 'success' });
+      setIsFromDateMatching(true);
     } else {
-      enqueueSnackbar('Invalid Date', { variant: 'warning' });
+      setIsFromDateMatching(false);
     }
   };
 
   const handleChangeToDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(toDateMin), dayjs(toDateMax))) {
       dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
-      enqueueSnackbar('Valid Date', { variant: 'success' });
+      setIsToDateMatching(true);
     } else {
-      enqueueSnackbar('Invalid Date', { variant: 'warning' });
+      setIsToDateMatching(false);
     }
   };
 
@@ -60,45 +63,39 @@ export default function SearchDatePicker({ queryIndex }) {
   return (
     <>
 
-      <div>
-        <h1>
-          Start Date:
-          {' '}
-          {startDate}
-        </h1>
-        <h1>
-          End Date:
-          {' '}
-          {endDate}
-        </h1>
-      </div>
-
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <DatePicker
-            required
-            type="date"
-            label="From"
-            value={startDate}
-            onChange={handleChangeFromDate}
-            disableFuture
-            disableHighlightToday
-            minDate={fromDateMin}
-            maxDate={fromDateMax}
-            renderInput={(params) => <TextField {...params} />}
-          />
+          <div className="date-accuracy-alert">
+            <h1 className={`banner ${isFromDateMatching ? 'disable-alert' : 'enable-alert'}`}>Innaccurate Date</h1>
+            <DatePicker
+              required
+              type="date"
+              label="From"
+              value={startDate}
+              onChange={handleChangeFromDate}
+              disableFuture
+              disableHighlightToday
+              minDate={fromDateMin}
+              maxDate={fromDateMax}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </div>
 
-          <DatePicker
-            required
-            label="To"
-            value={endDate}
-            onChange={handleChangeToDate}
-            disableFuture
-            disableHighlightToday
-            minDate={toDateMin}
-            maxDate={toDateMax}
-            renderInput={(params) => <TextField {...params} />}
-          />
+          <div className="date-accuracy-alert">
+            <h1 className={`banner ${isToDateMatching ? 'disable-alert' : 'enable-alert'}`}>Innaccurate Date</h1>
+            <DatePicker
+              required
+              label="To"
+              value={endDate}
+              onChange={handleChangeToDate}
+              disableFuture
+              disableHighlightToday
+              minDate={toDateMin}
+              maxDate={toDateMax}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </div>
+
         </LocalizationProvider>
       </div>
       <p className="help">
