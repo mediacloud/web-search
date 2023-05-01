@@ -74,22 +74,20 @@ export default function TabbedSearch() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
-                <Tab
-                  key={`${tabTitle(queryState, i)}`}
-                  label={(
-                    <div>
-                      {tabTitle(queryState, i)}
-
-                      <RemoveCircleOutlineIcon
-                        sx={{ color: '#d24527', marginLeft: '.5rem' }}
-                        onClick={() => handleRemoveQuery(i)}
-                        variant="contained"
-                      />
-
-                    </div>
-                  )}
-                  {...a11yProps(i)}
-                />
+              <Tab
+                key={`${tabTitle(queryState, i)}`}
+                label={(
+                  <div>
+                    {tabTitle(queryState, i)}
+                    <RemoveCircleOutlineIcon
+                      sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                      onClick={() => handleRemoveQuery(i)}
+                      variant="contained"
+                    />
+                  </div>
+                )}
+                {...a11yProps(i)}
+              />
             ))}
             <Tab label="+ Add Query" onClick={handleAddQuery} />
           </Tabs>

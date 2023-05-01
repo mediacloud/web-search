@@ -218,7 +218,7 @@ test('Empty Query (United States - National Collection) (Two Identical Objects)'
   expect(tabTitle(queryState, 1)).toBe('Query 2');
 });
 
-test('Empty Query (United States - National Collection) (Two Identical Objects)', () => {
+test('(Tab 1 Title with two objects', () => {
   const queryState = [{
     advanced: false,
     anyAll: 'any',
@@ -278,3 +278,65 @@ test('Empty Query (United States - National Collection) (Two Identical Objects)'
   expect(tabTitle(queryState, 1)).toBe('Query 2');
 });
 
+test('Empty Query (United States - National Collection) (Additional Test)', () => {
+  const queryState = [{
+    advanced: false,
+    anyAll: 'any',
+    collections:
+      [{
+        id: 34412234,
+        name: 'United States - National',
+        public: true,
+        type: 'collection',
+      }],
+    startDate: '03/28/2023',
+    endDate: '04/30/2023',
+    lastSearchTime: 1682943747,
+    negatedQueryList: [['War'], [], []],
+    platform: 'onlinenews-waybackmachine',
+    previewCollections: [{
+      type: 'collection',
+      id: 34412234,
+      name: 'United States - National',
+      platform: 'online_news',
+      public: true,
+    }],
+    sources: [],
+    previewSources: [],
+    queryList: [['Love'], [], []],
+    queryString: '',
+  },
+  {
+    advanced: false,
+    anyAll: 'any',
+    collections:
+      [{
+        id: 34412234,
+        name: 'United States - National',
+        public: true,
+        type: 'collection',
+      }],
+    startDate: '03/28/2023',
+    endDate: '04/30/2023',
+    lastSearchTime: 1682943747,
+    negatedQueryList: [['Artificial Intelligence'], [], []],
+    platform: 'reddit-reddit',
+    previewCollections: [{
+      type: 'collection',
+      id: 34412234,
+      name: 'United States - National',
+      platform: 'online_news',
+      public: true,
+    }],
+    sources: [],
+    previewSources: [],
+    queryList: [['Artificial Intelligence'], [], []],
+    queryString: '',
+  }];
+
+  const queryTitle = '(Artificial Intelligence) AND NOT (Artificial Intelligence)';
+  const queryTabResult = `${queryTitle.substring(0, 35)} ...`;
+
+  expect(tabTitle(queryState, 0)).toBe('(Love) AND NOT (War)');
+  expect(tabTitle(queryState, 1)).toBe(queryTabResult);
+});
