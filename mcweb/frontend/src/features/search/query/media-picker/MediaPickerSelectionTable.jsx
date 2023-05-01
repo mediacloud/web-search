@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { asNumber } from '../../../ui/uiUtil';
 
 export default function MediaPickerSelectionTable({
-  selected, matching, onAdd, onRemove, collection, queryIndex,
+  selected, matching, onAdd, onRemove, collection, queryIndex, isGlobalCollection,
 }) {
   const dispatch = useDispatch();
   const alreadySelected = (cid) => selected.map((c) => c.id).includes(cid);
@@ -19,7 +19,7 @@ export default function MediaPickerSelectionTable({
         <tr>
           <th>Name</th>
           <th>Description</th>
-          {collection && (
+          {collection && !isGlobalCollection && (
             <th>Sources</th>
           )}
         </tr>
@@ -35,7 +35,7 @@ export default function MediaPickerSelectionTable({
               </Link>
             </td>
             <td>{collection ? c.notes : c.label}</td>
-            {collection && (
+            {collection && !isGlobalCollection && (
               <td className="numeric">{asNumber(c.source_count)}</td>
             )}
             <td>
@@ -82,4 +82,5 @@ MediaPickerSelectionTable.propTypes = {
   })).isRequired,
   collection: PropTypes.bool.isRequired,
   queryIndex: PropTypes.number.isRequired,
+  isGlobalCollection: PropTypes.bool.isRequired,
 };

@@ -22,6 +22,7 @@ export default function FeaturedCollectionsPicker({ platform, queryIndex }) {
         onRemove={removePreviewSelectedMedia}
         collection
         queryIndex={queryIndex}
+        isGlobalCollection={false}
       />
     </div>
   );

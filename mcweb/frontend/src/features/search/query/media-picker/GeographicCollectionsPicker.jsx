@@ -21,7 +21,6 @@ export default function GeographicCollectionsPicker({ platform, queryIndex }) {
 
   return (
     <div className="container">
-      <Button variant="contained" onClick={() => console.log(data)}>Print</Button>
       <MediaPickerSelectionTable
         selected={[]}
         matching={formatedData}
@@ -29,6 +28,7 @@ export default function GeographicCollectionsPicker({ platform, queryIndex }) {
         onRemove={removePreviewSelectedMedia}
         collection
         queryIndex={queryIndex}
+        isGlobalCollection
       />
     </div>
   );
