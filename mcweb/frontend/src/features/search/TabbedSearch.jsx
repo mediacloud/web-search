@@ -37,8 +37,6 @@ export default function TabbedSearch() {
     setValue(newValue);
   };
 
-  console.log(queryState);
-
   const handleAddQuery = () => {
     const qsLength = queryState.length;
     dispatch(addQuery(platform));
