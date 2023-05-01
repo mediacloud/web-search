@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@mui/material';
 import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import { useGetGlobalCollectionsQuery } from '../../../../app/services/collectionsApi';
 import MediaPickerSelectionTable from './MediaPickerSelectionTable';
