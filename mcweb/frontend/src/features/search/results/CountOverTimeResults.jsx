@@ -34,6 +34,7 @@ export default function CountOverTimeResults() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
 
+
   const handleDownloadRequest = (qs) => {
     window.location = `/api/search/download-counts-over-time-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
   };
@@ -163,7 +164,7 @@ export default function CountOverTimeResults() {
           </p>
         </div>
         <div className="col-8">
-          { content }
+          {content}
         </div>
       </div>
     </div>

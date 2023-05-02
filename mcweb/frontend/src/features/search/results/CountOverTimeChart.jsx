@@ -4,6 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import PropTypes from 'prop-types';
 
 export default function CountOverTimeChart({ data, normalized }) {
+  console.log(data);
   const options = {
     chart: {
       type: 'spline',
