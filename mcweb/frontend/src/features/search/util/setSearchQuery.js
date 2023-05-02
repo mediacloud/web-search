@@ -89,10 +89,11 @@ const setState = (queries, negatedQueries, queryStrings, startDates, endDates, p
         dispatch(setQueryProperty({ queryList: query, queryIndex: i, property: 'queryList' }));
       }
     });
-
-    negatedQueries.forEach((negatedQuery, i) => {
-      dispatch(setQueryProperty({ negatedQuery, queryIndex: i, property: 'negatedQuery' }));
-    });
+    if (negatedQueries) {
+      negatedQueries.forEach((negatedQuery, i) => {
+        dispatch(setQueryProperty({ negatedQuery, queryIndex: i, property: 'negatedQuery' }));
+      });
+    }
   }
 
   startDates.forEach((startDate, i) => {
@@ -115,9 +116,10 @@ const setState = (queries, negatedQueries, queryStrings, startDates, endDates, p
     dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
     reset = false;
   });
+
   collections.forEach((collection, i) => {
     if (collection[0] === null) {
-      reset = true;
+      // reset = true;
       return null;
     }
     dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
