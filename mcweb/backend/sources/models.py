@@ -212,6 +212,12 @@ class Source(models.Model):
         # send email????
         return(f"scraped_source({source_id}, {homepage})")
 
+    @classmethod
+    def update_stories_per_week(source, weekly_story_count):
+        source=Source.objects.get(pk=source) 
+        source.stories_per_week = weekly_story_count
+        source.save()
+
     
 class Feed(models.Model):
     url = models.TextField(null=False, blank=False, unique=True)

@@ -132,7 +132,6 @@ def _alert_system(collection_ids):
             try:
                 collection = Collection.objects.get(pk=collection_id)
                 source_relations = set(collection.source_set.all())
-                # print(source_relations)
                 sources = sources | source_relations
             except:
                 print(collection_id)
@@ -147,11 +146,12 @@ def _alert_system(collection_ids):
                 # print(stories_fetched)
                 counts = [d['count'] for d in stories_fetched]  # extract the count values
                 mean = np.mean(counts) 
-                std_dev = np.std(counts)  
-                # todays_count = counts[-1]
+                std_dev = np.std(counts)
 
+                sum_count_week = _calculate_stories_last_week(stories_fetched)  #calculate the last seven days of stories
+                Source.update_stories_per_week(source, sum_count_week) 
                 # stories_published = rss.source_stories_published_by_day(source.id)
-                # counts_published = [d['count'] for d in stories_published]  
+                # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
                 # std_dev_published = np.std(counts_published)  
 
@@ -162,7 +162,15 @@ def _alert_system(collection_ids):
             if(email):
                 email += f"total alert count = {alert_count} \n"
                 send_alert_email(email)
+            
 
+def _calculate_stories_last_week(stories_fetched):
+    """
+    helper to calculate update stories per week count by fetching last 7 days count from stories_fetched
+    """
+    last_7_days_data = stories_fetched[-7:]
+    sum_count = sum(day_data['count'] for day_data in last_7_days_data)
+    return sum_count
 
 def _return_task(task):
     """
