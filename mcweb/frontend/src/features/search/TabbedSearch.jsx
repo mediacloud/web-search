@@ -31,6 +31,7 @@ export default function TabbedSearch() {
 
   const queryState = useSelector((state) => state.query);
   const { platform } = queryState[0];
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -138,7 +139,7 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-           {/* <TotalAttentionResults />
+          {/* <TotalAttentionResults />
           <SampleStories />
           <TopWords />  */}
           {/* <TopLanguages /> */}
