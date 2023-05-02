@@ -13,6 +13,7 @@ import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
+import queryTitle from '../util/queryTitle';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -33,7 +34,6 @@ export default function CountOverTimeResults() {
   const open = Boolean(anchorEl);
 
   const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
-
 
   const handleDownloadRequest = (qs) => {
     window.location = `/api/search/download-counts-over-time-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
@@ -75,10 +75,16 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
+    const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
+      (originalDataObj, index) => {
+        const queryTitleForPreparation = { query: queryTitle(queryState, index) };
+        return { ...queryTitleForPreparation, ...originalDataObj };
+      },
+    );
     content = (
       <>
         <CountOverTimeChart
-          data={prepareCountOverTimeData(data.count_over_time, normalized)}
+          data={updatedPrepareCountOverTimeData}
           // data={cleanData(data.count_over_time[0].counts)}
           normalized={normalized}
         />
