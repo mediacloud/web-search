@@ -5,6 +5,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import ContentCopy from '@mui/icons-material/ContentCopy';
@@ -32,18 +34,24 @@ export default function TabbedSearch() {
   const [open, setOpen] = useState(false);
 
   const queryState = useSelector((state) => state.query);
+
+  const [color, setColors] = useState(['White']);
+
   const { platform } = queryState[0];
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const handleAddQuery = () => {
     const qsLength = queryState.length;
+    setColors(() => [...color, 'White']);
     dispatch(addQuery(platform));
     setValue(qsLength);
   };
 
   const handleRemoveQuery = (index) => {
+    setColors((index) => color.filter((_, index) => c !== 0));
     dispatch(removeQuery(index));
     if (index === 0) {
       setValue(0);
@@ -65,6 +73,21 @@ export default function TabbedSearch() {
     setShow(deactivateButton(queryState));
   }, [queryState]);
 
+  const [anchorEl, setAnchorEl] = useState(false);
+
+  const handleRightClick = (event) => {
+    event.preventDefault();
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (index, colorValue) => {
+    console.log(index);
+    const newColors = [...color];
+    newColors[index] = colorValue;
+    setColors(newColors);
+    setAnchorEl(null);
+  };
+
   return (
     <div className="container search-container">
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
@@ -74,9 +97,27 @@ export default function TabbedSearch() {
             {queryState.map((query, i) => (
               <Tab
                 key={`${tabTitle(queryState, i)}`}
+                onContextMenu={handleRightClick}
+                style={{
+                  boxShadow: '0px 0px 4px 2px rgba(255, 0, 0, 0.2)', // adjust the color and blur radius as needed
+                  outline: `4px solid ${color[i]}`, // change the color and size as needed
+                  outlineOffset: '-4px', // adjust this value to match the size of the outline
+                }}
                 label={(
-                  <div>
+                  <div className="tabTitleLabel">
+
+                    {/* <input className="tabNameInput" value={tabTitles[i]} /> */}
                     {tabTitle(queryState, i)}
+
+                    <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
+                      <MenuItem onClick={() => handleClose(i, 'orange')}>Orange</MenuItem>
+                      <MenuItem onClick={() => handleClose(i, 'yellow')}>Yellow</MenuItem>
+                      <MenuItem onClick={() => handleClose(i, 'green')}>Green</MenuItem>
+                      <MenuItem onClick={() => handleClose(i, 'blue')}>Blue</MenuItem>
+                      <MenuItem onClick={() => handleClose(i, 'indigo')}>Indigo</MenuItem>
+                      <MenuItem onClick={() => handleClose(i, 'deepPurple')}>Violet</MenuItem>
+                    </Menu>
+
                     <RemoveCircleOutlineIcon
                       sx={{ color: '#d24527', marginLeft: '.5rem' }}
                       onClick={() => handleRemoveQuery(i)}
