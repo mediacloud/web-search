@@ -141,7 +141,7 @@ export default function TabbedSearch() {
            {/* <TotalAttentionResults />
           <SampleStories />
           <TopWords />  */}
-          <TopLanguages />
+          {/* <TopLanguages /> */}
         </div>
       </div>
 
