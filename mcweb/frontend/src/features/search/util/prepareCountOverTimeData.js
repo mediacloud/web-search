@@ -8,9 +8,8 @@ const dateHelper = (dateString) => {
   return newDate;
 };
 
-const prepareCountOverTimeData = (results, normalized) => {
+const prepareCountOverTimeData = (results, normalized, queryState) => {
   const series = [];
-
 
   results.forEach((result, i) => {
     const data = result.counts.map((r) => [
@@ -18,7 +17,7 @@ const prepareCountOverTimeData = (results, normalized) => {
       normalized ? r.ratio * 100 : r.count,
     ]);
     series.push({
-      name: `query: ${queryTitle(results, i)} `,
+      name: `query: ${queryTitle(queryState, i)} `,
       data,
       colorIndex: i,
     });

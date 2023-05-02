@@ -69,7 +69,7 @@ export default function TopWords() {
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {data.words.map((result, i) => (
 
-                  <Tab label={queryTitle(result, i)} {...a11yProps(i)} />
+                  <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
                 ))}
               </Tabs>
             </Box>

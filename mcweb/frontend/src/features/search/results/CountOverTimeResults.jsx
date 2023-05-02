@@ -77,7 +77,7 @@ export default function CountOverTimeResults() {
     content = (
       <>
         <CountOverTimeChart
-          data={prepareCountOverTimeData(data.count_over_time, normalized)}
+          data={prepareCountOverTimeData(data.count_over_time, normalized, queryState)}
           // data={cleanData(data.count_over_time[0].counts)}
           normalized={normalized}
         />
