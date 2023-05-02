@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
 import { Link } from '@mui/material';
 import PropTypes from 'prop-types';
-import { setQueryProperty, setQueryPropertyPartDuex } from './querySlice';
+import { setQueryProperty } from './querySlice';
 import { latestAllowedEndDate } from '../util/platforms';
 
 export default function DefaultDates({
