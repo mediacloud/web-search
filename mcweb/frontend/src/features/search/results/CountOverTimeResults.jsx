@@ -23,6 +23,7 @@ export default function CountOverTimeResults() {
     lastSearchTime,
   } = queryState[0];
 
+
   const [normalized, setNormalized] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -77,15 +78,15 @@ export default function CountOverTimeResults() {
   } else {
     const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
       (originalDataObj, index) => {
-        const queryTitleForPreparation = { query: queryTitle(queryState, index) };
+        const queryTitleForPreparation = { name: `query: ${queryTitle(queryState, index)}` };
         return { ...queryTitleForPreparation, ...originalDataObj };
       },
     );
     content = (
       <>
         <CountOverTimeChart
+          // data={prepareCountOverTimeData(data.count_over_time, normalized)}
           data={updatedPrepareCountOverTimeData}
-          // data={cleanData(data.count_over_time[0].counts)}
           normalized={normalized}
         />
         <div className="clearfix">
