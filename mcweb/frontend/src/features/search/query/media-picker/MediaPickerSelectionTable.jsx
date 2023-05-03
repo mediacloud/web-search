@@ -22,6 +22,9 @@ export default function MediaPickerSelectionTable({
           {collection && !isGlobalCollection && (
             <th>Sources</th>
           )}
+          {!collection && (
+            <th>Stories per week</th>
+          )}
         </tr>
         {matching.map((c) => (
           <tr key={c.id}>
@@ -37,6 +40,9 @@ export default function MediaPickerSelectionTable({
             <td>{collection ? c.notes : c.label}</td>
             {collection && !isGlobalCollection && (
               <td className="numeric">{asNumber(c.source_count)}</td>
+            )}
+            {!collection && (
+            <td>{c.stories_per_week?.toString() ?? '?'}</td>
             )}
             <td>
               {!(alreadySelected(c.id)) && (
