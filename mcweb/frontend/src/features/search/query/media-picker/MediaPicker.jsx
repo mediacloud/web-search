@@ -13,6 +13,7 @@ import SelectedMedia from '../SelectedMedia';
 import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
 import GeographicCollectionsPicker from './GeographicCollectionsPicker';
 import SourceSearchPicker from './SourceSearchPicker';
+import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../../util/platforms';
 
 export default function MediaPicker({ queryIndex }) {
   const [value, setValue] = React.useState(0);
@@ -48,7 +49,9 @@ export default function MediaPicker({ queryIndex }) {
               sx={{ minWidth: '350px' }}
             >
               <Tab label="Featured Collections" id="tab1" />
-              <Tab label="Geographic Collections" id="tab1" />
+              {[PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && (
+                <Tab label="Geographic Collections" id="tab1" />
+              )}
               <Tab label="Search All Collections" id="tab1" />
               <Tab label="Search All Sources" id="tab1" />
 
