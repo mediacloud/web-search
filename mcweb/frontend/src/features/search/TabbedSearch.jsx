@@ -51,8 +51,15 @@ export default function TabbedSearch() {
   };
 
   const handleRemoveQuery = (index) => {
-    setColors((index) => color.filter((_, index) => c !== 0));
+    const newColorArray = [];
+    for (let i = 0; i < color.length; i += 1) {
+      if (i !== index) {
+        newColorArray.push(color[i]);
+      }
+    }
+    setColors(newColorArray);
     dispatch(removeQuery(index));
+
     if (index === 0) {
       setValue(0);
     } else {
@@ -75,13 +82,8 @@ export default function TabbedSearch() {
 
   const [anchorEl, setAnchorEl] = useState(false);
 
-  const handleRightClick = (event) => {
-    event.preventDefault();
-    setAnchorEl(event.currentTarget);
-  };
-
   const handleClose = (index, colorValue) => {
-    console.log(index);
+    setValue(index);
     const newColors = [...color];
     newColors[index] = colorValue;
     setColors(newColors);
@@ -97,32 +99,38 @@ export default function TabbedSearch() {
             {queryState.map((query, i) => (
               <Tab
                 key={`${tabTitle(queryState, i)}`}
-                onContextMenu={handleRightClick}
+                onContextMenu={
+                  (event) => {
+                    setValue(i);
+                    event.preventDefault();
+                    setAnchorEl(event.currentTarget);
+                  }
+                }
+                sx={{ marginRight: 0.5 }}
                 style={{
-                  boxShadow: '0px 0px 4px 2px rgba(255, 0, 0, 0.2)', // adjust the color and blur radius as needed
-                  outline: `4px solid ${color[i]}`, // change the color and size as needed
+                  outline: `3px solid ${color[i]}`, // change the color and size as needed
                   outlineOffset: '-4px', // adjust this value to match the size of the outline
                 }}
                 label={(
                   <div className="tabTitleLabel">
 
-                    {/* <input className="tabNameInput" value={tabTitles[i]} /> */}
                     {tabTitle(queryState, i)}
 
                     <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
-                      <MenuItem onClick={() => handleClose(i, 'orange')}>Orange</MenuItem>
-                      <MenuItem onClick={() => handleClose(i, 'yellow')}>Yellow</MenuItem>
-                      <MenuItem onClick={() => handleClose(i, 'green')}>Green</MenuItem>
-                      <MenuItem onClick={() => handleClose(i, 'blue')}>Blue</MenuItem>
-                      <MenuItem onClick={() => handleClose(i, 'indigo')}>Indigo</MenuItem>
-                      <MenuItem onClick={() => handleClose(i, 'deepPurple')}>Violet</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'yellow')}>Yellow</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'green')}>Green</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'blue')}>Blue</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'indigo')}>Indigo</MenuItem>
                     </Menu>
 
-                    <RemoveCircleOutlineIcon
-                      sx={{ color: '#d24527', marginLeft: '.5rem' }}
-                      onClick={() => handleRemoveQuery(i)}
-                      variant="contained"
-                    />
+                    {!(i === 0 && queryState.length - 1 === 0) && (
+                      <RemoveCircleOutlineIcon
+                        sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                        onClick={() => handleRemoveQuery(i)}
+                        variant="contained"
+                      />
+                    )}
                   </div>
                 )}
                 {...a11yProps(i)}
