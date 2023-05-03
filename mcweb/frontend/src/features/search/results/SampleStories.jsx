@@ -26,17 +26,6 @@ export default function SampleStories() {
   const [lastSearchTimePlatform, setLastSearchTimePlatform] = useState(platform);
 
   const [dispatchQuery, { isLoading, data, error }] = useGetSampleStoriesMutation();
-
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -82,11 +71,8 @@ export default function SampleStories() {
           {data.sample.map((results, i) => (
             <TabPanelHelper value={value} index={i}>
               <SampleStoryShow
-                open={open}
                 data={results}
                 lSTP={lastSearchTimePlatform}
-                handleClick={handleClick}
-                handleClose={handleClose}
                 platform={platform}
               />
             </TabPanelHelper>
