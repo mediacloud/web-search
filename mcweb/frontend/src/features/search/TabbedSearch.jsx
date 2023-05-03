@@ -52,13 +52,19 @@ export default function TabbedSearch() {
 
   const handleRemoveQuery = (index) => {
     const newColorArray = [];
+
     for (let i = 0; i < color.length; i += 1) {
       if (i !== index) {
         newColorArray.push(color[i]);
       }
     }
+
     setColors(newColorArray);
     dispatch(removeQuery(index));
+
+    console.log(`value: ${value}`);
+    console.log(`index: ${index}`);
+    console.log(`queryState.length: ${queryState.length}`);
 
     if (index === 0) {
       setValue(0);
@@ -101,6 +107,9 @@ export default function TabbedSearch() {
                 key={`${tabTitle(queryState, i)}`}
                 onContextMenu={
                   (event) => {
+                    console.log(`value: ${value}`);
+                    console.log(`index: ${index}`);
+                    console.log(`queryState.length: ${queryState.length}`);
                     setValue(i);
                     event.preventDefault();
                     setAnchorEl(event.currentTarget);
