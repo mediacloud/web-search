@@ -43,12 +43,12 @@ export default function SampleStories() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (checkForBlankQuery(queryState) || queryState.length === 1) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
     setLastSearchTimePlatform(platform);
-  }, [lastSearchTime]);
+  }, [lastSearchTime, queryState.length]);
 
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
@@ -68,13 +68,15 @@ export default function SampleStories() {
       </Alert>
     );
   } else {
+    const queryTitleArrays = queryState.map((query, index) => queryTitle(queryState, index));
+
     content = (
       <div className="container">
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
               {data.sample.map((result, i) => (
-                <Tab key={`samples${i + 1}`} label={queryTitle(result, i)} {...a11yProps(i)} />
+                <Tab key={queryTitleArrays[i]} label={queryTitleArrays[i]} {...a11yProps(i)} />
               ))}
             </Tabs>
           </Box>
@@ -105,26 +107,26 @@ export default function SampleStories() {
             Click the menu on the bottom  right to download a CSV of all the
             matching content and associated metadata.
           </p>
-          { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
-          <p>
-            These results are a random sample of news stories that matched your searches.
-          </p>
+          {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+            <p>
+              These results are a random sample of news stories that matched your searches.
+            </p>
           )}
-          { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-          <p>
-            These results are the top scoring Reddit submissions that matched your
-            searches.
-          </p>
+          {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
+            <p>
+              These results are the top scoring Reddit submissions that matched your
+              searches.
+            </p>
           )}
-          { (platform === PROVIDER_TWITTER_TWITTER) && (
-          <p>
-            These results are the most recent tweets that matched your searches.
-          </p>
+          {(platform === PROVIDER_TWITTER_TWITTER) && (
+            <p>
+              These results are the most recent tweets that matched your searches.
+            </p>
           )}
-          { (platform === PROVIDER_YOUTUBE_YOUTUBE) && (
-          <p>
-            These results are the most viewed videos that matched your searches.
-          </p>
+          {(platform === PROVIDER_YOUTUBE_YOUTUBE) && (
+            <p>
+              These results are the most viewed videos that matched your searches.
+            </p>
           )}
         </div>
         <div className="col-8">
