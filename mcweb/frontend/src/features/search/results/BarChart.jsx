@@ -9,7 +9,6 @@ exporting(Highcharts);
 export default function BarChart({
   normalized, height, title, series,
 }) {
-  // console.log(normalized, height, title, series);
   const options = {
     chart: {
       type: 'bar',
