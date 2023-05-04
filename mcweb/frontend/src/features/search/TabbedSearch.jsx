@@ -6,6 +6,7 @@ import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import SearchIcon from '@mui/icons-material/Search';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import dayjs from 'dayjs';
 import { addQuery, setLastSearchTime, removeQuery } from './query/querySlice';
@@ -21,6 +22,7 @@ import TabPanelHelper from '../ui/TabPanelHelper';
 import { searchApi } from '../../app/services/searchApi';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
+import tabTitle from './util/tabTitle';
 
 export default function TabbedSearch() {
   const dispatch = useDispatch();
@@ -71,7 +73,20 @@ export default function TabbedSearch() {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
-              <Tab key={`Query ${i + 1}`} label={`Query ${i + 1}`} {...a11yProps(i)} />
+              <Tab
+                key={`${tabTitle(queryState, i)}`}
+                label={(
+                  <div>
+                    {tabTitle(queryState, i)}
+                    <RemoveCircleOutlineIcon
+                      sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                      onClick={() => handleRemoveQuery(i)}
+                      variant="contained"
+                    />
+                  </div>
+                )}
+                {...a11yProps(i)}
+              />
             ))}
             <Tab label="+ Add Query" onClick={handleAddQuery} />
           </Tabs>
@@ -79,12 +94,6 @@ export default function TabbedSearch() {
 
         {queryState.map((query, i) => (
           <TabPanelHelper key={i} value={value} index={i}>
-            <Button
-              onClick={() => handleRemoveQuery(i)}
-              variant="contained"
-            >
-              Remove Query
-            </Button>
             <Search queryIndex={i} />
           </TabPanelHelper>
         ))}
