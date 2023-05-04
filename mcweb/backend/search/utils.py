@@ -40,8 +40,6 @@ def parse_query(request, http_method: str = 'POST') -> tuple:
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
 
-    print("Query String:" + str(query_str))
-
     return start_date, end_date, query_str, provider_props, provider_name
 
 
