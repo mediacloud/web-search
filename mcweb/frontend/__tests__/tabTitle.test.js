@@ -335,8 +335,9 @@ test('Empty Query (United States - National Collection) (Additional Test)', () =
   }];
 
   const queryTitle = '(Artificial Intelligence) AND NOT (Artificial Intelligence)';
-  const queryTabResult = `${queryTitle.substring(0, 35)} ...`;
+  const queryTabResult = `${queryTitle.substring(0, 30)} ...`;
 
+  expect(tabTitle(queryState, 1).length).toBe(34);
   expect(tabTitle(queryState, 0)).toBe('(Love) AND NOT (War)');
   expect(tabTitle(queryState, 1)).toBe(queryTabResult);
 });
