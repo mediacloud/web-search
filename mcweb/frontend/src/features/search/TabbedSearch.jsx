@@ -62,10 +62,6 @@ export default function TabbedSearch() {
     setColors(newColorArray);
     dispatch(removeQuery(index));
 
-    console.log(`value: ${value}`);
-    console.log(`index: ${index}`);
-    console.log(`queryState.length: ${queryState.length}`);
-
     if (index === 0) {
       setValue(0);
     } else {
@@ -107,9 +103,6 @@ export default function TabbedSearch() {
                 key={`${tabTitle(queryState, i)}`}
                 onContextMenu={
                   (event) => {
-                    console.log(`value: ${value}`);
-                    console.log(`index: ${index}`);
-                    console.log(`queryState.length: ${queryState.length}`);
                     setValue(i);
                     event.preventDefault();
                     setAnchorEl(event.currentTarget);
@@ -117,7 +110,7 @@ export default function TabbedSearch() {
                 }
                 sx={{ marginRight: 0.5 }}
                 style={{
-                  outline: `3px solid ${color[i]}`, // change the color and size as needed
+                  outline: `4px solid ${color[i]}`, // change the color and size as needed
                   outlineOffset: '-4px', // adjust this value to match the size of the outline
                 }}
                 label={(
