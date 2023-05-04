@@ -41,14 +41,25 @@ export default function CountOverTimeResults() {
 
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
+  const [newQuery, setNewQuery] = useState(false);
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState) || queryState.length === 1) {
+    if (checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
+  }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
+    }
   }, [lastSearchTime, queryState.length]);
+
+  if (newQuery) return null;
 
   useEffect(() => {
     if (data || error) {
