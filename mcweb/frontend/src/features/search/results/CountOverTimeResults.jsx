@@ -23,7 +23,6 @@ export default function CountOverTimeResults() {
     lastSearchTime,
   } = queryState[0];
 
-
   const [normalized, setNormalized] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -44,12 +43,12 @@ export default function CountOverTimeResults() {
   const executeScroll = () => myRef.current.scrollIntoView();
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (checkForBlankQuery(queryState) || queryState.length === 1) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
-  }, [lastSearchTime]);
+  }, [lastSearchTime, queryState.length]);
 
   useEffect(() => {
     if (data || error) {
@@ -85,7 +84,6 @@ export default function CountOverTimeResults() {
     content = (
       <>
         <CountOverTimeChart
-          // data={prepareCountOverTimeData(data.count_over_time, normalized)}
           data={updatedPrepareCountOverTimeData}
           normalized={normalized}
         />
