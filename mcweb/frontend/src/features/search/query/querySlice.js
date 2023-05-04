@@ -143,7 +143,7 @@ const querySlice = createSlice({
       } else if (payload === 0) {
         freezeState.shift();
       } else {
-        freezeState.splice(payload, payload);
+        freezeState.splice(payload, 1);
       }
     },
   },
