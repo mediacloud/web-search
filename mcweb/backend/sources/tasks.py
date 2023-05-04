@@ -132,7 +132,6 @@ def _alert_system(collection_ids):
             try:
                 collection = Collection.objects.get(pk=collection_id)
                 source_relations = set(collection.source_set.all())
-                # print(source_relations)
                 sources = sources | source_relations
             except:
                 print(collection_id)
@@ -147,11 +146,12 @@ def _alert_system(collection_ids):
                 # print(stories_fetched)
                 counts = [d['count'] for d in stories_fetched]  # extract the count values
                 mean = np.mean(counts) 
-                std_dev = np.std(counts)  
-                # todays_count = counts[-1]
+                std_dev = np.std(counts)
 
+                sum_count_week = _calculate_stories_last_week(stories_fetched)  #calculate the last seven days of stories
+                Source.update_stories_per_week(source.id, sum_count_week) 
                 # stories_published = rss.source_stories_published_by_day(source.id)
-                # counts_published = [d['count'] for d in stories_published]  
+                # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
                 # std_dev_published = np.std(counts_published)  
 
@@ -163,6 +163,36 @@ def _alert_system(collection_ids):
                 email += f"total alert count = {alert_count} \n"
                 send_alert_email(email)
 
+def update_stories_per_week():
+    user = User.objects.get(username='e.leon@northeastern.edu')
+
+    task = _update_stories_counts(
+                        creator= user,
+                        verbose_name=f"update stories per week {dt.datetime.now()}",
+                        remove_existing_tasks=True)
+    return {'task': _return_task(task)}
+
+@background()
+def _update_stories_counts():
+
+        with RssFetcherApi() as rss:
+            stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
+            for source_tuple in stories_by_source:
+                source_id, stories_per_day = source_tuple
+                print(source_id, stories_per_day)
+                weekly_count = int(stories_per_day * 7)
+                print(weekly_count)
+                Source.update_stories_per_week(int(source_id), weekly_count)
+
+            
+
+def _calculate_stories_last_week(stories_fetched):
+    """
+    helper to calculate update stories per week count by fetching last 7 days count from stories_fetched
+    """
+    last_7_days_data = stories_fetched[-7:]
+    sum_count = sum(day_data['count'] for day_data in last_7_days_data)
+    return sum_count
 
 def _return_task(task):
     """

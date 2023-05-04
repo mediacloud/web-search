@@ -66,19 +66,35 @@ const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
 ));
 
-const setState = (queries, negatedQueries, startDates, endDates, platforms, collections, sources, anyAlls, dispatch) => {
-  queries.forEach((query, i) => {
-    if (i === 0) {
-      dispatch(setPlatform(platforms[i]));
-      dispatch(setQueryProperty({ queryList: query, queryIndex: i, property: 'queryList' }));
-    } else {
-      dispatch(addQuery(platforms[0]));
-      dispatch(setQueryProperty({ queryList: query, queryIndex: i, property: 'queryList' }));
+const setState = (queries, negatedQueries, queryStrings, startDates, endDates, platforms, collections, sources, anyAlls, dispatch) => {
+  if (!queries) {
+    queryStrings.forEach((queryString, i) => {
+      if (i === 0) {
+        dispatch(setPlatform(platforms[i]));
+        dispatch(setQueryProperty({ advanced: true, queryIndex: i, property: 'advanced' }));
+        dispatch(setQueryProperty({ queryString, queryIndex: i, property: 'queryString' }));
+      } else if (queryString) {
+        dispatch(addQuery(platforms[0]));
+        dispatch(setQueryProperty({ advanced: true, queryIndex: i, property: 'advanced' }));
+        dispatch(setQueryProperty({ queryString, queryIndex: i, property: 'queryString' }));
+      }
+    });
+  } else {
+    queries.forEach((query, i) => {
+      if (i === 0) {
+        dispatch(setPlatform(platforms[i]));
+        dispatch(setQueryProperty({ queryList: query, queryIndex: i, property: 'queryList' }));
+      } else {
+        dispatch(addQuery(platforms[0]));
+        dispatch(setQueryProperty({ queryList: query, queryIndex: i, property: 'queryList' }));
+      }
+    });
+    if (negatedQueries) {
+      negatedQueries.forEach((negatedQuery, i) => {
+        dispatch(setQueryProperty({ negatedQuery, queryIndex: i, property: 'negatedQuery' }));
+      });
     }
-  });
-  negatedQueries.forEach((negatedQuery, i) => {
-    dispatch(setQueryProperty({ negatedQuery, queryIndex: i, property: 'negatedQuery' }));
-  });
+  }
 
   startDates.forEach((startDate, i) => {
     dispatch(setQueryProperty({ startDate, queryIndex: i, property: 'startDate' }));
@@ -100,9 +116,10 @@ const setState = (queries, negatedQueries, startDates, endDates, platforms, coll
     dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
     reset = false;
   });
+
   collections.forEach((collection, i) => {
     if (collection[0] === null) {
-      reset = true;
+      // reset = true;
       return null;
     }
     dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
@@ -128,17 +145,17 @@ const setSearchQuery = (searchParams, dispatch) => {
   let collections = searchParams.get('cs');
   let sources = searchParams.get('ss');
   let anyAlls = searchParams.get('any');
-  // const queryString = searchParams.get('qs');
+  let queryStrings = searchParams.get('qs');
 
   query = query ? query.split(',') : null;
   query = formatQuery(query);
-  query = sizeQuery(query);
+  query = query ? sizeQuery(query) : null;
 
   negatedQuery = negatedQuery ? negatedQuery.split(',') : null;
   negatedQuery = formatQuery(negatedQuery);
-  negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : sizeQuery([[]]);
+  negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : null;
 
-  // queryString = queryString ? handleDecode(queryString) : null; // come back to
+  queryStrings = queryStrings ? handleDecode(queryStrings) : null; // come back to
 
   startDates = startDates ? handleDecode(startDates) : null;
 
@@ -156,7 +173,7 @@ const setSearchQuery = (searchParams, dispatch) => {
   sources = decodeAndFormatCorpus(sources, false);
 
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
-  setState(query, negatedQuery, startDates, endDates, platforms, collections, sources, anyAlls, dispatch);
+  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, collections, sources, anyAlls, dispatch);
 
   return null;
 };
