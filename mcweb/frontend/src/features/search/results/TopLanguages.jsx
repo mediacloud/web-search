@@ -39,11 +39,11 @@ export default function TopLanguages() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (checkForBlankQuery(queryState) || queryState.length === 1) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
-  }, [lastSearchTime]);
+  }, [lastSearchTime, queryState.length]);
 
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
@@ -61,14 +61,15 @@ export default function TopLanguages() {
       </Alert>
     );
   } else {
+    const queryTitleArrays = queryState.map((query, index) => queryTitle(queryState, index));
     content = (
       <>
         <div className="container">
           <Box sx={{ width: '100%' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                {queryState.map((result, i) => (
-                  <Tab label={queryTitle(queryState, i)} {...a11yProps(i)} />
+                {prepareLanguageData(data).map((result, i) => (
+                  <Tab label={queryTitleArrays[i]} {...a11yProps(i)} />
                 ))}
               </Tabs>
             </Box>
@@ -117,23 +118,23 @@ export default function TopLanguages() {
             sample-based list of the top languages of content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
-          { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-          <p>
-            These results are from a sample of titles of top scoring Reddit submissions. Reddit provieds
-            the language of the submission.
-          </p>
+          {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
+            <p>
+              These results are from a sample of titles of top scoring Reddit submissions. Reddit provieds
+              the language of the submission.
+            </p>
           )}
-          { (platform === PROVIDER_TWITTER_TWITTER) && (
-          <p>
-            These results are from a sample of the text from the most recent Tweets.
-            Twitter provides the language of the submission.
-          </p>
+          {(platform === PROVIDER_TWITTER_TWITTER) && (
+            <p>
+              These results are from a sample of the text from the most recent Tweets.
+              Twitter provides the language of the submission.
+            </p>
           )}
-          { (platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
-          <p>
-            These results are from a sample of titles from 5000 random news stories.
-            We use popular software libraries to guess the langage of the extracted text of the articles.
-          </p>
+          {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+            <p>
+              These results are from a sample of titles from 5000 random news stories.
+              We use popular software libraries to guess the langage of the extracted text of the articles.
+            </p>
           )}
         </div>
         <div className="col-8">
