@@ -13,7 +13,7 @@ import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
-import queryTitle from '../util/queryTitle';
+import tabTitle from '../util/tabTitle';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -87,7 +87,7 @@ export default function CountOverTimeResults() {
   } else {
     const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
       (originalDataObj, index) => {
-        const queryTitleForPreparation = { name: `query: ${queryTitle(queryState, index)}` };
+        const queryTitleForPreparation = { name: `query: ${tabTitle(queryState, index)}` };
         return { ...queryTitleForPreparation, ...originalDataObj };
       },
     );
