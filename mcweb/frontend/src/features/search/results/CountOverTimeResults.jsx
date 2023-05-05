@@ -13,6 +13,7 @@ import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
+import queryTitle from '../util/queryTitle';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -42,12 +43,12 @@ export default function CountOverTimeResults() {
   const executeScroll = () => myRef.current.scrollIntoView();
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (checkForBlankQuery(queryState) || queryState.length === 1) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
-  }, [lastSearchTime]);
+  }, [lastSearchTime, queryState.length]);
 
   useEffect(() => {
     if (data || error) {
@@ -74,11 +75,16 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
+    const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
+      (originalDataObj, index) => {
+        const queryTitleForPreparation = { name: `query: ${queryTitle(queryState, index)}` };
+        return { ...queryTitleForPreparation, ...originalDataObj };
+      },
+    );
     content = (
       <>
         <CountOverTimeChart
-          data={prepareCountOverTimeData(data.count_over_time, normalized, queryState)}
-          // data={cleanData(data.count_over_time[0].counts)}
+          data={updatedPrepareCountOverTimeData}
           normalized={normalized}
         />
         <div className="clearfix">
@@ -163,7 +169,7 @@ export default function CountOverTimeResults() {
           </p>
         </div>
         <div className="col-8">
-          { content }
+          {content}
         </div>
       </div>
     </div>
