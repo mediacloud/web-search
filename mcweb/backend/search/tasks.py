@@ -32,8 +32,12 @@ SCRAPE_TIMEOUT_SECONDS = 120
 
 logger = logging.getLogger(__name__)
 
-@background()
 def download_all_large_content_csv(queryState):
-    print("hello")
-    print("wtf")
-    logger.info(queryState)
+    print('hello world')
+    print(queryState)
+    print(_download_all_large_content_csv(queryState))
+
+
+@background()
+def _download_all_large_content_csv(queryState):
+    return 'world'

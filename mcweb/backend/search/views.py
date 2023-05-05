@@ -307,6 +307,9 @@ def download_all_content_csv(request):
         data.append(provider.all_items(
             query_str, start_date, end_date, **provider_props))
 
+        print('DATA')
+        print(data)
+
     def data_generator():
         for result in data:
             first_page = True
