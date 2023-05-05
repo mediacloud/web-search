@@ -59,14 +59,13 @@ export default function CountOverTimeResults() {
     }
   }, [lastSearchTime, queryState.length]);
 
-  if (newQuery) return null;
-
   useEffect(() => {
     if (data || error) {
       executeScroll();
     }
   }, [data, error]);
 
+  if (newQuery) return null;
   let content;
 
   if (isLoading) {
