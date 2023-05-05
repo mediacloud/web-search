@@ -16,7 +16,7 @@ import {
 } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
-import queryTitle from '../util/queryTitle';
+import tabTitle from '../util/tabTitle';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 
 export const supportsNormalizedCount = (platform) =>
@@ -79,7 +79,7 @@ function TotalAttentionResults() {
   } else {
     const updatedPrepareCountOverTimeData = prepareTotalAttentionData(data, normalized).map(
       (originalDataObj, index) => {
-        const queryTitleForPreparation = { name: queryTitle(queryState, index) };
+        const queryTitleForPreparation = { name: tabTitle(queryState, index) };
         return { ...queryTitleForPreparation, ...originalDataObj };
       },
     );
