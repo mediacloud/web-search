@@ -35,6 +35,8 @@ function TotalAttentionResults() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const [newQuery, setNewQuery] = useState(false);
+
   const handleClick = (e) => setAnchorEl(e.currentTarget);
 
   const handleClose = () => setAnchorEl(null);
@@ -48,12 +50,22 @@ function TotalAttentionResults() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState) || queryState.length === 1) {
+    if (checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
+  }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
+    }
   }, [lastSearchTime, queryState.length]);
+
+  if (newQuery) return null;
 
   if (isLoading) {
     return (
