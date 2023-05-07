@@ -23,14 +23,20 @@ export default function SearchDatePicker({ queryIndex }) {
   const [isToDateMatching, setIsToDateMatching] = useState(true);
 
   // the minimum date off platform (From Date Picker)
-  const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
+  const [fromDateMin, setFromDateMin] = useState(dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY'));
+
   // the maximum date based off platform (From Date Picker)
-  const fromDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
+  const [fromDateMax, setFromDateMax] = useState(dayjs(latestAllowedEndDate(platform)).add(-1, 'day').format('MM/DD/YYYY'));
 
   // the minumum date off platform (To Date Picker)
-  const toDateMin = dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY');
+  const [toDateMin, setToDateMin] = useState(dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY'));
   // the maximum date off platform (To Date Picker)
-  const toDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
+  const [toDateMax, setToDateMax] = useState(dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY'));
+
+  console.log(`earliest from date: ${fromDateMin}`);
+  console.log(`latest from date: ${fromDateMax}`);
+  console.log(`earliest to date: ${toDateMin}`);
+  console.log(`latest to date: ${toDateMax}\n`);
 
   const handleChangeFromDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(fromDateMin), dayjs(fromDateMax))) {
@@ -51,7 +57,12 @@ export default function SearchDatePicker({ queryIndex }) {
   };
 
   useEffect(() => {
-    // dispatch(setQueryProperty({ endDate: latestAllowedEndDate(platform).format('MM/DD/YYYY') }));
+    setFromDateMin(dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY'));
+    setFromDateMax(dayjs(latestAllowedEndDate(platform)).add(-1, 'day').format('MM/DD/YYYY'));
+
+    setToDateMin(dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY'));
+    setToDateMax(dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY'));
+
     if (dayjs(endDate) > latestAllowedEndDate(platform)) {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
@@ -76,8 +87,8 @@ export default function SearchDatePicker({ queryIndex }) {
               onChange={handleChangeFromDate}
               disableFuture
               disableHighlightToday
-              minDate={fromDateMin}
-              maxDate={fromDateMax}
+              minDate={dayjs(fromDateMin).toDate()}
+              maxDate={dayjs(fromDateMax).toDate()}
               renderInput={(params) => <TextField {...params} />}
             />
           </div>
@@ -91,8 +102,8 @@ export default function SearchDatePicker({ queryIndex }) {
               onChange={handleChangeToDate}
               disableFuture
               disableHighlightToday
-              minDate={toDateMin}
-              maxDate={toDateMax}
+              minDate={dayjs(toDateMin).toDate()}
+              maxDate={dayjs(toDateMax).toDate()}
               renderInput={(params) => <TextField {...params} />}
             />
           </div>
