@@ -33,11 +33,6 @@ export default function SearchDatePicker({ queryIndex }) {
   // the maximum date off platform (To Date Picker)
   const [toDateMax, setToDateMax] = useState(dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY'));
 
-  console.log(`earliest from date: ${fromDateMin}`);
-  console.log(`latest from date: ${fromDateMax}`);
-  console.log(`earliest to date: ${toDateMin}`);
-  console.log(`latest to date: ${toDateMax}\n`);
-
   const handleChangeFromDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(fromDateMin), dayjs(fromDateMax))) {
       dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
