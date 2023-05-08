@@ -13,7 +13,7 @@ import checkForBlankQuery from '../util/checkForBlankQuery';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
-import queryTitle from '../util/queryTitle';
+import tabTitle from '../util/tabTitle';
 import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
 import TabPanelHelper from '../../ui/TabPanelHelper';
@@ -33,6 +33,8 @@ export default function TopWords() {
   };
 
   const [value, setValue] = useState(0);
+  const [newQuery, setNewQuery] = useState(false);
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -43,6 +45,16 @@ export default function TopWords() {
       dispatchQuery(preparedQueries);
     }
   }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
+    }
+  }, [lastSearchTime, queryState.length]);
+
+  if (newQuery) return null;
 
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
@@ -61,6 +73,8 @@ export default function TopWords() {
       </Alert>
     );
   } else {
+    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
+
     content = (
       <>
         <div className="container">
@@ -68,8 +82,8 @@ export default function TopWords() {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {data.words.map((result, i) => (
+                  <Tab key={queryTitleArrays[i]} label={queryTitleArrays[i]} {...a11yProps(i)} />
 
-                  <Tab key={`tab-${i + 1}`} label={queryTitle(queryState, i)} {...a11yProps(i)} />
                 ))}
               </Tabs>
             </Box>
@@ -113,32 +127,32 @@ export default function TopWords() {
             sample-based list of the top words in content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
-          { (platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
-          <p>
-            These results are from a random sample of news stories.
-          </p>
+          {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+            <p>
+              These results are from a random sample of news stories.
+            </p>
           )}
-          { (platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-          <p>
-            These results are from a sample titles from top scoring Reddit submissions.
-            Common terms (ie. stopwords) have been removed based on the language of each submission.
-          </p>
+          {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
+            <p>
+              These results are from a sample titles from top scoring Reddit submissions.
+              Common terms (ie. stopwords) have been removed based on the language of each submission.
+            </p>
           )}
-          { (platform === PROVIDER_TWITTER_TWITTER) && (
-          <p>
-            These results are from a sample of the text from the most recent Tweets.
-            Common terms (ie. stopwords) have been removed based on the language of each Tweet.
-          </p>
+          {(platform === PROVIDER_TWITTER_TWITTER) && (
+            <p>
+              These results are from a sample of the text from the most recent Tweets.
+              Common terms (ie. stopwords) have been removed based on the language of each Tweet.
+            </p>
           )}
-          { (platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
-          <p>
-            These results are from a sample of titles from 5000 random news stories.
-            Common terms (ie. stopwords) from languages that have more than 15% of the results have been removed.
-          </p>
+          {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+            <p>
+              These results are from a sample of titles from 5000 random news stories.
+              Common terms (ie. stopwords) from languages that have more than 15% of the results have been removed.
+            </p>
           )}
         </div>
         <div className="col-8">
-          { content }
+          {content}
         </div>
       </div>
     </div>

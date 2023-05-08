@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+// import tabTitle from '../util/tabTitle';
 import queryGenerator from '../util/queryGenerator';
 
 export default function QueryPreview({ queryIndex }) {

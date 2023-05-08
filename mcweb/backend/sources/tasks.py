@@ -149,7 +149,7 @@ def _alert_system(collection_ids):
                 std_dev = np.std(counts)
 
                 sum_count_week = _calculate_stories_last_week(stories_fetched)  #calculate the last seven days of stories
-                Source.update_stories_per_week(source, sum_count_week) 
+                Source.update_stories_per_week(source.id, sum_count_week) 
                 # stories_published = rss.source_stories_published_by_day(source.id)
                 # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
@@ -162,6 +162,28 @@ def _alert_system(collection_ids):
             if(email):
                 email += f"total alert count = {alert_count} \n"
                 send_alert_email(email)
+
+def update_stories_per_week():
+    user = User.objects.get(username='e.leon@northeastern.edu')
+
+    task = _update_stories_counts(
+                        creator= user,
+                        verbose_name=f"update stories per week {dt.datetime.now()}",
+                        remove_existing_tasks=True)
+    return {'task': _return_task(task)}
+
+@background()
+def _update_stories_counts():
+
+        with RssFetcherApi() as rss:
+            stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
+            for source_tuple in stories_by_source:
+                source_id, stories_per_day = source_tuple
+                print(source_id, stories_per_day)
+                weekly_count = int(stories_per_day * 7)
+                print(weekly_count)
+                Source.update_stories_per_week(int(source_id), weekly_count)
+
             
 
 def _calculate_stories_last_week(stories_fetched):
