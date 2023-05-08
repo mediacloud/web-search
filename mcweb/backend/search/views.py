@@ -286,23 +286,25 @@ def download_counts_over_time_csv(request):
 def download_all_content_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
+
     for query in queryState:
+
         start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query, 'GET')
+
         provider = providers.provider_by_name(provider_name)
-        # try to not allow allow gigantic downloads
+        print("request.user.is_staff: " + str(request.user.is_staff))
+        print("request.user.id: " + str(request.user.id))
+        print("provider_name: " + str(provider_name))
+       # try to not allow allow gigantic downloads
         try:
             count = provider.count(query_str, start_date,
                                    end_date, **provider_props)
             print("count: " + str(count))
 
             if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
-                download_all_large_content_csv(provider, queryState)
-                return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
-
-            elif count > 500000 and request.user.is_staff:
-                # download_all_large_content_csv(queryState)
-                return HttpResponseBadRequest("Too many matches to download, make sure there are < 500,000")
+                return download_all_large_content_csv(
+                    queryState, count, request.user.id, request.user.is_staff)
 
         except UnsupportedOperationException:
             logger.warning(
