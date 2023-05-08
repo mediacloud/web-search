@@ -31,6 +31,10 @@ from util.send_emails import send_alert_email
 #rss fetcher
 from .rss_fetcher_api import RssFetcherApi
 
+ALERT_LOW = 'alert_low'
+GOOD = 'good'
+ALERT_HIGH = 'alert_high'
+NO_STORIES = 'no_stories'
 
 SCRAPE_TIMEOUT_SECONDS = 120
 
@@ -144,24 +148,55 @@ def _alert_system(collection_ids):
             for source in sources:
                 stories_fetched = rss.source_stories_fetched_by_day(source.id) 
                 # print(stories_fetched)
-                counts = [d['count'] for d in stories_fetched]  # extract the count values
+                counts = [d['stories'] for d in stories_fetched]  # extract the count values
+                print("COUNTS", counts)
                 mean = np.mean(counts) 
+                print("MEAN", mean)
                 std_dev = np.std(counts)
-
+                
+                last_7_days_data = stories_fetched[-7:]
+                seven_day_counts = [d['stories'] for d in last_7_days_data]
+                print("7DAYDATA", last_7_days_data)
+                mean_last_week = np.mean(seven_day_counts)
+                print("MEANWEEK",mean_last_week)
                 sum_count_week = _calculate_stories_last_week(stories_fetched)  #calculate the last seven days of stories
-                Source.update_stories_per_week(source.id, sum_count_week) 
+                print("SUMCOUNTWEEK", sum_count_week)
+                # Source.update_stories_per_week(source.id, sum_count_week) 
+
+                alert_status = _classify_alert(mean, mean_last_week, std_dev)
+
+                if alert_status == ALERT_LOW:
+                    email += f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n"
+                    alert_count += 1
+                elif alert_status == ALERT_HIGH:
+                    email += f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n"
+                    alert_count += 1
+                elif alert_status == NO_STORIES:
+                    email += f"Source {source.id}: {source.name} is NOT FETCHING STORIES, please check the feeds \n"
+                else: 
+                    logger.info(f"=====Source {source.name} is ingesting at regular levels")
                 # stories_published = rss.source_stories_published_by_day(source.id)
                 # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
                 # std_dev_published = np.std(counts_published)  
 
-                if (std_dev * 3) < mean:
-                    email += f"Source {source.id}: {source.name} has a story/day average of {mean} over the last 30 days, which is more than three standard deviations (single standard_deviation: {std_dev}) above the mean \n"
-                    alert_count += 1
             
             if(email):
                 email += f"total alert count = {alert_count} \n"
                 send_alert_email(email)
+
+def _classify_alert(month_mean, week_mean, std_dev):
+    if month_mean == np.nan():
+        return NO_STORIES
+    range = std_dev * 2
+    lower = month_mean - range
+    upper = month_mean + range 
+    if week_mean < lower:
+        return ALERT_LOW
+    elif week_mean > upper:
+        return ALERT_HIGH
+    elif week_mean > lower and week_mean < upper:
+        return GOOD
 
 def update_stories_per_week():
     user = User.objects.get(username='e.leon@northeastern.edu')
@@ -191,7 +226,7 @@ def _calculate_stories_last_week(stories_fetched):
     helper to calculate update stories per week count by fetching last 7 days count from stories_fetched
     """
     last_7_days_data = stories_fetched[-7:]
-    sum_count = sum(day_data['count'] for day_data in last_7_days_data)
+    sum_count = sum(day_data['stories'] for day_data in last_7_days_data)
     return sum_count
 
 def _return_task(task):
