@@ -7,7 +7,7 @@ This command is intended to run the 'Source Alert System' found in `mcweb/backen
 
 ### To run Alert System
 * `python mcweb/manage.py source-alert-system ` in production terminal
-- will print "Running source alert system" when command has been successfully run
+- will print "Schedule the source alert system to run" when command has been successfully run
 - the underlying command is a django background task (status can be seen in your profile)
   - background tasks on production are automatically run by a worker
   - currently task is manually assigned to `Evan-Leon`, can be reassigned in mcweb/backend/sources/tasks.py `run_alert_system`
@@ -18,4 +18,7 @@ Update Stories Per Week
 This command is intended to update all sources in the rss fetcher with an estimated weekly story count. Source id and 30-day-moving average tuple ex. (3, 24.5), are received from rss fetcher, single day average is multiplied by 7 and rounded, then saved to the source. 
 
 ### To run Update Stories Per Week
-* `python mcweb/manage.py 
+* `python mcweb/manage.py update-stories-per-week` in production terminal 
+- will print "Update the stories-per-week for every media source in rss fetcher" when command has been run
+- will trigger background task to run
+- currently task is manually assigned to `Evan-Leon`, can be reassigned in mcweb/backend/sources/tasks.py `run_alert_system`

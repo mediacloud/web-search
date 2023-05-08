@@ -10,11 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-<<<<<<< HEAD
-    help = 'Running source alert system'
-=======
     help = 'Schedule the source alert system to run'
->>>>>>> 03f687b1dfc4bce2dd8be2154e594db3386bb6ff
 
 
     def handle(self, *args, **options):
