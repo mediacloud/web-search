@@ -14,7 +14,7 @@ import {
 } from '../util/platforms';
 
 import {
-  setQueryProperty, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS, setPlatform,
+  resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS, setPlatform,
 } from './querySlice';
 
 export default function PlatformPicker({ queryIndex }) {
@@ -62,6 +62,7 @@ export default function PlatformPicker({ queryIndex }) {
             aria-label="platform"
             color="primary"
           >
+
             {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
               <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
                 <NewspaperIcon fontSize="large" />

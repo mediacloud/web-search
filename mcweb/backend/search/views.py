@@ -118,6 +118,7 @@ def sample(request):
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
+
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["GET"])
@@ -293,22 +294,22 @@ def download_all_content_csv(request):
         try:
             count = provider.count(query_str, start_date,
                                    end_date, **provider_props)
-            print(count)
+            print("count: " + str(count))
+
             if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
-                download_all_large_content_csv(queryState)
+                download_all_large_content_csv(provider, queryState)
                 return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
+
             elif count > 500000 and request.user.is_staff:
-                download_all_large_content_csv(queryState)
+                # download_all_large_content_csv(queryState)
                 return HttpResponseBadRequest("Too many matches to download, make sure there are < 500,000")
+
         except UnsupportedOperationException:
             logger.warning(
                 "Can't count results for download in {}... continuing anyway".format(provider_name))
         # we want to stream the results back to the user row by row (based on paging through results)
         data.append(provider.all_items(
             query_str, start_date, end_date, **provider_props))
-
-        print('DATA')
-        print(data)
 
     def data_generator():
         for result in data:
