@@ -5,7 +5,10 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import dayjs from 'dayjs';
 import { addQuery, setLastSearchTime, removeQuery } from './query/querySlice';
@@ -21,6 +24,7 @@ import TabPanelHelper from '../ui/TabPanelHelper';
 import { searchApi } from '../../app/services/searchApi';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
+import tabTitle from './util/tabTitle';
 
 export default function TabbedSearch() {
   const dispatch = useDispatch();
@@ -30,19 +34,34 @@ export default function TabbedSearch() {
   const [open, setOpen] = useState(false);
 
   const queryState = useSelector((state) => state.query);
+
+  const [color, setColors] = useState(['White']);
+
   const { platform } = queryState[0];
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   const handleAddQuery = () => {
     const qsLength = queryState.length;
+    setColors(() => [...color, 'White']);
     dispatch(addQuery(platform));
     setValue(qsLength);
   };
 
   const handleRemoveQuery = (index) => {
+    const newColorArray = [];
+
+    for (let i = 0; i < color.length; i += 1) {
+      if (i !== index) {
+        newColorArray.push(color[i]);
+      }
+    }
+
+    setColors(newColorArray);
     dispatch(removeQuery(index));
+
     if (index === 0) {
       setValue(0);
     } else {
@@ -63,14 +82,61 @@ export default function TabbedSearch() {
     setShow(deactivateButton(queryState));
   }, [queryState]);
 
+  const [anchorEl, setAnchorEl] = useState(false);
+
+  const handleClose = (index, colorValue) => {
+    setValue(index);
+    const newColors = [...color];
+    newColors[index] = colorValue;
+    setColors(newColors);
+    setAnchorEl(null);
+  };
+
   return (
     <div className="container search-container">
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
       <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', marginLeft: 6 }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
-              <Tab key={`Query ${i + 1}`} label={`Query ${i + 1}`} {...a11yProps(i)} />
+              <Tab
+                key={`${tabTitle(queryState, i)}`}
+                onContextMenu={
+                  (event) => {
+                    setValue(i);
+                    event.preventDefault();
+                    setAnchorEl(event.currentTarget);
+                  }
+                }
+                sx={{ marginRight: 0.5 }}
+                style={{
+                  outline: `4px solid ${color[i]}`, // change the color and size as needed
+                  outlineOffset: '-4px', // adjust this value to match the size of the outline
+                }}
+                label={(
+                  <div className="tabTitleLabel">
+
+                    {tabTitle(queryState, i)}
+
+                    <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
+                      <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'yellow')}>Yellow</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'green')}>Green</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'blue')}>Blue</MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'indigo')}>Indigo</MenuItem>
+                    </Menu>
+
+                    {!(i === 0 && queryState.length - 1 === 0) && (
+                      <RemoveCircleOutlineIcon
+                        sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                        onClick={() => handleRemoveQuery(i)}
+                        variant="contained"
+                      />
+                    )}
+                  </div>
+                )}
+                {...a11yProps(i)}
+              />
             ))}
             <Tab label="+ Add Query" onClick={handleAddQuery} />
           </Tabs>
@@ -78,12 +144,6 @@ export default function TabbedSearch() {
 
         {queryState.map((query, i) => (
           <TabPanelHelper key={i} value={value} index={i}>
-            <Button
-              onClick={() => handleRemoveQuery(i)}
-              variant="contained"
-            >
-              Remove Query
-            </Button>
             <Search queryIndex={i} />
           </TabPanelHelper>
         ))}

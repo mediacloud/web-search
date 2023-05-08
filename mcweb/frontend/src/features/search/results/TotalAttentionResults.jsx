@@ -16,6 +16,7 @@ import {
 } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
+import tabTitle from '../util/tabTitle';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 
 export const supportsNormalizedCount = (platform) =>
@@ -33,6 +34,8 @@ function TotalAttentionResults() {
   const [normalized, setNormalized] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const [newQuery, setNewQuery] = useState(false);
 
   const handleClick = (e) => setAnchorEl(e.currentTarget);
 
@@ -53,6 +56,16 @@ function TotalAttentionResults() {
       setNormalized(supportsNormalizedCount(platform));
     }
   }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
+    }
+  }, [lastSearchTime, queryState.length]);
+
+  if (newQuery) return null;
 
   if (isLoading) {
     return (
@@ -76,22 +89,17 @@ function TotalAttentionResults() {
       </Alert>
     );
   } else {
+    const updatedPrepareCountOverTimeData = prepareTotalAttentionData(data, normalized).map(
+      (originalDataObj, index) => {
+        const queryTitleForPreparation = { name: tabTitle(queryState, index) };
+        return { ...queryTitleForPreparation, ...originalDataObj };
+      },
+    );
     content = (
       <>
         <div>
-          {/* {normalizeData(data) === 0 && (
-          <Alert severity="warning">
-            No content has matched this query
-          </Alert>
-          )}
-          {normalizeData(data) === 100 && (
-          <Alert severity="warning">
-            This query has returned 100% attention
-          </Alert>
-          )} */}
-
           <BarChart
-            series={prepareTotalAttentionData(data, queryState, normalized)}
+            series={updatedPrepareCountOverTimeData}
             normalized={normalized}
             title="Total Stories Count"
             height={200}
@@ -100,61 +108,61 @@ function TotalAttentionResults() {
 
         <div className="clearfix">
           {supportsNormalizedCount(platform) && (
-          <div className="float-start">
-            {normalized && (
-            <div>
-              <Button
-                onClick={handleClick}
-                endIcon={
-                  <Settings titleAccess="view other chart viewing options" />
-                      }
-              >
-                View Options
-              </Button>
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
-              >
-                <MenuItem
-                  onClick={() => {
-                    setNormalized(false);
-                    handleClose();
-                  }}
-                >
-                  View Story Count
-                </MenuItem>
-              </Menu>
+            <div className="float-start">
+              {normalized && (
+                <div>
+                  <Button
+                    onClick={handleClick}
+                    endIcon={
+                      <Settings titleAccess="view other chart viewing options" />
+                    }
+                  >
+                    View Options
+                  </Button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        setNormalized(false);
+                        handleClose();
+                      }}
+                    >
+                      View Story Count
+                    </MenuItem>
+                  </Menu>
+                </div>
+              )}
+              {!normalized && (
+                <div>
+                  <Button onClick={handleClick}>View Options</Button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        setNormalized(true);
+                        handleClose();
+                      }}
+                    >
+                      View Normalized Story Percentage (default)
+                    </MenuItem>
+                  </Menu>
+                </div>
+              )}
             </div>
-            )}
-            {!normalized && (
-            <div>
-              <Button onClick={handleClick}>View Options</Button>
-              <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
-              >
-                <MenuItem
-                  onClick={() => {
-                    setNormalized(true);
-                    handleClose();
-                  }}
-                >
-                  View Normalized Story Percentage (default)
-                </MenuItem>
-              </Menu>
-            </div>
-            )}
-          </div>
           )}
         </div>
         <div className="clearfix">

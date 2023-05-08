@@ -1,5 +1,9 @@
 import dayjs from 'dayjs';
 
+const isSameOrBefore = require('dayjs/plugin/isSameOrBefore');
+
+dayjs.extend(isSameOrBefore);
+
 const deactvateButton = (queryState) => {
   let returnVal = true;
   queryState.forEach((queryObject) => {
@@ -25,7 +29,7 @@ const deactvateButton = (queryState) => {
 
     // checks to see if the startDAte is before the endDAte
     function validDates(sD, eD) {
-      return dayjs(sD).isBefore(dayjs(eD));
+      return dayjs(sD).isSameOrBefore(dayjs(eD));
     }
 
     // is the advanced search query string not just the "*"

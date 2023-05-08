@@ -25,7 +25,8 @@ export default function SearchDatePicker({ queryIndex }) {
   // the minimum date off platform (From Date Picker)
   const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
   // the maximum date based off platform (From Date Picker)
-  const fromDateMax = dayjs(latestAllowedEndDate(platform)).add(-1, 'day').format('MM/DD/YYYY');
+  const fromDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
+  
 
   // the minumum date off platform (To Date Picker)
   const toDateMin = dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY');

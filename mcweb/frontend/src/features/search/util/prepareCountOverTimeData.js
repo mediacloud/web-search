@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import queryTitle from './queryTitle';
 
 const dateHelper = (dateString) => {
   dayjs.extend(utc);
@@ -8,7 +7,7 @@ const dateHelper = (dateString) => {
   return newDate;
 };
 
-const prepareCountOverTimeData = (results, normalized, queryState) => {
+const prepareCountOverTimeData = (results, normalized) => {
   const series = [];
 
   results.forEach((result, i) => {
@@ -17,7 +16,6 @@ const prepareCountOverTimeData = (results, normalized, queryState) => {
       normalized ? r.ratio * 100 : r.count,
     ]);
     series.push({
-      name: `query: ${queryTitle(queryState, i)} `,
       data,
       colorIndex: i,
     });

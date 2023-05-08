@@ -8,8 +8,12 @@ export default function CountOverTimeChart({ data, normalized }) {
     chart: {
       type: 'spline',
       height: '300px',
+      zoomType: 'x',
+      panning: true,
+      panKey: 'shift',
     },
     title: { text: '' },
+    subtitle: { text: 'Click and drag to zoom in. Hold down shift key to pan.' },
     xAxis: {
       type: 'datetime',
       dateTimeLabelFormats: {
