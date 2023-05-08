@@ -5,16 +5,18 @@ import {
 } from '@mui/material';
 import { useCreateSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 import urlSerializer from '../../util/urlSerializer';
+import decodeSavedSearch from '../../util/decodeSavedSearch';
 
 export default function SaveSearch() {
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false);
   const queryState = useSelector((state) => state.query);
+  const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer(queryState)}`;
+  const queryObject = decodeSavedSearch(serializedSearch);
 
   const [createSavedSearch] = useCreateSavedSearchMutation();
 
   const handleSaveSearch = async () => {
-    const serializedSearch = `https://search.mediacloud.org/search${urlSerializer(queryState)}`;
     await createSavedSearch({ name, serializedSearch });
     setOpen(false);
   };
