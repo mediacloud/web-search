@@ -23,14 +23,13 @@ export default function SearchDatePicker({ queryIndex }) {
   const [isToDateMatching, setIsToDateMatching] = useState(true);
 
   // the minimum date off platform (From Date Picker)
-  const [fromDateMin, setFromDateMin] = useState(dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY'));
+  const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
   // the maximum date based off platform (From Date Picker)
-  const [fromDateMax, setFromDateMax] = useState(dayjs(latestAllowedEndDate(platform)).add(-1, 'day').format('MM/DD/YYYY'));
-
+  const fromDateMax = dayjs(latestAllowedEndDate(platform)).add(-1, 'day').format('MM/DD/YYYY');
   // the minumum date off platform (To Date Picker)
-  const [toDateMin, setToDateMin] = useState(dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY'));
+  const toDateMin = dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY');
   // the maximum date off platform (To Date Picker)
-  const [toDateMax, setToDateMax] = useState(dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY'));
+  const toDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
 
   const handleChangeFromDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(fromDateMin), dayjs(fromDateMax))) {
@@ -51,12 +50,6 @@ export default function SearchDatePicker({ queryIndex }) {
   };
 
   useEffect(() => {
-    setFromDateMin(dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY'));
-    setFromDateMax(dayjs(latestAllowedEndDate(platform)).add(-1, 'day').format('MM/DD/YYYY'));
-
-    setToDateMin(dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY'));
-    setToDateMax(dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY'));
-
     // dispatch(setQueryProperty({ endDate: latestAllowedEndDate(platform).format('MM/DD/YYYY') }));
     if (dayjs(endDate) > latestAllowedEndDate(platform)) {
       handleChangeToDate(latestAllowedEndDate(platform));
