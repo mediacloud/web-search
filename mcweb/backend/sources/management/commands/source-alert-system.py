@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Update the stories-per-week for every media source'
+    help = 'Running source alert system'
 
 
     def handle(self, *args, **options):
