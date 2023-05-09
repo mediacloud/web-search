@@ -103,9 +103,9 @@ export default function SearchDatePicker({ queryIndex }) {
         The start and end dates are inclusive.
       </p>
 
-      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="month" message="Last Month" />
+      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="month" message="Last Month" queryIndex={queryIndex} />
 
-      <DefaultDates platform={platform} amountOfTime="3" typeOfTime="month" message="Last 3 Months" />
+      <DefaultDates platform={platform} amountOfTime="3" typeOfTime="month" message="Last 3 Months" queryIndex={queryIndex} />
     </>
   );
 }

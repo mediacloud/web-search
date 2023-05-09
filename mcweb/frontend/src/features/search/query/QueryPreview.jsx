@@ -1,17 +1,22 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import tabTitle from '../util/tabTitle';
-// import queryGenerator from '../util/queryGenerator';
+// import tabTitle from '../util/tabTitle';
+import queryGenerator from '../util/queryGenerator';
 
 export default function QueryPreview({ queryIndex }) {
-  const queryState = useSelector((state) => state.query);
+  const {
+    queryList,
+    negatedQueryList,
+    platform,
+    anyAll,
+  } = useSelector((state) => state.query[queryIndex]);
 
-  let query = tabTitle(queryState, queryIndex);
+  let query = queryGenerator(queryList, negatedQueryList, platform, anyAll);
 
   useEffect(() => {
-    query = tabTitle(queryState, queryIndex);
-  }, [queryState]);
+    query = queryGenerator(queryList, negatedQueryList, platform, anyAll);
+  }, [queryList, negatedQueryList]);
 
   return (
     <>
