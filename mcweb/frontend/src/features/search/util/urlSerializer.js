@@ -2,11 +2,11 @@ import dayjs from 'dayjs';
 import { any } from 'prop-types';
 
 const formatCollections = (collectionsArray) => collectionsArray.map((c) => (
-  `${c.id}>${c.name}`
+  c.id
 ));
 
 const formatSources = (sourcesArray) => sourcesArray.map((s) => (
-  `${s.id}>${s.label || s.name}`
+  s.id
 ));
 
 const queryListHelper = (queryList) => {

@@ -52,12 +52,11 @@ const formatCorpus = (collections, collectionBool) => collections.map((collectio
 
 const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
   const returnArr = new Array(mediaArray.length);
+
   mediaArray.forEach((queryCorpus, i) => {
     const decoded = handleDecode([queryCorpus]);
-    const formatted = formatCorpus(decoded, collectionBool);
-    if (formatted) {
-      returnArr[i] = formatted;
-    }
+    const numbered = decoded.map((collectionId) => Number(collectionId));
+    returnArr[i] = numbered;
   });
   return returnArr;
 };
@@ -108,23 +107,24 @@ const setState = (queries, negatedQueries, queryStrings, startDates, endDates, p
 
   let reset;
   sources.forEach((source, i) => {
-    if (source[0] === null) {
-      reset = true;
-      return null;
-    }
-    dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
-    dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
-    reset = false;
+    // if (source[0] === null) {
+    //   reset = true;
+    //   return null;
+    // }
+    console.log(source);
+    // dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
+    // dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
+    // reset = false;
   });
-
   collections.forEach((collection, i) => {
-    if (collection[0] === null) {
-      // reset = true;
-      return null;
-    }
-    dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
-    dispatch(addSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
-    reset = false;
+    console.log(collection);
+    // if (collection[0] === null) {
+    //   // reset = true;
+    //   return null;
+    // }
+    // dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
+    // dispatch(addSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
+    // reset = false;
   });
   if (reset) {
     for (let i = 0; i < collections.length; i += 1) {
@@ -166,10 +166,10 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   platforms = platforms ? handleDecode(platforms) : null;
 
-  collections = collections ? collections.split(',') : [];
+  collections = collections ? collections.split(',') : null;
   collections = decodeAndFormatCorpus(collections, true);
 
-  sources = sources ? sources.split(',') : [];
+  sources = sources ? handleDecode(sources) : [];
   sources = decodeAndFormatCorpus(sources, false);
 
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
