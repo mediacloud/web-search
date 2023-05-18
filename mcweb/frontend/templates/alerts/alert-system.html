@@ -1,0 +1,16 @@
+{% autoescape off %}
+
+Hi {{user.first_name}} {{user.last_name}},
+
+Alerted Sources 
+{% for source in alert_list["low"] %}
+    {{source}}
+{% endfor %}
+
+{% for source in alert_list["high"] %}
+    {{source}}
+{% endfor %}
+Alert Count
+    Low Ingest Alerts: {{len(alert_list["low"])}}
+    High Ingest Alerts: {{len(alert_list["high"])}}
+{% endautoescape %}

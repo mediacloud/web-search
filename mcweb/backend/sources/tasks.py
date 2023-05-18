@@ -144,6 +144,10 @@ def _alert_system(collection_ids):
         # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
           
             email=""
+            alert_dict = {
+                "high": [],
+                "low": []
+            }
             no_stories_alert = 0
             low_stories_alert = 0
             high_stories_alert = 0
@@ -152,7 +156,7 @@ def _alert_system(collection_ids):
                 # print(stories_fetched)
                 counts = [d['stories'] for d in stories_fetched]  # extract the count values
                 if not counts:
-                    email += f"\n Source {source.id}: {source.name} is NOT FETCHING STORIES, please check the feeds \n"
+                    # email += f"\n Source {source.id}: {source.name} is NOT FETCHING STORIES, please check the feeds \n"
                     no_stories_alert += 1
                     continue
                 mean = np.mean(counts) 
@@ -167,9 +171,11 @@ def _alert_system(collection_ids):
                 alert_status = _classify_alert(mean, mean_last_week, std_dev)
 
                 if alert_status == ALERT_LOW:
+                    alert_dict["low"].append(f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n")
                     email += f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n"
                     low_stories_alert += 1
                 elif alert_status == ALERT_HIGH:
+                    alert_dict["high"].append(f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n")
                     email += f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n"
                     high_stories_alert += 1
                 else: 
@@ -178,12 +184,12 @@ def _alert_system(collection_ids):
                 # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
                 # std_dev_published = np.std(counts_published)  
-
+            print(alert_dict)
             if(email):
-                email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
+                # email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
                 email += f"HIGH ingestion alert count = {high_stories_alert} \n"
                 email += f"LOW ingestion alert count = {low_stories_alert} \n"
-                send_alert_email(email)
+                send_alert_email(alert_dict)
 
 def _classify_alert(month_mean, week_mean, std_dev):
     range = std_dev * 2

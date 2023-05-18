@@ -50,9 +50,24 @@ def send_source_upload_email(title: str, text: str, to: str):
         return
     send_mail(title, text, 'system@mediacloud.org', [to], fail_silently=False)
 
-def send_alert_email(email: str):
+def send_alert_email(alert_dict: dict,):
     if not EMAIL_HOST:
         return
+    email_body = render_to_string('authentication/alert-system.html', {
+        'alerts': alert_dict,
+    })
+    email = EmailMessage(subject='[Media Cloud] Alert System Email',
+                         body=email_body,
+                         from_email='noreply@mediacloud.org',
+                         to=['e.leon@northeastern.edu', 
+                            'rebecca@mediacloud.org', 
+                            'ebndulue@mediacloud.org', 
+                            'fernando@mediacloud.org',
+                            'frimpomaa@mediacloud.org'])
+    try: 
+        EmailThread(email).start()
+    except Exception as e:
+        print(e)
     try:
         send_mail('Stories per week', 
                   email,'system@mediacloud.org', 
