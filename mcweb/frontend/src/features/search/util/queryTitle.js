@@ -11,6 +11,9 @@ const fullQuery = (queryList, negatedQueryList, platform, anyAll, queryString) =
 };
 
 const queryTitle = (queryState, queryIndex) => {
+  if (queryIndex === queryState.length) {
+    return '';
+  }
   const {
     queryList,
     queryString,

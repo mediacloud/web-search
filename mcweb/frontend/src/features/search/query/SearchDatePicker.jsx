@@ -26,9 +26,8 @@ export default function SearchDatePicker({ queryIndex }) {
   const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
   // the maximum date based off platform (From Date Picker)
   const fromDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
-
   // the minumum date off platform (To Date Picker)
-  const toDateMin = dayjs(earliestAllowedStartDate(platform)).add(1, 'day').format('MM/DD/YYYY');
+  const toDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
   // the maximum date off platform (To Date Picker)
   const toDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
 
@@ -76,8 +75,8 @@ export default function SearchDatePicker({ queryIndex }) {
               onChange={handleChangeFromDate}
               disableFuture
               disableHighlightToday
-              minDate={fromDateMin}
-              maxDate={fromDateMax}
+              minDate={dayjs(fromDateMin).toDate()}
+              maxDate={dayjs(fromDateMax).toDate()}
               renderInput={(params) => <TextField {...params} />}
             />
           </div>
@@ -91,8 +90,8 @@ export default function SearchDatePicker({ queryIndex }) {
               onChange={handleChangeToDate}
               disableFuture
               disableHighlightToday
-              minDate={toDateMin}
-              maxDate={toDateMax}
+              minDate={dayjs(toDateMin).toDate()}
+              maxDate={dayjs(toDateMax).toDate()}
               renderInput={(params) => <TextField {...params} />}
             />
           </div>
@@ -104,9 +103,9 @@ export default function SearchDatePicker({ queryIndex }) {
         The start and end dates are inclusive.
       </p>
 
-      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="month" message="Last Month" />
+      <DefaultDates platform={platform} amountOfTime="1" typeOfTime="month" message="Last Month" queryIndex={queryIndex} />
 
-      <DefaultDates platform={platform} amountOfTime="3" typeOfTime="month" message="Last 3 Months" />
+      <DefaultDates platform={platform} amountOfTime="3" typeOfTime="month" message="Last 3 Months" queryIndex={queryIndex} />
     </>
   );
 }

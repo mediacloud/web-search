@@ -47,6 +47,24 @@
     
   }
   
+  .tabTitleLabel {
+    
+    .tabNameInput{ 
+      border: none;
+      outline: none;
+      background: transparent;
+      color: inherit;
+      font-style: inherit;
+      font-weight: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      display: inline-flex;
+      size: inherit;
+      text-align: center;
+      
+    }
+  }
+  
   
   
   p.help {
@@ -57,7 +75,7 @@
   }
   
   .date-accuracy-alert {
-
+    
     .enable-alert {
       font-size: 12px;
       margin-left: 55%;

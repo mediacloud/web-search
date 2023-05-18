@@ -13,6 +13,7 @@ import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
+import tabTitle from '../util/tabTitle';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -40,6 +41,7 @@ export default function CountOverTimeResults() {
 
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
+  const [newQuery, setNewQuery] = useState(false);
 
   useEffect(() => {
     if (checkForBlankQuery(queryState)) {
@@ -50,11 +52,20 @@ export default function CountOverTimeResults() {
   }, [lastSearchTime]);
 
   useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
+    }
+  }, [lastSearchTime, queryState.length]);
+
+  useEffect(() => {
     if (data || error) {
       executeScroll();
     }
   }, [data, error]);
 
+  if (newQuery) return null;
   let content;
 
   if (isLoading) {
@@ -74,11 +85,16 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
+    const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
+      (originalDataObj, index) => {
+        const queryTitleForPreparation = { name: `query: ${tabTitle(queryState, index)}` };
+        return { ...queryTitleForPreparation, ...originalDataObj };
+      },
+    );
     content = (
       <>
         <CountOverTimeChart
-          data={prepareCountOverTimeData(data.count_over_time, normalized, queryState)}
-          // data={cleanData(data.count_over_time[0].counts)}
+          data={updatedPrepareCountOverTimeData}
           normalized={normalized}
         />
         <div className="clearfix">
@@ -163,7 +179,7 @@ export default function CountOverTimeResults() {
           </p>
         </div>
         <div className="col-8">
-          { content }
+          {content}
         </div>
       </div>
     </div>
