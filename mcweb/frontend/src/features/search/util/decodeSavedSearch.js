@@ -76,7 +76,6 @@ const decodeSavedSearch = (url) => {
   end = handleDateFormat(end);
 
   const platforms = fullquery.split('=')[5].split('&')[0];
-  console.log('platforms',platforms);
 
   let sources = fullquery.split('=')[6].split('&')[0];
 

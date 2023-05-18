@@ -125,9 +125,6 @@ const querySlice = createSlice({
       const freezeState = state;
       const queryObj = payload;
       queryObj.lastSearchTime = state[0].lastSearchTime;
-
-      console.log('current state', current(state));
-      console.log('payload added', payload);
       freezeState.push(payload);
     },
     setPlatform: (state, { payload }) => {
