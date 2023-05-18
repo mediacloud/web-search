@@ -49,11 +49,11 @@ export default function MediaPicker({ queryIndex }) {
               sx={{ minWidth: '350px' }}
             >
               <Tab label="Featured Collections" id="tab1" />
+              <Tab label="Search All Collections" id="tab1" />
+              <Tab label="Search All Sources" id="tab1" />
               {[PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && (
                 <Tab label="Geographic Collections" id="tab1" />
               )}
-              <Tab label="Search All Collections" id="tab1" />
-              <Tab label="Search All Sources" id="tab1" />
 
               <div className="media-picker-controls">
                 <h3>Selected Collections</h3>
@@ -85,30 +85,33 @@ export default function MediaPicker({ queryIndex }) {
                 </>
               )}
             </div>
-            <div className="tabpanel" role="tabpanel" hidden={value !== 1} index={1} id="tabpanel-1">
+            <div className="tabpanel" role="tabpanel" hidden={value !== 1} index={1} id="tabpanel-2">
               {value === 1 && (
-              <>
-                <h2>Geographic Collections</h2>
-                <GeographicCollectionsPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
-              </>
-              )}
-            </div>
-            <div className="tabpanel" role="tabpanel" hidden={value !== 2} index={2} id="tabpanel-2">
-              {value === 2 && (
                 <>
                   <h2>Search All Collections</h2>
                   <CollectionSearchPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
                 </>
               )}
             </div>
-            <div className="tabpanel" role="tabpanel" hidden={value !== 3} index={3} id="tabpanel-3">
-              {value === 3 && (
+            <div className="tabpanel" role="tabpanel" hidden={value !== 2} index={2} id="tabpanel-3">
+              {value === 2 && (
                 <>
                   <h2>Search All Sources</h2>
                   <SourceSearchPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
                 </>
               )}
             </div>
+            {[PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && (
+
+            <div className="tabpanel" role="tabpanel" hidden={value !== 3} index={3} id="tabpanel-1">
+              {value === 3 && (
+              <>
+                <h2>Geographic Collections</h2>
+                <GeographicCollectionsPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
+              </>
+              )}
+            </div>
+            )}
           </Box>
         </DialogContent>
       </Dialog>
