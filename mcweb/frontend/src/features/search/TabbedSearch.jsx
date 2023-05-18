@@ -154,8 +154,7 @@ export default function TabbedSearch() {
       <div className="search-button-wrapper">
         <div className="container">
           <div className="row">
-
-            <div className="col-11">
+            <div className="col-4">
               <AlertDialog
                 openDialog={open}
                 outsideTitle="Share this Search"
@@ -174,19 +173,17 @@ export default function TabbedSearch() {
                 confirmButtonText="copy"
               />
             </div>
-            <div className="col-1">
-              <LoadSavedSearches className="float-start" />
-              {/* Submit */}
+            <div className="col-4">
+              <LoadSavedSearches className="float-end" />
+            </div>
+            <div className="col-4">
               <Button
                 className="float-end"
                 variant="contained"
                 disabled={!show}
                 endIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
-                  navigate(
-                    `/search?${urlSerializer(queryState)}`,
-                    { options: { replace: true } },
-                  );
+                  navigate(`/search?${urlSerializer(queryState)}`, { options: { replace: true } });
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
                 }}
