@@ -9,11 +9,15 @@ import {
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useDispatch } from 'react-redux';
+import { addSavedSearch } from '../querySlice';
 import { useListSavedSearchesQuery, useDeleteSavedSearchMutation } from '../../../../app/services/savedsearchApi';
+import decodeSavedSearch from '../../util/decodeSavedSearch';
 
 export default function LoadSavedSearches() {
   const { data } = useListSavedSearchesQuery();
   const [deleteSavedSearch] = useDeleteSavedSearchMutation();
+  const dispatch = useDispatch();
 
   const handleDeleteClick = async (id) => {
     await deleteSavedSearch(id).unwrap();
@@ -31,6 +35,13 @@ export default function LoadSavedSearches() {
 
   const handleSerializedSearchClick = (url) => {
     window.location.href = url;
+  };
+
+  const handleLoadSavedSearch = (url) => {
+    console.log('currenturl', url);
+    const queryObj = decodeSavedSearch(url);
+    console.log('handlesavesearch', queryObj);
+    dispatch(addSavedSearch(queryObj));
   };
 
   return (
@@ -61,7 +72,7 @@ export default function LoadSavedSearches() {
                     <IconButton
                       size="small"
                       aria-label="load"
-                      onClick={() => handleSerializedSearchClick(savedSearch.serialized_search)}
+                      onClick={() => handleLoadSavedSearch(savedSearch.serialized_search)}
                     >
                       <AddCircleIcon sx={{ color: '#d24527' }} />
                     </IconButton>

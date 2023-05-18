@@ -3,17 +3,16 @@ import { useSelector } from 'react-redux';
 import {
   TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
+import PropTypes from 'prop-types';
 import { useCreateSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 import urlSerializer from '../../util/urlSerializer';
-import decodeSavedSearch from '../../util/decodeSavedSearch';
 
-export default function SaveSearch() {
+export default function SaveSearch({ queryIndex }) {
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false);
-  const queryState = useSelector((state) => state.query);
-  const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer(queryState)}`;
-  const queryObject = decodeSavedSearch(serializedSearch);
+  const queryObject = useSelector((state) => state.query[queryIndex]);
 
+  const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer([queryObject])}`;
   const [createSavedSearch] = useCreateSavedSearchMutation();
 
   const handleSaveSearch = async () => {
@@ -54,3 +53,6 @@ export default function SaveSearch() {
     </>
   );
 }
+SaveSearch.propTypes = {
+  queryIndex: PropTypes.number.isRequired,
+};

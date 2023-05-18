@@ -10,6 +10,7 @@ import { removeSelectedMedia } from './querySlice';
 import AdvancedSearch from './AdvancedSearch';
 import MediaPicker from './media-picker/MediaPicker';
 import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from '../util/platforms';
+import SaveSearch from './savedsearch/SaveSearch';
 
 export default function Search({ queryIndex }) {
   const queryState = useSelector((state) => state.query[queryIndex]);
@@ -23,6 +24,9 @@ export default function Search({ queryIndex }) {
 
   return (
     <div className="search-container">
+      <div>
+        <SaveSearch queryIndex={queryIndex} />
+      </div>
       {/* <div className="container">
         <div className="row">
           <div className="col">

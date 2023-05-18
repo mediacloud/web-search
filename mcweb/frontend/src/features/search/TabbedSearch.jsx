@@ -8,6 +8,8 @@ import Box from '@mui/material/Box';
 import SearchIcon from '@mui/icons-material/Search';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import dayjs from 'dayjs';
+import LoadSavedSearches from './query/savedsearch/LoadSavedSearches';
+import SaveSearch from './query/savedsearch/SaveSearch';
 import { addQuery, setLastSearchTime, removeQuery } from './query/querySlice';
 import Search from './query/Search';
 import PlatformPicker from './query/PlatformPicker';
@@ -113,6 +115,7 @@ export default function TabbedSearch() {
               />
             </div>
             <div className="col-1">
+              <LoadSavedSearches className="float-start" />
               {/* Submit */}
               <Button
                 className="float-end"

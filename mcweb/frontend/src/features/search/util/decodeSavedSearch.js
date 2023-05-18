@@ -59,8 +59,10 @@ const decodeSavedSearch = (url) => {
   let negatedQuery = fullquery.split('=')[2].split('&')[0];
 
   negatedQuery = decode(negatedQuery);
-  negatedQuery = negatedQuery ? negatedQuery.split(',') : null;
+  negatedQuery = negatedQuery ? negatedQuery.split(',') : [[], [], []];
+
   negatedQuery = formatQuery(negatedQuery);
+
   negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : null;
 
   let start = fullquery.split('=')[3].split('&')[0];
@@ -73,8 +75,8 @@ const decodeSavedSearch = (url) => {
 
   end = handleDateFormat(end);
 
-  let platforms = fullquery.split('=')[5].split('&')[0];
-  platforms = platforms ? handleDecode(platforms) : null;
+  const platforms = fullquery.split('=')[5].split('&')[0];
+  console.log('platforms',platforms);
 
   let sources = fullquery.split('=')[6].split('&')[0];
 
@@ -91,21 +93,20 @@ const decodeSavedSearch = (url) => {
 
   collections = decodeAndFormatCorpus(collections, true);
 
-  let anyAlls = fullquery.split('=')[8].split('&')[0];
-  anyAlls = anyAlls ? handleDecode(anyAlls) : null;
+  const anyAlls = fullquery.split('=')[8].split('&')[0];
 
   return {
     queryString: '',
-    query,
+    queryList: query,
     negatedQueryList: negatedQuery,
-    platforms,
-    start,
-    end,
+    platform: platforms,
+    startDate: start,
+    endDate: end,
     collections,
     previewCollections: collections,
     sources,
     previewSources: sources,
-    any: anyAlls,
+    anyAll: anyAlls,
     advanced,
   };
 };
