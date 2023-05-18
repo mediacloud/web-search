@@ -69,19 +69,19 @@ export default function SimpleSearch({ queryIndex }) {
             <div className="container">
               <div className="row">
                 <div className="col-12">
-                  {/* <SearchAlertDialog
+                  <SearchAlertDialog
                     outsideTitle="Edit this query in advanced mode"
                     title="Switch to Advanced Search"
                     content="Are you sure you would like to switch to advanced search?
                       After confirming you will not be able to switch back to simple search."
                     className="float-start"
                     dispatchNeeded
-                    action={(advanced) => setQueryProperty({ advanced })}
+                    action={() => setQueryProperty({ advanced: true, queryIndex, property: 'advanced' })}
                     actionTarget
                     onClick={() => setOpen(true)}
                     openDialog={open}
                     confirmButtonText="confirm"
-                  /> */}
+                  />
                 </div>
               </div>
             </div>

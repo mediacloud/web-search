@@ -66,7 +66,7 @@ export const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
 ));
 
-export const setState = (queries, negatedQueries, startDates, endDates, platforms, collections, sources, anyAlls, dispatch) => {
+const setState = (queries, negatedQueries, startDates, endDates, platforms, collections, sources, anyAlls, dispatch) => {
   queries.forEach((query, i) => {
     if (i === 0) {
       dispatch(setPlatform(platforms[i]));
@@ -100,9 +100,10 @@ export const setState = (queries, negatedQueries, startDates, endDates, platform
     dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
     reset = false;
   });
+
   collections.forEach((collection, i) => {
     if (collection[0] === null) {
-      reset = true;
+      // reset = true;
       return null;
     }
     dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
@@ -128,17 +129,17 @@ export const setSearchQuery = (searchParams, dispatch) => {
   let collections = searchParams.get('cs');
   let sources = searchParams.get('ss');
   let anyAlls = searchParams.get('any');
-  // const queryString = searchParams.get('qs');
+  let queryStrings = searchParams.get('qs');
 
   query = query ? query.split(',') : null;
   query = formatQuery(query);
-  query = sizeQuery(query);
+  query = query ? sizeQuery(query) : null;
 
   negatedQuery = negatedQuery ? negatedQuery.split(',') : null;
   negatedQuery = formatQuery(negatedQuery);
-  negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : sizeQuery([[]]);
+  negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : null;
 
-  // queryString = queryString ? handleDecode(queryString) : null; // come back to
+  queryStrings = queryStrings ? handleDecode(queryStrings) : null; // come back to
 
   startDates = startDates ? handleDecode(startDates) : null;
 
@@ -156,7 +157,7 @@ export const setSearchQuery = (searchParams, dispatch) => {
   sources = decodeAndFormatCorpus(sources, false);
 
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
-  setState(query, negatedQuery, startDates, endDates, platforms, collections, sources, anyAlls, dispatch);
+  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, collections, sources, anyAlls, dispatch);
 
   return null;
 };

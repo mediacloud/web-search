@@ -84,7 +84,7 @@ export default function ModifyCollection() {
         platform: data.platform,
         public: data.public,
         featured: data.featured,
-        rescrape: true,
+        rescrape: data.platform === 'online_news',
       };
       setFormState(formData);
     }
@@ -292,6 +292,7 @@ export default function ModifyCollection() {
         </div>
 
         <div style={{ display: 'flex' }}>
+          {formState.platform === 'online_news' && (
 
           <FormControlLabel
             control={(
@@ -303,6 +304,7 @@ export default function ModifyCollection() {
               )}
             label="Automatically discover RSS feeds in new sources?"
           />
+          )}
 
           <UploadSources className="col-6" collectionId={collectionId} rescrape={formState.rescrape} />
         </div>
