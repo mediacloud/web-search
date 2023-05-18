@@ -24,9 +24,6 @@ export default function Search({ queryIndex }) {
 
   return (
     <div className="search-container">
-      <div>
-        <SaveSearch queryIndex={queryIndex} />
-      </div>
       {/* <div className="container">
         <div className="row">
           <div className="col">
@@ -86,6 +83,9 @@ export default function Search({ queryIndex }) {
             </div>
           </div>
         </div>
+      </div>
+      <div className="float-end">
+        <SaveSearch queryIndex={queryIndex} />
       </div>
     </div>
   );
