@@ -50,7 +50,7 @@ const formatCorpus = (collections, collectionBool) => collections.map((collectio
   return { id, name, type: collectionBool ? 'collection' : 'source' };
 });
 
-const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
+const decodeAndFormatCorpus = (mediaArray) => {
   const returnArr = new Array(mediaArray.length);
 
   mediaArray.forEach((queryCorpus, i) => {
@@ -111,19 +111,18 @@ const setState = (queries, negatedQueries, queryStrings, startDates, endDates, p
     //   reset = true;
     //   return null;
     // }
-    console.log(source);
-    // dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
-    // dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i }));
+    console.log('source', source);
+    dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...source], queryIndex: i, collectionBool: false }));
+    dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i, collectionBool: false }));
     // reset = false;
   });
-  collections.forEach((collection, i) => {
-    console.log(collection);
+  collections.forEach((collectionList, i) => {
     // if (collection[0] === null) {
     //   // reset = true;
     //   return null;
     // }
-    // dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
-    // dispatch(addSelectedMedia({ sourceOrCollection: [...collection], queryIndex: i }));
+    dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collectionList], queryIndex: i, collectionBool: true }));
+    dispatch(addSelectedMedia({ sourceOrCollection: [...collectionList], queryIndex: i, collectionBool: true }));
     // reset = false;
   });
   if (reset) {
@@ -166,11 +165,14 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   platforms = platforms ? handleDecode(platforms) : null;
 
-  collections = collections ? collections.split(',') : null;
-  collections = decodeAndFormatCorpus(collections, true);
+  collections = collections ? collections.split(',') : [];
+  collections = decodeAndFormatCorpus(collections);
+  console.log('decodedC', collections);
 
   sources = sources ? handleDecode(sources) : [];
-  sources = decodeAndFormatCorpus(sources, false);
+  sources = decodeAndFormatCorpus(sources);
+  console.log('decodedSource', sources);
+  // sources = decodeAndFormatCorpus(sources, false);
 
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
   setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, collections, sources, anyAlls, dispatch);

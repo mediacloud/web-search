@@ -3,13 +3,7 @@ import dayjs from 'dayjs';
 import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate } from '../util/platforms';
 
 const DEFAULT_PROVIDER = PROVIDER_NEWS_MEDIA_CLOUD;
-export const DEFAULT_ONLINE_NEWS_COLLECTIONS = [{
-  type: 'collection',
-  id: 34412234,
-  name: 'United States - National',
-  platform: 'online_news',
-  public: true,
-}];
+export const DEFAULT_ONLINE_NEWS_COLLECTIONS = [34412234];
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 
@@ -52,13 +46,16 @@ const querySlice = createSlice({
 
   reducers: {
     addSelectedMedia: (state, { payload }) => {
-      const { queryIndex, sourceOrCollection } = payload;
+      const { queryIndex, sourceOrCollection, collectionBool } = payload;
       const currentSlice = state[queryIndex];
-      currentSlice.collections = sourceOrCollection.filter((c) => c.type === 'collection');
-      currentSlice.sources = sourceOrCollection.filter((c) => c.type === 'source');
+      if (collectionBool) {
+        currentSlice.collections.push(sourceOrCollection);
+      } else {
+        currentSlice.sources.push(sourceOrCollection);
+      }
     },
     addPreviewSelectedMedia: (state, { payload }) => {
-      const { queryIndex, sourceOrCollection } = payload;
+      const { queryIndex, sourceOrCollection, collectionBool } = payload;
       const currentSlice = state[queryIndex];
       currentSlice.previewCollections = [
         ...currentSlice.previewCollections,

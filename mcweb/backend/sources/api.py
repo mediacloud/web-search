@@ -4,6 +4,7 @@ import os
 import requests
 import requests.auth
 import datetime as dt
+import urllib.parse
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
@@ -115,6 +116,18 @@ class CollectionViewSet(viewsets.ModelViewSet):
         json_data = open(file_path)  
         deserial_data = json.load(json_data) 
         return Response({"countries": deserial_data})
+    
+    @action(methods=['GET'], detail=False, url_path='collections-from-list')
+    def collections_from_list(self, request):
+        collection_ids = request.query_params.get('c') # decode
+        collection_ids = collection_ids.split(',')
+        collection_ids = [int(i) for i in collection_ids]
+        # collection_ids = urllib.parse.unquote(collection_ids)
+        # collection_ids = json.loads(collection_ids)
+        print("COLLECTION IDS++++++++++", collection_ids)
+        collections = Collection.objects.filter(id__in=collection_ids )
+        serializer = CollectionWriteSerializer(collections, many=True) 
+        return Response({"collections": serializer.data})
     
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
     @action(methods=['post'], detail=False, url_path='rescrape-collection')

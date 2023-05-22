@@ -1,20 +1,50 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
+import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
+import { useListCollectionsFromArrayQuery } from '../../../app/services/collectionsApi';
+import { useListSourcesQuery } from '../../../app/services/sourceApi';
 
 export default function SelectedMedia({
-  onRemove, collections, sources, queryIndex,
+  onRemove, queryIndex,
 }) {
+  const {
+    collections,
+    sources,
+  } = useSelector((state) => state.query[queryIndex]);
+
   const dispatch = useDispatch();
   // note: this only supports collections right now, but needs to support sources too
+  const {
+    data: collectionsData,
+    isLoadingCollections,
+  } = useListCollectionsFromArrayQuery(collections);
+
+  const {
+    data: sourcesData,
+    isLoadingSources,
+  } = useListSourcesFromArrayQuery(sources);
+
+  // const {
+  //   data: sourcesData,
+  //   isLoadingSources,
+  // } = useListSourcesQuery({ source_id: sources, page });
+
+  console.log('collections', collectionsData);
+  // console.log('sources', sourcesData);
+  if (isLoadingCollections) {
+    return <CircularProgress size="75px" />;
+  }
+
+  if (!collectionsData && !sourcesData) return null;
 
   return (
     <div className="selected-media-container">
       <div className="selected-media-item-list">
-        {sources.map((source) => (
+        {sourcesData.sources.map((source) => (
           <div className="selected-media-item" key={`selected-media-${source.id}`}>
             <Link
               target="_blank"
@@ -36,7 +66,7 @@ export default function SelectedMedia({
             </IconButton>
           </div>
         ))}
-        {collections.map((collection) => (
+        {collectionsData.collections.map((collection) => (
           <div className="selected-media-item" key={`selected-media-${collection.id}`}>
             <Link
               target="_blank"
