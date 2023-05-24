@@ -45,7 +45,6 @@ export default function BarChart({
       enabled: false,
     },
     series: series.map((s) => ({
-      color: s.color,
       name: s.name,
       data: s.data.map((d) => ({
         y: d.value,
@@ -67,7 +66,6 @@ BarChart.propTypes = {
   height: PropTypes.number,
   title: PropTypes.string.isRequired,
   series: PropTypes.arrayOf(PropTypes.shape({
-    color: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     data: PropTypes.arrayOf(PropTypes.shape({
       key: PropTypes.string.isRequired,
