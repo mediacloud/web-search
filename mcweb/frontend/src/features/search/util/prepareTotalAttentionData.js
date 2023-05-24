@@ -3,8 +3,6 @@
 const normalizeData = (relevant, total) => 100 * (relevant
   / (total + Number.EPSILON));
 
-const colors = ['#2f2d2b', '#d24527', '#f7a44e', '#334cda', '#d23716', '#7c5b8e', '#f1b52a', '#48a37e', '#c6278e', '#378fd2'];
-
 const prepareTotalAttentionData = (results, normalized) => {
   const series = [];
   const { relevant, total } = results.count;
@@ -15,7 +13,6 @@ const prepareTotalAttentionData = (results, normalized) => {
     series.push(
       {
         data: [prepareData],
-        color: colors[i],
       },
     );
   });
