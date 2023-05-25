@@ -19,7 +19,7 @@ function FeedHistory({ feedId }) {
   }
 
   if (!data) return null;
-  // console.log(data);
+
   return (
     <>
       <h1>Feed History</h1>

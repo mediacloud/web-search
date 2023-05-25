@@ -1,4 +1,4 @@
-import { createSlice, current } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate } from '../util/platforms';
 
@@ -46,22 +46,40 @@ const querySlice = createSlice({
 
   reducers: {
     addSelectedMedia: (state, { payload }) => {
-      const { queryIndex, sourceOrCollection, collectionBool } = payload;
+      const { queryIndex, sourceOrCollection } = payload;
       const currentSlice = state[queryIndex];
-      if (collectionBool) {
-        currentSlice.collections.push(sourceOrCollection);
-      } else {
-        currentSlice.sources.push(sourceOrCollection);
-      }
+      currentSlice.collections = sourceOrCollection.filter((c) => c.type === 'collection').map((c) => c.id);
+      currentSlice.sources = sourceOrCollection.filter((s) => s.type === 'source').map((s) => s.id);
+    },
+    setSelectedMedia: (state, { payload }) => {
+      const { sourceOrCollection } = payload;
+      const freezeState = state;
+      const collections = new Array(sourceOrCollection.length);
+      const sources = new Array(sourceOrCollection.length);
+      sourceOrCollection.forEach((query, i) => {
+        collections[i] = query.filter((m) => m.type === 'collection').map((c) => c.id);
+        sources[i] = query.filter((m) => m.type === 'source').map((s) => s.id);
+      });
+      collections.forEach((c, i) => {
+        freezeState[i].collections = c;
+      });
+      sources.forEach((s, i) => {
+        freezeState[i].sources = s;
+      });
+      return freezeState;
     },
     addPreviewSelectedMedia: (state, { payload }) => {
-      const { queryIndex, sourceOrCollection, collectionBool } = payload;
+      const { queryIndex, sourceOrCollection } = payload;
       const currentSlice = state[queryIndex];
-      currentSlice.previewCollections = [
-        ...currentSlice.previewCollections,
-        ...sourceOrCollection.filter((c) => c.type === 'collection'),
-      ];
-      currentSlice.previewSources = [...currentSlice.previewSources, ...sourceOrCollection.filter((c) => c.type === 'source')];
+      if (sourceOrCollection.type === 'collection') {
+        currentSlice.previewCollections = [
+          ...currentSlice.previewCollections, sourceOrCollection.id,
+        ];
+      } else {
+        currentSlice.previewSources = [
+          ...currentSlice.previewSources, sourceOrCollection.id,
+        ];
+      }
     },
     resetSelectedAndPreviewMedia: (state, { payload }) => {
       const { queryIndex } = payload;
@@ -73,25 +91,36 @@ const querySlice = createSlice({
       const { queryIndex, sourceOrCollection } = payload;
       const currentSlice = state[queryIndex];
       currentSlice.collections = sourceOrCollection.type === 'collection'
-        ? currentSlice.collections.filter((c) => c.id !== sourceOrCollection.id) : currentSlice.collections;
+        ? currentSlice.collections.filter((c) => c !== sourceOrCollection.id) : currentSlice.collections;
       currentSlice.previewCollections = sourceOrCollection.type === 'collection'
-        ? currentSlice.previewCollections.filter((c) => c.id !== sourceOrCollection.id) : currentSlice.collections;
+        ? currentSlice.previewCollections.filter((c) => c !== sourceOrCollection.id) : currentSlice.collections;
       currentSlice.sources = sourceOrCollection.type === 'source'
-        ? currentSlice.sources.filter((s) => s.id !== sourceOrCollection.id) : currentSlice.sources;
+        ? currentSlice.sources.filter((s) => s !== sourceOrCollection.id) : currentSlice.sources;
       currentSlice.previewSources = sourceOrCollection.type === 'source'
-        ? currentSlice.previewSources.filter((s) => s.id !== sourceOrCollection.id) : currentSlice.sources;
+        ? currentSlice.previewSources.filter((s) => s !== sourceOrCollection.id) : currentSlice.sources;
     },
     setPreviewSelectedMedia: (state, { payload }) => {
-      const { queryIndex, sourceOrCollection } = payload;
-      const currentSlice = state[queryIndex];
-      currentSlice.previewCollections = sourceOrCollection.filter((c) => c.type === 'collection');
-      currentSlice.previewSources = sourceOrCollection.filter((c) => c.type === 'source');
+      const { sourceOrCollection } = payload;
+      const freezeState = state;
+      const collections = new Array(sourceOrCollection.length);
+      const sources = new Array(sourceOrCollection.length);
+      sourceOrCollection.forEach((query, i) => {
+        collections[i] = query.filter((m) => m.type === 'collection').map((c) => c.id);
+        sources[i] = query.filter((m) => m.type === 'source').map((s) => s.id);
+      });
+      collections.forEach((c, i) => {
+        freezeState[i].previewCollections = c;
+      });
+      sources.forEach((s, i) => {
+        freezeState[i].previewSources = s;
+      });
+      return freezeState;
     },
     removePreviewSelectedMedia: (state, { payload }) => {
       const { queryIndex, sourceOrCollection } = payload;
       const currentSlice = state[queryIndex];
-      currentSlice.previewCollections = currentSlice.previewCollections.filter((c) => c.id !== sourceOrCollection.id);
-      currentSlice.previewSources = currentSlice.previewSources.filter((s) => s.id !== sourceOrCollection.id);
+      currentSlice.previewCollections = currentSlice.previewCollections.filter((c) => c !== sourceOrCollection.id);
+      currentSlice.previewSources = currentSlice.previewSources.filter((s) => s !== sourceOrCollection.id);
     },
     setQueryProperty: (state, { payload }) => {
       const queryProperty = payload.property;
@@ -158,6 +187,7 @@ export const {
   setPlatform,
   setLastSearchTime,
   removeQuery,
+  setSelectedMedia,
 } = querySlice.actions;
 
 export default querySlice.reducer;

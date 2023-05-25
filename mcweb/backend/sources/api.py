@@ -119,12 +119,10 @@ class CollectionViewSet(viewsets.ModelViewSet):
     
     @action(methods=['GET'], detail=False, url_path='collections-from-list')
     def collections_from_list(self, request):
-        collection_ids = request.query_params.get('c') # decode
-        collection_ids = collection_ids.split(',')
-        collection_ids = [int(i) for i in collection_ids]
-        # collection_ids = urllib.parse.unquote(collection_ids)
-        # collection_ids = json.loads(collection_ids)
-        print("COLLECTION IDS++++++++++", collection_ids)
+        collection_ids = request.query_params.get('c')
+        if len(collection_ids) != 0:
+            collection_ids = collection_ids.split(',')
+            collection_ids = [int(i) for i in collection_ids]
         collections = Collection.objects.filter(id__in=collection_ids )
         serializer = CollectionWriteSerializer(collections, many=True) 
         return Response({"collections": serializer.data})
@@ -373,6 +371,16 @@ class SourcesViewSet(viewsets.ModelViewSet):
         filename = "Collection-{}-{}-sources-{}.csv".format(collection_id, collection.name, _filename_timestamp())
         streamer = csv_stream.CSVStream(filename, data_generator)
         return streamer.stream()
+    
+    @action(methods=['GET'], detail=False, url_path='sources-from-list')
+    def sources_from_list(self, request):
+        source_ids = request.query_params.get('s', None) # decode
+        if len(source_ids) != 0:
+            source_ids = source_ids.split(',')
+            source_ids = [int(i) for i in source_ids]
+        sources = Source.objects.filter(id__in=source_ids )
+        serializer = SourceSerializer(sources, many=True) 
+        return Response({"sources": serializer.data})
 
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
     @action(methods=['post'], detail=False, url_path='rescrape-feeds')

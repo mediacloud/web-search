@@ -1,12 +1,11 @@
 import dayjs from 'dayjs';
 import {
   setQueryProperty,
-  addSelectedMedia,
   setPreviewSelectedMedia,
   addQuery,
   setPlatform,
   setLastSearchTime,
-  resetSelectedAndPreviewMedia,
+  setSelectedMedia,
 } from '../query/querySlice';
 
 const customParseFormat = require('dayjs/plugin/customParseFormat');
@@ -43,19 +42,26 @@ const sizeQuery = (queryArray) => queryArray.map((query) => {
   return query;
 });
 
-const formatCorpus = (collections, collectionBool) => collections.map((collection) => {
-  if (collection === '' || collection.length === 0) return null;
-  let [id, name] = collection.split('>');
-  id = Number(id);
-  return { id, name, type: collectionBool ? 'collection' : 'source' };
-});
+const combineQueryMedia = (cs, ss) => {
+  const mediaArr = new Array(cs.length);
+  cs.forEach((c, i) => {
+    mediaArr[i] = c;
+  });
+  ss.forEach((s, i) => {
+    mediaArr[i].push(...s);
+  });
 
-const decodeAndFormatCorpus = (mediaArray) => {
+  return mediaArr;
+};
+
+const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
   const returnArr = new Array(mediaArray.length);
 
   mediaArray.forEach((queryCorpus, i) => {
     const decoded = handleDecode([queryCorpus]);
-    const numbered = decoded.map((collectionId) => Number(collectionId));
+    const numbered = decoded.map((collectionId) => ({
+      id: Number(collectionId), type: collectionBool ? 'collection' : 'source',
+    }));
     returnArr[i] = numbered;
   });
   return returnArr;
@@ -65,7 +71,7 @@ const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
 ));
 
-const setState = (queries, negatedQueries, queryStrings, startDates, endDates, platforms, collections, sources, anyAlls, dispatch) => {
+const setState = (queries, negatedQueries, queryStrings, startDates, endDates, platforms, media, anyAlls, dispatch) => {
   if (!queries) {
     queryStrings.forEach((queryString, i) => {
       if (i === 0) {
@@ -105,31 +111,9 @@ const setState = (queries, negatedQueries, queryStrings, startDates, endDates, p
     dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
   });
 
-  let reset;
-  sources.forEach((source, i) => {
-    // if (source[0] === null) {
-    //   reset = true;
-    //   return null;
-    // }
-    console.log('source', source);
-    dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...source], queryIndex: i, collectionBool: false }));
-    dispatch(addSelectedMedia({ sourceOrCollection: [...source], queryIndex: i, collectionBool: false }));
-    // reset = false;
-  });
-  collections.forEach((collectionList, i) => {
-    // if (collection[0] === null) {
-    //   // reset = true;
-    //   return null;
-    // }
-    dispatch(setPreviewSelectedMedia({ sourceOrCollection: [...collectionList], queryIndex: i, collectionBool: true }));
-    dispatch(addSelectedMedia({ sourceOrCollection: [...collectionList], queryIndex: i, collectionBool: true }));
-    // reset = false;
-  });
-  if (reset) {
-    for (let i = 0; i < collections.length; i += 1) {
-      dispatch(resetSelectedAndPreviewMedia({ queryIndex: i }));
-    }
-  }
+  dispatch(setPreviewSelectedMedia({ sourceOrCollection: media }));
+  dispatch(setSelectedMedia({ sourceOrCollection: media }));
+
   dispatch(setLastSearchTime(dayjs().unix()));
 };
 
@@ -166,16 +150,14 @@ const setSearchQuery = (searchParams, dispatch) => {
   platforms = platforms ? handleDecode(platforms) : null;
 
   collections = collections ? collections.split(',') : [];
-  collections = decodeAndFormatCorpus(collections);
-  console.log('decodedC', collections);
+  collections = decodeAndFormatCorpus(collections, true);
 
   sources = sources ? handleDecode(sources) : [];
-  sources = decodeAndFormatCorpus(sources);
-  console.log('decodedSource', sources);
-  // sources = decodeAndFormatCorpus(sources, false);
+  sources = decodeAndFormatCorpus(sources, false);
 
+  const media = combineQueryMedia(collections, sources);
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
-  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, collections, sources, anyAlls, dispatch);
+  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, dispatch);
 
   return null;
 };
