@@ -94,7 +94,7 @@ export default function CountOverTimeResults() {
     content = (
       <>
         <CountOverTimeChart
-          data={updatedPrepareCountOverTimeData}
+          series={updatedPrepareCountOverTimeData}
           normalized={normalized}
         />
         <div className="clearfix">
