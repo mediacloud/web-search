@@ -10,7 +10,7 @@ import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
 import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
 
 const MIN_QUERY_LEN = 2; // don't query for super short things
-const MAX_RESULTS = 10; // per endpoint
+const MAX_RESULTS = 10000; // per endpoint
 const MIN_POLL_MILLISECS = 500; // throttle requests
 const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
@@ -34,7 +34,7 @@ export default function DirectorySearch({ searchCollections, searchSources, onSe
     if (collectionSearchResults) {
       const existingOptionIds = collectionOptions.filter((o) => o.type == 'collection').map((o) => o.id);
       const newOptions = collectionSearchResults.results.filter((c) => !existingOptionIds.includes(c.id));
-      setCollectionOptions(newOptions.slice(0, MAX_RESULTS).map((c) => ({
+      setCollectionOptions(newOptions.slice(0, collectionSearchResults.length).map((c) => ({
         displayGroup: 'Collections',
         type: 'collection',
         id: c.id,
@@ -49,7 +49,7 @@ export default function DirectorySearch({ searchCollections, searchSources, onSe
     if (sourceSearchResults) {
       const existingOptionIds = sourceOptions.filter((o) => o.type == 'source').map((o) => o.id);
       const newOptions = sourceSearchResults.results.filter((s) => !existingOptionIds.includes(s.id));
-      setSourceOptions(newOptions.slice(0, MAX_RESULTS).map((s) => ({
+      setSourceOptions(newOptions.slice(0, sourceSearchResults.length).map((s) => ({
         displayGroup: 'Sources',
         type: 'source',
         id: s.id,
