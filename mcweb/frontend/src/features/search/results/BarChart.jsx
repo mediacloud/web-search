@@ -23,6 +23,7 @@ export default function BarChart({
     },
     yAxis: {
       min: 0,
+      max: normalized ? 100 : null,
       title: {
         text: normalized ? 'Percentage' : 'Count',
         align: 'high',
