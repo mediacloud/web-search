@@ -99,6 +99,13 @@ def profile(request):
 
 
 @require_http_methods(["POST"])
+def password_strength(request):
+    payload = json.loads(request.body)
+    print(payload)
+    
+    return HttpResponse(payload, content_type="application/json")
+
+@require_http_methods(["POST"])
 def login(request):
     payload = json.loads(request.body)
     entered_username = payload.get('username', None)
@@ -137,6 +144,10 @@ def login(request):
         logger.debug('user login failed')
         data = json.dumps({'message': "Unable to login"})
         return HttpResponse(data, content_type='application/json', status=403)
+
+
+
+
 
 
 @require_http_methods(["POST"])
