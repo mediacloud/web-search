@@ -30,7 +30,7 @@ export default function BarChart({
       },
       labels: {
         overflow: 'justify',
-        format: normalized ? '{value: .2f}%' : '{value.toLocaleString()}',
+        format: normalized ? '{value}%' : '{value.toLocaleString()}',
       },
     },
     plotOptions: {
