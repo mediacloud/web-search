@@ -5,6 +5,7 @@ import logging
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
+from django.contrib.auth.password_validation import validate_password
 import humps
 from django.core.mail import send_mail
 import settings
@@ -14,6 +15,7 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile
+# from .validators import validate
 
 
 logger = logging.getLogger(__name__)
@@ -155,6 +157,16 @@ def register(request):
             logging.debug('password not matching')
             data = json.dumps({'message': "Passwords don't match"})
             return HttpResponse(data, content_type='application/json', status=403)
+
+        """"
+        verifies is password passes:
+         -  minimum length of the password is 10 characters
+         -  password doesn't occurs in a list of 20,000 common passwords
+         -  the password isn't entirely numeric
+         -  at least 3 numbers
+         -  at least 1 special character (['!', '@', '#', '$'])
+        """
+        validate_password(password1)
 
         # next verify email is new
         try:
