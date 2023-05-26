@@ -23,6 +23,8 @@ export default function SignUp() {
   // register user
   const [register, { isLoading }] = useRegisterMutation();
 
+  // const [passwordStrength, { passwordStrengthLoading }] = usePasswordStrengthMutation();
+
   // log in user
   const [login] = useLoginMutation();
 
