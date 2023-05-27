@@ -137,8 +137,7 @@ def login(request):
     payload = json.loads(request.body)
     entered_username = payload.get('username', None)
     entered_password = payload.get('password', None)
-    user = auth.authenticate(username=entered_username,
-                             password=entered_password)
+    user = auth.authenticate(username=entered_username,password=entered_password)
 
     # password and username correct
     if user is not None:
@@ -165,8 +164,7 @@ def login(request):
                 matching_user.set_password(entered_password)
                 matching_user.save()
                 # ✅ log them in
-                user = auth.authenticate(
-                    username=entered_username, password=entered_password)
+                user = auth.authenticate(username=entered_username, password=entered_password)
                 auth.login(request, user)
                 data = _serialized_current_user(request)
                 return HttpResponse(data, content_type='application/json')
