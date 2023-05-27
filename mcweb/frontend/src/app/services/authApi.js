@@ -61,13 +61,12 @@ export const api = createApi({
         method: 'DELETE',
       }),
     }),
-    // passwordStrength: builder.mutation({
-    //   query: (password) => ({
-    //     url: 'password-strength',
-    //     method: 'POST',
-    //     body: { ...password },
-    //   }),
-    // }),
+    passwordStrength: builder.query({
+      query: ({ password1, password2 }) => ({
+        url: `/password-strength?password1=${password1}&password2=${password2}`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -80,5 +79,5 @@ export const {
   useEmailExistsQuery,
   useResetPasswordMutation,
   useDeleteUserMutation,
-  usePasswordStrengthMutation,
+  usePasswordStrengthQuery,
 } = api;
