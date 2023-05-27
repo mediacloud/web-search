@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,7 +13,7 @@ import { useSnackbar } from 'notistack';
 import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { CsrfToken, saveCsrfToken } from '../../services/csrfToken';
-import { useRegisterMutation, useLoginMutation } from '../../app/services/authApi';
+import { useRegisterMutation, useLoginMutation, usePasswordStrengthQuery } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
 
 export default function SignUp() {
@@ -23,10 +24,12 @@ export default function SignUp() {
   // register user
   const [register, { isLoading }] = useRegisterMutation();
 
-  // const [passwordStrength, { passwordStrengthLoading }] = usePasswordStrengthMutation();
-
   // log in user
   const [login] = useLoginMutation();
+
+  const [listOfErrors, setListOfErrors] = useState([]);
+  // disable button if password isn't validated
+  const [show, setShow] = useState(true);
 
   // credentials
   const [formState, setFormState] = React.useState({
@@ -37,9 +40,28 @@ export default function SignUp() {
     password2: '',
     notes: '',
   });
+
   const handleChange = ({ target: { name, value } }) => (
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
+
+  const { data } = usePasswordStrengthQuery({ password1: formState.password1, password2: formState.password2 });
+
+  useEffect(() => {
+    if (data !== undefined && data.length !== 0) {
+      const newListOfErrors = data.map((error) => (
+        <ul key={error} className="passwordStrength">
+          <li key={error}>{error}</li>
+        </ul>
+      ));
+
+      setListOfErrors(newListOfErrors);
+      setShow(true);
+    } else {
+      setListOfErrors([]);
+      setShow(false);
+    }
+  }, [data]);
 
   return (
     <div>
@@ -54,7 +76,7 @@ export default function SignUp() {
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon titleAccess="admin only"/>
+            <LockOutlinedIcon titleAccess="admin only" />
 
           </Avatar>
 
@@ -150,6 +172,8 @@ export default function SignUp() {
                   onChange={handleChange}
                 />
               </Grid>
+
+              {/* Notes */}
               <Grid item xs={12}>
                 <TextField
                   required
@@ -162,12 +186,15 @@ export default function SignUp() {
                   onChange={handleChange}
                 />
               </Grid>
+
+              {listOfErrors}
+
             </Grid>
             <Button
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={isLoading}
+              disabled={isLoading || show}
               onClick={async () => {
                 try {
                   // creating user
