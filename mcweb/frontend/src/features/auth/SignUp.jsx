@@ -48,13 +48,12 @@ export default function SignUp() {
   const { data } = usePasswordStrengthQuery({ password1: formState.password1, password2: formState.password2 });
 
   useEffect(() => {
-    if (data !== undefined && data.length !== 0) {
+    if (data && data.length !== 0) {
       const newListOfErrors = data.map((error) => (
         <ul key={error} className="passwordStrength">
           <li key={error}>{error}</li>
         </ul>
       ));
-
       setListOfErrors(newListOfErrors);
       setShow(true);
     } else {
@@ -187,6 +186,7 @@ export default function SignUp() {
                 />
               </Grid>
 
+              {/* list the errors */}
               {listOfErrors}
 
             </Grid>
