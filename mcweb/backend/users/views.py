@@ -26,12 +26,9 @@ def _random_key():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
 
 # does the email exist?
-
-
 @require_http_methods(['GET'])
 def email_exists(request):
     email = request.GET['email']
-
     try:
         User.objects.get(email=email)
         data = json.dumps({'Exists': True})
