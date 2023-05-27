@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 import humps
 from django.core.mail import send_mail
 import settings
@@ -15,7 +16,6 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile
-# from .validators import validate
 
 
 logger = logging.getLogger(__name__)
@@ -26,6 +26,8 @@ def _random_key():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
 
 # does the email exist?
+
+
 @require_http_methods(['GET'])
 def email_exists(request):
     email = request.GET['email']
@@ -66,6 +68,7 @@ def reset_password(request):
     username = payload.get('username', None)
     password1 = payload.get('password1', None)
     password2 = payload.get('password2', None)
+
     try:
         User.objects.get(username=username)
         logger.debug("Username found")
@@ -98,19 +101,43 @@ def profile(request):
     return HttpResponse(data, content_type='application/json')
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET"])
 def password_strength(request):
-    payload = json.loads(request.body)
-    print(payload)
-    
-    return HttpResponse(payload, content_type="application/json")
+    password1 = request.GET.get('password1')
+    password2 = request.GET.get('password2')
+
+    error_messages = []
+
+    if password1 != password2:
+        error_messages.append("Your passwords do not match.")
+        data = json.dumps(error_messages)
+        return HttpResponse(data, content_type='application/json')
+    try:
+        validate_password(password1)
+    except ValidationError as e:
+        # Password is invalid, handle the error gracefully
+        error_messages.extend(list(e.messages))
+
+    print(error_messages)
+
+    # instead of rewriting the django built in validation errors, I'm going to replace them manually
+    for i in range(len(error_messages)):
+        if error_messages[i] == "This password is too short. It must contain at least 10 characters.":
+            error_messages[i] = "Your password must contain at least 10 characters."
+        if error_messages[i] == "This passwords is too common.":
+            error_messages[i] = "Your password is too common."
+
+    data = json.dumps(error_messages)
+    return HttpResponse(data, content_type='application/json')
+
 
 @require_http_methods(["POST"])
 def login(request):
     payload = json.loads(request.body)
     entered_username = payload.get('username', None)
     entered_password = payload.get('password', None)
-    user = auth.authenticate(username=entered_username, password=entered_password)
+    user = auth.authenticate(username=entered_username,
+                             password=entered_password)
 
     # password and username correct
     if user is not None:
@@ -133,10 +160,12 @@ def login(request):
             if (len(matching_user.password) == 0) and\
                     (legacy.password_matches_hash(entered_password, matching_user.profile.imported_password_hash)):
                 # save their password in Django format for next time
-                matching_user.set_password(entered_password)  # this will hash it properly
+                # this will hash it properly
+                matching_user.set_password(entered_password)
                 matching_user.save()
                 # ✅ log them in
-                user = auth.authenticate(username=entered_username, password=entered_password)
+                user = auth.authenticate(
+                    username=entered_username, password=entered_password)
                 auth.login(request, user)
                 data = _serialized_current_user(request)
                 return HttpResponse(data, content_type='application/json')
@@ -144,10 +173,6 @@ def login(request):
         logger.debug('user login failed')
         data = json.dumps({'message': "Unable to login"})
         return HttpResponse(data, content_type='application/json', status=403)
-
-
-
-
 
 
 @require_http_methods(["POST"])
@@ -213,18 +238,19 @@ def logout(request):
     data = json.dumps({'message': "Logged Out"})
     return HttpResponse(data, content_type='application/json')
 
+
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["DELETE"])
 def delete_user(request):
     logging.debug('deleting user')
     current_user = request.user
     auth.logout(request)
-    try: 
+    try:
         current_user.delete()
         data = json.dumps({'message': "User Deleted"})
     except Exception as e:
         data = json.dumps({'error': e})
-    
+
     return HttpResponse(data, content_type='application/json')
 
 
@@ -239,4 +265,3 @@ def _serialized_current_user(request) -> str:
     # return it nicely
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
-
