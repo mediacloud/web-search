@@ -30,7 +30,7 @@ class MinimumAmountOfSpecialCharacters:
 
     def __init__(self, minimum_amount_of_special_characters=1):
         self.minimum_amount_of_special_characters = minimum_amount_of_special_characters
-        self.special_characters = ['!', '@', '$']
+        self.special_characters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '~', '/', ':', ';', ]
 
     def validate(self, password, user=None):
         
@@ -41,13 +41,13 @@ class MinimumAmountOfSpecialCharacters:
 
         if count < self.minimum_amount_of_special_characters:
             raise ValidationError(
-                _("Your password must contain at least %(minimum_amount_of_special_characters)d special character: !, @, $"),
+                _("Your password must contain at least %(minimum_amount_of_special_characters)d special character: !,  @,  #,  $,  ^,  &,  *,  (,  ),  ~,  /,  :,  ; "),
                 code="requires_more_numbers",
                 params={"minimum_amount_of_special_characters": self.minimum_amount_of_special_characters},
             )
 
     def get_help_test(self):
         return _(
-            "Your password must contain at least %(minimum_amount_of_special_characters)d special character: !, @, $"
+            "Your password must contain at least %(minimum_amount_of_special_characters)d special character: !,  @,  #,  $,  ^,  &,  *,  (,  ),  ~,  /,  :,  ; "
             % {"minimum_amount_of_special_characters": self.minimum_amount_of_special_characters},
         )
