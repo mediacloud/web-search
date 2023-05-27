@@ -63,7 +63,7 @@ export const api = createApi({
     }),
     passwordStrength: builder.query({
       query: ({ password1, password2 }) => ({
-        url: `/password-strength?password1=${password1}&password2=${password2}`,
+        url: `/password-strength?password1=${encodeURIComponent(password1)}&password2=${encodeURIComponent(password2)}`,
         method: 'GET',
       }),
     }),
