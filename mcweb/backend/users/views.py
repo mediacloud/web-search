@@ -199,7 +199,7 @@ def register(request):
          -  password doesn't occurs in a list of 20,000 common passwords
          -  the password isn't entirely numeric
          -  at least 3 numbers
-         -  at least 1 special character (['!', '@', '#', '$'])
+         -  at least 1 special character (['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '~', '/', ':', ';'])
         """
         validate_password(password1)
 

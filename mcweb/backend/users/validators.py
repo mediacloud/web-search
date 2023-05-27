@@ -30,7 +30,7 @@ class MinimumAmountOfSpecialCharacters:
 
     def __init__(self, minimum_amount_of_special_characters=1):
         self.minimum_amount_of_special_characters = minimum_amount_of_special_characters
-        self.special_characters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '~', '/', ':', ';', ]
+        self.special_characters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '~', '/', ':', ';']
 
     def validate(self, password, user=None):
         
