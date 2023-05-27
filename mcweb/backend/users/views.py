@@ -103,23 +103,25 @@ def profile(request):
 
 @require_http_methods(["GET"])
 def password_strength(request):
-    password1 = request.GET.get('password1')
-    password2 = request.GET.get('password2')
+    # get the passwords from SignUp.jsx formState
+    password1 = request.GET['password1']
+    password2 = request.GET['password2']
 
+    # a list for the error messages
     error_messages = []
-
+    # check if the passwords are the same
     if password1 != password2:
         error_messages.append("Your passwords do not match.")
         data = json.dumps(error_messages)
         return HttpResponse(data, content_type='application/json')
+    
+    # validate the password, if there are no errors, the password is matching and strong!
     try:
         validate_password(password1)
+    # Password is invalid, handle the error gracefully
     except ValidationError as e:
-        # Password is invalid, handle the error gracefully
         error_messages.extend(list(e.messages))
-
-    print(error_messages)
-
+    
     # instead of rewriting the django built in validation errors, I'm going to replace them manually
     for i in range(len(error_messages)):
         if error_messages[i] == "This password is too short. It must contain at least 10 characters.":
@@ -128,6 +130,8 @@ def password_strength(request):
             error_messages[i] = "Your password is too common."
 
     data = json.dumps(error_messages)
+
+    # return the error messages
     return HttpResponse(data, content_type='application/json')
 
 
