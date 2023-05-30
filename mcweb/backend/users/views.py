@@ -98,11 +98,14 @@ def profile(request):
     return HttpResponse(data, content_type='application/json')
 
 
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def password_strength(request):
     # get the passwords from SignUp.jsx formState
-    password1 = request.GET['password1']
-    password2 = request.GET['password2']
+
+    payload = json.loads(request.body)
+    
+    password1 = payload.get('password1', None)
+    password2 = payload.get('password2', None)
 
     # a list for the error messages
     error_messages = []
