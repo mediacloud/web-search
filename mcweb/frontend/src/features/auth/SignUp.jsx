@@ -13,8 +13,9 @@ import { useSnackbar } from 'notistack';
 import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { CsrfToken, saveCsrfToken } from '../../services/csrfToken';
-import { useRegisterMutation, useLoginMutation, usePasswordStrengthQuery } from '../../app/services/authApi';
+import { useRegisterMutation, useLoginMutation, usePasswordStrengthMutation } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
+import { ConnectingAirportsOutlined } from '@mui/icons-material';
 
 export default function SignUp() {
   const dispatch = useDispatch();
@@ -48,30 +49,35 @@ export default function SignUp() {
   );
 
   // list of password validators (ex: password is too short, no numbers, no special characters ...)
-  const { data } = usePasswordStrengthQuery({ password1: formState.password1, password2: formState.password2 });
+  const [passwordStrength] = usePasswordStrengthMutation();
 
   useEffect(() => {
-    /*
-    why is 'data' in the conditional?
-    useEffect is called before useState is rendered making password1 and password2 undefined
-
-    why is 'data.length !== 0' in the conditional?
-    data returns a list of password validation errors and if there are none ... the password is SAFE!
-    */
-    if (data && data.length !== 0) {
-      const newListOfErrors = data.map((error) => (
-        <ul key={error} className="passwordStrength">
-          <li key={error}>{error}</li>
-        </ul>
-      ));
-      setListOfErrors(newListOfErrors);
-      setShow(true);
-    } else {
-      setListOfErrors([]);
-      setShow(false);
+    async function fetchData() {
+      const data = await passwordStrength({
+        password1: formState.password1,
+        password2: formState.password2,
+      }).unwrap();
+      return data;
     }
-  }, [data]);
 
+    const fetchDataAndProcess = async () => {
+      const data = await fetchData();
+
+      if (data && data.length !== 0) {
+        const newListOfErrors = data.map((error) => (
+          <ul key={error} className="passwordStrength">
+            <li key={error}>{error}</li>
+          </ul>
+        ));
+        setListOfErrors(newListOfErrors);
+        setShow(true);
+      } else {
+        setListOfErrors([]);
+        setShow(false);
+      }
+    };
+    fetchDataAndProcess();
+  }, [formState.password1, formState.password2]);
   return (
     <div>
       <Container maxWidth="md">
