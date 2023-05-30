@@ -11,7 +11,7 @@ import logging
 import time
 import backend.util.csv_stream as csv_stream
 from background_task import background
-
+from ..sources.tasks import _return_task
 from django.http import HttpResponse, HttpResponseBadRequest
 
 
@@ -31,7 +31,7 @@ def download_all_large_content_csv(queryState, count, user_id, user_isStaff):
     print("user_isStaff: " + str(user_isStaff))
     if count > 100000:
         _download_all_large_content_csv(queryState, user_id, user_isStaff)
-
+        # return {'task': _return_task(task)}
 
 @background()
 def _download_all_large_content_csv(queryState, user_id, user_isStaff):
@@ -40,9 +40,8 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff):
         start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query, 'GET')
         provider = providers.provider_by_name(provider_name)
-        data.append(provider.all_items(
-            query_str, start_date, end_date, **provider_props))
-
+        data.append(provider.all_items(query_str, start_date, end_date, **provider_props))
+    
     def data_generator():
         for result in data:
             first_page = True
@@ -57,11 +56,10 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff):
                     yield [v for k, v in ordered_story.items()]
                 first_page = False
 
-    filename = "mc-{}-{}-content.csv".format(
-        provider_name, _filename_timestamp())
+    filename = "mc-{}-{}-content.csv".format(provider_name, _filename_timestamp())
+    
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
-
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
