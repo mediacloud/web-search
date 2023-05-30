@@ -4,6 +4,8 @@ import csv
 import time
 import collections
 from django.http import HttpResponse, HttpResponseBadRequest
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import action
@@ -281,8 +283,8 @@ def download_counts_over_time_csv(request):
 
 
 @login_required(redirect_field_name='/auth/login')
-@require_http_methods(["GET"])
-@action(detail=False)
+# @require_http_methods(["GET"])
+@api_view(['GET'])
 def download_all_content_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
@@ -295,9 +297,7 @@ def download_all_content_csv(request):
             print("count: " + str(count))
             if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
                 # return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
-                return download_all_large_content_csv(
-                   queryState, count, request.user.id, request.user.is_staff)
-
+                return download_all_large_content_csv(queryState, count, request.user.id, request.user.is_staff)
         except UnsupportedOperationException:
             logger.warning("Can't count results for download in {}... continuing anyway".format(provider_name))
         # we want to stream the results back to the user row by row (based on paging through results)
