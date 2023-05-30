@@ -13,4 +13,9 @@ Alerted Sources
 Alert Count
     Low Ingest Alerts: {{len(alert_list["low"])}}
     High Ingest Alerts: {{len(alert_list["high"])}}
+
+Sources that alerted last week and not this week:
+    {% for source in alert_list["fixed"] %}
+        {{source}}
+    {% endfor %}
 {% endautoescape %}
