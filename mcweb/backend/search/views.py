@@ -286,52 +286,37 @@ def download_counts_over_time_csv(request):
 def download_all_content_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
-
     for query in queryState:
-
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query, 'GET')
-
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
         provider = providers.provider_by_name(provider_name)
-        print("request.user.is_staff: " + str(request.user.is_staff))
-        print("request.user.id: " + str(request.user.id))
-        print("provider_name: " + str(provider_name))
-       # try to not allow allow gigantic downloads
+        # try to not allow allow gigantic downloads
         try:
-            count = provider.count(query_str, start_date,
-                                   end_date, **provider_props)
+            count = provider.count(query_str, start_date, end_date, **provider_props)
             print("count: " + str(count))
-
             if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
+                # return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
                 return download_all_large_content_csv(
-                    queryState, count, request.user.id, request.user.is_staff)
+                   queryState, count, request.user.id, request.user.is_staff)
 
         except UnsupportedOperationException:
-            logger.warning(
-                "Can't count results for download in {}... continuing anyway".format(provider_name))
+            logger.warning("Can't count results for download in {}... continuing anyway".format(provider_name))
         # we want to stream the results back to the user row by row (based on paging through results)
-        data.append(provider.all_items(
-            query_str, start_date, end_date, **provider_props))
-
+        data.append(provider.all_items(query_str, start_date, end_date, **provider_props))
     def data_generator():
         for result in data:
             first_page = True
             for page in result:
-                QuotaHistory.increment(
-                    request.user.id, request.user.is_staff, provider_name)
+                QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
                 if first_page:  # send back column names, which differ by platform
                     yield sorted(list(page[0].keys()))
                 for story in page:
-                    ordered_story = collections.OrderedDict(
-                        sorted(story.items()))
+                    ordered_story = collections.OrderedDict(sorted(story.items()))
                     yield [v for k, v in ordered_story.items()]
                 first_page = False
 
-    filename = "mc-{}-{}-content.csv".format(
-        provider_name, _filename_timestamp())
+    filename = "mc-{}-{}-content.csv".format(provider_name, _filename_timestamp())
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
-
 
 def add_ratios(words_data):
     for word in words_data:

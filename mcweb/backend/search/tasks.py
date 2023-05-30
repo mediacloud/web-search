@@ -25,10 +25,12 @@ logger = logging.getLogger(__name__)
 
 
 def download_all_large_content_csv(queryState, count, user_id, user_isStaff):
-    if count < 500000 and count > 100000:
+    print("queryState: " + str(queryState))
+    print("count: " + str(count))
+    print("user_id: " + str(user_id))
+    print("user_isStaff: " + str(user_isStaff))
+    if count > 100000:
         _download_all_large_content_csv(queryState, user_id, user_isStaff)
-    else:
-        return HttpResponseBadRequest("Too many matches to download, make sure there are < 500,000")
 
 
 @background()
