@@ -59,4 +59,5 @@ export const defaultPlatformQuery = (platform) => {
   // can't search everything on these, so try a smiley!
   if (platform === PLATFORM_TWITTER) return ['🙂'];
   if (platform === PLATFORM_YOUTUBE) return ['🙂'];
+  return null;
 };
