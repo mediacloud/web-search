@@ -27,7 +27,9 @@ export default function SignUp() {
   // log in user
   const [login] = useLoginMutation();
 
+  // a list of the errors
   const [listOfErrors, setListOfErrors] = useState([]);
+
   // disable button if password isn't validated
   const [show, setShow] = useState(true);
 
@@ -45,9 +47,17 @@ export default function SignUp() {
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
 
+  // list of password validators (ex: password is too short, no numbers, no special characters ...)
   const { data } = usePasswordStrengthQuery({ password1: formState.password1, password2: formState.password2 });
 
   useEffect(() => {
+    /*
+    why is 'data' in the conditional?
+    useEffect is called before useState is rendered making password1 and password2 undefined
+
+    why is 'data.length !== 0' in the conditional?
+    data returns a list of password validation errors and if there are none ... the password is SAFE!
+    */
     if (data && data.length !== 0) {
       const newListOfErrors = data.map((error) => (
         <ul key={error} className="passwordStrength">
@@ -190,6 +200,8 @@ export default function SignUp() {
               </Grid>
 
             </Grid>
+
+            {/* SignUp Button */}
             <Button
               fullWidth
               variant="contained"
