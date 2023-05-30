@@ -172,6 +172,9 @@ export default function SignUp() {
                 />
               </Grid>
 
+              {/* list the errors */}
+              {listOfErrors}
+
               {/* Notes */}
               <Grid item xs={12}>
                 <TextField
@@ -185,9 +188,6 @@ export default function SignUp() {
                   onChange={handleChange}
                 />
               </Grid>
-
-              {/* list the errors */}
-              {listOfErrors}
 
             </Grid>
             <Button
