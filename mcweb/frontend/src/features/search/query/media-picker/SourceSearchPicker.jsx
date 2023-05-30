@@ -24,7 +24,17 @@ export default function SourceSearchPicker({ platform, queryIndex }) {
 
           {/* CollectionSearch */}
           <div className="col-6">
-            <TextField fullWidth label="source name" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <TextField
+              fullWidth
+              label="source name"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  trigger({ platform, name: query });
+                }
+              }}
+            />
           </div>
           <div className="col-6">
             <Button size="large" variant="contained" onClick={() => trigger({ platform, name: query })}>
