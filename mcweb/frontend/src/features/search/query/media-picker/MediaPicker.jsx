@@ -77,7 +77,7 @@ export default function MediaPicker({ queryIndex }) {
 
             </Tabs>
 
-            <div className="tabpanel" role="tabpanel" hidden={value !== 0} index={0} id="tabpanel-0">
+            <div className="tabpanel" role="tabpanel" hidden={value !== 0} id="tabpanel-0">
               {value === 0 && (
                 <>
                   <h2>Featured Collections</h2>
@@ -85,7 +85,7 @@ export default function MediaPicker({ queryIndex }) {
                 </>
               )}
             </div>
-            <div className="tabpanel" role="tabpanel" hidden={value !== 1} index={1} id="tabpanel-2">
+            <div className="tabpanel" role="tabpanel" hidden={value !== 1} id="tabpanel-2">
               {value === 1 && (
                 <>
                   <h2>Search All Collections</h2>
@@ -93,7 +93,7 @@ export default function MediaPicker({ queryIndex }) {
                 </>
               )}
             </div>
-            <div className="tabpanel" role="tabpanel" hidden={value !== 2} index={2} id="tabpanel-3">
+            <div className="tabpanel" role="tabpanel" hidden={value !== 2} id="tabpanel-3">
               {value === 2 && (
                 <>
                   <h2>Search All Sources</h2>
@@ -103,7 +103,7 @@ export default function MediaPicker({ queryIndex }) {
             </div>
             {[PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && (
 
-            <div className="tabpanel" role="tabpanel" hidden={value !== 3} index={3} id="tabpanel-1">
+            <div className="tabpanel" role="tabpanel" hidden={value !== 3} id="tabpanel-1">
               {value === 3 && (
               <>
                 <h2>Geographic Collections</h2>
