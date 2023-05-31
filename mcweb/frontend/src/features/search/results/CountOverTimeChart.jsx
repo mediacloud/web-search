@@ -53,6 +53,7 @@ export default function CountOverTimeChart({ series, normalized }) {
     series: series.map((s) => ({
       name: s.name,
       data: s.data,
+      color: s.color,
     })),
   };
 
@@ -80,6 +81,7 @@ CountOverTimeChart.propTypes = {
       normalized_total: PropTypes.number,
       total: PropTypes.number,
     }),
+    color: PropTypes.string.isRequired,
   })),
   normalized: PropTypes.bool.isRequired,
 };
