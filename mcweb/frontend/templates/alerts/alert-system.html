@@ -1,21 +1,33 @@
 {% autoescape off %}
 
-Hi {{user.first_name}} {{user.last_name}},
+<div class="pre"><strong>Alert System</strong>&nbsp;</div>
+    <div class="pre">&nbsp;</div>
+     
+            <div class="pre">
+                Alerted Sources with Low Volume 
+                {% for source in alert_list.low %}
+                    <div style="background-color: red">
+                        {{source}}
+                    </div>
+                {% endfor %}
+            </div>
+            <div>
+                Alerted Sources with High Volume
+                {% for source in alert_list.high %}
+                    <div style="background-color: yellow">
+                        {{source}}
+                    </div>
+                {% endfor %}
+            </div>
+    <div>
 
-Alerted Sources 
-{% for source in alert_list["low"] %}
-    {{source}}
-{% endfor %}
+    </div>
 
-{% for source in alert_list["high"] %}
-    {{source}}
-{% endfor %}
-Alert Count
-    Low Ingest Alerts: {{len(alert_list["low"])}}
-    High Ingest Alerts: {{len(alert_list["high"])}}
-
-Sources that alerted last week and not this week:
-    {% for source in alert_list["fixed"] %}
-        {{source}}
+    Sources that alerted last week and not this week:
+    {% for source in alert_list.fixed %}
+        <div style="background-color: green">
+            {{source}}
+        </div>
     {% endfor %}
+</div>
 {% endautoescape %}

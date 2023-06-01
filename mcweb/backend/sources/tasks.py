@@ -143,10 +143,11 @@ def _alert_system(collection_ids):
         with RssFetcherApi() as rss:
         # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
           
-            email=""
+            email="test"
             alert_dict = {
                 "high": [],
-                "low": []
+                "low": [],
+                "fixed": []
             }
             no_stories_alert = 0
             low_stories_alert = 0

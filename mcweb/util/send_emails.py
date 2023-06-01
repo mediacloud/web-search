@@ -2,6 +2,9 @@ import threading
 import logging
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
+from django.template import Context
 from settings import EMAIL_HOST
 
 logger = logging.getLogger(__name__)
@@ -53,29 +56,45 @@ def send_source_upload_email(title: str, text: str, to: str):
 def send_alert_email(alert_dict: dict,):
     if not EMAIL_HOST:
         return
-    email_body = render_to_string('authentication/alert-system.html', {
-        'alerts': alert_dict,
+   
+    print(alert_dict, "INEMAIL")
+    html_content = render_to_string('alerts/alert-system.html', {'alert_list': alert_dict})
+
+    email_body_txt = render_to_string('alerts/alert-system.html', {
+        'alert_list': alert_dict,
     })
-    email = EmailMessage(subject='[Media Cloud] Alert System Email',
-                         body=email_body,
-                         from_email='noreply@mediacloud.org',
-                         to=['e.leon@northeastern.edu', 
-                            'rebecca@mediacloud.org', 
-                            'ebndulue@mediacloud.org', 
-                            'fernando@mediacloud.org',
-                            'frimpomaa@mediacloud.org'])
-    try: 
-        EmailThread(email).start()
-    except Exception as e:
-        print(e)
+    to = ['e.leon@northeastern.edu']
+    # to=['e.leon@northeastern.edu', 
+    #     'rebecca@mediacloud.org', 
+    #     'ebndulue@mediacloud.org', 
+    #     'fernando@mediacloud.org',
+    #     'frimpomaa@mediacloud.org'])
+    msg = EmailMultiAlternatives('[Media Cloud] Alert System Email', email_body_txt, 'noreply@mediacloud.org', to)
+    msg.attach_alternative(html_content, "text/html")
     try:
-        send_mail('Stories per week', 
-                  email,'system@mediacloud.org', 
-                  ['e.leon@northeastern.edu', 
-                   'rebecca@mediacloud.org', 
-                   'ebndulue@mediacloud.org', 
-                   'fernando@mediacloud.org',
-                   'frimpomaa@mediacloud.org'], 
-                  fail_silently=False)
+        msg.send()
     except Exception as e: 
         logger.exception(e)
+    # email = EmailMultiAlternatives(subject='[Media Cloud] Alert System Email',
+    #                      body=email_body,
+    #                      from_email='noreply@mediacloud.org',
+    #                      to=['e.leon@northeastern.edu', 
+    #                         'rebecca@mediacloud.org', 
+    #                         'ebndulue@mediacloud.org', 
+    #                         'fernando@mediacloud.org',
+    #                         'frimpomaa@mediacloud.org'])
+    # try: 
+    #     EmailThread(msg).start()
+    # except Exception as e:
+    #     print(e)
+    # try:
+    #     send_mail('Stories per week', 
+    #               msg,'system@mediacloud.org', 
+    #               ['e.leon@northeastern.edu', 
+    #                'rebecca@mediacloud.org', 
+    #                'ebndulue@mediacloud.org', 
+    #                'fernando@mediacloud.org',
+    #                'frimpomaa@mediacloud.org'], 
+    #               fail_silently=False)
+    # except Exception as e: 
+    #     logger.exception(e)
