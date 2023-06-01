@@ -130,7 +130,7 @@ export default function TopLanguages() {
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            This is an <i>experimental</i>
+            This is an<i> experimental </i>
             sample-based list of the top languages of content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
