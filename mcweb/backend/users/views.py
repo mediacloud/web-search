@@ -5,6 +5,8 @@ import logging
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 import humps
 from django.core.mail import send_mail
 import settings
@@ -27,7 +29,6 @@ def _random_key():
 @require_http_methods(['GET'])
 def email_exists(request):
     email = request.GET['email']
-
     try:
         User.objects.get(email=email)
         data = json.dumps({'Exists': True})
@@ -64,6 +65,7 @@ def reset_password(request):
     username = payload.get('username', None)
     password1 = payload.get('password1', None)
     password2 = payload.get('password2', None)
+
     try:
         User.objects.get(username=username)
         logger.debug("Username found")
@@ -97,11 +99,48 @@ def profile(request):
 
 
 @require_http_methods(["POST"])
+def password_strength(request):
+    # get the passwords from SignUp.jsx formState
+
+    payload = json.loads(request.body)
+    
+    password1 = payload.get('password1', None)
+    password2 = payload.get('password2', None)
+
+    # a list for the error messages
+    error_messages = []
+    # check if the passwords are the same
+    if password1 != password2:
+        error_messages.append("Your passwords do not match.")
+        data = json.dumps(error_messages)
+        return HttpResponse(data, content_type='application/json')
+    
+    # validate the password, if there are no errors, the password is matching and strong!
+    try:
+        validate_password(password1)
+    # Password is invalid, handle the error gracefully
+    except ValidationError as e:
+        error_messages.extend(list(e.messages))
+    
+    # instead of rewriting the django built in validation errors, I'm going to replace them manually
+    for i in range(len(error_messages)):
+        if error_messages[i] == "This password is too short. It must contain at least 10 characters.":
+            error_messages[i] = "Your password must contain at least 10 characters."
+        if error_messages[i] == "This passwords is too common.":
+            error_messages[i] = "Your password is too common."
+
+    data = json.dumps(error_messages)
+
+    # return the error messages
+    return HttpResponse(data, content_type='application/json')
+
+
+@require_http_methods(["POST"])
 def login(request):
     payload = json.loads(request.body)
     entered_username = payload.get('username', None)
     entered_password = payload.get('password', None)
-    user = auth.authenticate(username=entered_username, password=entered_password)
+    user = auth.authenticate(username=entered_username,password=entered_password)
 
     # password and username correct
     if user is not None:
@@ -124,7 +163,8 @@ def login(request):
             if (len(matching_user.password) == 0) and\
                     (legacy.password_matches_hash(entered_password, matching_user.profile.imported_password_hash)):
                 # save their password in Django format for next time
-                matching_user.set_password(entered_password)  # this will hash it properly
+                # this will hash it properly
+                matching_user.set_password(entered_password)
                 matching_user.save()
                 # ✅ log them in
                 user = auth.authenticate(username=entered_username, password=entered_password)
@@ -155,6 +195,16 @@ def register(request):
             logging.debug('password not matching')
             data = json.dumps({'message': "Passwords don't match"})
             return HttpResponse(data, content_type='application/json', status=403)
+
+        """"
+        verifies is password passes:
+         -  minimum length of the password is 10 characters
+         -  password doesn't occurs in a list of 20,000 common passwords
+         -  the password isn't entirely numeric
+         -  at least 3 numbers
+         -  at least 1 special character (['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '~', '/', ':', ';'])
+        """
+        validate_password(password1)
 
         # next verify email is new
         try:
@@ -190,18 +240,19 @@ def logout(request):
     data = json.dumps({'message': "Logged Out"})
     return HttpResponse(data, content_type='application/json')
 
+
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["DELETE"])
 def delete_user(request):
     logging.debug('deleting user')
     current_user = request.user
     auth.logout(request)
-    try: 
+    try:
         current_user.delete()
         data = json.dumps({'message': "User Deleted"})
     except Exception as e:
         data = json.dumps({'error': e})
-    
+
     return HttpResponse(data, content_type='application/json')
 
 
@@ -216,4 +267,3 @@ def _serialized_current_user(request) -> str:
     # return it nicely
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
-
