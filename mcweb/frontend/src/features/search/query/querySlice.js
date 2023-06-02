@@ -140,23 +140,6 @@ const querySlice = createSlice({
       });
     },
 
-    isFromDateValid: (state, { payload }) => {
-      const freezeState = state;
-
-      freezeState.forEach((qS) => {
-        const copyQs = qS;
-        copyQs.isFromDateValid = payload;
-      });
-    },
-
-    setIsToDateValid: (state, { payload }) => {
-      const freezeState = state;
-
-      freezeState.forEach((qS) => {
-        const copyQs = qS;
-        copyQs.isToDateValid = payload;
-      });
-    },
     removeQuery: (state, { payload }) => {
       const freezeState = state;
       if (payload === 0 && freezeState.length === 1) {
