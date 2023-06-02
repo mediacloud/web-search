@@ -4,8 +4,8 @@ from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
 from settings import EMAIL_HOST
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 # adapted with help from https://github.com/CryceTruly/django-tutorial-youtube/tree/main/templates Cryce Truly
 class EmailThread(threading.Thread):
@@ -49,6 +49,18 @@ def send_source_upload_email(title: str, text: str, to: str):
     if not EMAIL_HOST:
         return
     send_mail(title, text, 'system@mediacloud.org', [to], fail_silently=False)
+
+
+# if count > 100,000 --> csv file will be emailed to user rather than downloaded
+def send_large_download_csv_email(filename, csvfile, to):
+    if not EMAIL_HOST:
+        return 
+    email = EmailMessage(subject="Downloaded CSV File", from_email='noreply@mediacloud.org', to=[to])
+    try:
+        email.attach(filename, csvfile.getvalue(), 'text/csv')
+        EmailThread(email).start()
+    except Exception as e:
+        logger.error(e)
 
 def send_alert_email(email: str):
     if not EMAIL_HOST:

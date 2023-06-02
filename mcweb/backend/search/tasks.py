@@ -13,6 +13,8 @@ import backend.util.csv_stream as csv_stream
 from background_task import background
 from ..sources.tasks import _return_task
 from django.http import HttpResponse, HttpResponseBadRequest
+from util.send_emails import send_email
+import settings
 
 
 # emails
@@ -25,13 +27,9 @@ logger = logging.getLogger(__name__)
 
 
 def download_all_large_content_csv(queryState, count, user_id, user_isStaff):
-    print("queryState: " + str(queryState))
-    print("count: " + str(count))
-    print("user_id: " + str(user_id))
-    print("user_isStaff: " + str(user_isStaff))
-    if count > 100000:
-        _download_all_large_content_csv(queryState, user_id, user_isStaff)
-        # return {'task': _return_task(task)}
+    task = _download_all_large_content_csv(queryState, user_id, user_isStaff)
+    
+    return {'task': _return_task(task)}
 
 @background()
 def _download_all_large_content_csv(queryState, user_id, user_isStaff):
@@ -57,9 +55,12 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff):
                 first_page = False
 
     filename = "mc-{}-{}-content.csv".format(provider_name, _filename_timestamp())
-    
     streamer = csv_stream.CSVStream(filename, data_generator)
-    return streamer.stream()
+
+    mail_params = ('test', 'testing', 'system@mediacloud.org','evanjacobsuslovich@gmail.com')
+    send_email(mail_params)
+    
+    
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())

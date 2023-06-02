@@ -295,9 +295,11 @@ def download_all_content_csv(request):
         try:
             count = provider.count(query_str, start_date, end_date, **provider_props)
             print("count: " + str(count))
-            if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
+            # if count > 100000 and not request.user.is_staff:  # arbitrary limit for now
                 # return HttpResponseBadRequest("Too many matches to download, make sure there are < 100,000")
-                return download_all_large_content_csv(queryState, count, request.user.id, request.user.is_staff)
+            print("download_all_large_content_csv")
+            print(download_all_large_content_csv(queryState, count, request.user.id, request.user.is_staff))
+
         except UnsupportedOperationException:
             logger.warning("Can't count results for download in {}... continuing anyway".format(provider_name))
         # we want to stream the results back to the user row by row (based on paging through results)
@@ -316,6 +318,7 @@ def download_all_content_csv(request):
 
     filename = "mc-{}-{}-content.csv".format(provider_name, _filename_timestamp())
     streamer = csv_stream.CSVStream(filename, data_generator)
+    # print(streamer)
     return streamer.stream()
 
 def add_ratios(words_data):
