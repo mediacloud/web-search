@@ -297,8 +297,8 @@ def download_all_content_csv(request):
             print("count: " + str(count))
             if count > 25000 and count < 200000 and not request.user.is_staff:  # arbitrary limit for now
                 download_all_large_content_csv(queryState, request.user.id, request.user.is_staff)
-                data = json.dumps({'count': count})
-                return HttpResponse(data, content_type='application/json')
+            # data = json.dumps({'count': count})
+            # return HttpResponse(data, content_type='application/json')
         except UnsupportedOperationException:
             logger.warning("Can't count results for download in {}... continuing anyway".format(provider_name))
         # we want to stream the results back to the user row by row (based on paging through results)
