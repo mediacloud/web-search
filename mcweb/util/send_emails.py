@@ -28,7 +28,6 @@ def send_email(mail_params):
     except Exception as e: 
         logger.exception(e)
 
-
 def send_signup_email(user, request):
     if not EMAIL_HOST:
         return
@@ -44,23 +43,22 @@ def send_signup_email(user, request):
     except Exception as e:
         print(e)
 
-
 def send_source_upload_email(title: str, text: str, to: str):
     if not EMAIL_HOST:
         return
     send_mail(title, text, 'system@mediacloud.org', [to], fail_silently=False)
 
 
-# if count > 100,000 --> csv file will be emailed to user rather than downloaded
+# if 25k < count < 200k and user is not staff --> csv file will be emailed to user rather than downloaded
 def send_large_download_csv_email(filename, csvfile, to):
     if not EMAIL_HOST:
         return 
-    email = EmailMessage(subject="Downloaded CSV File", from_email='noreply@mediacloud.org', to=[to])
+    email = EmailMessage(subject="Total Attention Results Downloaded CSV File", from_email='noreply@mediacloud.org', to=[to])
     try:
         email.attach(filename, csvfile.getvalue(), 'text/csv')
         EmailThread(email).start()
     except Exception as e:
-        logger.error(e)
+        logger.exception(e)
 
 def send_alert_email(email: str):
     if not EMAIL_HOST:
