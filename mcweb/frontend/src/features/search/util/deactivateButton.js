@@ -6,6 +6,9 @@ dayjs.extend(isSameOrBefore);
 
 const deactvateButton = (queryState) => {
   let returnVal = true;
+
+  // console.log(queryState);
+
   queryState.forEach((queryObject) => {
     const {
       queryString,
@@ -13,6 +16,8 @@ const deactvateButton = (queryState) => {
       negatedQueryList,
       startDate,
       endDate,
+      isFromDateValid,
+      isToDateValid,
     } = queryObject;
 
     const totalQuery = queryList.concat(negatedQueryList);
@@ -27,21 +32,25 @@ const deactvateButton = (queryState) => {
       return false;
     }
 
+    function validFromAndToDates(validatedFromDate, validatedToDate) {
+      return validatedFromDate && validatedToDate;
+    }
+
     // checks to see if the startDAte is before the endDAte
-    function validDates(sD, eD) {
-      return dayjs(sD).isSameOrBefore(dayjs(eD));
+    function validDates(startingDate, endingDate) {
+      return dayjs(startingDate).isSameOrBefore(dayjs(endingDate));
     }
 
     // is the advanced search query string not just the "*"
-    function validQueryString(qS) {
-      return qS.length !== 0;
+    function validQueryString(queryStr) {
+      return queryString.length !== 0;
     }
 
     // is the query string empty?
     const isQueryEmpty = validQuery(totalQuery);
 
-    // are the dates in correct order?
-    const areDatesValid = validDates(startDate, endDate);
+    // are the dates in correct order and validated?
+    const areDatesValid = validDates(startDate, endDate) && validFromAndToDates(isFromDateValid, isToDateValid);
 
     // is the advanced search query empty?
     const isQueryStringEmpty = validQueryString(queryString);
