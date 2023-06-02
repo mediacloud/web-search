@@ -30,26 +30,35 @@ export default function SearchDatePicker({ queryIndex }) {
   // the maximum date off platform (To Date Picker)
   const toDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
 
+  // handler for the fromDate MUI DatePicker
   const handleChangeFromDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(fromDateMin), dayjs(fromDateMax))) {
-      dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
+      // if the fromDate is valid, we are going to make this change in state and set the isFromDateValid to true
       dispatch(setQueryProperty({ isFromDateValid: true, queryIndex, property: 'isFromDateValid' }));
+      dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
     } else {
+      // we do not save the invalid date, if a user goes onto another tab, the previously valid date will be presented
+      // if the date is invalid, we are going to set isToDateValid to false because the date provided is not valid
       dispatch(setQueryProperty({ isFromDateValid: false, queryIndex, property: 'isFromDateValid' }));
     }
   };
 
+  // handler for the toDate MUI DatePicker
   const handleChangeToDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(toDateMin), dayjs(toDateMax))) {
-      dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
+      // if the toDate is valid, we are going to make this change in state and set the isToDateValid to true
       dispatch(setQueryProperty({ isToDateValid: true, queryIndex, property: 'isToDateValid' }));
+      dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
     } else {
+      // we do not save the invalid date, if a user goes onto another tab, the previously valid date will be presented
+      // if the date is invalid, we are going to set isToDateValid to false because the date provided is not valid
       dispatch(setQueryProperty({ isToDateValid: false, queryIndex, property: 'isToDateValid' }));
     }
   };
 
   useEffect(() => {
-    if (dayjs(endDate) > latestAllowedEndDate(platform)) {
+    // if the platform changes, we want to update the validity of the dates
+    if (dayjs(endDate) > fromDateMax) {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
     }
@@ -57,6 +66,10 @@ export default function SearchDatePicker({ queryIndex }) {
       handleChangeFromDate(earliestAllowedStartDate(platform));
       enqueueSnackbar('Changed your start date to match this platform limit', { variant: 'warning' });
     }
+    // why do we do this?
+    // we don't save invalid dates, so going into another tab would leave these set to false and a correct date
+    dispatch(setQueryProperty({ isToDateValid: true, queryIndex, property: 'isToDateValid' }));
+    dispatch(setQueryProperty({ isFromDateValid: true, queryIndex, property: 'isFromDateValid' }));
   }, [platform]);
 
   return (
