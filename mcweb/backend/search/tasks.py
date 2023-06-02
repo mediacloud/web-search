@@ -7,8 +7,10 @@ from .utils import parse_query
 import logging
 import collections
 import logging
+import gzip
+import shutil
 import time
-from io import StringIO
+from io import StringIO, BytesIO
 import csv
 from background_task import background
 from ..sources.tasks import _return_task
@@ -25,10 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def download_all_large_content_csv(queryState, user_id, user_isStaff):
-    
-    # test email that the function is called
     task = _download_all_large_content_csv(queryState, user_id, user_isStaff)
-
     return {'task': _return_task(task)}
 
 @background(remove_existing_tasks=True)
@@ -62,6 +61,9 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff):
     for data in data_generator():
         csvwriter.writerow(data)
 
+    # compressed_file = BytesIO()
+    # with gz.
+    
     logger.info("Sent CSV Email")
     send_large_download_csv_email(filename, csvfile, 'evanjacobsuslovich@gmail.com')
     
