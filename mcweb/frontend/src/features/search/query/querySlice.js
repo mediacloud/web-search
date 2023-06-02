@@ -120,6 +120,8 @@ const querySlice = createSlice({
           sources: [],
           previewSources: [],
           lastSearchTime: dayjs().unix(),
+          isFromDateValid: true,
+          isToDateValid: true,
           anyAll: 'any',
           advanced: false,
         },
