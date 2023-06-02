@@ -7,8 +7,6 @@ dayjs.extend(isSameOrBefore);
 const deactvateButton = (queryState) => {
   let returnVal = true;
 
-  // console.log(queryState);
-
   queryState.forEach((queryObject) => {
     const {
       queryString,
@@ -32,6 +30,7 @@ const deactvateButton = (queryState) => {
       return false;
     }
 
+    // parameters are both boolean variables
     function validFromAndToDates(validatedFromDate, validatedToDate) {
       return validatedFromDate && validatedToDate;
     }
@@ -43,7 +42,7 @@ const deactvateButton = (queryState) => {
 
     // is the advanced search query string not just the "*"
     function validQueryString(queryStr) {
-      return queryString.length !== 0;
+      return queryStr.length !== 0;
     }
 
     // is the query string empty?
