@@ -17,10 +17,9 @@ export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { platform, startDate, endDate } = useSelector((state) => state.query[queryIndex]);
-
-  const [isFromDateMatching, setIsFromDateMatching] = useState(true);
-  const [isToDateMatching, setIsToDateMatching] = useState(true);
+  const {
+    platform, startDate, endDate, isFromDateValid, isToDateValid,
+  } = useSelector((state) => state.query[queryIndex]);
 
   // the minimum date off platform (From Date Picker)
   const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
@@ -34,23 +33,22 @@ export default function SearchDatePicker({ queryIndex }) {
   const handleChangeFromDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(fromDateMin), dayjs(fromDateMax))) {
       dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
-      setIsFromDateMatching(true);
+      dispatch(setQueryProperty({ isFromDateValid: true, queryIndex, property: 'isFromDateValid' }));
     } else {
-      setIsFromDateMatching(false);
+      dispatch(setQueryProperty({ isFromDateValid: false, queryIndex, property: 'isFromDateValid' }));
     }
   };
 
   const handleChangeToDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(toDateMin), dayjs(toDateMax))) {
       dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
-      setIsToDateMatching(true);
+      dispatch(setQueryProperty({ isToDateValid: true, queryIndex, property: 'isToDateValid' }));
     } else {
-      setIsToDateMatching(false);
+      dispatch(setQueryProperty({ isToDateValid: false, queryIndex, property: 'isToDateValid' }));
     }
   };
 
   useEffect(() => {
-    // dispatch(setQueryProperty({ endDate: latestAllowedEndDate(platform).format('MM/DD/YYYY') }));
     if (dayjs(endDate) > latestAllowedEndDate(platform)) {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
@@ -66,7 +64,7 @@ export default function SearchDatePicker({ queryIndex }) {
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <div className="date-accuracy-alert">
-            <h1 className={`banner ${isFromDateMatching ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
+            <h1 className={`banner ${isFromDateValid ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
             <DatePicker
               required
               type="date"
@@ -82,7 +80,7 @@ export default function SearchDatePicker({ queryIndex }) {
           </div>
 
           <div className="date-accuracy-alert">
-            <h1 className={`banner ${isToDateMatching ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
+            <h1 className={`banner ${isToDateValid ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
             <DatePicker
               required
               label="To"
