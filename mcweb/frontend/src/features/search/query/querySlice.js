@@ -25,6 +25,8 @@ const cleanQuery = (platform) => ({
   sources: [],
   previewSources: [],
   lastSearchTime: dayjs().unix(),
+  isFromDateValid: true,
+  isToDateValid: true,
   anyAll: 'any',
   advanced: false,
 });
@@ -45,6 +47,8 @@ const querySlice = createSlice({
         sources: [],
         previewSources: [],
         lastSearchTime: dayjs().unix(),
+        isFromDateValid: true,
+        isToDateValid: true,
         anyAll: 'any',
         advanced: false,
       },
@@ -133,6 +137,24 @@ const querySlice = createSlice({
       freezeState.forEach((qS) => {
         const copyQs = qS;
         copyQs.lastSearchTime = payload;
+      });
+    },
+
+    isFromDateValid: (state, { payload }) => {
+      const freezeState = state;
+
+      freezeState.forEach((qS) => {
+        const copyQs = qS;
+        copyQs.isFromDateValid = payload;
+      });
+    },
+
+    setIsToDateValid: (state, { payload }) => {
+      const freezeState = state;
+
+      freezeState.forEach((qS) => {
+        const copyQs = qS;
+        copyQs.isToDateValid = payload;
       });
     },
     removeQuery: (state, { payload }) => {
