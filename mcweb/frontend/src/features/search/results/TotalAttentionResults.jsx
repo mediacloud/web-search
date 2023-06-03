@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useSnackbar } from 'notistack';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
@@ -7,6 +8,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import DownloadIcon from '@mui/icons-material/Download';
 import Settings from '@mui/icons-material/Settings';
+import { current } from '@reduxjs/toolkit';
 import BarChart from './BarChart';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
@@ -14,6 +16,7 @@ import {
   PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
+import { selectCurrentUser } from '../../auth/authSlice';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import queryTitle from '../util/queryTitle';
@@ -25,6 +28,11 @@ export const supportsNormalizedCount = (platform) =>
 
 function TotalAttentionResults() {
   const queryState = useSelector((state) => state.query);
+
+  // fetch currentUser to access email if their downloaded csv needs to be emailed
+  const currentUser = useSelector(selectCurrentUser);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const {
     platform,
@@ -45,6 +53,39 @@ function TotalAttentionResults() {
 
   const handleDownloadRequest = (qs) => {
     window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
+
+  const sendEmail = (qs, email) => {
+    const prepareQuery = prepareQueries(qs);
+    fetch('/api/search/send-email-large-download-csv', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Csrftoken': window.CSRF_TOKEN,
+      },
+      body: JSON.stringify({ prepareQuery, email }),
+    })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // gets total count of entire query
+  // I'm assuming each query's data is put into one csv file
+  // my question: https://stackoverflow.com/questions/29615196/is-csv-with-multi-tabs-sheet-possible
+  // in the case that there is only one csv we have to make sure the count of all csv don't exceed our limits
+  const getTotalCountOfQuery = () => {
+    const arrayOfCounts = data.count.relevant;
+    // gets total count of query
+    let count = 0;
+    for (let i = 0; i < arrayOfCounts.length; i += 1) {
+      count += arrayOfCounts[i];
+    }
+
+    return count;
   };
 
   useEffect(() => {
@@ -159,7 +200,22 @@ function TotalAttentionResults() {
               variant="text"
               endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
               onClick={() => {
-                handleDownloadRequest(queryState);
+                // i'm going to do some research on how the csv file is created
+                // but for now, I'm going to assume that all the data gets placed into one csv
+                const totalCountOfQuery = getTotalCountOfQuery();
+                const currentUserEmail = currentUser.email;
+                if (totalCountOfQuery < 25000) {
+                  enqueueSnackbar('Downloading your data!', { variant: 'success' });
+                  handleDownloadRequest(queryState);
+                } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 50000) {
+                  sendEmail(queryState, currentUserEmail);
+                  enqueueSnackbar(
+                    `An email will be sent to ${currentUserEmail} with your downloaded csv!`,
+                    { variant: 'success' },
+                  );
+                } else {
+                  enqueueSnackbar('The size of your downloaded data is too large!', { variant: 'error' });
+                }
               }}
             >
               Download CSV of All Content
