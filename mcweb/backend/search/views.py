@@ -289,36 +289,51 @@ def download_all_content_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
+            query, 'GET')
         provider = providers.provider_by_name(provider_name)
-        # try to not allow allow gigantic downloads
-        try:
-            count = provider.count(query_str, start_date, end_date, **provider_props)
-            print("count: " + str(count))
-            if count > 25000 and count < 200000 and not request.user.is_staff:  # arbitrary limit for now
-                download_all_large_content_csv(queryState, request.user.id, request.user.is_staff)
-            # data = json.dumps({'count': count})
-            # return HttpResponse(data, content_type='application/json')
-        except UnsupportedOperationException:
-            logger.warning("Can't count results for download in {}... continuing anyway".format(provider_name))
-        # we want to stream the results back to the user row by row (based on paging through results)
-        data.append(provider.all_items(query_str, start_date, end_date, **provider_props))
-   
+        data.append(provider.all_items(
+            query_str, start_date, end_date, **provider_props))
+
     def data_generator():
         for result in data:
             first_page = True
             for page in result:
-                QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+                QuotaHistory.increment(
+                    request.user.id, request.user.is_staff, provider_name)
                 if first_page:  # send back column names, which differ by platform
                     yield sorted(list(page[0].keys()))
                 for story in page:
-                    ordered_story = collections.OrderedDict(sorted(story.items()))
+                    ordered_story = collections.OrderedDict(
+                        sorted(story.items()))
                     yield [v for k, v in ordered_story.items()]
                 first_page = False
 
-    filename = "mc-{}-{}-content.csv".format(provider_name, _filename_timestamp())
+    filename = "mc-{}-{}-content.csv".format(
+        provider_name, _filename_timestamp())
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
+
+
+@login_required(redirect_field_name='/auth/login')
+@handle_provider_errors
+@require_http_methods(["POST"])
+def send_email_large_download_csv(request):
+    # get queryState and email
+    queryState = json.loads(request.body).get("prepareQuery")
+    email = json.loads(request.body).get("email")
+
+    # follows similiar logic from download_all_content_csv, get information and send to tasks
+    for query in queryState:
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        provider = providers.provider_by_name(provider_name)
+        try:
+            count = provider.count(query_str, start_date, end_date, **provider_props)
+            if count >= 25000 and count <= 50000 and not request.user.is_staff:  # arbitrary limit for now
+                download_all_large_content_csv(queryState, request.user.id, request.user.is_staff, email)
+        except UnsupportedOperationException:
+            return error_response("Can't count results for download in {}... continuing anyway".format(provider_name))
+    return HttpResponse(content_type="application/json", status=200)
 
 def add_ratios(words_data):
     for word in words_data:
