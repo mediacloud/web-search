@@ -5,6 +5,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import FeaturedCollections from '../collections/FeaturedCollections';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import DirectorySearch from './DirectorySearch';
+import DetailedSearch from './DetailedSearch';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 
@@ -36,10 +37,12 @@ export default function DirectoryHome() {
               </Button>
             </>
           </Permissioned>
+          <DetailedSearch />
         </div>
         <div className="col-5 float-right">
           <DirectorySearch />
         </div>
+
       </ControlBar>
       <div className="container">
         <FeaturedCollections />
