@@ -8,7 +8,6 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import DownloadIcon from '@mui/icons-material/Download';
 import Settings from '@mui/icons-material/Settings';
-import { current } from '@reduxjs/toolkit';
 import BarChart from './BarChart';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
