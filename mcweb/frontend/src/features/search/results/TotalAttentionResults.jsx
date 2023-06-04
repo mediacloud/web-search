@@ -199,14 +199,12 @@ function TotalAttentionResults() {
               variant="text"
               endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
               onClick={() => {
-                // i'm going to do some research on how the csv file is created
-                // but for now, I'm going to assume that all the data gets placed into one csv
                 const totalCountOfQuery = getTotalCountOfQuery();
                 const currentUserEmail = currentUser.email;
                 if (totalCountOfQuery < 25000) {
                   enqueueSnackbar('Downloading your data!', { variant: 'success' });
                   handleDownloadRequest(queryState);
-                } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 50000) {
+                } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
                   sendEmail(queryState, currentUserEmail);
                   enqueueSnackbar(
                     `An email will be sent to ${currentUserEmail} with your downloaded csv!`,
