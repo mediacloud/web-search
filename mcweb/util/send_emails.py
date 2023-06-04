@@ -54,7 +54,7 @@ def send_source_upload_email(title: str, text: str, to: str):
 
 
 # if 25k < count < 200k and user is not staff --> csv file will be emailed to user rather than downloaded
-def send_large_download_csv_email(zipped_filename, zipped_data, to):
+def send_zipped_large_download_email(zipped_filename, zipped_data, to):
     if not EMAIL_HOST:
         return
     email = EmailMessage(subject="Downloaded Total Attention's Data",
