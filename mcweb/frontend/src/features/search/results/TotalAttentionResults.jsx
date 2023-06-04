@@ -31,8 +31,6 @@ function TotalAttentionResults() {
   // fetch currentUser to access email if their downloaded csv needs to be emailed
   const currentUser = useSelector(selectCurrentUser);
 
-  console.log(currentUser);
-
   const { enqueueSnackbar } = useSnackbar();
 
   const {
