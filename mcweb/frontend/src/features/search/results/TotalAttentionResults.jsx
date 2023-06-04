@@ -31,6 +31,8 @@ function TotalAttentionResults() {
   // fetch currentUser to access email if their downloaded csv needs to be emailed
   const currentUser = useSelector(selectCurrentUser);
 
+  console.log(currentUser);
+
   const { enqueueSnackbar } = useSnackbar();
 
   const {
@@ -207,7 +209,7 @@ function TotalAttentionResults() {
                 } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
                   sendEmail(queryState, currentUserEmail);
                   enqueueSnackbar(
-                    `An email will be sent to ${currentUserEmail} with your downloaded csv!`,
+                    `An email will be sent to ${currentUserEmail} with your total attention data!`,
                     { variant: 'success' },
                   );
                 } else {

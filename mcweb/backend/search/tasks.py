@@ -13,10 +13,8 @@ import zipfile
 import csv
 from background_task import background
 from ..sources.tasks import _return_task
-from util.send_emails import send_large_download_csv_email
+from util.send_emails import send_zipped_large_download_email
 
-# emails
-from util.send_emails import send_alert_email
 
 import mc_providers as providers
 import csv
@@ -87,7 +85,7 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff, email):
 
     logger.info("Sent Email")
 
-    send_large_download_csv_email(zip_filename, zipped_data, email)
+    send_zipped_large_download_email(zip_filename, zipped_data, email)
 
 
 def _filename_timestamp() -> str:

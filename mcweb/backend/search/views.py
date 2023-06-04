@@ -329,7 +329,7 @@ def send_email_large_download_csv(request):
         provider = providers.provider_by_name(provider_name)
         try:
             count = provider.count(query_str, start_date, end_date, **provider_props)
-            if count >= 25000 and count <= 200000 and not request.user.is_staff:  # arbitrary limit for now
+            if count >= 25000 and count <= 200000:
                 download_all_large_content_csv(queryState, request.user.id, request.user.is_staff, email)
         except UnsupportedOperationException:
             return error_response("Can't count results for download in {}... continuing anyway".format(provider_name))
