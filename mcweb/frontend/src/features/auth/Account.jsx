@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Alert from '@mui/material/Alert';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
-import { useDeleteUserMutation } from '../../app/services/authApi';
+import { useDeleteUserMutation, useResetTokenMutation } from '../../app/services/authApi';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
@@ -14,6 +17,7 @@ function Account() {
   const currentUser = useSelector(selectCurrentUser);
   const [open, setOpen] = useState(false);
   const [deleteUser] = useDeleteUserMutation();
+  const [resetToken] = useResetTokenMutation();
   return (
     <>
       <Header>
@@ -26,7 +30,27 @@ function Account() {
           <dt>Email:</dt>
           <dd>{currentUser.email}</dd>
           <dt>API Token:</dt>
-          <dd>{currentUser.token}</dd>
+          <div className="reset-token">
+            <dd>{currentUser.token}</dd>
+
+            <Tooltip
+              title="Generate a new token"
+              sx={{
+                color: 'black',
+              }}
+            >
+              <IconButton
+                onClick={async () => {
+                  const results = await resetToken(currentUser.id).unwrap();
+                  console.log(results);
+                  window.location.reload();
+                }}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+          </div>
+
           <Permissioned role={ROLE_STAFF}>
             <dt>Staff?</dt>
             <dd>{currentUser.isStaff ? 'yes' : 'no'}</dd>
