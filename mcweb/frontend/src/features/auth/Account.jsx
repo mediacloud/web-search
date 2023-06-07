@@ -21,6 +21,14 @@ function Account() {
   const [resetToken] = useResetTokenMutation();
   const { enqueueSnackbar } = useSnackbar();
 
+  // show the snackbar for 1.25 second and then reload the screen
+  const logAndRefresh = (delay) => {
+    enqueueSnackbar('Token reset!', { variant: 'success' });
+    setTimeout(() => {
+      window.location.reload();
+    }, delay);
+  };
+
   return (
     <>
       <Header>
@@ -35,7 +43,6 @@ function Account() {
           <dt>API Token:</dt>
           <div className="reset-token">
             <dd>{currentUser.token}</dd>
-
             <Tooltip
               title="Generate a new token"
               sx={{
@@ -46,10 +53,9 @@ function Account() {
                 onClick={async () => {
                   try {
                     await resetToken(currentUser.id).unwrap();
-                    window.location.reload();
-                    enqueueSnackbar('Token reset!', { variant: 'success' });
+                    logAndRefresh(1250);
                   } catch (err) {
-                    enqueueSnackbar('Token reset failed!', { variant: 'error' });
+                    enqueueSnackbar(`Token reset failed - ${err}`, { variant: 'error' });
                   }
                 }}
               >
