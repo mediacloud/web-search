@@ -7,6 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
 import CollectionSearch from './CollectionSearch';
 import SourceSearch from './SourceSearch';
+import GeographicCollectionsSearch from './GeographicCollectionsSearch';
 
 export default function DetailedSearch() {
   const [value, setValue] = React.useState(0);
@@ -40,6 +41,7 @@ export default function DetailedSearch() {
             >
               <Tab label="Search All Collections" id="tab1" />
               <Tab label="Search All Sources" id="tab1" />
+              <Tab label="Geographic Collections" id="tab1" />
 
             </Tabs>
             <div className="tabpanel" role="tabpanel" hidden={value !== 0} id="tabpanel-1">
@@ -55,6 +57,14 @@ export default function DetailedSearch() {
                 <>
                   <h2>Search All Sources</h2>
                   <SourceSearch />
+                </>
+              )}
+            </div>
+            <div className="tabpanel" role="tabpanel" hidden={value !== 2} id="tabpanel-3">
+              {value === 2 && (
+                <>
+                  <h2>Geographic Collections</h2>
+                  <GeographicCollectionsSearch />
                 </>
               )}
             </div>

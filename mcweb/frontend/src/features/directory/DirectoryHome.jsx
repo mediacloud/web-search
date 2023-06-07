@@ -27,6 +27,7 @@ export default function DirectoryHome() {
           <Button variant="outlined">
             <Link to="/collections/news/geographic">Browse Geographic News Collections</Link>
           </Button>
+          <DetailedSearch />
           <Permissioned role={ROLE_STAFF}>
             <>
               <Button variant="outlined" endIcon={<LockOpenIcon />}>
@@ -37,7 +38,6 @@ export default function DirectoryHome() {
               </Button>
             </>
           </Permissioned>
-          <DetailedSearch />
         </div>
         <div className="col-5 float-right">
           <DirectorySearch />
