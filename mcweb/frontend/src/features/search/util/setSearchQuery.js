@@ -162,7 +162,7 @@ const setSearchQuery = (searchParams, dispatch) => {
   collections = collections ? collections.split(',') : [];
   collections = decodeAndFormatCorpus(collections, true);
 
-  sources = sources ? handleDecode(sources) : [];
+  sources = sources ? sources.split(',') : [];
   sources = decodeAndFormatCorpus(sources, false);
 
   const media = combineQueryMedia(collections, sources);
