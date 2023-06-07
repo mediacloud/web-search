@@ -7,13 +7,13 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import SampleStoryShow from './SampleStoryShow';
-import queryTitle from '../util/queryTitle';
+import tabTitle from '../util/tabTitle';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 
 export default function SampleStories() {
@@ -36,6 +36,7 @@ export default function SampleStories() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const [newQuery, setNewQuery] = useState(false);
 
   const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
@@ -43,12 +44,22 @@ export default function SampleStories() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState) || queryState.length === 1) {
+    if (checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
     setLastSearchTimePlatform(platform);
+  }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
+    }
   }, [lastSearchTime, queryState.length]);
+
+  if (newQuery) return null;
 
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
@@ -68,7 +79,7 @@ export default function SampleStories() {
       </Alert>
     );
   } else {
-    const queryTitleArrays = queryState.map((query, index) => queryTitle(queryState, index));
+    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
 
     content = (
       <div className="container">

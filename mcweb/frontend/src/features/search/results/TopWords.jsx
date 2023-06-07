@@ -13,7 +13,7 @@ import checkForBlankQuery from '../util/checkForBlankQuery';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
-import queryTitle from '../util/queryTitle';
+import tabTitle from '../util/tabTitle';
 import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
 import TabPanelHelper from '../../ui/TabPanelHelper';
@@ -33,16 +33,28 @@ export default function TopWords() {
   };
 
   const [value, setValue] = useState(0);
+  const [newQuery, setNewQuery] = useState(false);
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState) || queryState.length === 1) {
+    if (checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
+  }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
+    }
   }, [lastSearchTime, queryState.length]);
+
+  if (newQuery) return null;
 
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
@@ -61,7 +73,7 @@ export default function TopWords() {
       </Alert>
     );
   } else {
-    const queryTitleArrays = queryState.map((query, index) => queryTitle(queryState, index));
+    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
 
     content = (
       <>
@@ -70,9 +82,14 @@ export default function TopWords() {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {data.words.map((result, i) => (
-                  <Tab key={queryTitleArrays[i]} label={queryTitleArrays[i]} {...a11yProps(i)} />
-
+                  <Tab
+                    key={queryTitleArrays[i]}
+                    label={queryTitleArrays[i]}
+                    id={`simple-tab-${i}`}
+                    aria-controls={`simple-tabpanel-${i}`}
+                  />
                 ))}
+
               </Tabs>
             </Box>
 
@@ -111,7 +128,7 @@ export default function TopWords() {
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            This is an <i>experimental</i>
+            This is an<i> experimental </i>
             sample-based list of the top words in content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
@@ -145,11 +162,4 @@ export default function TopWords() {
       </div>
     </div>
   );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,7 +13,7 @@ import { useSnackbar } from 'notistack';
 import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { CsrfToken, saveCsrfToken } from '../../services/csrfToken';
-import { useRegisterMutation, useLoginMutation } from '../../app/services/authApi';
+import { useRegisterMutation, useLoginMutation, usePasswordStrengthMutation } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
 
 export default function SignUp() {
@@ -26,6 +27,12 @@ export default function SignUp() {
   // log in user
   const [login] = useLoginMutation();
 
+  // a list of the errors
+  const [listOfErrors, setListOfErrors] = useState([]);
+
+  // disable button if password isn't validated
+  const [show, setShow] = useState(true);
+
   // credentials
   const [formState, setFormState] = React.useState({
     first_name: '',
@@ -35,10 +42,41 @@ export default function SignUp() {
     password2: '',
     notes: '',
   });
+
   const handleChange = ({ target: { name, value } }) => (
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
 
+  // list of password validators (ex: password is too short, no numbers, no special characters ...)
+  const [passwordStrength] = usePasswordStrengthMutation();
+
+  useEffect(() => {
+    async function fetchData() {
+      const data = await passwordStrength({
+        password1: formState.password1,
+        password2: formState.password2,
+      }).unwrap();
+      return data;
+    }
+
+    const fetchDataAndProcess = async () => {
+      const data = await fetchData();
+
+      if (data && data.length !== 0) {
+        const newListOfErrors = data.map((error) => (
+          <ul key={error} className="passwordStrength">
+            <li key={error}>{error}</li>
+          </ul>
+        ));
+        setListOfErrors(newListOfErrors);
+        setShow(true);
+      } else {
+        setListOfErrors([]);
+        setShow(false);
+      }
+    };
+    fetchDataAndProcess();
+  }, [formState.password1, formState.password2]);
   return (
     <div>
       <Container maxWidth="md">
@@ -52,7 +90,7 @@ export default function SignUp() {
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon titleAccess="admin only"/>
+            <LockOutlinedIcon titleAccess="admin only" />
 
           </Avatar>
 
@@ -148,6 +186,11 @@ export default function SignUp() {
                   onChange={handleChange}
                 />
               </Grid>
+
+              {/* list the errors */}
+              {listOfErrors}
+
+              {/* Notes */}
               <Grid item xs={12}>
                 <TextField
                   required
@@ -160,12 +203,15 @@ export default function SignUp() {
                   onChange={handleChange}
                 />
               </Grid>
+
             </Grid>
+
+            {/* SignUp Button */}
             <Button
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={isLoading}
+              disabled={isLoading || show}
               onClick={async () => {
                 try {
                   // creating user

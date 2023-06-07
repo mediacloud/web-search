@@ -23,15 +23,6 @@ export default function Search({ queryIndex }) {
 
   return (
     <div className="search-container">
-      {/* <div className="container">
-        <div className="row">
-          <div className="col">
-
-            <PlatformPicker queryIndex={queryIndex} />
-          </div>
-        </div>
-      </div> */}
-
       <div className="container">
         {advanced && (
         <AdvancedSearch queryIndex={queryIndex} />

@@ -17,7 +17,7 @@ import {
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareLanguageData from '../util/prepareLanguageData';
-import queryTitle from '../util/queryTitle';
+import tabTitle from '../util/tabTitle';
 
 export default function TopLanguages() {
   const queryState = useSelector((state) => state.query);
@@ -28,6 +28,7 @@ export default function TopLanguages() {
   } = queryState[0];
 
   const [dispatchQuery, { isLoading, data, error }] = useGetTopLanguagesMutation();
+  const [newQuery, setNewQuery] = useState(false);
 
   const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
@@ -39,11 +40,21 @@ export default function TopLanguages() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState) || queryState.length === 1) {
+    if (checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
+  }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
+    }
   }, [lastSearchTime, queryState.length]);
+
+  if (newQuery) return null;
 
   if (isLoading) {
     return (<div><CircularProgress size="75px" /></div>);
@@ -61,7 +72,7 @@ export default function TopLanguages() {
       </Alert>
     );
   } else {
-    const queryTitleArrays = queryState.map((query, index) => queryTitle(queryState, index));
+    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
     content = (
       <>
         <div className="container">
@@ -69,7 +80,12 @@ export default function TopLanguages() {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {prepareLanguageData(data).map((result, i) => (
-                  <Tab label={queryTitleArrays[i]} {...a11yProps(i)} />
+                  <Tab
+                    key={queryTitleArrays[i]}
+                    label={queryTitleArrays[i]}
+                    id={`simple-tab-${i}`}
+                    aria-controls={`simple-tabpanel-${i}`}
+                  />
                 ))}
               </Tabs>
             </Box>
@@ -114,7 +130,7 @@ export default function TopLanguages() {
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            This is an <i>experimental</i>
+            This is an<i> experimental </i>
             sample-based list of the top languages of content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
@@ -143,11 +159,4 @@ export default function TopLanguages() {
       </div>
     </div>
   );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }

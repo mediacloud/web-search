@@ -13,7 +13,7 @@ import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
-import queryTitle from '../util/queryTitle';
+import tabTitle from '../util/tabTitle';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -41,12 +41,21 @@ export default function CountOverTimeResults() {
 
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
+  const [newQuery, setNewQuery] = useState(false);
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState) || queryState.length === 1) {
+    if (checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
+    }
+  }, [lastSearchTime]);
+
+  useEffect(() => {
+    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+      setNewQuery(true);
+    } else {
+      setNewQuery(false);
     }
   }, [lastSearchTime, queryState.length]);
 
@@ -56,6 +65,7 @@ export default function CountOverTimeResults() {
     }
   }, [data, error]);
 
+  if (newQuery) return null;
   let content;
 
   if (isLoading) {
@@ -77,14 +87,14 @@ export default function CountOverTimeResults() {
   } else {
     const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
       (originalDataObj, index) => {
-        const queryTitleForPreparation = { name: `query: ${queryTitle(queryState, index)}` };
+        const queryTitleForPreparation = { name: tabTitle(queryState, index) };
         return { ...queryTitleForPreparation, ...originalDataObj };
       },
     );
     content = (
       <>
         <CountOverTimeChart
-          data={updatedPrepareCountOverTimeData}
+          series={updatedPrepareCountOverTimeData}
           normalized={normalized}
         />
         <div className="clearfix">

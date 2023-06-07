@@ -46,7 +46,7 @@ export default function ResetPassword() {
         >
 
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon titleAccess="admin only"/>
+            <LockOutlinedIcon titleAccess="admin only" />
           </Avatar>
 
           <Typography component="h1" variant="h5">

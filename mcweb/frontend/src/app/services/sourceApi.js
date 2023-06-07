@@ -22,6 +22,12 @@ export const sourceApi = managerApi.injectEndpoints({
           ? [...results.map(({ id }) => ({ type: 'Source', id }))] : ['Source']
       ),
     }),
+    listSourcesFromArray: builder.query({
+      query: (params) => ({
+        url: `sources/sources-from-list/?s=${params}`,
+        method: 'GET',
+      }),
+    }),
     createSource: builder.mutation({
       query: (source) => ({
         url: 'sources/',
@@ -79,6 +85,7 @@ export const {
   useGetSourceQuery,
   useListSourcesQuery,
   useLazyListSourcesQuery,
+  useListSourcesFromArrayQuery,
   useCreateSourceMutation,
   useUpdateSourceMutation,
   useDeleteSourceMutation,

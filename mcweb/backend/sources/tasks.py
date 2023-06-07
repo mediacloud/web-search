@@ -31,6 +31,10 @@ from util.send_emails import send_alert_email
 #rss fetcher
 from .rss_fetcher_api import RssFetcherApi
 
+ALERT_LOW = 'alert_low'
+GOOD = 'good'
+ALERT_HIGH = 'alert_high'
+
 
 SCRAPE_TIMEOUT_SECONDS = 120
 
@@ -140,28 +144,57 @@ def _alert_system(collection_ids):
         # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
           
             email=""
-            alert_count = 0
+            no_stories_alert = 0
+            low_stories_alert = 0
+            high_stories_alert = 0
             for source in sources:
                 stories_fetched = rss.source_stories_fetched_by_day(source.id) 
                 # print(stories_fetched)
-                counts = [d['count'] for d in stories_fetched]  # extract the count values
+                counts = [d['stories'] for d in stories_fetched]  # extract the count values
+                if not counts:
+                    email += f"\n Source {source.id}: {source.name} is NOT FETCHING STORIES, please check the feeds \n"
+                    no_stories_alert += 1
+                    continue
                 mean = np.mean(counts) 
                 std_dev = np.std(counts)
-
+                
+                last_7_days_data = stories_fetched[-7:]
+                seven_day_counts = [d['stories'] for d in last_7_days_data]
+                mean_last_week = np.mean(seven_day_counts)
                 sum_count_week = _calculate_stories_last_week(stories_fetched)  #calculate the last seven days of stories
                 Source.update_stories_per_week(source.id, sum_count_week) 
+
+                alert_status = _classify_alert(mean, mean_last_week, std_dev)
+
+                if alert_status == ALERT_LOW:
+                    email += f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n"
+                    low_stories_alert += 1
+                elif alert_status == ALERT_HIGH:
+                    email += f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n"
+                    high_stories_alert += 1
+                else: 
+                    logger.info(f"=====Source {source.name} is ingesting at regular levels")
                 # stories_published = rss.source_stories_published_by_day(source.id)
                 # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
                 # std_dev_published = np.std(counts_published)  
 
-                if (std_dev * 3) < mean:
-                    email += f"Source {source.id}: {source.name} has a story/day average of {mean} over the last 30 days, which is more than three standard deviations (single standard_deviation: {std_dev}) above the mean \n"
-                    alert_count += 1
-            
             if(email):
-                email += f"total alert count = {alert_count} \n"
+                email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
+                email += f"HIGH ingestion alert count = {high_stories_alert} \n"
+                email += f"LOW ingestion alert count = {low_stories_alert} \n"
                 send_alert_email(email)
+
+def _classify_alert(month_mean, week_mean, std_dev):
+    range = std_dev * 2
+    lower = month_mean - range
+    upper = month_mean + range 
+    if week_mean < lower:
+        return ALERT_LOW
+    elif week_mean > upper:
+        return ALERT_HIGH
+    elif week_mean > lower and week_mean < upper:
+        return GOOD
 
 def update_stories_per_week():
     user = User.objects.get(username='e.leon@northeastern.edu')
@@ -191,7 +224,7 @@ def _calculate_stories_last_week(stories_fetched):
     helper to calculate update stories per week count by fetching last 7 days count from stories_fetched
     """
     last_7_days_data = stories_fetched[-7:]
-    sum_count = sum(day_data['count'] for day_data in last_7_days_data)
+    sum_count = sum(day_data['stories'] for day_data in last_7_days_data)
     return sum_count
 
 def _return_task(task):

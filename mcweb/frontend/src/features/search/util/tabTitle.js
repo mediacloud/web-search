@@ -11,8 +11,8 @@ const tabTitle = (queryState, queryIndex) => {
 
   if (title === '*') {
     return `Query ${queryIndex + 1}`;
-  } if (title.length > 35) {
-    return `${title.substring(0, 35)} ...`;
+  } if (title.length > 30) {
+    return `${title.substring(0, 30)} ...`;
   }
   return title;
 };
