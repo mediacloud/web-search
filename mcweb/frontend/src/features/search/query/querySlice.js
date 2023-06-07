@@ -19,6 +19,8 @@ const cleanQuery = (platform) => ({
   sources: [],
   previewSources: [],
   lastSearchTime: dayjs().unix(),
+  isFromDateValid: true,
+  isToDateValid: true,
   anyAll: 'any',
   advanced: false,
 });
@@ -39,6 +41,8 @@ const querySlice = createSlice({
         sources: [],
         previewSources: [],
         lastSearchTime: dayjs().unix(),
+        isFromDateValid: true,
+        isToDateValid: true,
         anyAll: 'any',
         advanced: false,
       },
@@ -142,6 +146,8 @@ const querySlice = createSlice({
           sources: [],
           previewSources: [],
           lastSearchTime: dayjs().unix(),
+          isFromDateValid: true,
+          isToDateValid: true,
           anyAll: 'any',
           advanced: false,
         },
@@ -161,6 +167,7 @@ const querySlice = createSlice({
         copyQs.lastSearchTime = payload;
       });
     },
+
     removeQuery: (state, { payload }) => {
       const freezeState = state;
       if (payload === 0 && freezeState.length === 1) {
