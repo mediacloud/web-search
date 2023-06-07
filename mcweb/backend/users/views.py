@@ -231,7 +231,7 @@ def register(request):
         data = json.dumps({'message': "new user created"})
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
-        print(e)
+        logger.exception(e)
         data = json.dumps({'message': str(e)})
         return HttpResponse(data, content_type='application/json', status=400)
 
@@ -286,7 +286,6 @@ def _serialized_current_user(request) -> str:
     # pull in the user token too
     Token = apps.get_model('authtoken', 'Token')
     token = Token.objects.get(user=current_user)
-    print(token)
     data['token'] = token.key
     # return it nicely
     camelcase_data = humps.camelize(data)
