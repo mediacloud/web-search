@@ -88,5 +88,5 @@ export const {
   useResetPasswordMutation,
   useDeleteUserMutation,
   usePasswordStrengthMutation,
-  useResetTokenMutation
+  useResetTokenMutation,
 } = api;
