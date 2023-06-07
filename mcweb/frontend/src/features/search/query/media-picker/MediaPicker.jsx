@@ -21,6 +21,17 @@ export default function MediaPicker({ queryIndex }) {
   const dispatch = useDispatch();
   const { previewCollections, previewSources, platform } = useSelector((state) => state.query[queryIndex]);
   const [open, setOpen] = useState(false);
+  const addType = (pS, pC) => {
+    const sourceTypes = pS.map((s) => ({
+      id: s,
+      type: 'source',
+    }));
+    const collectionTypes = pC.map((c) => ({
+      id: c,
+      type: 'collection',
+    }));
+    return [...sourceTypes, ...collectionTypes];
+  };
 
   return (
     <div className="media-picker">
@@ -62,12 +73,13 @@ export default function MediaPicker({ queryIndex }) {
                   collections={previewCollections}
                   sources={previewSources}
                   queryIndex={queryIndex}
+                  preview
                 />
                 <Button
                   variant="contained"
                   onClick={() => {
                     setOpen(false);
-                    dispatch(addSelectedMedia({ sourceOrCollection: [...previewCollections, ...previewSources], queryIndex }));
+                    dispatch(addSelectedMedia({ sourceOrCollection: addType(previewSources, previewCollections), queryIndex }));
                   }}
                 >
                   Confirm
