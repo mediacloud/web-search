@@ -63,9 +63,13 @@ const urlSerializer = (queryState) => {
   });
 
   if (adv[0]) {
-    return `qs=${encode(queryStrings)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
+    return `qs=${encode(queryStrings)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}`
+    + `&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
   }
-  return `q=${encode(queries)}&nq=${encode(negatedQueries)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
+
+  return `q=${encode(queries)}&nq=${encode(negatedQueries)}&start=${encode(starts)}`
+  + `&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}`
+  + `&cs=${encode(collectionArr)}&any=${encode(anys)}`;
 };
 
 export default urlSerializer;

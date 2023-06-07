@@ -15,7 +15,6 @@ import { useNavigate, Link } from 'react-router-dom';
 import { CsrfToken, saveCsrfToken } from '../../services/csrfToken';
 import { useRegisterMutation, useLoginMutation, usePasswordStrengthMutation } from '../../app/services/authApi';
 import { setCredentials } from './authSlice';
-import { ConnectingAirportsOutlined } from '@mui/icons-material';
 
 export default function SignUp() {
   const dispatch = useDispatch();

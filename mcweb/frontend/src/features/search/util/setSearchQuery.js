@@ -71,7 +71,17 @@ const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
 ));
 
-const setState = (queries, negatedQueries, queryStrings, startDates, endDates, platforms, media, anyAlls, dispatch) => {
+const setState = (
+  queries,
+  negatedQueries,
+  queryStrings,
+  startDates,
+  endDates,
+  platforms,
+  media,
+  anyAlls,
+  dispatch,
+) => {
   if (!queries) {
     queryStrings.forEach((queryString, i) => {
       if (i === 0) {

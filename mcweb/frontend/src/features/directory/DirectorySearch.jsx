@@ -15,7 +15,7 @@ const MIN_POLL_MILLISECS = 500; // throttle requests
 const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 // @see https://mui.com/material-ui/react-autocomplete/#load-on-open
-export default function DirectorySearch({ searchCollections, searchSources, onSelected }) {
+export default function DirectorySearch({ onSelected }) {
   const [lastRequestTime, setLastRequestTime] = React.useState(0);
   const [open, setOpen] = React.useState(false);
   const [collectionOptions, setCollectionOptions] = React.useState([]);

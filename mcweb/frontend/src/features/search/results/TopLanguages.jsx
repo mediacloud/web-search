@@ -80,7 +80,12 @@ export default function TopLanguages() {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {prepareLanguageData(data).map((result, i) => (
-                  <Tab label={queryTitleArrays[i]} {...a11yProps(i)} />
+                  <Tab
+                    key={queryTitleArrays[i]}
+                    label={queryTitleArrays[i]}
+                    id={`simple-tab-${i}`}
+                    aria-controls={`simple-tabpanel-${i}`}
+                  />
                 ))}
               </Tabs>
             </Box>
@@ -154,11 +159,4 @@ export default function TopLanguages() {
       </div>
     </div>
   );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import TextField from '@mui/material/TextField';
@@ -96,7 +96,7 @@ function ModifyFeed() {
   useEffect(() => {
     if (sourceSearchResults) {
       const existingOptionIds = sourceOptions
-        .filter((o) => o.type == 'source')
+        .filter((o) => o.type === 'source')
         .map((o) => o.id);
       const newOptions = sourceSearchResults.results.filter(
         (s) => !existingOptionIds.includes(s.id),
@@ -183,19 +183,18 @@ function ModifyFeed() {
             defaultValue={sourceData || null}
             loading={somethingIsFetching}
             onChange={defaultSelectionHandler}
-            renderInput={(params) => (
+            renderInput={(inputParams) => (
               <TextField
-                {...params}
                 label="Parent Source"
                 disabled={somethingIsFetching}
                 InputProps={{
-                  ...params.InputProps,
+                  ...inputParams.InputProps,
                   endAdornment: (
                     <>
                       {somethingIsFetching ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
-                      {params.InputProps.endAdornment}
+                      {inputParams.InputProps.endAdornment}
                     </>
                   ),
                 }}

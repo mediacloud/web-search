@@ -82,9 +82,14 @@ export default function TopWords() {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {data.words.map((result, i) => (
-                  <Tab key={queryTitleArrays[i]} label={queryTitleArrays[i]} {...a11yProps(i)} />
-
+                  <Tab
+                    key={queryTitleArrays[i]}
+                    label={queryTitleArrays[i]}
+                    id={`simple-tab-${i}`}
+                    aria-controls={`simple-tabpanel-${i}`}
+                  />
                 ))}
+
               </Tabs>
             </Box>
 
@@ -157,11 +162,4 @@ export default function TopWords() {
       </div>
     </div>
   );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }

@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 import Prism from 'prismjs';
 
 import {
