@@ -6,6 +6,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
+import { useSnackbar } from 'notistack';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
 import { useDeleteUserMutation, useResetTokenMutation } from '../../app/services/authApi';
 import { selectCurrentUser, setCredentials } from './authSlice';
@@ -18,6 +19,8 @@ function Account() {
   const [open, setOpen] = useState(false);
   const [deleteUser] = useDeleteUserMutation();
   const [resetToken] = useResetTokenMutation();
+  const { enqueueSnackbar } = useSnackbar();
+
   return (
     <>
       <Header>
@@ -41,9 +44,13 @@ function Account() {
             >
               <IconButton
                 onClick={async () => {
-                  const results = await resetToken(currentUser.id).unwrap();
-                  console.log(results);
-                  window.location.reload();
+                  try {
+                    await resetToken(currentUser.id).unwrap();
+                    window.location.reload();
+                    enqueueSnackbar('Token reset!', { variant: 'success' });
+                  } catch (err) {
+                    enqueueSnackbar('Token reset failed!', { variant: 'error' });
+                  }
                 }}
               >
                 <RefreshIcon />
