@@ -20,6 +20,7 @@ export default function GeographicCollectionsSearch() {
       <MediaSearchTable
         matching={formattedData}
         collection
+        isGlobalCollection
       />
     </div>
   );

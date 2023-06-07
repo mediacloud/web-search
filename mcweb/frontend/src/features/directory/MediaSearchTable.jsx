@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { asNumber } from '../ui/uiUtil';
 
 export default function MediaSearchTable({
-  matching, collection,
+  matching, collection, isGlobalCollection,
 }) {
   return (
     <table>
@@ -12,7 +12,7 @@ export default function MediaSearchTable({
         <tr>
           <th>Name</th>
           <th>Description</th>
-          {collection && (
+          {collection && !isGlobalCollection && (
             <th>Sources</th>
           )}
           {!collection && (
@@ -31,7 +31,7 @@ export default function MediaSearchTable({
               </Link>
             </td>
             <td>{collection ? c.notes : c.label}</td>
-            {collection && (
+            {collection && !isGlobalCollection && (
               <td className="numeric">{asNumber(c.source_count)}</td>
             )}
             {!collection && (
@@ -50,4 +50,5 @@ MediaSearchTable.propTypes = {
     name: PropTypes.string.isRequired,
   })).isRequired,
   collection: PropTypes.bool.isRequired,
+  isGlobalCollection: PropTypes.bool.isRequired,
 };

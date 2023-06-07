@@ -55,6 +55,7 @@ export default function CollectionSearch() {
                 <MediaSearchTable
                   matching={data.results}
                   collection
+                  isGlobalCollection={false}
                 />
               </>
             )}
