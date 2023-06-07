@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 
 const formatCollections = (collectionsArray) => collectionsArray.map((c) => (
-  `${c.id}>${c.name}`
+  c
 ));
 
 const formatSources = (sourcesArray) => sourcesArray.map((s) => (
-  `${s.id}>${s.label || s.name}`
+  s
 ));
 
 const queryListHelper = (queryList) => {
@@ -52,7 +52,6 @@ const urlSerializer = (queryState) => {
     ends.push(dayjs(endDate).format('MM-DD-YYYY'));
 
     platforms.push(platform);
-
     const collectionsFormatted = formatCollections(collections).join(',');
     collectionArr.push([encode(collectionsFormatted)]);
 

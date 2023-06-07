@@ -142,6 +142,7 @@ export default function TabbedSearch() {
                     )}
                   </div>
                 )}
+                /* eslint-disable-next-line react/jsx-props-no-spreading */
                 {...a11yProps(i)}
               />
             ))}
@@ -150,7 +151,7 @@ export default function TabbedSearch() {
         </Box>
 
         {queryState.map((query, i) => (
-          <TabPanelHelper key={i} value={value} index={i}>
+          <TabPanelHelper key={`${query}`} value={value} index={i}>
             <Search queryIndex={i} />
           </TabPanelHelper>
         ))}
