@@ -8,6 +8,9 @@
 // ui component styling
 @import '../features/ui/style/statpanel';
 
+// account styling
+@import '../features//auth//style/account';
+
 // collection styling
 @import '../features/collections/style/collection';
 @import '../features/collections/style/modify-collection';
