@@ -48,7 +48,7 @@ const combineQueryMedia = (cs, ss) => {
     mediaArr[i] = c;
   });
   ss.forEach((s, i) => {
-    mediaArr[i].push(...s);
+    mediaArr[i] = s;
   });
 
   return mediaArr;
