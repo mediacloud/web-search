@@ -25,6 +25,7 @@ import { searchApi } from '../../app/services/searchApi';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import tabTitle from './util/tabTitle';
+import createNonUniqueKey from './util/createNonUniqueKey';
 
 function a11yProps(index) {
   return {
@@ -107,7 +108,7 @@ export default function TabbedSearch() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
               <Tab
-                key={`${tabTitle(queryState, i)}`}
+                key={createNonUniqueKey(query, i)}
                 onContextMenu={
                   (event) => {
                     setValue(i);
@@ -151,7 +152,7 @@ export default function TabbedSearch() {
         </Box>
 
         {queryState.map((query, i) => (
-          <TabPanelHelper key={`${query}`} value={value} index={i}>
+          <TabPanelHelper key={createNonUniqueKey(query, i)} value={value} index={i}>
             <Search queryIndex={i} />
           </TabPanelHelper>
         ))}
@@ -205,10 +206,10 @@ export default function TabbedSearch() {
       </div>
       <div className="search-results-wrapper">
         <div className="container">
-          <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
-          <TopWords />
+          {/* <CountOverTimeResults /> */}
+          {/* <TotalAttentionResults /> */}
+          {/* <SampleStories /> */}
+          {/* <TopWords /> */}
           <TopLanguages />
         </div>
       </div>
