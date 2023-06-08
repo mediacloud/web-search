@@ -213,7 +213,6 @@ export default function TabbedSearch() {
           <TopLanguages />
         </div>
       </div>
-
     </div>
   );
 }
