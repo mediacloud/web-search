@@ -24,15 +24,12 @@ export default function prepareQueries(queryState) {
       return queryReturn;
     };
 
-    const collectionIds = collections.map((c) => c.id);
-    const sourceIds = sources.map((s) => s.id);
     return {
-
       query: fullQuery(),
       startDate,
       endDate,
-      collections: collectionIds,
-      sources: sourceIds,
+      collections,
+      sources,
       platform,
     };
   });

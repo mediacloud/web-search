@@ -9,7 +9,11 @@ function DownloadSourcesCsv({ collectionId }) {
   };
   return (
 
-    <Button variant="outlined" endIcon={<DownloadIcon titleAccess='download source information as a CSV' />} onClick={() => handleDownloadRequest()}>
+    <Button
+      variant="outlined"
+      endIcon={<DownloadIcon titleAccess="download source information as a CSV" />}
+      onClick={() => handleDownloadRequest()}
+    >
       Download Source CSV
     </Button>
   );

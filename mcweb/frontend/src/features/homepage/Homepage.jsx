@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
-import { assetUrl } from '../ui/uiUtil';
 import SearchIcon from '@mui/icons-material/Search';
+import { assetUrl } from '../ui/uiUtil';
 
 export default function Homepage() {
   return (
@@ -17,7 +17,11 @@ export default function Homepage() {
                 <br />
                 for media analysis.
               </h1>
-              <Link to="/search"><Button variant="contained" endIcon={<SearchIcon titleAccess="search online news and social media"/>}>Search Now</Button></Link>
+              <Link to="/search">
+                <Button variant="contained" endIcon={<SearchIcon titleAccess="search online news and social media" />}>
+                  Search Now
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -38,7 +42,11 @@ export default function Homepage() {
               </p>
             </div>
             <div className="col-5">
-              <img src={assetUrl('img/screenshot-search-ui.png')} alt="screenshot of online media search interface" width="100%" />
+              <img
+                src={assetUrl('img/screenshot-search-ui.png')}
+                alt="screenshot of online media search interface"
+                width="100%"
+              />
             </div>
           </div>
         </div>
@@ -79,7 +87,11 @@ export default function Homepage() {
               </p>
             </div>
             <div className="col-5">
-              <img src={assetUrl('img/mc-country-coverage.png')} alt="heatmap visualization showing countries stories ahve come from" width="100%" />
+              <img
+                src={assetUrl('img/mc-country-coverage.png')}
+                alt="heatmap visualization showing countries stories ahve come from"
+                width="100%"
+              />
             </div>
           </div>
         </div>

@@ -14,7 +14,7 @@ import {
 } from '../util/platforms';
 
 import {
-  setQueryProperty, resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS, setPlatform,
+  resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS, setPlatform,
 } from './querySlice';
 
 export default function PlatformPicker({ queryIndex }) {

@@ -89,7 +89,7 @@ function TotalAttentionResults() {
       </Alert>
     );
   } else {
-    const updatedPrepareCountOverTimeData = prepareTotalAttentionData(data, normalized).map(
+    const updatedTotalAttentionData = prepareTotalAttentionData(data, normalized).map(
       (originalDataObj, index) => {
         const queryTitleForPreparation = { name: tabTitle(queryState, index) };
         return { ...queryTitleForPreparation, ...originalDataObj };
@@ -99,7 +99,7 @@ function TotalAttentionResults() {
       <>
         <div>
           <BarChart
-            series={updatedPrepareCountOverTimeData}
+            series={updatedTotalAttentionData}
             normalized={normalized}
             title="Total Stories Count"
             height={200}

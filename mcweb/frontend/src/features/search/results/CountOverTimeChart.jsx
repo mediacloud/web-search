@@ -3,7 +3,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import PropTypes from 'prop-types';
 
-export default function CountOverTimeChart({ data, normalized }) {
+export default function CountOverTimeChart({ series, normalized }) {
   const options = {
     chart: {
       type: 'spline',
@@ -49,9 +49,12 @@ export default function CountOverTimeChart({ data, normalized }) {
     credits: {
       enabled: false,
     },
-    legend: { enabled: false },
-    colors: ['#2f2d2b', '#d24527', '#f7a44e', '#334cda', '#d23716'],
-    series: data,
+    legend: { enabled: true },
+    series: series.map((s) => ({
+      name: s.name,
+      data: s.data,
+      color: s.color,
+    })),
   };
 
   if (normalized) {
@@ -66,28 +69,34 @@ export default function CountOverTimeChart({ data, normalized }) {
 }
 
 CountOverTimeChart.propTypes = {
-  data: PropTypes.shape({
-    counts: PropTypes.shape({
-      count: PropTypes.number,
-      date: PropTypes.string,
-      ratio: PropTypes.number,
-      total_count: PropTypes.number,
+  series: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    data: PropTypes.shape({
+      counts: PropTypes.shape({
+        count: PropTypes.number,
+        date: PropTypes.string,
+        ratio: PropTypes.number,
+        total_count: PropTypes.number,
+      }),
+      normalized_total: PropTypes.number,
+      total: PropTypes.number,
     }),
-    normalized_total: PropTypes.number,
-    total: PropTypes.number,
-  }),
+    color: PropTypes.string.isRequired,
+  })),
   normalized: PropTypes.bool.isRequired,
 };
 
 CountOverTimeChart.defaultProps = {
-  data: {
-    counts: {
-      count: 0,
-      date: '',
-      ration: 0,
-      total_count: 0,
+  series: {
+    data: {
+      counts: {
+        count: 0,
+        date: '',
+        ration: 0,
+        total_count: 0,
+      },
+      normalized_total: 0,
+      total: 0,
     },
-    normalized_total: 0,
-    total: 0,
   },
 };

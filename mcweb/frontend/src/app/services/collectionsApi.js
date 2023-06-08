@@ -11,6 +11,12 @@ export const collectionsApi = managerApi.injectEndpoints({
       providesTags: ({ collections }) => (collections
         ? [...collections.map(({ id }) => ({ type: 'Collection', id }))] : ['Collection']),
     }),
+    listCollectionsFromArray: builder.query({
+      query: (params) => ({
+        url: `collections/collections-from-list/?c=${params}`,
+        method: 'GET',
+      }),
+    }),
     listCollections: builder.query({
       query: (params) => ({
         url: `collections/?${toSearchUrlParams(params)}`,
@@ -71,6 +77,7 @@ export const {
   useGetFeaturedCollectionsQuery,
   useListCollectionsQuery,
   useLazyListCollectionsQuery,
+  useListCollectionsFromArrayQuery,
   useGetCollectionQuery,
   useCreateCollectionMutation,
   useUpdateCollectionMutation,
