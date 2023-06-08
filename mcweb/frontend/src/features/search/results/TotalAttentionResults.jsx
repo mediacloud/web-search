@@ -209,26 +209,11 @@ function TotalAttentionResults() {
                   enqueueSnackbar('Downloading your data!', { variant: 'success' });
                   handleDownloadRequest(queryState);
                 } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
-                  <Modal
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box>
-                      <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Text in a modal
-                      </Typography>
-                      <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-                      </Typography>
-                    </Box>
-                  </Modal>;
-                  // sendEmail(queryState, currentUserEmail);
-                  // enqueueSnackbar(
-                  //   `An email will be sent to ${currentUserEmail} with your total attention data!`,
-                  //   { variant: 'success' },
-                  // );
+                  sendEmail(queryState, currentUserEmail);
+                  enqueueSnackbar(
+                    `An email will be sent to ${currentUserEmail} with your total attention data!`,
+                    { variant: 'success' },
+                  );
                 } else {
                   enqueueSnackbar('The size of your downloaded data is too large!', { variant: 'error' });
                 }
