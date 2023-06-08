@@ -7,6 +7,9 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import DownloadIcon from '@mui/icons-material/Download';
+import Modal from '@mui/material/Modal';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import Settings from '@mui/icons-material/Settings';
 import BarChart from './BarChart';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
@@ -201,15 +204,31 @@ function TotalAttentionResults() {
               onClick={() => {
                 const totalCountOfQuery = getTotalCountOfQuery();
                 const currentUserEmail = currentUser.email;
+                console.log(totalCountOfQuery);
                 if (totalCountOfQuery < 25000) {
                   enqueueSnackbar('Downloading your data!', { variant: 'success' });
                   handleDownloadRequest(queryState);
                 } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
-                  sendEmail(queryState, currentUserEmail);
-                  enqueueSnackbar(
-                    `An email will be sent to ${currentUserEmail} with your total attention data!`,
-                    { variant: 'success' },
-                  );
+                  <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="modal-modal-title"
+                    aria-describedby="modal-modal-description"
+                  >
+                    <Box>
+                      <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Text in a modal
+                      </Typography>
+                      <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+                      </Typography>
+                    </Box>
+                  </Modal>;
+                  // sendEmail(queryState, currentUserEmail);
+                  // enqueueSnackbar(
+                  //   `An email will be sent to ${currentUserEmail} with your total attention data!`,
+                  //   { variant: 'success' },
+                  // );
                 } else {
                   enqueueSnackbar('The size of your downloaded data is too large!', { variant: 'error' });
                 }
