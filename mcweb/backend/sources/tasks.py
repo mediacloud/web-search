@@ -152,6 +152,7 @@ def _alert_system(collection_ids):
             no_stories_alert = 0
             low_stories_alert = 0
             high_stories_alert = 0
+            fixed_source = 0
             for source in sources:
                 stories_fetched = rss.source_stories_fetched_by_day(source.id) 
                 # print(stories_fetched)
@@ -159,6 +160,7 @@ def _alert_system(collection_ids):
                 if not counts:
                     # email += f"\n Source {source.id}: {source.name} is NOT FETCHING STORIES, please check the feeds \n"
                     no_stories_alert += 1
+                    source.alerted = True
                     continue
                 mean = np.mean(counts) 
                 std_dev = np.std(counts)
@@ -175,21 +177,29 @@ def _alert_system(collection_ids):
                     alert_dict["low"].append(f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n")
                     email += f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n"
                     low_stories_alert += 1
+                    source.alerted = True
                 elif alert_status == ALERT_HIGH:
                     alert_dict["high"].append(f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n")
                     email += f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n"
                     high_stories_alert += 1
-                else: 
+                    source.alerted = True
+                else:
+                    if source.alerted:
+                         alert_dict["fixed"].append(f"Source {source.id}: {source.name} was alerting before and is now fixed \n")
+                         fixed_source += 1
+                         source.alerted = False
                     logger.info(f"=====Source {source.name} is ingesting at regular levels")
                 # stories_published = rss.source_stories_published_by_day(source.id)
                 # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
-                # std_dev_published = np.std(counts_published)  
+                # std_dev_published = np.std(counts_published)
+                source.save()  
             print(alert_dict)
             if(email):
                 # email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
                 email += f"HIGH ingestion alert count = {high_stories_alert} \n"
                 email += f"LOW ingestion alert count = {low_stories_alert} \n"
+                email += f"FIXED source count = {fixed_source} \n"
                 send_alert_email(alert_dict)
 
 def _classify_alert(month_mean, week_mean, std_dev):
