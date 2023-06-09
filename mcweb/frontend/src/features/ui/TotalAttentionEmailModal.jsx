@@ -5,8 +5,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import { TextField } from '@mui/material';
