@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import DownloadIcon from '@mui/icons-material/Download';
+import TextField from '@mui/material/TextField';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -44,6 +45,27 @@ function TotalAttentionResults() {
   const [normalized, setNormalized] = useState(true);
 
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalEmail, setModalEmail] = useState(false);
+
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
+  const handleSendClick = () => {
+    // TODO: Handle sending CSV to the provided email
+    console.log('Sending CSV to:', email);
+    handleModalClose();
+  };
 
   const handleClick = (e) => setAnchorEl(e.currentTarget);
 
@@ -201,27 +223,54 @@ function TotalAttentionResults() {
             <Button
               variant="text"
               endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
-              onClick={() => {
-                const totalCountOfQuery = getTotalCountOfQuery();
-                const currentUserEmail = currentUser.email;
-                console.log(totalCountOfQuery);
-                if (totalCountOfQuery < 25000) {
-                  enqueueSnackbar('Downloading your data!', { variant: 'success' });
-                  handleDownloadRequest(queryState);
-                } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
-                  sendEmail(queryState, currentUserEmail);
-                  enqueueSnackbar(
-                    `An email will be sent to ${currentUserEmail} with your total attention data!`,
-                    { variant: 'success' },
-                  );
-                } else {
-                  enqueueSnackbar('The size of your downloaded data is too large!', { variant: 'error' });
-                }
-              }}
+              onClick={handleModalOpen}
+            //   const totalCountOfQuery = getTotalCountOfQuery();
+            //   const currentUserEmail = currentUser.email;
+            //   console.log(totalCountOfQuery);
+            //   if (currentUserEmail) {
+            //     if (totalCountOfQuery < 25000) {
+            //       enqueueSnackbar('Downloading your data!', { variant: 'success' });
+            //       handleDownloadRequest(queryState);
+            //     } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
+            //       sendEmail(queryState, currentUserEmail);
+            //       enqueueSnackbar(
+            //         `An email will be sent to ${currentUserEmail} with your total attention data!`,
+            //         { variant: 'success' },
+            //       );
+            //     } else {
+            //       enqueueSnackbar('The size of your downloaded data is too large!', { variant: 'error' });
+            //     }
+            //   } else {
+            //     enqueueSnackbar('You do not have an email!', { variant: 'error' });
+            //   }
+            // }}
             >
               Download CSV of All Content
             </Button>
+            <Modal open={modalOpen} onClose={handleModalClose}>
+              <div className="modal">
+                <h2>Email Confirmation</h2>
+                <p>
+                  You are currently using this email:
+                  {' '}
+                  {currentUser.email}
+                </p>
+                <p>Do you want to use this email or send the CSV to another email?</p>
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={modalEmail}
+                  onChange={handleEmailChange}
+                  fullWidth
+                  margin="normal"
+                />
+                <Button variant="contained" onClick={handleSendClick}>
+                  Send CSV
+                </Button>
+              </div>
+            </Modal>
           </div>
+
         </div>
       </>
     );
