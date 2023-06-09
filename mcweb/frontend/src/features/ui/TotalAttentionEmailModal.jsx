@@ -8,6 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import { TextField } from '@mui/material';
+import { current } from '@reduxjs/toolkit';
 import prepareQueries from '../search/util/prepareQueries';
 
 export default function TotalAttentionEmailModal({
@@ -49,6 +50,9 @@ export default function TotalAttentionEmailModal({
     if (totalCountOfQuery < 25000) {
       enqueueSnackbar('Downloading your data!', { variant: 'success' });
       handleDownloadRequest(queryState);
+    } else if (!currentUserEmail) {
+      enqueueSnackbar('You do not have an email registered, please input an email', { variant: 'error' });
+      setOpen(true);
     } else {
       setOpen(true);
     }
