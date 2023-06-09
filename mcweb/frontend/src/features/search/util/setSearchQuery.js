@@ -45,10 +45,14 @@ const sizeQuery = (queryArray) => queryArray.map((query) => {
 const combineQueryMedia = (cs, ss) => {
   const mediaArr = new Array(cs.length);
   cs.forEach((c, i) => {
-    mediaArr[i] = c;
+    if (c[0].id !== 0) {
+      mediaArr[i] = c;
+    }
   });
   ss.forEach((s, i) => {
-    mediaArr[i] = s;
+    if (s[0].id !== 0) {
+      mediaArr[i] = s;
+    }
   });
 
   return mediaArr;
@@ -56,12 +60,19 @@ const combineQueryMedia = (cs, ss) => {
 
 const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
   const returnArr = new Array(mediaArray.length);
-
   mediaArray.forEach((queryCorpus, i) => {
     const decoded = handleDecode([queryCorpus]);
-    const numbered = decoded.map((collectionId) => ({
-      id: Number(collectionId), type: collectionBool ? 'collection' : 'source',
-    }));
+    const numbered = decoded.map((collectionId) => {
+      let numberId = Number(collectionId);
+
+      if (Number.isNaN(numberId)) {
+        const [id] = collectionId.split('>');
+        numberId = Number(id);
+      }
+      return {
+        id: numberId, type: collectionBool ? 'collection' : 'source',
+      };
+    });
     returnArr[i] = numbered;
   });
   return returnArr;
