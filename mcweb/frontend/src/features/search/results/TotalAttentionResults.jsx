@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useSnackbar } from 'notistack';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import DownloadIcon from '@mui/icons-material/Download';
-import TextField from '@mui/material/TextField';
-import Modal from '@mui/material/Modal';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import Settings from '@mui/icons-material/Settings';
+import TotalAttentionEmailModal from '../../ui/TotalAttentionEmailModal';
 import BarChart from './BarChart';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
@@ -32,10 +27,10 @@ export const supportsNormalizedCount = (platform) =>
 function TotalAttentionResults() {
   const queryState = useSelector((state) => state.query);
 
+  const [openModal, setModalOpen] = useState(false);
+
   // fetch currentUser to access email if their downloaded csv needs to be emailed
   const currentUser = useSelector(selectCurrentUser);
-
-  const { enqueueSnackbar } = useSnackbar();
 
   const {
     platform,
@@ -46,27 +41,6 @@ function TotalAttentionResults() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalEmail, setModalEmail] = useState(false);
-
-  const handleModalOpen = () => {
-    setModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setModalOpen(false);
-  };
-
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-  };
-
-  const handleSendClick = () => {
-    // TODO: Handle sending CSV to the provided email
-    console.log('Sending CSV to:', email);
-    handleModalClose();
-  };
-
   const handleClick = (e) => setAnchorEl(e.currentTarget);
 
   const handleClose = () => setAnchorEl(null);
@@ -75,27 +49,7 @@ function TotalAttentionResults() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetTotalCountMutation();
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
-
-  const sendEmail = (qs, email) => {
-    const prepareQuery = prepareQueries(qs);
-    fetch('/api/search/send-email-large-download-csv', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Csrftoken': window.CSRF_TOKEN,
-      },
-      body: JSON.stringify({ prepareQuery, email }),
-    })
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  const currentUserEmail = currentUser.email;
 
   // gets total count of entire query
   // I'm assuming each query's data is put into one csv file
@@ -220,57 +174,23 @@ function TotalAttentionResults() {
         </div>
         <div className="clearfix">
           <div className="float-end">
-            <Button
-              variant="text"
-              endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
-              onClick={handleModalOpen}
-            //   const totalCountOfQuery = getTotalCountOfQuery();
-            //   const currentUserEmail = currentUser.email;
-            //   console.log(totalCountOfQuery);
-            //   if (currentUserEmail) {
-            //     if (totalCountOfQuery < 25000) {
-            //       enqueueSnackbar('Downloading your data!', { variant: 'success' });
-            //       handleDownloadRequest(queryState);
-            //     } else if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
-            //       sendEmail(queryState, currentUserEmail);
-            //       enqueueSnackbar(
-            //         `An email will be sent to ${currentUserEmail} with your total attention data!`,
-            //         { variant: 'success' },
-            //       );
-            //     } else {
-            //       enqueueSnackbar('The size of your downloaded data is too large!', { variant: 'error' });
-            //     }
-            //   } else {
-            //     enqueueSnackbar('You do not have an email!', { variant: 'error' });
-            //   }
-            // }}
-            >
-              Download CSV of All Content
-            </Button>
-            <Modal open={modalOpen} onClose={handleModalClose}>
-              <div className="modal">
-                <h2>Email Confirmation</h2>
-                <p>
-                  You are currently using this email:
-                  {' '}
-                  {currentUser.email}
-                </p>
-                <p>Do you want to use this email or send the CSV to another email?</p>
-                <TextField
-                  label="Email"
-                  type="email"
-                  value={modalEmail}
-                  onChange={handleEmailChange}
-                  fullWidth
-                  margin="normal"
-                />
-                <Button variant="contained" onClick={handleSendClick}>
-                  Send CSV
-                </Button>
-              </div>
-            </Modal>
+            <div>
+              <TotalAttentionEmailModal
+                outsideTitle="Download CSV of All Content"
+                title={`Your current email is: ${currentUserEmail}. Would you like to send your downloaded data to a new email?`}
+                content="Enter a new email?"
+                dispatchNeeded={false}
+                navigateTo="/"
+                onClick={() => setModalOpen(true)}
+                openDialog={openModal}
+                variant="outlined"
+                confirmButtonText="Confirm"
+                currentUserEmail={currentUserEmail}
+                totalCountOfQuery={getTotalCountOfQuery()}
+                queryState={queryState}
+              />
+            </div>
           </div>
-
         </div>
       </>
     );
