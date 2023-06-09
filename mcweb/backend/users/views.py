@@ -16,6 +16,9 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile
+import os
+import bcrypt
+from django.shortcuts import get_object_or_404
 
 
 logger = logging.getLogger(__name__)
@@ -267,3 +270,71 @@ def _serialized_current_user(request) -> str:
     # return it nicely
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
+
+@require_http_methods(["POST", "GET", "DELETE", "PUT"])
+def user_secrets(request, secret_id=None):
+    if request.method == 'GET':
+        if secret_id is not None:
+            # Retrieve a specific UserSecrets instance
+            user_secret = get_object_or_404(UserSecrets, pk=secret_id)
+            data =  json.dumps({
+                'user': user_secret.user.id,
+                'key': user_secret.key,
+                'value': user_secret.value,
+                'created_at': user_secret.created_at,
+                'modified_at': user_secret.modified_at
+            })
+            return HttpResponse(data, content_type='application/json')
+        else:
+            # Retrieve all UserSecrets instances
+            user_secrets = UserSecrets.objects.all()
+            data =  json.dumps({
+                'user_secrets': [{
+                    'user': user_secret.user.id,
+                    'key': user_secret.key,
+                    'value': user_secret.value,
+                    'created_at': user_secret.created_at,
+                    'modified_at': user_secret.modified_at
+                } for user_secret in user_secrets]
+            })
+            return HttpResponse(data, content_type='application/json')
+
+    elif request.method == 'POST':
+        # Create a new UserSecrets instance
+        user = request.POST.get('user')
+        key = request.POST.get('key')
+        value = request.POST.get('value')
+
+        salt_value = os.getenv('SALT_VALUE')
+        hashed_value = bcrypt.hashpw(value.encode(), salt_value.encode()).decode()
+
+        user_secret = UserSecrets(user=user, key=key, value=hashed_value)
+        user_secret.save()
+
+        data =  json.dumps({'message': 'UserSecrets created successfully'})
+        return HttpResponse(data,content_type='application/json', status=201)
+
+    elif request.method == 'PUT':
+        # Update an existing UserSecrets instance
+        user_secret = get_object_or_404(UserSecrets, pk=secret_id)
+
+        key = request.POST.get('key')
+        value = request.POST.get('value')
+
+        salt_value = os.getenv('SALT_VALUE')
+        hashed_value = bcrypt.hashpw(value.encode(), salt_value.encode()).decode()
+
+        user_secret.key = key
+        user_secret.value = hashed_value
+        user_secret.save()
+
+        data =  json.dumps({'message': 'UserSecrets updated successfully'})
+        return HttpResponse(data,content_type='application/json', status=200)
+
+    elif request.method == 'DELETE':
+        # Delete an existing UserSecrets instance
+        user_secret = get_object_or_404(UserSecrets, pk=secret_id)
+        user_secret.delete()
+
+        data = json.dumps({'message': 'UserSecrets deleted successfully'})
+        return HttpResponse(data,content_type='application/json')

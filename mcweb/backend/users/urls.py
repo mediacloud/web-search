@@ -13,4 +13,6 @@ urlpatterns = [
     path('reset-password', views.reset_password),
     path('password-strength', views.password_strength),
     path('delete-user', views.delete_user),
+    path('user-secrets/', views.user_secrets, name='user_secrets'),
+    path('user-secrets/<int:secret_id>/', views.user_secrets, name='user_secrets_detail'),
 ]
