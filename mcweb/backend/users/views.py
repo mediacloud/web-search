@@ -200,12 +200,6 @@ def register(request):
             data = json.dumps({'message': "Passwords don't match"})
             return HttpResponse(data, content_type='application/json', status=403)
 
-        # verify if the email is left empty
-        if email == "":
-            logging.debug("Email is empty")
-            data = json.dumps({'message': "Email is empty"})
-            return HttpResponse(data, content_type='application/json', status=403)
-
         """"
         verifies is password passes:
          -  minimum length of the password is 10 characters
