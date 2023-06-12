@@ -124,7 +124,7 @@ export default function TotalAttentionEmailModal({
             handleClose();
           }}
           >
-            Cancel
+            Use Current Email
           </Button>
           <Button
             onClick={handleClick}
