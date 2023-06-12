@@ -43,15 +43,20 @@ const sizeQuery = (queryArray) => queryArray.map((query) => {
 });
 
 const combineQueryMedia = (cs, ss) => {
-  const mediaArr = new Array(cs.length);
+  const queryLength = cs.length === 0 ? ss.length : cs.length;
+  const mediaArr = new Array(queryLength);
+
+  if (cs.length === 0) mediaArr[0] = [];
   cs.forEach((c, i) => {
-    if (c[0].id !== 0) {
+    if (c[0].id === 0) {
+      mediaArr[i] = [];
+    } else {
       mediaArr[i] = c;
     }
   });
   ss.forEach((s, i) => {
     if (s[0].id !== 0) {
-      mediaArr[i] = s;
+      mediaArr[i].push(...s);
     }
   });
 
