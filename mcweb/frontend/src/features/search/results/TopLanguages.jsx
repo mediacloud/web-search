@@ -18,6 +18,7 @@ import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareLanguageData from '../util/prepareLanguageData';
 import tabTitle from '../util/tabTitle';
+import createNonUniqueKey from '../util/createNonUniqueKey';
 
 export default function TopLanguages() {
   const queryState = useSelector((state) => state.query);
@@ -81,7 +82,7 @@ export default function TopLanguages() {
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {prepareLanguageData(data).map((result, i) => (
                   <Tab
-                    key={queryTitleArrays[i]}
+                    key={createNonUniqueKey(result, i)}
                     label={queryTitleArrays[i]}
                     id={`simple-tab-${i}`}
                     aria-controls={`simple-tabpanel-${i}`}
@@ -91,7 +92,7 @@ export default function TopLanguages() {
             </Box>
 
             {prepareLanguageData(data).map((results, i) => (
-              <TabPanelHelper value={value} index={i}>
+              <TabPanelHelper key={createNonUniqueKey(results, i)} value={value} index={i}>
                 <BarChart
                   series={[results]}
                   normalized

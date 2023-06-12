@@ -17,6 +17,7 @@ import tabTitle from '../util/tabTitle';
 import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
 import TabPanelHelper from '../../ui/TabPanelHelper';
+import createNonUniqueKey from '../util/createNonUniqueKey';
 
 export default function TopWords() {
   const queryState = useSelector((state) => state.query);
@@ -74,7 +75,6 @@ export default function TopWords() {
     );
   } else {
     const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
-
     content = (
       <>
         <div className="container">
@@ -83,7 +83,7 @@ export default function TopWords() {
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {data.words.map((result, i) => (
                   <Tab
-                    key={queryTitleArrays[i]}
+                    key={createNonUniqueKey(result, i)}
                     label={queryTitleArrays[i]}
                     id={`simple-tab-${i}`}
                     aria-controls={`simple-tabpanel-${i}`}
@@ -94,7 +94,7 @@ export default function TopWords() {
             </Box>
 
             {data.words.map((results, i) => (
-              <TabPanelHelper value={value} index={i}>
+              <TabPanelHelper key={createNonUniqueKey(results, i)} value={value} index={i}>
                 <OrderedWordCloud width={600} color="#000" data={results} />
               </TabPanelHelper>
             ))}
