@@ -199,7 +199,7 @@ function TotalAttentionResults() {
                 onClick={() => setModalOpen(true)}
                 openDialog={openModal}
                 variant="outlined"
-                confirmButtonText="Confirm"
+                confirmButtonText="Confirm New Email"
                 currentUserEmail={currentUserEmail}
                 totalCountOfQuery={getTotalCountOfQuery()}
                 queryState={queryState}
