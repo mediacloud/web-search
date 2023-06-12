@@ -142,16 +142,8 @@ TotalAttentionEmailModal.propTypes = {
   openDialog: PropTypes.bool.isRequired,
   outsideTitle: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  // action: PropTypes.func.isRequired,
-  // actionTarget: PropTypes.oneOfType([PropTypes.object, PropTypes.bool, PropTypes.number]).isRequired,
-  // dispatchNeeded: PropTypes.bool.isRequired,
-  // snackbar: PropTypes.bool,
-  // snackbarText: PropTypes.string,
   variant: PropTypes.string,
   endIcon: PropTypes.element,
-  // navigateNeeded: PropTypes.bool,
-  // navigateTo: PropTypes.string,
-  // secondAction: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   currentUserEmail: PropTypes.string,
   totalCountOfQuery: PropTypes.number,
@@ -160,13 +152,8 @@ TotalAttentionEmailModal.propTypes = {
 };
 
 TotalAttentionEmailModal.defaultProps = {
-  // snackbar: false,
-  // snackbarText: '',
   variant: 'text',
   endIcon: null,
-  // navigateNeeded: false,
-  // navigateTo: '',
-  // secondAction: null,
   currentUserEmail: '',
   totalCountOfQuery: 0,
 
