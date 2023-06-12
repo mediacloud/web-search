@@ -189,7 +189,10 @@ function TotalAttentionResults() {
             <div>
               <TotalAttentionEmailModal
                 outsideTitle="Download CSV of All Content"
-                title={`Your current email is: ${currentUserEmail}. Would you like to send your downloaded data to a new email?`}
+                title={
+                  `Your current email is: ${currentUserEmail}. 
+                  Would you like to send your downloaded data to your current email or a new email?`
+                }
                 content="Enter a new email?"
                 dispatchNeeded={false}
                 navigateTo="/"
