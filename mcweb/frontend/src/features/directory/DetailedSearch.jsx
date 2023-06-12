@@ -14,7 +14,7 @@ export default function DetailedSearch() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="media-picker">
+    <>
       <Button variant="outlined" onClick={() => setOpen(true)}>
         Detailed Search
       </Button>
@@ -71,6 +71,6 @@ export default function DetailedSearch() {
           </Box>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
