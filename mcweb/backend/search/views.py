@@ -320,8 +320,9 @@ def download_all_content_csv(request):
 @require_http_methods(["POST"])
 def send_email_large_download_csv(request):
     # get queryState and email
-    queryState = json.loads(request.body).get("prepareQuery")
-    email = json.loads(request.body).get("email")
+    payload = json.loads(request.body)
+    queryState = payload.get('prepareQuery', None)
+    email = payload.get('email', None)
 
     # follows similiar logic from download_all_content_csv, get information and send to tasks
     for query in queryState:
