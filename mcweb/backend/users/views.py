@@ -201,10 +201,11 @@ def register(request):
             return HttpResponse(data, content_type='application/json', status=403)
 
         # verify if the email is left empty
-        if email == "":
-            logging.debug("Email is empty")
-            data = json.dumps({'message': "Email is empty"})
+        if email == "" or '@' not in email:
+            logging.debug("Email is either empty or doesn't contain an @")
+            data = json.dumps({'message': "Invalid email"})
             return HttpResponse(data, content_type='application/json', status=403)
+
 
         """"
         verifies is password passes:
