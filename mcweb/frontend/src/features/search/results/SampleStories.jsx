@@ -15,6 +15,7 @@ import prepareQueries from '../util/prepareQueries';
 import SampleStoryShow from './SampleStoryShow';
 import tabTitle from '../util/tabTitle';
 import TabPanelHelper from '../../ui/TabPanelHelper';
+import createNonUniqueKey from '../util/createNonUniqueKey';
 
 export default function SampleStories() {
   const queryState = useSelector((state) => state.query);
@@ -87,13 +88,13 @@ export default function SampleStories() {
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
               {data.sample.map((result, i) => (
-                <Tab key={queryTitleArrays[i]} label={queryTitleArrays[i]} {...a11yProps(i)} />
+                <Tab key={createNonUniqueKey(result, i)} label={queryTitleArrays[i]} {...a11yProps(i)} />
               ))}
             </Tabs>
           </Box>
 
           {data.sample.map((results, i) => (
-            <TabPanelHelper value={value} index={i}>
+            <TabPanelHelper key={createNonUniqueKey(results, i)} value={value} index={i}>
               <SampleStoryShow
                 open={open}
                 data={results}
