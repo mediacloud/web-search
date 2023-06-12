@@ -5,16 +5,18 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
-import { TextField } from '@mui/material';
-import { current } from '@reduxjs/toolkit';
 import prepareQueries from '../search/util/prepareQueries';
+import { useSendTotalAttentionDataEmailMutation } from '../../app/services/searchApi';
 
 export default function TotalAttentionEmailModal({
   openDialog, outsideTitle, title, variant, endIcon, confirmButtonText, currentUserEmail, totalCountOfQuery, queryState,
 }) {
   const { enqueueSnackbar } = useSnackbar();
+
+  const [sendTotalAttentionDataEmail] = useSendTotalAttentionDataEmailMutation();
 
   const [open, setOpen] = useState(openDialog);
   const [emailModal, setModalEmail] = useState('');
@@ -25,24 +27,6 @@ export default function TotalAttentionEmailModal({
 
   const handleDownloadRequest = (qs) => {
     window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
-
-  const sendEmail = (qs, email) => {
-    const prepareQuery = prepareQueries(qs);
-    fetch('/api/search/send-email-large-download-csv', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Csrftoken': window.CSRF_TOKEN,
-      },
-      body: JSON.stringify({ prepareQuery, email }),
-    })
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   };
 
   // download button is hit but the count is less than 25k, no need to ask for an email it will download
@@ -62,7 +46,10 @@ export default function TotalAttentionEmailModal({
   const handleClose = () => {
     if (currentUserEmail) {
       if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
-        sendEmail(queryState, currentUserEmail);
+        sendTotalAttentionDataEmail({
+          prepareQuery: prepareQueries(queryState),
+          email: currentUserEmail,
+        }).unwrap();
         enqueueSnackbar(
           `An email will be sent to ${currentUserEmail} with your total attention data!`,
           { variant: 'success' },
@@ -80,7 +67,11 @@ export default function TotalAttentionEmailModal({
   const handleClick = async () => {
     if (emailModal.email) {
       if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
-        sendEmail(queryState, emailModal.email);
+        sendTotalAttentionDataEmail({
+          prepareQuery: prepareQueries(queryState),
+          email: emailModal.email,
+        }).unwrap();
+
         enqueueSnackbar(
           `An email will be sent to ${emailModal.email} with your total attention data!`,
           { variant: 'success' },
