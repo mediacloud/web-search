@@ -19,3 +19,4 @@ urlpatterns = [
     path('download-top-languages-csv', views.download_languages_csv),
     path('send-email-large-download-csv', views.send_email_large_download_csv)
 ]
+urlpatterns += router.urls
