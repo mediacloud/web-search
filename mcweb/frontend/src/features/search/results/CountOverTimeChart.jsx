@@ -70,21 +70,33 @@ export default function CountOverTimeChart({ series, normalized }) {
 
 CountOverTimeChart.propTypes = {
   series: PropTypes.arrayOf(PropTypes.shape({
-    color: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    data: PropTypes.arrayOf(PropTypes.arrayOf(
-      PropTypes.number,
-    )),
+    data: PropTypes.shape({
+      counts: PropTypes.shape({
+        count: PropTypes.number,
+        date: PropTypes.string,
+        ratio: PropTypes.number,
+        total_count: PropTypes.number,
+      }),
+      normalized_total: PropTypes.number,
+      total: PropTypes.number,
+    }),
+    color: PropTypes.string.isRequired,
   })),
   normalized: PropTypes.bool.isRequired,
 };
 
 CountOverTimeChart.defaultProps = {
-  series: [{
-    name: '',
-    color: '',
-    data: [
-      0,
-    ],
-  }],
+  series: {
+    data: {
+      counts: {
+        count: 0,
+        date: '',
+        ration: 0,
+        total_count: 0,
+      },
+      normalized_total: 0,
+      total: 0,
+    },
+  },
 };
