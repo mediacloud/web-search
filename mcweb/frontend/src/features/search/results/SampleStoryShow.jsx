@@ -1,13 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
-import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
+import InfoMenu from '../../ui/InfoMenu';
 
 export default function SampleStoryShow({
   data, lSTP, platform, handleClick, open, handleClose, anchorEl,
@@ -28,7 +24,11 @@ export default function SampleStoryShow({
         </tr>
         {data.map((sampleStory) => (
           <tr key={`story-${sampleStory.id}`}>
-            <td><a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a></td>
+
+            <td>
+              <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
+            </td>
+
             <td>
               <img
                 className="google-icon"
@@ -37,47 +37,12 @@ export default function SampleStoryShow({
               />
               <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
             </td>
-            <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
-            {([PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform)
-          && lSTP === PROVIDER_NEWS_WAYBACK_MACHINE) && (
 
-            <td>
-              <Button
-                variant="outlined"
-                onClick={handleClick}
-                aria-controls={open ? 'basic-menu' : undefined}
-                aria-haspopup="true"
-                aria-expanded={open ? 'true' : undefined}
-                endIcon={<KeyboardArrowDownIcon />}
-              >
-                Info
-              </Button>
-              <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-              >
-                <MenuItem>
-                  <a href={sampleStory.url} target="_blank" rel="noreferrer">
-                    visit original URL
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <a href={sampleStory.archived_url} target="_blank" rel="noreferrer">
-                    visit archived content (on Wayback Machine)
-                  </a>
-                </MenuItem>
-                <MenuItem>
-                  <Link
-                    to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    view extracted content (from Wayback Machine)
-                  </Link>
-                </MenuItem>
-              </Menu>
-            </td>
+            <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+
+            {([PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform)
+              && lSTP === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+                <InfoMenu platform={platform} sampleStory={sampleStory} />
             )}
           </tr>
         ))}
