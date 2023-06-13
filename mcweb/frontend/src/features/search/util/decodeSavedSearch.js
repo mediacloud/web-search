@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import { decode, handleDecode, formatCorpus } from './setSearchQuery';
+import { decode, handleDecode, decodeAndFormatCorpus } from './setSearchQuery';
 
 const formatQuery = (queries) => {
   if (queries === null) return null;
@@ -27,24 +27,12 @@ const sizeQuery = (queryArray) => {
   return queryArray;
 };
 
-const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
-  const returnArr = [];
-  mediaArray.forEach((queryCorpus) => {
-    const decoded = handleDecode([queryCorpus]);
-    const formatted = formatCorpus(decoded, collectionBool);
-    if (formatted) {
-      returnArr.push(...formatted);
-    }
-  });
-  return returnArr;
-};
-
 const handleDateFormat = (dateString) => (
   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
 );
 
 const decodeSavedSearch = (url) => {
-  const [beginning, fullquery] = url.split('?');
+  const [, fullquery] = url.split('?');
   const parameter = url.split('?')[1].split('=')[0];
   const advanced = parameter === 'qs';
 

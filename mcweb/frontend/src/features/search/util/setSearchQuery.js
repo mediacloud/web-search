@@ -42,7 +42,7 @@ export const sizeQuery = (queryArray) => queryArray.map((query) => {
   return query;
 });
 
-const combineQueryMedia = (cs, ss) => {
+export const combineQueryMedia = (cs, ss) => {
   const queryLength = cs.length === 0 ? ss.length : cs.length;
   const mediaArr = new Array(queryLength);
 
@@ -63,7 +63,7 @@ const combineQueryMedia = (cs, ss) => {
   return mediaArr;
 };
 
-const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
+export const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
   const returnArr = new Array(mediaArray.length);
 
   mediaArray.forEach((queryCorpus, i) => {
@@ -180,4 +180,3 @@ export const setSearchQuery = (searchParams, dispatch) => {
 
   return null;
 };
-
