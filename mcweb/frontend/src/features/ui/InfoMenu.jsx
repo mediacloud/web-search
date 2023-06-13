@@ -60,7 +60,6 @@ export default function InfoMenu({ platform, sampleStory }) {
             >
               Visit original URL
             </a>
-
             <a
               href={sampleStory.archived_url}
               target="_blank"
@@ -70,7 +69,6 @@ export default function InfoMenu({ platform, sampleStory }) {
             >
               Visit archived content (on Wayback Machine)
             </a>
-
             <NavLink
               to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
               target="_blank"
