@@ -26,7 +26,6 @@ class SavedSearchesViewSet(viewsets.ModelViewSet):
         serializer = SavedSearchSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            print(serializer)
             return Response({"saved search": serializer.data})
         else:
             error_string = str(serializer.errors) 
