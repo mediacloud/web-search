@@ -5,6 +5,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import FeaturedCollections from '../collections/FeaturedCollections';
 import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 import DirectorySearch from './DirectorySearch';
+import DetailedSearch from './DetailedSearch';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 
@@ -26,6 +27,7 @@ export default function DirectoryHome() {
           <Button variant="outlined">
             <Link to="/collections/news/geographic">Browse Geographic News Collections</Link>
           </Button>
+          <DetailedSearch />
           <Permissioned role={ROLE_STAFF}>
             <>
               <Button variant="outlined" endIcon={<LockOpenIcon />}>
@@ -40,6 +42,7 @@ export default function DirectoryHome() {
         <div className="col-5 float-right">
           <DirectorySearch />
         </div>
+
       </ControlBar>
       <div className="container">
         <FeaturedCollections />

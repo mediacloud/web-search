@@ -1,20 +1,16 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { CircularProgress } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import MediaPickerSelectionTable from './MediaPickerSelectionTable';
-import { useLazyListSourcesQuery } from '../../../../app/services/sourceApi';
-import { addPreviewSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
+import MediaSearchTable from './MediaSearchTable';
+import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
 
-export default function SourceSearchPicker({ platform, queryIndex }) {
+export default function SourceSearch() {
   const [query, setQuery] = useState('');
   const [trigger, {
     isLoading, data,
   }] = useLazyListSourcesQuery();
-  const { previewSources } = useSelector((state) => state.query[queryIndex]);
 
   return (
     <div className="collection-search-picker-container">
@@ -31,13 +27,13 @@ export default function SourceSearchPicker({ platform, queryIndex }) {
               onChange={(e) => setQuery(e.target.value)}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
-                  trigger({ platform, name: query });
+                  trigger({ name: query });
                 }
               }}
             />
           </div>
           <div className="col-6">
-            <Button size="large" variant="contained" onClick={() => trigger({ platform, name: query })}>
+            <Button size="large" variant="contained" onClick={() => trigger({ name: query })}>
               Search
             </Button>
           </div>
@@ -57,13 +53,10 @@ export default function SourceSearchPicker({ platform, queryIndex }) {
                 {query}
                 &quot;
               </p>
-              <MediaPickerSelectionTable
-                selected={previewSources}
+              <MediaSearchTable
                 matching={data.results}
-                onAdd={addPreviewSelectedMedia}
-                onRemove={removePreviewSelectedMedia}
                 collection={false}
-                queryIndex={queryIndex}
+                isGlobalCollection={false}
               />
             </>
             )}
@@ -74,8 +67,3 @@ export default function SourceSearchPicker({ platform, queryIndex }) {
     </div>
   );
 }
-
-SourceSearchPicker.propTypes = {
-  platform: PropTypes.string.isRequired,
-  queryIndex: PropTypes.number.isRequired,
-};

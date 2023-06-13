@@ -5,8 +5,8 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import DownloadIcon from '@mui/icons-material/Download';
 import Settings from '@mui/icons-material/Settings';
+import TotalAttentionEmailModal from '../../ui/TotalAttentionEmailModal';
 import BarChart from './BarChart';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
@@ -14,6 +14,7 @@ import {
   PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
+import { selectCurrentUser } from '../../auth/authSlice';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import tabTitle from '../util/tabTitle';
@@ -25,6 +26,11 @@ export const supportsNormalizedCount = (platform) =>
 
 function TotalAttentionResults() {
   const queryState = useSelector((state) => state.query);
+
+  const [openModal, setModalOpen] = useState(false);
+
+  // fetch currentUser to access email if their downloaded csv needs to be emailed
+  const currentUser = useSelector(selectCurrentUser);
 
   const {
     platform,
@@ -45,8 +51,21 @@ function TotalAttentionResults() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetTotalCountMutation();
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  const currentUserEmail = currentUser.email;
+
+  // gets total count of entire query
+  // I'm assuming each query's data is put into one csv file
+  // my question: https://stackoverflow.com/questions/29615196/is-csv-with-multi-tabs-sheet-possible
+  // in the case that there is only one csv we have to make sure the count of all csv don't exceed our limits
+  const getTotalCountOfQuery = () => {
+    const arrayOfCounts = data.count.relevant;
+    // gets total count of query
+    let count = 0;
+    for (let i = 0; i < arrayOfCounts.length; i += 1) {
+      count += arrayOfCounts[i];
+    }
+
+    return count;
   };
 
   useEffect(() => {
@@ -89,7 +108,7 @@ function TotalAttentionResults() {
       </Alert>
     );
   } else {
-    const updatedPrepareCountOverTimeData = prepareTotalAttentionData(data, normalized).map(
+    const updatedTotalAttentionData = prepareTotalAttentionData(data, normalized).map(
       (originalDataObj, index) => {
         const queryTitleForPreparation = { name: tabTitle(queryState, index) };
         return { ...queryTitleForPreparation, ...originalDataObj };
@@ -99,7 +118,7 @@ function TotalAttentionResults() {
       <>
         <div>
           <BarChart
-            series={updatedPrepareCountOverTimeData}
+            series={updatedTotalAttentionData}
             normalized={normalized}
             title="Total Stories Count"
             height={200}
@@ -167,15 +186,25 @@ function TotalAttentionResults() {
         </div>
         <div className="clearfix">
           <div className="float-end">
-            <Button
-              variant="text"
-              endIcon={<DownloadIcon titleAccess="download a CSV of all matching content" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV of All Content
-            </Button>
+            <div>
+              <TotalAttentionEmailModal
+                outsideTitle="Download CSV of All Content"
+                title={
+                  `Your current email is: ${currentUserEmail}. 
+                  Would you like to send your downloaded data to your current email or a new email?`
+                }
+                content="Enter a new email?"
+                dispatchNeeded={false}
+                navigateTo="/"
+                onClick={() => setModalOpen(true)}
+                openDialog={openModal}
+                variant="outlined"
+                confirmButtonText="Confirm New Email"
+                currentUserEmail={currentUserEmail}
+                totalCountOfQuery={getTotalCountOfQuery()}
+                queryState={queryState}
+              />
+            </div>
           </div>
         </div>
       </>

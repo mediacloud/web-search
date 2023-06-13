@@ -1,12 +1,11 @@
 import dayjs from 'dayjs';
-import { any } from 'prop-types';
 
 const formatCollections = (collectionsArray) => collectionsArray.map((c) => (
-  `${c.id}>${c.name}`
+  c
 ));
 
 const formatSources = (sourcesArray) => sourcesArray.map((s) => (
-  `${s.id}>${s.label || s.name}`
+  s
 ));
 
 const queryListHelper = (queryList) => {
@@ -53,8 +52,7 @@ const urlSerializer = (queryState) => {
     ends.push(dayjs(endDate).format('MM-DD-YYYY'));
 
     platforms.push(platform);
-
-    const collectionsFormatted = collections ? formatCollections(collections).join(',') : [];
+    const collectionsFormatted = formatCollections(collections).join(',');
     collectionArr.push([encode(collectionsFormatted)]);
 
     const sourcesFormatted = sources ? formatSources(sources).join(',') : [];
@@ -65,9 +63,13 @@ const urlSerializer = (queryState) => {
   });
 
   if (adv[0]) {
-    return `qs=${encode(queryStrings)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
+    return `qs=${encode(queryStrings)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}`
+    + `&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
   }
-  return `q=${encode(queries)}&nq=${encode(negatedQueries)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
+
+  return `q=${encode(queries)}&nq=${encode(negatedQueries)}&start=${encode(starts)}`
+  + `&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}`
+  + `&cs=${encode(collectionArr)}&any=${encode(anys)}`;
 };
 
 export default urlSerializer;

@@ -23,13 +23,14 @@ export default function BarChart({
     },
     yAxis: {
       min: 0,
+      max: normalized ? 100 : null,
       title: {
         text: normalized ? 'Percentage' : 'Count',
         align: 'high',
       },
       labels: {
         overflow: 'justify',
-        format: normalized ? '{value: .2f}%' : '{value.toLocaleString()}',
+        format: normalized ? '{value}%' : '{value.toLocaleString()}',
       },
     },
     plotOptions: {

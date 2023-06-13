@@ -20,7 +20,11 @@ export default function GeographicNewsCollections() {
     <>
       <Header columns={8}>
         <h1>Geographic Online News Collections</h1>
-        <p>We have curated a set of collections by geography. For each country below we have a national collection, which includes media sources that report about the whole country. For many countries we also have state- or province-level collections, for media sources that are published in and focus on that part of the country.</p>
+        <p>
+          We have curated a set of collections by geography. For each country below we have a national collection,
+          which includes media sources that report about the whole country. For many countries we also have
+          state- or province-level collections, for media sources that are published in and focus on that part of the country.
+        </p>
       </Header>
 
       <div className="container">

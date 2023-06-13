@@ -17,10 +17,9 @@ export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { platform, startDate, endDate } = useSelector((state) => state.query[queryIndex]);
-
-  const [isFromDateMatching, setIsFromDateMatching] = useState(true);
-  const [isToDateMatching, setIsToDateMatching] = useState(true);
+  const {
+    platform, startDate, endDate, isFromDateValid, isToDateValid,
+  } = useSelector((state) => state.query[queryIndex]);
 
   // the minimum date off platform (From Date Picker)
   const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
@@ -31,27 +30,35 @@ export default function SearchDatePicker({ queryIndex }) {
   // the maximum date off platform (To Date Picker)
   const toDateMax = dayjs(latestAllowedEndDate(platform)).format('MM/DD/YYYY');
 
+  // handler for the fromDate MUI DatePicker
   const handleChangeFromDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(fromDateMin), dayjs(fromDateMax))) {
+      // if the fromDate is valid, we are going to make this change in state and set the isFromDateValid to true
+      dispatch(setQueryProperty({ isFromDateValid: true, queryIndex, property: 'isFromDateValid' }));
       dispatch(setQueryProperty({ startDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'startDate' }));
-      setIsFromDateMatching(true);
     } else {
-      setIsFromDateMatching(false);
+      // we do not save the invalid date, if a user goes onto another tab, the previously valid date will be presented
+      // if the date is invalid, we are going to set isToDateValid to false because the date provided is not valid
+      dispatch(setQueryProperty({ isFromDateValid: false, queryIndex, property: 'isFromDateValid' }));
     }
   };
 
+  // handler for the toDate MUI DatePicker
   const handleChangeToDate = (newValue) => {
     if (validateDate(dayjs(newValue), dayjs(toDateMin), dayjs(toDateMax))) {
+      // if the toDate is valid, we are going to make this change in state and set the isToDateValid to true
+      dispatch(setQueryProperty({ isToDateValid: true, queryIndex, property: 'isToDateValid' }));
       dispatch(setQueryProperty({ endDate: dayjs(newValue).format('MM/DD/YYYY'), queryIndex, property: 'endDate' }));
-      setIsToDateMatching(true);
     } else {
-      setIsToDateMatching(false);
+      // we do not save the invalid date, if a user goes onto another tab, the previously valid date will be presented
+      // if the date is invalid, we are going to set isToDateValid to false because the date provided is not valid
+      dispatch(setQueryProperty({ isToDateValid: false, queryIndex, property: 'isToDateValid' }));
     }
   };
 
   useEffect(() => {
-    // dispatch(setQueryProperty({ endDate: latestAllowedEndDate(platform).format('MM/DD/YYYY') }));
-    if (dayjs(endDate) > latestAllowedEndDate(platform)) {
+    // if the platform changes, we want to update the validity of the dates
+    if (dayjs(endDate) > fromDateMax) {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
     }
@@ -59,6 +66,10 @@ export default function SearchDatePicker({ queryIndex }) {
       handleChangeFromDate(earliestAllowedStartDate(platform));
       enqueueSnackbar('Changed your start date to match this platform limit', { variant: 'warning' });
     }
+    // why do we do this?
+    // we don't save invalid dates, so going into another tab would leave these set to false and a correct date
+    dispatch(setQueryProperty({ isToDateValid: true, queryIndex, property: 'isToDateValid' }));
+    dispatch(setQueryProperty({ isFromDateValid: true, queryIndex, property: 'isFromDateValid' }));
   }, [platform]);
 
   return (
@@ -66,7 +77,7 @@ export default function SearchDatePicker({ queryIndex }) {
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <div className="date-accuracy-alert">
-            <h1 className={`banner ${isFromDateMatching ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
+            <h1 className={`banner ${isFromDateValid ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
             <DatePicker
               required
               type="date"
@@ -82,7 +93,7 @@ export default function SearchDatePicker({ queryIndex }) {
           </div>
 
           <div className="date-accuracy-alert">
-            <h1 className={`banner ${isToDateMatching ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
+            <h1 className={`banner ${isToDateValid ? 'disable-alert' : 'enable-alert'}`}>Invalid Date</h1>
             <DatePicker
               required
               label="To"

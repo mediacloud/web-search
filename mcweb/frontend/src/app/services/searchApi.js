@@ -61,12 +61,16 @@ export const searchApi = createApi({
         body: { queryObject },
       }),
     }),
+    sendTotalAttentionDataEmail: builder.mutation({
+      query: (preparedQueryAndEmail) => ({
+        url: 'send-email-large-download-csv',
+        method: 'POST',
+        body: { ...preparedQueryAndEmail },
+      }),
+    }),
   }),
 });
 
-// search/attentionOverTime
-// search
-// action: get back Json. Save it to searchResults
 export const {
   useGetSearchMutation,
   useGetTotalCountMutation,
@@ -75,4 +79,5 @@ export const {
   useGetStoryDetailsQuery,
   useGetTopWordsMutation,
   useGetTopLanguagesMutation,
+  useSendTotalAttentionDataEmailMutation,
 } = searchApi;

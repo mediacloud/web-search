@@ -13,6 +13,7 @@ const rtkQueryErrorLogger = (/* api */) => (next) => (action) => {
     } else {
       msg += ` - ${action.error.message}`;
     }
+    /* eslint-disable-next-line no-console */
     console.error(msg);
   }
 
