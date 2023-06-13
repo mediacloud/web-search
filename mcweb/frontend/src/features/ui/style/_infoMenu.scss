@@ -1,0 +1,15 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+ 
+  .menu-item {
+    margin-left: 3px;
+    margin-bottom: 8px;
+    text-decoration: none;
+  }
+
+  .menu-item:hover {
+    background-color: $primary-off-white;
+  }
+}
+
