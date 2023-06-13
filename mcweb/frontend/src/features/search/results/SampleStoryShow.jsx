@@ -1,18 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
-import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../util/platforms';
+import { useSelector } from 'react-redux';
+import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
 import InfoMenu from '../../ui/InfoMenu';
+import { selectCurrentUser } from '../../auth/authSlice';
 
 export default function SampleStoryShow({
-  data, lSTP, platform, handleClick, open, handleClose, anchorEl,
+  data, lSTP, platform,
 }) {
-  const getStoryId = (url) => {
-    if (!url) return null;
-    const parts = url.split('/');
-    return parts[(parts.length - 1)];
-  };
+  const currentUser = useSelector(selectCurrentUser);
+
   return (
 
     <table>
@@ -39,11 +38,13 @@ export default function SampleStoryShow({
             </td>
 
             <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
-
-            {([PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform)
-              && lSTP === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+            {
+              (([PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && lSTP === PROVIDER_NEWS_WAYBACK_MACHINE)
+                || ([PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && lSTP === PROVIDER_NEWS_MEDIA_CLOUD && currentUser.isStaff))
+              && (
                 <InfoMenu platform={platform} sampleStory={sampleStory} />
-            )}
+              )
+            }
           </tr>
         ))}
       </tbody>
