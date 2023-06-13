@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
+import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
 
 export default function InfoMenu({ platform, sampleStory }) {
   const getStoryId = (url) => {
@@ -11,8 +12,20 @@ export default function InfoMenu({ platform, sampleStory }) {
     return parts[(parts.length - 1)];
   };
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  console.log(platform);
+  console.log(sampleStory);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [platformName, setPlatformName] = useState();
   const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+      setPlatformName('Online News');
+    } else {
+      setPlatformName('Wayback Machine');
+    }
+  }, [platform]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -60,24 +73,42 @@ export default function InfoMenu({ platform, sampleStory }) {
             >
               Visit original URL
             </a>
-            <a
-              href={sampleStory.archived_url}
-              target="_blank"
-              rel="noreferrer"
-              onClick={handleClose}
-              className="menu-item"
-            >
-              Visit archived content (on Wayback Machine)
-            </a>
-            <NavLink
-              to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
-              target="_blank"
-              rel="noreferrer"
-              onClick={handleClose}
-              className="menu-item"
-            >
-              View extracted content (from Wayback Machine)
-            </NavLink>
+
+            {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+              <a
+                href={sampleStory.archived_url}
+                target="_blank"
+                rel="noreferrer"
+                onClick={handleClose}
+                className="menu-item"
+              >
+                Visit archived content (on Wayback Machine)
+              </a>
+            )}
+
+            {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+              <NavLink
+                to={`/story/${platform}/${sampleStory.id}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={handleClose}
+                className="menu-item"
+              >
+                View extracted content (from Online News)
+              </NavLink>
+            )}
+
+            {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
+              <NavLink
+                to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={handleClose}
+                className="menu-item"
+              >
+                View extracted content (from Wayback Machine)
+              </NavLink>
+            )}
           </div>
         </Menu>
       </div>
