@@ -38,9 +38,7 @@ export default function LoadSavedSearches() {
   };
 
   const handleLoadSavedSearch = (url) => {
-    console.log('currenturl', url);
     const queryObj = decodeSavedSearch(url);
-    console.log('handlesavesearch', queryObj);
     dispatch(addSavedSearch(queryObj));
   };
 
