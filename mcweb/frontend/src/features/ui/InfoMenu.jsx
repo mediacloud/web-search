@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
@@ -12,20 +12,8 @@ export default function InfoMenu({ platform, sampleStory }) {
     return parts[(parts.length - 1)];
   };
 
-  console.log(platform);
-  console.log(sampleStory);
-
   const [anchorEl, setAnchorEl] = useState(null);
-  const [platformName, setPlatformName] = useState();
   const open = Boolean(anchorEl);
-
-  useEffect(() => {
-    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
-      setPlatformName('Online News');
-    } else {
-      setPlatformName('Wayback Machine');
-    }
-  }, [platform]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -64,6 +52,7 @@ export default function InfoMenu({ platform, sampleStory }) {
           }}
         >
           <div className="menu">
+            {/* Original URL is the same for both media-cloud and wayback-machine */}
             <a
               href={sampleStory.url}
               target="_blank"
@@ -74,6 +63,7 @@ export default function InfoMenu({ platform, sampleStory }) {
               Visit original URL
             </a>
 
+            {/* wayback-machine only has an archived url */}
             {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
               <a
                 href={sampleStory.archived_url}
@@ -86,6 +76,7 @@ export default function InfoMenu({ platform, sampleStory }) {
               </a>
             )}
 
+            {/* media-cloud story is a bit different, taken out of id */}
             {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
               <NavLink
                 to={`/story/${platform}/${sampleStory.id}`}
@@ -98,6 +89,7 @@ export default function InfoMenu({ platform, sampleStory }) {
               </NavLink>
             )}
 
+            {/* wayback-machine story id is taken out of getStoryId function  */}
             {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
               <NavLink
                 to={`/story/${platform}/${getStoryId(sampleStory.article_url)}`}
