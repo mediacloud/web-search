@@ -38,6 +38,7 @@ export default function SampleStoryShow({
             </td>
 
             <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+            {/* if platform is wayback-machine OR media-cloud and the currentUser is a staff */}
             {
               (([PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && lSTP === PROVIDER_NEWS_WAYBACK_MACHINE)
                 || ([PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && lSTP === PROVIDER_NEWS_MEDIA_CLOUD && currentUser.isStaff))
@@ -66,12 +67,4 @@ SampleStoryShow.propTypes = {
   })).isRequired,
   lSTP: PropTypes.string.isRequired,
   platform: PropTypes.string.isRequired,
-  handleClick: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-  anchorEl: PropTypes.element,
-};
-
-SampleStoryShow.defaultProps = {
-  anchorEl: undefined,
 };
