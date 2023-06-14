@@ -85,7 +85,7 @@ export default function InfoMenu({ platform, sampleStory }) {
                 onClick={handleClose}
                 className="menu-item"
               >
-                View extracted content (from Online News)
+                View extracted content (from Media Cloud)
               </NavLink>
             )}
 
