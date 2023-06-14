@@ -7,16 +7,18 @@ from django.template.loader import get_template
 from django.template import Context
 from settings import EMAIL_HOST
 
+
 logger = logging.getLogger(__name__)
 
-
 # adapted with help from https://github.com/CryceTruly/django-tutorial-youtube/tree/main/templates Cryce Truly
+
+
 class EmailThread(threading.Thread):
 
     def __init__(self, email):
         self.email = email
         threading.Thread.__init__(self)
-    
+
     def run(self):
         self.email.send()
 
@@ -28,7 +30,7 @@ def send_email(mail_params):
     print(mail_params)
     try:
         send_mail(subject, body, from_email, [recepient], fail_silently=False)
-    except Exception as e: 
+    except Exception as e:
         logger.exception(e)
 
 
@@ -42,7 +44,7 @@ def send_signup_email(user, request):
                          body=email_body,
                          from_email='noreply@mediacloud.org',
                          to=[user.email])
-    try: 
+    try:
         EmailThread(email).start()
     except Exception as e:
         print(e)
@@ -53,7 +55,21 @@ def send_source_upload_email(title: str, text: str, to: str):
         return
     send_mail(title, text, 'system@mediacloud.org', [to], fail_silently=False)
 
-def send_alert_email(alert_dict: dict,):
+
+# if 25k < count < 200k and user is not staff --> csv file will be emailed to user rather than downloaded
+def send_zipped_large_download_email(zipped_filename, zipped_data, to):
+    if not EMAIL_HOST:
+        return
+    email = EmailMessage(subject="Downloaded Total Attention's Data",
+                         from_email='noreply@mediacloud.org', to=[to])
+    try:
+        email.attach(zipped_filename, zipped_data, 'application/zip')
+        EmailThread(email).start()
+    except Exception as e:
+        logger.exception(e)
+
+
+def send_alert_email(alert_dict: dict):
     if not EMAIL_HOST:
         return
    

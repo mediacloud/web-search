@@ -11,7 +11,7 @@ export default function MediaPickerSelectionTable({
   selected, matching, onAdd, onRemove, collection, queryIndex, isGlobalCollection,
 }) {
   const dispatch = useDispatch();
-  const alreadySelected = (cid) => selected.map((c) => c.id).includes(cid);
+  const alreadySelected = (cid) => selected.includes(cid);
 
   return (
     <table>
@@ -50,7 +50,7 @@ export default function MediaPickerSelectionTable({
                   size="sm"
                   aria-label="add"
                   onClick={() => dispatch(onAdd(
-                    { sourceOrCollection: [{ ...c, type: collection ? 'collection' : 'source' }], queryIndex },
+                    { sourceOrCollection: { id: c.id, type: collection ? 'collection' : 'source' }, queryIndex },
                   ))}
                 >
                   <AddCircleIcon sx={{ color: '#d24527' }} />
@@ -82,10 +82,7 @@ MediaPickerSelectionTable.propTypes = {
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
   })).isRequired,
-  selected: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-  })).isRequired,
+  selected: PropTypes.arrayOf(PropTypes.number).isRequired,
   collection: PropTypes.bool.isRequired,
   queryIndex: PropTypes.number.isRequired,
   isGlobalCollection: PropTypes.bool.isRequired,

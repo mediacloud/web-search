@@ -82,9 +82,14 @@ export default function TopWords() {
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
                 {data.words.map((result, i) => (
-                  <Tab key={queryTitleArrays[i]} label={queryTitleArrays[i]} {...a11yProps(i)} />
-
+                  <Tab
+                    key={queryTitleArrays[i]}
+                    label={queryTitleArrays[i]}
+                    id={`simple-tab-${i}`}
+                    aria-controls={`simple-tabpanel-${i}`}
+                  />
                 ))}
+
               </Tabs>
             </Box>
 
@@ -123,7 +128,7 @@ export default function TopWords() {
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            This is an <i>experimental</i>
+            This is an<i> experimental </i>
             sample-based list of the top words in content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
@@ -157,11 +162,4 @@ export default function TopWords() {
       </div>
     </div>
   );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }

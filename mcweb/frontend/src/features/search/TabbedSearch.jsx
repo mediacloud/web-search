@@ -26,6 +26,13 @@ import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import tabTitle from './util/tabTitle';
 
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
 export default function TabbedSearch() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -135,6 +142,7 @@ export default function TabbedSearch() {
                     )}
                   </div>
                 )}
+                /* eslint-disable-next-line react/jsx-props-no-spreading */
                 {...a11yProps(i)}
               />
             ))}
@@ -143,7 +151,7 @@ export default function TabbedSearch() {
         </Box>
 
         {queryState.map((query, i) => (
-          <TabPanelHelper key={i} value={value} index={i}>
+          <TabPanelHelper key={`${query}`} value={value} index={i}>
             <Search queryIndex={i} />
           </TabPanelHelper>
         ))}
@@ -207,11 +215,4 @@ export default function TabbedSearch() {
 
     </div>
   );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }

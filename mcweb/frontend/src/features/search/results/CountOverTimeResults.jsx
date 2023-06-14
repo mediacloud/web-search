@@ -87,14 +87,14 @@ export default function CountOverTimeResults() {
   } else {
     const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
       (originalDataObj, index) => {
-        const queryTitleForPreparation = { name: `query: ${tabTitle(queryState, index)}` };
+        const queryTitleForPreparation = { name: tabTitle(queryState, index) };
         return { ...queryTitleForPreparation, ...originalDataObj };
       },
     );
     content = (
       <>
         <CountOverTimeChart
-          data={updatedPrepareCountOverTimeData}
+          series={updatedPrepareCountOverTimeData}
           normalized={normalized}
         />
         <div className="clearfix">
