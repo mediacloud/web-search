@@ -126,9 +126,9 @@ def sample(request):
 @require_http_methods(["GET"])
 def story_detail(request):
     story_id = request.GET.get("storyId")
-    provider_name = providers.provider_name(
-        PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE)
-    provider = providers.provider_by_name(provider_name)
+    platform = request.GET.get("platform")
+
+    provider = providers.provider_by_name(platform)
     story_details = provider.item(story_id)
     # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"story": story_details}, default=str), content_type="application/json",
