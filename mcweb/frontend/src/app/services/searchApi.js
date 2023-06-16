@@ -41,8 +41,8 @@ export const searchApi = createApi({
       }),
     }),
     getStoryDetails: builder.query({
-      query: (storyId) => ({
-        url: `story?storyId=${storyId}`,
+      query: ({ storyId, platform }) => ({
+        url: `/story?storyId=${storyId}&platform=${platform}`,
         method: 'GET',
       }),
     }),
