@@ -1,11 +1,19 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { asNumber } from '../ui/uiUtil';
+// import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { selectCurrentUser } from '../auth/authSlice';
+
 
 export default function MediaSearchTable({
   matching, collection, isGlobalCollection,
 }) {
+  const currentUser = useSelector(selectCurrentUser);
+  const staffUser = currentUser.isStaff === true;
+  const filteredMatching = staffUser ? matching : matching.filter((c) => c.public === true);
+
   return (
     <table>
       <tbody>
@@ -19,7 +27,7 @@ export default function MediaSearchTable({
             <th>Stories per week</th>
           )}
         </tr>
-        {matching.map((c) => (
+        {filteredMatching.map((c) => (
           <tr key={c.id}>
             <td>
               <Link
