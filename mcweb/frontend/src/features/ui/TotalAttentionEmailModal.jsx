@@ -4,6 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
+import Box from '@mui/material/Box';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
@@ -130,12 +131,15 @@ export default function TotalAttentionEmailModal({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={cancelClose}
+          <Box
             sx={{ paddingRight: '175px' }}
           >
-            Cancel
-          </Button>
+            <Button
+              onClick={cancelClose}
+            >
+              Cancel
+            </Button>
+          </Box>
           <Button onClick={handleClose}>
             Use Current Email
           </Button>
