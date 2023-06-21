@@ -85,6 +85,10 @@ export default function TotalAttentionEmailModal({
     setOpen(false);
   };
 
+  const cancelClose = () => {
+    setOpen(false);
+  };
+
   return (
     <>
       <Button
@@ -96,7 +100,13 @@ export default function TotalAttentionEmailModal({
       </Button>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={(event, reason) => {
+          if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+            cancelClose();
+          } else {
+            handleClose();
+          }
+        }}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -120,10 +130,13 @@ export default function TotalAttentionEmailModal({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            handleClose();
-          }}
+          <Button
+            onClick={cancelClose}
+            sx={{ paddingRight: '175px' }}
           >
+            Cancel
+          </Button>
+          <Button onClick={handleClose}>
             Use Current Email
           </Button>
           <Button
