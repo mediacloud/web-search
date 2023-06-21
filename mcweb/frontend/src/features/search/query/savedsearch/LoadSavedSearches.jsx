@@ -37,8 +37,13 @@ export default function LoadSavedSearches() {
     window.location.href = url;
   };
 
+  const getDecodedQuery = (url) => {
+    const queryObj = decodeSavedSearch(url);
+    console.log(queryObj);
+    return queryObj;
+  };
+
   const handleLoadSavedSearch = (url) => {
-    console.log('currenturl', url);
     const queryObj = decodeSavedSearch(url);
     console.log('handlesavesearch', queryObj);
     dispatch(addSavedSearch(queryObj));
@@ -55,19 +60,21 @@ export default function LoadSavedSearches() {
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Load Search</th>
-                <th>Delete Search</th>
+                <th>Query Name</th>
+                <th>Query</th>
+                <th>Add Query</th>
+                <th>Delete</th>
               </tr>
             </thead>
             <tbody>
               {data?.results.map((savedSearch) => (
                 <tr key={savedSearch.id}>
                   <td>
-                    <Button onClick={() => handleSerializedSearchClick(savedSearch.serialized_search)}>
-                      {savedSearch.name}
-                    </Button>
+                    {savedSearch.name}
                   </td>
+                  {/* <td>
+                    {getDecodedQuery(savedSearch.serialized_search)}
+                  </td> */}
                   <td>
                     <IconButton
                       size="small"
