@@ -12,13 +12,6 @@ export const searchApi = createApi({
   }),
 
   endpoints: (builder) => ({
-    getSearch: builder.mutation({
-      query: (credentials) => ({
-        url: 'search',
-        method: 'POST',
-        body: { ...credentials },
-      }),
-    }),
     getTotalCount: builder.mutation({
       query: (queryObject) => ({
         url: 'total-count',
@@ -67,7 +60,6 @@ export const searchApi = createApi({
 // search
 // action: get back Json. Save it to searchResults
 export const {
-  useGetSearchMutation,
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,
