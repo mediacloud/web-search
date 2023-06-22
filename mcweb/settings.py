@@ -23,7 +23,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "1.4.1"
+VERSION = "1.4.2"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -178,6 +178,10 @@ if DEBUG:
 
 
 APPEND_SLASH = False
+
+MAX_ATTEMPTS = 5
+
+BACKGROUND_TASK_RUN_ASYNC = True
 
 LOGGING = {
     'version': 1,

@@ -43,12 +43,21 @@ const sizeQuery = (queryArray) => queryArray.map((query) => {
 });
 
 const combineQueryMedia = (cs, ss) => {
-  const mediaArr = new Array(cs.length);
+  const queryLength = cs.length === 0 ? ss.length : cs.length;
+  const mediaArr = new Array(queryLength);
+
+  if (cs.length === 0) mediaArr[0] = [];
   cs.forEach((c, i) => {
-    mediaArr[i] = c;
+    if (c[0].id === 0) {
+      mediaArr[i] = [];
+    } else {
+      mediaArr[i] = c;
+    }
   });
   ss.forEach((s, i) => {
-    mediaArr[i].push(...s);
+    if (s[0].id !== 0) {
+      mediaArr[i].push(...s);
+    }
   });
 
   return mediaArr;
@@ -56,12 +65,20 @@ const combineQueryMedia = (cs, ss) => {
 
 const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
   const returnArr = new Array(mediaArray.length);
-
   mediaArray.forEach((queryCorpus, i) => {
     const decoded = handleDecode([queryCorpus]);
-    const numbered = decoded.map((collectionId) => ({
-      id: Number(collectionId), type: collectionBool ? 'collection' : 'source',
-    }));
+    const numbered = decoded.map((collectionId) => {
+      let numberId = Number(collectionId);
+
+      if (Number.isNaN(numberId)) {
+        const [id] = collectionId.split('>');
+        numberId = id;
+      }
+
+      return {
+        id: numberId, type: collectionBool ? 'collection' : 'source',
+      };
+    });
     returnArr[i] = numbered;
   });
   return returnArr;
@@ -162,7 +179,7 @@ const setSearchQuery = (searchParams, dispatch) => {
   collections = collections ? collections.split(',') : [];
   collections = decodeAndFormatCorpus(collections, true);
 
-  sources = sources ? handleDecode(sources) : [];
+  sources = sources ? sources.split(',') : [];
   sources = decodeAndFormatCorpus(sources, false);
 
   const media = combineQueryMedia(collections, sources);

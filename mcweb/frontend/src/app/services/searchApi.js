@@ -33,8 +33,8 @@ export const searchApi = createApi({
       }),
     }),
     getStoryDetails: builder.query({
-      query: (storyId) => ({
-        url: `story?storyId=${storyId}`,
+      query: ({ storyId, platform }) => ({
+        url: `/story?storyId=${storyId}&platform=${platform}`,
         method: 'GET',
       }),
     }),
@@ -52,12 +52,16 @@ export const searchApi = createApi({
         body: { queryObject },
       }),
     }),
+    sendTotalAttentionDataEmail: builder.mutation({
+      query: (preparedQueryAndEmail) => ({
+        url: 'send-email-large-download-csv',
+        method: 'POST',
+        body: { ...preparedQueryAndEmail },
+      }),
+    }),
   }),
 });
 
-// search/attentionOverTime
-// search
-// action: get back Json. Save it to searchResults
 export const {
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
@@ -65,4 +69,5 @@ export const {
   useGetStoryDetailsQuery,
   useGetTopWordsMutation,
   useGetTopLanguagesMutation,
+  useSendTotalAttentionDataEmailMutation,
 } = searchApi;

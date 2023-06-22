@@ -27,15 +27,6 @@ export default function SampleStories() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetSampleStoriesMutation();
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
   const [newQuery, setNewQuery] = useState(false);
 
   const [value, setValue] = useState(0);
@@ -95,11 +86,8 @@ export default function SampleStories() {
           {data.sample.map((results, i) => (
             <TabPanelHelper value={value} index={i}>
               <SampleStoryShow
-                open={open}
                 data={results}
                 lSTP={lastSearchTimePlatform}
-                handleClick={handleClick}
-                handleClose={handleClose}
                 platform={platform}
               />
             </TabPanelHelper>
