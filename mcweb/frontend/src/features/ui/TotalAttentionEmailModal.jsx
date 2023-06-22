@@ -132,6 +132,7 @@ export default function TotalAttentionEmailModal({
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-between' }}>
 
+          {/* Cancel / Destructive */}
           <Button
             variant="outlined"
             onClick={cancelClose}
@@ -140,7 +141,8 @@ export default function TotalAttentionEmailModal({
             Cancel
           </Button>
 
-          <div>
+          <Box>
+            {/* Secondary Action */}
             <Button
               variant="outlined"
               onClick={handleClose}
@@ -149,13 +151,14 @@ export default function TotalAttentionEmailModal({
               Use Current Email
             </Button>
 
+            {/* Primary Action */}
             <Button
               variant="contained"
               onClick={handleClick}
             >
               {confirmButtonText}
             </Button>
-          </div>
+          </Box>
         </DialogActions>
       </Dialog>
     </>
