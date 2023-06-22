@@ -90,15 +90,17 @@ function Header() {
                         Read More Release Notes
                       </MenuItem>
                     </Link>
-                    <Link
-                      to="about-search"
+                    <a
+                      href="https://www.mediacloud.org/search-tool-guide"
+                      target="_blank"
                       onClick={handleClose}
                       style={{ textDecoration: 'none', color: 'black' }}
+                      rel="noreferrer"
                     >
                       <MenuItem>
                         About Search API
                       </MenuItem>
-                    </Link>
+                    </a>
                   </Menu>
                 </li>
               </ul>
