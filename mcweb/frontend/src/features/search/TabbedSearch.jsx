@@ -174,7 +174,7 @@ export default function TabbedSearch() {
                 dispatchNeeded={false}
                 onClick={() => setOpen(true)}
                 variant="outlined"
-                endIcon={<ContentCopy titleAccess="copy this search" />}
+                startIcon={<ContentCopy titleAccess="copy this search" />}
                 secondAction={false}
                 className="float-end"
                 confirmButtonText="copy"
@@ -187,7 +187,7 @@ export default function TabbedSearch() {
                 className="float-end"
                 variant="contained"
                 disabled={!show}
-                endIcon={<SearchIcon titleAccess="search this query" />}
+                startIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
                   navigate(
                     `/search?${urlSerializer(queryState)}`,

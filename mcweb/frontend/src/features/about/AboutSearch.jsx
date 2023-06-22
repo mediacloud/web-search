@@ -20,7 +20,7 @@ export default function AboutSearch() {
               >
                 <Button
                   variant="contained"
-                  endIcon={<SearchIcon titleAccess="search online news and social media" />}
+                  startIcon={<SearchIcon titleAccess="search online news and social media" />}
                 >
                   Search Now
                 </Button>

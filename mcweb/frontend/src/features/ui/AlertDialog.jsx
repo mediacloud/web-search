@@ -13,7 +13,7 @@ import PropTypes from 'prop-types';
 
 export default function AlertDialog({
   openDialog, outsideTitle, title, content, action, actionTarget, dispatchNeeded,
-  snackbar, snackbarText, variant, endIcon, navigateNeeded, navigateTo, secondAction,
+  snackbar, snackbarText, variant, startIcon, navigateNeeded, navigateTo, secondAction,
   confirmButtonText,
 }) {
   const { enqueueSnackbar } = useSnackbar();
@@ -59,7 +59,7 @@ export default function AlertDialog({
       <Button
         variant={variant}
         onClick={handleClickOpen}
-        endIcon={endIcon}
+        startIcon={startIcon}
       >
         {outsideTitle}
       </Button>
@@ -111,7 +111,7 @@ AlertDialog.propTypes = {
   snackbar: PropTypes.bool,
   snackbarText: PropTypes.string,
   variant: PropTypes.string,
-  endIcon: PropTypes.element,
+  startIcon: PropTypes.element,
   navigateNeeded: PropTypes.bool,
   navigateTo: PropTypes.string,
   secondAction: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
@@ -122,7 +122,7 @@ AlertDialog.defaultProps = {
   snackbar: false,
   snackbarText: '',
   variant: 'text',
-  endIcon: null,
+  startIcon: null,
   navigateNeeded: false,
   navigateTo: '',
   secondAction: null,
