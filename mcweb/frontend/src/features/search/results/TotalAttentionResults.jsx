@@ -9,14 +9,13 @@ import DownloadIcon from '@mui/icons-material/Download';
 import Settings from '@mui/icons-material/Settings';
 import BarChart from './BarChart';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
-import { selectCurrentUser } from '../../auth/authSlice';
 import {
   PROVIDER_REDDIT_PUSHSHIFT,
   PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
-import prepareQueries2 from '../util/prepareQueries2';
+import prepareQueries from '../util/prepareQueries';
 import tabTitle from '../util/tabTitle';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 
@@ -26,8 +25,6 @@ export const supportsNormalizedCount = (platform) =>
 
 function TotalAttentionResults() {
   const queryState = useSelector((state) => state.query);
-
-  const currentUser = useSelector(selectCurrentUser);
 
   const {
     platform,
@@ -54,8 +51,7 @@ function TotalAttentionResults() {
 
   useEffect(() => {
     if (checkForBlankQuery(queryState)) {
-      const preparedQueries = prepareQueries2(queryState, currentUser.token);
-      console.log(preparedQueries)
+      const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }

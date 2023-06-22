@@ -53,12 +53,11 @@ def handle_provider_errors(func):
 @require_http_methods(["POST"])
 def total_count(request):
     payload = json.loads(request.body).get("queryObject")
-    token = payload[0]['token']
     total_content_count = []
     relevant_count = []
     for query in payload:
         start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
-        provider = providers.provider_by_name(provider_name, token)
+        provider = providers.provider_by_name(provider_name)
         relevant_count.append(provider.count(query_str, start_date, end_date, **provider_props))
         try:
             total_content_count.append(provider.count(provider.everything_query(), start_date, end_date, **provider_props))
