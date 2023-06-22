@@ -10,7 +10,6 @@ export const searchApi = createApi({
       return headers;
     },
   }),
-
   endpoints: (builder) => ({
     getTotalCount: builder.mutation({
       query: (queryObject) => ({
