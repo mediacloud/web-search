@@ -130,25 +130,32 @@ export default function TotalAttentionEmailModal({
             {' '}
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Box
-            sx={{ paddingRight: '175px' }}
-          >
-            <Button
-              onClick={cancelClose}
-            >
-              Cancel
-            </Button>
-          </Box>
-          <Button onClick={handleClose}>
-            Use Current Email
-          </Button>
+        <DialogActions sx={{ justifyContent: 'space-between' }}>
+
           <Button
-            onClick={handleClick}
-            autoFocus
+            variant="outlined"
+            onClick={cancelClose}
+            sx={{ alignSelf: 'flex-start' }}
           >
-            {confirmButtonText}
+            Cancel
           </Button>
+
+          <div>
+            <Button
+              variant="outlined"
+              onClick={handleClose}
+              sx={{ marginRight: '10px' }}
+            >
+              Use Current Email
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={handleClick}
+            >
+              {confirmButtonText}
+            </Button>
+          </div>
         </DialogActions>
       </Dialog>
     </>
