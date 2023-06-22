@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -76,22 +77,23 @@ export default function AlertDialog({
             {content}
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ justifyContent: 'space-between' }}>
           <Button
             variant="outlined"
             onClick={handleClose}
 
           >
             Cancel
-
           </Button>
-          <Button
-            variant="contained"
-            onClick={handleClick}
-            autoFocus
-          >
-            {confirmButtonText}
-          </Button>
+          <Box>
+            <Button
+              variant="contained"
+              onClick={handleClick}
+              autoFocus
+            >
+              {confirmButtonText}
+            </Button>
+          </Box>
         </DialogActions>
       </Dialog>
     </>
