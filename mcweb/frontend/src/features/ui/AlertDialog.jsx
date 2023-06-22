@@ -77,11 +77,17 @@ export default function AlertDialog({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
           <Button
-            onClick={
-              handleClick
-              }
+            variant="outlined"
+            onClick={handleClose}
+
+          >
+            Cancel
+
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleClick}
             autoFocus
           >
             {confirmButtonText}
