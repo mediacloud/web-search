@@ -13,4 +13,5 @@ urlpatterns = [
     path('reset-password', views.reset_password),
     path('password-strength', views.password_strength),
     path('delete-user', views.delete_user),
+    path('reset-token', views.reset_token),
 ]
