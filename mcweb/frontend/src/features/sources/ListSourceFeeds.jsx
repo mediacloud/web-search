@@ -137,7 +137,7 @@ function ListSourceFeeds() {
                       onClick={() => setOpen(true)}
                       openDialog={open}
                       variant="outlined"
-                      endIcon={<DeleteIcon titleAccess="delete-feed" />}
+                      startIcon={<DeleteIcon titleAccess="delete-feed" />}
                       secondAction={false}
                       confirmButtonText="Delete"
                     />

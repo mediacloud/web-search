@@ -30,10 +30,10 @@ export default function DirectoryHome() {
           <DetailedSearch />
           <Permissioned role={ROLE_STAFF}>
             <>
-              <Button variant="outlined" endIcon={<LockOpenIcon />}>
+              <Button variant="outlined" startIcon={<LockOpenIcon />}>
                 <Link to="/collections/create">Create Collection</Link>
               </Button>
-              <Button variant="outlined" endIcon={<LockOpenIcon />}>
+              <Button variant="outlined" startIcon={<LockOpenIcon />}>
                 <Link to="/sources/create">Create Source</Link>
               </Button>
             </>

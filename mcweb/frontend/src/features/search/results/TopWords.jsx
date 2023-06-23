@@ -104,7 +104,7 @@ export default function TopWords() {
           <div className="float-end">
             <Button
               variant="text"
-              endIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
+              startIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
               onClick={() => {
                 handleDownloadRequest(queryState);
               }}

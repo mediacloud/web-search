@@ -132,7 +132,7 @@ function TotalAttentionResults() {
                 <div>
                   <Button
                     onClick={handleClick}
-                    endIcon={
+                    startIcon={
                       <Settings titleAccess="view other chart viewing options" />
                     }
                   >

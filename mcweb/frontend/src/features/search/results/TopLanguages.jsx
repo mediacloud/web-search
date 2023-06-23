@@ -106,7 +106,7 @@ export default function TopLanguages() {
           <div className="float-end">
             <Button
               variant="text"
-              endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
+              startIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
               onClick={() => {
                 handleDownloadRequest(queryState);
               }}

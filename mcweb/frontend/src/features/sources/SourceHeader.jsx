@@ -50,13 +50,13 @@ export default function SourceHeader() {
         <h1>
           <Link style={{ textDecoration: 'none', color: 'black' }} to={`/sources/${sourceId}`}>
             <PlatformIcon titleAccess={source.name} fontSize="large" />
-                &nbsp;
+            &nbsp;
             {source.label || source.name}
           </Link>
         </h1>
       </Header>
       <ControlBar>
-        <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
+        <Button variant="outlined" startIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
             href={`/search/${urlSerializer([{
               queryList: defaultPlatformQuery(source.platform),
@@ -76,11 +76,11 @@ export default function SourceHeader() {
           </a>
         </Button>
 
-        <Button variant="outlined" endIcon={<HomeIcon titleAccess="visit this sources homepage" />}>
+        <Button variant="outlined" startIcon={<HomeIcon titleAccess="visit this sources homepage" />}>
           <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
         </Button>
 
-        <Button variant="outlined" endIcon={<ListAltIcon titleAccess="source's feeds page" />}>
+        <Button variant="outlined" startIcon={<ListAltIcon titleAccess="source's feeds page" />}>
           <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
         </Button>
 
@@ -99,16 +99,16 @@ export default function SourceHeader() {
             onClick={() => setOpenRefetch(true)}
             openDialog={openRefetch}
             variant="outlined"
-            endIcon={<LockOpenIcon titleAccess="admin-edit" />}
+            startIcon={<LockOpenIcon titleAccess="admin-edit" />}
             secondAction={false}
             confirmButtonText="refetch feeds"
           />
 
-          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-edit" />}>
+          <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin-edit" />}>
             <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>
           </Button>
 
-          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin-create" />}>
+          <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin-create" />}>
             <Link to={`/sources/${sourceId}/feeds/create`}>Create Feed</Link>
           </Button>
 
@@ -127,30 +127,30 @@ export default function SourceHeader() {
             variant="outlined"
             navigateNeeded
             navigateTo="/directory"
-            endIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
             secondAction={false}
             confirmButtonText="delete"
           />
           {source.platform === 'online_news' && (
 
-          <AlertDialog
-            outsideTitle="Rescrape Source"
-            title={`Rescrape Source ${source.name} for new Feeds`}
-            content={`Are you sure you would like to rescrape ${source.name} for new feeds?
+            <AlertDialog
+              outsideTitle="Rescrape Source"
+              title={`Rescrape Source ${source.name} for new Feeds`}
+              content={`Are you sure you would like to rescrape ${source.name} for new feeds?
              Confirming will place this source in a queue to be rescraped for new feeds`}
-            dispatchNeeded={false}
-            action={scrapeForFeeds}
-            actionTarget={sourceId}
-            snackbar
-            snackbarText="Source Queued for Rescraping"
-            onClick={() => setOpenRescrape(true)}
-            openDialog={openRescrape}
-            variant="outlined"
-            navigateNeeded={false}
-            endIcon={<LockOpenIcon titleAccess="admin-delete" />}
-            secondAction={false}
-            confirmButtonText="Rescrape"
-          />
+              dispatchNeeded={false}
+              action={scrapeForFeeds}
+              actionTarget={sourceId}
+              snackbar
+              snackbarText="Source Queued for Rescraping"
+              onClick={() => setOpenRescrape(true)}
+              openDialog={openRescrape}
+              variant="outlined"
+              navigateNeeded={false}
+              startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+              secondAction={false}
+              confirmButtonText="Rescrape"
+            />
           )}
 
         </Permissioned>

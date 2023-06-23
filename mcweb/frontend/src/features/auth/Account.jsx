@@ -89,7 +89,7 @@ function Account() {
             onClick={() => setOpen(true)}
             openDialog={open}
             variant="outlined"
-            endIcon={<DeleteIcon titleAccess="delete account" />}
+            startIcon={<DeleteIcon titleAccess="delete account" />}
             confirmButtonText="Delete"
           />
         </Alert>
