@@ -11,7 +11,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import dayjs from 'dayjs';
-import { addQuery, setLastSearchTime, removeQuery } from './query/querySlice';
+import {
+  addQuery, setLastSearchTime, removeQuery, setQueryProperty,
+} from './query/querySlice';
 import Search from './query/Search';
 import PlatformPicker from './query/PlatformPicker';
 import AlertDialog from '../ui/AlertDialog';
@@ -54,6 +56,15 @@ export default function TabbedSearch() {
     const qsLength = queryState.length;
     setColors(() => [...color, 'White']);
     dispatch(addQuery(platform));
+    console.log(value);
+    dispatch(setQueryProperty(
+      {
+        tabTitle: (value + 2),
+        queryIndex: value + 1,
+        property: 'tabTitle',
+      },
+    ));
+
     setValue(qsLength);
   };
 
@@ -123,7 +134,7 @@ export default function TabbedSearch() {
                 label={(
                   <div className="tabTitleLabel">
 
-                    {tabTitle(queryState, i)}
+                    {queryState[i].tabTitle}
 
                     <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
                       <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
@@ -195,6 +206,8 @@ export default function TabbedSearch() {
                   );
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
+
+                  // queryState.map((q, index) => (console.log(tabTitle(queryState, index))));
                 }}
               >
                 Search
