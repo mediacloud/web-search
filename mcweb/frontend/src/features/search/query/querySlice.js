@@ -23,6 +23,7 @@ const cleanQuery = (platform) => ({
   isToDateValid: true,
   anyAll: 'any',
   advanced: false,
+  tabTitle: 'Query',
 });
 
 const querySlice = createSlice({
@@ -45,6 +46,7 @@ const querySlice = createSlice({
         isToDateValid: true,
         anyAll: 'any',
         advanced: false,
+        tabTitle: 'Query 1',
       },
     ],
 
@@ -150,6 +152,7 @@ const querySlice = createSlice({
           isToDateValid: true,
           anyAll: 'any',
           advanced: false,
+          tabTitle: 'Query',
         },
       );
     },
