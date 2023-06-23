@@ -151,7 +151,7 @@ export default function QueryList({ negated, queryIndex }) {
                 onChange={(e) => handleQueryChange(e, index)}
               />
 
-              {(serviceList.length - 1 != index) && (
+              {(serviceList.length - 1 !== index) && (
               <span className="and-or">AND</span>
               )}
 
