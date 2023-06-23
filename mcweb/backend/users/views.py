@@ -238,7 +238,7 @@ def register(request):
         data = json.dumps({'message': "new user created"})
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
-        print(e)
+        logger.exception(e)
         data = json.dumps({'message': str(e)})
         return HttpResponse(data, content_type='application/json', status=400)
 
@@ -265,6 +265,25 @@ def delete_user(request):
         data = json.dumps({'error': e})
 
     return HttpResponse(data, content_type='application/json')
+
+
+@login_required(redirect_field_name='/auth/login')
+@require_http_methods(["POST"])
+def reset_token(request):
+    current_user = request.user
+    try:
+        # get Token
+        Token = apps.get_model('authtoken', 'Token')
+        # delete current_user token
+        Token.objects.filter(user=current_user).delete()
+        # create a new token
+        Token.objects.create(user=current_user)
+        data = json.dumps({'message': "New token created!"})
+        return HttpResponse(data, content_type='application/json', status=200)
+    except Exception as e:
+        data = json.dumps({'error': e})
+        return HttpResponse(data, content_type='application/json', status=400)
+
 
 
 def _serialized_current_user(request) -> str:
