@@ -27,6 +27,7 @@ import { searchApi } from '../../app/services/searchApi';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import tabTitle from './util/tabTitle';
+import tabTitle2 from './util/tabTitles2';
 
 function a11yProps(index) {
   return {
@@ -56,12 +57,11 @@ export default function TabbedSearch() {
     const qsLength = queryState.length;
     setColors(() => [...color, 'White']);
     dispatch(addQuery(platform));
-    console.log(value);
     dispatch(setQueryProperty(
       {
-        tabTitle: (value + 2),
-        queryIndex: value + 1,
-        property: 'tabTitle',
+        name: `Query ${queryState.length + 1}`,
+        queryIndex: queryState.length,
+        property: 'name',
       },
     ));
 
@@ -79,6 +79,15 @@ export default function TabbedSearch() {
 
     setColors(newColorArray);
     dispatch(removeQuery(index));
+
+    // create a function that handles all dispatching
+    if (queryState.length === 2 && queryState[1].name === 'Query 2') {
+      dispatch(setQueryProperty({
+        name: 'Query 1',
+        queryIndex: 0,
+        property: 'name',
+      }));
+    }
 
     if (index === 0) {
       setValue(0);
@@ -118,7 +127,7 @@ export default function TabbedSearch() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
               <Tab
-                key={`${tabTitle(queryState, i)}`}
+                // key={`${tabTitle(queryState, i)}`}
                 onContextMenu={
                   (event) => {
                     setValue(i);
@@ -134,7 +143,7 @@ export default function TabbedSearch() {
                 label={(
                   <div className="tabTitleLabel">
 
-                    {queryState[i].tabTitle}
+                    {queryState[i].name}
 
                     <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
                       <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
@@ -207,7 +216,17 @@ export default function TabbedSearch() {
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
 
-                  // queryState.map((q, index) => (console.log(tabTitle(queryState, index))));
+                  console.log(queryState);
+
+                  // queryState.map((query, i) => {
+                  //   dispatch(setQueryProperty(
+                  //     {
+                  //       name: tabTitle2(query.queryList, query.negatedQuery, query.anyAll, query.queryString, i),
+                  //       queryIndex: i,
+                  //       property: 'name',
+                  //     },
+                  //   ));
+                  // });
                 }}
               >
                 Search
