@@ -11,7 +11,7 @@ const fullQuery = (queryList, negatedQueryList, platform, anyAll, queryString) =
   return queryReturn;
 };
 
-const queryTitle = (queryState) => {
+const queryTitle2 = (queryState) => {
   const {
     queryList,
     queryString,
@@ -23,4 +23,4 @@ const queryTitle = (queryState) => {
   return fullQuery(queryList, negatedQueryList, platform, anyAll, queryString);
 };
 
-export default queryTitle;
+export default queryTitle2;
