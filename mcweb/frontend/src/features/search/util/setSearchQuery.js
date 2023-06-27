@@ -151,23 +151,23 @@ const setState = (
     console.log(anyAlls);
     console.log(queryStrings);
     console.log(i);
-    dispatch(setQueryProperty(
-      {
-        name: tabTitle2(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
-        queryIndex: i,
-        property: 'name',
-      },
-    ));
-
-    // } else {
-    //   dispatch(setQueryProperty(
-    //     {
-    //       name: tabTitle2(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
-    //       queryIndex: i,
-    //       property: 'name',
-    //     },
-    //   ));
-    // }
+    if (negatedQueries) {
+      dispatch(setQueryProperty(
+        {
+          name: tabTitle2(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    } else {
+      dispatch(setQueryProperty(
+        {
+          name: tabTitle2(queries[i], negatedQueries, anyAlls[i], queryStrings, i),
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    }
   });
 };
 

@@ -54,6 +54,8 @@ export default function QueryList({ negated, queryIndex }) {
   };
 
   if (negated) {
+    console.log(negated);
+    console.log(serviceList);
     return (
       <div className="query-term-list">
         {serviceList.map((singleService, index) => (
@@ -72,19 +74,19 @@ export default function QueryList({ negated, queryIndex }) {
               />
 
               {(serviceList.length - 1 != index) && (
-              <span className="and-or">AND NOT</span>
+                <span className="and-or">AND NOT</span>
               )}
 
               {serviceList.length - 1 === index && (
-              <div onClick={handleServiceAdd}>
-                <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceAdd}>
+                  <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
 
               {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-              <div onClick={handleServiceRemove} onChange={handleQueryChange}>
-                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceRemove} onChange={handleQueryChange}>
+                  <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
 
             </div>
@@ -114,19 +116,19 @@ export default function QueryList({ negated, queryIndex }) {
               />
 
               {(serviceList.length - 1 !== index) && (
-              <span className="and-or">OR</span>
+                <span className="and-or">OR</span>
               )}
 
               {serviceList.length - 1 === index && (
-              <div onClick={handleServiceAdd}>
-                <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceAdd}>
+                  <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
 
               {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-              <div onClick={handleServiceRemove} onChange={handleQueryChange}>
-                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceRemove} onChange={handleQueryChange}>
+                  <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
             </div>
           </div>
@@ -152,19 +154,19 @@ export default function QueryList({ negated, queryIndex }) {
               />
 
               {(serviceList.length - 1 !== index) && (
-              <span className="and-or">AND</span>
+                <span className="and-or">AND</span>
               )}
 
               {serviceList.length - 1 === index && (
-              <div onClick={handleServiceAdd}>
-                <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceAdd}>
+                  <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
 
               {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-              <div onClick={handleServiceRemove}>
-                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceRemove}>
+                  <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
             </div>
           </div>
