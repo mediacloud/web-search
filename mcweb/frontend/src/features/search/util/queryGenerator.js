@@ -44,6 +44,7 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
   }
   // now add negations, if any
   if (negatedQuery.length > 0) {
+    console.log(negatedQuery);
     if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
       fullQuery = `(${fullQuery}) AND NOT (${negatedQuery.join(' OR ')})`;
     } else if (platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
