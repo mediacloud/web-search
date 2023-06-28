@@ -5,7 +5,6 @@ const fullQuery = (queryList, negatedQueryList, platform, anyAll, queryString) =
   if (queryString) {
     queryReturn = queryString;
   } else {
-    console.log(`negatedQueryList: ${negatedQueryList}`);
     queryReturn = queryGenerator(queryList, negatedQueryList, platform, anyAll);
   }
   return queryReturn;
