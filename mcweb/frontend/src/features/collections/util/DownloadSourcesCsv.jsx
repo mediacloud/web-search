@@ -11,7 +11,7 @@ function DownloadSourcesCsv({ collectionId }) {
 
     <Button
       variant="outlined"
-      endIcon={<DownloadIcon titleAccess="download source information as a CSV" />}
+      startIcon={<DownloadIcon titleAccess="download source information as a CSV" />}
       onClick={() => handleDownloadRequest()}
     >
       Download Source CSV

@@ -54,7 +54,7 @@ export default function CollectionHeader() {
         <h1>
           <Link style={{ textDecoration: 'none', color: 'black' }} to={`/collections/${collectionId}`}>
             <PlatformIcon fontSize="large" />
-                &nbsp;
+            &nbsp;
             {collection.name}
             {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
           </Link>
@@ -64,7 +64,7 @@ export default function CollectionHeader() {
         )}
       </Header>
       <ControlBar>
-        <Button variant="outlined" endIcon={<SearchIcon titleAccess="search our directory" />}>
+        <Button variant="outlined" startIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
             href={`/search/${urlSerializer([{
               queryList: defaultPlatformQuery(collection.platform),
@@ -86,7 +86,7 @@ export default function CollectionHeader() {
         </Button>
         <DownloadSourcesCsv collectionId={collectionId} />
         <Permissioned role={ROLE_STAFF}>
-          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
+          <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
             <Link to={`${collectionId}/edit`}>Edit</Link>
           </Button>
           <AlertDialog
@@ -104,29 +104,29 @@ export default function CollectionHeader() {
             variant="outlined"
             navigateNeeded
             navigateTo="/directory"
-            endIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
             secondAction={false}
             confirmButtonText="Delete"
           />
-          { collection.platform === 'online_news' && (
+          {collection.platform === 'online_news' && (
 
-          <AlertDialog
-            outsideTitle="Rescrape Collection For Feeds"
-            title={`Rescrape Collection #${collectionId}: ${collection.name} for new feeds?`}
-            content="Are you sure you want to rescrape each source in this collection for new feeds?"
-            dispatchNeeded={false}
-            action={rescrapeCollection}
-            actionTarget={collectionId}
-            snackbar
-            snackbarText="Collection Queued for rescraping!"
-            onClick={() => setOpenRescrape(true)}
-            openDialog={openRescrape}
-            variant="outlined"
-            navigateNeeded={false}
-            endIcon={<LockOpenIcon titleAccess="admin-delete" />}
-            secondAction={false}
-            confirmButtonText="Rescrape"
-          />
+            <AlertDialog
+              outsideTitle="Rescrape Collection For Feeds"
+              title={`Rescrape Collection #${collectionId}: ${collection.name} for new feeds?`}
+              content="Are you sure you want to rescrape each source in this collection for new feeds?"
+              dispatchNeeded={false}
+              action={rescrapeCollection}
+              actionTarget={collectionId}
+              snackbar
+              snackbarText="Collection Queued for rescraping!"
+              onClick={() => setOpenRescrape(true)}
+              openDialog={openRescrape}
+              variant="outlined"
+              navigateNeeded={false}
+              startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+              secondAction={false}
+              confirmButtonText="Rescrape"
+            />
           )}
         </Permissioned>
 

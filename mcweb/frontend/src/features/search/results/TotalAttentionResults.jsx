@@ -132,7 +132,7 @@ function TotalAttentionResults() {
                 <div>
                   <Button
                     onClick={handleClick}
-                    endIcon={
+                    startIcon={
                       <Settings titleAccess="view other chart viewing options" />
                     }
                   >
@@ -190,7 +190,7 @@ function TotalAttentionResults() {
               <TotalAttentionEmailModal
                 outsideTitle="Download CSV of All Content"
                 title={
-                  `Your current email is: ${currentUserEmail}. 
+                  `Your current email is: ${currentUserEmail}
                   Would you like to send your downloaded data to your current email or a new email?`
                 }
                 content="Enter a new email?"

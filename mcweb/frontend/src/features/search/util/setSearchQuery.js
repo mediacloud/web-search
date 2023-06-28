@@ -126,7 +126,7 @@ const setState = (
     });
     if (negatedQueries) {
       negatedQueries.forEach((negatedQuery, i) => {
-        dispatch(setQueryProperty({ negatedQuery, queryIndex: i, property: 'negatedQuery' }));
+        dispatch(setQueryProperty({ negatedQueryList: negatedQuery, queryIndex: i, property: 'negatedQueryList' }));
       });
     }
   }
