@@ -8,6 +8,8 @@ import {
   setSelectedMedia,
 } from '../query/querySlice';
 
+import tabTitle2 from './tabTitles2';
+
 const customParseFormat = require('dayjs/plugin/customParseFormat');
 
 const decode = (params) => decodeURIComponent(params);
@@ -97,6 +99,7 @@ const setState = (
   platforms,
   media,
   anyAlls,
+  names,
   dispatch,
 ) => {
   if (!queries) {
@@ -140,8 +143,32 @@ const setState = (
 
   dispatch(setPreviewSelectedMedia({ sourceOrCollection: media }));
   dispatch(setSelectedMedia({ sourceOrCollection: media }));
-
   dispatch(setLastSearchTime(dayjs().unix()));
+
+  names.forEach((title, i) => {
+    console.log(queries);
+    console.log(negatedQueries);
+    console.log(anyAlls);
+    console.log(queryStrings);
+    console.log(i);
+    if (negatedQueries) {
+      dispatch(setQueryProperty(
+        {
+          name: tabTitle2(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    } else {
+      dispatch(setQueryProperty(
+        {
+          name: tabTitle2(queries[i], negatedQueries, anyAlls[i], queryStrings, i),
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    }
+  });
 };
 
 const setSearchQuery = (searchParams, dispatch) => {
@@ -156,6 +183,7 @@ const setSearchQuery = (searchParams, dispatch) => {
   let sources = searchParams.get('ss');
   let anyAlls = searchParams.get('any');
   let queryStrings = searchParams.get('qs');
+  let names = searchParams.get('name');
 
   query = query ? query.split(',') : null;
   query = formatQuery(query);
@@ -184,7 +212,10 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   const media = combineQueryMedia(collections, sources);
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
-  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, dispatch);
+
+  names = names ? handleDecode(names) : null;
+
+  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, names, dispatch);
 
   return null;
 };

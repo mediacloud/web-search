@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 
-const formatCollections = (collectionsArray) => collectionsArray.map((c) => (
-  c
+const formatCollections = (collectionsArray) => collectionsArray.map((collection) => (
+  collection
 ));
 
-const formatSources = (sourcesArray) => sourcesArray.map((s) => (
-  s
+const formatSources = (sourcesArray) => sourcesArray.map((source) => (
+  source
 ));
 
 const queryListHelper = (queryList) => {
@@ -26,6 +26,7 @@ const urlSerializer = (queryState) => {
   const collectionArr = [];
   const anys = [];
   const adv = [];
+  const names = [];
   queryState.forEach((queryObject) => {
     const {
       queryString,
@@ -38,6 +39,7 @@ const urlSerializer = (queryState) => {
       platform,
       anyAll,
       advanced,
+      name,
     } = queryObject;
 
     const query = queryListHelper(queryList);
@@ -60,16 +62,17 @@ const urlSerializer = (queryState) => {
 
     anys.push(anyAll);
     adv.push(advanced);
+    names.push(name);
   });
 
   if (adv[0]) {
     return `qs=${encode(queryStrings)}&start=${encode(starts)}&end=${encode(ends)}&p=${encode(platforms)}`
-    + `&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}`;
+      + `&ss=${encode(sourceArr)}&cs=${encode(collectionArr)}&any=${encode(anys)}&name=${encode(names)}`;
   }
 
   return `q=${encode(queries)}&nq=${encode(negatedQueries)}&start=${encode(starts)}`
-  + `&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}`
-  + `&cs=${encode(collectionArr)}&any=${encode(anys)}`;
+    + `&end=${encode(ends)}&p=${encode(platforms)}&ss=${encode(sourceArr)}`
+    + `&cs=${encode(collectionArr)}&any=${encode(anys)}&name=${encode(names)}`;
 };
 
 export default urlSerializer;
