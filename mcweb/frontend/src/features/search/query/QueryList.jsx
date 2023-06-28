@@ -57,7 +57,7 @@ export default function QueryList({ negated, queryIndex }) {
     return (
       <div className="query-term-list">
         {serviceList.map((singleService, index) => (
-          <div key={index} className="query-term-item">
+          <div key={`${singleService}`} className="query-term-item">
 
             <div className="first-division">
 
