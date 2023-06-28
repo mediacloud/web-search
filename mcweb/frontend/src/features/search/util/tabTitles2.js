@@ -1,20 +1,42 @@
-import queryTitle2 from './queryTitle2';
+import { useSelector } from 'react-redux';
 import { PROVIDER_NEWS_MEDIA_CLOUD } from './platforms';
+import queryGenerator from './queryGenerator';
 
-const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index) => {
-  const queryState = {
-    queryList,
-    negatedQueryList,
-    anyAll,
-    queryString,
-    platform: PROVIDER_NEWS_MEDIA_CLOUD,
-  };
-  const title = queryTitle2(queryState, index);
+const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString) => {
+  if (queryString) {
+    return queryString;
+  }
+  return queryGenerator(queryList, negatedQueryList, platform, anyAll);
+};
+
+const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, queryState) => {
+  // queryState is passed in from TabbedSearch to check agianst:
+  // if titles generated are the same (ex. 'Hello and World' and 'Hello and World') =>
+  // use different collection as title
+
+  if (queryState) {
+    const titles = [];
+
+    queryState.forEach((query) => {
+      titles.push(
+        createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString),
+      );
+    });
+
+    const titlesDuplicates = titles.every((title) => title === titles[0]);
+    if (titlesDuplicates) {
+      // console.log(queryState);
+      // console.log(queryState[index].collections);
+      return queryState[index].collections.name;
+    }
+  }
+
+  const title = createTitle(queryList, negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, anyAll, queryString);
 
   if (title === '*') {
     return `Query ${index + 1}`;
-  } if (title.length > 30) {
-    return `${title.substring(0, 30)} ...`;
+  } if (title.length > 20) {
+    return `${title.substring(0, 20)} ...`;
   }
   return title;
 };
