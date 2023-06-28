@@ -100,7 +100,7 @@ export default function QueryList({ negated, queryIndex }) {
     return (
       <div className="query-term-list">
         {serviceList.map((singleService, index) => (
-          <div key={index} className="query-term-item">
+          <div key={singleService} className="query-term-item">
 
             <div className="first-division">
               <input
@@ -113,20 +113,20 @@ export default function QueryList({ negated, queryIndex }) {
                 onChange={(e) => handleQueryChange(e, index)}
               />
 
-              {(serviceList.length - 1 != index) && (
+              {(serviceList.length - 1 !== index) && (
                 <span className="and-or">OR</span>
               )}
 
               {serviceList.length - 1 === index && (
-                <div onClick={handleServiceAdd}>
+                <IconButton onClick={handleServiceAdd}>
                   <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-                </div>
+                </IconButton>
               )}
 
               {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-                <div onClick={handleServiceRemove} onChange={handleQueryChange}>
+                <IconButton onClick={handleServiceRemove} onChange={handleQueryChange}>
                   <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-                </div>
+                </IconButton>
               )}
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function QueryList({ negated, queryIndex }) {
     return (
       <div className="query-term-list">
         {serviceList.map((singleService, index) => (
-          <div key={index} className="query-term-item">
+          <div key={singleService} className="query-term-item">
 
             <div className="first-division">
               <input
@@ -156,15 +156,15 @@ export default function QueryList({ negated, queryIndex }) {
               )}
 
               {serviceList.length - 1 === index && (
-                <div onClick={handleServiceAdd}>
+                <IconButton onClick={handleServiceAdd}>
                   <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-                </div>
+                </IconButton>
               )}
 
               {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-                <div onClick={handleServiceRemove}>
+                <IconButton onClick={handleServiceRemove}>
                   <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-                </div>
+                </IconButton>
               )}
             </div>
           </div>
