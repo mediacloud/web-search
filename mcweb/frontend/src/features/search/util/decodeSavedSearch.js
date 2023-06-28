@@ -38,6 +38,7 @@ const decodeSavedSearch = (url) => {
 
   let query = fullquery.split('&')[0].split('=')[1];
   query = decode(query);
+  console.log('decode query', query);
   query = query ? query.split(',') : null;
 
   query = formatQuery(query);
@@ -56,6 +57,7 @@ const decodeSavedSearch = (url) => {
   let start = fullquery.split('=')[3].split('&')[0];
   start = start ? handleDecode(start) : null;
 
+  console.log(start, 'start decode');
   start = handleDateFormat(start);
 
   let end = fullquery.split('=')[4].split('&')[0];
@@ -81,6 +83,15 @@ const decodeSavedSearch = (url) => {
   collections = decodeAndFormatCorpus(collections, true);
 
   const anyAlls = fullquery.split('=')[8].split('&')[0];
+
+  // queries,
+  // negatedQueries,
+  // queryStrings,
+  // startDates,
+  // endDates,
+  // platforms,
+  // media,
+  // anyAlls,
 
   return {
     queryString: '',

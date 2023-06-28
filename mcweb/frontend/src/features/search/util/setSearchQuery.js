@@ -80,7 +80,7 @@ export const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
 ));
 
-const setState = (
+export const setQueryState = (
   queries,
   negatedQueries,
   queryStrings,
@@ -136,18 +136,45 @@ const setState = (
   dispatch(setLastSearchTime(dayjs().unix()));
 };
 
+const queryArrayFromSearchParams = (searchParams) => {
+  const query = searchParams.get('q');
+  const negatedQuery = searchParams.get('nq');
+  const startDates = searchParams.get('start');
+  const endDates = searchParams.get('end');
+  const platforms = searchParams.get('p');
+  const collections = searchParams.get('cs');
+  const sources = searchParams.get('ss');
+  const anyAlls = searchParams.get('any');
+  const queryStrings = searchParams.get('qs');
+
+  return {
+    query,
+    negatedQuery,
+    startDates,
+    endDates,
+    platforms,
+    collections,
+    sources,
+    anyAlls,
+    queryStrings,
+  };
+};
+
 export const setSearchQuery = (searchParams, dispatch) => {
   dayjs.extend(customParseFormat);
   // param keys are set in ./urlSerializer.js
-  let query = searchParams.get('q');
-  let negatedQuery = searchParams.get('nq');
-  let startDates = searchParams.get('start');
-  let endDates = searchParams.get('end');
-  let platforms = searchParams.get('p');
-  let collections = searchParams.get('cs');
-  let sources = searchParams.get('ss');
-  let anyAlls = searchParams.get('any');
-  let queryStrings = searchParams.get('qs');
+  const queriesObject = queryArrayFromSearchParams(searchParams);
+  let {
+    query,
+    negatedQuery,
+    startDates,
+    endDates,
+    platforms,
+    collections,
+    sources,
+    anyAlls,
+    queryStrings,
+  } = queriesObject;
 
   query = query ? query.split(',') : null;
   query = formatQuery(query);
@@ -176,7 +203,7 @@ export const setSearchQuery = (searchParams, dispatch) => {
 
   const media = combineQueryMedia(collections, sources);
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
-  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, dispatch);
+  setQueryState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, dispatch);
 
   return null;
 };

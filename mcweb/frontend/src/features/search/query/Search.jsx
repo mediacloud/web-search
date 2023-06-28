@@ -75,9 +75,6 @@ export default function Search({ queryIndex }) {
           </div>
         </div>
       </div>
-      <div className="float-end">
-        <SaveSearch queryIndex={queryIndex} />
-      </div>
     </div>
   );
 }

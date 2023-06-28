@@ -162,7 +162,7 @@ export default function TabbedSearch() {
       <div className="search-button-wrapper">
         <div className="container">
           <div className="row">
-            <div className="col-4">
+            <div className="col-3">
               <AlertDialog
                 openDialog={open}
                 outsideTitle="Share this Search"
@@ -181,10 +181,13 @@ export default function TabbedSearch() {
                 confirmButtonText="copy"
               />
             </div>
-            <div className="col-4">
+            <div className="col-3">
               <LoadSavedSearches className="float-end" />
             </div>
-            <div className="col-4">
+            <div className="col-3">
+              <SaveSearch />
+            </div>
+            <div className="col-3">
               <Button
                 className="float-end"
                 variant="contained"

@@ -7,14 +7,15 @@ import PropTypes from 'prop-types';
 import { useCreateSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 import urlSerializer from '../../util/urlSerializer';
 
-export default function SaveSearch({ queryIndex }) {
+export default function SaveSearch() {
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false);
-  const queryObject = useSelector((state) => state.query[queryIndex]);
-  const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer([queryObject])}`;
+  const queryState = useSelector((state) => state.query);
+  // const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer([queryState])}`;
   const [createSavedSearch] = useCreateSavedSearchMutation();
 
   const handleSaveSearch = async () => {
+    const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer([queryState])}`;
     await createSavedSearch({ name, serializedSearch });
     setOpen(false);
   };
@@ -34,7 +35,7 @@ export default function SaveSearch({ queryIndex }) {
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={handleClickOpen}>
+      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
         Save Search
       </Button>
       <Dialog open={open} onClose={handleClose}>
@@ -52,6 +53,3 @@ export default function SaveSearch({ queryIndex }) {
     </>
   );
 }
-SaveSearch.propTypes = {
-  queryIndex: PropTypes.number.isRequired,
-};
