@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import IconButton from '@mui/material/IconButton';
 import { setQueryProperty } from './querySlice';
 
 export default function QueryList({ negated, queryIndex }) {
   const dispatch = useDispatch();
   const { anyAll, queryList, negatedQueryList } = useSelector((state) => state.query[queryIndex]);
   const [serviceList, setServiceList] = useState(negated ? negatedQueryList : queryList);
-
   useEffect(() => {
     negated ? setServiceList(negatedQueryList) : setServiceList(queryList);
   }, [queryList, negatedQueryList]);
@@ -71,20 +71,20 @@ export default function QueryList({ negated, queryIndex }) {
                 onChange={(e) => handleQueryChange(e, index)}
               />
 
-              {(serviceList.length - 1 != index) && (
-              <span className="and-or">AND NOT</span>
+              {(serviceList.length - 1 !== index) && (
+                <span className="and-or">AND NOT</span>
               )}
 
               {serviceList.length - 1 === index && (
-              <div onClick={handleServiceAdd}>
-                <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <IconButton onClick={handleServiceAdd}>
+                  <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </IconButton>
               )}
 
               {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-              <div onClick={handleServiceRemove} onChange={handleQueryChange}>
-                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <IconButton onClick={handleServiceRemove} onChange={handleQueryChange}>
+                  <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </IconButton>
               )}
 
             </div>
@@ -114,19 +114,19 @@ export default function QueryList({ negated, queryIndex }) {
               />
 
               {(serviceList.length - 1 != index) && (
-              <span className="and-or">OR</span>
+                <span className="and-or">OR</span>
               )}
 
               {serviceList.length - 1 === index && (
-              <div onClick={handleServiceAdd}>
-                <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceAdd}>
+                  <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
 
               {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-              <div onClick={handleServiceRemove} onChange={handleQueryChange}>
-                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceRemove} onChange={handleQueryChange}>
+                  <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
             </div>
           </div>
@@ -152,19 +152,19 @@ export default function QueryList({ negated, queryIndex }) {
               />
 
               {(serviceList.length - 1 != index) && (
-              <span className="and-or">AND</span>
+                <span className="and-or">AND</span>
               )}
 
               {serviceList.length - 1 === index && (
-              <div onClick={handleServiceAdd}>
-                <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceAdd}>
+                  <AddCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
 
               {serviceList.length - 1 === index && serviceList.length - 1 >= 1 && (
-              <div onClick={handleServiceRemove}>
-                <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
-              </div>
+                <div onClick={handleServiceRemove}>
+                  <RemoveCircleOutlineIcon sx={{ color: '#d24527', marginLeft: '.5rem' }} />
+                </div>
               )}
             </div>
           </div>
