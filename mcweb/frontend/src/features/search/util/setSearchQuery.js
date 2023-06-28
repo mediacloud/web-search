@@ -146,11 +146,6 @@ const setState = (
   dispatch(setLastSearchTime(dayjs().unix()));
 
   names.forEach((title, i) => {
-    console.log(queries);
-    console.log(negatedQueries);
-    console.log(anyAlls);
-    console.log(queryStrings);
-    console.log(i);
     if (negatedQueries) {
       dispatch(setQueryProperty(
         {
@@ -160,9 +155,14 @@ const setState = (
         },
       ));
     } else {
+      // strange behavior:
+      // Only one query, nothing in the negatedQueryList:
+      // negatedQueries === null
+
+      // pass in [] to tabTitle2 replacing negatedQueries
       dispatch(setQueryProperty(
         {
-          name: tabTitle2(queries[i], negatedQueries, anyAlls[i], queryStrings, i),
+          name: tabTitle2(queries[i], [], anyAlls[i], queryStrings, i),
           queryIndex: i,
           property: 'name',
         },
