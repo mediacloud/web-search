@@ -60,12 +60,14 @@ export default function TabbedSearch() {
       const collectionIds = queryState.map((query) => query.collections);
       // when queryState is loaded it grabs from state, on rerender is the information that we want
       if (!compareArrays(collectionIds, [[34412234]])) {
-        const collectionNameData = await getCollectionNames(collectionIds).unwrap();
-        setCollectionNames(collectionNameData.collection);
+        const nestedArrayOfCollectionData = await getCollectionNames(collectionIds).unwrap();
+        setCollectionNames(nestedArrayOfCollectionData.collection);
       }
     };
     fetchData();
   }, [queryState]);
+
+  console.log(collectionNames);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
