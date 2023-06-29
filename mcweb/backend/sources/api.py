@@ -133,22 +133,22 @@ class CollectionViewSet(viewsets.ModelViewSet):
         serializer = CollectionWriteSerializer(collections, many=True)
         return Response({"collections": serializer.data})
 
-    @action(methods=['POSt'], detail=False, url_path='collections-from-nested-list')
+    @action(methods=['POST'], detail=False, url_path='collections-from-nested-list')
     def collections_from_nested_list(self, request):
         nested_list = request.data
-        # nested_list is a dictionary 
-        clean_nested_list = [values for values in nested_list.values()] 
-        print(clean_nested_list)
-
-        # nested_list_of_collections = request.data
-        # if len(collection_ids) != 0:
-        #     collection_ids = collection_ids.split(',')
-        #     collection_ids = [int(i) for i in collection_ids]
-        # collections = Collection.objects.filter(id__in=collection_ids)
-        # serializer = CollectionWriteSerializer(
-        # '1', many=True)
-        # return Response({"collections": serializer.data})
-        return Response({"collection": clean_nested_list})
+        # nested_list is a dictionary
+        nested_collection_ids = [values for values in nested_list.values()]
+        names = []
+        for collection_ids in nested_collection_ids:
+            if len(collection_ids) != 0:
+                collection_ids = str(collection_ids).strip('[]').split(',')
+                collection_ids = [int(i) for i in collection_ids]
+            collections = Collection.objects.filter(id__in=collection_ids)
+            serializer = CollectionWriteSerializer(collections, many=True)
+            names.append(serializer.data)
+        # break down the collection's serializer.data and just get the name (could be refactored in future by removing names)
+        names = [[item['name'] for item in sublist] for sublist in names]
+        return Response({"collection": names})
 
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
 
