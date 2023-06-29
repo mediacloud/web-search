@@ -9,27 +9,29 @@ const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString)
   return queryGenerator(queryList, negatedQueryList, platform, anyAll);
 };
 
-const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, queryState) => {
+const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, queryState, collectionNames) => {
   // queryState is passed in from TabbedSearch to check agianst:
   // if titles generated are the same (ex. 'Hello and World' and 'Hello and World') =>
   // use different collection as title
 
-  if (queryState) {
-    const titles = [];
+  // console.log(collectionNames);
 
-    queryState.forEach((query) => {
-      titles.push(
-        createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString),
-      );
-    });
+  // if (queryState) {
+  //   const titles = [];
 
-    const titlesDuplicates = titles.every((title) => title === titles[0]);
-    if (titlesDuplicates) {
-      // console.log(queryState);
-      // console.log(queryState[index].collections);
-      return queryState[index].collections.name;
-    }
-  }
+  //   queryState.forEach((query) => {
+  //     titles.push(
+  //       createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString),
+  //     );
+  //   });
+
+  //   const titlesDuplicates = titles.every((title) => title === titles[0]);
+  //   if (titlesDuplicates) {
+  //     // console.log(queryState);
+  //     // console.log(queryState[index].collections);
+  //     return queryState[index].collections.name;
+  //   }
+  // }
 
   const title = createTitle(queryList, negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, anyAll, queryString);
 
