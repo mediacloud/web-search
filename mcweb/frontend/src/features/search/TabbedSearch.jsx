@@ -26,8 +26,9 @@ import TabPanelHelper from '../ui/TabPanelHelper';
 import { searchApi } from '../../app/services/searchApi';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
-import tabTitle from './util/tabTitle';
 import tabTitle2 from './util/tabTitles2';
+import compareArrays from './util/compareArrays';
+import { useListCollectionsFromNestedArrayMutation } from '../../app/services/collectionsApi';
 
 function a11yProps(index) {
   return {
@@ -48,6 +49,23 @@ export default function TabbedSearch() {
   const [color, setColors] = useState(['White']);
 
   const { platform } = queryState[0];
+
+  const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
+  const [collectionNames, setCollectionNames] = useState([]);
+
+  useEffect(() => {
+    setShow(deactivateButton(queryState));
+    const fetchData = async () => {
+      // grab all the collection ids for each query
+      const collectionIds = queryState.map((query) => query.collections);
+      // when queryState is loaded it grabs from state, on rerender is the information that we want
+      if (!compareArrays(collectionIds, [[34412234]])) {
+        const collectionNameData = await getCollectionNames(collectionIds).unwrap();
+        setCollectionNames(collectionNameData.collection);
+      }
+    };
+    fetchData();
+  }, [queryState]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -78,16 +96,8 @@ export default function TabbedSearch() {
     }
 
     setColors(newColorArray);
-    dispatch(removeQuery(index));
 
-    // create a function that handles all dispatching
-    if (queryState.length === 2 && queryState[1].name === 'Query 2') {
-      dispatch(setQueryProperty({
-        name: 'Query 1',
-        queryIndex: 0,
-        property: 'name',
-      }));
-    }
+    dispatch(removeQuery(index));
 
     if (index === 0) {
       setValue(0);
@@ -95,19 +105,10 @@ export default function TabbedSearch() {
       setValue(index - 1);
     }
   };
-
   const handleShare = () => {
     const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
     navigator.clipboard.writeText(ahref);
   };
-
-  useEffect(() => {
-    setValue(0);
-  }, [platform]);
-
-  useEffect(() => {
-    setShow(deactivateButton(queryState));
-  }, [queryState]);
 
   const [anchorEl, setAnchorEl] = useState(false);
 
@@ -216,17 +217,15 @@ export default function TabbedSearch() {
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
 
-                  console.log(queryState);
-
-                  // queryState.map((query, i) => {
-                  //   dispatch(setQueryProperty(
-                  //     {
-                  //       name: tabTitle2(query.queryList, query.negatedQuery, query.anyAll, query.queryString, i),
-                  //       queryIndex: i,
-                  //       property: 'name',
-                  //     },
-                  //   ));
-                  // });
+                  queryState.forEach((query, i) => {
+                    dispatch(setQueryProperty(
+                      {
+                        name: tabTitle2(query.queryList, query.negatedQueryList, query.anyAll, query.queryString, i, queryState),
+                        queryIndex: i,
+                        property: 'name',
+                      },
+                    ));
+                  });
                 }}
               >
                 Search
@@ -238,10 +237,10 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
-          <TopWords />
-          <TopLanguages />
+          {/* <TotalAttentionResults /> */}
+          {/* <SampleStories /> */}
+          {/* <TopWords /> */}
+          {/* <TopLanguages /> */}
         </div>
       </div>
 
