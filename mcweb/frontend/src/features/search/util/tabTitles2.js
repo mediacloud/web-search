@@ -12,19 +12,13 @@ const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString)
 const createCollectionTitle = (names) => {
   let collectionTitle = '';
   for (let i = 0; i < names.length; i += 1) {
-    if (i === names.length - 1) {
-      if (names[i].length > 20) {
-        collectionTitle += `${names[i].substring(0, 20)} ... `;
-      } else {
-        collectionTitle += names[i];
-      }
-    } else if (names[i].length > 20) {
-      collectionTitle += `${names[i].substring(0, 20)} ... & `;
+    if (names[i].length > 20) {
+      collectionTitle += `'${names[i].substring(0, 20)}' ... & `;
     } else {
-      collectionTitle += `${names[i]}  &`;
+      collectionTitle += `'${names[i]}'  & `;
     }
   }
-  return collectionTitle;
+  return collectionTitle.slice(0, -2);
 };
 
 const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, queryState, collectionNames) => {
