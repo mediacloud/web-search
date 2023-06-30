@@ -67,8 +67,6 @@ export default function TabbedSearch() {
     fetchData();
   }, [queryState]);
 
-  console.log(collectionNames);
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -222,7 +220,7 @@ export default function TabbedSearch() {
                   queryState.forEach((query, i) => {
                     dispatch(setQueryProperty(
                       {
-                        name: tabTitle2(query.queryList, query.negatedQueryList, query.anyAll, query.queryString, i, queryState),
+                        name: tabTitle2(query.queryList, query.negatedQueryList, query.anyAll, query.queryString, i, queryState, collectionNames),
                         queryIndex: i,
                         property: 'name',
                       },
@@ -239,10 +237,10 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          {/* <TotalAttentionResults /> */}
-          {/* <SampleStories /> */}
-          {/* <TopWords /> */}
-          {/* <TopLanguages /> */}
+          <TotalAttentionResults />
+          <SampleStories />
+          <TopWords />
+          <TopLanguages />
         </div>
       </div>
 
