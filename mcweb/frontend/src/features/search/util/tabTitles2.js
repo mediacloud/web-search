@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux';
 import { PROVIDER_NEWS_MEDIA_CLOUD } from './platforms';
 import queryGenerator from './queryGenerator';
 
@@ -22,33 +21,35 @@ const createCollectionTitle = (names) => {
 };
 
 const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, queryState, collectionNames) => {
-  // queryState is passed in from TabbedSearch to check agianst:
-  // if titles generated are the same (ex. 'Hello and World' and 'Hello and World') =>
-  // use different collection as title
   if (queryState) {
     const titles = queryState.map(
       (query) => createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString),
     );
     if (queryState.length > 1) {
-      // check if the titles are duplicates
       const titlesDuplicates = titles.every((title) => title === titles[0]);
       if (titlesDuplicates) {
-        // use a collection title for the tabTitle
-        return createCollectionTitle(collectionNames[index]);
+        const collections = collectionNames.map((collection, i) => createCollectionTitle(collectionNames[i]));
+        const collectionsDuplicates = collections.every((collection) => collection === collections[0]);
+        if (!collectionsDuplicates) {
+          return collections[index];
+        }
+        return `Query ${index + 1} `;
       }
 
       /*
-      clever idea:
+    clever idea:
 
-      the system heuristic be able to determine which part of the queries
-      are different and use that for naming. Ie. if they search for
-      'robot AND monkey' and 'robot AND dog', it should name the queries
-      'monkey' and 'dog' based on the fact that they both start with "robot AND"
-      */
+    the system heuristic be able to determine which part of the queries
+    are different and use that for naming. Ie. if they search for
+    'robot AND monkey' and 'robot AND dog', it should name the queries
+    'monkey' and 'dog' based on the fact that they both start with "robot AND"
+    */
 
       // IMPLEMENT here
     }
   }
+
+  // queryState isn't passed in (setSearchQuery)
   const title = createTitle(queryList, negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, anyAll, queryString);
 
   if (title === '*') {
