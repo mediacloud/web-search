@@ -38,11 +38,15 @@ import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
 import { selectIsLoggedIn } from './features/auth/authSlice';
 import setSearchQuery from './features/search/util/setSearchQuery';
+import { useListCollectionsFromNestedArrayMutation } from './app/services/collectionsApi';
+import compareArrays from './features/search/util/compareArrays';
 
 function App() {
   const { lastSearchTime } = useSelector((state) => state.query);
+  const queryState = useSelector((state) => state.query);
   const [searchParams] = useSearchParams();
   const [trigger, setTrigger] = useState(true);
+  const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
 
   const dispatch = useDispatch();
 
@@ -51,8 +55,33 @@ function App() {
       setSearchQuery(searchParams, dispatch);
       setTrigger(false);
     }
+
+    // console.log(queryState);
+
+    // const fetchData = async () => {
+    //   // grab all the collection ids for each query
+    //   const collectionIds = queryState.map((query) => query.collections);
+    //   // when queryState is loaded it grabs from state, on rerender is the information that we want
+    //   if (!compareArrays(collectionIds, [[34412234]])) {
+    //     const nestedArrayOfCollectionData = await getCollectionNames(collectionIds).unwrap();
+    //     setSearchQuery(searchParams, dispatch, nestedArrayOfCollectionData);
+    //   }
+    // };
+    // fetchData();
   }, [lastSearchTime]);
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     // grab all the collection ids for each query
+  //     const collectionIds = queryState.map((query) => query.collections);
+  //     // when queryState is loaded it grabs from state, on rerender is the information that we want
+  //     if (!compareArrays(collectionIds, [[34412234]])) {
+  //       const nestedArrayOfCollectionData = await getCollectionNames(collectionIds).unwrap();
+  //       setSearchQuery(searchParams, dispatch, nestedArrayOfCollectionData);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [queryState]);
   return (
     <>
       <Header />
@@ -120,7 +149,7 @@ function App() {
                 <RequireAuth>
                   <CollectionShow />
                 </RequireAuth>
-            )}
+              )}
             />
             <Route
               path=":collectionId/edit"
@@ -128,7 +157,7 @@ function App() {
                 <RequireAuth>
                   <ModifyCollection />
                 </RequireAuth>
-            )}
+              )}
             />
 
           </Route>
@@ -179,7 +208,7 @@ function App() {
                 <RequireAuth>
                   <ModifySource />
                 </RequireAuth>
-                )}
+              )}
             />
             <Route
               path=":sourceId/feeds/create"
