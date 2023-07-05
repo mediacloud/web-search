@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import TextField from '@mui/material/TextField';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import dayjs from 'dayjs';
@@ -46,7 +47,9 @@ export default function TabbedSearch() {
 
   const queryState = useSelector((state) => state.query);
 
-  const [color, setColors] = useState(['White']);
+  const [color, setColors] = useState(['white']);
+  const [edit, setEdit] = useState([false]);
+  const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
 
   const { platform } = queryState[0];
 
@@ -55,6 +58,7 @@ export default function TabbedSearch() {
 
   useEffect(() => {
     setShow(deactivateButton(queryState));
+    setTextFieldValues(queryState.map((query) => query.name));
     const fetchData = async () => {
       // grab all the collection ids for each query
       const collectionIds = queryState.map((query) => query.collections);
@@ -74,6 +78,7 @@ export default function TabbedSearch() {
   const handleAddQuery = () => {
     const qsLength = queryState.length;
     setColors(() => [...color, 'White']);
+    setEdit(() => [...edit, false]);
     dispatch(addQuery(platform));
     dispatch(setQueryProperty(
       {
@@ -87,15 +92,17 @@ export default function TabbedSearch() {
   };
 
   const handleRemoveQuery = (index) => {
-    const newColorArray = [];
+    const updatedColor = [];
+    const updatedEdit = [];
 
     for (let i = 0; i < color.length; i += 1) {
       if (i !== index) {
-        newColorArray.push(color[i]);
+        updatedColor.push(color[i]);
+        updatedEdit.push(edit[i]);
       }
     }
-
-    setColors(newColorArray);
+    setColors(updatedColor);
+    setEdit(updatedEdit);
 
     dispatch(removeQuery(index));
 
@@ -114,9 +121,16 @@ export default function TabbedSearch() {
 
   const handleClose = (index, colorValue) => {
     setValue(index);
-    const newColors = [...color];
-    newColors[index] = colorValue;
-    setColors(newColors);
+
+    if (colorValue === 'edit') {
+      const updatedEdit = [...edit];
+      updatedEdit[index] = Boolean(colorValue);
+      setEdit(updatedEdit);
+    } else {
+      const newColors = [...color];
+      newColors[index] = colorValue;
+      setColors(newColors);
+    }
     setAnchorEl(null);
   };
 
@@ -141,28 +155,69 @@ export default function TabbedSearch() {
                   outline: `4px solid ${color[i]}`, // change the color and size as needed
                   outlineOffset: '-4px', // adjust this value to match the size of the outline
                 }}
-                label={(
-                  <div className="tabTitleLabel">
+                label={
+                  !edit[i]
+                    ? (
+                      <div className="tabTitleLabel">
+                        {queryState[i].name}
 
-                    {queryState[i].name}
+                        <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
+                          <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
+                          <MenuItem onClick={() => handleClose(value, 'yellow')}>Yellow</MenuItem>
+                          <MenuItem onClick={() => handleClose(value, 'green')}>Green</MenuItem>
+                          <MenuItem onClick={() => handleClose(value, 'blue')}>Blue</MenuItem>
+                          <MenuItem onClick={() => handleClose(value, 'indigo')}>Indigo</MenuItem>
+                          <MenuItem onClick={() => handleClose(value, 'edit')}>Edit</MenuItem>
+                        </Menu>
 
-                    <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
-                      <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'yellow')}>Yellow</MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'green')}>Green</MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'blue')}>Blue</MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'indigo')}>Indigo</MenuItem>
-                    </Menu>
+                        {!(i === 0 && queryState.length - 1 === 0) && (
+                          <RemoveCircleOutlineIcon
+                            sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                            onClick={() => handleRemoveQuery(i)}
+                            variant="contained"
+                          />
+                        )}
+                      </div>
+                    )
+                    : (
+                      <div className="tabTitleLabel">
+                        <TextField
+                          id="outlined-size-small"
+                          size="small"
+                          value={textFieldsValues[i]}
+                          onChange={(event) => {
+                            const updatedValues = [...textFieldsValues];
+                            updatedValues[value] = event.target.value;
+                            setTextFieldValues(updatedValues);
+                          }}
 
-                    {!(i === 0 && queryState.length - 1 === 0) && (
-                      <RemoveCircleOutlineIcon
-                        sx={{ color: '#d24527', marginLeft: '.5rem' }}
-                        onClick={() => handleRemoveQuery(i)}
-                        variant="contained"
-                      />
-                    )}
-                  </div>
-                )}
+                        />
+                        <Button onClick={() => {
+                          const updatedEdit = [...edit];
+                          updatedEdit[value] = false;
+                          setEdit(updatedEdit);
+                          dispatch(setQueryProperty(
+                            {
+                              name: textFieldsValues[i],
+                              queryIndex: value,
+                              property: 'name',
+                            },
+                          ));
+                        }}
+                        >
+                          Edit
+                        </Button>
+                        {!(i === 0 && queryState.length - 1 === 0) && (
+                          <RemoveCircleOutlineIcon
+                            sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                            onClick={() => handleRemoveQuery(i)}
+                            variant="contained"
+                          />
+                        )}
+                      </div>
+
+                    )
+                }
                 /* eslint-disable-next-line react/jsx-props-no-spreading */
                 {...a11yProps(i)}
               />
@@ -237,10 +292,10 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
-          <TopWords />
-          <TopLanguages />
+          {/* <TotalAttentionResults /> */}
+          {/* <SampleStories /> */}
+          {/* <TopWords /> */}
+          {/* <TopLanguages /> */}
         </div>
       </div>
 
