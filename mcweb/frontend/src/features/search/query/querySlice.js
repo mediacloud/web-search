@@ -24,6 +24,7 @@ const cleanQuery = (platform) => ({
   anyAll: 'any',
   advanced: false,
   name: '',
+  edited: false,
 });
 
 const querySlice = createSlice({
@@ -47,6 +48,8 @@ const querySlice = createSlice({
         anyAll: 'any',
         advanced: false,
         name: 'Query 1',
+        edited: false,
+
       },
     ],
 
@@ -153,6 +156,8 @@ const querySlice = createSlice({
           anyAll: 'any',
           advanced: false,
           name: 'Query',
+          edited: false,
+
         },
       );
     },
