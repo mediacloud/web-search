@@ -155,10 +155,8 @@ const setState = (
   });
 
   names.forEach((title, i) => {
-    console.log(names[i]);
-    console.log(title);
+    // name is not flagged
     if (edited[i] === 'false') {
-      console.log(`edited[i] === ${edited[i]}`);
       if (negatedQueries) {
         dispatch(setQueryProperty(
           {
@@ -167,7 +165,7 @@ const setState = (
             property: 'name',
           },
         ));
-      } else {
+      } else { // name is flagged (DO NOT CHANGE)
         dispatch(setQueryProperty(
           {
             name: tabTitle2(queries[i], [], anyAlls[i], queryStrings, i),
