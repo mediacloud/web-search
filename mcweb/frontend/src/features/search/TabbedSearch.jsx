@@ -45,11 +45,14 @@ export default function TabbedSearch() {
   const [show, setShow] = useState(false);
   const [open, setOpen] = useState(false);
 
+  // I'm having an issue where dispatching, results the urlSerialization of an old queryStatehow
   const queryState = useSelector((state) => state.query);
+  console.log(queryState[0]);
 
   const [color, setColors] = useState(['white']);
   const [edit, setEdit] = useState([false]);
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
+  const [serializedUrl, setSerializedURL] = useState('');
 
   const { platform } = queryState[0];
 
@@ -70,6 +73,16 @@ export default function TabbedSearch() {
     };
     fetchData();
   }, [queryState]);
+
+  // Modify the handleSearch function to pass the queryState to urlSerializer
+  const handleSearch = () => {
+    navigate(`/search?${serializedUrl}`, { options: { replace: true } });
+  };
+
+  useEffect(() => {
+    setSerializedURL(urlSerializer(queryState));
+    handleSearch();
+  }, [edit]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -134,6 +147,9 @@ export default function TabbedSearch() {
     setAnchorEl(null);
   };
 
+  // console.log(queryState.map((q) => q.name));
+  // console.log(textFieldsValues);
+
   return (
     <div className="container search-container">
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
@@ -142,7 +158,6 @@ export default function TabbedSearch() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
               <Tab
-                // key={`${tabTitle(queryState, i)}`}
                 onContextMenu={
                   (event) => {
                     setValue(i);
@@ -152,14 +167,14 @@ export default function TabbedSearch() {
                 }
                 sx={{ marginRight: 0.5 }}
                 style={{
-                  outline: `4px solid ${color[i]}`, // change the color and size as needed
-                  outlineOffset: '-4px', // adjust this value to match the size of the outline
+                  outline: `4px solid ${color[i]}`,
+                  outlineOffset: '-4px',
                 }}
                 label={
                   !edit[i]
                     ? (
                       <div className="tabTitleLabel">
-                        {queryState[i].name}
+                        {textFieldsValues[i]}
 
                         <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
                           <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
@@ -196,13 +211,8 @@ export default function TabbedSearch() {
                           const updatedEdit = [...edit];
                           updatedEdit[value] = false;
                           setEdit(updatedEdit);
-                          dispatch(setQueryProperty(
-                            {
-                              name: textFieldsValues[i],
-                              queryIndex: value,
-                              property: 'name',
-                            },
-                          ));
+                          dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
+                          dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
                         }}
                         >
                           Edit
@@ -258,29 +268,25 @@ export default function TabbedSearch() {
             </div>
 
             <div className="col-1">
-              {/* Submit */}
+              {/* Search */}
               <Button
                 className="float-end"
                 variant="contained"
                 disabled={!show}
                 startIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={() => {
-                  navigate(
-                    `/search?${urlSerializer(queryState)}`,
-                    { options: { replace: true } },
-                  );
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
-
-                  queryState.forEach((query, i) => {
+                  queryState.forEach((q, i) => {
                     dispatch(setQueryProperty(
                       {
-                        name: tabTitle2(query.queryList, query.negatedQueryList, query.anyAll, query.queryString, i, queryState, collectionNames),
+                        name: tabTitle2(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, i, queryState, collectionNames),
                         queryIndex: i,
                         property: 'name',
                       },
                     ));
                   });
+                  handleSearch();
                 }}
               >
                 Search
@@ -298,7 +304,6 @@ export default function TabbedSearch() {
           {/* <TopLanguages /> */}
         </div>
       </div>
-
     </div>
   );
 }
