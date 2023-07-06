@@ -9,6 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import dayjs from 'dayjs';
 import LoadSavedSearches from './query/savedsearch/LoadSavedSearches';
@@ -160,51 +161,53 @@ export default function TabbedSearch() {
       </Box>
 
       <div className="search-button-wrapper">
-        <div className="container">
-          <div className="row">
-            <div className="col-3">
-              <AlertDialog
-                openDialog={open}
-                outsideTitle="Share this Search"
-                title="Share this Search"
-                content={<code>{`search.mediacloud.org/search?${urlSerializer(queryState)}`}</code>}
-                action={handleShare}
-                actionTarget
-                snackbar
-                snackbarText="Search copied to clipboard!"
-                dispatchNeeded={false}
-                onClick={() => setOpen(true)}
-                variant="outlined"
-                endIcon={<ContentCopy titleAccess="copy this search" />}
-                secondAction={false}
-                className="float-end"
-                confirmButtonText="copy"
-              />
-            </div>
-            <div className="col-3">
-              <LoadSavedSearches className="float-end" />
-            </div>
-            <div className="col-3">
-              <SaveSearch />
-            </div>
-            <div className="col-3">
-              <Button
-                className="float-end"
-                variant="contained"
-                disabled={!show}
-                endIcon={<SearchIcon titleAccess="search this query" />}
-                onClick={() => {
-                  navigate(`/search?${urlSerializer(queryState)}`, { options: { replace: true } });
-                  dispatch(searchApi.util.resetApiState());
-                  dispatch(setLastSearchTime(dayjs().unix()));
-                }}
-              >
-                Search
-              </Button>
-            </div>
+
+        <div className="start-buttons">
+          <div>
+            <AlertDialog
+              openDialog={open}
+              outsideTitle={<ContentCopy titleAccess="copy this search" />}
+              title="Share this Search"
+              content={<code>{`search.mediacloud.org/search?${urlSerializer(queryState)}`}</code>}
+              action={handleShare}
+              actionTarget
+              snackbar
+              snackbarText="Search copied to clipboard!"
+              dispatchNeeded={false}
+              onClick={() => setOpen(true)}
+              variant="outlined"
+              endIcon={<MoreVertIcon titleAccess="copy this search" />}
+              secondAction={false}
+              confirmButtonText="copy"
+            />
+          </div>
+          <div>
+            <LoadSavedSearches />
           </div>
         </div>
+
+        <div className="end-buttons">
+          <div>
+            <SaveSearch />
+          </div>
+          <div>
+            <Button
+              variant="contained"
+              disabled={!show}
+              endIcon={<SearchIcon titleAccess="search this query" />}
+              onClick={() => {
+                navigate(`/search?${urlSerializer(queryState)}`, { options: { replace: true } });
+                dispatch(searchApi.util.resetApiState());
+                dispatch(setLastSearchTime(dayjs().unix()));
+              }}
+            >
+              Search
+            </Button>
+          </div>
+        </div>
+
       </div>
+
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />

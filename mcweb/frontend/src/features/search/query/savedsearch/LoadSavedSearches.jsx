@@ -8,12 +8,13 @@ import {
   DialogActions,
 } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
 import { addSavedSearch } from '../querySlice';
 import { useListSavedSearchesQuery, useDeleteSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 import decodeSavedSearch from '../../util/decodeSavedSearch';
-import { setQueryState } from '../../util/setSearchQuery';
+import { setQueryState, setSearchQuery } from '../../util/setSearchQuery';
 
 export default function LoadSavedSearches() {
   const { data } = useListSavedSearchesQuery();
@@ -46,34 +47,13 @@ export default function LoadSavedSearches() {
 
   const handleLoadSavedSearch = (url) => {
     const queryObj = decodeSavedSearch(url);
-    console.log(queryObj);
-    const {
-      queries,
-      negatedQueries,
-      queryStrings,
-      startDates,
-      endDates,
-      platforms,
-      media,
-      anyAlls,
-    } = queryObj;
-    setQueryState(
-      queries,
-      negatedQueries,
-      queryStrings,
-      startDates,
-      endDates,
-      platforms,
-      media,
-      anyAlls,
-      dispatch,
-    );
-    // dispatch(addSavedSearch(queryObj));
+    setSearchQuery(queryObj, dispatch, true);
+    setOpen(false);
   };
 
   return (
     <>
-      <Button variant="outlined" color="primary" onClick={handleButtonClick}>
+      <Button variant="outlined" color="primary" onClick={handleButtonClick} endIcon={<MoreVertIcon />}>
         Load Saved Searches
       </Button>
       <Dialog open={open} onClose={handleClose}>

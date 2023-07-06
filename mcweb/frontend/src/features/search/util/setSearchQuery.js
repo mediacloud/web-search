@@ -160,10 +160,11 @@ const queryArrayFromSearchParams = (searchParams) => {
   };
 };
 
-export const setSearchQuery = (searchParams, dispatch) => {
+export const setSearchQuery = (searchParams, dispatch, savedSearchBool) => {
   dayjs.extend(customParseFormat);
   // param keys are set in ./urlSerializer.js
-  const queriesObject = queryArrayFromSearchParams(searchParams);
+  const queriesObject = savedSearchBool ? searchParams : queryArrayFromSearchParams(searchParams);
+  console.log(queriesObject, 'IN SET SEARCH', savedSearchBool);
   let {
     query,
     negatedQuery,
@@ -175,7 +176,6 @@ export const setSearchQuery = (searchParams, dispatch) => {
     anyAlls,
     queryStrings,
   } = queriesObject;
-
   query = query ? query.split(',') : null;
   query = formatQuery(query);
   query = query ? sizeQuery(query) : null;

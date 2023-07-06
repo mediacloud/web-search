@@ -39,50 +39,54 @@ const decodeSavedSearch = (url) => {
   let query = fullquery.split('&')[0].split('=')[1];
   query = decode(query);
   console.log('decode query', query);
-  query = query ? query.split(',') : null;
+  // query = query ? query.split(',') : null;
 
-  query = formatQuery(query);
+  // query = formatQuery(query);
 
-  query = query ? sizeQuery(query) : null;
+  // query = query ? sizeQuery(query) : null;
 
   let negatedQuery = fullquery.split('=')[2].split('&')[0];
 
   negatedQuery = decode(negatedQuery);
-  negatedQuery = negatedQuery ? negatedQuery.split(',') : [[], [], []];
+  // negatedQuery = negatedQuery ? negatedQuery.split(',') : [[], [], []];
 
-  negatedQuery = formatQuery(negatedQuery);
+  // negatedQuery = formatQuery(negatedQuery);
 
-  negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : null;
+  // negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : null;
+  console.log('decode negquery', negatedQuery);
 
   let start = fullquery.split('=')[3].split('&')[0];
-  start = start ? handleDecode(start) : null;
+  start = start ? handleDecode(start).join(',') : null;
 
+  // start = handleDateFormat(start);
   console.log(start, 'start decode');
-  start = handleDateFormat(start);
 
   let end = fullquery.split('=')[4].split('&')[0];
-  end = end ? handleDecode(end) : null;
+  end = end ? handleDecode(end).join(',') : null;
 
-  end = handleDateFormat(end);
+  // end = handleDateFormat(end);
+  console.log(end, 'end decode');
 
-  const platforms = fullquery.split('=')[5].split('&')[0];
+  let platforms = fullquery.split('=')[5].split('&')[0];
+  platforms = platforms ? handleDecode(platforms).join(',') : null;
 
   let sources = fullquery.split('=')[6].split('&')[0];
 
   sources = decode(sources);
 
-  sources = sources ? sources.split(',') : [];
-  sources = decodeAndFormatCorpus(sources, false);
+  // sources = sources ? sources.split(',') : [];
+  // sources = decodeAndFormatCorpus(sources, false);
 
   let collections = fullquery.split('=')[7].split('&')[0];
 
   collections = decode(collections);
 
-  collections = collections ? collections.split(',') : [];
+  // collections = collections ? collections.split(',') : [];
 
-  collections = decodeAndFormatCorpus(collections, true);
+  // collections = decodeAndFormatCorpus(collections, true);
 
-  const anyAlls = fullquery.split('=')[8].split('&')[0];
+  let anyAlls = fullquery.split('=')[8].split('&')[0];
+  anyAlls = handleDecode(anyAlls).join(',');
 
   // queries,
   // negatedQueries,
@@ -92,19 +96,19 @@ const decodeSavedSearch = (url) => {
   // platforms,
   // media,
   // anyAlls,
-
+  // console.log(query, negatedQuery, platforms, start, end, collections, sources, anyAlls);
   return {
-    queryString: '',
-    queryList: query,
-    negatedQueryList: negatedQuery,
-    platform: platforms,
-    startDate: start,
-    endDate: end,
+    queryStrings: '',
+    query,
+    negatedQuery,
+    platforms,
+    startDates: start,
+    endDates: end,
     collections,
     previewCollections: collections,
     sources,
     previewSources: sources,
-    anyAll: anyAlls,
+    anyAlls,
     advanced,
   };
 };

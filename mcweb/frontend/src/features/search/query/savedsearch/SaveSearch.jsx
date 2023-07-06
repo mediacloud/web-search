@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import {
-  TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-} from '@mui/material';
-import PropTypes from 'prop-types';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useCreateSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 import urlSerializer from '../../util/urlSerializer';
 
@@ -15,7 +18,7 @@ export default function SaveSearch() {
   const [createSavedSearch] = useCreateSavedSearchMutation();
 
   const handleSaveSearch = async () => {
-    const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer([queryState])}`;
+    const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer(queryState)}`;
     await createSavedSearch({ name, serializedSearch });
     setOpen(false);
   };
@@ -35,7 +38,7 @@ export default function SaveSearch() {
 
   return (
     <>
-      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+      <Button variant="outlined" color="primary" onClick={handleClickOpen} endIcon={<MoreVertIcon />}>
         Save Search
       </Button>
       <Dialog open={open} onClose={handleClose}>
