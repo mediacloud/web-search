@@ -1,5 +1,6 @@
 import { PROVIDER_NEWS_MEDIA_CLOUD } from './platforms';
 import queryGenerator from './queryGenerator';
+import querySimplifier from './querySimplifier';
 
 const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString) => {
   if (queryString) {
@@ -54,7 +55,8 @@ const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, quer
 
   if (title === '*') {
     return `Query ${index + 1} `;
-  } if (title.length > 20) {
+  }
+  if (title.length > 20) {
     return `${title.substring(0, 20)} ...`;
   }
   return title;
