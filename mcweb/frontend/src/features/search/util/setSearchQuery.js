@@ -100,6 +100,7 @@ const setState = (
   media,
   anyAlls,
   names,
+  edited,
   dispatch,
 ) => {
   if (!queries) {
@@ -141,28 +142,52 @@ const setState = (
     dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
   });
 
+  edited.forEach((edit, i) => {
+    dispatch(setQueryProperty({ edited: edit === 'true', queryIndex: i, property: 'edited' }));
+  });
+
   dispatch(setPreviewSelectedMedia({ sourceOrCollection: media }));
   dispatch(setSelectedMedia({ sourceOrCollection: media }));
   dispatch(setLastSearchTime(dayjs().unix()));
 
+  anyAlls.forEach((anyAll, i) => {
+    dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
+  });
+
   names.forEach((title, i) => {
-    if (negatedQueries) {
+    console.log(names[i]);
+    console.log(title);
+    if (edited[i] === 'false') {
+      console.log(`edited[i] === ${edited[i]}`);
+      if (negatedQueries) {
+        dispatch(setQueryProperty(
+          {
+            name: tabTitle2(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
+            queryIndex: i,
+            property: 'name',
+          },
+        ));
+      } else {
+        dispatch(setQueryProperty(
+          {
+            name: tabTitle2(queries[i], [], anyAlls[i], queryStrings, i),
+            queryIndex: i,
+            property: 'name',
+          },
+        ));
+      }
+    } else if (negatedQueries) {
       dispatch(setQueryProperty(
         {
-          name: tabTitle2(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
+          name: names[i],
           queryIndex: i,
           property: 'name',
         },
       ));
     } else {
-      // strange behavior:
-      // Only one query, nothing in the negatedQueryList:
-      // negatedQueries === null
-
-      // pass in [] to tabTitle2 replacing negatedQueries
       dispatch(setQueryProperty(
         {
-          name: tabTitle2(queries[i], [], anyAlls[i], queryStrings, i),
+          name: names[i],
           queryIndex: i,
           property: 'name',
         },
@@ -184,6 +209,7 @@ const setSearchQuery = (searchParams, dispatch) => {
   let anyAlls = searchParams.get('any');
   let queryStrings = searchParams.get('qs');
   let names = searchParams.get('name');
+  let edited = searchParams.get('edit');
 
   query = query ? query.split(',') : null;
   query = formatQuery(query);
@@ -215,7 +241,9 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   names = names ? handleDecode(names) : null;
 
-  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, names, dispatch);
+  edited = edited ? handleDecode(edited) : null;
+
+  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, names, edited, dispatch);
 
   return null;
 };
