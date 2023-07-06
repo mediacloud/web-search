@@ -3,6 +3,8 @@ import logging
 import csv
 import time
 import collections
+import asyncio
+import aiohttp
 from django.http import HttpResponse, HttpResponseBadRequest
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -51,29 +53,57 @@ def handle_provider_errors(func):
             return error_response(str(e))
     return _handler
 
+async def count_async(query):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+    provider = providers.provider_by_name(provider_name)
+    relevant_count = provider.count(query_str, start_date, end_date, **provider_props)
+    content_count = provider.count(provider.everything_query(), start_date, end_date, **provider_props)
+    return [relevant_count, content_count]
+
+async def get_tasks(payload, userId, userIsStaff):
+    tasks = []
+    for query in payload:
+        tasks.append(asyncio.create_task(count_async(query)))
+    return tasks
+
+
+async def async_total_count(payload, userId, userIsStaff):
+    async with aiohttp.ClientSession():
+        tasks = get_tasks(payload, userId, userIsStaff)
+        responses = await asyncio.gather(tasks)
+        return responses
+
 
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def total_count(request):
     payload = json.loads(request.body).get("queryObject")
-    total_content_count = []
+    start = time.time()
+    responses = asyncio.run(async_total_count(payload, request.user.id, request.user.is_staff))
+    end = time.time()
+    print("time: " + str(end-start))
+    
+    # total_content_count = []
+    # relevant_count = []
+    # start_time = time.time()
+    # for query in payload:
+    #     start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+    #     provider = providers.provider_by_name(provider_name)
+    #     relevant_count.append(provider.count(query_str, start_date, end_date, **provider_props))
+    #     try:
+    #         total_content_count.append(provider.count(provider.everything_query(), start_date, end_date, **provider_props))
+    #         # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    #     except QueryingEverythingUnsupportedQuery as e:
+    #         total_content_count = []
+    #     # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+    # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    # end_time = time.time()
+
+    # print("time: " + str(end_time - start_time))
     relevant_count = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name)
-        relevant_count.append(provider.count(
-            query_str, start_date, end_date, **provider_props))
-        try:
-            total_content_count.append(provider.count(
-                provider.everything_query(), start_date, end_date, **provider_props))
-            # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
-        except QueryingEverythingUnsupportedQuery as e:
-            total_content_count = []
-        # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name)
+    total_content_count = []
+
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
@@ -326,15 +356,19 @@ def send_email_large_download_csv(request):
 
     # follows similiar logic from download_all_content_csv, get information and send to tasks
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
+            query, 'GET')
         provider = providers.provider_by_name(provider_name)
         try:
-            count = provider.count(query_str, start_date, end_date, **provider_props)
+            count = provider.count(query_str, start_date,
+                                   end_date, **provider_props)
             if count >= 25000 and count <= 200000:
-                download_all_large_content_csv(queryState, request.user.id, request.user.is_staff, email)
+                download_all_large_content_csv(
+                    queryState, request.user.id, request.user.is_staff, email)
         except UnsupportedOperationException:
             return error_response("Can't count results for download in {}... continuing anyway".format(provider_name))
     return HttpResponse(content_type="application/json", status=200)
+
 
 def add_ratios(words_data):
     for word in words_data:
