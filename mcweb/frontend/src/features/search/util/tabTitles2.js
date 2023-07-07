@@ -1,6 +1,6 @@
 import { PROVIDER_NEWS_MEDIA_CLOUD } from './platforms';
 import queryGenerator from './queryGenerator';
-import querySimplifier from './querySimplifier';
+import compareArrays from './compareArrays';
 
 const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString) => {
   if (queryString) {
@@ -29,22 +29,21 @@ const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, quer
     if (queryState.length > 1) {
       const titlesDuplicates = titles.every((title) => title === titles[0]);
       if (titlesDuplicates) {
-        const collections = collectionNames.map((collection, i) => collectionNames[i]);
-        const collectionsDuplicates = collections.every((collection) => collection === collections[0]);
+        const collectionsDuplicates = collectionNames.every((collection) => compareArrays(collection, collectionNames[0]));
         if (!collectionsDuplicates) {
-          return collections[index];
+          return collectionNames[index];
         }
         return `Query ${index + 1} `;
       }
 
       /*
-    clever idea:
+clever idea:
 
-    the system heuristic be able to determine which part of the queries
-    are different and use that for naming. Ie. if they search for
-    'robot AND monkey' and 'robot AND dog', it should name the queries
-    'monkey' and 'dog' based on the fact that they both start with "robot AND"
-    */
+the system heuristic be able to determine which part of the queries
+are different and use that for naming. Ie. if they search for
+'robot AND monkey' and 'robot AND dog', it should name the queries
+'monkey' and 'dog' based on the fact that they both start with "robot AND"
+*/
 
       // IMPLEMENT here
     }
