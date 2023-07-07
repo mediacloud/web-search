@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import allDuplicates from '../src/features/search/util/tabTitleHelpers/isDuplicate';
+import allDuplicates from '../src/features/search/util/tabTitleHelpers/allDuplicates';
 import compareArrays from '../src/features/search/util/compareArrays';
 
 test('[1, 1]', () => {

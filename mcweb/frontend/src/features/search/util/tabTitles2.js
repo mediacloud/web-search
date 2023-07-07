@@ -1,6 +1,7 @@
 import { PROVIDER_NEWS_MEDIA_CLOUD } from './platforms';
 import queryGenerator from './queryGenerator';
 import compareArrays from './compareArrays';
+import allDuplicates from './tabTitleHelpers/allDuplicates';
 
 const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString) => {
   if (queryString) {
@@ -27,10 +28,10 @@ const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, quer
       (query) => createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString),
     );
     if (queryState.length > 1) {
-      const titlesDuplicates = titles.every((title) => title === titles[0]);
-      if (titlesDuplicates) {
-        const collectionsDuplicates = collectionNames.every((collection) => compareArrays(collection, collectionNames[0]));
-        if (!collectionsDuplicates) {
+      console.log(allDuplicates(null, titles));
+      if (allDuplicates(null, titles)) {
+        console.log(allDuplicates(compareArrays, collectionNames));
+        if (!allDuplicates(compareArrays, collectionNames)) {
           return collectionNames[index];
         }
         return `Query ${index + 1} `;
