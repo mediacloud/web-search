@@ -54,7 +54,6 @@ export default function TabbedSearch() {
   const [color, setColors] = useState(['white']);
   const [edit, setEdit] = useState([false]);
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
-
   const { platform } = queryState[0];
 
   const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
@@ -132,10 +131,9 @@ export default function TabbedSearch() {
 
   const handleClose = (index, colorValue) => {
     setValue(index);
-
     if (colorValue === 'edit') {
       const updatedEdit = [...edit];
-      updatedEdit[index] = Boolean(colorValue);
+      updatedEdit[index] = true;
       setEdit(updatedEdit);
     } else {
       const newColors = [...color];
