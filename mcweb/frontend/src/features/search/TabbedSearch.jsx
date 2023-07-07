@@ -78,6 +78,11 @@ export default function TabbedSearch() {
     navigate(`/search?${urlSerializer(state)}`, { options: { replace: true } });
   };
 
+  const handleShare = () => {
+    const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
+    navigator.clipboard.writeText(ahref);
+  };
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
@@ -102,6 +107,7 @@ export default function TabbedSearch() {
     const updatedColor = [];
     const updatedEdit = [];
 
+    // clean this up
     for (let i = 0; i < color.length; i += 1) {
       if (i !== index) {
         updatedColor.push(color[i]);
@@ -118,10 +124,6 @@ export default function TabbedSearch() {
     } else {
       setValue(index - 1);
     }
-  };
-  const handleShare = () => {
-    const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
-    navigator.clipboard.writeText(ahref);
   };
 
   const [anchorEl, setAnchorEl] = useState(false);
@@ -141,8 +143,6 @@ export default function TabbedSearch() {
     setAnchorEl(null);
   };
 
-  console.log(queryState.map((q) => q.edited));
-
   return (
     <div className="container search-container">
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
@@ -159,88 +159,82 @@ export default function TabbedSearch() {
                   }
                 }
                 sx={{ marginRight: 0.5 }}
-                style={{
-                  outline: `4px solid ${color[i]}`,
-                  outlineOffset: '-4px',
-                }}
-                label={
-                  !edit[i]
-                    ? (
-                      <div className="tabTitleLabel">
-                        {textFieldsValues[i]}
+                style={{ outline: `4px solid ${color[i]}`, outlineOffset: '-4px' }}
+                label={(
+                  <Box sx={{ display: 'flex' }}>
+                    {!edit[i]
+                      ? (
+                        <div className="tabTitleLabel">
+                          {/* Title */}
+                          {queryState[i].name}
 
-                        {queryState[i].edited && (
-                          <IconButton
-                            onClick={() => {
-                              const updatedEdit = [...edit];
-                              updatedEdit[i] = false;
-                              setEdit(updatedEdit);
-                              updatedQueryState[i].edited = false;
-                              dispatch(setQueryProperty({ edited: false, queryIndex: value, property: 'edited' }));
-                              handleSearch(updatedQueryState); // url matches queryState
+                          {/* Flag (Custom Title) */}
+                          {queryState[i].edited && (
+                            <IconButton
+                              onClick={() => {
+                                const updatedEdit = [...edit];
+                                updatedEdit[i] = false;
+                                setEdit(updatedEdit);
+                                updatedQueryState[i].edited = false;
+                                dispatch(setQueryProperty({ edited: false, queryIndex: value, property: 'edited' }));
+                                handleSearch(updatedQueryState); // url matches queryState
+                              }}
+                              color="primary"
+                            >
+                              <FlagIcon sx={{ paddingLeft: '5px' }} />
+                            </IconButton>
+                          )}
+
+                          {/* Dropdown Menu */}
+                          <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
+                            <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
+                            <MenuItem onClick={() => handleClose(value, 'yellow')}>Yellow</MenuItem>
+                            <MenuItem onClick={() => handleClose(value, 'green')}>Green</MenuItem>
+                            <MenuItem onClick={() => handleClose(value, 'blue')}>Blue</MenuItem>
+                            <MenuItem onClick={() => handleClose(value, 'indigo')}>Indigo</MenuItem>
+                            <MenuItem onClick={() => handleClose(value, 'edit')}>Edit</MenuItem>
+                          </Menu>
+
+                        </div>
+                      )
+                      : (
+                        <div className="tabTitleLabel">
+                          {/* TextField for a custom title */}
+                          <TextField
+                            id="outlined-size-small"
+                            size="small"
+                            value={textFieldsValues[i]}
+                            onChange={(event) => {
+                              const updatedValues = [...textFieldsValues];
+                              updatedValues[value] = event.target.value;
+                              setTextFieldValues(updatedValues);
                             }}
-                            color="primary"
-                            aria-label="add to shopping cart"
-                          >
-                            <FlagIcon sx={{ paddingLeft: '5px' }} />
-                          </IconButton>
-                        )}
-
-                        <Menu anchorEl={anchorEl} open={anchorEl} onClose={handleClose}>
-                          <MenuItem onClick={() => handleClose(value, 'orange')}>Orange</MenuItem>
-                          <MenuItem onClick={() => handleClose(value, 'yellow')}>Yellow</MenuItem>
-                          <MenuItem onClick={() => handleClose(value, 'green')}>Green</MenuItem>
-                          <MenuItem onClick={() => handleClose(value, 'blue')}>Blue</MenuItem>
-                          <MenuItem onClick={() => handleClose(value, 'indigo')}>Indigo</MenuItem>
-                          <MenuItem onClick={() => handleClose(value, 'edit')}>Edit</MenuItem>
-                        </Menu>
-
-                        {!(i === 0 && queryState.length - 1 === 0) && (
-                          <RemoveCircleOutlineIcon
-                            sx={{ color: '#d24527', marginLeft: '.5rem' }}
-                            onClick={() => handleRemoveQuery(i)}
-                            variant="contained"
                           />
-                        )}
-                      </div>
-                    )
-                    : (
-                      <div className="tabTitleLabel">
-                        <TextField
-                          id="outlined-size-small"
-                          size="small"
-                          value={textFieldsValues[i]}
-                          onChange={(event) => {
-                            const updatedValues = [...textFieldsValues];
-                            updatedValues[value] = event.target.value;
-                            setTextFieldValues(updatedValues);
+                          {/* Confirm Edit */}
+                          <Button onClick={() => {
+                            const updatedEdit = [...edit];
+                            updatedEdit[value] = false;
+                            setEdit(updatedEdit);
+                            updatedQueryState[i].name = textFieldsValues[i];
+                            updatedQueryState[i].edited = true;
+                            dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
+                            dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
+                            handleSearch(updatedQueryState); // url matches queryState
                           }}
-
-                        />
-                        <Button onClick={() => {
-                          const updatedEdit = [...edit];
-                          updatedEdit[value] = false;
-                          setEdit(updatedEdit);
-                          updatedQueryState[i].name = textFieldsValues[i];
-                          updatedQueryState[i].edited = true;
-                          dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
-                          dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
-                          handleSearch(updatedQueryState); // url matches queryState
-                        }}
-                        >
-                          Edit
-                        </Button>
-                        {!(i === 0 && queryState.length - 1 === 0) && (
-                          <RemoveCircleOutlineIcon
-                            sx={{ color: '#d24527', marginLeft: '.5rem' }}
-                            onClick={() => handleRemoveQuery(i)}
-                            variant="contained"
-                          />
-                        )}
-                      </div>
-
-                    )
-                }
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      )}
+                    {(queryState.length !== 1) && (
+                      <RemoveCircleOutlineIcon
+                        sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                        onClick={() => handleRemoveQuery(i)}
+                        variant="contained"
+                      />
+                    )}
+                  </Box>
+                )}
                 /* eslint-disable-next-line react/jsx-props-no-spreading */
                 {...a11yProps(i)}
               />
