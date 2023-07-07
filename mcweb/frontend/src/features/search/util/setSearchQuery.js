@@ -209,9 +209,9 @@ const setSearchQuery = (searchParams, dispatch) => {
   let names = searchParams.get('name');
   let edited = searchParams.get('edit');
 
-  query = query ? query.split(',') : null;
+  query = query ? query.split(',') : [];
   query = formatQuery(query);
-  query = query ? sizeQuery(query) : null;
+  query = query ? sizeQuery(query) : [];
 
   negatedQuery = negatedQuery ? negatedQuery.split(',') : null;
   negatedQuery = formatQuery(negatedQuery);
