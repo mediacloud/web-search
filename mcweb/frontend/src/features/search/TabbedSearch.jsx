@@ -12,7 +12,9 @@ import TextField from '@mui/material/TextField';
 import FlagIcon from '@mui/icons-material/Flag';
 import IconButton from '@mui/material/IconButton';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import EditIcon from '@mui/icons-material/Edit';
 import ContentCopy from '@mui/icons-material/ContentCopy';
+import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
 import {
   addQuery, setLastSearchTime, removeQuery, setQueryProperty,
@@ -162,6 +164,7 @@ export default function TabbedSearch() {
                 style={{ outline: `4px solid ${color[i]}`, outlineOffset: '-4px' }}
                 label={(
                   <Box sx={{ display: 'flex' }}>
+                    {/* edit === false */}
                     {!edit[i]
                       ? (
                         <div className="tabTitleLabel">
@@ -171,6 +174,7 @@ export default function TabbedSearch() {
                           {/* Flag (Custom Title) */}
                           {queryState[i].edited && (
                             <IconButton
+                              sx={{ color: '#d24527', marginLeft: '.5rem' }}
                               onClick={() => {
                                 const updatedEdit = [...edit];
                                 updatedEdit[i] = false;
@@ -197,6 +201,7 @@ export default function TabbedSearch() {
 
                         </div>
                       )
+                      // edit === true
                       : (
                         <div className="tabTitleLabel">
                           {/* TextField for a custom title */}
@@ -211,21 +216,38 @@ export default function TabbedSearch() {
                             }}
                           />
                           {/* Confirm Edit */}
-                          <Button onClick={() => {
-                            const updatedEdit = [...edit];
-                            updatedEdit[value] = false;
-                            setEdit(updatedEdit);
-                            updatedQueryState[i].name = textFieldsValues[i];
-                            updatedQueryState[i].edited = true;
-                            dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
-                            dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
-                            handleSearch(updatedQueryState); // url matches queryState
-                          }}
+                          <IconButton
+                            sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                            onClick={() => {
+                              const updatedEdit = [...edit];
+                              updatedEdit[value] = false;
+                              setEdit(updatedEdit);
+                            }}
                           >
-                            Edit
-                          </Button>
+                            <CancelIcon />
+                          </IconButton>
+
+                          {/* Confirm Edit */}
+                          <IconButton
+                            disabled={textFieldsValues[i].length === 0}
+                            sx={{ color: '#d24527', marginLeft: '.5rem' }}
+                            onClick={() => {
+                              const updatedEdit = [...edit];
+                              updatedEdit[value] = false;
+                              setEdit(updatedEdit);
+                              updatedQueryState[i].name = textFieldsValues[i];
+                              updatedQueryState[i].edited = true;
+                              dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
+                              dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
+                              handleSearch(updatedQueryState); // url matches queryState
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
                         </div>
                       )}
+
+                    {/* Remove Icon  */}
                     {(queryState.length !== 1) && (
                       <RemoveCircleOutlineIcon
                         sx={{ color: '#d24527', marginLeft: '.5rem' }}
