@@ -1,6 +1,6 @@
-export default function isDuplicate(compare, array) {
+export default function allDuplicates(compare, array) {
   // compare strings, ints, booleans
-  if (compare !== undefined) {
+  if (compare === null) {
     return array.every((a) => a === array[0]);
   }
   // compare arrays, objects (pass in compareArrays for instance)
