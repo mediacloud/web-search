@@ -29,7 +29,7 @@ const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, index, quer
     if (queryState.length > 1) {
       const titlesDuplicates = titles.every((title) => title === titles[0]);
       if (titlesDuplicates) {
-        const collections = collectionNames.map((collection, i) => createCollectionTitle(collectionNames[i]));
+        const collections = collectionNames.map((collection, i) => collectionNames[i]);
         const collectionsDuplicates = collections.every((collection) => collection === collections[0]);
         if (!collectionsDuplicates) {
           return collections[index];
