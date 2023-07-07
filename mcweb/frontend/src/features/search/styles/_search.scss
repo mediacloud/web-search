@@ -47,25 +47,16 @@
     
   }
   
-  .tabTitleLabel {
-    
-    .tabNameInput{ 
-      border: none;
-      outline: none;
-      background: transparent;
-      color: inherit;
-      font-style: inherit;
-      font-weight: inherit;
-      font-size: inherit;
-      line-height: inherit;
-      display: inline-flex;
-      size: inherit;
-      text-align: center;
-      
-    }
-  }
   
   
+.editInput {
+  padding: 5px 10px;
+  box-sizing: border-box;
+  border: 2px solid #d24527;
+  width: 150px;
+  outline: none;
+}
+
   
   p.help {
     margin-top: $padding-s;
