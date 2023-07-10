@@ -14,5 +14,5 @@ test('[a]', () => {
 });
 
 test('[]', () => {
-  expect(collectionTitle([])).toBe('No Collections');
+  expect(collectionTitle([])).toBe('No Selected Collections or Sources');
 });
