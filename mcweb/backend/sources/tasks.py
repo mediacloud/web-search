@@ -84,7 +84,7 @@ def _scrape_source(source_id, homepage, user):
             subject = "[Media Cloud] New Feed Found"
             body = f"A new feed with the url: {url} has been found and added"
             from_email = 'noreply@mediacloud.org'
-            recepient = user.email
+            recepient = [user.email]
             send_email(subject, body, from_email, recepient)
         else:
             logger.info(f"scrape_source({source_id}, {homepage}) found old feed {url}")
