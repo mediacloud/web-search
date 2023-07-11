@@ -8,7 +8,6 @@ import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
-import TextField from '@mui/material/TextField';
 import FlagIcon from '@mui/icons-material/Flag';
 import IconButton from '@mui/material/IconButton';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
@@ -50,6 +49,7 @@ export default function TabbedSearch() {
   const [value, setValue] = useState(0); // index of tab
   const [show, setShow] = useState(false);
   const [open, setOpen] = useState(false);
+  // const [dispatchNames, setDispatchNames] = useState(true);
   const queryState = useSelector((state) => state.query);
   const updatedQueryState = JSON.parse(JSON.stringify(queryState));
   const [color, setColors] = useState(['white']); // colors of tabs, we don't need to save this in state
@@ -74,7 +74,7 @@ export default function TabbedSearch() {
       }
     };
     fetchData();
-  }, [queryState]);
+  }, [queryState, edit]);
 
   // Modify the handleSearch function to pass the queryState to urlSerializer
   const handleSearch = (state) => {
@@ -316,7 +316,7 @@ export default function TabbedSearch() {
                       dispatch(setQueryProperty(
                         {
                           // eslint-disable-next-line max-len
-                          name: tabTitle2(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, i, queryState, collectionNames),
+                          name: tabTitle2(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, collectionNames, i, queryState),
                           queryIndex: i,
                           property: 'name',
                         },
@@ -344,3 +344,20 @@ export default function TabbedSearch() {
     </div>
   );
 }
+
+// dispatch collection names to tabs
+// if (dispatchNames) {
+//   queryState.forEach((q, i) => {
+//     if (!queryState[i].edited) {
+//       dispatch(setQueryProperty(
+//         {
+//           // eslint-disable-next-line max-len
+//           name: tabTitle2(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, i, queryState, nestedArrayOfCollectionData.collection),
+//           queryIndex: i,
+//           property: 'name',
+//         },
+//       ));
+//     }
+//   });
+//   setDispatchNames(false);
+// }
