@@ -95,7 +95,7 @@ def _scrape_source(source_id, homepage, user):
 
 
 @background()
-def _scrape_collection(collection_id):
+def _scrape_collection(collection_id, user):
     logger.info(f"==== starting _scrape_collection(collection_id)")
 
     collection = Collection.objects.get(id=collection_id)
@@ -108,7 +108,7 @@ def _scrape_collection(collection_id):
         # check source.homepage not empty??
         if not source.homepage:
             return _return_error(f"source {source.id} missing homepage")
-        scraped_source_text = Source._scrape_source(source.id, source.homepage)
+        scraped_source_text = Source._scrape_source(source.id, source.homepage, user)
         email += f"{scraped_source_text} \n"
         logger.info(f"==== finished _scrape_source {source.name}")
         
