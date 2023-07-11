@@ -25,7 +25,7 @@ import numpy as np
 from .models import Feed, Source, Collection
 
 # emails
-from util.send_emails import send_alert_email
+from util.send_emails import send_alert_email, send_email
 
 
 #rss fetcher
@@ -62,7 +62,7 @@ logger = logging.getLogger(__name__)
 # calling decorated_function.now() invokes decorated function synchronously.
 
 @background()
-def _scrape_source(source_id, homepage):
+def _scrape_source(source_id, homepage, user):
     logger.info(f"==== starting _scrape_source(source_id, homepage)")
 
     # work around not having a column/index for normalized feed url:
@@ -80,6 +80,12 @@ def _scrape_source(source_id, homepage):
             logger.info(f"scrape_source({source_id}, {homepage}) found new feed {url}")
             feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
             feed.save()
+            #send email about new feed
+            subject = "[Media Cloud] New Feed Found"
+            body = f"A new feed with the url: {url} has been found and added"
+            from_email = 'noreply@mediacloud.org'
+            recepient = user.email
+            send_email(subject, body, from_email, recepient)
         else:
             logger.info(f"scrape_source({source_id}, {homepage}) found old feed {url}")
 
@@ -267,7 +273,7 @@ def schedule_scrape_collection(collection_id, user):
     call this function from a view action to schedule a (re)scrape for a collection
     """
     collection = Collection.objects.get(id=collection_id)
-    task = _scrape_collection(collection_id, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
+    task = _scrape_collection(collection_id, user, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
 
     return {'task': _return_task(task)}
 
@@ -291,7 +297,7 @@ def schedule_scrape_source(source_id, user):
     # NOTE! Will remove any other pending scrapes for same source
     # rather than queuing a duplicate; the new user will "steal" the task
     # (leaving no trace of the old one). Returns a Task object.
-    task = _scrape_source(source_id, source.homepage, creator=user,
+    task = _scrape_source(source_id, source.homepage, user, creator=user,
                           verbose_name=f"rescrape {name_or_home}",
                           remove_existing_tasks=True)
     return {'task': _return_task(task)}
