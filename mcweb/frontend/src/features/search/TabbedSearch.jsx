@@ -8,13 +8,13 @@ import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
-import FlagIcon from '@mui/icons-material/Flag';
 import IconButton from '@mui/material/IconButton';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CircleIcon from '@mui/icons-material/Circle';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import dayjs from 'dayjs';
 import {
   addQuery, setLastSearchTime, removeQuery, setQueryProperty,
@@ -52,7 +52,7 @@ export default function TabbedSearch() {
   // const [dispatchNames, setDispatchNames] = useState(true);
   const queryState = useSelector((state) => state.query);
   const updatedQueryState = JSON.parse(JSON.stringify(queryState));
-  const [color, setColors] = useState(['white']); // colors of tabs, we don't need to save this in state
+  const [color, setColor] = useState(['white']); // colors of tabs, we don't need to save this in state
   const [edit, setEdit] = useState([false]); // local state variable for
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
   const { platform } = queryState[0];
@@ -76,11 +76,6 @@ export default function TabbedSearch() {
     fetchData();
   }, [queryState, edit]);
 
-  // Modify the handleSearch function to pass the queryState to urlSerializer
-  const handleSearch = (state) => {
-    navigate(`/search?${urlSerializer(state)}`, { options: { replace: true } });
-  };
-
   const handleShare = () => {
     const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
     navigator.clipboard.writeText(ahref);
@@ -95,7 +90,7 @@ export default function TabbedSearch() {
 
   const handleAddQuery = () => {
     const qsLength = queryState.length;
-    setColors(() => [...color, 'White']);
+    setColor(() => [...color, 'White']);
     setEdit(() => [...edit, false]);
     dispatch(addQuery(platform));
     dispatch(setQueryProperty(
@@ -113,17 +108,21 @@ export default function TabbedSearch() {
     const updatedColor = color.filter((_, i) => i !== index);
     const updatedEdit = edit.filter((_, i) => i !== index);
 
-    setColors(updatedColor);
+    setColor(updatedColor);
     setEdit(updatedEdit);
 
     dispatch(removeQuery(index));
     setValue(index === 0 ? 0 : index - 1);
   };
 
-  const [anchorEl, setAnchorEl] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleClose = (index, colorValue) => {
-    // SyntheticBaseEvent (double click, click outsied of menu)
+    // SyntheticBaseEvent (click outside of menu)
     if (isNumber(index)) {
       setValue(index);
     }
@@ -134,7 +133,7 @@ export default function TabbedSearch() {
     } else {
       const newColors = [...color];
       newColors[index] = colorValue;
-      setColors(newColors);
+      setColor(newColors);
     }
     setAnchorEl(null);
   };
@@ -147,63 +146,15 @@ export default function TabbedSearch() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
               <Tab
-                onContextMenu={(event) => {
-                  setValue(i);
-                  event.preventDefault();
-                  setAnchorEl(event.currentTarget);
-                }}
+                key={i}
                 sx={{ marginRight: 0.5 }}
                 style={{ outline: `4px solid ${color[i]}`, outlineOffset: '-4px', borderRadius: '4px' }}
                 label={(
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {/* edit === false */}
-                    {!edit[i]
-                      ? (
-                        <div>
-                          {/* Title */}
-                          {queryState[i].name}
-                          {/* Flag (Custom Title) */}
-                          {queryState[i].edited && (
-                            <IconButton
-                              sx={{ color: '#d24527', marginLeft: '.5rem' }}
-                              onClick={() => {
-                                const updatedEdit = [...edit];
-                                updatedEdit[i] = false;
-                                setEdit(updatedEdit);
-                                updatedQueryState[i].edited = false;
-                                dispatch(setQueryProperty({ edited: false, queryIndex: value, property: 'edited' }));
-                                handleSearch(updatedQueryState); // url matches queryState
-                              }}
-                            >
-                              <FlagIcon />
-                            </IconButton>
-                          )}
-
-                          {/* Dropdown Menu */}
-                          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-                            <MenuItem onClick={() => handleClose(value, 'orange')}>
-                              <CircleIcon sx={{ color: 'orange' }} />
-                            </MenuItem>
-                            <MenuItem onClick={() => handleClose(value, 'yellow')}>
-                              <CircleIcon sx={{ color: 'yellow' }} />
-                            </MenuItem>
-                            <MenuItem onClick={() => handleClose(value, 'green')}>
-                              <CircleIcon sx={{ color: 'green' }} />
-                            </MenuItem>
-                            <MenuItem onClick={() => handleClose(value, 'blue')}>
-                              <CircleIcon sx={{ color: 'blue' }} />
-                            </MenuItem>
-                            <MenuItem onClick={() => handleClose(value, 'indigo')}>
-                              <CircleIcon sx={{ color: 'indigo' }} />
-                            </MenuItem>
-                            <MenuItem onClick={() => handleClose(value, 'edit')}>
-                              <EditIcon aria-label="edit" />
-                            </MenuItem>
-                          </Menu>
-                        </div>
-                      )
-                      // edit === true
-                      : (
+                    {/* Title */}
+                    <div>
+                      {!edit[i] && queryState[i].name}
+                      {edit[i] && (
                         <div>
                           {/* TextField for a custom title */}
                           <input
@@ -235,12 +186,11 @@ export default function TabbedSearch() {
                             onClick={() => {
                               const updatedEdit = [...edit];
                               updatedEdit[value] = false;
+
                               setEdit(updatedEdit);
-                              updatedQueryState[i].name = textFieldsValues[i];
-                              updatedQueryState[i].edited = true;
+
                               dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
                               dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
-                              handleSearch(updatedQueryState); // url matches queryState
                             }}
                           >
                             <EditIcon />
@@ -248,19 +198,54 @@ export default function TabbedSearch() {
                         </div>
                       )}
 
-                    {/* Remove Icon: display if length of queryState > 1 and edit === false  */}
-                    {(queryState.length !== 1 && !edit[i]) && (
-                      <RemoveCircleOutlineIcon
-                        sx={{
-                          color: '#d24527', marginLeft: '.5rem',
-                        }}
-                        onClick={() => handleRemoveQuery(i)}
-                        variant="contained"
-                      />
-                    )}
+                      {/* Remove Icon: display if length of queryState > 1 and edit === false  */}
+                      {(queryState.length > 1 && !edit[i]) && (
+                        <RemoveCircleOutlineIcon
+                          sx={{
+                            color: '#d24527', marginLeft: '.5rem',
+                          }}
+                          onClick={() => handleRemoveQuery(i)}
+                          variant="contained"
+                        />
+                      )}
+                    </div>
+
+                    {/* Dropdown Menu */}
+                    <MoreVertIcon
+                      aria-label="options"
+                      onClick={(event) => handleMenuOpen(event)}
+                      sx={{
+                        position: 'absolute', top: '.25rem', right: '0', fontSize: 'medium',
+                      }}
+                    />
+
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl) && value === i}
+                      onClose={handleClose}
+                    >
+                      <MenuItem onClick={() => handleClose(value, 'orange')}>
+                        <CircleIcon sx={{ color: 'orange' }} />
+                      </MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'yellow')}>
+                        <CircleIcon sx={{ color: 'yellow' }} />
+                      </MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'green')}>
+                        <CircleIcon sx={{ color: 'green' }} />
+                      </MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'blue')}>
+                        <CircleIcon sx={{ color: 'blue' }} />
+                      </MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'indigo')}>
+                        <CircleIcon sx={{ color: 'indigo' }} />
+                      </MenuItem>
+                      <MenuItem onClick={() => handleClose(value, 'edit')}>
+                        <EditIcon aria-label="edit" />
+                      </MenuItem>
+                    </Menu>
                   </Box>
                 )}
-                /* eslint-disable-next-line react/jsx-props-no-spreading */
+                // eslint-disable-next-line react/jsx-props-no-spreading
                 {...a11yProps(i)}
               />
             ))}
@@ -280,7 +265,6 @@ export default function TabbedSearch() {
       <div className="search-button-wrapper">
         <div className="container">
           <div className="row">
-
             <div className="col-11">
               <AlertDialog
                 openDialog={open}
@@ -302,7 +286,6 @@ export default function TabbedSearch() {
             </div>
 
             <div className="col-1">
-              {/* Search */}
               <Button
                 className="float-end"
                 variant="contained"
@@ -313,17 +296,26 @@ export default function TabbedSearch() {
                   dispatch(setLastSearchTime(dayjs().unix()));
                   queryState.forEach((q, i) => {
                     if (!queryState[i].edited) {
-                      dispatch(setQueryProperty(
-                        {
-                          // eslint-disable-next-line max-len
-                          name: tabTitle2(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, collectionNames, i, queryState),
+                      dispatch(
+                        setQueryProperty({
+                          name: tabTitle2(
+                            q.queryList,
+                            q.negatedQueryList,
+                            q.anyAll,
+                            q.queryString,
+                            collectionNames,
+                            i,
+                            queryState,
+                          ),
                           queryIndex: i,
                           property: 'name',
-                        },
-                      ));
+                        }),
+                      );
                     }
                   });
-                  handleSearch(queryState);
+                  navigate(`/search?${urlSerializer(queryState)}`, {
+                    options: { replace: true },
+                  });
                 }}
               >
                 Search
@@ -344,20 +336,3 @@ export default function TabbedSearch() {
     </div>
   );
 }
-
-// dispatch collection names to tabs
-// if (dispatchNames) {
-//   queryState.forEach((q, i) => {
-//     if (!queryState[i].edited) {
-//       dispatch(setQueryProperty(
-//         {
-//           // eslint-disable-next-line max-len
-//           name: tabTitle2(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, i, queryState, nestedArrayOfCollectionData.collection),
-//           queryIndex: i,
-//           property: 'name',
-//         },
-//       ));
-//     }
-//   });
-//   setDispatchNames(false);
-// }
