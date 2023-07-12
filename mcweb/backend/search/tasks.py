@@ -64,10 +64,10 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff, email):
     csvfile = StringIO()
     csvwriter = csv.writer(csvfile)
     
-    filename = "mc-{}-{}-content.csv".format(
+    filename = "mc-{}-{}-content".format(
         provider_name, _filename_timestamp())
    
-    zip_filename = "mc-{}-{}-content.csv.gz".format(
+    zip_filename = "mc-{}-{}-content".format(
         provider_name, _filename_timestamp())
     
     # Generate and write data to the CSV
