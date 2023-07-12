@@ -8,7 +8,7 @@ import {
   setSelectedMedia,
 } from '../query/querySlice';
 
-import tabTitle2 from './tabTitles2';
+import tabTitle from './tabTitles';
 
 const customParseFormat = require('dayjs/plugin/customParseFormat');
 
@@ -160,7 +160,7 @@ const setState = (
       if (negatedQueries) {
         dispatch(setQueryProperty(
           {
-            name: tabTitle2(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
+            name: tabTitle(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
             queryIndex: i,
             property: 'name',
           },
@@ -168,21 +168,13 @@ const setState = (
       } else { // name is flagged (DO NOT CHANGE)
         dispatch(setQueryProperty(
           {
-            name: tabTitle2(queries[i], [], anyAlls[i], queryStrings, i),
+            name: tabTitle(queries[i], [], anyAlls[i], queryStrings, i),
             queryIndex: i,
             property: 'name',
           },
         ));
       }
     } else if (negatedQueries) {
-      dispatch(setQueryProperty(
-        {
-          name: names[i],
-          queryIndex: i,
-          property: 'name',
-        },
-      ));
-    } else {
       dispatch(setQueryProperty(
         {
           name: names[i],

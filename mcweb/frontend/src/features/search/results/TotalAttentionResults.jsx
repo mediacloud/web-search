@@ -17,7 +17,6 @@ import {
 import { selectCurrentUser } from '../../auth/authSlice';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
-import tabTitle from '../util/tabTitle';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 
 export const supportsNormalizedCount = (platform) =>
@@ -110,7 +109,7 @@ function TotalAttentionResults() {
   } else {
     const updatedTotalAttentionData = prepareTotalAttentionData(data, normalized).map(
       (originalDataObj, index) => {
-        const queryTitleForPreparation = { name: tabTitle(queryState, index) };
+        const queryTitleForPreparation = { name: queryState[index].name };
         return { ...queryTitleForPreparation, ...originalDataObj };
       },
     );

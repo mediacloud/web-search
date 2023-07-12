@@ -12,7 +12,7 @@ const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString)
   return queryGenerator(queryList, negatedQueryList, platform, anyAll);
 };
 
-const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, collectionNames, index, queryState) => {
+const tabTitle = (queryList, negatedQueryList, anyAll, queryString, collectionNames, index, queryState) => {
   if (queryState) {
     // eslint-disable-next-line max-len
     const titles = queryState.map((query) => createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString));
@@ -38,4 +38,4 @@ const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, collectionN
   return title;
 };
 
-export default tabTitle2;
+export default tabTitle;

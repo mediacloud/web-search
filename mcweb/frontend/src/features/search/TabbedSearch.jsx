@@ -32,7 +32,7 @@ import { searchApi } from '../../app/services/searchApi';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import isNumber from './util/isNumber';
-import tabTitle2 from './util/tabTitles2';
+import tabTitle from './util/tabTitles';
 import compareArrays from './util/compareArrays';
 import { useListCollectionsFromNestedArrayMutation } from '../../app/services/collectionsApi';
 
@@ -291,7 +291,7 @@ export default function TabbedSearch() {
                       dispatch(
                         setQueryProperty({
                           // eslint-disable-next-line max-len
-                          name: tabTitle2(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, collectionNames, i, queryState),
+                          name: tabTitle(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, collectionNames, i, queryState),
                           queryIndex: i,
                           property: 'name',
                         }),
@@ -312,10 +312,10 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          {/* <TotalAttentionResults /> */}
-          {/* <SampleStories /> */}
-          {/* <TopWords /> */}
-          {/* <TopLanguages /> */}
+          <TotalAttentionResults />
+          <SampleStories />
+          <TopWords />
+          <TopLanguages />
         </div>
       </div>
     </div>
