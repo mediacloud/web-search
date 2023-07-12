@@ -49,9 +49,7 @@ export default function TabbedSearch() {
   const [value, setValue] = useState(0); // index of tab
   const [show, setShow] = useState(false);
   const [open, setOpen] = useState(false);
-  // const [dispatchNames, setDispatchNames] = useState(true);
   const queryState = useSelector((state) => state.query);
-  const updatedQueryState = JSON.parse(JSON.stringify(queryState));
   const [color, setColor] = useState(['white']); // colors of tabs, we don't need to save this in state
   const [edit, setEdit] = useState([false]); // local state variable for
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
