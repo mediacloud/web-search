@@ -15,9 +15,9 @@ const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString)
 const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, collectionNames, index, queryState) => {
   if (queryState) {
     // eslint-disable-next-line max-len
-    let titles = queryState.map((query) => createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString));
+    const titles = queryState.map((query) => createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString));
     const anyAlls = queryState.map((q) => q.anyAll);
-    titles = simplifyTitles(titles, anyAlls);
+    const simplifedTitles = simplifyTitles(titles, anyAlls);
 
     // one tab
     if (queryState.length === 1) return titles[index];
@@ -28,7 +28,7 @@ const tabTitle2 = (queryList, negatedQueryList, anyAll, queryString, collectionN
     // titles are duplicates
     if (allDuplicates(titles)) return collectionTitle(collectionNames[index]);
 
-    return titles[index];
+    return simplifedTitles[index];
   }
 
   // queryState isn't passed in (setSearchQuery)
