@@ -1,343 +1,44 @@
-import tabTitle from '../src/features/search/util/tabTitle';
-// import { PROVIDER_NEWS_MEDIA_CLOUD } from '../src/features/search/util/platforms';
+import simplifyTitles from '../src/features/search/util/tabTitleHelpers/simplifyTitles';
 
-test('Empty Query (United States - National Collection)', () => {
-  const queryState = [{
-    advanced: false,
-    anyAll: 'any',
-    collections:
-      [{
-        id: 34412234,
-        name: 'United States - National',
-        public: true,
-        type: 'collection',
-      }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [[], [], []],
-    platform: 'onlinenews-mediacloud',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [[], [], []],
-    queryString: '',
-  }];
-
-  const queryIndex = 0;
-
-  expect(tabTitle(queryState, queryIndex)).toBe('Query 1');
+/* eslint-disable no-undef */
+test('robot AND monkey, robot AND dog', () => {
+  const titles = ['robot AND monkey', 'robot AND dog'];
+  const anyAlls = ['all, all'];
+  const result = ['monkey', 'dog'];
+  expect(simplifyTitles(titles, anyAlls)).toStrictEqual(result);
 });
 
-test('Empty Query WayBackMachine', () => {
-  const queryState = [{
-    advanced: false,
-    anyAll: 'any',
-    collections:
-      [{
-        id: 34412234,
-        name: 'United States - National',
-        public: true,
-        type: 'collection',
-      }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [[], [], []],
-    platform: 'onlinenews-waybackmachine',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [[], [], []],
-    queryString: '',
-  }];
-
-  const queryIndex = 0;
-
-  expect(tabTitle(queryState, queryIndex)).toBe('Query 1');
+test('cat AND monkey, robot AND dog', () => {
+  const titles = ['cat AND monkey', 'robot AND dog'];
+  const anyAlls = ['all, all'];
+  const result = ['cat AND monkey', 'robot AND dog'];
+  expect(simplifyTitles(titles, anyAlls)).toStrictEqual(result);
 });
 
-test('Empty Query Reddit', () => {
-  const queryState = [{
-    advanced: false,
-    anyAll: 'any',
-    collections: [{
-      id: 34412234,
-      name: 'United States - National',
-      public: true,
-      type: 'collection',
-    }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [[], [], []],
-    platform: 'reddit-pushift',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [[], [], []],
-    queryString: '',
-  }];
-
-  const queryIndex = 0;
-
-  expect(tabTitle(queryState, queryIndex)).toBe('Query 1');
+test('robot AND world AND monkey, robot AND world AND dog', () => {
+  const titles = ['robot AND world AND monkey', 'robot AND world AND dog'];
+  const anyAlls = ['all, all'];
+  const result = ['monkey', 'dog'];
+  expect(simplifyTitles(titles, anyAlls)).toStrictEqual(result);
 });
 
-test('Empty Query Twitter', () => {
-  const queryState = [{
-    advanced: false,
-    anyAll: 'any',
-    collections: [],
-    startDate: '03/28/2023',
-    endDate: '04/27/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [[], [], []],
-    platform: 'twitter-twitter',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    previewSources: [],
-    sources: [],
-    queryList: [[], [], []],
-    queryString: '',
-  }];
-
-  const queryIndex = 0;
-
-  expect(tabTitle(queryState, queryIndex)).toBe('Query 1');
+test('monkey, dog', () => {
+  const titles = ['monkey', 'dog'];
+  const anyAlls = ['all, all'];
+  const result = ['monkey', 'dog'];
+  expect(simplifyTitles(titles, anyAlls)).toStrictEqual(result);
 });
 
-test('Empty Query Youtube', () => {
-  const queryState = [{
-    advanced: false,
-    anyAll: 'any',
-    collections: [],
-    startDate: '03/28/2023',
-    endDate: '04/27/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [[], [], []],
-    platform: 'yotube-youtube',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    previewSources: [],
-    sources: [],
-    queryList: [[], [], []],
-    queryString: '',
-  }];
-
-  const queryIndex = 0;
-
-  expect(tabTitle(queryState, queryIndex)).toBe('Query 1');
+test('monkey AND love AND cat, monkey AND love', () => {
+  const titles = ['monkey AND love AND cat', 'monkey AND love'];
+  const anyAlls = ['all, all'];
+  const result = ['cat', 'monkey AND love'];
+  expect(simplifyTitles(titles, anyAlls)).toStrictEqual(result);
 });
 
-test('Empty Query (United States - National Collection) (Two Identical Objects)', () => {
-  const queryState = [{
-    advanced: false,
-    anyAll: 'any',
-    collections:
-      [{
-        id: 34412234,
-        name: 'United States - National',
-        public: true,
-        type: 'collection',
-      }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [[], [], []],
-    platform: 'onlinenews-mediacloud',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [[], [], []],
-    queryString: '',
-  },
-  {
-    advanced: false,
-    anyAll: 'any',
-    collections:
-      [{
-        id: 34412234,
-        name: 'United States - National',
-        public: true,
-        type: 'collection',
-      }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [[], [], []],
-    platform: 'onlinenews-mediacloud',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [[], [], []],
-    queryString: '',
-  }];
-
-  expect(tabTitle(queryState, 0)).toBe('Query 1');
-  expect(tabTitle(queryState, 1)).toBe('Query 2');
-});
-
-test('(Tab 1 Title with two objects', () => {
-  const queryState = [{
-    advanced: false,
-    anyAll: 'any',
-    collections:
-      [{
-        id: 34412234,
-        name: 'United States - National',
-        public: true,
-        type: 'collection',
-      }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [['War'], [], []],
-    platform: 'onlinenews-waybackmachine',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [['Love'], [], []],
-    queryString: '',
-  },
-  {
-    advanced: false,
-    anyAll: 'any',
-    collections:
-      [{
-        id: 34412234,
-        name: 'United States - National',
-        public: true,
-        type: 'collection',
-      }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [[], [], []],
-    platform: 'reddit-reddit',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [[], [], []],
-    queryString: '',
-  }];
-
-  expect(tabTitle(queryState, 0)).toBe('(Love) AND NOT (War)');
-  expect(tabTitle(queryState, 1)).toBe('Query 2');
-});
-
-test('Empty Query (United States - National Collection) (Additional Test)', () => {
-  const queryState = [{
-    advanced: false,
-    anyAll: 'any',
-    collections:
-      [{
-        id: 34412234,
-        name: 'United States - National',
-        public: true,
-        type: 'collection',
-      }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [['War'], [], []],
-    platform: 'onlinenews-waybackmachine',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [['Love'], [], []],
-    queryString: '',
-  },
-  {
-    advanced: false,
-    anyAll: 'any',
-    collections:
-      [{
-        id: 34412234,
-        name: 'United States - National',
-        public: true,
-        type: 'collection',
-      }],
-    startDate: '03/28/2023',
-    endDate: '04/30/2023',
-    lastSearchTime: 1682943747,
-    negatedQueryList: [['Artificial Intelligence'], [], []],
-    platform: 'reddit-reddit',
-    previewCollections: [{
-      type: 'collection',
-      id: 34412234,
-      name: 'United States - National',
-      platform: 'online_news',
-      public: true,
-    }],
-    sources: [],
-    previewSources: [],
-    queryList: [['Artificial Intelligence'], [], []],
-    queryString: '',
-  }];
-
-  const queryTitle = '(Artificial Intelligence) AND NOT (Artificial Intelligence)';
-  const queryTabResult = `${queryTitle.substring(0, 30)} ...`;
-
-  expect(tabTitle(queryState, 1).length).toBe(34);
-  expect(tabTitle(queryState, 0)).toBe('(Love) AND NOT (War)');
-  expect(tabTitle(queryState, 1)).toBe(queryTabResult);
+test('monkey OR love OR cat, monkey AND love', () => {
+  const titles = ['monkey OR love OR cat', 'monkey AND love'];
+  const anyAlls = ['any', 'all'];
+  const result = ['monkey OR love OR cat', 'monkey AND love'];
+  expect(simplifyTitles(titles, anyAlls)).toStrictEqual(result);
 });
