@@ -341,15 +341,66 @@ test('Index 2: [A AND B AND C]  [B OR C OR D] [C OR D OR E]', () => {
     2,
     [
       [
-        'A', 'B', 'C',
+        'A', 'B', 'C', [],
       ],
       [
-        'B', 'C', 'D',
+        'B', 'C', 'D', [],
       ],
       [
-        'C', 'D', 'E',
+        'C', 'D', 'E', [],
       ],
     ],
     ['all', 'any', 'any'],
   )).toStrictEqual(['C', 'D', 'E']);
+});
+
+test('Index 0: [A AND NOT B AND NOT C]  [B AND NOT C AND NOT D] [C AND NOT D AND NOT E]', () => {
+  expect(simplifyQueryList(
+    0,
+    [
+      [
+        'A', 'B', 'C', [],
+      ],
+      [
+        'B', 'C', 'D', [],
+      ],
+      [
+        'C', 'D', 'E', [],
+      ],
+    ],
+  )).toStrictEqual(['A', 'B']);
+});
+
+test('Index 1: [A AND NOT B AND NOT C]  [B AND NOT C AND NOT D] [C AND NOT D AND NOT E]', () => {
+  expect(simplifyQueryList(
+    1,
+    [
+      [
+        'A', 'B', 'C', [],
+      ],
+      [
+        'B', 'C', 'D', [],
+      ],
+      [
+        'C', 'D', 'E', [],
+      ],
+    ],
+  )).toStrictEqual(['B', 'D']);
+});
+
+test('Index 2: [A AND NOT B AND NOT C]  [B AND NOT C AND NOT D] [C AND NOT D AND NOT E]', () => {
+  expect(simplifyQueryList(
+    2,
+    [
+      [
+        'A', 'B', 'C', [],
+      ],
+      [
+        'B', 'C', 'D', [],
+      ],
+      [
+        'C', 'D', 'E', [],
+      ],
+    ],
+  )).toStrictEqual(['D', 'E']);
 });
