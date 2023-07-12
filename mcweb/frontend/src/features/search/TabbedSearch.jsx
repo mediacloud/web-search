@@ -156,7 +156,7 @@ export default function TabbedSearch() {
                       {!edit[i] && queryState[i].name}
                       {edit[i] && (
                         <div>
-                          {/* TextField for a custom title */}
+                          {/* input for customizing tab title */}
                           <input
                             className="editInput"
                             value={textFieldsValues[i]}
@@ -167,34 +167,28 @@ export default function TabbedSearch() {
                               setTextFieldValues(updatedValues);
                             }}
                           />
-                          {/* Confirm Edit */}
-                          <IconButton
+                          {/* Cancel Edit */}
+                          <CancelIcon
                             sx={{ color: '#d24527', marginLeft: '.5rem' }}
                             onClick={() => {
                               const updatedEdit = [...edit];
                               updatedEdit[value] = false;
                               setEdit(updatedEdit);
                             }}
-                          >
-                            <CancelIcon />
-                          </IconButton>
+                          />
 
                           {/* Confirm Edit */}
-                          <IconButton
+                          <EditIcon
                             disabled={textFieldsValues[i].length === 0}
                             sx={{ color: '#d24527', marginLeft: '.5rem' }}
                             onClick={() => {
                               const updatedEdit = [...edit];
                               updatedEdit[value] = false;
-
                               setEdit(updatedEdit);
-
                               dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
                               dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
                             }}
-                          >
-                            <EditIcon />
-                          </IconButton>
+                          />
                         </div>
                       )}
 
@@ -218,7 +212,7 @@ export default function TabbedSearch() {
                         position: 'absolute', top: '.25rem', right: '0', fontSize: 'medium',
                       }}
                     />
-
+                    {/* Dropdown Menu Items */}
                     <Menu
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl) && value === i}
@@ -253,13 +247,11 @@ export default function TabbedSearch() {
           </Tabs>
         </Box>
 
-        {
-          queryState.map((query, i) => (
-            <TabPanelHelper key={i} value={value} index={i}>
-              <Search queryIndex={i} />
-            </TabPanelHelper>
-          ))
-        }
+        {queryState.map((query, i) => (
+          <TabPanelHelper key={i} value={value} index={i}>
+            <Search queryIndex={i} />
+          </TabPanelHelper>
+        ))}
       </Box>
 
       <div className="search-button-wrapper">
@@ -298,15 +290,8 @@ export default function TabbedSearch() {
                     if (!queryState[i].edited) {
                       dispatch(
                         setQueryProperty({
-                          name: tabTitle2(
-                            q.queryList,
-                            q.negatedQueryList,
-                            q.anyAll,
-                            q.queryString,
-                            collectionNames,
-                            i,
-                            queryState,
-                          ),
+                          // eslint-disable-next-line max-len
+                          name: tabTitle2(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, collectionNames, i, queryState),
                           queryIndex: i,
                           property: 'name',
                         }),
