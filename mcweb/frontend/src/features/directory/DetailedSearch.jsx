@@ -5,6 +5,7 @@ import Tab from '@mui/material/Tab';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CollectionSearch from './CollectionSearch';
 import SourceSearch from './SourceSearch';
 import GeographicCollectionsSearch from './GeographicCollectionsSearch';
@@ -15,7 +16,7 @@ export default function DetailedSearch() {
 
   return (
     <>
-      <Button variant="outlined" onClick={() => setOpen(true)}>
+      <Button variant="outlined" onClick={() => setOpen(true)} endIcon={<MoreVertIcon />}>
         Detailed Search
       </Button>
 
