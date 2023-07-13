@@ -23,7 +23,7 @@ import numpy as np
 
 # from sources app:
 from .models import Feed, Source, Collection
-
+from ..users.models import User
 # emails
 from util.send_emails import send_alert_email, send_email
 
@@ -62,9 +62,10 @@ logger = logging.getLogger(__name__)
 # calling decorated_function.now() invokes decorated function synchronously.
 
 @background()
-def _scrape_source(source_id, homepage, user):
+def _scrape_source(source_id, homepage, user_email):
     logger.info(f"==== starting _scrape_source(source_id, homepage)")
-
+    # print("USERRRRR", user_email)
+    user = User.objects.filter(pk=user)
     # work around not having a column/index for normalized feed url:
     # create set of normalized urls of current feeds
     old_urls = set([normalize_url(feed.url)
@@ -84,7 +85,7 @@ def _scrape_source(source_id, homepage, user):
             subject = "[Media Cloud] New Feed Found"
             body = f"A new feed with the url: {url} has been found and added"
             from_email = 'noreply@mediacloud.org'
-            recepient = [user.email]
+            recepient = [user_email]
             send_email(subject, body, from_email, recepient)
         else:
             logger.info(f"scrape_source({source_id}, {homepage}) found old feed {url}")
@@ -95,7 +96,7 @@ def _scrape_source(source_id, homepage, user):
 
 
 @background()
-def _scrape_collection(collection_id, user):
+def _scrape_collection(collection_id, user_email):
     logger.info(f"==== starting _scrape_collection(collection_id)")
 
     collection = Collection.objects.get(id=collection_id)
@@ -108,7 +109,7 @@ def _scrape_collection(collection_id, user):
         # check source.homepage not empty??
         if not source.homepage:
             return _return_error(f"source {source.id} missing homepage")
-        scraped_source_text = Source._scrape_source(source.id, source.homepage, user)
+        scraped_source_text = Source._scrape_source(source.id, source.homepage, user_email)
         email += f"{scraped_source_text} \n"
         logger.info(f"==== finished _scrape_source {source.name}")
         
@@ -273,7 +274,7 @@ def schedule_scrape_collection(collection_id, user):
     call this function from a view action to schedule a (re)scrape for a collection
     """
     collection = Collection.objects.get(id=collection_id)
-    task = _scrape_collection(collection_id, user, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
+    task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
 
     return {'task': _return_task(task)}
 
@@ -297,7 +298,7 @@ def schedule_scrape_source(source_id, user):
     # NOTE! Will remove any other pending scrapes for same source
     # rather than queuing a duplicate; the new user will "steal" the task
     # (leaving no trace of the old one). Returns a Task object.
-    task = _scrape_source(source_id, source.homepage, user, creator=user,
+    task = _scrape_source(source_id, source.homepage, user.email, creator=user,
                           verbose_name=f"rescrape {name_or_home}",
                           remove_existing_tasks=True)
     return {'task': _return_task(task)}
