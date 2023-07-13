@@ -7,6 +7,7 @@ import Tab from '@mui/material/Tab';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { addSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import CollectionSearchPicker from './CollectionSearchPicker';
 import SelectedMedia from '../SelectedMedia';
@@ -35,7 +36,7 @@ export default function MediaPicker({ queryIndex }) {
 
   return (
     <div className="media-picker">
-      <Button variant="outlined" onClick={() => setOpen(true)}>
+      <Button variant="outlined" onClick={() => setOpen(true)} endIcon={<MoreVertIcon />}>
         Select Collections
       </Button>
 
