@@ -23,7 +23,6 @@ import numpy as np
 
 # from sources app:
 from .models import Feed, Source, Collection
-from ..users.models import User
 # emails
 from util.send_emails import send_alert_email, send_email
 
