@@ -64,7 +64,6 @@ logger = logging.getLogger(__name__)
 def _scrape_source(source_id, homepage, user_email):
     logger.info(f"==== starting _scrape_source(source_id, homepage)")
     # print("USERRRRR", user_email)
-    user = User.objects.filter(pk=user)
     # work around not having a column/index for normalized feed url:
     # create set of normalized urls of current feeds
     old_urls = set([normalize_url(feed.url)
