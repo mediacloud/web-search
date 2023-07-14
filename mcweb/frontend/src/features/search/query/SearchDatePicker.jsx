@@ -59,16 +59,16 @@ export default function SearchDatePicker({ queryIndex }) {
     }
   };
 
-  // console.log(`endDate: ${endDate}`);
-  // console.log(`toDateMax: ${toDateMax}`);
-  // console.log('');
+  console.log(`endDate: ${endDate}`);
+  console.log(`toDateMax: ${toDateMax}`);
+  console.log('');
+
   // if the platform changes, we want to update the validity of the dates
   useEffect(() => {
-    // console.log(queryState);
-    // if (!checkForBlankQuery(queryState)) {
-    //   handleChangeToDate(latestAllowedEndDate(platform));
-    //   console.log('changed end date');
-    // }
+    // if the queries are empty, change the end date to the latest allowed end date per the platform
+    if (!checkForBlankQuery(queryState)) {
+      handleChangeToDate(latestAllowedEndDate(platform));
+    }
 
     // if the endDate is after than the latest allowed end date, change the end date to the latest allowed date
     if (dayjs(endDate) > dayjs(toDateMax)) {
