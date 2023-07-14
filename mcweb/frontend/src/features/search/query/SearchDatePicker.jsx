@@ -12,6 +12,7 @@ import { setQueryProperty } from './querySlice';
 import { earliestAllowedStartDate, latestAllowedEndDate } from '../util/platforms';
 import validateDate from '../util/dateValidation';
 import DefaultDates from './DefaultDates';
+import checkForBlankQuery from '../util/checkForBlankQuery';
 
 export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
@@ -20,6 +21,8 @@ export default function SearchDatePicker({ queryIndex }) {
   const {
     platform, startDate, endDate, isFromDateValid, isToDateValid,
   } = useSelector((state) => state.query[queryIndex]);
+
+  const queryState = useSelector((state) => state.query);
 
   // the minimum date off platform (From Date Picker)
   const fromDateMin = dayjs(earliestAllowedStartDate(platform)).format('MM/DD/YYYY');
@@ -56,13 +59,24 @@ export default function SearchDatePicker({ queryIndex }) {
     }
   };
 
+  // console.log(`endDate: ${endDate}`);
+  // console.log(`toDateMax: ${toDateMax}`);
+  // console.log('');
+  // if the platform changes, we want to update the validity of the dates
   useEffect(() => {
-    // if the platform changes, we want to update the validity of the dates
-    if (dayjs(endDate) > fromDateMax) {
+    // console.log(queryState);
+    // if (!checkForBlankQuery(queryState)) {
+    //   handleChangeToDate(latestAllowedEndDate(platform));
+    //   console.log('changed end date');
+    // }
+
+    // if the endDate is after than the latest allowed end date, change the end date to the latest allowed date
+    if (dayjs(endDate) > dayjs(toDateMax)) {
       handleChangeToDate(latestAllowedEndDate(platform));
       enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
     }
-    if (dayjs(startDate) < earliestAllowedStartDate(platform)) {
+    // if the endDate is earlier than the earliest allowed start date, change the start date to the earliest allowed date
+    if (dayjs(startDate) < dayjs(fromDateMin)) {
       handleChangeFromDate(earliestAllowedStartDate(platform));
       enqueueSnackbar('Changed your start date to match this platform limit', { variant: 'warning' });
     }
