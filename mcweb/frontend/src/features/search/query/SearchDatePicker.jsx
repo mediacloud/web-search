@@ -59,10 +59,6 @@ export default function SearchDatePicker({ queryIndex }) {
     }
   };
 
-  console.log(`endDate: ${endDate}`);
-  console.log(`toDateMax: ${toDateMax}`);
-  console.log('');
-
   // if the platform changes, we want to update the validity of the dates
   useEffect(() => {
     // if the queries are empty, change the end date to the latest allowed end date per the platform
@@ -73,12 +69,12 @@ export default function SearchDatePicker({ queryIndex }) {
     // if the endDate is after than the latest allowed end date, change the end date to the latest allowed date
     if (dayjs(endDate) > dayjs(toDateMax)) {
       handleChangeToDate(latestAllowedEndDate(platform));
-      enqueueSnackbar('Changed your end date to match this platform limit', { variant: 'warning' });
+      enqueueSnackbar('We changed your end date to match this platform limit', { variant: 'warning' });
     }
     // if the endDate is earlier than the earliest allowed start date, change the start date to the earliest allowed date
     if (dayjs(startDate) < dayjs(fromDateMin)) {
       handleChangeFromDate(earliestAllowedStartDate(platform));
-      enqueueSnackbar('Changed your start date to match this platform limit', { variant: 'warning' });
+      enqueueSnackbar('We changed your start date to match this platform limit', { variant: 'warning' });
     }
     // why do we do this?
     // we don't save invalid dates, so going into another tab would leave these set to false and a correct date
