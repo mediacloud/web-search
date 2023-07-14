@@ -163,7 +163,7 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   negatedQuery = negatedQuery ? negatedQuery.split(',') : null;
   negatedQuery = formatQuery(negatedQuery);
-  negatedQuery = sizeQuery(negatedQuery);
+  negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : null;
 
   queryStrings = queryStrings ? handleDecode(queryStrings) : null; // come back to
 
