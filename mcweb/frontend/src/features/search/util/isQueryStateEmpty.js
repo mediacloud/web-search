@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 import isQueryListBlank from './isQueryListBlank';
 
-const checkForBlankQuery = (queryState) => {
+const isQueryStateEmpty = (queryState) => {
   let isBlank = true;
   queryState.forEach(
     ({
@@ -16,4 +16,4 @@ const checkForBlankQuery = (queryState) => {
   return isBlank;
 };
 
-export default checkForBlankQuery;
+export default isQueryStateEmpty;
