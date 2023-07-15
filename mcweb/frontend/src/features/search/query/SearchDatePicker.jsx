@@ -12,7 +12,7 @@ import { setQueryProperty } from './querySlice';
 import { earliestAllowedStartDate, latestAllowedEndDate } from '../util/platforms';
 import validateDate from '../util/dateValidation';
 import DefaultDates from './DefaultDates';
-import checkForBlankQuery from '../util/checkForBlankQuery';
+import isQueryStateEmpty from '../util/isQueryStateEmpty';
 
 export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
@@ -62,7 +62,7 @@ export default function SearchDatePicker({ queryIndex }) {
   // if the platform changes, we want to update the validity of the dates
   useEffect(() => {
     // if the queries are empty, change the end date to the latest allowed end date per the platform
-    if (!checkForBlankQuery(queryState)) {
+    if (isQueryStateEmpty(queryState)) {
       handleChangeToDate(latestAllowedEndDate(platform));
     }
 

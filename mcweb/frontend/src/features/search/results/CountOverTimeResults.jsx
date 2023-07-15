@@ -10,7 +10,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
-import checkForBlankQuery from '../util/checkForBlankQuery';
+import isQueryStateEmpty from '../util/isQueryStateEmpty';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
 import tabTitle from '../util/tabTitle';
@@ -44,7 +44,7 @@ export default function CountOverTimeResults() {
   const [newQuery, setNewQuery] = useState(false);
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (!isQueryStateEmpty(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
@@ -52,7 +52,7 @@ export default function CountOverTimeResults() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+    if (isQueryStateEmpty(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);
