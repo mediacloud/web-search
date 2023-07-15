@@ -54,3 +54,18 @@ test('["", "", ""]', () => {
   const queryList = ['', '', 'a'];
   expect(isQueryListBlank(queryList)).toBe(false);
 });
+
+test('["", "", " "]', () => {
+  const queryList = ['', '', ' '];
+  expect(isQueryListBlank(queryList)).toBe(true);
+});
+
+test('["", "", "  "], [" "], [[]]', () => {
+  const queryList = [['', '', '  '], [' '], [[]]];
+  expect(isQueryListBlank(queryList)).toBe(true);
+});
+
+test('["", "", "  "], ["    a"], [[]]', () => {
+  const queryList = [['', '', '   '], ['    a'], [[]]];
+  expect(isQueryListBlank(queryList)).toBe(false);
+});
