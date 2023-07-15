@@ -17,6 +17,7 @@ const deactvateButton = (queryState) => {
       endDate,
       isFromDateValid,
       isToDateValid,
+      advanced,
     } = queryObject;
 
     const totalQuery = queryList.concat(negatedQueryList);
@@ -26,14 +27,14 @@ const deactvateButton = (queryState) => {
       return validatedFromDate && validatedToDate;
     }
 
-    // checks to see if the startDAte is before the endDAte
+    // checks to see if the startDate is before the endDAte
     function validDates(startingDate, endingDate) {
       return dayjs(startingDate).isSameOrBefore(dayjs(endingDate));
     }
 
     // is the advanced search query string not just the "*"
-    function validQueryString(queryStr) {
-      return queryStr.length !== 0;
+    function validQueryString() {
+      return advanced && queryString.trim() !== '';
     }
 
     // does the queryList contain any elements?
@@ -43,7 +44,7 @@ const deactvateButton = (queryState) => {
     const areDatesValid = validDates(startDate, endDate) && validFromAndToDates(isFromDateValid, isToDateValid);
 
     // is the advanced search query not empty?
-    const isQueryStringValid = validQueryString(queryString);
+    const isQueryStringValid = validQueryString(queryString, advanced);
 
     returnVal = ((isQueryValid || isQueryStringValid) && areDatesValid);
   });
