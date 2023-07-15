@@ -1,16 +1,11 @@
 const checkForBlankQuery = (queryState) => {
-  let blank = false;
-
-  queryState.forEach((querySlice) => {
-    const { queryList, advanced, queryString } = querySlice;
+  queryState.forEach((query) => {
+    const { queryList, advanced, queryString } = query;
     if (queryList[0].length !== 0 || (advanced && queryString !== 0)) {
-      blank = true;
-    } else {
-      blank = false;
+      return true;
     }
   });
-
-  return blank;
+  return false;
 };
 
 export default checkForBlankQuery;
