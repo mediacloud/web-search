@@ -1,10 +1,9 @@
 /* eslint-disable no-undef */
-import checkForBlankQuery from '../src/features/search/util/checkForBlankQuery';
+import isQueryStateEmpty from "../src/features/search/util/isQueryStateEmpty";
 
-test('PROVIDER_NEWS_WAYBACK_MACHINE', () => {
+test('item in queryList 1 and 2', () => {
   const queryState = [
     {
-      queryString: '',
       queryList: [
         'Love',
         [],
@@ -15,25 +14,10 @@ test('PROVIDER_NEWS_WAYBACK_MACHINE', () => {
         [],
         [],
       ],
-      platform: 'onlinenews-mediacloud',
-      startDate: '06/11/2023',
-      endDate: '07/14/2023',
-      collections: [
-        34412234,
-      ],
-      previewCollections: [
-        34412234,
-      ],
-      sources: [],
-      previewSources: [],
-      lastSearchTime: 1689440538,
-      isFromDateValid: true,
-      isToDateValid: true,
-      anyAll: 'any',
+      queryString: '',
       advanced: false,
     },
     {
-      queryString: '',
       queryList: [
         'World',
         [],
@@ -44,19 +28,129 @@ test('PROVIDER_NEWS_WAYBACK_MACHINE', () => {
         [],
         [],
       ],
-      platform: 'onlinenews-mediacloud',
-      startDate: '06/11/2023',
-      endDate: '07/14/2023',
-      collections: [],
-      previewCollections: [],
-      sources: [],
-      previewSources: [],
-      lastSearchTime: 1689440538,
-      isFromDateValid: true,
-      isToDateValid: true,
-      anyAll: 'any',
+      queryString: '',
       advanced: false,
     },
   ];
-  expect(checkForBlankQuery(queryState)).toBe(false);
+  expect(isQueryStateEmpty(queryState)).toBe(false);
+});
+
+test('empty in queryList 1 and 2', () => {
+  const queryState = [
+    {
+      queryList: [
+        '',
+        [],
+        [],
+      ],
+      negatedQueryList: [
+        [],
+        [],
+        [],
+      ],
+      queryString: '',
+      advanced: false,
+    },
+    {
+      queryList: [
+        '',
+        [],
+        [],
+      ],
+      negatedQueryList: [
+        [],
+        [],
+        [],
+      ],
+      queryString: '',
+      advanced: false,
+    },
+  ];
+  expect(isQueryStateEmpty(queryState)).toBe(true);
+});
+
+test('empty str in queryList 1', () => {
+  const queryState = [
+    {
+      queryList: [
+        '    ',
+        [],
+        [],
+      ],
+      negatedQueryList: [
+        [],
+        [],
+        [],
+      ],
+      queryString: '',
+      advanced: false,
+    },
+    {
+      queryList: [
+        [],
+        [],
+        [],
+      ],
+      negatedQueryList: [
+        [],
+        [],
+        [],
+      ],
+      queryString: '',
+      advanced: false,
+    },
+  ];
+  expect(isQueryStateEmpty(queryState)).toBe(true);
+});
+
+test('"a" str in queryList 1', () => {
+  const queryState = [
+    {
+      queryList: [
+        'a',
+      ],
+      negatedQueryList: [
+        [],
+      ],
+      queryString: '',
+      advanced: false,
+    },
+    {
+      queryList: [
+        [],
+      ],
+      negatedQueryList: [
+        [],
+      ],
+      queryString: '',
+      advanced: false,
+    },
+  ];
+  expect(isQueryStateEmpty(queryState)).toBe(false);
+});
+
+test('"a" str in queryList 1', () => {
+  const queryState = [
+    {
+      queryList: [
+        [],
+      ],
+      negatedQueryList: [
+        [],
+      ],
+      queryString: 'Hello',
+      advanced: true,
+    },
+    {
+      queryList: [
+        [],
+      ],
+      negatedQueryList: [
+        [],
+      ],
+      queryString: '',
+      advanced: false,
+    },
+  ];
+  expect(isQueryStateEmpty(queryState)).toBe(false);
 });
