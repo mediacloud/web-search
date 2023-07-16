@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
-import isQueryStateEmpty from "../src/features/search/util/isQueryStateEmpty";
+
+import checkForBlankQuery from '../src/features/search/util/checkForBlankQuery';
 
 test('item in queryList 1 and 2', () => {
   const queryState = [
@@ -32,7 +33,7 @@ test('item in queryList 1 and 2', () => {
       advanced: false,
     },
   ];
-  expect(isQueryStateEmpty(queryState)).toBe(false);
+  expect(checkForBlankQuery(queryState)).toBe(false);
 });
 
 test('empty in queryList 1 and 2', () => {
@@ -66,7 +67,7 @@ test('empty in queryList 1 and 2', () => {
       advanced: false,
     },
   ];
-  expect(isQueryStateEmpty(queryState)).toBe(true);
+  expect(checkForBlankQuery(queryState)).toBe(true);
 });
 
 test('empty str in queryList 1', () => {
@@ -100,7 +101,7 @@ test('empty str in queryList 1', () => {
       advanced: false,
     },
   ];
-  expect(isQueryStateEmpty(queryState)).toBe(true);
+  expect(checkForBlankQuery(queryState)).toBe(true);
 });
 
 test('"a" str in queryList 1', () => {
@@ -126,7 +127,7 @@ test('"a" str in queryList 1', () => {
       advanced: false,
     },
   ];
-  expect(isQueryStateEmpty(queryState)).toBe(false);
+  expect(checkForBlankQuery(queryState)).toBe(true);
 });
 
 test('"a" str in queryList 1', () => {
@@ -152,5 +153,39 @@ test('"a" str in queryList 1', () => {
       advanced: false,
     },
   ];
-  expect(isQueryStateEmpty(queryState)).toBe(false);
+  expect(checkForBlankQuery(queryState)).toBe(true);
+});
+
+test('issue', () => {
+  const queryState = [
+    {
+      queryString: '',
+      queryList: [
+        [],
+        [],
+        [],
+      ],
+      negatedQueryList: [
+        [],
+        [],
+        [],
+      ],
+      advanced: false,
+    },
+    {
+      queryString: '',
+      queryList: [
+        'W',
+        [],
+        [],
+      ],
+      negatedQueryList: [
+        [],
+        [],
+        [],
+      ],
+      advanced: false,
+    },
+  ];
+  expect(checkForBlankQuery(queryState)).toBe(true);
 });

@@ -2,14 +2,14 @@
 import isQueryListBlank from './isQueryListBlank';
 
 const checkForBlankQuery = (queryState) => {
-  let isBlank = true;
+  let isBlank = false;
   queryState.forEach(
     ({
       queryList, negatedQueryList, advanced, queryString,
     }) => {
-      if (!isQueryListBlank(queryList) || !isQueryListBlank(negatedQueryList) || (advanced && queryString.trim() !== '')) {
-        isBlank = false;
-        return false; // exit the loop early
+      if ((isQueryListBlank(queryList) && isQueryListBlank(negatedQueryList)) || (advanced && queryString.trim() !== '')) {
+        isBlank = true;
+        return true; // exit the loop early
       }
     },
   );
