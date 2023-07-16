@@ -14,7 +14,7 @@ import { useGetTopLanguagesMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
 } from '../util/platforms';
-import isQueryStateEmpty from '../util/isQueryStateEmpty';
+import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareLanguageData from '../util/prepareLanguageData';
 import tabTitle from '../util/tabTitle';
@@ -40,14 +40,14 @@ export default function TopLanguages() {
   };
 
   useEffect(() => {
-    if (!isQueryStateEmpty(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (isQueryStateEmpty(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);

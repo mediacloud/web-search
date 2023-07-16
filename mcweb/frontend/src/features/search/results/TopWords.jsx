@@ -9,7 +9,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
-import isQueryStateEmpty from '../util/isQueryStateEmpty';
+import checkForBlankQuery from '../util/checkForBlankQuery';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
@@ -40,14 +40,14 @@ export default function TopWords() {
   };
 
   useEffect(() => {
-    if (!isQueryStateEmpty(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (isQueryStateEmpty(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);

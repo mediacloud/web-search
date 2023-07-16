@@ -15,7 +15,7 @@ import {
   PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 import { selectCurrentUser } from '../../auth/authSlice';
-import isQueryStateEmpty from '../util/isQueryStateEmpty';
+import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import tabTitle from '../util/tabTitle';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
@@ -69,7 +69,7 @@ function TotalAttentionResults() {
   };
 
   useEffect(() => {
-    if (!isQueryStateEmpty(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
@@ -77,7 +77,7 @@ function TotalAttentionResults() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (isQueryStateEmpty(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);

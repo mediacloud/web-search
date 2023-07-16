@@ -10,7 +10,7 @@ import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
 } from '../util/platforms';
-import isQueryStateEmpty from '../util/isQueryStateEmpty';
+import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import SampleStoryShow from './SampleStoryShow';
 import tabTitle from '../util/tabTitle';
@@ -35,7 +35,7 @@ export default function SampleStories() {
   };
 
   useEffect(() => {
-    if (!isQueryStateEmpty(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
@@ -43,7 +43,7 @@ export default function SampleStories() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (isQueryStateEmpty(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);
