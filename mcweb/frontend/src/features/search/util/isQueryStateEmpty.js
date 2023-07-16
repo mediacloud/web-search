@@ -1,19 +1,7 @@
-/* eslint-disable consistent-return */
 import isQueryListBlank from './isQueryListBlank';
 
-const isQueryStateEmpty = (queryState) => {
-  let isBlank = true;
-  queryState.forEach(
-    ({
-      queryList, negatedQueryList, advanced, queryString,
-    }) => {
-      if (!isQueryListBlank(queryList) || !isQueryListBlank(negatedQueryList) || (advanced && queryString.trim() !== '')) {
-        isBlank = false;
-        return false; // exit the loop early
-      }
-    },
-  );
-  return isBlank;
-};
-
-export default isQueryStateEmpty;
+export default function isQueryStateEmpty(queryState) {
+  return queryState.every(({
+    queryList, negatedQueryList, advanced, queryString,
+  }) => isQueryListBlank(queryList) && isQueryListBlank(negatedQueryList) && (!advanced || queryString.trim() === ''));
+}
