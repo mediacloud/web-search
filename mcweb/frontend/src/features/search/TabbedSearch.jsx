@@ -52,27 +52,21 @@ export default function TabbedSearch() {
   const { platform } = queryState[0];
 
   const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
-  const [collectionNames, setCollectionNames] = useState([]);
 
   useEffect(() => {
     setShow(deactivateButton(queryState));
     setTextFieldValues(queryState.map((query) => query.name));
-    const fetchData = async () => {
-      // grab all the collection ids for each query
-      const collectionIds = queryState.map((query) => query.collections);
-      // when queryState is loaded it gets initialState, on rerender is the updated queryState
-      // we only want to get the collectionData if it's the new data, initial state is with collection [[34412234]]
-      if (!compareArrays(collectionIds, [[34412234]])) {
-        const nestedArrayOfCollectionData = await getCollectionNames(collectionIds).unwrap();
-        setCollectionNames(nestedArrayOfCollectionData.collection);
-      }
-    };
-    fetchData();
   }, [queryState, edit]);
 
   const handleShare = () => {
     const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
     navigator.clipboard.writeText(ahref);
+  };
+
+  const fetchCollectionNames = async () => {
+    const collectionIds = queryState.map((query) => query.collections);
+    const nestedArrayOfCollectionData = await getCollectionNames(collectionIds).unwrap();
+    return nestedArrayOfCollectionData.collection;
   };
 
   const handleChange = (event, newValue) => {
@@ -208,7 +202,7 @@ export default function TabbedSearch() {
                         updatedEdit[i] = true;
                         setEdit(updatedEdit);
                       }}
-                      handleMenuOpen={handleMenuOpen} // Pass the handleMenuOpen function as a prop
+                      handleMenuOpen={handleMenuOpen}
                     />
                   </Box>
                 )}
@@ -256,9 +250,10 @@ export default function TabbedSearch() {
                 variant="contained"
                 disabled={!show}
                 startIcon={<SearchIcon titleAccess="search this query" />}
-                onClick={() => {
+                onClick={async () => {
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
+                  const collectionNames = await fetchCollectionNames();
                   queryState.forEach((q, i) => {
                     if (!queryState[i].edited) {
                       dispatch(
