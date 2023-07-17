@@ -29,7 +29,6 @@ import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import isNumber from './util/isNumber';
 import tabTitle from './util/tabTitles';
-import compareArrays from './util/compareArrays';
 import { useListCollectionsFromNestedArrayMutation } from '../../app/services/collectionsApi';
 
 function a11yProps(index) {
@@ -281,10 +280,10 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          {/* <TotalAttentionResults /> */}
-          {/* <SampleStories /> */}
-          {/* <TopWords /> */}
-          {/* <TopLanguages /> */}
+          <TotalAttentionResults />
+          <SampleStories />
+          <TopWords />
+          <TopLanguages />
         </div>
       </div>
     </div>
