@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import SearchIcon from '@mui/icons-material/Search';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import EditIcon from '@mui/icons-material/Edit';
+import CheckIcon from '@mui/icons-material/Check';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
@@ -134,6 +134,7 @@ export default function TabbedSearch() {
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             {queryState.map((query, i) => (
               <Tab
+                disableRipple
                 key={i}
                 sx={{ marginRight: 0.5 }}
                 style={{ outline: `4px solid ${color[i]}`, outlineOffset: '-4px', borderRadius: '4px' }}
@@ -166,7 +167,7 @@ export default function TabbedSearch() {
                           />
 
                           {/* Confirm Edit */}
-                          <EditIcon
+                          <CheckIcon
                             disabled={textFieldsValues[i].length === 0}
                             sx={{ color: '#d24527', marginLeft: '.5rem' }}
                             onClick={() => {
