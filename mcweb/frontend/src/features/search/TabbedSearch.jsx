@@ -5,17 +5,13 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
-import IconButton from '@mui/material/IconButton';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import CancelIcon from '@mui/icons-material/Cancel';
-import CircleIcon from '@mui/icons-material/Circle';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import dayjs from 'dayjs';
+import MoreVertIconWrapper from '../ui/MoreVertIconWrapper';
 import {
   addQuery, setLastSearchTime, removeQuery, setQueryProperty,
 } from './query/querySlice';
@@ -203,38 +199,17 @@ export default function TabbedSearch() {
                     </div>
 
                     {/* Dropdown Menu */}
-                    <MoreVertIcon
-                      aria-label="options"
-                      onClick={(event) => handleMenuOpen(event)}
-                      sx={{
-                        position: 'absolute', top: '.25rem', right: '0', fontSize: 'medium',
-                      }}
-                    />
-                    {/* Dropdown Menu Items */}
-                    <Menu
+                    <MoreVertIconWrapper
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl) && value === i}
-                      onClose={handleClose}
-                    >
-                      <MenuItem onClick={() => handleClose(value, 'orange')}>
-                        <CircleIcon sx={{ color: 'orange' }} />
-                      </MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'yellow')}>
-                        <CircleIcon sx={{ color: 'yellow' }} />
-                      </MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'green')}>
-                        <CircleIcon sx={{ color: 'green' }} />
-                      </MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'blue')}>
-                        <CircleIcon sx={{ color: 'blue' }} />
-                      </MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'indigo')}>
-                        <CircleIcon sx={{ color: 'indigo' }} />
-                      </MenuItem>
-                      <MenuItem onClick={() => handleClose(value, 'edit')}>
-                        <EditIcon aria-label="edit" />
-                      </MenuItem>
-                    </Menu>
+                      handleClose={(colorValue) => handleClose(i, colorValue)}
+                      handleEdit={() => {
+                        const updatedEdit = [...edit];
+                        updatedEdit[i] = true;
+                        setEdit(updatedEdit);
+                      }}
+                      handleMenuOpen={handleMenuOpen} // Pass the handleMenuOpen function as a prop
+                    />
                   </Box>
                 )}
                 // eslint-disable-next-line react/jsx-props-no-spreading
