@@ -7,7 +7,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from 'prop-types';
 
 export default function MoreVertIconWrapper({
-  anchorEl, open, handleClose, handleEdit, handleMenuOpen,
+  anchorEl, open, handleClose, handleMenuOpen,
 }) {
   return (
     <div>
@@ -39,7 +39,7 @@ export default function MoreVertIconWrapper({
         <MenuItem onClick={() => handleClose('indigo')}>
           <CircleIcon sx={{ color: 'indigo' }} />
         </MenuItem>
-        <MenuItem onClick={handleEdit}>
+        <MenuItem onClick={() => handleClose('edit')}>
           <EditIcon aria-label="edit" />
         </MenuItem>
       </Menu>

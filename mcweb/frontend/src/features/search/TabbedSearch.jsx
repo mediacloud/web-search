@@ -174,6 +174,7 @@ export default function TabbedSearch() {
                               const updatedEdit = [...edit];
                               updatedEdit[value] = false;
                               setEdit(updatedEdit);
+                              console.log(textFieldsValues[i]);
                               dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
                               dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
                             }}
@@ -281,10 +282,10 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
-          <TopWords />
-          <TopLanguages />
+          {/* <TotalAttentionResults /> */}
+          {/* <SampleStories /> */}
+          {/* <TopWords /> */}
+          {/* <TopLanguages /> */}
         </div>
       </div>
     </div>
