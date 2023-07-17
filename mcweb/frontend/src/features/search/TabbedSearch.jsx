@@ -174,7 +174,6 @@ export default function TabbedSearch() {
                               const updatedEdit = [...edit];
                               updatedEdit[value] = false;
                               setEdit(updatedEdit);
-                              console.log(textFieldsValues[i]);
                               dispatch(setQueryProperty({ name: textFieldsValues[i], queryIndex: value, property: 'name' }));
                               dispatch(setQueryProperty({ edited: true, queryIndex: value, property: 'edited' }));
                             }}

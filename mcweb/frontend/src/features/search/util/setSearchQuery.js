@@ -153,32 +153,8 @@ const setState = (
   anyAlls.forEach((anyAll, i) => {
     dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
   });
-
-  //   names.forEach((title, i) => {
-  //     // name is not flagged
-  //     console.log(edited[i]);
-  //     if (edited[i] === 'false') {
-  //       if (negatedQueries) {
-  //         dispatch(setQueryProperty(
-  //           {
-  //             name: tabTitle(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
-  //             queryIndex: i,
-  //             property: 'name',
-  //           },
-  //         ));
-  //       }
-  //     } else { // name is flagged (DO NOT CHANGE)
-  //       console.log();
-  //       dispatch(setQueryProperty(
-  //         {
-  //           name: names[i],
-  //           queryIndex: i,
-  //           property: 'name',
-  //         },
-  //       ));
-  //     }
-  //   });
-  // };
+  console.log(names);
+  console.log(edited);
   names.forEach((title, i) => {
     // name is not flagged
     if (edited[i] === 'false') {
@@ -199,10 +175,10 @@ const setState = (
           },
         ));
       }
-    } else {
+    } else { // item is flagged
       dispatch(setQueryProperty(
         {
-          name: names[i],
+          name: title,
           queryIndex: i,
           property: 'name',
         },
