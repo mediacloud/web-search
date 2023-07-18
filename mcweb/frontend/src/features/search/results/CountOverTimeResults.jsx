@@ -44,7 +44,7 @@ export default function CountOverTimeResults() {
   const [newQuery, setNewQuery] = useState(false);
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
@@ -52,7 +52,7 @@ export default function CountOverTimeResults() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);

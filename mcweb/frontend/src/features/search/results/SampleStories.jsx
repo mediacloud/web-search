@@ -35,7 +35,7 @@ export default function SampleStories() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
@@ -43,7 +43,7 @@ export default function SampleStories() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);
