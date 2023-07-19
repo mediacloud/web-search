@@ -5,7 +5,8 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
-
+import os
+import bcrypt
 
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER,\
     PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, \
@@ -97,6 +98,24 @@ class QuotaHistory(models.Model):
             raise OverQuotaException(provider, quota)
         return matching.hits
 
+class UserSecrets(models.Model):
+    class SecretKeyTypes(models.TextChoices):
+        TWITTER_TOKEN = "twitter-token"
+        YOUTUBE_TOKEN = "youtube-token"
+       
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    key = models.CharField(max_length=100, choices=SecretKeyTypes.choices, null=False,blank=False)
+    value=models.TextField(null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    modified_at = models.DateTimeField(auto_now=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.value:
+            salt_value = os.getenv('SALT_VALUE')
+            hashed_value = bcrypt.hashpw(self.value.encode(), salt_value.encode()).decode()
+            self.value = hashed_value
+
+        super().save(*args, **kwargs)
 
 # make sure every user gets an automatically generated API Token
 # @see https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication

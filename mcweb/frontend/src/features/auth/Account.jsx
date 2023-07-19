@@ -7,16 +7,35 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
 import { useSnackbar } from 'notistack';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
+import {
+  useResetTokenMutation,
+  useDeleteUserMutation,
+  useGetUserSecretsMutation,
+  useCreateUserSecretMutation,
+  useUpdateUserSecretMutation,
+  useDeleteUserSecretMutation,
+} from '../../app/services/authApi';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
-import { useDeleteUserMutation, useResetTokenMutation } from '../../app/services/authApi';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
 import TaskList from '../tasks/TaskList';
+import { platformDisplayName } from '../ui/uiUtil';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
-  const [open, setOpen] = useState(false);
   const [deleteUser] = useDeleteUserMutation();
   const [resetToken] = useResetTokenMutation();
   const { enqueueSnackbar } = useSnackbar();
@@ -29,6 +48,57 @@ function Account() {
     }, delay);
   };
 
+  const { data: apiListData } = useGetUserSecretsMutation();
+  const [createUserSecret] = useCreateUserSecretMutation();
+  const [updateUserSecret] = useUpdateUserSecretMutation();
+  const [deleteUserSecret] = useDeleteUserSecretMutation();
+  const [open, setOpen] = useState(false);
+
+  const [openAPI, setOpenAPI] = useState(false);
+  const [formState, setFormState] = useState({
+    apiName: '',
+    apiValue: '',
+  });
+  console.log(apiListData);
+  const [apiList, setApiList] = useState([
+    {
+      apiName: 'twitter',
+      apiValue: 'b3ca728ebdf19dca0f221b6b0d6e3c1fcd356879kkkjkj',
+    },
+  ]);
+  const [editIndex, setEditIndex] = useState(null);
+
+  const handleOpenAPI = () => {
+    setOpenAPI(true);
+  };
+
+  const handleCloseAPI = () => {
+    setOpenAPI(false);
+    setFormState({ apiName: '', apiValue: '' });
+    setEditIndex(null);
+  };
+  const handleSubmitAPI = async () => {
+    if (editIndex === null) {
+      // setApiList([...apiList, formState]);
+      await createUserSecret(formState).unwrap();
+    } else {
+      setApiList((prev) => prev.map((item, index) => (item.apiName === editIndex ? formState : item)));
+    }
+    handleCloseAPI();
+  };
+  const handleDeleteAPI = async (id) => {
+    setApiList(apiList.filter((item) => item.apiName !== apiName));
+    // await deleteUserSecret(id);
+  };
+  const handleEditAPI = (apiName) => {
+    const item = apiList.find((item) => item.apiName === apiName);
+    setFormState({ apiName: item.apiName, apiValue: item.apiValue });
+    setEditIndex(apiName);
+    setOpenAPI(true);
+  };
+  const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
+
+  const mask = (cc, num = 8, mask = '*') => (`${cc}`).slice(0, -num).replace(/./g, mask) + (`${cc}`).slice(-num);
   return (
     <>
       <Header>
@@ -70,7 +140,37 @@ function Account() {
             <dt>Super User?</dt>
             <dd>{currentUser.isSuperuser ? 'yes' : 'no'}</dd>
           </Permissioned>
+
+          {apiList
+            && apiList.map((item) => (
+              <div key={item?.apiName} style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ paddingRight: '50px' }}>
+                  <dt>{item?.apiName}</dt>
+                  <dd>{mask(item?.apiValue)}</dd>
+                </div>
+                <div>
+                  <Button
+                    style={{ marginRight: '15px' }}
+                    onClick={() => handleEditAPI(item?.apiName)}
+                  >
+                    Edit
+
+                  </Button>
+                  <Button onClick={() => handleDeleteAPI(item?.apiName)}>
+                    Delete
+
+                  </Button>
+                </div>
+              </div>
+            ))}
         </dl>
+
+        <Button variant="outlined" color="primary" onClick={handleOpenAPI}>
+          Add Service API
+        </Button>
+        <br />
+        <br />
+
         <Alert severity="error">
           <AlertTitle>Delete Account</AlertTitle>
           <AlertDialog
@@ -104,6 +204,52 @@ function Account() {
             </div>
           </div>
         </Permissioned>
+        <Dialog
+          open={openAPI}
+          onClose={handleCloseAPI}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            {editIndex ? 'Update' : 'Add'}
+            {' '}
+            Service Specific API key
+          </DialogTitle>
+          <DialogContent>
+            <br />
+            <FormControl fullWidth>
+              <InputLabel id="type-select-label">Select API type</InputLabel>
+              <Select
+                labelId="type-select-label"
+                id="type-select"
+                name="apiName"
+                label="Select API type"
+                value={formState.apiName}
+                onChange={handleChange}
+              >
+                <MenuItem value="twitter">
+                  {platformDisplayName('twitter')}
+                </MenuItem>
+                <MenuItem value="youtube">
+                  {platformDisplayName('youtube')}
+                </MenuItem>
+              </Select>
+            </FormControl>
+            <br />
+            <br />
+            <TextField
+              name="apiValue"
+              label="API"
+              value={formState.apiValue}
+              onChange={handleChange}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseAPI}>Cancel</Button>
+            <Button onClick={handleSubmitAPI}>Confirm</Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </>
   );
