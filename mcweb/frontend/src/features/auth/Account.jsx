@@ -7,11 +7,10 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
 import { useSnackbar } from 'notistack';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
+import CancelIcon from '@mui/icons-material/Cancel';
+import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import {
@@ -54,8 +53,10 @@ function Account() {
   // const [updateUserSecret] = useUpdateUserSecretMutation();
   // const [deleteUserSecret] = useDeleteUserSecretMutation();
   const [open, setOpen] = useState(false);
-
   const [edit, setEdit] = useState([false]);
+  const [anchorEl, setAnchorEl] = useState([null]);
+  const [dropDownMenuOpen, setDropDownMenuOpen] = useState([false]);
+
   const [apiList, setApiList] = useState([
     {
       apiName: 'twitter',
@@ -63,14 +64,34 @@ function Account() {
     },
   ]);
 
-  const handleAPIAdd = () => {
-    const list = [...apiList];
-    list.push({ apiName: '', apiValue: '' });
-    setApiList(list);
+  const handleClick = (event, index) => {
+    console.log(event.current.target);
+    const updatedAnchorEl = [...anchorEl];
+    updatedAnchorEl[index] = event.currentTarget;
+    setAnchorEl(updatedAnchorEl);
+  };
+  const handleClose = (index) => {
+    const updatedAnchorEl = [...anchorEl];
+    updatedAnchorEl[index] = null;
+    setAnchorEl(updatedAnchorEl);
   };
 
-  console.log(apiList);
-  // const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
+  const handleAPIAdd = () => {
+    setApiList(() => [...apiList, { apiName: 'API Name', apiValue: 'API Key' }]);
+    setEdit(() => [...edit, true]);
+    setAnchorEl(() => [...anchorEl, null]);
+    setDropDownMenuOpen(() => [...dropDownMenuOpen, false]);
+  };
+
+  const handleAPIRemove = (index) => {
+    setApiList(apiList.filter((_, i) => i !== index));
+    setEdit(edit.filter((_, i) => i !== index));
+    setAnchorEl(anchorEl.filter((_, i) => i !== index));
+    dropDownMenuOpen(dropDownMenuOpen.filter((_, i) => i !== index));
+  };
+
+  // console.log(apiList);
+  // console.log(edit);
 
   return (
     <>
@@ -114,29 +135,92 @@ function Account() {
             <dd>{currentUser.isSuperuser ? 'yes' : 'no'}</dd>
           </Permissioned>
 
-          {apiList.map((item) => (
-            <div key={item.apiName} style={{ display: 'flex', alignItems: 'center' }}>
-              <div>
+          {apiList.map((item, index) => (
+            <div style={{ marginBottom: '20px' }}>
+              {
+                !edit[index] && (
+                  <div key={item.apiName} style={{ display: 'flex', alignItems: 'center' }}>
+                    <div>
+                      <dt>
+                        {item.apiName}
+                      </dt>
+                      <dd>{mask(item.apiValue, 8, '*')}</dd>
+                    </div>
+                    <EditIcon
+                      sx={{ marginLeft: '35px' }}
+                      onClick={() => {
+                        const updatedEdit = [...edit];
+                        updatedEdit[index] = true;
+                        setEdit(updatedEdit);
+                      }}
+                    >
+                      Edit
+                    </EditIcon>
+                    {apiList.length > 1 && (
+                      <RemoveCircleOutlineIcon
+                        sx={{ marginLeft: '15px' }}
+                        onClick={() => handleAPIRemove(index)}
+                      >
+                        Delete
+                      </RemoveCircleOutlineIcon>
+                    )}
+                  </div>
+                )
+              }
+              {edit[index] && (
                 <div>
-                  <dt>
-                    {item.apiName}
-                  </dt>
-                  <dd>{mask(item.apiValue, 8, '*')}</dd>
+                  <Button
+                    id="basic-button"
+                    aria-controls={dropDownMenuOpen[index] ? 'basic-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={dropDownMenuOpen[index] ? 'true' : undefined}
+                    onClick={(event) => handleClick(event, index)}
+                  >
+                    Dashboard
+                  </Button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl[index]}
+                    open={dropDownMenuOpen[index]}
+                    onClose={(event, i) => handleClose(i)}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem onClick={(event, i) => handleClose(i)}>Profile</MenuItem>
+                    <MenuItem onClick={(event, i) => handleClose(i)}>Profile</MenuItem>
+                    <MenuItem onClick={(event, i) => handleClose(i)}>Profile</MenuItem>
+                  </Menu>
+                  {/* input for customizing api key */}
+                  <input
+                    style={{ width: '400px' }}
+                    value={apiList[index].apiValue}
+                    type="text"
+                    onChange={(event) => {
+                      const updatedValues = [...apiList];
+                      updatedValues[index].apiValue = event.target.value;
+                      setApiList(updatedValues);
+                    }}
+                  />
+                  <CheckIcon
+                    disabled={apiList[index].apiValue.length === 0}
+                    sx={{ marginLeft: '35px' }}
+                    onClick={() => {
+                      const updatedEdit = [...edit];
+                      updatedEdit[index] = false;
+                      setEdit(updatedEdit);
+                    }}
+                  />
+                  {apiList.length > 1 && (
+                    <RemoveCircleOutlineIcon
+                      sx={{ marginLeft: '15px' }}
+                      onClick={() => handleAPIRemove(index)}
+                    >
+                      Delete
+                    </RemoveCircleOutlineIcon>
+                  )}
                 </div>
-              </div>
-              <div style={{ paddingLeft: '25px' }}>
-                <EditIcon
-                  style={{ marginRight: '15px' }}
-                  onClick={() => { console.log('edit'); }}
-                >
-                  Edit
-                </EditIcon>
-                <RemoveCircleOutlineIcon
-                  onClick={() => { console.log('delete'); }}
-                >
-                  Delete
-                </RemoveCircleOutlineIcon>
-              </div>
+              )}
             </div>
           ))}
         </dl>
