@@ -13,27 +13,14 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import CheckIcon from '@mui/icons-material/Check';
 import EditIcon from '@mui/icons-material/Edit';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@mui/material';
-import {
-  useResetTokenMutation,
-  useDeleteUserMutation,
-  useGetUserSecretsMutation,
-  useCreateUserSecretMutation,
-  useUpdateUserSecretMutation,
-  useDeleteUserSecretMutation,
-} from '../../app/services/authApi';
+import Button from '@mui/material/Button';
+import { useResetTokenMutation, useDeleteUserMutation } from '../../app/services/authApi';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
 import TaskList from '../tasks/TaskList';
-import { platformDisplayName, mask } from '../ui/uiUtil';
+import { mask } from '../ui/uiUtil';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
@@ -48,14 +35,17 @@ function Account() {
     }, delay);
   };
 
-  // const { data: apiListData } = useGetUserSecretsMutation();
-  // const [createUserSecret] = useCreateUserSecretMutation();
-  // const [updateUserSecret] = useUpdateUserSecretMutation();
-  // const [deleteUserSecret] = useDeleteUserSecretMutation();
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState([false]);
-  const [anchorEl, setAnchorEl] = useState([null]);
-  const [dropDownMenuOpen, setDropDownMenuOpen] = useState([false]);
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const APIMenuOpen = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const [apiList, setApiList] = useState([
     {
@@ -64,34 +54,19 @@ function Account() {
     },
   ]);
 
-  const handleClick = (event, index) => {
-    console.log(event.current.target);
-    const updatedAnchorEl = [...anchorEl];
-    updatedAnchorEl[index] = event.currentTarget;
-    setAnchorEl(updatedAnchorEl);
-  };
-  const handleClose = (index) => {
-    const updatedAnchorEl = [...anchorEl];
-    updatedAnchorEl[index] = null;
-    setAnchorEl(updatedAnchorEl);
-  };
-
   const handleAPIAdd = () => {
     setApiList(() => [...apiList, { apiName: 'API Name', apiValue: 'API Key' }]);
     setEdit(() => [...edit, true]);
-    setAnchorEl(() => [...anchorEl, null]);
-    setDropDownMenuOpen(() => [...dropDownMenuOpen, false]);
   };
 
   const handleAPIRemove = (index) => {
     setApiList(apiList.filter((_, i) => i !== index));
     setEdit(edit.filter((_, i) => i !== index));
-    setAnchorEl(anchorEl.filter((_, i) => i !== index));
-    dropDownMenuOpen(dropDownMenuOpen.filter((_, i) => i !== index));
   };
 
-  // console.log(apiList);
-  // console.log(edit);
+  console.log(apiList);
+  console.log(edit);
+  // const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
 
   return (
     <>
@@ -171,25 +146,22 @@ function Account() {
                 <div>
                   <Button
                     id="basic-button"
-                    aria-controls={dropDownMenuOpen[index] ? 'basic-menu' : undefined}
+                    aria-controls={APIMenuOpen ? 'basic-menu' : undefined}
                     aria-haspopup="true"
-                    aria-expanded={dropDownMenuOpen[index] ? 'true' : undefined}
-                    onClick={(event) => handleClick(event, index)}
+                    aria-expanded={APIMenuOpen ? 'true' : undefined}
+                    onClick={handleClick}
                   >
-                    Dashboard
+                    API Services
                   </Button>
                   <Menu
                     id="basic-menu"
-                    anchorEl={anchorEl[index]}
-                    open={dropDownMenuOpen[index]}
-                    onClose={(event, i) => handleClose(i)}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                    }}
+                    anchorEl={anchorEl}
+                    open={APIMenuOpen}
+                    onClose={handleClose}
                   >
-                    <MenuItem onClick={(event, i) => handleClose(i)}>Profile</MenuItem>
-                    <MenuItem onClick={(event, i) => handleClose(i)}>Profile</MenuItem>
-                    <MenuItem onClick={(event, i) => handleClose(i)}>Profile</MenuItem>
+                    <MenuItem onClick={handleClose}>Reddit</MenuItem>
+                    <MenuItem onClick={handleClose}>Twitter</MenuItem>
+                    <MenuItem onClick={handleClose}>Youtube</MenuItem>
                   </Menu>
                   {/* input for customizing api key */}
                   <input
