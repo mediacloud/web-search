@@ -32,7 +32,7 @@ import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
 import TaskList from '../tasks/TaskList';
-import { platformDisplayName } from '../ui/uiUtil';
+import { platformDisplayName, mask } from '../ui/uiUtil';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
@@ -40,7 +40,6 @@ function Account() {
   const [resetToken] = useResetTokenMutation();
   const { enqueueSnackbar } = useSnackbar();
 
-  // show the snackbar for 1.25 second and then reload the screen
   const logAndRefresh = (delay) => {
     enqueueSnackbar('Token reset!', { variant: 'success' });
     setTimeout(() => {
@@ -48,10 +47,10 @@ function Account() {
     }, delay);
   };
 
-  const { data: apiListData } = useGetUserSecretsMutation();
-  const [createUserSecret] = useCreateUserSecretMutation();
-  const [updateUserSecret] = useUpdateUserSecretMutation();
-  const [deleteUserSecret] = useDeleteUserSecretMutation();
+  // const { data: apiListData } = useGetUserSecretsMutation();
+  // const [createUserSecret] = useCreateUserSecretMutation();
+  // const [updateUserSecret] = useUpdateUserSecretMutation();
+  // const [deleteUserSecret] = useDeleteUserSecretMutation();
   const [open, setOpen] = useState(false);
 
   const [openAPI, setOpenAPI] = useState(false);
@@ -59,7 +58,7 @@ function Account() {
     apiName: '',
     apiValue: '',
   });
-  console.log(apiListData);
+
   const [apiList, setApiList] = useState([
     {
       apiName: 'twitter',
@@ -67,6 +66,7 @@ function Account() {
     },
   ]);
   const [editIndex, setEditIndex] = useState(null);
+  console.log(editIndex);
 
   const handleOpenAPI = () => {
     setOpenAPI(true);
@@ -79,8 +79,7 @@ function Account() {
   };
   const handleSubmitAPI = async () => {
     if (editIndex === null) {
-      // setApiList([...apiList, formState]);
-      await createUserSecret(formState).unwrap();
+      // await createUserSecret(formState).unwrap();
     } else {
       setApiList((prev) => prev.map((item, index) => (item.apiName === editIndex ? formState : item)));
     }
@@ -98,7 +97,6 @@ function Account() {
   };
   const handleChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
 
-  const mask = (cc, num = 8, mask = '*') => (`${cc}`).slice(0, -num).replace(/./g, mask) + (`${cc}`).slice(-num);
   return (
     <>
       <Header>
@@ -143,22 +141,24 @@ function Account() {
 
           {apiList
             && apiList.map((item) => (
-              <div key={item?.apiName} style={{ display: 'flex', alignItems: 'center' }}>
+              <div key={item.apiName} style={{ display: 'flex', alignItems: 'center' }}>
                 <div style={{ paddingRight: '50px' }}>
-                  <dt>{item?.apiName}</dt>
-                  <dd>{mask(item?.apiValue)}</dd>
+                  <div>
+                    <dt>
+                      {item.apiName}
+                    </dt>
+                    <dd>{mask(item.apiValue, 8, '*')}</dd>
+                  </div>
                 </div>
                 <div>
                   <Button
                     style={{ marginRight: '15px' }}
-                    onClick={() => handleEditAPI(item?.apiName)}
+                    onClick={() => handleEditAPI(item.apiName)}
                   >
                     Edit
-
                   </Button>
-                  <Button onClick={() => handleDeleteAPI(item?.apiName)}>
+                  <Button onClick={() => handleDeleteAPI(item.apiName)}>
                     Delete
-
                   </Button>
                 </div>
               </div>
@@ -204,6 +204,7 @@ function Account() {
             </div>
           </div>
         </Permissioned>
+        {/* Modal For Updating or Adding API */}
         <Dialog
           open={openAPI}
           onClose={handleCloseAPI}
