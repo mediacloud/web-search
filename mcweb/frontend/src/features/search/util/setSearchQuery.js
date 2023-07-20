@@ -128,6 +128,10 @@ const setState = (
     }
   }
 
+  platforms.forEach((platform, i) => {
+    dispatch(setQueryProperty({ platform, queryIndex: i, property: 'platform' }));
+  });
+
   startDates.forEach((startDate, i) => {
     dispatch(setQueryProperty({ startDate, queryIndex: i, property: 'startDate' }));
   });
