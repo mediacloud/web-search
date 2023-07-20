@@ -74,31 +74,11 @@ export const api = createApi({
         method: 'POST',
       }),
     }),
-    getUserSecrets: builder.mutation({
+    saveAPI: builder.mutation({
       query: (payload) => ({
-        url: 'user-secrets',
-        method: 'GET',
-        body: { ...payload },
-      }),
-    }),
-    createUserSecret: builder.mutation({
-      query: (payload) => ({
-        url: 'user-secrets',
+        url: 'save-api-token',
         method: 'POST',
         body: { ...payload },
-      }),
-    }),
-    updateUserSecret: builder.mutation({
-      query: (payload) => ({
-        url: `user-secrets/${payload.id}/`,
-        method: 'PATCH',
-        body: { ...payload },
-      }),
-    }),
-    deleteUserSecret: builder.mutation({
-      query: (id) => ({
-        url: `user-secrets/${id}/`,
-        method: 'DELETE',
       }),
     }),
   }),
@@ -115,8 +95,5 @@ export const {
   useDeleteUserMutation,
   usePasswordStrengthMutation,
   useResetTokenMutation,
-  useGetUserSecretsMutation,
-  useCreateUserSecretMutation,
-  useUpdateUserSecretMutation,
-  useDeleteUserSecretMutation,
+  useSaveAPIMutation,
 } = api;
