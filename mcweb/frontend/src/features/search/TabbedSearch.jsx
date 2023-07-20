@@ -58,7 +58,7 @@ export default function TabbedSearch() {
   }, [queryState, edit]);
 
   const handleShare = () => {
-    const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
+    const ahref = `http://localhost:8000/search?${urlSerializer(queryState)}`;
     navigator.clipboard.writeText(ahref);
   };
 
@@ -229,7 +229,7 @@ export default function TabbedSearch() {
                 openDialog={open}
                 outsideTitle="Share this Search"
                 title="Share this Search"
-                content={<code>{`search.mediacloud.org/search?${urlSerializer(queryState)}`}</code>}
+                content={<code>{`localhost:8000/search?${urlSerializer(queryState)}`}</code>}
                 action={handleShare}
                 actionTarget
                 snackbar
@@ -254,19 +254,23 @@ export default function TabbedSearch() {
                   dispatch(searchApi.util.resetApiState());
                   dispatch(setLastSearchTime(dayjs().unix()));
                   const collectionNames = await fetchCollectionNames();
+                  const updatedQueryState = JSON.parse(JSON.stringify(queryState));
                   queryState.forEach((q, i) => {
                     if (!queryState[i].edited) {
+                      // eslint-disable-next-line max-len
+                      const newName = tabTitle(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, collectionNames, i, queryState);
+                      updatedQueryState[i].name = newName;
                       dispatch(
                         setQueryProperty({
-                          // eslint-disable-next-line max-len
-                          name: tabTitle(q.queryList, q.negatedQueryList, q.anyAll, q.queryString, collectionNames, i, queryState),
+                          name: newName,
                           queryIndex: i,
                           property: 'name',
                         }),
                       );
                     }
                   });
-                  navigate(`/search?${urlSerializer(queryState)}`, {
+                  // console.log(updatedQueryState);
+                  navigate(`/search?${urlSerializer(updatedQueryState)}`, {
                     options: { replace: true },
                   });
                 }}
@@ -280,10 +284,10 @@ export default function TabbedSearch() {
       <div className="search-results-wrapper">
         <div className="container">
           <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
-          <TopWords />
-          <TopLanguages />
+          {/* <TotalAttentionResults /> */}
+          {/* <SampleStories /> */}
+          {/* <TopWords /> */}
+          {/* <TopLanguages /> */}
         </div>
       </div>
     </div>
