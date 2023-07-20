@@ -44,7 +44,7 @@ export default function TabbedSearch() {
 
   const [color, setColors] = useState(['White']);
 
-  const { platform } = queryState[0];
+  const { platform, advanced } = queryState[0];
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -53,7 +53,7 @@ export default function TabbedSearch() {
   const handleAddQuery = () => {
     const qsLength = queryState.length;
     setColors(() => [...color, 'White']);
-    dispatch(addQuery(platform));
+    dispatch(addQuery({ platform, advanced }));
     setValue(qsLength);
   };
 
