@@ -181,8 +181,6 @@ APPEND_SLASH = False
 
 MAX_ATTEMPTS = 1
 
-BACKGROUND_TASK_RUN_ASYNC = True
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
