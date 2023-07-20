@@ -75,11 +75,7 @@ export const platformIcon = (platform) => {
   }
 };
 
-export const mask = (string, numberOfElementsLeftUnmasked, maskCharacter) => {
-  const maskedPart = string.slice(0, -numberOfElementsLeftUnmasked).replace(/./g, maskCharacter);
-  const unmaskedPart = string.slice(-numberOfElementsLeftUnmasked);
-  return maskedPart + unmaskedPart;
-};
+export const mask = (string) => string.replace(/./g, '*');
 
 // trim a string by adding unicode ellipses char if it is too long
 export const trimStringForDisplay = (str, maxLen) => {
