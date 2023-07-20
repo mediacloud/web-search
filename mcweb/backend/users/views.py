@@ -310,25 +310,34 @@ def save_api_token(request):
     api_key = api_data.get('apiKey', None)
     username = payload.get('username', None)
 
+    # validate api_name and api_key
     if not api_name or not api_key or api_name == "" or api_key == "" or api_name == "API Name" or api_key == "API Key":
         data = json.dumps({'error': "API Name or API Key is invalid"})
         return HttpResponse(data, content_type='application/json', status=400)
 
     user_id = User.objects.get(username=username).id
     UserSecretsModel = apps.get_model('users', 'UserSecrets')
-    created_api = UserSecretsModel.objects.create(user_id=user_id, key=api_name, value=api_key)
-    created_api.save()
+    
+    # Call the clean() method to validate and set the key based on api_name
+    user_secret = UserSecretsModel(user_id=user_id, key=api_name, value=api_key)
+    user_secret.api_name = api_name
+    try:
+        user_secret.clean()
+    except ValidationError as e:
+        # error = ['Invalid API Name'] string slicing is to remove [' and '] 
+        data = json.dumps({'error': str(e)[2:-2]})
+        return HttpResponse(data, content_type='application/json', status=403)
+
+    # Don't save if there are saved User Secrets with the same name
+    try: 
+        UserSecretsModel.objects.filter(key=api_name)
+    except ValidationError as e:
+        logger.debug('Key Already Exists')
+        data = json.dumps({'error': str(e)})
+        return HttpResponse(data, content_type='application/json', status=400)
+
+    # Save the validated and cleaned user_secret instance
+    user_secret.save()
     logging.debug('new token created')
     data = json.dumps({'api_name': api_name, 'api_key': api_key})
-    # # Retrieve all UserSecrets instances
-    # user_secrets = UserSecrets.objects.all()
-    # data =  json.dumps({
-    #         'user_secrets': [{
-    #             'user': user_secret.user.id,
-    #             'key': user_secret.key,
-    #             'value': user_secret.value,
-    #             'created_at': user_secret.created_at,
-    #             'modified_at': user_secret.modified_at
-    #         } for user_secret in user_secrets]
-    #     })
     return HttpResponse(data, content_type='application/json')
