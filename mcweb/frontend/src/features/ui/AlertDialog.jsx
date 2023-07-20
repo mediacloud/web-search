@@ -6,7 +6,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
@@ -61,9 +60,9 @@ export default function AlertDialog({
         variant={variant}
         onClick={handleClickOpen}
         startIcon={startIcon}
-        endIcon={<MoreVertIcon />}
       >
         {outsideTitle}
+        ...
       </Button>
       <Dialog
         open={open}

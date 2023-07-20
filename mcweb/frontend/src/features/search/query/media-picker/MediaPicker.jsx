@@ -7,7 +7,6 @@ import Tab from '@mui/material/Tab';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { addSelectedMedia, removePreviewSelectedMedia } from '../querySlice';
 import CollectionSearchPicker from './CollectionSearchPicker';
 import SelectedMedia from '../SelectedMedia';
@@ -36,8 +35,8 @@ export default function MediaPicker({ queryIndex }) {
 
   return (
     <div className="media-picker">
-      <Button variant="outlined" onClick={() => setOpen(true)} endIcon={<MoreVertIcon />}>
-        Select Collections
+      <Button variant="outlined" onClick={() => setOpen(true)}>
+        Select Collections...
       </Button>
 
       {/* https://stackoverflow.com/questions/47698037/how-can-i-set-a-height-to-a-dialog-in-material-ui */}
