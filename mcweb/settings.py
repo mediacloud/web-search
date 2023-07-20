@@ -179,9 +179,7 @@ if DEBUG:
 
 APPEND_SLASH = False
 
-MAX_ATTEMPTS = 5
-
-BACKGROUND_TASK_RUN_ASYNC = True
+MAX_ATTEMPTS = 1
 
 LOGGING = {
     'version': 1,
