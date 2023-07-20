@@ -103,10 +103,11 @@ class UserSecrets(models.Model):
     class SecretKeyTypes(models.TextChoices):
         TWITTER_TOKEN = "twitter-token"
         YOUTUBE_TOKEN = "youtube-token"
+        REDDIT_TOKEN = "reddit-token"
        
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    key = models.CharField(max_length=150, choices=SecretKeyTypes.choices, null=False,blank=False)
-    value=models.TextField(null=False, blank=False)
+    key = models.CharField(max_length=150, choices=SecretKeyTypes.choices, null=False, blank=False)
+    value = models.TextField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
  
@@ -115,10 +116,12 @@ class UserSecrets(models.Model):
 
         # If api_name is 'reddit' or 'youtube', set the corresponding key
         if self.key not in dict(self.SecretKeyTypes.choices):
-            if self.api_name == 'Twitter':
+            if self.api_name == "Twitter":
                 self.key = self.SecretKeyTypes.TWITTER_TOKEN
-            elif self.api_name == 'Youtube':
+            elif self.api_name == "Youtube":
                 self.key = self.SecretKeyTypes.YOUTUBE_TOKEN
+            elif self.api_name == "Reddit":
+                self.key = self.SecretKeyTypes.REDDIT_TOKEN
             else:
                 raise ValidationError("Invalid API Name")
 
