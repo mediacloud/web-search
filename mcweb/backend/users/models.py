@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from django.core.exceptions import ValidationError
 import os
 import bcrypt
 
@@ -104,15 +105,26 @@ class UserSecrets(models.Model):
         YOUTUBE_TOKEN = "youtube-token"
        
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    key = models.CharField(max_length=100, choices=SecretKeyTypes.choices, null=False,blank=False)
+    key = models.CharField(max_length=150, choices=SecretKeyTypes.choices, null=False,blank=False)
     value=models.TextField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
+ 
+    def clean(self):
+        super().clean()
+
+        # If api_name is 'reddit' or 'youtube', set the corresponding key
+        if self.key not in dict(self.SecretKeyTypes.choices):
+            if self.api_name == 'Twitter':
+                self.key = self.SecretKeyTypes.TWITTER_TOKEN
+            elif self.api_name == 'Youtube':
+                self.key = self.SecretKeyTypes.YOUTUBE_TOKEN
+            else:
+                raise ValidationError("Invalid API Name")
 
     def save(self, *args, **kwargs):
         if self.value:
-            salt_value = os.getenv('SALT_VALUE')
-            hashed_value = bcrypt.hashpw(self.value.encode(), salt_value.encode()).decode()
+            hashed_value = bcrypt.hashpw(self.value.encode(), bcrypt.gensalt()).decode('utf8')
             self.value = hashed_value
 
         super().save(*args, **kwargs)
