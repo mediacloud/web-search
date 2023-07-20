@@ -209,7 +209,6 @@ def register(request):
             data = json.dumps({'message': "Invalid email"})
             return HttpResponse(data, content_type='application/json', status=403)
 
-
         """"
         verifies is password passes:
          -  minimum length of the password is 10 characters
@@ -288,7 +287,6 @@ def reset_token(request):
         return HttpResponse(data, content_type='application/json', status=400)
 
 
-
 def _serialized_current_user(request) -> str:
     current_user = request.user
     serialized_data = serializers.serialize('json', [current_user, ])
@@ -301,70 +299,36 @@ def _serialized_current_user(request) -> str:
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
 
-@require_http_methods(["POST", "GET", "DELETE", "PUT"])
-def user_secrets(request, secret_id=None):
-    if request.method == 'GET':
-        if secret_id is not None:
-            # Retrieve a specific UserSecrets instance
-            user_secret = get_object_or_404(UserSecrets, pk=secret_id)
-            data =  json.dumps({
-                'user': user_secret.user.id,
-                'key': user_secret.key,
-                'value': user_secret.value,
-                'created_at': user_secret.created_at,
-                'modified_at': user_secret.modified_at
-            })
-            return HttpResponse(data, content_type='application/json')
-        else:
-            # Retrieve all UserSecrets instances
-            user_secrets = UserSecrets.objects.all()
-            data =  json.dumps({
-                'user_secrets': [{
-                    'user': user_secret.user.id,
-                    'key': user_secret.key,
-                    'value': user_secret.value,
-                    'created_at': user_secret.created_at,
-                    'modified_at': user_secret.modified_at
-                } for user_secret in user_secrets]
-            })
-            return HttpResponse(data, content_type='application/json')
 
-    elif request.method == 'POST':
-        # Create a new UserSecrets instance
-        user = request.POST.get('user')
-        key = request.POST.get('key')
-        value = request.POST.get('value')
+@login_required(redirect_field_name='/auth/login')
+@require_http_methods(["POST"])
+def save_api_token(request):
+    payload = json.loads(request.body)
+    # nested object api_data inside of payload w/ api_name and api_key
+    api_data = payload.get('apiData', None)
+    api_name = api_data.get('apiName', None)
+    api_key = api_data.get('apiKey', None)
+    username = payload.get('username', None)
 
-        salt_value = os.getenv('SALT_VALUE')
-        hashed_value = bcrypt.hashpw(value.encode(), salt_value.encode()).decode()
+    if not api_name or not api_key or api_name == "" or api_key == "" or api_name == "API Name" or api_key == "API Key":
+        data = json.dumps({'error': "API Name or API Key is invalid"})
+        return HttpResponse(data, content_type='application/json', status=400)
 
-        user_secret = UserSecrets(user=user, key=key, value=hashed_value)
-        user_secret.save()
-
-        data =  json.dumps({'message': 'UserSecrets created successfully'})
-        return HttpResponse(data,content_type='application/json', status=201)
-
-    elif request.method == 'PUT':
-        # Update an existing UserSecrets instance
-        user_secret = get_object_or_404(UserSecrets, pk=secret_id)
-
-        key = request.POST.get('key')
-        value = request.POST.get('value')
-
-        salt_value = os.getenv('SALT_VALUE')
-        hashed_value = bcrypt.hashpw(value.encode(), salt_value.encode()).decode()
-
-        user_secret.key = key
-        user_secret.value = hashed_value
-        user_secret.save()
-
-        data =  json.dumps({'message': 'UserSecrets updated successfully'})
-        return HttpResponse(data,content_type='application/json', status=200)
-
-    elif request.method == 'DELETE':
-        # Delete an existing UserSecrets instance
-        user_secret = get_object_or_404(UserSecrets, pk=secret_id)
-        user_secret.delete()
-
-        data = json.dumps({'message': 'UserSecrets deleted successfully'})
-        return HttpResponse(data,content_type='application/json')
+    user_id = User.objects.get(username=username).id
+    UserSecretsModel = apps.get_model('users', 'UserSecrets')
+    created_api = UserSecretsModel.objects.create(user_id=user_id, key=api_name, value=api_key)
+    created_api.save()
+    logging.debug('new token created')
+    data = json.dumps({'api_name': api_name, 'api_key': api_key})
+    # # Retrieve all UserSecrets instances
+    # user_secrets = UserSecrets.objects.all()
+    # data =  json.dumps({
+    #         'user_secrets': [{
+    #             'user': user_secret.user.id,
+    #             'key': user_secret.key,
+    #             'value': user_secret.value,
+    #             'created_at': user_secret.created_at,
+    #             'modified_at': user_secret.modified_at
+    #         } for user_secret in user_secrets]
+    #     })
+    return HttpResponse(data, content_type='application/json')
