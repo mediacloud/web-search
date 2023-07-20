@@ -154,36 +154,14 @@ const setState = (
     dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
   });
   console.log(names);
-  console.log(edited);
   names.forEach((title, i) => {
-    // name is not flagged
-    if (edited[i] === 'false') {
-      if (negatedQueries) {
-        dispatch(setQueryProperty(
-          {
-            name: tabTitle(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
-            queryIndex: i,
-            property: 'name',
-          },
-        ));
-      } else {
-        dispatch(setQueryProperty(
-          {
-            name: tabTitle(queries[i], [], anyAlls[i], queryStrings, i),
-            queryIndex: i,
-            property: 'name',
-          },
-        ));
-      }
-    } else { // item is flagged
-      dispatch(setQueryProperty(
-        {
-          name: title,
-          queryIndex: i,
-          property: 'name',
-        },
-      ));
-    }
+    dispatch(setQueryProperty(
+      {
+        name: title,
+        queryIndex: i,
+        property: 'name',
+      },
+    ));
   });
 };
 
