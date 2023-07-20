@@ -130,8 +130,9 @@ function Account() {
                     {apiList[index].apiName === 'API Name' ? 'API NAME' : apiList[index].apiName}
                   </Button>
                   <Menu key={apiList[index].apiName + apiList[index].apiKey} anchorEl={anchorEl} open={Boolean(anchorEl)}>
-                    <MenuItem onClick={() => handleClose(value, 'Reddit')}>Reddit</MenuItem>
+                    <MenuItem onClick={() => handleClose(value, 'Twitter')}>Twitter</MenuItem>
                     <MenuItem onClick={() => handleClose(value, 'Youtube')}>Youtube</MenuItem>
+                    <MenuItem onClick={() => handleClose(value, 'Reddit')}>Reddit</MenuItem>
                   </Menu>
                   {/* input for customizing api key */}
                   <input
