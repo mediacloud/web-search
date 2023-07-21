@@ -29,7 +29,7 @@ function Account() {
   const [deleteUser] = useDeleteUserMutation();
   const [resetToken] = useResetTokenMutation();
   const [deleteKey] = useDeleteAPIMutation();
-  const [saveAPI] = useSaveAPIMutation();
+  const [saveKey] = useSaveAPIMutation();
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState([false]);
@@ -189,7 +189,7 @@ function Account() {
                     sx={{ marginLeft: '35px' }}
                     onClick={async () => {
                       try {
-                        await saveAPI({ apiData: apiList[index], username: currentUser.username }).unwrap();
+                        await saveKey({ apiData: apiList[index], username: currentUser.username }).unwrap();
                         logAndRefresh(`${apiList[index].apiName} token is saved!`, 3000, 1500);
                         handleAPIRemove(index);
                       } catch (err) {
