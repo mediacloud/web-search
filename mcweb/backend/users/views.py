@@ -346,7 +346,7 @@ def get_api_keys(request):
     keys = np.array(UserSecretsModel.objects.values_list(
         'key')).flatten().tolist()
     # clean keys: 'twitter-token' and 'youtube-token' into 'twitter key' and 'youtube key'
-    keys = [(key.replace("-", " ").replace("token", "key")) for key in keys]
+    keys = [(key.replace("-", " ").replace("token", "Key")) for key in keys]
     data = json.dumps({'api_keys': keys})
     return HttpResponse(data, content_type='application/json')
 
@@ -356,8 +356,10 @@ def get_api_keys(request):
 def delete_api_key(request):
     payload = json.loads(request.body)
     key = payload.get('key', None)
-    key = key.replace(" ", "-").replace("key", "token")
     print("key: " + str(key))
+
+    # clean keys:  'twitter key' and 'youtube key' into 'twitter-token' and 'youtube-token'
+    key = key.replace(" ", "-").replace("Key", "Token")
     UserSecretsModel = apps.get_model('users', 'UserSecrets')
     UserSecretsModel.objects.get(key=key).delete()
     return HttpResponse(content_type='application/json')
