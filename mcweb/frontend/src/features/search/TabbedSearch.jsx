@@ -58,7 +58,7 @@ export default function TabbedSearch() {
   }, [queryState, edit]);
 
   const handleShare = () => {
-    const ahref = `http://localhost:8000/search?${urlSerializer(queryState)}`;
+    const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
     navigator.clipboard.writeText(ahref);
   };
 
@@ -229,7 +229,7 @@ export default function TabbedSearch() {
                 openDialog={open}
                 outsideTitle="Share this Search"
                 title="Share this Search"
-                content={<code>{`localhost:8000/search?${urlSerializer(queryState)}`}</code>}
+                content={<code>{`search.mediacloud.org/search?${urlSerializer(queryState)}`}</code>}
                 action={handleShare}
                 actionTarget
                 snackbar
