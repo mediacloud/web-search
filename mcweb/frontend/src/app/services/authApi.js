@@ -87,6 +87,13 @@ export const api = createApi({
         method: 'GET',
       }),
     }),
+    deleteAPI: builder.mutation({
+      query: (key) => ({
+        url: 'delete-api-key',
+        method: 'DELETE',
+        body: { ...key },
+      }),
+    }),
   }),
 });
 
@@ -103,4 +110,5 @@ export const {
   useResetTokenMutation,
   useSaveAPIMutation,
   useGetAPIsQuery,
+  useDeleteAPIMutation,
 } = api;
