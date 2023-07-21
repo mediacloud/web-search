@@ -157,7 +157,7 @@ const setState = (
   anyAlls.forEach((anyAll, i) => {
     dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
   });
-  console.log(names);
+
   names.forEach((title, i) => {
     dispatch(setQueryProperty(
       {

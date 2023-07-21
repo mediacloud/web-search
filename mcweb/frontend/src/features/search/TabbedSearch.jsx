@@ -50,7 +50,6 @@ export default function TabbedSearch() {
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
   const { platform, advanced } = queryState[0];
 
-
   const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
 
   useEffect(() => {
@@ -271,7 +270,6 @@ export default function TabbedSearch() {
                       );
                     }
                   });
-                  // console.log(updatedQueryState);
                   navigate(`/search?${urlSerializer(updatedQueryState)}`, {
                     options: { replace: true },
                   });
