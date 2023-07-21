@@ -152,11 +152,18 @@ function Account() {
                     onClick={async () => {
                       try {
                         await saveAPI({ apiData: apiList[index], username: currentUser.username }).unwrap();
+                        enqueueSnackbar(
+                          `${apiList[index].apiName} token is saved!`,
+                          { variant: 'success', autoHideDuration: 3000 },
+                        );
                         const updatedEdit = [...edit];
                         updatedEdit[index] = false;
                         setEdit(updatedEdit);
                       } catch (err) {
-                        enqueueSnackbar(`Saving API Key - ${err.data.error}`, { variant: 'error' });
+                        enqueueSnackbar(
+                          `Saving API Key - ${err.data.error}`,
+                          { variant: 'error', autoHideDuration: 5000 },
+                        );
                       }
                     }}
                   />
