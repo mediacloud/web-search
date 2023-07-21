@@ -118,7 +118,7 @@ function Account() {
               <Box sx={{ marginLeft: '15px' }}>
                 <AlertDialog
                   outsideTitle="Delete Key"
-                  title="Delete your account? "
+                  title="Delete your API Key?"
                   content="Are you sure you would like to delete your API Key?"
                   dispatchNeeded={false}
                   action={deleteKey}
