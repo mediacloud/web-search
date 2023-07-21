@@ -115,22 +115,25 @@ function Account() {
               <div>
                 <dt>{`Saved ${key}`}</dt>
               </div>
-              <RemoveCircleOutlineIcon
-                sx={{ marginLeft: '15px' }}
-                onClick={async () => {
-                  try {
-                    await deleteKey({ key }).unwrap();
-                    logAndRefresh(`${key} was deleted!`, 3000, 1000);
-                  } catch (err) {
-                    enqueueSnackbar(
-                      `Deleting API Key Error- ${err.data.error}`,
-                      { variant: 'error', autoHideDuration: 5000 },
-                    );
-                  }
-                }}
-              >
-                Delete
-              </RemoveCircleOutlineIcon>
+              <Box sx={{ marginLeft: '15px' }}>
+                <AlertDialog
+                  outsideTitle="Delete Key"
+                  title="Delete your account? "
+                  content="Are you sure you would like to delete your API Key?"
+                  dispatchNeeded={false}
+                  action={deleteKey}
+                  actionTarget={{ key }}
+                  snackbar={false}
+                  snackbarText={`${key} was deleted!`}
+                  navigateNeeded
+                  navigate="/account"
+                  onClick={() => setOpen(true)}
+                  openDialog={open}
+                  variant="outlined"
+                  confirmButtonText="Delete"
+                  logAndRefresh={logAndRefresh} // Passing the logAndRefresh function to the component
+                />
+              </Box>
             </Box>
           ))}
           {/* Creating API Keys */}
