@@ -48,7 +48,8 @@ export default function TabbedSearch() {
   const [color, setColor] = useState(['white']); // colors of tabs, we don't need to save this in state
   const [edit, setEdit] = useState([false]); // local state variable for
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
-  const { platform } = queryState[0];
+  const { platform, advanced } = queryState[0];
+
 
   const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
 
@@ -77,9 +78,10 @@ export default function TabbedSearch() {
 
   const handleAddQuery = () => {
     const qsLength = queryState.length;
+
     setColor(() => [...color, 'White']);
     setEdit(() => [...edit, false]);
-    dispatch(addQuery(platform));
+    dispatch(addQuery({ platform, advanced }));
     dispatch(setQueryProperty(
       {
         name: `Query ${queryState.length + 1}`,

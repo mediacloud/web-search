@@ -143,7 +143,7 @@ const querySlice = createSlice({
           queryString: '',
           queryList: [[], [], []],
           negatedQueryList: [[], [], []],
-          platform: payload,
+          platform: payload.platform,
           startDate,
           endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
           collections: [],
@@ -154,10 +154,9 @@ const querySlice = createSlice({
           isFromDateValid: true,
           isToDateValid: true,
           anyAll: 'any',
-          advanced: false,
+          advanced: payload.advanced,
           name: 'Query',
           edited: false,
-
         },
       );
     },

@@ -24,9 +24,8 @@ export default function PlatformPicker({ queryIndex }) {
 
   const providersOfSamePlatform = (provider1, provider2) => provider1.split('-')[0] === provider2.split('-')[0];
 
-  const handleChangePlatform = async (event) => {
-    const newPlatform = event.target.value;
-    await dispatch(setPlatform(newPlatform));
+  const handleChangePlatform = (newPlatform) => {
+    dispatch(setPlatform(newPlatform));
     const hasSomeMedia = (collections.length + sources.length) > 0;
     const samePlatform = platform && newPlatform ? providersOfSamePlatform(platform, newPlatform) : null;
     /*
@@ -38,14 +37,14 @@ export default function PlatformPicker({ queryIndex }) {
     if (!samePlatform) {
       if (!hasSomeMedia) {
         if ([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(newPlatform)) {
-          await dispatch(addSelectedMedia({ sourceOrCollection: DEFAULT_ONLINE_NEWS_COLLECTIONS, queryIndex }));
+          dispatch(addSelectedMedia({ sourceOrCollection: DEFAULT_ONLINE_NEWS_COLLECTIONS, queryIndex }));
           enqueueSnackbar('We reset your collections to work with this platform.', { variant: 'warning' });
         } else {
-          await dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
+          dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
           enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
         }
       } else {
-        await dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
+        dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
         enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
       }
     }
@@ -58,13 +57,15 @@ export default function PlatformPicker({ queryIndex }) {
           <ToggleButtonGroup
             value={platform}
             exclusive
-            onChange={handleChangePlatform}
             aria-label="platform"
             color="primary"
           >
 
             {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
-              <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD); }}
+                value={PROVIDER_NEWS_MEDIA_CLOUD}
+              >
                 <NewspaperIcon fontSize="large" />
                 Online News
                 <br />
@@ -72,7 +73,10 @@ export default function PlatformPicker({ queryIndex }) {
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
-              <ToggleButton value={PROVIDER_NEWS_WAYBACK_MACHINE}>
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_NEWS_WAYBACK_MACHINE); }}
+                value={PROVIDER_NEWS_WAYBACK_MACHINE}
+              >
                 <NewspaperIcon fontSize="large" />
                 Online News
                 <br />
@@ -80,7 +84,10 @@ export default function PlatformPicker({ queryIndex }) {
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
-              <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_REDDIT_PUSHSHIFT); }}
+                value={PROVIDER_REDDIT_PUSHSHIFT}
+              >
                 <RedditIcon fontSize="large" />
                 Reddit
                 <br />
@@ -88,7 +95,10 @@ export default function PlatformPicker({ queryIndex }) {
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
-              <ToggleButton value={PROVIDER_TWITTER_TWITTER}>
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_TWITTER_TWITTER); }}
+                value={PROVIDER_TWITTER_TWITTER}
+              >
                 <TwitterIcon fontSize="large" />
                 Twitter
                 <br />
@@ -96,7 +106,10 @@ export default function PlatformPicker({ queryIndex }) {
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
-              <ToggleButton value={PROVIDER_YOUTUBE_YOUTUBE}>
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}
+                value={PROVIDER_YOUTUBE_YOUTUBE}
+              >
                 <YouTubeIcon fontSize="large" />
                 YouTube
                 <br />

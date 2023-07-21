@@ -36,7 +36,7 @@ export default function MediaPicker({ queryIndex }) {
   return (
     <div className="media-picker">
       <Button variant="outlined" onClick={() => setOpen(true)}>
-        Select Collections
+        Select Collections...
       </Button>
 
       {/* https://stackoverflow.com/questions/47698037/how-can-i-set-a-height-to-a-dialog-in-material-ui */}

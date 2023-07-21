@@ -1,4 +1,17 @@
-[{"version": "v1.4.2",
+[{"version": "v1.4.3",
+"date": "2023-07-12",
+"notes": ["Add updated about search page",
+"fix bug showing hidden collections",
+"fix bug with download all content modal",
+"update several buttons and ui features to adopt new conventions",
+"fix bug for negated query dissapearing on refresh",
+"fix for label overlap when editing a source",
+"fix double naming of downloaded csv files",
+"minor bug fix for Wayback Machine Searches with url search strings",
+"add sending email when a new feed is found"
+]
+},
+{"version": "v1.4.2",
 "date": "2023-06-07",
 "notes": ["Add notes about collection to collections page",
 "fix broken tabs in media picker",

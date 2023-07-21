@@ -5,6 +5,7 @@ import Tab from '@mui/material/Tab';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import CollectionSearch from './CollectionSearch';
 import SourceSearch from './SourceSearch';
 import GeographicCollectionsSearch from './GeographicCollectionsSearch';
@@ -16,7 +17,7 @@ export default function DetailedSearch() {
   return (
     <>
       <Button variant="outlined" onClick={() => setOpen(true)}>
-        Detailed Search
+        Detailed Search...
       </Button>
 
       {/* https://stackoverflow.com/questions/47698037/how-can-i-set-a-height-to-a-dialog-in-material-ui */}

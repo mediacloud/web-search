@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import checkForBlankQuery from './checkForBlankQuery';
 
 const isSameOrBefore = require('dayjs/plugin/isSameOrBefore');
 
@@ -9,26 +10,11 @@ const deactvateButton = (queryState) => {
 
   queryState.forEach((queryObject) => {
     const {
-      queryString,
-      queryList,
-      negatedQueryList,
       startDate,
       endDate,
       isFromDateValid,
       isToDateValid,
     } = queryObject;
-
-    const totalQuery = queryList.concat(negatedQueryList);
-
-    // checks too see if the query is empty
-    function validQuery(tQ) {
-      for (let i = 0; i < tQ.length; i += 1) {
-        if (tQ[i].length > 0) {
-          return true;
-        }
-      }
-      return false;
-    }
 
     // parameters are both boolean variables
     function validFromAndToDates(validatedFromDate, validatedToDate) {
@@ -40,21 +26,10 @@ const deactvateButton = (queryState) => {
       return dayjs(startingDate).isSameOrBefore(dayjs(endingDate));
     }
 
-    // is the advanced search query string not just the "*"
-    function validQueryString(queryStr) {
-      return queryStr.length !== 0;
-    }
-
-    // is the query string empty?
-    const isQueryEmpty = validQuery(totalQuery);
-
     // are the dates in correct order and validated?
     const areDatesValid = validDates(startDate, endDate) && validFromAndToDates(isFromDateValid, isToDateValid);
 
-    // is the advanced search query empty?
-    const isQueryStringEmpty = validQueryString(queryString);
-
-    returnVal = ((isQueryEmpty || isQueryStringEmpty) && areDatesValid);
+    returnVal = (!checkForBlankQuery(queryState) && areDatesValid);
   });
   return returnVal;
 };
