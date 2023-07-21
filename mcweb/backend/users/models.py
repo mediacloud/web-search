@@ -116,11 +116,11 @@ class UserSecrets(models.Model):
 
         # If api_name is 'reddit' or 'youtube', set the corresponding key
         if self.key not in dict(self.SecretKeyTypes.choices):
-            if self.api_name == "Twitter":
+            if self.key == "Twitter":
                 self.key = self.SecretKeyTypes.TWITTER_TOKEN
-            elif self.api_name == "Youtube":
+            elif self.key == "Youtube":
                 self.key = self.SecretKeyTypes.YOUTUBE_TOKEN
-            elif self.api_name == "Reddit":
+            elif self.key == "Reddit":
                 self.key = self.SecretKeyTypes.REDDIT_TOKEN
             else:
                 raise ValidationError("Invalid API Name")
