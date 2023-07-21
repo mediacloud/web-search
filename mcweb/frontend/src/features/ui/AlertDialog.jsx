@@ -15,7 +15,7 @@ import PropTypes from 'prop-types';
 export default function AlertDialog({
   openDialog, outsideTitle, title, content, action, actionTarget, dispatchNeeded,
   snackbar, snackbarText, variant, startIcon, navigateNeeded, navigateTo, secondAction,
-  confirmButtonText,
+  confirmButtonText, logAndRefresh,
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
@@ -51,6 +51,9 @@ export default function AlertDialog({
     }
     if (navigateNeeded) {
       navigate(navigateTo);
+    }
+    if (logAndRefresh) {
+      logAndRefresh(snackbarText, 3000, 1500);
     }
     handleClose();
   };
@@ -118,6 +121,7 @@ AlertDialog.propTypes = {
   navigateTo: PropTypes.string,
   secondAction: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+  logAndRefresh: PropTypes.func,
 };
 
 AlertDialog.defaultProps = {
@@ -128,4 +132,5 @@ AlertDialog.defaultProps = {
   navigateNeeded: false,
   navigateTo: '',
   secondAction: null,
+  logAndRefresh: null,
 };
