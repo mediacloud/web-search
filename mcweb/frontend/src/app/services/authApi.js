@@ -76,9 +76,15 @@ export const api = createApi({
     }),
     saveAPI: builder.mutation({
       query: (payload) => ({
-        url: 'save-api-token',
+        url: 'save-api-key',
         method: 'POST',
         body: { ...payload },
+      }),
+    }),
+    getAPIs: builder.query({
+      query: () => ({
+        url: 'get-api-keys',
+        method: 'GET',
       }),
     }),
   }),
@@ -96,4 +102,5 @@ export const {
   usePasswordStrengthMutation,
   useResetTokenMutation,
   useSaveAPIMutation,
+  useGetAPIsQuery,
 } = api;
