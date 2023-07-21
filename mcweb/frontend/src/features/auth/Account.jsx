@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Alert from '@mui/material/Alert';
@@ -13,8 +13,10 @@ import CheckIcon from '@mui/icons-material/Check';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   useResetTokenMutation, useDeleteUserMutation, useSaveAPIMutation, useGetAPIsQuery,
+  useDeleteAPIMutation,
 } from '../../app/services/authApi';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
 import { selectCurrentUser, setCredentials } from './authSlice';
@@ -26,31 +28,24 @@ function Account() {
   const currentUser = useSelector(selectCurrentUser);
   const [deleteUser] = useDeleteUserMutation();
   const [resetToken] = useResetTokenMutation();
+  const [deleteKey] = useDeleteAPIMutation();
   const [saveAPI] = useSaveAPIMutation();
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState([false]);
   const [value, setValue] = useState(0);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const { data: usersApiList, isLoading, isError } = useGetAPIsQuery();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { data: savedApiList, isLoading } = useGetAPIsQuery();
 
   const [apiList, setApiList] = useState([]);
 
-  // useEffect to update the state when data is available
-  useEffect(() => {
-    if (usersApiList && !isLoading && !isError) {
-      setApiList(usersApiList.api_keys);
-    }
-  }, [usersApiList]);
-
-  const logAndRefresh = (delay) => {
-    enqueueSnackbar('Token reset!', { variant: 'success' });
+  const logAndRefresh = (message, duration, delay) => {
+    enqueueSnackbar(message, { variant: 'success', autoHideDuration: duration });
     setTimeout(() => {
       window.location.reload();
     }, delay);
   };
 
-  console.log(apiList.map((item) => console.log(item)));
   const handleClick = (event, index) => {
     setValue(index);
     setAnchorEl(event.currentTarget);
@@ -67,7 +62,7 @@ function Account() {
     setEdit(() => [...edit, true]);
   };
 
-  const handleAPIRemove = (index) => {
+  const handleAPIRemove = async (index) => {
     setApiList(apiList.filter((_, i) => i !== index));
     setEdit(edit.filter((_, i) => i !== index));
   };
@@ -96,7 +91,7 @@ function Account() {
                 onClick={async () => {
                   try {
                     await resetToken(currentUser.id).unwrap();
-                    logAndRefresh(1250);
+                    logAndRefresh('Token Reset!', 3000, 1250);
                   } catch (err) {
                     enqueueSnackbar(`Token reset failed - ${err}`, { variant: 'error' });
                   }
@@ -114,19 +109,60 @@ function Account() {
             <dd>{currentUser.isSuperuser ? 'yes' : 'no'}</dd>
           </Permissioned>
 
+          {/* Saved Users API Keys */}
+          {!isLoading && savedApiList.api_keys.map((key) => (
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+              <div>
+                <dt>{`Saved ${key}`}</dt>
+              </div>
+              <RemoveCircleOutlineIcon
+                sx={{ marginLeft: '15px' }}
+                onClick={async () => {
+                  try {
+                    await deleteKey({ key }).unwrap();
+                    logAndRefresh(`${key} was deleted!`, 3000, 1000);
+                  } catch (err) {
+                    enqueueSnackbar(
+                      `Deleting API Key Error- ${err.data.error}`,
+                      { variant: 'error', autoHideDuration: 5000 },
+                    );
+                  }
+                }}
+              >
+                Delete
+              </RemoveCircleOutlineIcon>
+            </Box>
+          ))}
+          {/* Creating API Keys */}
           {apiList.map((item, index) => (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {
                 !edit[index] && (
-                  <div key={item} style={{ display: 'flex', alignItems: 'center' }}>
+                  <div
+                    key={item.key}
+                    style={{ display: 'flex', alignItems: 'center' }}
+                  >
                     <div>
-                      <dt>{item}</dt>
+                      <dt>{item.apiName}</dt>
+                      <dd>{item.apiKey}</dd>
                     </div>
+                    <EditIcon
+                      sx={{ marginLeft: '35px' }}
+                      onClick={() => {
+                        const updatedEdit = [...edit];
+                        updatedEdit[index] = true;
+                        setEdit(updatedEdit);
+                      }}
+                    >
+                      Edit
+                    </EditIcon>
                   </div>
                 )
               }
+              {/* Edit API Keys */}
               {edit[index] && (
                 <div>
+                  {/* Dropdown menu for key name options */}
                   <Button
                     onClick={(event) => handleClick(event, index)}
                   >
@@ -148,29 +184,25 @@ function Account() {
                       setApiList(updatedValues);
                     }}
                   />
-                  {/* Confirm */}
+                  {/* Save API Key */}
                   <CheckIcon
-                    disabled={apiList[index].apiKey.length === 0}
                     sx={{ marginLeft: '35px' }}
                     onClick={async () => {
                       try {
                         await saveAPI({ apiData: apiList[index], username: currentUser.username }).unwrap();
-                        enqueueSnackbar(
-                          `${apiList[index].apiName} token is saved!`,
-                          { variant: 'success', autoHideDuration: 3000 },
-                        );
+                        logAndRefresh(`${apiList[index].apiName} token is saved!`, 3000, 1500);
                         handleAPIRemove(index);
                       } catch (err) {
                         enqueueSnackbar(
-                          `Saving API Key - ${err.data.error}`,
+                          `Saving API Key Error- ${err.data.error}`,
                           { variant: 'error', autoHideDuration: 5000 },
                         );
                       }
                     }}
                   />
-                  {/* Remove */}
                 </div>
               )}
+              {/* Remove Key */}
               <RemoveCircleOutlineIcon
                 sx={{ marginLeft: '15px' }}
                 onClick={() => handleAPIRemove(index)}
