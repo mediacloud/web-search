@@ -14,5 +14,7 @@ urlpatterns = [
     path('password-strength', views.password_strength),
     path('delete-user', views.delete_user),
     path('reset-token', views.reset_token),
-    path('save-api-token', views.save_api_token),
+    path('save-api-key', views.save_api_key),
+    path('get-api-keys', views.get_api_keys),
+
 ]

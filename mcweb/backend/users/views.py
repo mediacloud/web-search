@@ -16,9 +16,7 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile
-import os
-import bcrypt
-from django.shortcuts import get_object_or_404
+import numpy as np # for flattening array
 
 
 logger = logging.getLogger(__name__)
@@ -302,7 +300,7 @@ def _serialized_current_user(request) -> str:
 
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["POST"])
-def save_api_token(request):
+def save_api_key(request):
     payload = json.loads(request.body)
     # nested object api_data inside of payload w/ api_name and api_key
     api_data = payload.get('apiData', None)
@@ -315,28 +313,38 @@ def save_api_token(request):
         data = json.dumps({'error': "API Name or API Key is invalid"})
         return HttpResponse(data, content_type='application/json', status=400)
 
+    # get user's id to add to UserSecretsModel
     user_id = User.objects.get(username=username).id
     UserSecretsModel = apps.get_model('users', 'UserSecrets')
-
-    # Call the clean() method to validate and set the key based on api_name
     user_secret = UserSecretsModel(
         user_id=user_id, key=api_name, value=api_key)
-    try:
+    try:  # Call the clean() method to validate api_name
         user_secret.clean()
+    # error = ['Invalid API Name'] string slicing is to remove [' and ']
     except ValidationError as e:
-        # error = ['Invalid API Name'] string slicing is to remove [' and ']
         data = json.dumps({'error': str(e)[2:-2]})
         return HttpResponse(data, content_type='application/json', status=403)
-    
-    # does the key exist already?
-    try:
+
+    try:  # does the key exist already?
         UserSecretsModel.objects.get(key=user_secret.key)
         logger.debug('Key Already Exists')
-        data = json.dumps({'error': str(user_secret.key) + " already exists, try deleting you existing API Key"})
+        data = json.dumps({'error': str(user_secret.key) +
+                          " already exists, try deleting you existing API Key"})
         return HttpResponse(data, content_type='application/json', status=400)
-    except UserSecretsModel.DoesNotExist:
-        # Save the validated and cleaned user_secret instance
+    except UserSecretsModel.DoesNotExist:  # Save the validated and cleaned user_secret instance
         user_secret.save()
         logging.debug('new token created')
         data = json.dumps({'api_name': api_name, 'api_key': api_key})
         return HttpResponse(data, content_type='application/json')
+
+
+@login_required(redirect_field_name='/auth/login')
+@require_http_methods(["GET"])
+def get_api_keys():
+    UserSecretsModel = apps.get_model('users', 'UserSecrets')
+    # convert into numpy array for flatten function, convert back to list because numpy array isn't json serializable
+    keys = np.array(UserSecretsModel.objects.values_list('key')).flatten().tolist()
+    # clean keys: 'twitter-token' and 'youtube-token' into 'twitter key' and 'youtube key'
+    keys = [(key.replace("-", " ").replace("token", "key")) for key in keys]
+    data = json.dumps({'api_keys': keys})
+    return HttpResponse(data, content_type='application/json')
