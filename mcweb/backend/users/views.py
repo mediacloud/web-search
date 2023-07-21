@@ -317,27 +317,26 @@ def save_api_token(request):
 
     user_id = User.objects.get(username=username).id
     UserSecretsModel = apps.get_model('users', 'UserSecrets')
-    
+
     # Call the clean() method to validate and set the key based on api_name
-    user_secret = UserSecretsModel(user_id=user_id, key=api_name, value=api_key)
-    user_secret.api_name = api_name
+    user_secret = UserSecretsModel(
+        user_id=user_id, key=api_name, value=api_key)
     try:
         user_secret.clean()
     except ValidationError as e:
-        # error = ['Invalid API Name'] string slicing is to remove [' and '] 
+        # error = ['Invalid API Name'] string slicing is to remove [' and ']
         data = json.dumps({'error': str(e)[2:-2]})
         return HttpResponse(data, content_type='application/json', status=403)
-
-    # Don't save if there are saved User Secrets with the same name
-    try: 
-        UserSecretsModel.objects.filter(key=api_name)
-    except ValidationError as e:
+    
+    # does the key exist already?
+    try:
+        UserSecretsModel.objects.get(key=user_secret.key)
         logger.debug('Key Already Exists')
-        data = json.dumps({'error': str(e)})
+        data = json.dumps({'error': str(user_secret.key) + " already exists, try deleting you existing API Key"})
         return HttpResponse(data, content_type='application/json', status=400)
-
-    # Save the validated and cleaned user_secret instance
-    user_secret.save()
-    logging.debug('new token created')
-    data = json.dumps({'api_name': api_name, 'api_key': api_key})
-    return HttpResponse(data, content_type='application/json')
+    except UserSecretsModel.DoesNotExist:
+        # Save the validated and cleaned user_secret instance
+        user_secret.save()
+        logging.debug('new token created')
+        data = json.dumps({'api_name': api_name, 'api_key': api_key})
+        return HttpResponse(data, content_type='application/json')
