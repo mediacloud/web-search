@@ -16,5 +16,6 @@ urlpatterns = [
     path('reset-token', views.reset_token),
     path('save-api-key', views.save_api_key),
     path('get-api-keys', views.get_api_keys),
+    path('delete-api-key', views.delete_api_key),
 
 ]

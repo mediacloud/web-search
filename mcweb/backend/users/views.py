@@ -16,7 +16,7 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile
-import numpy as np # for flattening array
+import numpy as np  # for flattening array
 
 
 logger = logging.getLogger(__name__)
@@ -340,11 +340,24 @@ def save_api_key(request):
 
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
-def get_api_keys():
+def get_api_keys(request):
     UserSecretsModel = apps.get_model('users', 'UserSecrets')
     # convert into numpy array for flatten function, convert back to list because numpy array isn't json serializable
-    keys = np.array(UserSecretsModel.objects.values_list('key')).flatten().tolist()
+    keys = np.array(UserSecretsModel.objects.values_list(
+        'key')).flatten().tolist()
     # clean keys: 'twitter-token' and 'youtube-token' into 'twitter key' and 'youtube key'
     keys = [(key.replace("-", " ").replace("token", "key")) for key in keys]
     data = json.dumps({'api_keys': keys})
     return HttpResponse(data, content_type='application/json')
+
+
+@login_required(redirect_field_name='/auth/login')
+@require_http_methods(["DELETE"])
+def delete_api_key(request):
+    payload = json.loads(request.body)
+    key = payload.get('key', None)
+    key = key.replace(" ", "-").replace("key", "token")
+    print("key: " + str(key))
+    UserSecretsModel = apps.get_model('users', 'UserSecrets')
+    UserSecretsModel.objects.get(key=key).delete()
+    return HttpResponse(content_type='application/json')
