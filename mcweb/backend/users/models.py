@@ -106,7 +106,7 @@ class UserSecrets(models.Model):
         REDDIT_TOKEN = "reddit-token"
        
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    key = models.CharField(max_length=150, choices=SecretKeyTypes.choices, null=False, blank=False)
+    key = models.TextField(choices=SecretKeyTypes.choices, null=False, blank=False)
     value = models.TextField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
