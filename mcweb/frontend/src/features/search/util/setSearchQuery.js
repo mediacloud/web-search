@@ -146,27 +146,42 @@ const setState = (
     dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
   });
 
-  edited.forEach((edit, i) => {
-    dispatch(setQueryProperty({ edited: edit === 'true', queryIndex: i, property: 'edited' }));
-  });
-
   dispatch(setPreviewSelectedMedia({ sourceOrCollection: media }));
   dispatch(setSelectedMedia({ sourceOrCollection: media }));
   dispatch(setLastSearchTime(dayjs().unix()));
 
-  anyAlls.forEach((anyAll, i) => {
-    dispatch(setQueryProperty({ anyAll, queryIndex: i, property: 'anyAll' }));
-  });
+  if (edited) {
+    edited.forEach((edit, i) => {
+      dispatch(setQueryProperty({ edited: true === 'true', queryIndex: i, property: 'edited' }));
+    });
+  } else { // if edited is null because possibly an old url, set edited to false (queries is a generic value we can use to map on)
+    queries.forEach((edit, i) => {
+      dispatch(setQueryProperty({ edited: false, queryIndex: i, property: 'edited' }));
+    });
+  }
 
-  names.forEach((title, i) => {
-    dispatch(setQueryProperty(
-      {
-        name: title,
-        queryIndex: i,
-        property: 'name',
-      },
-    ));
-  });
+  // old urls
+  if (names) {
+    names.forEach((title, i) => {
+      dispatch(setQueryProperty(
+        {
+          name: title,
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    });
+  } else { // if names is null because possibly an old url, set names using tabTitle (lacks collection comparison)
+    queries.forEach((title, i) => {
+      dispatch(setQueryProperty(
+        {
+          name: tabTitle(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    });
+  }
 };
 
 const setSearchQuery = (searchParams, dispatch) => {
@@ -213,7 +228,6 @@ const setSearchQuery = (searchParams, dispatch) => {
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
 
   names = names ? handleDecode(names) : null;
-
   edited = edited ? handleDecode(edited) : null;
 
   setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, names, edited, dispatch);
