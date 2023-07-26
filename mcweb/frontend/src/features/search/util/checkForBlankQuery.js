@@ -7,9 +7,15 @@ const checkForBlankQuery = (queryState) => {
     ({
       queryList, negatedQueryList, advanced, queryString,
     }) => {
-      if ((isQueryListBlank(queryList) && isQueryListBlank(negatedQueryList)) || (advanced && queryString.trim() !== '')) {
+      if ((isQueryListBlank(queryList) && isQueryListBlank(negatedQueryList))) {
         isBlank = true;
-        return true; // exit the loop early
+      } else if (!isQueryListBlank(queryList)) {
+        isBlank = false;
+      }
+      if (advanced && queryString.trim() === '') {
+        isBlank = true;
+      } else if (advanced && queryString.trim() !== '') {
+        isBlank = false;
       }
     },
   );

@@ -13,7 +13,6 @@ import {
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import SampleStoryShow from './SampleStoryShow';
-import tabTitle from '../util/tabTitle';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 
 export default function SampleStories() {
@@ -70,7 +69,7 @@ export default function SampleStories() {
       </Alert>
     );
   } else {
-    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
+    const queryTitleArrays = queryState.map((query, index) => queryState[index].name);
 
     content = (
       <div className="container">

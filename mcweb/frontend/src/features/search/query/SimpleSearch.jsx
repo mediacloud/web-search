@@ -79,6 +79,7 @@ export default function SimpleSearch({ queryIndex }) {
                     action={() => setQueryProperty({ advanced: true, queryIndex, property: 'advanced' })}
                     actionTarget
                     onClick={() => setOpen(true)}
+                    variant="outlined"
                     openDialog={open}
                     confirmButtonText="confirm"
                   />

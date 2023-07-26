@@ -23,6 +23,8 @@ const cleanQuery = (platform) => ({
   isToDateValid: true,
   anyAll: 'any',
   advanced: false,
+  name: '',
+  edited: false,
 });
 
 const querySlice = createSlice({
@@ -45,6 +47,9 @@ const querySlice = createSlice({
         isToDateValid: true,
         anyAll: 'any',
         advanced: false,
+        name: 'Query 1',
+        edited: false,
+
       },
     ],
 
@@ -138,7 +143,7 @@ const querySlice = createSlice({
           queryString: '',
           queryList: [[], [], []],
           negatedQueryList: [[], [], []],
-          platform: payload,
+          platform: payload.platform,
           startDate,
           endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
           collections: [],
@@ -149,7 +154,9 @@ const querySlice = createSlice({
           isFromDateValid: true,
           isToDateValid: true,
           anyAll: 'any',
-          advanced: false,
+          advanced: payload.advanced,
+          name: 'Query',
+          edited: false,
         },
       );
     },

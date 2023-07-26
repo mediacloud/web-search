@@ -97,6 +97,8 @@ const setState = (
   platforms,
   media,
   anyAlls,
+  names,
+  edited,
   dispatch,
 ) => {
   if (!queries) {
@@ -128,6 +130,10 @@ const setState = (
     }
   }
 
+  platforms.forEach((platform, i) => {
+    dispatch(setQueryProperty({ platform, queryIndex: i, property: 'platform' }));
+  });
+
   startDates.forEach((startDate, i) => {
     dispatch(setQueryProperty({ startDate, queryIndex: i, property: 'startDate' }));
   });
@@ -140,8 +146,39 @@ const setState = (
 
   dispatch(setPreviewSelectedMedia({ sourceOrCollection: media }));
   dispatch(setSelectedMedia({ sourceOrCollection: media }));
-
   dispatch(setLastSearchTime(dayjs().unix()));
+
+  if (edited) {
+    edited.forEach((edit, i) => {
+      dispatch(setQueryProperty({ edited: true === 'true', queryIndex: i, property: 'edited' }));
+    });
+  } else { // if edited is null because possibly an old url, set edited to false (queries is a generic value we can use to map on)
+    startDates.forEach((edit, i) => {
+      dispatch(setQueryProperty({ edited: false, queryIndex: i, property: 'edited' }));
+    });
+  }
+
+  if (names) {
+    names.forEach((title, i) => {
+      dispatch(setQueryProperty(
+        {
+          name: title,
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    });
+  } else { // if names is null because possibly an old url, set names using tabTitle (lacks collection comparison)
+    startDates.forEach((title, i) => {
+      dispatch(setQueryProperty(
+        {
+          name: `Query ${i + 1}`,
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    });
+  }
 };
 
 const setSearchQuery = (searchParams, dispatch) => {
@@ -156,6 +193,8 @@ const setSearchQuery = (searchParams, dispatch) => {
   let sources = searchParams.get('ss');
   let anyAlls = searchParams.get('any');
   let queryStrings = searchParams.get('qs');
+  let names = searchParams.get('name');
+  let edited = searchParams.get('edit');
 
   query = query ? query.split(',') : null;
   query = formatQuery(query);
@@ -184,7 +223,11 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   const media = combineQueryMedia(collections, sources);
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
-  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, dispatch);
+
+  names = names ? handleDecode(names) : null;
+  edited = edited ? handleDecode(edited) : null;
+
+  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, names, edited, dispatch);
 
   return null;
 };

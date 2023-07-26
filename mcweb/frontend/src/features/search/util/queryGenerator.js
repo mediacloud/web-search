@@ -7,6 +7,7 @@ import {
 const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
   let fullQuery = '';
   if (!queryList && !negatedQueryList) return null;
+  // if (negatedQueryList === null) return [];
 
   const quoter = (w) => (w.includes(' ') ? `"${w}"` : w); // add quotes if there is a space in string
 
