@@ -9,8 +9,18 @@ import {
 } from '../query/querySlice';
 
 import tabTitle from './tabTitles';
+import allDuplicates from './tabTitleHelpers/allDuplicates';
+import queryGenerator from './queryGenerator';
+import { PROVIDER_NEWS_MEDIA_CLOUD } from './platforms';
 
 const customParseFormat = require('dayjs/plugin/customParseFormat');
+
+const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString) => {
+  // advanced mode
+  if (queryString) return queryString;
+
+  return queryGenerator(queryList, negatedQueryList, platform, anyAll);
+};
 
 const decode = (params) => decodeURIComponent(params);
 
@@ -155,7 +165,7 @@ const setState = (
       dispatch(setQueryProperty({ edited: true === 'true', queryIndex: i, property: 'edited' }));
     });
   } else { // if edited is null because possibly an old url, set edited to false (queries is a generic value we can use to map on)
-    queries.forEach((edit, i) => {
+    startDates.forEach((edit, i) => {
       dispatch(setQueryProperty({ edited: false, queryIndex: i, property: 'edited' }));
     });
   }
@@ -171,10 +181,10 @@ const setState = (
       ));
     });
   } else { // if names is null because possibly an old url, set names using tabTitle (lacks collection comparison)
-    queries.forEach((title, i) => {
+    startDates.forEach((title, i) => {
       dispatch(setQueryProperty(
         {
-          name: tabTitle(queries[i], negatedQueries[i], anyAlls[i], queryStrings, i),
+          name: `Query ${i + 1}`,
           queryIndex: i,
           property: 'name',
         },
