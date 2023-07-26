@@ -26,6 +26,7 @@ from util.send_emails import send_source_upload_email
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 from .tasks import schedule_scrape_source, get_completed_tasks, get_pending_tasks, schedule_scrape_collection
 
+
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
     file_path = os.path.join(this_dir, 'data', 'featured-collections.json')
@@ -37,6 +38,7 @@ def _featured_collection_ids(platform: Optional[str]) -> List:
                 for cid in collection['collections']:
                     list_ids.append(cid)
         return list_ids
+
 
 def _all_platforms() -> List:
     return [PLATFORM_YOUTUBE, PLATFORM_REDDIT, PLATFORM_TWITTER, 'onlinenews']
@@ -65,11 +67,13 @@ class CollectionViewSet(viewsets.ModelViewSet):
         # add in optional filters
         source_id = self.request.query_params.get("source_id")
         if source_id is not None:
-            source_id = int(source_id)  # validation: should throw a ValueError back up the chain
+            # validation: should throw a ValueError back up the chain
+            source_id = int(source_id)
             queryset = queryset.filter(source__id=source_id)
         platform = self.request.query_params.get("platform")
-        if platform is not None and _all_platforms().count(platform) > 0: # test validation? _all_platforms().count(platform) > 0
-                # TODO: validate this is a valid platform type
+        # test validation? _all_platforms().count(platform) > 0
+        if platform is not None and _all_platforms().count(platform) > 0:
+            # TODO: validate this is a valid platform type
             if platform == "onlinenews":
                 queryset = queryset.filter(platform="online_news")
             else:
@@ -89,7 +93,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def _cached_serialized_featured_collections(self, platform) -> str:
         if platform == 'onlinenews':
             featured_collection_ids = _featured_collection_ids('online_news')
-            ordered_cases = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(featured_collection_ids)])
+            ordered_cases = Case(*[When(pk=pk, then=pos)
+                                 for pos, pk in enumerate(featured_collection_ids)])
             featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
                                                         id__in=featured_collection_ids).order_by(ordered_cases)
         else:
@@ -101,33 +106,52 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False)
     def featured(self, request):
-        data = self._cached_serialized_featured_collections(request.query_params.get('platform', None))
-        response = Response({"collections":data})
+        data = self._cached_serialized_featured_collections(
+            request.query_params.get('platform', None))
+        response = Response({"collections": data})
         response.accepted_renderer = JSONRenderer()
         response.accepted_media_type = "application/json"
         response.renderer_context = {}
         response.render()
         return response
-    
+
     @action(methods=['GET'], detail=False)
     def geo_collections(self, request):
         this_dir = os.path.dirname(os.path.realpath(__file__))
         file_path = os.path.join(this_dir, 'data', 'country-collections.json')
-        json_data = open(file_path)  
-        deserial_data = json.load(json_data) 
+        json_data = open(file_path)
+        deserial_data = json.load(json_data)
         return Response({"countries": deserial_data})
-    
+
     @action(methods=['GET'], detail=False, url_path='collections-from-list')
     def collections_from_list(self, request):
         collection_ids = request.query_params.get('c')
         if len(collection_ids) != 0:
             collection_ids = collection_ids.split(',')
             collection_ids = [int(i) for i in collection_ids]
-        collections = Collection.objects.filter(id__in=collection_ids )
-        serializer = CollectionWriteSerializer(collections, many=True) 
+        collections = Collection.objects.filter(id__in=collection_ids)
+        serializer = CollectionWriteSerializer(collections, many=True)
         return Response({"collections": serializer.data})
-    
+
+    @action(methods=['POST'], detail=False, url_path='collections-from-nested-list')
+    def collections_from_nested_list(self, request):
+        nested_list = request.data
+        # nested_list is a dictionary
+        nested_collection_ids = [values for values in nested_list.values()]
+        names = []
+        for collection_ids in nested_collection_ids:
+            if len(collection_ids) != 0:
+                collection_ids = str(collection_ids).strip('[]').split(',')
+                collection_ids = [int(i) for i in collection_ids]
+            collections = Collection.objects.filter(id__in=collection_ids)
+            serializer = CollectionWriteSerializer(collections, many=True)
+            names.append(serializer.data)
+        # break down the collection's serializer.data and just get the name (could be refactored in future by removing names)
+        names = [[item['name'] for item in sublist] for sublist in names]
+        return Response({"collection": names})
+
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
+
     @action(methods=['post'], detail=False, url_path='rescrape-collection')
     def rescrape_feeds(self, request):
         collection_id = int(request.data["collection_id"])
@@ -146,18 +170,23 @@ class FeedsViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         source_id = self.request.query_params.get("source_id")
         if source_id is not None:
-            source_id = int(source_id)  # validation: should throw a ValueError back up the chain
+            # validation: should throw a ValueError back up the chain
+            source_id = int(source_id)
             queryset = queryset.filter(source_id=source_id)
         # the rss-fetcher wants to know which feeds were changed since last time it checked
-        modified_since = self.request.query_params.get("modified_since")  # in epoch times
+        modified_since = self.request.query_params.get(
+            "modified_since")  # in epoch times
         if modified_since is not None:
-            modified_since = float(modified_since)  # validation: should throw a ValueError back up the chain
+            # validation: should throw a ValueError back up the chain
+            modified_since = float(modified_since)
             modified_since = dt.datetime.fromtimestamp(modified_since)
             queryset = queryset.filter(modified_at__gte=modified_since)
         # passed a "now" value returned by /api/version
-        modified_before = self.request.query_params.get("modified_before")  # in epoch times
+        modified_before = self.request.query_params.get(
+            "modified_before")  # in epoch times
         if modified_before is not None:
-            modified_before = float(modified_before)  # validation: should throw a ValueError back up the chain
+            # validation: should throw a ValueError back up the chain
+            modified_before = float(modified_before)
             modified_before = dt.datetime.fromtimestamp(modified_before)
             queryset = queryset.filter(modified_at__lt=modified_before)
 
@@ -170,7 +199,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
                 # open ended (not used by rss-fetcher)
                 # make sure newest entries at end, and pages are invariant
                 queryset = queryset.order_by('modified_at', 'id')
-            
+
         return queryset
 
     @action(detail=False)
@@ -178,7 +207,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
         source_id = int(self.request.query_params.get("source_id"))
         with RssFetcherApi() as rss:
             return Response({"feeds": rss.source_feeds(source_id)})
-    
+
     @action(detail=False, url_path='feed-details')
     def feed_details(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
@@ -189,7 +218,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
     def stories(self, request):
         feed_id = self.request.query_params.get("feed_id", None)
         source_id = self.request.query_params.get("source_id", None)
-        
+
         with RssFetcherApi() as rss:
             if feed_id is not None:
                 stories = rss.feed_stories(int(feed_id))
@@ -197,14 +226,15 @@ class FeedsViewSet(viewsets.ModelViewSet):
             if source_id is not None:
                 stories = rss.source_stories(int(source_id))
 
-        return Response({"stories": stories })
+        return Response({"stories": stories})
 
     @action(detail=False)
     def history(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
         with RssFetcherApi() as rss:
             feed_history = rss.feed_history(feed_id)
-            feed_history = sorted(feed_history, key=lambda d: d['created_at'], reverse=True)
+            feed_history = sorted(
+                feed_history, key=lambda d: d['created_at'], reverse=True)
             return Response({"feed": feed_history})
 
     @action(detail=False)
@@ -215,7 +245,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
         with RssFetcherApi() as rss:
             if feed_id is not None:
                 total += rss.feed_fetch_soon(int(feed_id))
-        
+
             if source_id is not None:
                 total += rss.source_fetch_soon(int(source_id))
 
@@ -246,7 +276,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         collection_id = self.request.query_params.get("collection_id")
         if collection_id is not None:
-            collection_id = int(collection_id)  # validation: should throw a ValueError back up the chain
+            # validation: should throw a ValueError back up the chain
+            collection_id = int(collection_id)
             queryset = queryset.filter(collections__id=collection_id)
         platform = self.request.query_params.get("platform")
         if platform is not None:
@@ -257,22 +288,22 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            queryset = queryset.filter(Q(name__icontains=name) | Q(label__icontains=name))
+            queryset = queryset.filter(
+                Q(name__icontains=name) | Q(label__icontains=name))
         return queryset
-
 
     def create(self, request):
         cleaned_data = Source._clean_source(request.data)
-        serializer = SourceSerializer(data=cleaned_data, context={'request': request})
+        serializer = SourceSerializer(
+            data=cleaned_data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response({"source": serializer.data})
         else:
-            error_string = str(serializer.errors) 
+            error_string = str(serializer.errors)
             print(error_string)
             # error_string = str(error_string['name'][0])
             raise APIException(f"{error_string}")
-
 
     def partial_update(self, request, pk=None):
         instance = self.get_object()
@@ -281,10 +312,9 @@ class SourcesViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response({"source": serializer.data})
         else:
-            error_string = serializer.errors 
+            error_string = serializer.errors
             error_string = str(error_string['name'][0])
             raise APIException(f"{error_string}")
-
 
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):
@@ -306,10 +336,12 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 if row['platform'] == Source.SourcePlatforms.ONLINE_NEWS:
                     canonical_domain = urls.canonical_domain(row['homepage'])
                     # call filter here, not get, so we can check for multiple matches (url_query_string case)
-                    existing_source = queryset.filter(name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
+                    existing_source = queryset.filter(
+                        name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
                 else:
                     # a diff platform, so just check for unique name (ie. twitter handle, subreddit name, YT channel)
-                    existing_source = queryset.filter(name=row['name'], platform=row['platform'])
+                    existing_source = queryset.filter(
+                        name=row['name'], platform=row['platform'])
             # Making a new one
             if len(existing_source) == 0:
                 cleaned_source_input = Source._clean_source(row)
@@ -317,26 +349,30 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 if serializer.is_valid():
                     existing_source = serializer.save()
                     if rescrape:
-                        schedule_scrape_source(existing_source.id, request.user)
-                    email_text += "\n {}: created new {} source".format(existing_source.name, existing_source.platform)
+                        schedule_scrape_source(
+                            existing_source.id, request.user)
+                    email_text += "\n {}: created new {} source".format(
+                        existing_source.name, existing_source.platform)
                     counts['created'] += 1
                 else:
                     email_text += f"\n ⚠️ {row['name']}: {serializer.errors}"
-                    counts['skipped'] +=1
+                    counts['skipped'] += 1
                     continue
                 # existing_source = Source.create_from_dict(row)
             # Updating unique match
             elif len(existing_source) == 1:
                 existing_source = existing_source[0]
                 cleaned_source_input = Source._clean_source(row)
-                serializer = SourceSerializer(existing_source, data=cleaned_source_input)
+                serializer = SourceSerializer(
+                    existing_source, data=cleaned_source_input)
                 if serializer.is_valid():
                     existing_source = serializer.save()
-                    email_text += "\n {}: updated existing {} source".format(existing_source.name, existing_source.platform)
+                    email_text += "\n {}: updated existing {} source".format(
+                        existing_source.name, existing_source.platform)
                     counts['updated'] += 1
                 else:
                     email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
-                    counts['skipped'] +=1
+                    counts['skipped'] += 1
                     continue
                 # existing_source.update_from_dict(row)
             # Request to update non-unique match, so skip and force them to do it by hand
@@ -355,31 +391,33 @@ class SourcesViewSet(viewsets.ModelViewSet):
         collection = Collection.objects.get(id=collection_id)
         source_associations = collection.source_set.all()
         # we want to stream the results back to the user row by row (based on paging through results)
+
         def data_generator():
             first_page = True
             for source in source_associations:
                 if first_page:  # send back columun names, which differ by platform
                     yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform',
-                'stories_per_week', 'first_story', 'pub_country', 'pub_state',
-                'primary_language', 'media_type'])
+                            'stories_per_week', 'first_story', 'pub_country', 'pub_state',
+                            'primary_language', 'media_type'])
                 yield ([source.id, source.name, source.url_search_string, source.label,
-                             source.homepage, source.notes, source.platform, source.stories_per_week,
-                             source.first_story, source.pub_country, source.pub_state, source.primary_language,
-                             source.media_type])
+                        source.homepage, source.notes, source.platform, source.stories_per_week,
+                        source.first_story, source.pub_country, source.pub_state, source.primary_language,
+                        source.media_type])
                 first_page = False
 
-        filename = "Collection-{}-{}-sources-{}.csv".format(collection_id, collection.name, _filename_timestamp())
+        filename = "Collection-{}-{}-sources-{}.csv".format(
+            collection_id, collection.name, _filename_timestamp())
         streamer = csv_stream.CSVStream(filename, data_generator)
         return streamer.stream()
-    
+
     @action(methods=['GET'], detail=False, url_path='sources-from-list')
     def sources_from_list(self, request):
-        source_ids = request.query_params.get('s', None) # decode
+        source_ids = request.query_params.get('s', None)  # decode
         if len(source_ids) != 0:
             source_ids = source_ids.split(',')
             source_ids = [int(i) for i in source_ids]
-        sources = Source.objects.filter(id__in=source_ids )
-        serializer = SourceSerializer(sources, many=True) 
+        sources = Source.objects.filter(id__in=source_ids)
+        serializer = SourceSerializer(sources, many=True)
         return Response({"sources": serializer.data})
 
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
@@ -412,7 +450,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
-    
+
     permission_classes = [
         IsGetOrIsStaff
     ]
@@ -429,8 +467,9 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             sources_queryset = Source.objects.all()
             source = get_object_or_404(sources_queryset, pk=pk)
             collection_associations = source.collections.all()
-            serializer = CollectionWriteSerializer(collection_associations, many=True)
-            return Response({'collections':serializer.data})
+            serializer = CollectionWriteSerializer(
+                collection_associations, many=True)
+            return Response({'collections': serializer.data})
 
     def destroy(self, request, pk=None):
         collection_bool = request.query_params.get('collection')

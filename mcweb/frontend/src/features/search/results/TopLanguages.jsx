@@ -17,7 +17,6 @@ import {
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareLanguageData from '../util/prepareLanguageData';
-import tabTitle from '../util/tabTitle';
 
 export default function TopLanguages() {
   const queryState = useSelector((state) => state.query);
@@ -72,7 +71,7 @@ export default function TopLanguages() {
       </Alert>
     );
   } else {
-    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
+    const queryTitleArrays = queryState.map((query, index) => queryState[index].name);
     content = (
       <>
         <div className="container">

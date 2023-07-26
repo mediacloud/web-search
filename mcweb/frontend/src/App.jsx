@@ -120,7 +120,7 @@ function App() {
                 <RequireAuth>
                   <CollectionShow />
                 </RequireAuth>
-            )}
+              )}
             />
             <Route
               path=":collectionId/edit"
@@ -128,7 +128,7 @@ function App() {
                 <RequireAuth>
                   <ModifyCollection />
                 </RequireAuth>
-            )}
+              )}
             />
 
           </Route>
@@ -179,7 +179,7 @@ function App() {
                 <RequireAuth>
                   <ModifySource />
                 </RequireAuth>
-                )}
+              )}
             />
             <Route
               path=":sourceId/feeds/create"
