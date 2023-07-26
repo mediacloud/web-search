@@ -160,7 +160,6 @@ const setState = (
     });
   }
 
-  // old urls
   if (names) {
     names.forEach((title, i) => {
       dispatch(setQueryProperty(
