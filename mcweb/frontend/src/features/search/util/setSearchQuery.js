@@ -8,19 +8,7 @@ import {
   setSelectedMedia,
 } from '../query/querySlice';
 
-import tabTitle from './tabTitles';
-import allDuplicates from './tabTitleHelpers/allDuplicates';
-import queryGenerator from './queryGenerator';
-import { PROVIDER_NEWS_MEDIA_CLOUD } from './platforms';
-
 const customParseFormat = require('dayjs/plugin/customParseFormat');
-
-const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString) => {
-  // advanced mode
-  if (queryString) return queryString;
-
-  return queryGenerator(queryList, negatedQueryList, platform, anyAll);
-};
 
 const decode = (params) => decodeURIComponent(params);
 

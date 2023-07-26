@@ -1,16 +1,9 @@
 import { PROVIDER_NEWS_MEDIA_CLOUD } from './platforms';
-import queryGenerator from './queryGenerator';
+import createTitle from './tabTitleHelpers/createTitle';
 import compareArrays from './compareArrays';
 import allDuplicates from './tabTitleHelpers/allDuplicates';
 import collectionTitle from './tabTitleHelpers/collectionTitle';
 import simplifyTitles from './tabTitleHelpers/simplifyTitles';
-
-const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString) => {
-  // advanced mode
-  if (queryString) return queryString;
-
-  return queryGenerator(queryList, negatedQueryList, platform, anyAll);
-};
 
 const tabTitle = (queryList, negatedQueryList, anyAll, queryString, collectionNames, index, queryState) => {
   if (queryState) {
