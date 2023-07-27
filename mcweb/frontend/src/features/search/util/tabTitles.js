@@ -3,15 +3,13 @@ import createTitle from './tabTitleHelpers/createTitle';
 import compareArrays from './compareArrays';
 import allDuplicates from './tabTitleHelpers/allDuplicates';
 import collectionTitle from './tabTitleHelpers/collectionTitle';
-import simplifyTitles from './tabTitleHelpers/simplifyTitles';
 
 const tabTitle = (queryList, negatedQueryList, anyAll, queryString, collectionNames, index, queryState) => {
   if (queryState) {
     // eslint-disable-next-line max-len
-    const titles = queryState.map((query) => createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString));
-    const anyAlls = queryState.map((q) => q.anyAll);
-    const simplifedTitles = simplifyTitles(titles, anyAlls);
+    const titles = queryState.map((query, i) => createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString, queryState, i));
 
+    console.log(titles);
     // one tab
     if (queryState.length === 1) return titles[index];
 
@@ -21,7 +19,7 @@ const tabTitle = (queryList, negatedQueryList, anyAll, queryString, collectionNa
     // titles are duplicates
     if (allDuplicates(titles)) return collectionTitle(collectionNames[index]);
 
-    return simplifedTitles[index];
+    return titles[index];
   }
 
   // queryState isn't passed in (setSearchQuery)
