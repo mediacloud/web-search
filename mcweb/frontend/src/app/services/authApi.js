@@ -74,13 +74,6 @@ export const api = createApi({
         method: 'POST',
       }),
     }),
-    getUserSecrets: builder.mutation({
-      query: (payload) => ({
-        url: 'user-secrets',
-        method: 'GET',
-        body: { ...payload },
-      }),
-    }),
   }),
 });
 
@@ -95,5 +88,4 @@ export const {
   useDeleteUserMutation,
   usePasswordStrengthMutation,
   useResetTokenMutation,
-  useGetUserSecretsMutation,
 } = api;
