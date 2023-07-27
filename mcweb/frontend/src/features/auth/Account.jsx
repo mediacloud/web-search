@@ -70,9 +70,7 @@ function Account() {
             <dt>Super User?</dt>
             <dd>{currentUser.isSuperuser ? 'yes' : 'no'}</dd>
           </Permissioned>
-
         </dl>
-
         <Alert severity="error">
           <AlertTitle>Delete Account</AlertTitle>
           <AlertDialog
