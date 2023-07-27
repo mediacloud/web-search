@@ -14,16 +14,21 @@ const simplifyTitles = (titles, anyAlls) => {
     }
   }
 
-  // Remove the common prefix from each string and remove "AND " or "OR "
   const simplifiedTitles = titles.map((title) => {
     let modifiedTitle = title.slice(prefix.length);
 
-    if (modifiedTitle === '') {
-      modifiedTitle = title;
-    } else if (modifiedTitle.startsWith(' AND ')) {
+    if (modifiedTitle.startsWith(' AND ')) {
       modifiedTitle = modifiedTitle.slice(5); // Remove "AND " from the beginning
     } else if (modifiedTitle.startsWith(' OR ')) {
       modifiedTitle = modifiedTitle.slice(4); // Remove "OR " from the beginning
+    }
+
+    if (modifiedTitle.endsWith(')') && prefix.length > 1) {
+      modifiedTitle = modifiedTitle.slice(0, -1); // Remove the last character (')')
+    }
+
+    if (modifiedTitle === '') {
+      modifiedTitle = title;
     }
 
     return modifiedTitle;
