@@ -7,38 +7,22 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
 import { useSnackbar } from 'notistack';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import TextField from '@mui/material/TextField';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@mui/material';
 import {
   useResetTokenMutation,
   useDeleteUserMutation,
-  useGetUserSecretsMutation,
-  useCreateUserSecretMutation,
-  useUpdateUserSecretMutation,
-  useDeleteUserSecretMutation,
 } from '../../app/services/authApi';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
 import TaskList from '../tasks/TaskList';
-import { platformDisplayName } from '../ui/uiUtil';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
   const [deleteUser] = useDeleteUserMutation();
   const [resetToken] = useResetTokenMutation();
   const { enqueueSnackbar } = useSnackbar();
+  const [open, setOpen] = useState(false);
 
   // show the snackbar for 1.25 second and then reload the screen
   const logAndRefresh = (delay) => {
