@@ -9,7 +9,6 @@ const tabTitle = (queryList, negatedQueryList, anyAll, queryString, collectionNa
     // eslint-disable-next-line max-len
     const titles = queryState.map((query, i) => createTitle(query.queryList, query.negatedQueryList, PROVIDER_NEWS_MEDIA_CLOUD, query.anyAll, query.queryString, queryState, i));
 
-    console.log(titles);
     // one tab
     if (queryState.length === 1) return titles[index];
 

@@ -3,8 +3,7 @@ import existsInAll from './existsInAll';
 import removePhrase from './removePhrase';
 import compareArrays from '../compareArrays';
 
-// remove all duplicate elements in lists (used in tabTitle2, for queryLists and negatedQueryLists)
-
+// remove all duplicate elements in lists (used in createTitle, for queryLists and negatedQueryLists)
 const simplifyQueryList = (index, queryLists, anyAlls) => {
   const originalQuery = queryLists[index];
   let updatedQueryLists = queryLists;
