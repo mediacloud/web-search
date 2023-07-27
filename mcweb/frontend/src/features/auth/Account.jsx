@@ -7,8 +7,8 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
 import { useSnackbar } from 'notistack';
+import { useResetTokenMutation, useDeleteUserMutation } from '../../app/services/authApi';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
-import { useDeleteUserMutation, useResetTokenMutation } from '../../app/services/authApi';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
@@ -16,10 +16,10 @@ import TaskList from '../tasks/TaskList';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
-  const [open, setOpen] = useState(false);
   const [deleteUser] = useDeleteUserMutation();
   const [resetToken] = useResetTokenMutation();
   const { enqueueSnackbar } = useSnackbar();
+  const [open, setOpen] = useState(false);
 
   // show the snackbar for 1.25 second and then reload the screen
   const logAndRefresh = (delay) => {

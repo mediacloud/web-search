@@ -74,7 +74,6 @@ export const api = createApi({
         method: 'POST',
       }),
     }),
-
   }),
 });
 
