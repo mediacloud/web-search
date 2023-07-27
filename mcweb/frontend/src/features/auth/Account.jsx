@@ -7,10 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
 import { useSnackbar } from 'notistack';
-import {
-  useResetTokenMutation,
-  useDeleteUserMutation,
-} from '../../app/services/authApi';
+import { useResetTokenMutation, useDeleteUserMutation } from '../../app/services/authApi';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
