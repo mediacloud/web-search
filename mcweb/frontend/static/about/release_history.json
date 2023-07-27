@@ -5,7 +5,8 @@
 "fix buttons that didn't conform with button conventions",
 "fix bugs with date not accurately adjusting between platforms",
 "fix app crashing bug when switching between platforms",
-"adjustments to the source alert system"
+"adjustments to the source alert system",
+"remove reddit and twitter as platforms in search"
 ]
 },
 {"version": "v1.4.3",

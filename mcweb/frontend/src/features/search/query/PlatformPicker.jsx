@@ -83,7 +83,7 @@ export default function PlatformPicker({ queryIndex }) {
                 (Wayback Machine)
               </ToggleButton>
             )}
-            {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
+            {/* {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_REDDIT_PUSHSHIFT); }}
                 value={PROVIDER_REDDIT_PUSHSHIFT}
@@ -93,8 +93,8 @@ export default function PlatformPicker({ queryIndex }) {
                 <br />
                 (PushShift.io API)
               </ToggleButton>
-            )}
-            {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
+            )} */}
+            {/* {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_TWITTER_TWITTER); }}
                 value={PROVIDER_TWITTER_TWITTER}
@@ -104,7 +104,7 @@ export default function PlatformPicker({ queryIndex }) {
                 <br />
                 (Twitter API)
               </ToggleButton>
-            )}
+            )} */}
             {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}
