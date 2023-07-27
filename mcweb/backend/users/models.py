@@ -97,6 +97,7 @@ class QuotaHistory(models.Model):
             raise OverQuotaException(provider, quota)
         return matching.hits
 
+
 # make sure every user gets an automatically generated API Token
 # @see https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

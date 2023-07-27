@@ -18,7 +18,6 @@ from django.core import serializers
 from .models import Profile
 
 
-
 logger = logging.getLogger(__name__)
 
 
