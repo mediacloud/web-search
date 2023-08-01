@@ -11,7 +11,10 @@ const createTitle = (queryList, negatedQueryList, platform, anyAll, queryString,
     const anyAlls = queryState.map((q) => q.anyAll);
     const simplifiedQueryLists = simplifyQueryList(index, queryLists, anyAlls);
     const simplifiedNegatedQueryList = simplifyQueryList(index, negatedQueryLists);
-    return queryGenerator(simplifiedQueryLists, simplifiedNegatedQueryList, platform, anyAll);
+    console.log(simplifiedQueryLists);
+    console.log(simplifiedNegatedQueryList);
+    const title = queryGenerator(simplifiedQueryLists, simplifiedNegatedQueryList, platform, anyAll);
+    return title;
   }
 
   return queryGenerator(queryList, negatedQueryList, platform, anyAll);

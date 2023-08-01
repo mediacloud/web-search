@@ -27,12 +27,6 @@ const simplifyQueryList = (index, queryLists, anyAlls) => {
       }
     }
 
-    // if all values are removed, return the original query
-    if (compareArrays(updatedQueryLists[index], [])) {
-      return originalQuery;
-    }
-
-    // return simplified query
     return updatedQueryLists[index];
   }
 
