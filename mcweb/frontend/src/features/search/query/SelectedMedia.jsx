@@ -9,19 +9,18 @@ import { useListCollectionsFromArrayQuery } from '../../../app/services/collecti
 import { useListSourcesFromArrayQuery } from '../../../app/services/sourceApi';
 
 export default function SelectedMedia({
-  onRemove, queryIndex,
+  onRemove, queryIndex, preview,
 }) {
   const {
     collections,
     sources,
     previewCollections,
     previewSources,
-    platform,
   } = useSelector((state) => state.query[queryIndex]);
 
   const dispatch = useDispatch();
 
-  const preview = platform === 'onlinenews-mediacloud' || platform === 'onlinenews-waybackmachine';
+  // const preview = platform === 'onlinenews-mediacloud' || platform === 'onlinenews-waybackmachine';
 
   const {
     data: collectionsData,
@@ -106,8 +105,10 @@ export default function SelectedMedia({
 SelectedMedia.propTypes = {
   onRemove: PropTypes.func.isRequired,
   queryIndex: PropTypes.number,
+  preview: PropTypes.bool,
 };
 
 SelectedMedia.defaultProps = {
   queryIndex: 0,
+  preview: false,
 };
