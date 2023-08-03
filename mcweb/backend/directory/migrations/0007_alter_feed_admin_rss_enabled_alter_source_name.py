@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sources', '0006_feed_name'),
+        ('directory', '0006_feed_name'),
     ]
 
     operations = [

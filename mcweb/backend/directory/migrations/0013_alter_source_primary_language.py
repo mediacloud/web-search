@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sources', '0012_alter_source_pub_country'),
+        ('directory', '0012_alter_source_pub_country'),
     ]
 
     operations = [

@@ -8,7 +8,8 @@ urlpatterns = [
     path('admin', admin.site.urls),
     path('api/auth/', include('backend.users.urls')),
     path('api/search/', include('backend.search.urls')),
-    path('api/sources/', include('backend.sources.urls')),
+    # path('api/sources/', include('backend.directory.urls')),
+    path('api/directory/', include('backend.directory.urls')),
     path('api/version', version),
     re_path(r'^(?:.*)/?', include('frontend.urls')),
 ]

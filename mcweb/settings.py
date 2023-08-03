@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "frontend",
-    "backend.sources",
+    "backend.directory",
     "backend.search",
     "backend.users",
     "background_task",

@@ -51,39 +51,39 @@ class Command(BaseCommand):
         # wipe and import Sources
         self.stdout.write(self.style.SUCCESS('Importing sources'))
         Source.objects.all().delete()
-        cmd = "\\copy sources_source (id, name, url_search_string, label, homepage, notes, platform, pub_country," \
+        cmd = "\\copy directory_source (id, name, url_search_string, label, homepage, notes, platform, pub_country," \
               "pub_state, primary_language, media_type) from " \
               "'{}' CSV QUOTE '\"' HEADER".format(sources_path)
         _run_psql_command(cmd)
-        _run_psql_command("UPDATE sources_source SET created_at=NOW(), modified_at=NOW(), platform='{}'".format(
+        _run_psql_command("UPDATE directory_source SET created_at=NOW(), modified_at=NOW(), platform='{}'".format(
             Source.SourcePlatforms.ONLINE_NEWS))
-        _run_psql_command("UPDATE sources_source SET primary_language=NULL WHERE primary_language='none'")
-        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_source\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_source\";")
+        _run_psql_command("UPDATE directory_source SET primary_language=NULL WHERE primary_language='none'")
+        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"directory_source\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"directory_source\";")
         
         # wipe and import Feeds
         self.stdout.write(self.style.SUCCESS('Importing feeds'))
         Feed.objects.all().delete()
-        cmd = "\\copy sources_feed (id,source_id,name,admin_rss_enabled,url) from '{}' CSV QUOTE '\"' HEADER".\
+        cmd = "\\copy directory_feed (id,source_id,name,admin_rss_enabled,url) from '{}' CSV QUOTE '\"' HEADER".\
             format(feeds_path)
         _run_psql_command(cmd)
-        _run_psql_command("UPDATE sources_feed SET created_at=NOW(), modified_at=NOW(), admin_rss_enabled=True")
-        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_feed\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_feed\";")
+        _run_psql_command("UPDATE directory_feed SET created_at=NOW(), modified_at=NOW(), admin_rss_enabled=True")
+        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"directory_feed\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"directory_feed\";")
 
         # wipe and import Collections
         self.stdout.write(self.style.SUCCESS('Importing collections'))
         Collection.objects.all().delete()
-        cmd = "\\copy sources_collection (id, name, public, notes) from '{}' CSV QUOTE '\"' HEADER".format(
+        cmd = "\\copy directory_collection (id, name, public, notes) from '{}' CSV QUOTE '\"' HEADER".format(
             collection_path)
         _run_psql_command(cmd)
-        _run_psql_command("UPDATE sources_collection SET created_at=NOW(), modified_at=NOW(), platform='{}'".format(
+        _run_psql_command("UPDATE directory_collection SET created_at=NOW(), modified_at=NOW(), platform='{}'".format(
             Source.SourcePlatforms.ONLINE_NEWS))
-        _run_psql_command("UPDATE sources_collection SET public=True WHERE public is NULL")
-        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"sources_collection\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"sources_collection\";")
+        _run_psql_command("UPDATE directory_collection SET public=True WHERE public is NULL")
+        _run_psql_command("SELECT setval(pg_get_serial_sequence('\"directory_collection\"','id'), coalesce(max(\"id\"), 1), max(\"id\") IS NOT null) FROM \"directory_collection\";")
 
         # wipe and import source-collection links
         self.stdout.write(self.style.SUCCESS('Importing source-collections links'))
         _run_psql_command("DELETE from sources_source_collections")
-        cmd = "\\copy sources_source_collections (collection_id,source_id) from '{}' " \
+        cmd = "\\copy directory_source_collections (collection_id,source_id) from '{}' " \
               "CSV QUOTE '\"' HEADER".format(coll_src_links_path)
         _run_psql_command(cmd)
 

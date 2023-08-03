@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sources', '0009_alter_source_homepage_alter_source_label'),
+        ('directory', '0009_alter_source_homepage_alter_source_label'),
     ]
 
     operations = [

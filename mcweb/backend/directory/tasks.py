@@ -124,7 +124,7 @@ run_datetime = dt.datetime.combine(next_friday, run_at)
 
 def run_alert_system():
     user = User.objects.get(username='e.leon@northeastern.edu')
-    with open('mcweb/backend/sources/data/collections-to-monitor.json') as collection_ids:
+    with open('mcweb/backend/directory/data/collections-to-monitor.json') as collection_ids:
         collection_ids = collection_ids.read()
         collection_ids = json.loads(collection_ids)
 

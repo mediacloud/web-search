@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('sources', '0021_collection_featured_alter_collection_name_and_more'),
+        ('directory', '0021_collection_featured_alter_collection_name_and_more'),
     ]
 
     operations = [
         migrations.AlterField(
             model_name='source',
             name='collections',
-            field=models.ManyToManyField(blank=True, to='sources.collection'),
+            field=models.ManyToManyField(blank=True, to='directory.collection'),
         ),
         migrations.AlterField(
             model_name='source',

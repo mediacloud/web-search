@@ -12,7 +12,7 @@ from io import StringIO, BytesIO
 import zipfile
 import csv
 from background_task import background
-from ..sources.tasks import _return_task
+from ..directory.tasks import _return_task
 from util.send_emails import send_zipped_large_download_email
 
 

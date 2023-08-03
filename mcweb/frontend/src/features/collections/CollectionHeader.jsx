@@ -31,6 +31,8 @@ export default function CollectionHeader() {
     isFetching,
   } = useGetCollectionQuery(collectionId);
 
+  console.log(collection);
+
   const [deleteCollection] = useDeleteCollectionMutation();
   const [rescrapeCollection] = useRescrapeCollectionMutation();
 
