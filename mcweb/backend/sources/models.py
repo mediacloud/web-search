@@ -22,8 +22,8 @@ class Collection(models.Model):
     notes = models.TextField(null=True, blank=True)
     platform = models.CharField(max_length=100, choices=CollectionPlatforms.choices, null=True,
                                 default=CollectionPlatforms.ONLINE_NEWS)
-    public = models.BooleanField(default=True, null=True, blank=True)  
-    featured = models.BooleanField(default=False, null=True, blank=True)
+    public = models.BooleanField(default=True, null=False, blank=False)  
+    featured = models.BooleanField(default=False, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
@@ -65,7 +65,7 @@ class Source(models.Model):
     pub_state = models.CharField(max_length=200, null=True, blank=True)
     primary_language = models.CharField(max_length=5, null=True, blank=True)
     media_type = models.CharField(max_length=100, choices=SourceMediaTypes.choices, blank=True, null=True)
-    alerted = models.BooleanField(default=False, blank=True, null=True)
+    alerted = models.BooleanField(default=False)
 
     class Meta:
         indexes = [
