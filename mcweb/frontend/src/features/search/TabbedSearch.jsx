@@ -99,7 +99,7 @@ export default function TabbedSearch() {
     setColor(updatedColor);
     setEdit(updatedEdit);
     dispatch(removeQuery(index));
-
+    // Adjust tab name to sync with index
     queryState.forEach((query, i) => {
       if (i !== index && i > index && query.name === `Query ${i + 1}`) {
         dispatch(setQueryProperty({ name: `Query ${i}`, queryIndex: i - 1, property: 'name' }));
