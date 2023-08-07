@@ -160,6 +160,13 @@ const querySlice = createSlice({
         },
       );
     },
+    addComparativeQuery: (state, { payload }) => {
+      let freezeState = state;
+      const { type, query } = payload;
+
+      const newState = generateComparativeQuery(type, query);
+      freezeState = newState;
+    },
     setPlatform: (state, { payload }) => {
       state.forEach((qS) => {
         const copyqS = qS;
