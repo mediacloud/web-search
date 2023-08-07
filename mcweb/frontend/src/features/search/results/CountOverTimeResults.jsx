@@ -82,7 +82,6 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
-    // console.log(prepareCountOverTimeData(data.count_over_time, normalized, queryState));
     const preparedData = prepareCountOverTimeData(data.count_over_time, normalized, queryState);
     if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
