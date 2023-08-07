@@ -107,7 +107,9 @@ function TotalAttentionResults() {
       </Alert>
     );
   } else {
-    const updatedTotalAttentionData = prepareTotalAttentionData(data, normalized).map(
+    const preparedTAdata = prepareTotalAttentionData(data, normalized);
+    if (preparedTAdata.length !== queryState.length) return null;
+    const updatedTotalAttentionData = preparedTAdata.map(
       (originalDataObj, index) => {
         const queryTitleForPreparation = { name: queryState[index].name };
         return { ...queryTitleForPreparation, ...originalDataObj };
