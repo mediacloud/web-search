@@ -63,7 +63,6 @@ export default function CountOverTimeResults() {
       executeScroll();
     }
   }, [data, error]);
-
   if (newQuery) return null;
   let content;
 
@@ -83,7 +82,9 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
-    const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
+    const preparedData = prepareCountOverTimeData(data.count_over_time, normalized, queryState);
+    if (preparedData.length !== queryState.length) return null;
+    const updatedPrepareCountOverTimeData = preparedData.map(
       (originalDataObj, index) => {
         const queryTitleForPreparation = { name: queryState[index].name };
         return { ...queryTitleForPreparation, ...originalDataObj };

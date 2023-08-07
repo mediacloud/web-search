@@ -8,17 +8,20 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import RedditIcon from '@mui/icons-material/Reddit';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import addType from './media-picker/util/addType';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
 import {
-  resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS, setPlatform,
+  resetSelectedAndPreviewMedia, addSelectedMedia, setPlatform,
 } from './querySlice';
 
 export default function PlatformPicker({ queryIndex }) {
-  const { platform, collections, sources } = useSelector((state) => state.query[queryIndex]);
+  const {
+    platform, collections, sources, previewCollections, previewSources,
+  } = useSelector((state) => state.query[queryIndex]);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -37,7 +40,7 @@ export default function PlatformPicker({ queryIndex }) {
     if (!samePlatform) {
       if (!hasSomeMedia) {
         if ([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(newPlatform)) {
-          dispatch(addSelectedMedia({ sourceOrCollection: DEFAULT_ONLINE_NEWS_COLLECTIONS, queryIndex }));
+          dispatch(addSelectedMedia({ sourceOrCollection: addType(previewSources, previewCollections), queryIndex }));
           enqueueSnackbar('We reset your collections to work with this platform.', { variant: 'warning' });
         } else {
           dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
