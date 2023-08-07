@@ -64,10 +64,8 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff, email):
     csvfile = StringIO()
     csvwriter = csv.writer(csvfile)
     
-    filename = "mc-{}-{}-content".format(
-        provider_name, _filename_timestamp())
    
-    zip_filename = "mc-{}-{}-content".format(
+    zip_filename = "mc-{}-{}-content.gz".format(
         provider_name, _filename_timestamp())
     
     # Generate and write data to the CSV
@@ -77,7 +75,7 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff, email):
     # Convert the CSV data from StringIO to bytes
     csv_data = csvfile.getvalue()
     # Add the CSV data to the zip file
-    zipfile_obj.writestr(filename, csv_data)
+    zipfile_obj.writestr(zip_filename, csv_data)
     # Close the zip file
     zipfile_obj.close()
     # Get the zip data
