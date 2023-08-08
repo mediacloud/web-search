@@ -47,11 +47,11 @@ with the `importdata` command.
 
 - Step 5: From the root folder run these commands:
 
-`python mcweb/manage.py makemigrations` for creating new migrations based on the changes you have made to your models.
+  - `python mcweb/manage.py makemigrations` for creating new migrations based on the changes you have made to your models.
+ 
+  - `python mcweb/manage.py migrate` to apply the migrations
 
-`python mcweb/manage.py migrate` to apply the migrations
-
-`python mcweb/manage.py importdata` 
+  - `python mcweb/manage.py importdata` 
 
 - Step 6: In the `Collections` model revert
   - From:
@@ -71,8 +71,8 @@ with the `importdata` command.
 - Step 8: From the root folder run these commands:
   - `python mcweb/manage.py makemigrations` for creating new migrations based on the changes you have made to your models.
 
-  - python mcweb/manage.py migrate` to apply the migrations
+  - `python mcweb/manage.py migrate` to apply the migrations
 
 - Step 9: Delete the new migration files created in mcweb.backend.sources.migrations (there should be 2 for each model change)
 
-- Step 10: There should be no new changes (git status) and you can go back to `main`
+- Step 10: There should be no new changes (git status) and you should be able to checkout `main`
