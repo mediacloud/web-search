@@ -25,7 +25,7 @@ This command is intended to update all sources in the rss fetcher with an estima
 
 ### To run Import Data
 * `python mcweb/manage.py importdata` in production terminal 
-- will print out the status of the wiping and importing of all collections, sources, associations
+- Will print out the status of the wiping and importing of all collections, sources, associations
 between them, feeds, and reset postgres sequences.
 - This process is required since the Sources and Collections models have changed, causing issues
 with the `importdata` command. 
