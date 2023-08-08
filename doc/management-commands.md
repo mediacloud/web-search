@@ -32,18 +32,18 @@ with the `importdata` command.
 - Step 1: Create a new branch `git checkout -b [any-branch-name]`
 - Step 2: Go into mcweb.backend.sources.models
 - Step 3: In the `Collections` model alter
-  From: 
-    `public = models.BooleanField(default=True, null=False, blank=False)`
-    `featured = models.BooleanField(default=False, null=False, blank=False)`
-  To:
-    `public = models.BooleanField(default=True, null=True, blank=True)`
-    `featured = models.BooleanField(default=False, null=True, blank=True)`
+  - From: 
+    - `public = models.BooleanField(default=True, null=False, blank=False)`
+    - `featured = models.BooleanField(default=False, null=False, blank=False)`
+  - To:
+    - `public = models.BooleanField(default=True, null=True, blank=True)`
+    - `featured = models.BooleanField(default=False, null=True, blank=True)`
 
 - Step 4: In the `Sources` model alter
-  From: 
-    `alerted = models.BooleanField(default=False)`
-  To: 
-    `alerted = models.BooleanField(default=False, blank=True, null=True)`
+  - From: 
+    - `alerted = models.BooleanField(default=False)`
+  - To: 
+    - `alerted = models.BooleanField(default=False, blank=True, null=True)`
 
 - Step 5: From the root folder run these commands:
 
@@ -56,21 +56,22 @@ with the `importdata` command.
 - Step 6: In the `Collections` model revert
   - From:
     - `public = models.BooleanField(default=True, null=True, blank=True)`
-    `featured = models.BooleanField(default=False, null=True, blank=True)`
-   To:
-     `public = models.BooleanField(default=True, null=False, blank=False)`
-    `featured = models.BooleanField(default=False, null=False, blank=False)`
+    - `featured = models.BooleanField(default=False, null=True, blank=True)`
+  - To:
+    - `public = models.BooleanField(default=True, null=False, blank=False)`
+    - `featured = models.BooleanField(default=False, null=False, blank=False)`
+    
 
 - Step 7: In the `Sources` model revert
-  From: 
-    `alerted = models.BooleanField(default=False, blank=True, null=True)`
-  To: 
-    `alerted = models.BooleanField(default=False)`
+  - From: 
+    - `alerted = models.BooleanField(default=False, blank=True, null=True)`
+  - To: 
+    - `alerted = models.BooleanField(default=False)`
 
 - Step 8: From the root folder run these commands:
-`python mcweb/manage.py makemigrations` for creating new migrations based on the changes you have made to your models.
+  - `python mcweb/manage.py makemigrations` for creating new migrations based on the changes you have made to your models.
 
-`python mcweb/manage.py migrate` to apply the migrations
+  - python mcweb/manage.py migrate` to apply the migrations
 
 - Step 9: Delete the new migration files created in mcweb.backend.sources.migrations (there should be 2 for each model change)
 
