@@ -12,14 +12,20 @@ export default function MoreVertIconWrapper({
   anchorEl, open, handleClose, handleMenuOpen,
 }) {
   const [colorSubMenuOpen, setColorSubMenuOpen] = useState(false);
-  const [colorSubMenuAnchorEl, setColorSubMenuAnchorEl] = useState(null);
 
-  const handleMouseEnter = (event) => {
-    setColorSubMenuAnchorEl(event.currentTarget);
+  const handleMouseEnter = () => {
     setColorSubMenuOpen(true);
   };
 
-  const handleMouseLeave = () => { setColorSubMenuOpen(false); };
+  const closeColorSubMenu = (event, color) => {
+    handleClose(color);
+    setColorSubMenuOpen(false);
+  };
+
+  // mouse leaves main menu
+  const handleMouseLeave = () => {
+    setColorSubMenuOpen(false);
+  };
   return (
     <div>
       <MoreVertIcon
@@ -29,11 +35,10 @@ export default function MoreVertIconWrapper({
           position: 'absolute', top: '.25rem', right: '0', fontSize: 'medium',
         }}
       />
-      {/* Original Menu with Options */}
+      {/* Main Menu with Options */}
       <Menu
         anchorEl={anchorEl}
         open={open}
-        onClose={handleClose}
       >
         {/* Add Color Option */}
         <MenuItem
@@ -56,11 +61,16 @@ export default function MoreVertIconWrapper({
       {/* Color Submenu */}
       <Menu
         hideBackdrop
+        sx={{ marginLeft: '120px', marginTop: '20px' }}
         style={{ pointerEvents: 'none' }}
-        open={colorSubMenuOpen && open}
-        anchorEl={colorSubMenuAnchorEl}
-        onMouseOver={() => setColorSubMenuOpen(true)}
-        onMouseLeave={() => setColorSubMenuOpen(false)}
+        open={colorSubMenuOpen && open && Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onMouseEnter={() => {
+          if (colorSubMenuOpen && open && Boolean(anchorEl)) {
+            setColorSubMenuOpen(true);
+          }
+        }}
+        onMouseLeave={handleMouseLeave}
         anchorOrigin={{
           vertical: 'right',
           horizontal: 'right',
@@ -70,44 +80,24 @@ export default function MoreVertIconWrapper({
           horizontal: 'left',
         }}
       >
-        <div style={{ padding: '10px', pointerEvents: 'auto' }}>
-          <MenuItem onClick={() => {
-            handleClose('orange');
-            setColorSubMenuOpen(false);
-          }}
-          >
+        <div style={{ pointerEvents: 'all' }}>
+          <MenuItem onClick={(e) => closeColorSubMenu(e, 'orange')}>
             <CircleIcon sx={{ color: 'orange' }} />
           </MenuItem>
 
-          <MenuItem onClick={() => {
-            setColorSubMenuOpen(false);
-            handleClose('yellow');
-          }}
-          >
+          <MenuItem onClick={(e) => closeColorSubMenu(e, 'yellow')}>
             <CircleIcon sx={{ color: 'yellow' }} />
           </MenuItem>
 
-          <MenuItem onClick={() => {
-            setColorSubMenuOpen(false);
-            handleClose('green');
-          }}
-          >
+          <MenuItem onClick={(e) => closeColorSubMenu(e, 'green')}>
             <CircleIcon sx={{ color: 'green' }} />
           </MenuItem>
 
-          <MenuItem onClick={() => {
-            setColorSubMenuOpen(false);
-            handleClose('blue');
-          }}
-          >
+          <MenuItem onClick={(e) => closeColorSubMenu(e, 'blue')}>
             <CircleIcon sx={{ color: 'blue' }} />
           </MenuItem>
 
-          <MenuItem onClick={() => {
-            setColorSubMenuOpen(false);
-            handleClose('indigo');
-          }}
-          >
+          <MenuItem onClick={(e) => closeColorSubMenu(e, 'indigo')}>
             <CircleIcon sx={{ color: 'indigo' }} />
           </MenuItem>
         </div>
