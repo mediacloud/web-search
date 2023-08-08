@@ -54,8 +54,8 @@ with the `importdata` command.
 `python mcweb/manage.py importdata` 
 
 - Step 6: In the `Collections` model revert
-- - From: 
-- - - `public = models.BooleanField(default=True, null=True, blank=True)`
+  - From:
+    - `public = models.BooleanField(default=True, null=True, blank=True)`
     `featured = models.BooleanField(default=False, null=True, blank=True)`
    To:
      `public = models.BooleanField(default=True, null=False, blank=False)`
