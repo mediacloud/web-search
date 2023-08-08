@@ -23,6 +23,8 @@ This command is intended to update all sources in the rss fetcher with an estima
 - will trigger background task to run
 - currently task is manually assigned to `Evan-Leon`, can be reassigned in mcweb/backend/sources/tasks.py `run_alert_system`
 
+Import Data
+---------
 ### To run Import Data
 * `python mcweb/manage.py importdata` in production terminal 
 - Will print out the status of the wiping and importing of all collections, sources, associations
