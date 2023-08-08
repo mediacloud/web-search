@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import Popover from '@mui/material/Popover'; // Import Popover
 import CircleIcon from '@mui/icons-material/Circle';
-import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from 'prop-types';
 import ArrowRight from '@mui/icons-material/ArrowRight';
+
+// https://medium.com/geekculture/creating-a-dropdown-with-nested-menu-items-using-react-mui-bb0c084226da was a helpful tool
 
 export default function MoreVertIconWrapper({
   anchorEl, open, handleClose, handleMenuOpen,
@@ -29,39 +29,45 @@ export default function MoreVertIconWrapper({
           position: 'absolute', top: '.25rem', right: '0', fontSize: 'medium',
         }}
       />
-      {/* Dropdown Menu Items */}
+      {/* Original Menu with Options */}
       <Menu
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
       >
+        {/* Add Color Option */}
         <MenuItem
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          Choose Color
+          Add Color
           <ArrowRight />
         </MenuItem>
+        {/* Edit Tab Name Option */}
         <MenuItem onClick={() => {
           handleClose('edit');
           setColorSubMenuOpen(false);
         }}
         >
-          <EditIcon aria-label="edit" />
+          Edit Tab Name
         </MenuItem>
       </Menu>
 
-      {/* Color Submenu using Popover */}
+      {/* Color Submenu */}
       <Menu
         hideBackdrop
         style={{ pointerEvents: 'none' }}
-        open={colorSubMenuOpen}
+        open={colorSubMenuOpen && open}
         anchorEl={colorSubMenuAnchorEl}
         onMouseOver={() => setColorSubMenuOpen(true)}
         onMouseLeave={() => setColorSubMenuOpen(false)}
         anchorOrigin={{
           vertical: 'right',
           horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
         }}
       >
         <div style={{ padding: '10px', pointerEvents: 'auto' }}>
@@ -74,32 +80,32 @@ export default function MoreVertIconWrapper({
           </MenuItem>
 
           <MenuItem onClick={() => {
-            handleClose('yellow');
             setColorSubMenuOpen(false);
+            handleClose('yellow');
           }}
           >
             <CircleIcon sx={{ color: 'yellow' }} />
           </MenuItem>
 
           <MenuItem onClick={() => {
-            handleClose('green');
             setColorSubMenuOpen(false);
+            handleClose('green');
           }}
           >
             <CircleIcon sx={{ color: 'green' }} />
           </MenuItem>
 
           <MenuItem onClick={() => {
-            handleClose('blue');
             setColorSubMenuOpen(false);
+            handleClose('blue');
           }}
           >
             <CircleIcon sx={{ color: 'blue' }} />
           </MenuItem>
 
           <MenuItem onClick={() => {
-            handleClose('indigo');
             setColorSubMenuOpen(false);
+            handleClose('indigo');
           }}
           >
             <CircleIcon sx={{ color: 'indigo' }} />
