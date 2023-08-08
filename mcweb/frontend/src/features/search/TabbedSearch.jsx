@@ -30,6 +30,7 @@ import urlSerializer from './util/urlSerializer';
 import isNumber from './util/isNumber';
 import tabTitle from './util/tabTitles';
 import { useListCollectionsFromNestedArrayMutation } from '../../app/services/collectionsApi';
+import NestedMenuDropdown from '../ui/DropDown';
 
 function a11yProps(index) {
   return {
@@ -92,14 +93,20 @@ export default function TabbedSearch() {
     setValue(qsLength);
   };
 
-  const handleRemoveQuery = (index) => {
+  const handleRemoveQuery = async (index) => {
     const updatedColor = color.filter((_, i) => i !== index);
     const updatedEdit = edit.filter((_, i) => i !== index);
 
     setColor(updatedColor);
     setEdit(updatedEdit);
-
     dispatch(removeQuery(index));
+    // Adjust tab name to sync with index
+    queryState.forEach((query, i) => {
+      if (i !== index && i > index && query.name === `Query ${i + 1}`) {
+        dispatch(setQueryProperty({ name: `Query ${i}`, queryIndex: i - 1, property: 'name' }));
+      }
+    });
+
     setValue(index === 0 ? 0 : index - 1);
   };
 
