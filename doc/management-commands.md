@@ -53,7 +53,7 @@ with the `importdata` command.
  
   - `python mcweb/manage.py migrate` to apply the migrations
 
-  - `python mcweb/manage.py importdata` 
+  - `python mcweb/manage.py importdata` to import data (DataGrip is a fantastic IDE for databases)
 
 - Step 6: In the `Collections` model revert
   - From:
