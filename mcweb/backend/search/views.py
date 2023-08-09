@@ -19,6 +19,9 @@ from mc_providers.exceptions import UnsupportedOperationException, QueryingEvery
 from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_REDDIT
 from mc_providers.exceptions import ProviderException
 from mc_providers.cache import CachingManager
+import asyncio
+from asgiref.sync import async_to_sync
+
 
 from util.cache import django_caching_interface
 logger = logging.getLogger(__name__)
@@ -78,12 +81,26 @@ def total_count(request):
                         content_type="application/json", status=200)
 
 
+
+def get_or_create_event_loop():
+    try:
+        return asyncio.get_event_loop()
+    except RuntimeError as ex:
+        if "There is no current event loop in thread" in str(ex):
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            return asyncio.get_event_loop()
+        
+
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def count_over_time(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
+    tasks = []
+    loop = get_or_create_event_loop()
+    
     for query in payload:
         start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query)
@@ -91,14 +108,23 @@ def count_over_time(request):
         try:
             results = provider.normalized_count_over_time(
                 query_str, start_date, end_date, **provider_props)
+            
+            async def coro_function(provider, query_str, start_date, end_date, provider_props):
+                return await provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+            tasks.append(loop.create_task(coro_function(provider, query_str, start_date, end_date, provider_props)))
         except UnsupportedOperationException:
             # for platforms that don't support querying over time
             results = provider.count_over_time(
                 query_str, start_date, end_date, **provider_props)
+            
+            async def coro_function(provider, query_str, start_date, end_date, provider_props):
+                return await provider.count_over_time(query_str, start_date, end_date, **provider_props)
+
+            tasks.append(loop.create_task(coro_function(query_str, start_date, end_date, **provider_props)))
+
         # logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
         response.append(results)
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -191,12 +217,15 @@ def words(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
     for query in payload:
+        start = time.time()
         start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query)
         provider = providers.provider_by_name(provider_name)
         words = provider.words(query_str, start_date,
                                end_date, **provider_props)
         response.append(add_ratios(words))
+        end = time.time()
+        print(end-start)
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
@@ -326,15 +355,19 @@ def send_email_large_download_csv(request):
 
     # follows similiar logic from download_all_content_csv, get information and send to tasks
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
+            query, 'GET')
         provider = providers.provider_by_name(provider_name)
         try:
-            count = provider.count(query_str, start_date, end_date, **provider_props)
+            count = provider.count(query_str, start_date,
+                                   end_date, **provider_props)
             if count >= 25000 and count <= 200000:
-                download_all_large_content_csv(queryState, request.user.id, request.user.is_staff, email)
+                download_all_large_content_csv(
+                    queryState, request.user.id, request.user.is_staff, email)
         except UnsupportedOperationException:
             return error_response("Can't count results for download in {}... continuing anyway".format(provider_name))
     return HttpResponse(content_type="application/json", status=200)
+
 
 def add_ratios(words_data):
     for word in words_data:

@@ -283,11 +283,11 @@ export default function TabbedSearch() {
       </div>
       <div className="search-results-wrapper">
         <div className="container">
-          <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
+          {/* <CountOverTimeResults /> */}
+          {/* <TotalAttentionResults /> */}
+          {/* <SampleStories /> */}
           <TopWords />
-          <TopLanguages />
+          {/* <TopLanguages />  */}
         </div>
       </div>
     </div>
