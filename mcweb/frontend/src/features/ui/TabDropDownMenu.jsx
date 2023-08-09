@@ -5,10 +5,11 @@ import Menu from '@mui/material/Menu';
 import CircleIcon from '@mui/icons-material/Circle';
 import PropTypes from 'prop-types';
 import ArrowRight from '@mui/icons-material/ArrowRight';
+import CloseIcon from '@mui/icons-material/Close';
 
 // https://medium.com/geekculture/creating-a-dropdown-with-nested-menu-items-using-react-mui-bb0c084226da was a helpful tool
 
-export default function MoreVertIconWrapper({
+export default function TabDropDownMenuItems({
   anchorEl, open, handleClose, handleMenuOpen,
 }) {
   const [colorSubMenuOpen, setColorSubMenuOpen] = useState(false);
@@ -39,6 +40,7 @@ export default function MoreVertIconWrapper({
       <Menu
         anchorEl={anchorEl}
         open={open}
+        onClose={handleClose}
       >
         {/* Add Color Option */}
         <MenuItem
@@ -100,13 +102,16 @@ export default function MoreVertIconWrapper({
           <MenuItem onClick={(e) => closeColorSubMenu(e, 'indigo')}>
             <CircleIcon sx={{ color: 'indigo' }} />
           </MenuItem>
+          <MenuItem onClick={(e) => closeColorSubMenu(e, 'white')}>
+            <CloseIcon />
+          </MenuItem>
         </div>
       </Menu>
     </div>
   );
 }
 
-MoreVertIconWrapper.propTypes = {
+TabDropDownMenuItems.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   anchorEl: PropTypes.any.isRequired, // either null or svg
   open: PropTypes.bool.isRequired,
