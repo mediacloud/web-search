@@ -14,6 +14,7 @@ import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
 import GeographicCollectionsPicker from './GeographicCollectionsPicker';
 import SourceSearchPicker from './SourceSearchPicker';
 import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../../util/platforms';
+import addType from './util/addType';
 
 export default function MediaPicker({ queryIndex }) {
   const [value, setValue] = React.useState(0);
@@ -21,17 +22,6 @@ export default function MediaPicker({ queryIndex }) {
   const dispatch = useDispatch();
   const { previewCollections, previewSources, platform } = useSelector((state) => state.query[queryIndex]);
   const [open, setOpen] = useState(false);
-  const addType = (pS, pC) => {
-    const sourceTypes = pS.map((s) => ({
-      id: s,
-      type: 'source',
-    }));
-    const collectionTypes = pC.map((c) => ({
-      id: c,
-      type: 'collection',
-    }));
-    return [...sourceTypes, ...collectionTypes];
-  };
 
   return (
     <div className="media-picker">
@@ -115,14 +105,14 @@ export default function MediaPicker({ queryIndex }) {
             </div>
             {[PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && (
 
-            <div className="tabpanel" role="tabpanel" hidden={value !== 3} id="tabpanel-1">
-              {value === 3 && (
-              <>
-                <h2>Geographic Collections</h2>
-                <GeographicCollectionsPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
-              </>
-              )}
-            </div>
+              <div className="tabpanel" role="tabpanel" hidden={value !== 3} id="tabpanel-1">
+                {value === 3 && (
+                  <>
+                    <h2>Geographic Collections</h2>
+                    <GeographicCollectionsPicker queryIndex={queryIndex} platform={platform.split('-')[0]} />
+                  </>
+                )}
+              </div>
             )}
           </Box>
         </DialogContent>
