@@ -3,7 +3,6 @@ import logging
 import csv
 import time
 import collections
-import environ
 from django.http import HttpResponse, HttpResponseBadRequest
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -27,7 +26,6 @@ logger = logging.getLogger(__name__)
 # This is where we set the caching manager and the cache_time
 CachingManager.caching_function = django_caching_interface(time_secs=60*60*24)
 
-env = environ.Env()
 
 def error_response(msg: str):
     return HttpResponseBadRequest(json.dumps(dict(
