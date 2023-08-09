@@ -208,7 +208,7 @@ def _alert_system(collection_ids):
                 send_alert_email(alert_dict)
 
 def _classify_alert(month_mean, week_mean, std_dev):
-    range = std_dev
+    range = std_dev * 1.5
     lower = month_mean - range
     upper = month_mean + range 
     if week_mean < lower:
