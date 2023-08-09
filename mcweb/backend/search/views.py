@@ -88,7 +88,7 @@ def count_over_time(request):
     response = []
     for query in payload:
         start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query, request)
+            query)
         provider = providers.provider_by_name(provider_name, api_key)
         try:
             results = provider.normalized_count_over_time(

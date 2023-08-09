@@ -29,7 +29,7 @@ def fill_in_dates(start_date, end_date, existing_counts):
     return filled_counts
 
 
-def parse_query(query, request, http_method: str = 'POST') -> tuple:
+def parse_query(query, http_method: str = 'POST') -> tuple:
     # payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
     payload = query
     provider_name = payload["platform"]
@@ -41,7 +41,7 @@ def parse_query(query, request, http_method: str = 'POST') -> tuple:
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    api_key = _get_api_key(provider_name, request)
+    api_key = _get_api_key(provider_name)
     return start_date, end_date, query_str, provider_props, provider_name, api_key
 
 
@@ -58,7 +58,7 @@ def search_props_for_provider(provider, collections: List, sources: List) -> Dic
         return _for_media_cloud(collections, sources)
     return {}
 
-def _get_api_key(provider, request): 
+def _get_api_key(provider): 
     if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
         return YOUTUBE_API_KEY
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
