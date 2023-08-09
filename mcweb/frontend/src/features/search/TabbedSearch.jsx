@@ -11,7 +11,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
-import MoreVertIconWrapper from '../ui/MoreVertIconWrapper';
+import TabDropDownMenu from '../ui/TabDropDownMenu';
 import {
   addQuery, setLastSearchTime, removeQuery, setQueryProperty,
 } from './query/querySlice';
@@ -200,7 +200,7 @@ export default function TabbedSearch() {
                     </div>
 
                     {/* Dropdown Menu */}
-                    <MoreVertIconWrapper
+                    <TabDropDownMenu
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl) && value === i}
                       handleClose={(colorValue) => handleClose(i, colorValue)}
