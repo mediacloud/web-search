@@ -59,7 +59,9 @@ export default function CountOverTimeResults() {
   }, [lastSearchTime, queryState.length]);
 
   useEffect(() => {
-    if ((data || error) && (data.count_over_time.length === queryState.length)) {
+    if ((data)) {
+      if ((data.count_over_time.length === queryState.length)) { executeScroll(); }
+    } else if (error) {
       executeScroll();
     }
   }, [data, error]);
