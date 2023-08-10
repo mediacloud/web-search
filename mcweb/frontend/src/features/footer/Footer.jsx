@@ -29,21 +29,21 @@ function Footer() {
           {' '}
           or fill out
           {' '}
-          <a href="https://mediacloud.org/#contact" target="_blank" rel="noreferrer">our support form</a>
+          <a href="https://mediacloud.org/contact" target="_blank" rel="noreferrer">our support form</a>
           .
           <br />
           Read our
           {' '}
-          <a href="https://mediacloud.org/privacy-policy" target="_blank" rel="noreferrer">privacy policy</a>
+          <a href="https://www.mediacloud.org/legal/media-cloud-privacy-policy" target="_blank" rel="noreferrer">privacy policy</a>
           {' '}
           and
           {' '}
-          <a href="https://mediacloud.org/terms-of-use" target="_blank" rel="noreferrer">terms of use</a>
+          <a href="https://www.mediacloud.org/legal/media-cloud-terms-of-use" target="_blank" rel="noreferrer">terms of use</a>
           .
         </p>
         <p>
           v
-          { document.settings.appVersion }
+          {document.settings.appVersion}
         </p>
       </div>
     </Header>
