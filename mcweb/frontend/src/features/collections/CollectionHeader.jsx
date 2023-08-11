@@ -66,13 +66,13 @@ export default function CollectionHeader() {
       <ControlBar>
         <Button variant="outlined" startIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
-            href={`/search/${urlSerializer([{
+            href={`/search?${urlSerializer([{
               queryList: defaultPlatformQuery(collection.platform),
               anyAll: 'any',
               negatedQueryList: [],
-              startDate: dayjs().subtract(35, 'day'),
-              endDate: dayjs().subtract(5, 'day'),
-              collections: [collection],
+              startDate: dayjs().subtract(34, 'day'),
+              endDate: dayjs().subtract(1, 'day'),
+              collections: [collection.id],
               sources: [],
               platform: defaultPlatformProvider(collection.platform),
               advanced: false,

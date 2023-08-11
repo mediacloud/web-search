@@ -64,10 +64,10 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff, email):
     csvfile = StringIO()
     csvwriter = csv.writer(csvfile)
     
-    filename = "mc-{}-{}-content".format(
+    filename = "mc-{}-{}-content.csv".format(
         provider_name, _filename_timestamp())
    
-    zip_filename = "mc-{}-{}-content".format(
+    zip_filename = "mc-{}-{}-content.zip".format(
         provider_name, _filename_timestamp())
     
     # Generate and write data to the CSV
@@ -86,7 +86,6 @@ def _download_all_large_content_csv(queryState, user_id, user_isStaff, email):
     logger.info("Sent Email")
 
     send_zipped_large_download_email(zip_filename, zipped_data, email)
-
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())

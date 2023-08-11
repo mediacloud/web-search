@@ -11,7 +11,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
-import MoreVertIconWrapper from '../ui/MoreVertIconWrapper';
+import TabDropDownMenu from '../ui/TabDropDownMenu';
 import {
   addQuery, setLastSearchTime, removeQuery, setQueryProperty,
 } from './query/querySlice';
@@ -92,14 +92,20 @@ export default function TabbedSearch() {
     setValue(qsLength);
   };
 
-  const handleRemoveQuery = (index) => {
+  const handleRemoveQuery = async (index) => {
     const updatedColor = color.filter((_, i) => i !== index);
     const updatedEdit = edit.filter((_, i) => i !== index);
 
     setColor(updatedColor);
     setEdit(updatedEdit);
-
     dispatch(removeQuery(index));
+    // Adjust tab name to sync with index
+    queryState.forEach((query, i) => {
+      if (i !== index && i > index && query.name === `Query ${i + 1}`) {
+        dispatch(setQueryProperty({ name: `Query ${i}`, queryIndex: i - 1, property: 'name' }));
+      }
+    });
+
     setValue(index === 0 ? 0 : index - 1);
   };
 
@@ -194,7 +200,7 @@ export default function TabbedSearch() {
                     </div>
 
                     {/* Dropdown Menu */}
-                    <MoreVertIconWrapper
+                    <TabDropDownMenu
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl) && value === i}
                       handleClose={(colorValue) => handleClose(i, colorValue)}
