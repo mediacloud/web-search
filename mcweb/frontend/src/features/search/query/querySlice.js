@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate } from '../util/platforms';
+import { generateComparativeQuery } from '../util/generateComparativeQuery';
 
 const DEFAULT_PROVIDER = PROVIDER_NEWS_MEDIA_CLOUD;
 export const DEFAULT_ONLINE_NEWS_COLLECTIONS = [34412234];
@@ -161,11 +162,9 @@ const querySlice = createSlice({
       );
     },
     addComparativeQuery: (state, { payload }) => {
-      let freezeState = state;
       const { type, query } = payload;
-
       const newState = generateComparativeQuery(type, query);
-      freezeState = newState;
+      return newState;
     },
     setPlatform: (state, { payload }) => {
       state.forEach((qS) => {
