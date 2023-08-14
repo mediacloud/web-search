@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-
 export const PARTISAN = 'partisan';
 export const GLOBAL = 'global';
 export const REGIONAL = 'regional';
@@ -52,6 +50,7 @@ export const generateComparativeQuery = (type, queryObject) => {
     isToDateValid,
     anyAll,
     advanced,
+    lastSearchTime,
   } = queryObject;
 
   comparativeCollections.forEach((collection, i) => {
@@ -66,13 +65,13 @@ export const generateComparativeQuery = (type, queryObject) => {
       previewCollections: [],
       sources: [],
       previewSources: [],
-      lastSearchTime: dayjs().unix(),
+      lastSearchTime,
       isFromDateValid,
       isToDateValid,
       anyAll,
       advanced,
       name: comparativeQueryNames[i],
-      edited: false,
+      edited: true,
     };
   });
   return returnArr;

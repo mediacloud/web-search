@@ -208,6 +208,7 @@ export const {
   setLastSearchTime,
   removeQuery,
   setSelectedMedia,
+  addComparativeQuery,
 } = querySlice.actions;
 
 export default querySlice.reducer;
