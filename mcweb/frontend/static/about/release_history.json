@@ -1,4 +1,28 @@
-[{"version": "v1.4.2",
+[{"version": "v1.4.4",
+"date": "2023-07-27",
+"notes": ["Add new tab naming conventions in search",
+"send email when finding new feed",
+"fix buttons that didn't conform with button conventions",
+"fix bugs with date not accurately adjusting between platforms",
+"fix app crashing bug when switching between platforms",
+"adjustments to the source alert system",
+"remove reddit and twitter as platforms in search"
+]
+},
+{"version": "v1.4.3",
+"date": "2023-07-12",
+"notes": ["Add updated about search page",
+"fix bug showing hidden collections",
+"fix bug with download all content modal",
+"update several buttons and ui features to adopt new conventions",
+"fix bug for negated query dissapearing on refresh",
+"fix for label overlap when editing a source",
+"fix double naming of downloaded csv files",
+"minor bug fix for Wayback Machine Searches with url search strings",
+"add sending email when a new feed is found"
+]
+},
+{"version": "v1.4.2",
 "date": "2023-06-07",
 "notes": ["Add notes about collection to collections page",
 "fix broken tabs in media picker",
@@ -45,7 +69,8 @@
     "date": "2023-03-13",
     "notes": ["message added when total attention is 100% or 0%",
         "add rescrape for feeds on sources (admin only)",
-        "new source search bar in collection edit page, to add source to collection"
+        "new source search bar in collection edit page, to add source to collection",
+        "add task list to staff profile"
     ]
   },
   {"version": "v1.3.2",

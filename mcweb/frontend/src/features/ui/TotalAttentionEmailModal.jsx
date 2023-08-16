@@ -4,6 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
+import Box from '@mui/material/Box';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
@@ -85,6 +86,10 @@ export default function TotalAttentionEmailModal({
     setOpen(false);
   };
 
+  const cancelClose = () => {
+    setOpen(false);
+  };
+
   return (
     <>
       <Button
@@ -96,7 +101,13 @@ export default function TotalAttentionEmailModal({
       </Button>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={(event, reason) => {
+          if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
+            cancelClose();
+          } else {
+            handleClose();
+          }
+        }}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -119,19 +130,35 @@ export default function TotalAttentionEmailModal({
             {' '}
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => {
-            handleClose();
-          }}
-          >
-            Use Current Email
-          </Button>
+        <DialogActions sx={{ justifyContent: 'space-between' }}>
+
+          {/* Cancel / Destructive */}
           <Button
-            onClick={handleClick}
-            autoFocus
+            variant="outlined"
+            onClick={cancelClose}
+            sx={{ alignSelf: 'flex-start' }}
           >
-            {confirmButtonText}
+            Cancel
           </Button>
+
+          <Box>
+            {/* Secondary Action */}
+            <Button
+              variant="outlined"
+              onClick={handleClose}
+              sx={{ marginRight: '10px' }}
+            >
+              Use Current Email
+            </Button>
+
+            {/* Primary Action */}
+            <Button
+              variant="contained"
+              onClick={handleClick}
+            >
+              {confirmButtonText}
+            </Button>
+          </Box>
         </DialogActions>
       </Dialog>
     </>

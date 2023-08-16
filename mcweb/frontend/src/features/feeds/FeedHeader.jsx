@@ -62,12 +62,12 @@ export default function FeedHeader() {
         <Permissioned role={ROLE_STAFF}>
           <Button
             variant="outlined"
-            endIcon={<LockOpenIcon titleAccess="admin" />}
+            startIcon={<LockOpenIcon titleAccess="admin" />}
             onClick={fetchNow}
           >
             Fetch Now-ish
           </Button>
-          <Button variant="outlined" endIcon={<LockOpenIcon titleAccess="admin" />}>
+          <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin" />}>
             <Link to={`/feeds/${feedId}/edit`}>Edit</Link>
           </Button>
 
@@ -86,7 +86,7 @@ export default function FeedHeader() {
             onClick={() => setOpen(true)}
             openDialog={open}
             variant="outlined"
-            endIcon={<LockOpenIcon titleAccess="admin" />}
+            startIcon={<LockOpenIcon titleAccess="admin" />}
             secondAction={false}
             confirmButtonText="Delete"
           />

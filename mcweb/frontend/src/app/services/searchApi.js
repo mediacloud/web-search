@@ -10,16 +10,7 @@ export const searchApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['SavedSearch'],
-
   endpoints: (builder) => ({
-    getSearch: builder.mutation({
-      query: (credentials) => ({
-        url: 'search',
-        method: 'POST',
-        body: { ...credentials },
-      }),
-    }),
     getTotalCount: builder.mutation({
       query: (queryObject) => ({
         url: 'total-count',
@@ -42,8 +33,8 @@ export const searchApi = createApi({
       }),
     }),
     getStoryDetails: builder.query({
-      query: (storyId) => ({
-        url: `story?storyId=${storyId}`,
+      query: ({ storyId, platform }) => ({
+        url: `/story?storyId=${storyId}&platform=${platform}`,
         method: 'GET',
       }),
     }),
@@ -72,7 +63,6 @@ export const searchApi = createApi({
 });
 
 export const {
-  useGetSearchMutation,
   useGetTotalCountMutation,
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,

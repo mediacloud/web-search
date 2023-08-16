@@ -13,7 +13,6 @@ import checkForBlankQuery from '../util/checkForBlankQuery';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
-import tabTitle from '../util/tabTitle';
 import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
 import TabPanelHelper from '../../ui/TabPanelHelper';
@@ -40,14 +39,14 @@ export default function TopWords() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);
@@ -73,7 +72,7 @@ export default function TopWords() {
       </Alert>
     );
   } else {
-    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
+    const queryTitleArrays = queryState.map((query, index) => queryState[index].name);
 
     content = (
       <>
@@ -104,7 +103,7 @@ export default function TopWords() {
           <div className="float-end">
             <Button
               variant="text"
-              endIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
+              startIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
               onClick={() => {
                 handleDownloadRequest(queryState);
               }}

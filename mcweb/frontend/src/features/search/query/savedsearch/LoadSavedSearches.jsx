@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  IconButton,
-  DialogTitle,
-  DialogActions,
-} from '@mui/material';
+import { useDispatch } from 'react-redux';
+import dayjs from 'dayjs';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
 import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useDispatch } from 'react-redux';
 import { addSavedSearch } from '../querySlice';
 import { useListSavedSearchesQuery, useDeleteSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 import decodeSavedSearch from '../../util/decodeSavedSearch';
-import { setQueryState, setSearchQuery } from '../../util/setSearchQuery';
+import { setSearchQuery } from '../../util/setSearchQuery';
+
+const utc = require('dayjs/plugin/utc');
 
 export default function LoadSavedSearches() {
+  dayjs.extend(utc);
   const { data } = useListSavedSearchesQuery();
   const [deleteSavedSearch] = useDeleteSavedSearchMutation();
   const dispatch = useDispatch();
@@ -63,21 +65,26 @@ export default function LoadSavedSearches() {
             <thead>
               <tr>
                 <th>Query Name</th>
-                <th>Query</th>
-                <th>Add Query</th>
+                <th>Query Date</th>
                 <th>Delete</th>
               </tr>
             </thead>
             <tbody>
               {data?.results.map((savedSearch) => (
                 <tr key={savedSearch.id}>
+                  {console.log(savedSearch)}
                   <td>
-                    {savedSearch.name}
+                    <a href={savedSearch.serialized_search}>
+                      {savedSearch.name}
+                    </a>
+                  </td>
+                  <td>
+                    {dayjs.utc(savedSearch.created_at).local().format('MM/DD/YYYY')}
                   </td>
                   {/* <td>
                     {getDecodedQuery(savedSearch.serialized_search)}
                   </td> */}
-                  <td>
+                  {/* <td>
                     <IconButton
                       size="small"
                       aria-label="load"
@@ -85,7 +92,7 @@ export default function LoadSavedSearches() {
                     >
                       <AddCircleIcon sx={{ color: '#d24527' }} />
                     </IconButton>
-                  </td>
+                  </td> */}
                   <td>
                     <IconButton
                       size="small"

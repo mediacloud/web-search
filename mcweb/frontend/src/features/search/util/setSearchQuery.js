@@ -65,12 +65,20 @@ export const combineQueryMedia = (cs, ss) => {
 
 export const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
   const returnArr = new Array(mediaArray.length);
-
   mediaArray.forEach((queryCorpus, i) => {
     const decoded = handleDecode([queryCorpus]);
-    const numbered = decoded.map((collectionId) => ({
-      id: Number(collectionId), type: collectionBool ? 'collection' : 'source',
-    }));
+    const numbered = decoded.map((collectionId) => {
+      let numberId = Number(collectionId);
+
+      if (Number.isNaN(numberId)) {
+        const [id] = collectionId.split('>');
+        numberId = id;
+      }
+
+      return {
+        id: numberId, type: collectionBool ? 'collection' : 'source',
+      };
+    });
     returnArr[i] = numbered;
   });
   return returnArr;
@@ -80,7 +88,7 @@ export const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
 ));
 
-export const setQueryState = (
+export const setState = (
   queries,
   negatedQueries,
   queryStrings,
@@ -89,6 +97,8 @@ export const setQueryState = (
   platforms,
   media,
   anyAlls,
+  names,
+  edited,
   dispatch,
 ) => {
   if (!queries) {
@@ -115,10 +125,14 @@ export const setQueryState = (
     });
     if (negatedQueries) {
       negatedQueries.forEach((negatedQuery, i) => {
-        dispatch(setQueryProperty({ negatedQuery, queryIndex: i, property: 'negatedQuery' }));
+        dispatch(setQueryProperty({ negatedQueryList: negatedQuery, queryIndex: i, property: 'negatedQueryList' }));
       });
     }
   }
+
+  platforms.forEach((platform, i) => {
+    dispatch(setQueryProperty({ platform, queryIndex: i, property: 'platform' }));
+  });
 
   startDates.forEach((startDate, i) => {
     dispatch(setQueryProperty({ startDate, queryIndex: i, property: 'startDate' }));
@@ -132,8 +146,39 @@ export const setQueryState = (
 
   dispatch(setPreviewSelectedMedia({ sourceOrCollection: media }));
   dispatch(setSelectedMedia({ sourceOrCollection: media }));
-
   dispatch(setLastSearchTime(dayjs().unix()));
+
+  if (edited) {
+    edited.forEach((edit, i) => {
+      dispatch(setQueryProperty({ edited: true === 'true', queryIndex: i, property: 'edited' }));
+    });
+  } else { // if edited is null because possibly an old url, set edited to false (queries is a generic value we can use to map on)
+    startDates.forEach((edit, i) => {
+      dispatch(setQueryProperty({ edited: false, queryIndex: i, property: 'edited' }));
+    });
+  }
+
+  if (names) {
+    names.forEach((title, i) => {
+      dispatch(setQueryProperty(
+        {
+          name: title,
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    });
+  } else { // if names is null because possibly an old url, set names using tabTitle (lacks collection comparison)
+    startDates.forEach((title, i) => {
+      dispatch(setQueryProperty(
+        {
+          name: `Query ${i + 1}`,
+          queryIndex: i,
+          property: 'name',
+        },
+      ));
+    });
+  }
 };
 
 const queryArrayFromSearchParams = (searchParams) => {
@@ -163,19 +208,18 @@ const queryArrayFromSearchParams = (searchParams) => {
 export const setSearchQuery = (searchParams, dispatch, savedSearchBool) => {
   dayjs.extend(customParseFormat);
   // param keys are set in ./urlSerializer.js
-  const queriesObject = savedSearchBool ? searchParams : queryArrayFromSearchParams(searchParams);
-  console.log(queriesObject, 'IN SET SEARCH', savedSearchBool);
-  let {
-    query,
-    negatedQuery,
-    startDates,
-    endDates,
-    platforms,
-    collections,
-    sources,
-    anyAlls,
-    queryStrings,
-  } = queriesObject;
+  let query = searchParams.get('q');
+  let negatedQuery = searchParams.get('nq');
+  let startDates = searchParams.get('start');
+  let endDates = searchParams.get('end');
+  let platforms = searchParams.get('p');
+  let collections = searchParams.get('cs');
+  let sources = searchParams.get('ss');
+  let anyAlls = searchParams.get('any');
+  let queryStrings = searchParams.get('qs');
+  let names = searchParams.get('name');
+  let edited = searchParams.get('edit');
+
   query = query ? query.split(',') : null;
   query = formatQuery(query);
   query = query ? sizeQuery(query) : null;
@@ -203,7 +247,11 @@ export const setSearchQuery = (searchParams, dispatch, savedSearchBool) => {
 
   const media = combineQueryMedia(collections, sources);
   anyAlls = anyAlls ? handleDecode(anyAlls) : null;
-  setQueryState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, dispatch);
+
+  names = names ? handleDecode(names) : null;
+  edited = edited ? handleDecode(edited) : null;
+
+  setState(query, negatedQuery, queryStrings, startDates, endDates, platforms, media, anyAlls, names, edited, dispatch);
 
   return null;
 };

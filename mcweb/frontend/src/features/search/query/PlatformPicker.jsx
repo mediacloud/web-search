@@ -8,25 +8,27 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import RedditIcon from '@mui/icons-material/Reddit';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import addType from './media-picker/util/addType';
 import {
   PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../util/platforms';
 
 import {
-  resetSelectedAndPreviewMedia, addSelectedMedia, DEFAULT_ONLINE_NEWS_COLLECTIONS, setPlatform,
+  resetSelectedAndPreviewMedia, addSelectedMedia, setPlatform,
 } from './querySlice';
 
 export default function PlatformPicker({ queryIndex }) {
-  const { platform, collections, sources } = useSelector((state) => state.query[queryIndex]);
+  const {
+    platform, collections, sources, previewCollections, previewSources,
+  } = useSelector((state) => state.query[queryIndex]);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
   const providersOfSamePlatform = (provider1, provider2) => provider1.split('-')[0] === provider2.split('-')[0];
 
-  const handleChangePlatform = async (event) => {
-    const newPlatform = event.target.value;
-    await dispatch(setPlatform(newPlatform));
+  const handleChangePlatform = (newPlatform) => {
+    dispatch(setPlatform(newPlatform));
     const hasSomeMedia = (collections.length + sources.length) > 0;
     const samePlatform = platform && newPlatform ? providersOfSamePlatform(platform, newPlatform) : null;
     /*
@@ -38,14 +40,14 @@ export default function PlatformPicker({ queryIndex }) {
     if (!samePlatform) {
       if (!hasSomeMedia) {
         if ([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(newPlatform)) {
-          await dispatch(addSelectedMedia({ sourceOrCollection: DEFAULT_ONLINE_NEWS_COLLECTIONS, queryIndex }));
+          dispatch(addSelectedMedia({ sourceOrCollection: addType(previewSources, previewCollections), queryIndex }));
           enqueueSnackbar('We reset your collections to work with this platform.', { variant: 'warning' });
         } else {
-          await dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
+          dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
           enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
         }
       } else {
-        await dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
+        dispatch(resetSelectedAndPreviewMedia({ queryIndex }));
         enqueueSnackbar("We removed your collections because they don't work with this platform.", { variant: 'warning' });
       }
     }
@@ -58,13 +60,15 @@ export default function PlatformPicker({ queryIndex }) {
           <ToggleButtonGroup
             value={platform}
             exclusive
-            onChange={handleChangePlatform}
             aria-label="platform"
             color="primary"
           >
 
             {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
-              <ToggleButton value={PROVIDER_NEWS_MEDIA_CLOUD}>
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD); }}
+                value={PROVIDER_NEWS_MEDIA_CLOUD}
+              >
                 <NewspaperIcon fontSize="large" />
                 Online News
                 <br />
@@ -72,31 +76,43 @@ export default function PlatformPicker({ queryIndex }) {
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
-              <ToggleButton value={PROVIDER_NEWS_WAYBACK_MACHINE}>
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_NEWS_WAYBACK_MACHINE); }}
+                value={PROVIDER_NEWS_WAYBACK_MACHINE}
+              >
                 <NewspaperIcon fontSize="large" />
                 Online News
                 <br />
                 (Wayback Machine)
               </ToggleButton>
             )}
-            {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
-              <ToggleButton value={PROVIDER_REDDIT_PUSHSHIFT}>
+            {/* {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_REDDIT_PUSHSHIFT); }}
+                value={PROVIDER_REDDIT_PUSHSHIFT}
+              >
                 <RedditIcon fontSize="large" />
                 Reddit
                 <br />
                 (PushShift.io API)
               </ToggleButton>
-            )}
-            {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
-              <ToggleButton value={PROVIDER_TWITTER_TWITTER}>
+            )} */}
+            {/* {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_TWITTER_TWITTER); }}
+                value={PROVIDER_TWITTER_TWITTER}
+              >
                 <TwitterIcon fontSize="large" />
                 Twitter
                 <br />
                 (Twitter API)
               </ToggleButton>
-            )}
+            )} */}
             {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
-              <ToggleButton value={PROVIDER_YOUTUBE_YOUTUBE}>
+              <ToggleButton
+                onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}
+                value={PROVIDER_YOUTUBE_YOUTUBE}
+              >
                 <YouTubeIcon fontSize="large" />
                 YouTube
                 <br />

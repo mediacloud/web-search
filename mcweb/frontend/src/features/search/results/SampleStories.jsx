@@ -13,7 +13,6 @@ import {
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import SampleStoryShow from './SampleStoryShow';
-import tabTitle from '../util/tabTitle';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 
 export default function SampleStories() {
@@ -27,15 +26,6 @@ export default function SampleStories() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetSampleStoriesMutation();
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
   const [newQuery, setNewQuery] = useState(false);
 
   const [value, setValue] = useState(0);
@@ -44,7 +34,7 @@ export default function SampleStories() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
@@ -52,7 +42,7 @@ export default function SampleStories() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);
@@ -79,7 +69,7 @@ export default function SampleStories() {
       </Alert>
     );
   } else {
-    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
+    const queryTitleArrays = queryState.map((query, index) => queryState[index].name);
 
     content = (
       <div className="container">
@@ -95,11 +85,8 @@ export default function SampleStories() {
           {data.sample.map((results, i) => (
             <TabPanelHelper value={value} index={i}>
               <SampleStoryShow
-                open={open}
                 data={results}
                 lSTP={lastSearchTimePlatform}
-                handleClick={handleClick}
-                handleClose={handleClose}
                 platform={platform}
               />
             </TabPanelHelper>

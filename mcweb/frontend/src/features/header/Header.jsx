@@ -90,15 +90,17 @@ function Header() {
                         Read More Release Notes
                       </MenuItem>
                     </Link>
-                    <Link
-                      to="about-search"
+                    <a
+                      href="https://www.mediacloud.org/search-tool-guide"
+                      target="_blank"
                       onClick={handleClose}
                       style={{ textDecoration: 'none', color: 'black' }}
+                      rel="noreferrer"
                     >
                       <MenuItem>
                         About Search API
                       </MenuItem>
-                    </Link>
+                    </a>
                   </Menu>
                 </li>
               </ul>
@@ -110,7 +112,7 @@ function Header() {
                   { /* need to do an a link here to a new window so that it does
                     NOT go throug hthe Router */ }
                   <a href="/adminauth/user/" target="_blank">
-                    <Button variant="text" endIcon={<LockOpenIcon titleAccess="admin only" />}>Admin</Button>
+                    <Button variant="text" startIcon={<LockOpenIcon titleAccess="admin only" />}>Admin</Button>
                   </a>
                 </Permissioned>
                 <UserMenu />

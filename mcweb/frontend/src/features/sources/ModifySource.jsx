@@ -134,7 +134,7 @@ export default function ModifySource() {
             label="Notes"
             multiline
             rows={4}
-            value={formState.notes === null ? '' : formState.notes}
+            value={formState.notes}
             onChange={handleChange}
             helperText="These will be shown publicly on the source page in our system."
           />
@@ -153,7 +153,7 @@ export default function ModifySource() {
             fullWidth
             name="label"
             label="Label"
-            value={formState.label ? formState.label : null}
+            value={formState.label}
             onChange={handleChange}
             helperText="The human-readable name shown to people for this source. Leave empty to have the domain be the name."
           />
@@ -163,7 +163,7 @@ export default function ModifySource() {
             fullWidth
             name="url_search_string"
             label="URL Search String"
-            value={formState.url_search_string ? formState.url_search_string : null}
+            value={formState.url_search_string}
             onChange={handleChange}
             helperText="For a very small number of news sources, we want to search within a subdomain
             (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string here,

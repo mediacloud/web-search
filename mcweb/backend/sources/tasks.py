@@ -23,9 +23,8 @@ import numpy as np
 
 # from sources app:
 from .models import Feed, Source, Collection
-
 # emails
-from util.send_emails import send_alert_email
+from util.send_emails import send_alert_email, send_email
 
 
 #rss fetcher
@@ -62,9 +61,9 @@ logger = logging.getLogger(__name__)
 # calling decorated_function.now() invokes decorated function synchronously.
 
 @background()
-def _scrape_source(source_id, homepage):
+def _scrape_source(source_id, homepage, user_email):
     logger.info(f"==== starting _scrape_source(source_id, homepage)")
-
+    # print("USERRRRR", user_email)
     # work around not having a column/index for normalized feed url:
     # create set of normalized urls of current feeds
     old_urls = set([normalize_url(feed.url)
@@ -80,6 +79,12 @@ def _scrape_source(source_id, homepage):
             logger.info(f"scrape_source({source_id}, {homepage}) found new feed {url}")
             feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
             feed.save()
+            #send email about new feed
+            subject = "[Media Cloud] New Feed Found"
+            body = f"A new feed with the url: {url} has been found and added"
+            from_email = 'noreply@mediacloud.org'
+            recepient = [user_email]
+            send_email(subject, body, from_email, recepient)
         else:
             logger.info(f"scrape_source({source_id}, {homepage}) found old feed {url}")
 
@@ -89,7 +94,7 @@ def _scrape_source(source_id, homepage):
 
 
 @background()
-def _scrape_collection(collection_id):
+def _scrape_collection(collection_id, user_email):
     logger.info(f"==== starting _scrape_collection(collection_id)")
 
     collection = Collection.objects.get(id=collection_id)
@@ -102,7 +107,7 @@ def _scrape_collection(collection_id):
         # check source.homepage not empty??
         if not source.homepage:
             return _return_error(f"source {source.id} missing homepage")
-        scraped_source_text = Source._scrape_source(source.id, source.homepage)
+        scraped_source_text = Source._scrape_source(source.id, source.homepage, user_email)
         email += f"{scraped_source_text} \n"
         logger.info(f"==== finished _scrape_source {source.name}")
         
@@ -143,17 +148,24 @@ def _alert_system(collection_ids):
         with RssFetcherApi() as rss:
         # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
           
-            email=""
+            email="test"
+            alert_dict = {
+                "high": [],
+                "low": [],
+                "fixed": []
+            }
             no_stories_alert = 0
             low_stories_alert = 0
             high_stories_alert = 0
+            fixed_source = 0
             for source in sources:
                 stories_fetched = rss.source_stories_fetched_by_day(source.id) 
                 # print(stories_fetched)
                 counts = [d['stories'] for d in stories_fetched]  # extract the count values
                 if not counts:
-                    email += f"\n Source {source.id}: {source.name} is NOT FETCHING STORIES, please check the feeds \n"
+                    # email += f"\n Source {source.id}: {source.name} is NOT FETCHING STORIES, please check the feeds \n"
                     no_stories_alert += 1
+                    source.alerted = True
                     continue
                 mean = np.mean(counts) 
                 std_dev = np.std(counts)
@@ -167,26 +179,36 @@ def _alert_system(collection_ids):
                 alert_status = _classify_alert(mean, mean_last_week, std_dev)
 
                 if alert_status == ALERT_LOW:
+                    alert_dict["low"].append(f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n")
                     email += f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n"
                     low_stories_alert += 1
+                    source.alerted = True
                 elif alert_status == ALERT_HIGH:
+                    alert_dict["high"].append(f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n")
                     email += f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n"
                     high_stories_alert += 1
-                else: 
+                    source.alerted = True
+                else:
+                    if source.alerted:
+                         alert_dict["fixed"].append(f"Source {source.id}: {source.name} was alerting before and is now fixed \n")
+                         fixed_source += 1
+                         source.alerted = False
                     logger.info(f"=====Source {source.name} is ingesting at regular levels")
                 # stories_published = rss.source_stories_published_by_day(source.id)
                 # counts_published = [d['count'] for d in stories_published] 
                 # mean_published = np.mean(counts_published)  
-                # std_dev_published = np.std(counts_published)  
-
+                # std_dev_published = np.std(counts_published)
+                source.save()  
+            print(alert_dict)
             if(email):
-                email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
+                # email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
                 email += f"HIGH ingestion alert count = {high_stories_alert} \n"
                 email += f"LOW ingestion alert count = {low_stories_alert} \n"
-                send_alert_email(email)
+                email += f"FIXED source count = {fixed_source} \n"
+                send_alert_email(alert_dict)
 
 def _classify_alert(month_mean, week_mean, std_dev):
-    range = std_dev * 2
+    range = std_dev * 1.5
     lower = month_mean - range
     upper = month_mean + range 
     if week_mean < lower:
@@ -250,7 +272,7 @@ def schedule_scrape_collection(collection_id, user):
     call this function from a view action to schedule a (re)scrape for a collection
     """
     collection = Collection.objects.get(id=collection_id)
-    task = _scrape_collection(collection_id, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
+    task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
 
     return {'task': _return_task(task)}
 
@@ -274,7 +296,7 @@ def schedule_scrape_source(source_id, user):
     # NOTE! Will remove any other pending scrapes for same source
     # rather than queuing a duplicate; the new user will "steal" the task
     # (leaving no trace of the old one). Returns a Task object.
-    task = _scrape_source(source_id, source.homepage, creator=user,
+    task = _scrape_source(source_id, source.homepage, user.email, creator=user,
                           verbose_name=f"rescrape {name_or_home}",
                           remove_existing_tasks=True)
     return {'task': _return_task(task)}

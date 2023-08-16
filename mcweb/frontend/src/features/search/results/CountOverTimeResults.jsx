@@ -13,7 +13,6 @@ import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
-import tabTitle from '../util/tabTitle';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -44,7 +43,7 @@ export default function CountOverTimeResults() {
   const [newQuery, setNewQuery] = useState(false);
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
@@ -52,7 +51,7 @@ export default function CountOverTimeResults() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);
@@ -60,11 +59,12 @@ export default function CountOverTimeResults() {
   }, [lastSearchTime, queryState.length]);
 
   useEffect(() => {
-    if (data || error) {
+    if ((data)) {
+      if ((data.count_over_time.length === queryState.length)) { executeScroll(); }
+    } else if (error) {
       executeScroll();
     }
   }, [data, error]);
-
   if (newQuery) return null;
   let content;
 
@@ -73,7 +73,6 @@ export default function CountOverTimeResults() {
   }
 
   if (!data && !error) return null;
-
   if (error) {
     // const msg = data.note;
     content = (
@@ -85,9 +84,11 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
-    const updatedPrepareCountOverTimeData = prepareCountOverTimeData(data.count_over_time, normalized, queryState).map(
+    const preparedData = prepareCountOverTimeData(data.count_over_time, normalized, queryState);
+    if (preparedData.length !== queryState.length) return null;
+    const updatedPrepareCountOverTimeData = preparedData.map(
       (originalDataObj, index) => {
-        const queryTitleForPreparation = { name: tabTitle(queryState, index) };
+        const queryTitleForPreparation = { name: queryState[index].name };
         return { ...queryTitleForPreparation, ...originalDataObj };
       },
     );
@@ -102,7 +103,7 @@ export default function CountOverTimeResults() {
             <div className="float-start">
               {normalized && (
                 <div>
-                  <Button onClick={handleClick} endIcon={<Settings titleAccess="view other chart viewing options" />}>
+                  <Button onClick={handleClick} startIcon={<Settings titleAccess="view other chart viewing options" />}>
                     View Options
                   </Button>
                   <Menu
@@ -153,7 +154,7 @@ export default function CountOverTimeResults() {
           <div className="float-end">
             <Button
               variant="text"
-              endIcon={<DownloadIcon titleAccess="download attention over time results" />}
+              startIcon={<DownloadIcon titleAccess="download attention over time results" />}
               onClick={() => {
                 handleDownloadRequest(queryState);
               }}

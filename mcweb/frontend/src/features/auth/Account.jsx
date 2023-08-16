@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Alert from '@mui/material/Alert';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
+import { useSnackbar } from 'notistack';
+import { useResetTokenMutation, useDeleteUserMutation } from '../../app/services/authApi';
 import Permissioned, { ROLE_STAFF } from './Permissioned';
-import { useDeleteUserMutation } from '../../app/services/authApi';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
@@ -12,8 +16,19 @@ import TaskList from '../tasks/TaskList';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
-  const [open, setOpen] = useState(false);
   const [deleteUser] = useDeleteUserMutation();
+  const [resetToken] = useResetTokenMutation();
+  const { enqueueSnackbar } = useSnackbar();
+  const [open, setOpen] = useState(false);
+
+  // show the snackbar for 1.25 second and then reload the screen
+  const logAndRefresh = (delay) => {
+    enqueueSnackbar('Token reset!', { variant: 'success' });
+    setTimeout(() => {
+      window.location.reload();
+    }, delay);
+  };
+
   return (
     <>
       <Header>
@@ -26,7 +41,29 @@ function Account() {
           <dt>Email:</dt>
           <dd>{currentUser.email}</dd>
           <dt>API Token:</dt>
-          <dd>{currentUser.token}</dd>
+          <div className="reset-token">
+            <dd>{currentUser.token}</dd>
+            <Tooltip
+              title="Generate a new token"
+              sx={{
+                color: 'black',
+              }}
+            >
+              <IconButton
+                onClick={async () => {
+                  try {
+                    await resetToken(currentUser.id).unwrap();
+                    logAndRefresh(1250);
+                  } catch (err) {
+                    enqueueSnackbar(`Token reset failed - ${err}`, { variant: 'error' });
+                  }
+                }}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+          </div>
+
           <Permissioned role={ROLE_STAFF}>
             <dt>Staff?</dt>
             <dd>{currentUser.isStaff ? 'yes' : 'no'}</dd>
@@ -52,7 +89,7 @@ function Account() {
             onClick={() => setOpen(true)}
             openDialog={open}
             variant="outlined"
-            endIcon={<DeleteIcon titleAccess="delete account" />}
+            startIcon={<DeleteIcon titleAccess="delete account" />}
             confirmButtonText="Delete"
           />
         </Alert>

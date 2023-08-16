@@ -17,7 +17,6 @@ import {
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareLanguageData from '../util/prepareLanguageData';
-import tabTitle from '../util/tabTitle';
 
 export default function TopLanguages() {
   const queryState = useSelector((state) => state.query);
@@ -40,14 +39,14 @@ export default function TopLanguages() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
     }
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);
@@ -72,7 +71,7 @@ export default function TopLanguages() {
       </Alert>
     );
   } else {
-    const queryTitleArrays = queryState.map((query, index) => tabTitle(queryState, index));
+    const queryTitleArrays = queryState.map((query, index) => queryState[index].name);
     content = (
       <>
         <div className="container">
@@ -106,7 +105,7 @@ export default function TopLanguages() {
           <div className="float-end">
             <Button
               variant="text"
-              endIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
+              startIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
               onClick={() => {
                 handleDownloadRequest(queryState);
               }}

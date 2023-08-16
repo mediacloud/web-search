@@ -17,7 +17,6 @@ import {
 import { selectCurrentUser } from '../../auth/authSlice';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
-import tabTitle from '../util/tabTitle';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 
 export const supportsNormalizedCount = (platform) =>
@@ -69,7 +68,7 @@ function TotalAttentionResults() {
   };
 
   useEffect(() => {
-    if (checkForBlankQuery(queryState)) {
+    if (!checkForBlankQuery(queryState)) {
       const preparedQueries = prepareQueries(queryState);
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
@@ -77,7 +76,7 @@ function TotalAttentionResults() {
   }, [lastSearchTime]);
 
   useEffect(() => {
-    if (!checkForBlankQuery(queryState) && queryState.length === 1) {
+    if (checkForBlankQuery(queryState) && queryState.length === 1) {
       setNewQuery(true);
     } else {
       setNewQuery(false);
@@ -108,9 +107,11 @@ function TotalAttentionResults() {
       </Alert>
     );
   } else {
-    const updatedTotalAttentionData = prepareTotalAttentionData(data, normalized).map(
+    const preparedTAdata = prepareTotalAttentionData(data, normalized);
+    if (preparedTAdata.length !== queryState.length) return null;
+    const updatedTotalAttentionData = preparedTAdata.map(
       (originalDataObj, index) => {
-        const queryTitleForPreparation = { name: tabTitle(queryState, index) };
+        const queryTitleForPreparation = { name: queryState[index].name };
         return { ...queryTitleForPreparation, ...originalDataObj };
       },
     );
@@ -132,7 +133,7 @@ function TotalAttentionResults() {
                 <div>
                   <Button
                     onClick={handleClick}
-                    endIcon={
+                    startIcon={
                       <Settings titleAccess="view other chart viewing options" />
                     }
                   >
@@ -190,7 +191,7 @@ function TotalAttentionResults() {
               <TotalAttentionEmailModal
                 outsideTitle="Download CSV of All Content"
                 title={
-                  `Your current email is: ${currentUserEmail}. 
+                  `Your current email is: ${currentUserEmail}
                   Would you like to send your downloaded data to your current email or a new email?`
                 }
                 content="Enter a new email?"

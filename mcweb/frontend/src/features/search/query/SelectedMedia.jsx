@@ -20,6 +20,8 @@ export default function SelectedMedia({
 
   const dispatch = useDispatch();
 
+  // const preview = platform === 'onlinenews-mediacloud' || platform === 'onlinenews-waybackmachine';
+
   const {
     data: collectionsData,
     isLoadingCollections,
@@ -40,59 +42,59 @@ export default function SelectedMedia({
       <div className="selected-media-item-list">
         {sourcesData && (
 
-        <div>
-          {sourcesData.sources.map((source) => (
-            <div className="selected-media-item" key={`selected-media-${source.id}`}>
-              <Link
-                target="_blank"
-                to={`/sources/${source.id}`}
-                style={{
-                  display: 'block',
-                  whiteSpace: 'normal',
-                  width: '100%',
-                }}
-              >
-                {source.label || source.name}
-              </Link>
-              <IconButton
-                size="small"
-                aria-label="remove"
-                onClick={() => dispatch(onRemove({ sourceOrCollection: { type: 'source', id: source.id }, queryIndex }))}
-              >
-                <RemoveCircleIcon sx={{ color: '#d24527' }} />
-              </IconButton>
-            </div>
-          ))}
-        </div>
+          <div>
+            {sourcesData.sources.map((source) => (
+              <div className="selected-media-item" key={`selected-media-${source.id}`}>
+                <Link
+                  target="_blank"
+                  to={`/sources/${source.id}`}
+                  style={{
+                    display: 'block',
+                    whiteSpace: 'normal',
+                    width: '100%',
+                  }}
+                >
+                  {source.label || source.name}
+                </Link>
+                <IconButton
+                  size="small"
+                  aria-label="remove"
+                  onClick={() => dispatch(onRemove({ sourceOrCollection: { type: 'source', id: source.id }, queryIndex }))}
+                >
+                  <RemoveCircleIcon sx={{ color: '#d24527' }} />
+                </IconButton>
+              </div>
+            ))}
+          </div>
         )}
 
         {collectionsData && (
 
-        <div>
-          {collectionsData.collections.map((collection) => (
-            <div className="selected-media-item" key={`selected-media-${collection.id}`}>
-              <Link
-                target="_blank"
-                to={`/collections/${collection.id}`}
-                style={{
-                  display: 'block',
-                  whiteSpace: 'normal',
-                  width: '100%',
-                }}
-              >
-                {collection.name}
-              </Link>
+          <div>
+            {collectionsData.collections.map((collection) => (
+              <div className="selected-media-item" key={`selected-media-${collection.id}`}>
+                <Link
+                  target="_blank"
+                  to={`/collections/${collection.id}`}
+                  style={{
+                    display: 'block',
+                    whiteSpace: 'normal',
+                    width: '100%',
+                  }}
+                >
+                  {collection.name}
+                </Link>
 
-              <IconButton
-                size="small"
-                aria-label="remove"
-                onClick={() => dispatch(onRemove({ sourceOrCollection: { type: 'collection', id: collection.id }, queryIndex }))}
-              >
-                <RemoveCircleIcon sx={{ color: '#d24527' }} />
-              </IconButton>
-            </div>
-          ))}
-        </div>
+                <IconButton
+                  size="small"
+                  aria-label="remove"
+                  onClick={() => dispatch(onRemove({ sourceOrCollection: { type: 'collection', id: collection.id }, queryIndex }))}
+                >
+                  <RemoveCircleIcon sx={{ color: '#d24527' }} />
+                </IconButton>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
