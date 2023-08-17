@@ -181,31 +181,31 @@ export const setState = (
   }
 };
 
-const queryArrayFromSearchParams = (searchParams) => {
-  const query = searchParams.get('q');
-  const negatedQuery = searchParams.get('nq');
-  const startDates = searchParams.get('start');
-  const endDates = searchParams.get('end');
-  const platforms = searchParams.get('p');
-  const collections = searchParams.get('cs');
-  const sources = searchParams.get('ss');
-  const anyAlls = searchParams.get('any');
-  const queryStrings = searchParams.get('qs');
+// const queryArrayFromSearchParams = (searchParams) => {
+//   const query = searchParams.get('q');
+//   const negatedQuery = searchParams.get('nq');
+//   const startDates = searchParams.get('start');
+//   const endDates = searchParams.get('end');
+//   const platforms = searchParams.get('p');
+//   const collections = searchParams.get('cs');
+//   const sources = searchParams.get('ss');
+//   const anyAlls = searchParams.get('any');
+//   const queryStrings = searchParams.get('qs');
 
-  return {
-    query,
-    negatedQuery,
-    startDates,
-    endDates,
-    platforms,
-    collections,
-    sources,
-    anyAlls,
-    queryStrings,
-  };
-};
+//   return {
+//     query,
+//     negatedQuery,
+//     startDates,
+//     endDates,
+//     platforms,
+//     collections,
+//     sources,
+//     anyAlls,
+//     queryStrings,
+//   };
+// };
 
-export const setSearchQuery = (searchParams, dispatch, savedSearchBool) => {
+export const setSearchQuery = (searchParams, dispatch) => {
   dayjs.extend(customParseFormat);
   // param keys are set in ./urlSerializer.js
   let query = searchParams.get('q');

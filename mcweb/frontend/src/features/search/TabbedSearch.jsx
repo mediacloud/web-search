@@ -15,7 +15,7 @@ import LoadSavedSearches from './query/savedsearch/LoadSavedSearches';
 import SaveSearch from './query/savedsearch/SaveSearch';
 import TabDropDownMenu from '../ui/TabDropDownMenu';
 import {
-  addQuery, setLastSearchTime, removeQuery, setQueryProperty,
+  addQuery, setLastSearchTime, removeQuery, setQueryProperty, addComparativeQuery,
 } from './query/querySlice';
 import Search from './query/Search';
 import PlatformPicker from './query/PlatformPicker';
@@ -27,6 +27,7 @@ import TopLanguages from './results/TopLanguages';
 import SampleStories from './results/SampleStories';
 import TabPanelHelper from '../ui/TabPanelHelper';
 import { searchApi } from '../../app/services/searchApi';
+import { PARTISAN, GLOBAL } from './util/generateComparativeQuery';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import isNumber from './util/isNumber';
@@ -134,6 +135,16 @@ export default function TabbedSearch() {
     setAnchorEl(null);
   };
 
+  const handleComparative = (i, type) => {
+    if (type === PARTISAN) {
+      dispatch(addComparativeQuery({ type: PARTISAN, query: queryState[i] }));
+    }
+    if (type === GLOBAL) {
+      dispatch(addComparativeQuery({ type: GLOBAL, query: queryState[i] }));
+    }
+    setAnchorEl(null);
+  };
+
   return (
     <div className="container search-container">
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
@@ -212,6 +223,7 @@ export default function TabbedSearch() {
                         setEdit(updatedEdit);
                       }}
                       handleMenuOpen={handleMenuOpen}
+                      handleComparative={(type) => handleComparative(i, type)}
                     />
                   </Box>
                 )}
