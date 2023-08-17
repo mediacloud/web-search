@@ -6,7 +6,6 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useCreateSavedSearchMutation } from '../../../../app/services/savedsearchApi';
 import urlSerializer from '../../util/urlSerializer';
 
@@ -38,12 +37,14 @@ export default function SaveSearch() {
 
   return (
     <>
-      <Button variant="outlined" color="primary" onClick={handleClickOpen} endIcon={<MoreVertIcon />}>
-        Save Search
+      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+        Save Search...
       </Button>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Save Search</DialogTitle>
+        <DialogTitle>Save Your Search</DialogTitle>
         <DialogContent>
+          Name Your search, so you can remember what it is later. Once you save it, you will be able to load this search
+          again by clicking the &quot;Load Saved Search&quot; button.
           <TextField label="Search Name" value={name} onChange={handleNameChange} fullWidth />
         </DialogContent>
         <DialogActions>

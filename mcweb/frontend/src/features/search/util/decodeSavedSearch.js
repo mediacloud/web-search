@@ -1,35 +1,33 @@
-import dayjs from 'dayjs';
+import { decode, handleDecode } from './setSearchQuery';
 
-import { decode, handleDecode, decodeAndFormatCorpus } from './setSearchQuery';
+// const formatQuery = (queries) => {
+//   if (queries === null) return null;
+//   const finalQuery = new Array(queries.length);
+//   queries.forEach((query, i) => {
+//     const decoded = handleDecode([query]);
+//     decoded[0] = decoded[0] === '' ? [] : decoded[0];
+//     finalQuery[i] = decoded;
+//   });
+//   const flattenedQuery = [].concat(...finalQuery);
+//   return flattenedQuery;
+// };
 
-const formatQuery = (queries) => {
-  if (queries === null) return null;
-  const finalQuery = new Array(queries.length);
-  queries.forEach((query, i) => {
-    const decoded = handleDecode([query]);
-    decoded[0] = decoded[0] === '' ? [] : decoded[0];
-    finalQuery[i] = decoded;
-  });
-  const flattenedQuery = [].concat(...finalQuery);
-  return flattenedQuery;
-};
+// const sizeQuery = (queryArray) => {
+//   if (!queryArray) return [[], [], []];
 
-const sizeQuery = (queryArray) => {
-  if (!queryArray) return [[], [], []];
+//   if (queryArray.length >= 3) return queryArray;
+//   if (queryArray.length === 2) {
+//     queryArray.push([]);
+//   }
+//   if (queryArray.length === 1) {
+//     queryArray.push([], []);
+//   }
+//   return queryArray;
+// };
 
-  if (queryArray.length >= 3) return queryArray;
-  if (queryArray.length === 2) {
-    queryArray.push([]);
-  }
-  if (queryArray.length === 1) {
-    queryArray.push([], []);
-  }
-  return queryArray;
-};
-
-const handleDateFormat = (dateString) => (
-  dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
-);
+// const handleDateFormat = (dateString) => (
+//   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
+// );
 
 const decodeSavedSearch = (url) => {
   const [, fullquery] = url.split('?');
@@ -38,7 +36,7 @@ const decodeSavedSearch = (url) => {
 
   let query = fullquery.split('&')[0].split('=')[1];
   query = decode(query);
-  console.log('decode query', query);
+
   // query = query ? query.split(',') : null;
 
   // query = formatQuery(query);
@@ -53,19 +51,16 @@ const decodeSavedSearch = (url) => {
   // negatedQuery = formatQuery(negatedQuery);
 
   // negatedQuery = negatedQuery ? sizeQuery(negatedQuery) : null;
-  console.log('decode negquery', negatedQuery);
 
   let start = fullquery.split('=')[3].split('&')[0];
   start = start ? handleDecode(start).join(',') : null;
 
   // start = handleDateFormat(start);
-  console.log(start, 'start decode');
 
   let end = fullquery.split('=')[4].split('&')[0];
   end = end ? handleDecode(end).join(',') : null;
 
   // end = handleDateFormat(end);
-  console.log(end, 'end decode');
 
   let platforms = fullquery.split('=')[5].split('&')[0];
   platforms = platforms ? handleDecode(platforms).join(',') : null;
@@ -88,15 +83,12 @@ const decodeSavedSearch = (url) => {
   let anyAlls = fullquery.split('=')[8].split('&')[0];
   anyAlls = handleDecode(anyAlls).join(',');
 
-  // queries,
-  // negatedQueries,
-  // queryStrings,
-  // startDates,
-  // endDates,
-  // platforms,
-  // media,
-  // anyAlls,
-  // console.log(query, negatedQuery, platforms, start, end, collections, sources, anyAlls);
+  let names = fullquery.split('=')[9].split('&')[0];
+  names = handleDecode(names).join(', ');
+
+  let edited = fullquery.split('=')[10].split('&')[0];
+  edited = handleDecode(edited).join(',');
+
   return {
     queryStrings: '',
     query,
@@ -110,6 +102,8 @@ const decodeSavedSearch = (url) => {
     previewSources: sources,
     anyAlls,
     advanced,
+    names,
+    edited,
   };
 };
 

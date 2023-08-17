@@ -7,14 +7,12 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import SearchIcon from '@mui/icons-material/Search';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
 import LoadSavedSearches from './query/savedsearch/LoadSavedSearches';
 import SaveSearch from './query/savedsearch/SaveSearch';
-import { addQuery, setLastSearchTime, removeQuery } from './query/querySlice';
 import TabDropDownMenu from '../ui/TabDropDownMenu';
 import {
   addQuery, setLastSearchTime, removeQuery, setQueryProperty,
@@ -145,7 +143,7 @@ export default function TabbedSearch() {
             {queryState.map((query, i) => (
               <Tab
                 disableRipple
-                key={i}
+                key={query.queryIndex}
                 sx={{ marginRight: 0.5 }}
                 style={{ outline: `4px solid ${color[i]}`, outlineOffset: '-4px', borderRadius: '4px' }}
                 label={(
@@ -226,7 +224,7 @@ export default function TabbedSearch() {
         </Box>
 
         {queryState.map((query, i) => (
-          <TabPanelHelper key={i} value={value} index={i}>
+          <TabPanelHelper key={query.queryIndex} value={value} index={i}>
             <Search queryIndex={i} />
           </TabPanelHelper>
         ))}
@@ -234,34 +232,12 @@ export default function TabbedSearch() {
 
       <div className="search-button-wrapper">
 
-        <div className="start-buttons">
-          <div>
-            <AlertDialog
-              openDialog={open}
-              outsideTitle={<ContentCopy titleAccess="copy this search" />}
-              title="Share this Search"
-              content={<code>{`search.mediacloud.org/search?${urlSerializer(queryState)}`}</code>}
-              action={handleShare}
-              actionTarget
-              snackbar
-              snackbarText="Search copied to clipboard!"
-              dispatchNeeded={false}
-              onClick={() => setOpen(true)}
-              variant="outlined"
-              endIcon={<MoreVertIcon titleAccess="copy this search" />}
-              secondAction={false}
-              confirmButtonText="copy"
-            />
-          </div>
-          <div>
-            <LoadSavedSearches />
-          </div>
         <div className="container">
           <div className="row">
-            <div className="col-11">
+            <div className="col-2">
               <AlertDialog
                 openDialog={open}
-                outsideTitle="Share this Search"
+                outsideTitle="Share Search"
                 title="Share this Search"
                 content={<code>{`search.mediacloud.org/search?${urlSerializer(queryState)}`}</code>}
                 action={handleShare}
@@ -276,6 +252,14 @@ export default function TabbedSearch() {
                 className="float-end"
                 confirmButtonText="copy"
               />
+            </div>
+
+            <div className="col-7">
+              <LoadSavedSearches />
+            </div>
+
+            <div className="col-2">
+              <SaveSearch />
             </div>
 
             <div className="col-1">
@@ -314,37 +298,15 @@ export default function TabbedSearch() {
           </div>
         </div>
 
-        <div className="end-buttons">
-          <div>
-            <SaveSearch />
-          </div>
-          <div>
-            <Button
-              variant="contained"
-              disabled={!show}
-              endIcon={<SearchIcon titleAccess="search this query" />}
-              onClick={() => {
-                navigate(`/search?${urlSerializer(queryState)}`, { options: { replace: true } });
-                dispatch(searchApi.util.resetApiState());
-                dispatch(setLastSearchTime(dayjs().unix()));
-              }}
-            >
-              Search
-            </Button>
+        <div className="search-results-wrapper">
+          <div className="container">
+            <CountOverTimeResults />
+            <TotalAttentionResults />
+            <SampleStories />
+            <TopWords />
+            <TopLanguages />
           </div>
         </div>
-
-      </div>
-
-      <div className="search-results-wrapper">
-        <div className="container">
-          <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
-          <TopWords />
-          <TopLanguages />
-        </div>
-      </div>
       </div>
     </div>
   );
