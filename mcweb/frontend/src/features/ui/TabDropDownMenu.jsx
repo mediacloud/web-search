@@ -77,7 +77,7 @@ export default function TabDropDownMenuItems({
       {/* Color Submenu */}
       <Menu
         hideBackdrop
-        sx={{ marginLeft: '120px', marginTop: '20px' }}
+        sx={{ marginLeft: '232.5px', marginTop: '100px' }}
         style={{ pointerEvents: 'none' }}
         open={colorSubMenuOpen && open && Boolean(anchorEl)}
         anchorEl={anchorEl}
