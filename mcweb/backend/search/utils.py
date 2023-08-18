@@ -2,7 +2,6 @@ import datetime as dt
 import json
 from typing import List, Dict
 from django.apps import apps
-from settings import MC_API_KEY, YOUTUBE_API_KEY
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
@@ -41,13 +40,6 @@ def parse_query(request, http_method: str = 'POST') -> tuple:
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
     return start_date, end_date, query_str, provider_props, provider_name
-
-def _get_api_key(provider): 
-    if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
-        return YOUTUBE_API_KEY
-    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
-        return MC_API_KEY
-    return None
 
 
 def search_props_for_provider(provider, collections: List, sources: List) -> Dict:
