@@ -60,9 +60,9 @@ def total_count(request):
     total_content_count = []
     relevant_count = []
     for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         relevant_count.append(provider.count(
             query_str, start_date, end_date, **provider_props))
         try:
@@ -85,9 +85,9 @@ def count_over_time(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
     for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         try:
             results = provider.normalized_count_over_time(
                 query_str, start_date, end_date, **provider_props)
@@ -110,9 +110,9 @@ def sample(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
     for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         response.append(provider.sample(
             query_str, start_date, end_date, **provider_props))
     QuotaHistory.increment(
@@ -141,9 +141,9 @@ def languages(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
     for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         response.append(provider.languages(
             query_str, start_date, end_date, **provider_props))
         QuotaHistory.increment(
@@ -158,9 +158,9 @@ def download_languages_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
             data.append(provider.languages(
                 query_str, start_date, end_date, **provider_props))
@@ -191,9 +191,9 @@ def words(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
     for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         words = provider.words(query_str, start_date,
                                end_date, **provider_props)
         response.append(add_ratios(words))
@@ -209,9 +209,9 @@ def download_words_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
             words = provider.words(query_str, start_date,
                                    end_date, **provider_props)
@@ -248,9 +248,9 @@ def download_counts_over_time_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         try:
             data.append(provider.normalized_count_over_time(
                 query_str, start_date, end_date, **provider_props))
@@ -289,9 +289,9 @@ def download_all_content_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        provider = providers.provider_by_name(provider_name)
         data.append(provider.all_items(
             query_str, start_date, end_date, **provider_props))
 
@@ -326,8 +326,8 @@ def send_email_large_download_csv(request):
 
     # follows similiar logic from download_all_content_csv, get information and send to tasks
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        provider = providers.provider_by_name(provider_name)
         try:
             count = provider.count(query_str, start_date, end_date, **provider_props)
             if count >= 25000 and count <= 200000:
