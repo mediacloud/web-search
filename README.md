@@ -5,7 +5,7 @@ Media Cloud Web Search and Source Management App
 
 This is the new Media Cloud search application. It is intended to support online media research across platforms such
 as online news, Twitter, Reddit, and other social media (via 3rd party APIs). We also use it to manage a large set of 
-geographical and topical content collections, supporting reseearch into specific sub-corpora of content on those
+geographical and topical content collections, supporting research into specific sub-corpora of content on those
 platforms.
 
 _Expected to launch publicly in early 2023_
@@ -13,10 +13,10 @@ _Expected to launch publicly in early 2023_
 Installation
 ------------
 1. Clone this repository
-2. Install python, npm, postgres and redis
+2. Install Python, npm, postgres and redis
 3. Python: `pip install -r requirements.txt` or `conda install --file requirements.txt` 
 4. Node: `npm install` in base folder 
-5. Copy `mcweb/.env.template` to `mcweb/.env` and edit that one to enter in all your secret configuration variables
+5. Copy `mcweb/.env.template` to `mcweb/.env` and edit that one to enter all your secret configuration variables
 6. `python mcweb/manage.py migrate` to create all the database tables needed
 7. `python mcweb/manage.py createsuperuser` to create a Django superuser for administration
 
