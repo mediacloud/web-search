@@ -11,6 +11,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
+import LoadSavedSearches from './query/savedsearch/LoadSavedSearches';
+import SaveSearch from './query/savedsearch/SaveSearch';
 import TabDropDownMenu from '../ui/TabDropDownMenu';
 import {
   addQuery, setLastSearchTime, removeQuery, setQueryProperty,
@@ -141,7 +143,7 @@ export default function TabbedSearch() {
             {queryState.map((query, i) => (
               <Tab
                 disableRipple
-                key={i}
+                key={query.queryIndex}
                 sx={{ marginRight: 0.5 }}
                 style={{ outline: `4px solid ${color[i]}`, outlineOffset: '-4px', borderRadius: '4px' }}
                 label={(
@@ -222,19 +224,20 @@ export default function TabbedSearch() {
         </Box>
 
         {queryState.map((query, i) => (
-          <TabPanelHelper key={i} value={value} index={i}>
+          <TabPanelHelper key={query.queryIndex} value={value} index={i}>
             <Search queryIndex={i} />
           </TabPanelHelper>
         ))}
       </Box>
 
       <div className="search-button-wrapper">
+
         <div className="container">
           <div className="row">
-            <div className="col-11">
+            <div className="col-2">
               <AlertDialog
                 openDialog={open}
-                outsideTitle="Share this Search"
+                outsideTitle="Share Search"
                 title="Share this Search"
                 content={<code>{`search.mediacloud.org/search?${urlSerializer(queryState)}`}</code>}
                 action={handleShare}
@@ -249,6 +252,14 @@ export default function TabbedSearch() {
                 className="float-end"
                 confirmButtonText="copy"
               />
+            </div>
+
+            <div className="col-7">
+              <LoadSavedSearches />
+            </div>
+
+            <div className="col-2">
+              <SaveSearch />
             </div>
 
             <div className="col-1">
@@ -286,6 +297,7 @@ export default function TabbedSearch() {
             </div>
           </div>
         </div>
+
       </div>
       <div className="search-results-wrapper">
         <div className="container">
