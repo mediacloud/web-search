@@ -59,7 +59,7 @@ const urlSerializer = (queryState) => {
     const collectionsFormatted = formatCollections(collections).join(',');
     collectionArr.push([encode(collectionsFormatted)]);
 
-    const sourcesFormatted = formatSources(sources).join(',');
+    const sourcesFormatted = sources ? formatSources(sources).join(',') : [];
     sourceArr.push([encode(sourcesFormatted)]);
 
     anys.push(anyAll);

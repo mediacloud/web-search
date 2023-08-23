@@ -119,6 +119,25 @@
     border-top: 1px solid #eee;
     border-bottom: 1px solid #eee;
     padding: 15px 0px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .start-buttons {
+    display: flex;
+    margin-left: 40px;
+    div {
+      padding-right: 10px ;
+    }
+  }
+
+  .end-buttons {
+    display: flex;
+    margin-right: 30px;
+  }
+
+  div {
+    padding-left: 10px ;
   }
   
 }

@@ -10,15 +10,15 @@ import {
 
 const customParseFormat = require('dayjs/plugin/customParseFormat');
 
-const decode = (params) => decodeURIComponent(params);
+export const decode = (params) => decodeURIComponent(params);
 
-const handleDecode = (param) => {
+export const handleDecode = (param) => {
   const decoded = decode(param);
   const split = decoded.split(',');
   return split;
 };
 
-const formatQuery = (queries) => {
+export const formatQuery = (queries) => {
   if (queries === null) return null;
   const finalQuery = new Array(queries.length);
   queries.forEach((query, i) => {
@@ -30,7 +30,7 @@ const formatQuery = (queries) => {
 };
 
 // if query length is less than 3 (default size for search) make length 3
-const sizeQuery = (queryArray) => queryArray.map((query) => {
+export const sizeQuery = (queryArray) => queryArray.map((query) => {
   if (!query) return [[], [], []];
   if (query.length >= 3) return query;
   if (query.length === 2) {
@@ -42,7 +42,7 @@ const sizeQuery = (queryArray) => queryArray.map((query) => {
   return query;
 });
 
-const combineQueryMedia = (cs, ss) => {
+export const combineQueryMedia = (cs, ss) => {
   const queryLength = cs.length === 0 ? ss.length : cs.length;
   const mediaArr = new Array(queryLength);
 
@@ -63,7 +63,7 @@ const combineQueryMedia = (cs, ss) => {
   return mediaArr;
 };
 
-const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
+export const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
   const returnArr = new Array(mediaArray.length);
   mediaArray.forEach((queryCorpus, i) => {
     const decoded = handleDecode([queryCorpus]);
@@ -84,11 +84,11 @@ const decodeAndFormatCorpus = (mediaArray, collectionBool) => {
   return returnArr;
 };
 
-const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
+export const handleDateFormat = (datesArray) => datesArray.map((dateString) => (
   dayjs(dateString, 'MM/DD/YYYY').format('MM/DD/YYYY')
 ));
 
-const setState = (
+export const setState = (
   queries,
   negatedQueries,
   queryStrings,
@@ -181,7 +181,31 @@ const setState = (
   }
 };
 
-const setSearchQuery = (searchParams, dispatch) => {
+// const queryArrayFromSearchParams = (searchParams) => {
+//   const query = searchParams.get('q');
+//   const negatedQuery = searchParams.get('nq');
+//   const startDates = searchParams.get('start');
+//   const endDates = searchParams.get('end');
+//   const platforms = searchParams.get('p');
+//   const collections = searchParams.get('cs');
+//   const sources = searchParams.get('ss');
+//   const anyAlls = searchParams.get('any');
+//   const queryStrings = searchParams.get('qs');
+
+//   return {
+//     query,
+//     negatedQuery,
+//     startDates,
+//     endDates,
+//     platforms,
+//     collections,
+//     sources,
+//     anyAlls,
+//     queryStrings,
+//   };
+// };
+
+export const setSearchQuery = (searchParams, dispatch) => {
   dayjs.extend(customParseFormat);
   // param keys are set in ./urlSerializer.js
   let query = searchParams.get('q');
@@ -231,5 +255,3 @@ const setSearchQuery = (searchParams, dispatch) => {
 
   return null;
 };
-
-export default setSearchQuery;

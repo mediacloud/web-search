@@ -11,6 +11,7 @@ import uiReducer from '../features/ui/uiSlice';
 import queryReducer from '../features/search/query/querySlice';
 import resultsReducer from '../features/search/resultsSlice';
 import rtkQueryErrorLogger from './middleware';
+import { savedsearchApi } from './services/savedsearchApi';
 
 let store; // singleton store
 
@@ -25,6 +26,9 @@ const setupStore = () => {
       // search api responsible for totalAttention
       [searchApi.reducerPath]: searchApi.reducer,
       search: searchReducer,
+
+      // search api responsible for totalAttention
+      [savedsearchApi.reducerPath]: savedsearchApi.reducer,
 
       // api responsible for all Sources or Collections CRUD
       [managerApi.reducerPath]: managerApi.reducer,
@@ -42,6 +46,7 @@ const setupStore = () => {
       authApi.middleware,
       searchApi.middleware,
       managerApi.middleware,
+      savedsearchApi.middleware,
       rtkQueryErrorLogger,
     ),
 

@@ -37,7 +37,6 @@ export default function SelectedMedia({
   }
 
   if (!collectionsData && !sourcesData) return null;
-
   return (
     <div className="selected-media-container">
       <div className="selected-media-item-list">
