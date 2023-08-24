@@ -23,3 +23,4 @@ django-background-tasks-updated==1.2.* # need >= 1.2.6
 feed-seeker==1.0.*
 numpy
 pandas
+q
