@@ -108,7 +108,6 @@ def count_over_time(request):
 @require_http_methods(["POST"])
 def sample(request):
     payload = json.loads(request.body).get("queryObject")
-    start_time = time.time()
     response = []
     for query in payload:
         start_date, end_date, query_str, provider_props, provider_name = parse_query(
@@ -118,8 +117,6 @@ def sample(request):
             query_str, start_date, end_date, **provider_props))
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
-    end_time = time.time()
-    print(str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
