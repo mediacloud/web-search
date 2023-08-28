@@ -19,7 +19,8 @@ from mc_providers.exceptions import UnsupportedOperationException, QueryingEvery
 from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_REDDIT
 from mc_providers.exceptions import ProviderException
 from mc_providers.cache import CachingManager
-
+import threading
+import time
 from util.cache import django_caching_interface
 logger = logging.getLogger(__name__)
 
@@ -78,29 +79,53 @@ def total_count(request):
                         content_type="application/json", status=200)
 
 
+def process_query(name, query):
+    print(name)
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+    provider = providers.provider_by_name(provider_name)
+    try: 
+        results = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+    except UnsupportedOperationException:
+        logger.debug("NORMALIZED COUNT OVER TIME: %s, %s" % (start_date, end_date))
+        results = None  # Set results to None in case of error
+    return name, results
+
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
-@require_http_methods(["POST"])
+# Modify count_over_time to convert response to an array
+@handle_provider_errors
 def count_over_time(request):
+    start_time = time.time()
     payload = json.loads(request.body).get("queryObject")
     response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name)
-        try:
-            results = provider.normalized_count_over_time(
-                query_str, start_date, end_date, **provider_props)
-        except UnsupportedOperationException:
-            # for platforms that don't support querying over time
-            results = provider.count_over_time(
-                query_str, start_date, end_date, **provider_props)
-        # logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
-        response.append(results)
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name)
-    return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
-                        status=200)
+    threads = []
+    
+    def process_and_store_result(thread_name, query, result_index):
+        thread_response = process_query(thread_name, query)
+        response[result_index] = thread_response
+
+    for queryIndex, query in enumerate(payload):
+        response.append(None)  # Add a placeholder for the result
+        thread = threading.Thread(target=process_and_store_result, args=(f"Thread-{queryIndex+1}", query, queryIndex))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    # Convert response to an array
+    final_response = []
+    for thread_result in response:
+        if thread_result is not None:
+            thread_name, thread_result = thread_result
+            final_response.append(thread_result)
+    end_time = time.time()
+    print(str(round(end_time-start_time, 2)))
+    return HttpResponse(json.dumps({"count_over_time": final_response}, default=str), content_type="application/json", status=200)
+
+
+
+
 
 
 @login_required(redirect_field_name='/auth/login')
