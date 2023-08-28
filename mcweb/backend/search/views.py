@@ -79,8 +79,7 @@ def total_count(request):
                         content_type="application/json", status=200)
 
 
-def process_query(name, query):
-    print(name)
+def process_query(query):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
     provider = providers.provider_by_name(provider_name)
     try: 
@@ -88,25 +87,24 @@ def process_query(name, query):
     except UnsupportedOperationException:
         logger.debug("NORMALIZED COUNT OVER TIME: %s, %s" % (start_date, end_date))
         results = None  # Set results to None in case of error
-    return name, results
+    return results, provider_name
 
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
-# Modify count_over_time to convert response to an array
 @handle_provider_errors
 def count_over_time(request):
-    start_time = time.time()
     payload = json.loads(request.body).get("queryObject")
+    start_time = time.time()
     response = []
     threads = []
     
-    def process_and_store_result(thread_name, query, result_index):
-        thread_response = process_query(thread_name, query)
-        response[result_index] = thread_response
+    def process_and_store_result(query, result_index):
+        thread_response, provider_name = process_query(query)
+        response[result_index] = (thread_response, provider_name)  # Store both thread_response and provider_name
 
     for queryIndex, query in enumerate(payload):
         response.append(None)  # Add a placeholder for the result
-        thread = threading.Thread(target=process_and_store_result, args=(f"Thread-{queryIndex+1}", query, queryIndex))
+        thread = threading.Thread(target=process_and_store_result, args=(query, queryIndex))
         threads.append(thread)
         thread.start()
 
@@ -117,8 +115,12 @@ def count_over_time(request):
     final_response = []
     for thread_result in response:
         if thread_result is not None:
-            thread_name, thread_result = thread_result
-            final_response.append(thread_result)
+            thread_response, provider_name = thread_result  # Unpack the stored values
+            final_response.append(thread_response)
+            if len(final_response) <= 1: # increment QuotaHistory but only once
+                QuotaHistory.increment(
+                    request.user.id, request.user.is_staff, provider_name)  # Use provider_name for QuotaHistory
+
     end_time = time.time()
     print(str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count_over_time": final_response}, default=str), content_type="application/json", status=200)
@@ -126,24 +128,45 @@ def count_over_time(request):
 
 
 
-
+def process_sample(query):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(
+            query)
+    provider = providers.provider_by_name(provider_name)
+    result = provider.sample(query_str, start_date, end_date, **provider_props)
+    return result, provider_name
 
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def sample(request):
     payload = json.loads(request.body).get("queryObject")
+    start_time = time.time()
     response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name)
-        response.append(provider.sample(
-            query_str, start_date, end_date, **provider_props))
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name)
-    return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
-                        status=200)
+    threads = []
+     
+    def process_and_store_result(query, result_index):
+        thread_response = process_sample(query)
+        response[result_index] = thread_response
+
+    for queryIndex, query in enumerate(payload):
+        response.append(None)
+        thread = threading.Thread(target=process_and_store_result, args=(query, queryIndex))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    # Convert response to an array
+    final_response = []
+    for thread_result in response:
+        thread_response, provider_name = thread_result  # Unpack the stored values
+        final_response.append(thread_response)
+        if len(final_response) <= 1: # increment QuotaHistory but only once
+            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)  # Use provider_name for QuotaHistory
+    end_time = time.time()
+    print(str(round(end_time-start_time, 2)))
+    return HttpResponse(json.dumps({"sample": final_response}, default=str), content_type="application/json", status=200)
 
 
 @login_required(redirect_field_name='/auth/login')
