@@ -96,7 +96,7 @@ def total_count(request):
         if len(relevant_count) <= 1: # increment QuotaHistory but only once
             QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)  # Use provider_name for QuotaHistory
     end_time = time.time()
-    print("time: " + str(round(end_time-start_time, 2)))
+    print("total count time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
@@ -144,7 +144,7 @@ def count_over_time(request):
                     request.user.id, request.user.is_staff, provider_name)  # Use provider_name for QuotaHistory
 
     end_time = time.time()
-    print(str(round(end_time-start_time, 2)))
+    print("count_over_time time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count_over_time": final_response}, default=str), content_type="application/json", status=200)
 
 
@@ -187,7 +187,7 @@ def sample(request):
         if len(final_response) <= 1: # increment QuotaHistory but only once
             QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)  # Use provider_name for QuotaHistory
     end_time = time.time()
-    print(str(round(end_time-start_time, 2)))
+    print("sample time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"sample": final_response}, default=str), content_type="application/json", status=200)
 
 
@@ -239,24 +239,6 @@ def download_languages_csv(request):
 
 
 
-@handle_provider_errors
-@require_http_methods(["POST"])
-def languages(request):
-    payload = json.loads(request.body).get("queryObject")
-    response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name)
-        response.append(provider.languages(
-            query_str, start_date, end_date, **provider_props))
-        QuotaHistory.increment(
-            request.user.id, request.user.is_staff, provider_name, 2)
-    return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
-                        status=200)
-
-
-
 def process_languages(query):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
     provider = providers.provider_by_name(provider_name)
@@ -291,8 +273,7 @@ def languages(request):
         if len(final_response) <= 1: # increment QuotaHistory but only once
             QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)  # Use provider_name for QuotaHistory
     end_time = time.time()
-    print(str(round(end_time-start_time, 2)))
-    
+    print("languages time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"languages": final_response}, default=str), content_type="application/json",
                         status=200)
 
@@ -334,7 +315,7 @@ def words(request):
         if len(final_response) <= 1: # increment QuotaHistory but only once
             QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)  # Use provider_name for QuotaHistory
     end_time = time.time()
-    print(str(round(end_time-start_time, 2)))
+    print("words time: " + str(round(end_time-start_time, 2)))
     
     return HttpResponse(json.dumps({"words": final_response}, default=str), content_type="application/json",
                         status=200)
