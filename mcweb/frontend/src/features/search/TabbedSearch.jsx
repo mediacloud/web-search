@@ -304,8 +304,8 @@ export default function TabbedSearch() {
           <CountOverTimeResults />
           <TotalAttentionResults />
           <SampleStories />
-          {/* <TopWords /> */}
-          {/* <TopLanguages /> */}
+          <TopWords />
+          <TopLanguages />
         </div>
       </div>
     </div>

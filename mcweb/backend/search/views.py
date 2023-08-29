@@ -76,7 +76,7 @@ def total_count(request):
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
     end_time = time.time()
-    print("time: " + str(round(end_time-start_time, 2)))
+    print("total count time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
@@ -104,7 +104,7 @@ def count_over_time(request):
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
     end_time = time.time()
-    print("time: " + str(round(end_time-start_time, 2)))
+    print("count over time, time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -125,7 +125,7 @@ def sample(request):
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
     end_time = time.time()
-    print("time: " + str(round(end_time-start_time, 2)))
+    print("sample time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -148,6 +148,7 @@ def story_detail(request):
 @require_http_methods(["POST"])
 def languages(request):
     payload = json.loads(request.body).get("queryObject")
+    start_time = time.time()
     response = []
     for query in payload:
         start_date, end_date, query_str, provider_props, provider_name = parse_query(
@@ -157,6 +158,8 @@ def languages(request):
             query_str, start_date, end_date, **provider_props))
         QuotaHistory.increment(
             request.user.id, request.user.is_staff, provider_name, 2)
+    end_time = time.time()
+    print("languages time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -198,6 +201,7 @@ def download_languages_csv(request):
 @require_http_methods(["POST"])
 def words(request):
     payload = json.loads(request.body).get("queryObject")
+    start_time = time.time()
     response = []
     for query in payload:
         start_date, end_date, query_str, provider_props, provider_name = parse_query(
@@ -208,6 +212,8 @@ def words(request):
         response.append(add_ratios(words))
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name, 4)
+    end_time = time.time()
+    print("words time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
                         status=200)
 
