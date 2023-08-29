@@ -205,23 +205,6 @@ def story_detail(request):
                         status=200)
 
 
-@handle_provider_errors
-@require_http_methods(["POST"])
-def languages(request):
-    payload = json.loads(request.body).get("queryObject")
-    response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name)
-        response.append(provider.languages(
-            query_str, start_date, end_date, **provider_props))
-        QuotaHistory.increment(
-            request.user.id, request.user.is_staff, provider_name, 2)
-    return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
-                        status=200)
-
-
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_languages_csv(request):
@@ -255,21 +238,105 @@ def download_languages_csv(request):
     return response
 
 
+
 @handle_provider_errors
 @require_http_methods(["POST"])
-def words(request):
+def languages(request):
     payload = json.loads(request.body).get("queryObject")
     response = []
     for query in payload:
         start_date, end_date, query_str, provider_props, provider_name = parse_query(
             query)
         provider = providers.provider_by_name(provider_name)
-        words = provider.words(query_str, start_date,
-                               end_date, **provider_props)
-        response.append(add_ratios(words))
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name, 4)
-    return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
+        response.append(provider.languages(
+            query_str, start_date, end_date, **provider_props))
+        QuotaHistory.increment(
+            request.user.id, request.user.is_staff, provider_name, 2)
+    return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
+                        status=200)
+
+
+
+def process_languages(query):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+    provider = providers.provider_by_name(provider_name)
+    return provider.languages(query_str, start_date, end_date, **provider_props), provider_name
+
+@handle_provider_errors
+@require_http_methods(["POST"])
+def languages(request):
+    payload = json.loads(request.body).get("queryObject")
+    response = []
+    threads = []
+    start_time = time.time()
+
+    def process_and_store_result(query, result_index):
+        thread_response = process_languages(query)
+        response[result_index] = thread_response
+
+    for queryIndex, query in enumerate(payload):
+        response.append(None)
+        thread = threading.Thread(target=process_and_store_result, args=(query, queryIndex))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    # Convert response to an array
+    final_response = []
+    for thread_result in response:
+        thread_response, provider_name = thread_result  # Unpack the stored values
+        final_response.append(thread_response)
+        if len(final_response) <= 1: # increment QuotaHistory but only once
+            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)  # Use provider_name for QuotaHistory
+    end_time = time.time()
+    print(str(round(end_time-start_time, 2)))
+    
+    return HttpResponse(json.dumps({"languages": final_response}, default=str), content_type="application/json",
+                        status=200)
+
+
+
+
+def process_words(query):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+    provider = providers.provider_by_name(provider_name)
+    words = provider.words(query_str, start_date,end_date, **provider_props)
+    return add_ratios(words), provider_name
+
+@handle_provider_errors
+@require_http_methods(["POST"])
+def words(request):
+    payload = json.loads(request.body).get("queryObject")
+    response = []
+    threads = []
+    start_time = time.time()
+
+    def process_and_store_result(query, result_index):
+        thread_response = process_words(query)
+        response[result_index] = thread_response
+
+    for queryIndex, query in enumerate(payload):
+        response.append(None)
+        thread = threading.Thread(target=process_and_store_result, args=(query, queryIndex))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    # Convert response to an array
+    final_response = []
+    for thread_result in response:
+        thread_response, provider_name = thread_result  # Unpack the stored values
+        final_response.append(thread_response)
+        if len(final_response) <= 1: # increment QuotaHistory but only once
+            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)  # Use provider_name for QuotaHistory
+    end_time = time.time()
+    print(str(round(end_time-start_time, 2)))
+    
+    return HttpResponse(json.dumps({"words": final_response}, default=str), content_type="application/json",
                         status=200)
 
 

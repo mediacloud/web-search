@@ -301,11 +301,11 @@ export default function TabbedSearch() {
       </div>
       <div className="search-results-wrapper">
         <div className="container">
-          {/* <CountOverTimeResults /> */}
+          <CountOverTimeResults />
           <TotalAttentionResults />
-          {/* <SampleStories /> */}
-          {/* <TopWords /> */}
-          {/* <TopLanguages /> */}
+          <SampleStories />
+          <TopWords />
+          <TopLanguages />
         </div>
       </div>
     </div>
