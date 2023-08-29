@@ -57,6 +57,7 @@ def handle_provider_errors(func):
 @require_http_methods(["POST"])
 def total_count(request):
     payload = json.loads(request.body).get("queryObject")
+    start_time = time.time()
     total_content_count = []
     relevant_count = []
     for query in payload:
@@ -74,6 +75,8 @@ def total_count(request):
         # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
+    end_time = time.time()
+    print("time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
