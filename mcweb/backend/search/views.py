@@ -53,28 +53,50 @@ def handle_provider_errors(func):
     return _handler
 
 
+def process_total_count(query):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+    provider = providers.provider_by_name(provider_name)
+    relevant_count = provider.count(query_str, start_date, end_date, **provider_props)
+    try:
+        total_content_count = provider.count(provider.everything_query(), start_date, end_date, **provider_props)
+    except QueryingEverythingUnsupportedQuery as e:
+        total_content_count = []
+    return relevant_count, total_content_count, provider_name
+
+
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def total_count(request):
     payload = json.loads(request.body).get("queryObject")
-    total_content_count = []
+    start_time = time.time()
+    response = []
+    threads = []
+    
+    def process_and_store_result(query, result_index):
+        thread_response = process_total_count(query)
+        response[result_index] = thread_response
+
+    for queryIndex, query in enumerate(payload):
+        response.append(None)
+        thread = threading.Thread(target=process_and_store_result, args=(query, queryIndex))
+        threads.append(thread)
+        thread.start()
+    
+    for thread in threads: 
+        thread.join()
+    
+    # Convert response to an array
     relevant_count = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name)
-        relevant_count.append(provider.count(
-            query_str, start_date, end_date, **provider_props))
-        try:
-            total_content_count.append(provider.count(
-                provider.everything_query(), start_date, end_date, **provider_props))
-            # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
-        except QueryingEverythingUnsupportedQuery as e:
-            total_content_count = []
-        # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name)
+    total_content_count = []
+    for thread_result in response:
+        relevant, total_content, provider_name = thread_result  # Unpack the stored values
+        relevant_count.append(relevant)
+        total_content_count.append(total_content)
+        if len(relevant_count) <= 1: # increment QuotaHistory but only once
+            QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)  # Use provider_name for QuotaHistory
+    end_time = time.time()
+    print("time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
