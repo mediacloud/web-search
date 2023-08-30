@@ -12,11 +12,21 @@ export const searchApi = createApi({
   }),
   endpoints: (builder) => ({
     getTotalCount: builder.mutation({
-      query: (queryObject) => ({
-        url: 'total-count',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      // query: (queryObject) => ({
+      //   url: 'total-count',
+      //   method: 'POST',
+      //   body: { queryObject },
+      // }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'total-count',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then((results) => (
+          { data: results }
+        ));
+      },
     }),
     getCountOverTime: builder.mutation({
       query: (queryObject) => ({

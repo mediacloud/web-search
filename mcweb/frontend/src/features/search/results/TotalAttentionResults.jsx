@@ -108,6 +108,7 @@ function TotalAttentionResults() {
     );
   } else {
     const preparedTAdata = prepareTotalAttentionData(data, normalized);
+    console.log('TA DATA', preparedTAdata);
     if (preparedTAdata.length !== queryState.length) return null;
     const updatedTotalAttentionData = preparedTAdata.map(
       (originalDataObj, index) => {
