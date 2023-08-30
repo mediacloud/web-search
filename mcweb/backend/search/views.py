@@ -160,6 +160,7 @@ def languages(request):
             request.user.id, request.user.is_staff, provider_name, 2)
     end_time = time.time()
     print("languages time: " + str(round(end_time-start_time, 2)))
+    print(response)
     return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
                         status=200)
 
