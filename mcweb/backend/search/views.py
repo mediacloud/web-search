@@ -21,6 +21,7 @@ from mc_providers.exceptions import ProviderException
 from mc_providers.cache import CachingManager
 import threading
 import time
+import django.http.response
 from util.cache import django_caching_interface
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,52 @@ def handle_provider_errors(func):
             logger.exception(e)
             return error_response(str(e))
     return _handler
+
+
+@handle_provider_errors
+def process_languages(request, query, queryIndex, userId, userIsStaff):
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
+    provider = providers.provider_by_name(provider_name)
+    if queryIndex == 0:
+        QuotaHistory.increment(userId, userIsStaff, provider_name, 2)  # Use provider_name for QuotaHistory
+    return provider.languages(query_str, start_date, end_date, **provider_props)
+        
+
+@login_required(redirect_field_name='/auth/login')
+@handle_provider_errors
+@require_http_methods(["POST"])
+def languages(request):
+    payload = json.loads(request.body).get("queryObject")
+    response = []
+    threads = []
+    start_time = time.time()
+
+    def process_and_store_result(query, result_index):
+        thread_response = process_languages(request, query, queryIndex, request.user.id, request.user.is_staff)
+        response[result_index] = thread_response
+    
+  
+    for queryIndex, query in enumerate(payload):
+        response.append(None)
+        thread = threading.Thread(target=process_and_store_result, args=(query, queryIndex))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    if isinstance(response[0], HttpResponseBadRequest):
+        return response[0]
+
+    final_response = []
+    for thread_result in response:
+        final_response.append(thread_result)
+    end_time = time.time()
+    print("languages time: " + str(round(end_time-start_time, 2)))
+    
+    return HttpResponse(json.dumps({"languages": final_response}, default=str), content_type="application/json",
+                        status=200)
+
 
 def process_total_count(query):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
@@ -201,56 +248,6 @@ def sample(request):
     end_time = time.time()
     print("sample time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"sample": final_response}, default=str), content_type="application/json", status=200)
-
-
-@handle_provider_errors
-def process_languages(request, query, queryIndex, userId, userIsStaff):
-    start_date, end_date, query_str, provider_props, provider_name = parse_query(query)
-    provider = providers.provider_by_name(provider_name)
-    if queryIndex == 0:
-        QuotaHistory.increment(userId, userIsStaff, provider_name, 2)  # Use provider_name for QuotaHistory
-    try: 
-        return provider.languages(query_str, start_date, end_date, **provider_props)
-    except NotImplementedError as e:
-        # logger.debug("issue")
-        return None
-        
-
-
-@login_required(redirect_field_name='/auth/login')
-@handle_provider_errors
-@require_http_methods(["POST"])
-def languages(request):
-    payload = json.loads(request.body).get("queryObject")
-    response = []
-    threads = []
-    start_time = time.time()
-
-    def process_and_store_result(query, result_index):
-        # print(process_languages(request, query, queryIndex, request.user.id, request.user.is_staff))
-        thread_response = process_languages(request, query, queryIndex, request.user.id, request.user.is_staff)
-        response[result_index] = thread_response
-
-    for queryIndex, query in enumerate(payload):
-        response.append(None)
-        thread = threading.Thread(target=process_and_store_result, args=(query, queryIndex))
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
-
-    # Convert response to an array
-    final_response = []
-    for thread_result in response:
-        final_response.append(thread_result)
-    end_time = time.time()
-    print("languages time: " + str(round(end_time-start_time, 2)))
-    print(final_response)
-    return HttpResponse(json.dumps({"languages": final_response}, default=str), content_type="application/json",
-                        status=200)
-
-
 
 
 def process_words(query):
