@@ -76,7 +76,7 @@ def total_count(request):
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
     end_time = time.time()
-    print("total count time: " + str(round(end_time-start_time, 2)))
+    print("total attention: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
@@ -104,7 +104,7 @@ def count_over_time(request):
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
     end_time = time.time()
-    print("count over time, time: " + str(round(end_time-start_time, 2)))
+    print("count over time: " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -125,7 +125,7 @@ def sample(request):
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
     end_time = time.time()
-    print("sample time: " + str(round(end_time-start_time, 2)))
+    print("sample : " + str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
