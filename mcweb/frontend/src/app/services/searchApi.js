@@ -23,10 +23,7 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         }));
-        return Promise.all(promises).then((results) => {
-          console.log('results', results);
-          return { data: results.map((result) => (result.data)) };
-        });
+        return Promise.all(promises).then((results) => ({ data: results.map((result) => (result.data)) }));
       },
     }),
     getCountOverTime: builder.mutation({

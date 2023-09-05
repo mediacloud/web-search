@@ -10,7 +10,6 @@ const prepareTotalAttentionData = (results, normalized) => {
   // const { relevant, total } = results.data.count;
   results.forEach((result, i) => {
     const { relevant, total } = result.count;
-    console.log('REL', relevant, total);
     const prepareData = {};
     prepareData.key = 'Matching Content';
     prepareData.value = normalized ? normalizeData(relevant, total) : relevant;
