@@ -84,7 +84,7 @@ function TotalAttentionResults() {
   }, [lastSearchTime, queryState.length]);
 
   if (newQuery) return null;
-
+  console.log(isLoading, data);
   if (isLoading) {
     return (
       <div>
@@ -107,6 +107,7 @@ function TotalAttentionResults() {
       </Alert>
     );
   } else {
+    console.log(data, 'data');
     const preparedTAdata = prepareTotalAttentionData(data, normalized);
     console.log('TA DATA', preparedTAdata);
     if (preparedTAdata.length !== queryState.length) return null;
