@@ -79,7 +79,7 @@ export default function CountOverTimeResults() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error.note}
         )
       </Alert>
     );

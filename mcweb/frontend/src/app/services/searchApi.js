@@ -18,7 +18,12 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         }));
-        return Promise.all(promises).then((results) => ({ data: results.map((result) => (result.data)) }));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
       },
     }),
     getCountOverTime: builder.mutation({
@@ -28,7 +33,12 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         }));
-        return Promise.all(promises).then((results) => ({ data: results.map((result) => (result.data)) }));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
       },
     }),
     getSampleStories: builder.mutation({
@@ -38,7 +48,12 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         }));
-        return Promise.all(promises).then((results) => ({ data: results.map((result) => (result.data)) }));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
       },
     }),
     getStoryDetails: builder.query({

@@ -64,6 +64,7 @@ export default function SampleStories() {
 
   let content;
   if (!data && !error) return null;
+
   if (error) {
     // const msg = data.note;
 
@@ -71,7 +72,7 @@ export default function SampleStories() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error.note}
         )
       </Alert>
     );
