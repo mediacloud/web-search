@@ -60,7 +60,7 @@ export default function CountOverTimeResults() {
 
   useEffect(() => {
     if ((data)) {
-      if ((data.count_over_time.length === queryState.length)) { executeScroll(); }
+      if ((data.length === queryState.length)) { executeScroll(); }
     } else if (error) {
       executeScroll();
     }
@@ -84,9 +84,7 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
-    console.log('DATA', data);
     const preparedData = prepareCountOverTimeData(data, normalized, queryState);
-    console.log('PREPAREDDATA', preparedData);
     if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
       (originalDataObj, index) => {
