@@ -92,21 +92,17 @@ def total_count(request):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def count_over_time(request):
-    payload = json.loads(request.body).get("queryObject")
-    response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name)
-        try:
-            results = provider.normalized_count_over_time(
-                query_str, start_date, end_date, **provider_props)
-        except UnsupportedOperationException:
-            # for platforms that don't support querying over time
-            results = provider.count_over_time(
-                query_str, start_date, end_date, **provider_props)
-        # logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
-        response.append(results)
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+    provider = providers.provider_by_name(provider_name)
+    try:
+        results = provider.normalized_count_over_time(
+            query_str, start_date, end_date, **provider_props)
+    except UnsupportedOperationException:
+        # for platforms that don't support querying over time
+        results = provider.count_over_time(
+            query_str, start_date, end_date, **provider_props)
+    # logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
+    response = results
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
