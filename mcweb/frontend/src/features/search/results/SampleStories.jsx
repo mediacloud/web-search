@@ -15,6 +15,13 @@ import prepareQueries from '../util/prepareQueries';
 import SampleStoryShow from './SampleStoryShow';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
 export default function SampleStories() {
   const queryState = useSelector((state) => state.query);
   const {
@@ -76,16 +83,20 @@ export default function SampleStories() {
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-              {data.sample.map((result, i) => (
-                <Tab key={queryTitleArrays[i]} label={queryTitleArrays[i]} {...a11yProps(i)} />
+              {data.map((result, i) => (
+                <Tab
+                  key={queryTitleArrays[i]}
+                  label={queryTitleArrays[i]}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...a11yProps(i)}
+                />
               ))}
             </Tabs>
           </Box>
-
-          {data.sample.map((results, i) => (
+          {data.map((results, i) => (
             <TabPanelHelper value={value} index={i}>
               <SampleStoryShow
-                data={results}
+                data={results.sample}
                 lSTP={lastSearchTimePlatform}
                 platform={platform}
               />
@@ -133,11 +144,4 @@ export default function SampleStories() {
       </div>
     </div>
   );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }

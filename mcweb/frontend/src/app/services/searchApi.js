@@ -22,11 +22,6 @@ export const searchApi = createApi({
       },
     }),
     getCountOverTime: builder.mutation({
-      // query: (queryObject) => ({
-      //   url: 'count-over-time',
-      //   method: 'POST',
-      //   body: { queryObject },
-      // }),
       queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
         const promises = queryState.map((queryObject) => fetchWithBQ({
           url: 'count-over-time',
@@ -37,11 +32,14 @@ export const searchApi = createApi({
       },
     }),
     getSampleStories: builder.mutation({
-      query: (queryObject) => ({
-        url: 'sample',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'sample',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then((results) => ({ data: results.map((result) => (result.data)) }));
+      },
     }),
     getStoryDetails: builder.query({
       query: ({ storyId, platform }) => ({
