@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import action
 import backend.util.csv_stream as csv_stream
-from .utils import parse_query
+from .utils import parse_query, parse_query_array
 from .tasks import download_all_large_content_csv
 from ..users.models import QuotaHistory
 from backend.users.exceptions import OverQuotaException
@@ -129,8 +129,7 @@ def download_languages_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
         provider = providers.provider_by_name(provider_name)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
             data.append(provider.languages(
@@ -174,8 +173,7 @@ def download_words_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
         provider = providers.provider_by_name(provider_name)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
             words = provider.words(query_str, start_date,
@@ -213,8 +211,7 @@ def download_counts_over_time_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
         provider = providers.provider_by_name(provider_name)
         try:
             data.append(provider.normalized_count_over_time(
@@ -254,8 +251,7 @@ def download_all_content_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
         provider = providers.provider_by_name(provider_name)
         data.append(provider.all_items(
             query_str, start_date, end_date, **provider_props))
@@ -291,7 +287,7 @@ def send_email_large_download_csv(request):
 
     # follows similiar logic from download_all_content_csv, get information and send to tasks
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
         provider = providers.provider_by_name(provider_name)
         try:
             count = provider.count(query_str, start_date, end_date, **provider_props)

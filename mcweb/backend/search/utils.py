@@ -41,6 +41,20 @@ def parse_query(request, http_method: str = 'POST') -> tuple:
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
     return start_date, end_date, query_str, provider_props, provider_name
 
+def parse_query_array(queryObject) -> tuple:
+    # payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
+    payload = queryObject
+    provider_name = payload["platform"]
+    query_str = payload["query"]
+    collections = payload["collections"]
+    sources = payload["sources"]
+    provider_props = search_props_for_provider(provider_name, collections, sources)
+    start_date = payload["startDate"]
+    start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
+    end_date = payload["endDate"]
+    end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
+    return start_date, end_date, query_str, provider_props, provider_name
+
 
 def search_props_for_provider(provider, collections: List, sources: List) -> Dict:
     if provider == provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER):
