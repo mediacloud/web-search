@@ -63,18 +63,33 @@ export const searchApi = createApi({
       }),
     }),
     getTopWords: builder.mutation({
-      query: (queryObject) => ({
-        url: 'words',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'words',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
+      },
     }),
     getTopLanguages: builder.mutation({
-      query: (queryObject) => ({
-        url: 'languages',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'languages',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then(
+          (results) => (results[0].data
+            ? { data: results.map((result) => (result.data)) }
+            : { error: results[0].error.data }),
+        );
+      },
     }),
     sendTotalAttentionDataEmail: builder.mutation({
       query: (preparedQueryAndEmail) => ({

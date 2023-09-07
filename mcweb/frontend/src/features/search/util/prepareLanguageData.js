@@ -2,10 +2,10 @@ const colorArray = ['#2f2d2b', '#d24527', '#2f2d2b', '#d23716', '#f7a44e'];
 
 export default function prepareLanguageData(languageData) {
   const series = [];
-  languageData.languages.forEach((queryData, i) => {
+  languageData.forEach((queryData, i) => {
     series.push(
       {
-        data: queryData.map((l) => ({
+        data: queryData.languages.map((l) => ({
           key: l.language, value: l.ratio * 100,
         })),
         name: 'Language',
@@ -16,6 +16,7 @@ export default function prepareLanguageData(languageData) {
   return series;
 }
 
+// series requirements for word cloud
 // series={[{
 //   data: data.languages.map((l) => ({
 //     key: l.language, value: l.ratio * 100,
