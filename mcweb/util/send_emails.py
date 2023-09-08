@@ -80,11 +80,12 @@ def send_alert_email(alert_dict: dict):
         'alert_list': alert_dict,
     })
     # to = ['e.leon@northeastern.edu']
-    to=['e.leon@northeastern.edu', 
-        'rebecca@mediacloud.org', 
-        'ebndulue@mediacloud.org', 
-        'fernando@mediacloud.org',
-        'frimpomaa@mediacloud.org']
+    # to=['e.leon@northeastern.edu', 
+    #     'rebecca@mediacloud.org', 
+    #     'ebndulue@mediacloud.org', 
+    #     'fernando@mediacloud.org',
+    #     'frimpomaa@mediacloud.org']
+    to = ['evanjacobsuslovich@gmail.com']
     msg = EmailMultiAlternatives('[Media Cloud] Alert System Email', email_body_txt, 'noreply@mediacloud.org', to)
     msg.attach_alternative(html_content, "text/html")
     try:

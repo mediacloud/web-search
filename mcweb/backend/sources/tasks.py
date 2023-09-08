@@ -103,6 +103,8 @@ def _scrape_collection(collection_id, user_email):
     
     sources = collection.source_set.all()
     email = ""
+    print("sources")
+    print(sources)
     for source in sources:
         # check source.homepage not empty??
         if not source.homepage:
@@ -123,7 +125,7 @@ next_friday = today + dt.timedelta(days=days_until_friday)
 run_datetime = dt.datetime.combine(next_friday, run_at)
 
 def run_alert_system():
-    user = User.objects.get(username='e.leon@northeastern.edu')
+    user = User.objects.get(username='evansuslovich')
     with open('mcweb/backend/sources/data/collections-to-monitor.json') as collection_ids:
         collection_ids = collection_ids.read()
         collection_ids = json.loads(collection_ids)
@@ -158,6 +160,14 @@ def _alert_system(collection_ids):
             low_stories_alert = 0
             high_stories_alert = 0
             fixed_source = 0
+
+            print("length of sources")
+            print(len(sources))
+
+            print("sources")
+            print(sources)
+
+            
             for source in sources:
                 stories_fetched = rss.source_stories_fetched_by_day(source.id) 
                 # print(stories_fetched)
