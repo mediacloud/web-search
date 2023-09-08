@@ -14,8 +14,8 @@ import requests.sessions
 # Allows testing against alternate (eg; dev, staging) instances of rss-fetcher:
 RSS_FETCHER_USER = os.getenv('RSS_FETCHER_USER', None)
 RSS_FETCHER_PASS = os.getenv('RSS_FETCHER_PASS', None)
-RSS_FETCHER_URL = os.getenv('RSS_FETCHER_URL',
-                            'https://rss-fetcher.tarbell.mediacloud.org')
+RSS_FETCHER_URL = 'https://rss-fetcher.tarbell.mediacloud.org'
+
 
 logger = logging.getLogger('rss_fetcher_api')
 
