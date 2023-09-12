@@ -109,7 +109,7 @@ export default function InfoMenu({ platform, sampleStory }) {
 }
 
 InfoMenu.propTypes = {
-  sampleStory: PropTypes.arrayOf(PropTypes.shape({
+  sampleStory: PropTypes.shape({
     archived_url: PropTypes.string,
     article_url: PropTypes.string,
     id: PropTypes.string,
@@ -119,6 +119,6 @@ InfoMenu.propTypes = {
     publish_date: PropTypes.string,
     title: PropTypes.string,
     url: PropTypes.string,
-  })).isRequired,
+  }).isRequired,
   platform: PropTypes.string.isRequired,
 };

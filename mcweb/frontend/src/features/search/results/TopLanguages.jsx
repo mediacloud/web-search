@@ -66,7 +66,7 @@ export default function TopLanguages() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error.note}
         )
       </Alert>
     );
@@ -90,7 +90,7 @@ export default function TopLanguages() {
             </Box>
 
             {prepareLanguageData(data).map((results, i) => (
-              <TabPanelHelper value={value} index={i}>
+              <TabPanelHelper value={value} index={i} key={`${results}`}>
                 <BarChart
                   series={[results]}
                   normalized

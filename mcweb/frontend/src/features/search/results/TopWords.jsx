@@ -67,7 +67,7 @@ export default function TopWords() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error.note}
         )
       </Alert>
     );
@@ -80,7 +80,7 @@ export default function TopWords() {
           <Box sx={{ width: '100%' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                {data.words.map((result, i) => (
+                {data.map((result, i) => (
                   <Tab
                     key={queryTitleArrays[i]}
                     label={queryTitleArrays[i]}
@@ -92,9 +92,10 @@ export default function TopWords() {
               </Tabs>
             </Box>
 
-            {data.words.map((results, i) => (
-              <TabPanelHelper value={value} index={i}>
-                <OrderedWordCloud width={600} color="#000" data={results} />
+            {data.map((results, i) => (
+              <TabPanelHelper value={value} index={i} key={`${results.words}`}>
+
+                <OrderedWordCloud width={600} color="#000" data={results.words} />
               </TabPanelHelper>
             ))}
           </Box>
