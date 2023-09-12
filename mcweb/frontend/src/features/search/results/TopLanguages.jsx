@@ -90,7 +90,7 @@ export default function TopLanguages() {
             </Box>
 
             {prepareLanguageData(data).map((results, i) => (
-              <TabPanelHelper value={value} index={i}>
+              <TabPanelHelper value={value} index={i} key={`${results}`}>
                 <BarChart
                   series={[results]}
                   normalized

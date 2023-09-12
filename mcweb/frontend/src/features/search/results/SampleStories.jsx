@@ -95,7 +95,7 @@ export default function SampleStories() {
             </Tabs>
           </Box>
           {data.map((results, i) => (
-            <TabPanelHelper value={value} index={i}>
+            <TabPanelHelper value={value} index={i} key={`${results}`}>
               <SampleStoryShow
                 data={results.sample}
                 lSTP={lastSearchTimePlatform}
