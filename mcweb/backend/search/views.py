@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import action
 import backend.util.csv_stream as csv_stream
-from .utils import parse_query
+from .utils import parse_query, parse_query_array
 from .tasks import download_all_large_content_csv
 from ..users.models import QuotaHistory
 from backend.users.exceptions import OverQuotaException
@@ -56,24 +56,14 @@ def handle_provider_errors(func):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def total_count(request):
-    payload = json.loads(request.body).get("queryObject")
-    total_content_count = []
-    relevant_count = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name, api_key)
-        relevant_count.append(provider.count(
-            query_str, start_date, end_date, **provider_props))
-        try:
-            total_content_count.append(provider.count(
-                provider.everything_query(), start_date, end_date, **provider_props))
-            # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
-        except QueryingEverythingUnsupportedQuery as e:
-            total_content_count = []
-        # everything_count = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name)
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+    provider = providers.provider_by_name(provider_name)
+    relevant_count = provider.count(query_str, start_date, end_date, **provider_props)
+    try:
+        total_content_count = provider.count(provider.everything_query(), start_date, end_date, **provider_props)
+    except QueryingEverythingUnsupportedQuery as e:
+        total_content_count = None
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
@@ -82,21 +72,14 @@ def total_count(request):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def count_over_time(request):
-    payload = json.loads(request.body).get("queryObject")
-    response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name, api_key)
-        try:
-            results = provider.normalized_count_over_time(
-                query_str, start_date, end_date, **provider_props)
-        except UnsupportedOperationException:
-            # for platforms that don't support querying over time
-            results = provider.count_over_time(
-                query_str, start_date, end_date, **provider_props)
-        # logger.debug("NORMALIZED COUNT OVER TIME: %, %".format(start_date, end_date))
-        response.append(results)
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+    provider = providers.provider_by_name(provider_name)
+    try:
+        results = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+    except UnsupportedOperationException:
+        # for platforms that don't support querying over time
+        results = provider.count_over_time(query_str, start_date, end_date, **provider_props)
+    response = results
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
@@ -107,16 +90,10 @@ def count_over_time(request):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def sample(request):
-    payload = json.loads(request.body).get("queryObject")
-    response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name, api_key)
-        response.append(provider.sample(
-            query_str, start_date, end_date, **provider_props))
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name)
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+    provider = providers.provider_by_name(provider_name)
+    response = provider.sample(query_str, start_date, end_date, **provider_props)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -138,16 +115,10 @@ def story_detail(request):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def languages(request):
-    payload = json.loads(request.body).get("queryObject")
-    response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name, api_key)
-        response.append(provider.languages(
-            query_str, start_date, end_date, **provider_props))
-        QuotaHistory.increment(
-            request.user.id, request.user.is_staff, provider_name, 2)
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+    provider = providers.provider_by_name(provider_name)
+    response = provider.languages(query_str, start_date, end_date, **provider_props)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -158,9 +129,8 @@ def download_languages_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
             data.append(provider.languages(
                 query_str, start_date, end_date, **provider_props))
@@ -188,17 +158,11 @@ def download_languages_csv(request):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def words(request):
-    payload = json.loads(request.body).get("queryObject")
-    response = []
-    for query in payload:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query)
-        provider = providers.provider_by_name(provider_name, api_key)
-        words = provider.words(query_str, start_date,
-                               end_date, **provider_props)
-        response.append(add_ratios(words))
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name, 4)
+    start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
+    provider = providers.provider_by_name(provider_name)
+    words = provider.words(query_str, start_date,end_date, **provider_props)
+    response = add_ratios(words)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -209,9 +173,8 @@ def download_words_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
             words = provider.words(query_str, start_date,
                                    end_date, **provider_props)
@@ -248,9 +211,8 @@ def download_counts_over_time_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name)
         try:
             data.append(provider.normalized_count_over_time(
                 query_str, start_date, end_date, **provider_props))
@@ -289,9 +251,8 @@ def download_all_content_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(
-            query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name)
         data.append(provider.all_items(
             query_str, start_date, end_date, **provider_props))
 
@@ -326,8 +287,8 @@ def send_email_large_download_csv(request):
 
     # follows similiar logic from download_all_content_csv, get information and send to tasks
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(query, 'GET')
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name)
         try:
             count = provider.count(query_str, start_date, end_date, **provider_props)
             if count >= 25000 and count <= 200000:
