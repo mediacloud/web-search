@@ -3,6 +3,9 @@ import logging
 import csv
 import time
 import collections
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from django.http import HttpResponse, HttpResponseBadRequest
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -26,6 +29,11 @@ logger = logging.getLogger(__name__)
 # This is where we set the caching manager and the cache_time
 CachingManager.caching_function = django_caching_interface(time_secs=60*60*24)
 
+session = requests.Session()
+retry = Retry(connect=3, backoff_factor=0.5)
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
 
 def error_response(msg: str):
     return HttpResponseBadRequest(json.dumps(dict(
@@ -92,7 +100,10 @@ def count_over_time(request):
 def sample(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
-    response = provider.sample(query_str, start_date, end_date, **provider_props)
+    try:
+        response = provider.sample(query_str, start_date, end_date, **provider_props)
+    except requests.exceptions.ConnectionError:
+        response = {'error': 'Max Retries Exceeded'}
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
@@ -117,7 +128,10 @@ def story_detail(request):
 def languages(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
-    response = provider.languages(query_str, start_date, end_date, **provider_props)
+    try:
+        response = provider.languages(query_str, start_date, end_date, **provider_props)
+    except requests.exceptions.ConnectionError:
+        response = {'error': 'Max Retries Exceeded'}
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
                         status=200)
@@ -160,7 +174,10 @@ def download_languages_csv(request):
 def words(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
-    words = provider.words(query_str, start_date,end_date, **provider_props)
+    try:
+        words = provider.words(query_str, start_date,end_date, **provider_props)
+    except requests.exceptions.ConnectionError:
+        response = {'error': 'Max Retries Exceeded'}
     response = add_ratios(words)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
