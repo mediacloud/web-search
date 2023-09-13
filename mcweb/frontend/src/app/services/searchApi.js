@@ -12,25 +12,49 @@ export const searchApi = createApi({
   }),
   endpoints: (builder) => ({
     getTotalCount: builder.mutation({
-      query: (queryObject) => ({
-        url: 'total-count',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'total-count',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
+      },
     }),
     getCountOverTime: builder.mutation({
-      query: (queryObject) => ({
-        url: 'count-over-time',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'count-over-time',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
+      },
     }),
     getSampleStories: builder.mutation({
-      query: (queryObject) => ({
-        url: 'sample',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'sample',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
+      },
     }),
     getStoryDetails: builder.query({
       query: ({ storyId, platform }) => ({
@@ -39,18 +63,33 @@ export const searchApi = createApi({
       }),
     }),
     getTopWords: builder.mutation({
-      query: (queryObject) => ({
-        url: 'words',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'words',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
+      },
     }),
     getTopLanguages: builder.mutation({
-      query: (queryObject) => ({
-        url: 'languages',
-        method: 'POST',
-        body: { queryObject },
-      }),
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => fetchWithBQ({
+          url: 'languages',
+          method: 'POST',
+          body: { queryObject },
+        }));
+        return Promise.all(promises).then(
+          (results) => (results[0].data
+            ? { data: results.map((result) => (result.data)) }
+            : { error: results[0].error.data }),
+        );
+      },
     }),
     sendTotalAttentionDataEmail: builder.mutation({
       query: (preparedQueryAndEmail) => ({

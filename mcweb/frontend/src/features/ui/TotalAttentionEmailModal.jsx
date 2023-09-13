@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -13,12 +14,12 @@ import prepareQueries from '../search/util/prepareQueries';
 import { useSendTotalAttentionDataEmailMutation } from '../../app/services/searchApi';
 
 export default function TotalAttentionEmailModal({
-  openDialog, outsideTitle, title, variant, endIcon, confirmButtonText, currentUserEmail, totalCountOfQuery, queryState,
+  openDialog, outsideTitle, title, variant, endIcon, confirmButtonText, currentUserEmail, totalCountOfQuery,
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [sendTotalAttentionDataEmail] = useSendTotalAttentionDataEmailMutation();
-
+  const queryState = useSelector((state) => state.query);
   const [open, setOpen] = useState(openDialog);
   const [emailModal, setModalEmail] = useState('');
 
@@ -174,8 +175,6 @@ TotalAttentionEmailModal.propTypes = {
   confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   currentUserEmail: PropTypes.string,
   totalCountOfQuery: PropTypes.number,
-  queryState: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
-
 };
 
 TotalAttentionEmailModal.defaultProps = {

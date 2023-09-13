@@ -60,7 +60,7 @@ export default function CountOverTimeResults() {
 
   useEffect(() => {
     if ((data)) {
-      if ((data.count_over_time.length === queryState.length)) { executeScroll(); }
+      if ((data.length === queryState.length)) { executeScroll(); }
     } else if (error) {
       executeScroll();
     }
@@ -79,12 +79,12 @@ export default function CountOverTimeResults() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error.note}
         )
       </Alert>
     );
   } else {
-    const preparedData = prepareCountOverTimeData(data.count_over_time, normalized, queryState);
+    const preparedData = prepareCountOverTimeData(data, normalized, queryState);
     if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
       (originalDataObj, index) => {

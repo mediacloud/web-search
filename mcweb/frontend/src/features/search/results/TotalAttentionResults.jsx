@@ -52,18 +52,14 @@ function TotalAttentionResults() {
 
   const currentUserEmail = currentUser.email;
 
-  // gets total count of entire query
-  // I'm assuming each query's data is put into one csv file
-  // my question: https://stackoverflow.com/questions/29615196/is-csv-with-multi-tabs-sheet-possible
-  // in the case that there is only one csv we have to make sure the count of all csv don't exceed our limits
+  const getCountsArray = (countsData) => countsData.map((count) => count.relevant);
+
   const getTotalCountOfQuery = () => {
-    const arrayOfCounts = data.count.relevant;
-    // gets total count of query
+    const arrayOfCounts = getCountsArray(data);
     let count = 0;
     for (let i = 0; i < arrayOfCounts.length; i += 1) {
       count += arrayOfCounts[i];
     }
-
     return count;
   };
 
@@ -102,12 +98,13 @@ function TotalAttentionResults() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error.note}
         )
       </Alert>
     );
   } else {
     const preparedTAdata = prepareTotalAttentionData(data, normalized);
+
     if (preparedTAdata.length !== queryState.length) return null;
     const updatedTotalAttentionData = preparedTAdata.map(
       (originalDataObj, index) => {
@@ -203,7 +200,6 @@ function TotalAttentionResults() {
                 confirmButtonText="Confirm New Email"
                 currentUserEmail={currentUserEmail}
                 totalCountOfQuery={getTotalCountOfQuery()}
-                queryState={queryState}
               />
             </div>
           </div>
