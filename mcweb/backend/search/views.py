@@ -98,6 +98,7 @@ def count_over_time(request):
 @handle_provider_errors
 @require_http_methods(["POST"])
 def sample(request):
+
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
     try:
@@ -105,6 +106,20 @@ def sample(request):
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+
+    payload = json.loads(request.body).get("queryObject")
+    start_time = time.time()
+    response = []
+    for query in payload:
+        start_date, end_date, query_str, provider_props, provider_name = parse_query(
+            query)
+        provider = providers.provider_by_name(provider_name)
+        response.append(provider.sample(
+            query_str, start_date, end_date, **provider_props))
+    QuotaHistory.increment(
+        request.user.id, request.user.is_staff, provider_name)
+    end_time = time.time()
+    print(str(round(end_time-start_time, 2)))
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
