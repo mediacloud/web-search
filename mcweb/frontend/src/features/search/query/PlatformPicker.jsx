@@ -19,9 +19,7 @@ import {
 } from './querySlice';
 
 export default function PlatformPicker({ queryIndex }) {
-  const {
-    platform, collections, sources, previewCollections, previewSources,
-  } = useSelector((state) => state.query[queryIndex]);
+  const { platform, collections, sources, previewCollections, previewSources } = useSelector((state) => state.query[queryIndex]);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -36,7 +34,7 @@ export default function PlatformPicker({ queryIndex }) {
     !hasSomeMedia && samePlatform: nothing
     hasSomeMedia && !samePlatform: reset
     !hasSomeMedia && !samePlatform: if to online_news set to news_default else reset
-*/
+    */
     if (!samePlatform) {
       if (!hasSomeMedia) {
         if ([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(newPlatform)) {
@@ -65,10 +63,7 @@ export default function PlatformPicker({ queryIndex }) {
           >
 
             {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD); }}
-                value={PROVIDER_NEWS_MEDIA_CLOUD}
-              >
+              <ToggleButton onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD); }}>
                 <NewspaperIcon fontSize="large" />
                 Online News
                 <br />
@@ -76,10 +71,7 @@ export default function PlatformPicker({ queryIndex }) {
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_NEWS_WAYBACK_MACHINE); }}
-                value={PROVIDER_NEWS_WAYBACK_MACHINE}
-              >
+              <ToggleButton onClick={() => { handleChangePlatform(PROVIDER_NEWS_WAYBACK_MACHINE); }}>
                 <NewspaperIcon fontSize="large" />
                 Online News
                 <br />
@@ -109,10 +101,7 @@ export default function PlatformPicker({ queryIndex }) {
               </ToggleButton>
             )} */}
             {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}
-                value={PROVIDER_YOUTUBE_YOUTUBE}
-              >
+              <ToggleButton onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}>
                 <YouTubeIcon fontSize="large" />
                 YouTube
                 <br />
