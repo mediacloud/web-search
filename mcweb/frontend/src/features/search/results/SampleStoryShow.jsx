@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
-import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
+import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
 import InfoMenu from '../../ui/InfoMenu';
 import { selectCurrentUser } from '../../auth/authSlice';
@@ -41,7 +41,9 @@ export default function SampleStoryShow({
             {/* if platform is wayback-machine OR media-cloud and the currentUser is a staff */}
             {
               (([PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && lSTP === PROVIDER_NEWS_WAYBACK_MACHINE)
-                || ([PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && lSTP === PROVIDER_NEWS_MEDIA_CLOUD && currentUser.isStaff))
+                || ([PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && lSTP === PROVIDER_NEWS_MEDIA_CLOUD && currentUser.isStaff)
+                || ([PROVIDER_NEWS_MEDIA_CLOUD_LEGACY].includes(platform)
+                && lSTP === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY && currentUser.isStaff))
               && (
                 <InfoMenu platform={platform} sampleStory={sampleStory} />
               )
