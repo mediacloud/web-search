@@ -60,7 +60,7 @@ export default function TopLanguages() {
   }
   let content;
   if (!data && !error) return null;
-
+  console.log(data || error);
   if (error) {
     content = (
       <Alert severity="warning">

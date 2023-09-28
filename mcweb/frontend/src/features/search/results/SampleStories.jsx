@@ -65,14 +65,12 @@ export default function SampleStories() {
   let content;
   if (!data && !error) return null;
 
-  if (error) {
-    // const msg = data.note;
-
+  if (error || !data[0].sample[0]) {
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.note}
+        {error ? error.note : "'No results please try a different query'"}
         )
       </Alert>
     );
