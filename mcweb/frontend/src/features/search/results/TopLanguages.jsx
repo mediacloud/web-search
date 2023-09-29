@@ -60,13 +60,13 @@ export default function TopLanguages() {
   }
   let content;
   if (!data && !error) return null;
-  console.log(data || error);
-  if (error) {
+
+  if (error || !data[0].languages[0]) {
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.note}
+        {error ? error.note : 'No results please try a different query'}
         )
       </Alert>
     );
