@@ -63,7 +63,6 @@ export default function TabDropDownMenuItems({
       {/* Color Submenu */}
       <Menu
         hideBackdrop
-        sx={{ marginLeft: '232.5px', marginTop: '100px' }}
         style={{ pointerEvents: 'none' }}
         open={colorSubMenuOpen && open && Boolean(anchorEl)}
         anchorEl={anchorEl}
@@ -78,8 +77,8 @@ export default function TabDropDownMenuItems({
           horizontal: 'right',
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
+          vertical: -15,
+          horizontal: -122.5,
         }}
       >
         <div style={{ pointerEvents: 'all' }}>

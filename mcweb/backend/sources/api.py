@@ -301,8 +301,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
             return Response({"source": serializer.data})
         else:
             error_string = str(serializer.errors)
-            print(error_string)
-            # error_string = str(error_string['name'][0])
             raise APIException(f"{error_string}")
 
     def partial_update(self, request, pk=None):
@@ -313,7 +311,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
             return Response({"source": serializer.data})
         else:
             error_string = serializer.errors
-            error_string = str(error_string['name'][0])
             raise APIException(f"{error_string}")
 
     @action(methods=['post'], detail=False)
@@ -504,3 +501,4 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
+

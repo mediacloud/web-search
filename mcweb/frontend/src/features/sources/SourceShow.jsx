@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
-
+import buildStatArray from './util/buildStatArray';
 import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import StatPanel from '../ui/StatPanel';
@@ -22,17 +22,8 @@ export default function SourceShow() {
 
   return (
     <div className="container">
-
       {(source.platform === 'online_news') && (
-        <StatPanel items={[
-          { label: 'First Story', value: source.first_story },
-          { label: 'Stories per Week', value: source.stories_per_week },
-          { label: 'Publication Country', value: source.pub_country },
-          { label: 'Publication State', value: source.pub_state },
-          { label: 'Primary Language', value: source.primary_language },
-          { label: 'Media Type', value: source.media_type },
-        ]}
-        />
+        <StatPanel items={buildStatArray(source)} />
       )}
 
       <div className="row">
