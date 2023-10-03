@@ -1,4 +1,14 @@
-[{"version": "v1.4.4",
+[{"version": "v1.4.5",
+"date": "2023-09-21",
+"notes": ["refactor search frontend architecture",
+"allow admins to edit source meta data",
+"don't show source metadata we do not have",
+"fix for downloading all content",
+"adjustments to source alert system"
+
+]
+},
+{"version": "v1.4.4",
 "date": "2023-07-27",
 "notes": ["Add new tab naming conventions in search",
 "send email when finding new feed",

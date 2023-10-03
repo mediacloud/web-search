@@ -52,7 +52,7 @@ function TotalAttentionResults() {
 
   const currentUserEmail = currentUser.email;
 
-  const getCountsArray = (countsData) => countsData.map((count) => count.relevant);
+  const getCountsArray = (countsData) => countsData.map((count) => count.count.relevant);
 
   const getTotalCountOfQuery = () => {
     const arrayOfCounts = getCountsArray(data);

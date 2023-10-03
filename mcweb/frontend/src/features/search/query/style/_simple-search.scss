@@ -1,7 +1,7 @@
 
 .simple-search-container {
     display: flex;
-    margin: 1rem;
+    
 }
 
 .simple-search-title {
@@ -23,7 +23,6 @@
 
 .negated-query-list {
     margin-top: 4rem;
-    margin-left: 2rem;
 }
 
 .first-division {
@@ -35,7 +34,7 @@
 }
 
 .and-or {
-  margin-left: $padding-s;
+  margin-left: $padding-xs;
   color: #aaa;
   font-weight: bold;
   font-size: 13px;
