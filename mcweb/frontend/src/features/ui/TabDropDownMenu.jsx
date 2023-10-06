@@ -6,11 +6,12 @@ import CircleIcon from '@mui/icons-material/Circle';
 import PropTypes from 'prop-types';
 import ArrowRight from '@mui/icons-material/ArrowRight';
 import CloseIcon from '@mui/icons-material/Close';
+import { PARTISAN, GLOBAL } from '../search/util/generateComparativeQuery';
 
 // https://medium.com/geekculture/creating-a-dropdown-with-nested-menu-items-using-react-mui-bb0c084226da was a helpful tool
 
 export default function TabDropDownMenuItems({
-  anchorEl, open, handleClose, handleMenuOpen,
+  anchorEl, open, handleClose, handleMenuOpen, handleComparative,
 }) {
   const [colorSubMenuOpen, setColorSubMenuOpen] = useState(false);
 
@@ -42,6 +43,22 @@ export default function TabDropDownMenuItems({
         open={open}
         onClose={handleClose}
       >
+        {/* Compare across partisanship */}
+        <MenuItem onClick={() => {
+          handleComparative(PARTISAN);
+          setColorSubMenuOpen(false);
+        }}
+        >
+          Compare Across Partisanship
+        </MenuItem>
+        {/* compare across the globe */}
+        <MenuItem onClick={() => {
+          handleComparative(GLOBAL);
+          setColorSubMenuOpen(false);
+        }}
+        >
+          Compare Across the Globe
+        </MenuItem>
         {/* Add Color Option */}
         <MenuItem
           onMouseEnter={handleMouseEnter}
@@ -116,4 +133,5 @@ TabDropDownMenuItems.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   handleMenuOpen: PropTypes.func.isRequired,
+  handleComparative: PropTypes.func.isRequired,
 };
