@@ -95,7 +95,7 @@ export default function TabDropDownMenuItems({
         }}
         transformOrigin={{
           vertical: -15,
-          horizontal: -122.5,
+          horizontal: -232,
         }}
       >
         <div style={{ pointerEvents: 'all' }}>
