@@ -113,6 +113,7 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
     domains += [s.name for s in selected_sources if s.url_search_string is None]
     # turn collections ids into list of domains
     selected_sources_in_collections = Source.objects.filter(collections__id__in=collections)
+    selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
     domains += [s.name for s in selected_sources_in_collections if bool(s.url_search_string) is False]
     # 2. pull out all the domains that have url_search_strings and turn those into search clauses
     sources_with_url_search_strs = []
