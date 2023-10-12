@@ -1,11 +1,18 @@
-[{"version": "v1.4.5",
+[{"version": "v1.4.6",
+"date": "2023-10-12",
+"notes": ["add support for larger number of queries",
+"add feature compare across partisanship",
+"fix bug for app crash when returning 0 results successfully",
+"fix large indentation in search"
+]
+},
+{"version": "v1.4.5",
 "date": "2023-09-21",
 "notes": ["refactor search frontend architecture",
 "allow admins to edit source meta data",
 "don't show source metadata we do not have",
 "fix for downloading all content",
 "adjustments to source alert system"
-
 ]
 },
 {"version": "v1.4.4",
