@@ -3,7 +3,7 @@ Background tasks for 'download_all_content_csv'
 """
 
 from ..users.models import QuotaHistory
-from .utils import parse_query
+from .utils import parse_query_array
 import logging
 import collections
 import logging
@@ -32,8 +32,8 @@ def download_all_large_content_csv(queryState, user_id, user_isStaff, email):
 def _download_all_large_content_csv(queryState, user_id, user_isStaff, email):
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name = parse_query(
-            query, 'GET')
+        start_date, end_date, query_str, provider_props, provider_name = parse_query_array(
+            query)
         provider = providers.provider_by_name(provider_name)
         data.append(provider.all_items(
             query_str, start_date, end_date, **provider_props))
