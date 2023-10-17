@@ -287,7 +287,7 @@ def download_all_content_csv(request):
                     yield [v for k, v in ordered_story.items()]
                 first_page = False
 
-    filename = "mc-{}-{}-content.csv".format(
+    filename = "mc-{}-{}-content".format(
         provider_name, _filename_timestamp())
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
