@@ -50,12 +50,12 @@ def parse_query_array(queryObject) -> tuple:
     collections = payload["collections"]
     sources = payload["sources"]
     provider_props = search_props_for_provider(provider_name, collections, sources)
-    api_key = _get_api_key(provider_name)
+    # api_key = _get_api_key(provider_name)
     start_date = payload["startDate"]
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    return start_date, end_date, query_str, provider_props, provider_name, api_key
+    return start_date, end_date, query_str, provider_props, provider_name
 
 def _get_api_key(provider): 
     if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
