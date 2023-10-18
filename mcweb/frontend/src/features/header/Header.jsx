@@ -91,7 +91,7 @@ function Header() {
                       </MenuItem>
                     </Link>
                     <a
-                      href="https://www.mediacloud.org/search-tool-guide"
+                      href="https://www.mediacloud.org/documentation/search-tool-guide"
                       target="_blank"
                       onClick={handleClose}
                       style={{ textDecoration: 'none', color: 'black' }}
