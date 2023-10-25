@@ -9,13 +9,14 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
   if (!queryList && !negatedQueryList) return null;
   // if (negatedQueryList === null) return [];
 
+  const deQuoter = (w) => (w.replaceAll('"', ''));
   const quoter = (w) => (w.includes(' ') ? `"${w}"` : w); // add quotes if there is a space in string
 
-  const query = queryList ? queryList.filter((queryWord) => queryWord.length >= 1).map(quoter) : [];
+  const query = queryList ? queryList.filter((queryWord) => queryWord.length >= 1).map(deQuoter).map(quoter) : [];
 
   const negatedQuery = negatedQueryList ? negatedQueryList.filter(
     (queryWord) => queryWord.length >= 1,
-  ).map(quoter) : [[]];
+  ).map(deQuoter).map(quoter) : [[]];
 
   // first add in the match list
   if ((platform === PROVIDER_NEWS_MEDIA_CLOUD) || (platform === PROVIDER_NEWS_WAYBACK_MACHINE)) {
