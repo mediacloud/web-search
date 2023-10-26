@@ -1,15 +1,33 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import CircularProgress from '@mui/material/CircularProgress';
+import TabPanelHelper from '../ui/TabPanelHelper';
+import StoriesOverTime from '../stories/StoriesOverTime';
 import buildStatArray from './util/buildStatArray';
 import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import StatPanel from '../ui/StatPanel';
 import FeedStories from '../feeds/FeedStories';
 
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
 export default function SourceShow() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
+
+  const [value, setValue] = useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   const {
     data: source,
@@ -47,7 +65,43 @@ export default function SourceShow() {
         </div>
       </div>
 
-      <div className="row">
+      <div className="container">
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+
+              <Tab
+                label="Source List"
+            // eslint-disable-next-line react/jsx-props-no-spreading
+                {...a11yProps(0)}
+              />
+              <Tab
+                label="Coverage Over Time"
+            // eslint-disable-next-line react/jsx-props-no-spreading
+                {...a11yProps(1)}
+              />
+
+            </Tabs>
+          </Box>
+          <TabPanelHelper value={value} index={0}>
+            <div className="row">
+              <div className="col-6">
+                <CollectionList sourceId={sourceId} />
+              </div>
+              {source.platform === 'online_news' && (
+              <div className="col-6">
+                <FeedStories feed={false} sourceId={sourceId} />
+              </div>
+              )}
+            </div>
+          </TabPanelHelper>
+          <TabPanelHelper value={value} index={1}>
+            <StoriesOverTime sourceId={sourceId} collectionId={false} />
+          </TabPanelHelper>
+        </Box>
+      </div>
+
+      {/* <div className="row">
         <div className="col-6">
           <CollectionList sourceId={sourceId} />
         </div>
@@ -56,7 +110,7 @@ export default function SourceShow() {
             <FeedStories feed={false} sourceId={sourceId} />
           </div>
         )}
-      </div>
+      </div> */}
 
     </div>
   );

@@ -1,23 +1,31 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import TabPanelHelper from '../ui/TabPanelHelper';
 import SourceList from '../sources/SourceList';
+import StoriesOverTime from '../stories/StoriesOverTime';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
-import { useGetCountOverTimeMutation } from '../../app/services/searchApi';
-import CountOverTimeChart from '../search/results/CountOverTimeChart';
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
 
 export default function CollectionShow() {
   const params = useParams();
   const collectionId = Number(params.collectionId);
-  // const [dispatchQuery, { isLoading: countLoading, data, error }] = useGetCountOverTimeMutation();
-  // const preparedData = prepareCountOverTimeData(data, normalized, queryState);
-  // if (preparedData.length !== queryState.length) return null;
-  // const updatedPrepareCountOverTimeData = preparedData.map(
-  //   (originalDataObj, index) => {
-  //     const queryTitleForPreparation = { name: queryState[index].name };
-  //     return { ...queryTitleForPreparation, ...originalDataObj };
-  //   },
-  // );
+
+  const [value, setValue] = useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+
   const {
     data: collection,
     isLoading,
@@ -27,20 +35,37 @@ export default function CollectionShow() {
     return (<CircularProgress size={75} />);
   }
   return (
+
     <div className="container">
-      <div className="row">
-        <div className="col-6">
-          <p>
-            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            <b>Notes:</b> {collection.notes}
-          </p>
+      <p>
+        {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+        <b>Notes:</b> {collection.notes}
+      </p>
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+
+            <Tab
+              label="Source List"
+            // eslint-disable-next-line react/jsx-props-no-spreading
+              {...a11yProps(0)}
+            />
+            <Tab
+              label="Coverage Over Time"
+            // eslint-disable-next-line react/jsx-props-no-spreading
+              {...a11yProps(1)}
+            />
+
+          </Tabs>
+        </Box>
+        <TabPanelHelper value={value} index={0}>
           <SourceList collectionId={collectionId} />
-          <CountOverTimeChart
-            series={updatedPrepareCountOverTimeData}
-            normalized={false}
-          />
-        </div>
-      </div>
+        </TabPanelHelper>
+        <TabPanelHelper value={value} index={1}>
+          <StoriesOverTime collectionId={collectionId} sourceId={false} />
+        </TabPanelHelper>
+      </Box>
     </div>
+
   );
 }
