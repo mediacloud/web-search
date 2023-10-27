@@ -71,7 +71,7 @@ export default function SourceShow() {
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
 
               <Tab
-                label="Source List"
+                label="Collection List"
             // eslint-disable-next-line react/jsx-props-no-spreading
                 {...a11yProps(0)}
               />
