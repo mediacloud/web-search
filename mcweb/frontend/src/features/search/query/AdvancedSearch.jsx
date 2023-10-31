@@ -55,7 +55,13 @@ function AdvancedSearch({ queryIndex }) {
           <div className="row">
             <div className="col-4">
               <p>
-                Please enter query terms following the proper query syntax
+
+                Please enter query terms following the
+                {' '}
+                <a href="https://www.mediacloud.org/documentation/query-guide">
+                  proper query syntax
+                </a>
+                {' '}
                 for the choosen platform.
               </p>
             </div>
