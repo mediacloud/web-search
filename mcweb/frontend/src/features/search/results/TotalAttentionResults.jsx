@@ -186,7 +186,7 @@ function TotalAttentionResults() {
           <div className="float-end">
             <div>
               <TotalAttentionEmailModal
-                outsideTitle="Download CSV of All Content"
+                outsideTitle="Download CSV of All URLs"
                 title={
                   `Your current email is: ${currentUserEmail}
                   Would you like to send your downloaded data to your current email or a new email?`
