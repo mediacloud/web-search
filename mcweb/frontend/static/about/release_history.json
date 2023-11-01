@@ -1,4 +1,14 @@
-[{"version": "v1.4.6",
+[{"version": "v1.4.7",
+"date": "2023-11-01",
+"notes": ["change download all content to download all urls",
+"add query guide link to advanced search",
+"remove redundant .csv on small all url downloads",
+"fix larger all url downloads",
+"Add source and collection stories over time to source and collection pages",
+"fix for added whitespace in simple search"
+]
+},
+{"version": "v1.4.6",
 "date": "2023-10-12",
 "notes": ["add support for larger number of queries",
 "add feature compare across partisanship",
