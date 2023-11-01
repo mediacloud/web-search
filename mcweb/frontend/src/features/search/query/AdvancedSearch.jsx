@@ -58,7 +58,7 @@ function AdvancedSearch({ queryIndex }) {
 
                 Please enter query terms following the
                 {' '}
-                <a href="https://www.mediacloud.org/documentation/query-guide">
+                <a target="_blank" href="https://www.mediacloud.org/documentation/query-guide" rel="noreferrer">
                   proper query syntax
                 </a>
                 {' '}
