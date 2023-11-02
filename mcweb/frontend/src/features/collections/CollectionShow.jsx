@@ -59,7 +59,13 @@ export default function CollectionShow() {
           </Tabs>
         </Box>
         <TabPanelHelper value={value} index={0}>
-          <SourceList collectionId={collectionId} />
+          <div className="container">
+            <div className="row">
+              <div className="col-6">
+                <SourceList collectionId={collectionId} />
+              </div>
+            </div>
+          </div>
         </TabPanelHelper>
         <TabPanelHelper value={value} index={1}>
           <StoriesOverTime collectionId={collectionId} sourceId={false} />
