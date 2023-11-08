@@ -18,6 +18,16 @@
         "_comment": "pew 2018"
       },
       {
+        "platform":"online_news",
+        "collections":[
+          231013063,
+          231013089,
+          231013108,
+          231013109,
+          231013110
+        ]
+      },
+      {
         "platform": "online_news",
         "collections": [
           200363048,
