@@ -2,7 +2,7 @@ export const PARTISAN = 'partisan';
 export const GLOBAL = 'global';
 export const REGIONAL = 'regional';
 
-const partisanCollections = [200363061, 200363048, 200363050, 200363062, 200363049];
+const partisanCollections = [231013063, 231013089, 231013108, 231013109, 231013110];
 const partisanCollectionsNames = ['left', 'center left', 'center', 'center right', 'right'];
 const globalCollections = [34412234, 34412476, 38376341, 34412356, 34412409, 34412146, 34412257, 34412118];
 const globalCollectionsNames = ['united states', 'united kingdom', 'nigeria', 'spain', 'germany', 'france', 'brazil', 'india'];
