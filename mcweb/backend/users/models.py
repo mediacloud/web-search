@@ -1,3 +1,4 @@
+from django import db
 from django.db import models
 from django.contrib.auth.models import User
 import datetime as dt
@@ -41,13 +42,14 @@ class Profile(models.Model):
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
             return self.quota_wayback_machine
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
-            return self.quota_mediacloud_legacy
+            return self.quota_mediacloud_legacyq
         raise UnknownProviderException(provider)
 
     @classmethod
     def user_provider_quota(cls, user_id: int, provider: str) -> int:
         # as a backup catchall - create the profile in case it isn't there already (maybe for pre-existing user? 🤷🏽‍)
         profile, _ = Profile.objects.get_or_create(user_id=user_id)
+        db.connections.close_all()
         return profile.quota_for(provider)
 
 
