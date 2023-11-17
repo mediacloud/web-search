@@ -42,7 +42,7 @@ class Profile(models.Model):
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
             return self.quota_wayback_machine
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
-            return self.quota_mediacloud_legacyq
+            return self.quota_mediacloud_legacy
         raise UnknownProviderException(provider)
 
     @classmethod
