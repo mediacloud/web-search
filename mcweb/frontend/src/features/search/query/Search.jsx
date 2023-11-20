@@ -23,18 +23,16 @@ export default function Search({ queryIndex }) {
 
   return (
     <div className="search-container">
-      <div className="container">
-        {advanced && (
+
+      {advanced && (
         <AdvancedSearch queryIndex={queryIndex} />
-        )}
-        {!advanced && (
+      )}
+      {!advanced && (
         <SimpleSearch queryIndex={queryIndex} />
-        )}
-      </div>
+      )}
 
       <div className="container">
         <div className="row">
-
           <div className="col-5">
             <div className="query-section">
               <h3>
@@ -44,6 +42,7 @@ export default function Search({ queryIndex }) {
 
               <SelectedMedia onRemove={removeSelectedMedia} collections={collections} sources={sources} queryIndex={queryIndex} />
               <MediaPicker queryIndex={queryIndex} />
+
               <p className="help">
                 Choose individual sources or collections to be searched.
                 Our system includes collections for a large range of countries,

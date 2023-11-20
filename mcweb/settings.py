@@ -23,7 +23,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "1.4.5"
+VERSION = "1.4.7"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -206,7 +206,8 @@ CACHES = {
     }
 }
 
-
+MC_LEGACY_API_KEY = env('MEDIA_CLOUD_API_KEY')
+YOUTUBE_API_KEY=env('YOUTUBE_API_KEY')
 # email authentication
 try:
     EMAIL_BACKEND = env('EMAIL_BACKEND')

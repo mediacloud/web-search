@@ -11,11 +11,9 @@ import CheckIcon from '@mui/icons-material/Check';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
-import LoadSavedSearches from './query/savedsearch/LoadSavedSearches';
-import SaveSearch from './query/savedsearch/SaveSearch';
 import TabDropDownMenu from '../ui/TabDropDownMenu';
 import {
-  addQuery, setLastSearchTime, removeQuery, setQueryProperty,
+  addQuery, setLastSearchTime, removeQuery, setQueryProperty, addComparativeQuery,
 } from './query/querySlice';
 import Search from './query/Search';
 import PlatformPicker from './query/PlatformPicker';
@@ -27,6 +25,7 @@ import TopLanguages from './results/TopLanguages';
 import SampleStories from './results/SampleStories';
 import TabPanelHelper from '../ui/TabPanelHelper';
 import { searchApi } from '../../app/services/searchApi';
+import { PARTISAN, GLOBAL } from './util/generateComparativeQuery';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import isNumber from './util/isNumber';
@@ -134,8 +133,19 @@ export default function TabbedSearch() {
     setAnchorEl(null);
   };
 
+  const handleComparative = (i, type) => {
+    if (type === PARTISAN) {
+      dispatch(addComparativeQuery({ type: PARTISAN, query: queryState[i] }));
+    }
+    if (type === GLOBAL) {
+      dispatch(addComparativeQuery({ type: GLOBAL, query: queryState[i] }));
+    }
+    setAnchorEl(null);
+  };
+
   return (
     <div className="container search-container">
+      <br />
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', marginLeft: 6 }}>
@@ -143,7 +153,7 @@ export default function TabbedSearch() {
             {queryState.map((query, i) => (
               <Tab
                 disableRipple
-                key={query.queryIndex}
+                key={i}
                 sx={{ marginRight: 0.5 }}
                 style={{ outline: `4px solid ${color[i]}`, outlineOffset: '-4px', borderRadius: '4px' }}
                 label={(
@@ -212,6 +222,7 @@ export default function TabbedSearch() {
                         setEdit(updatedEdit);
                       }}
                       handleMenuOpen={handleMenuOpen}
+                      handleComparative={(type) => handleComparative(i, type)}
                     />
                   </Box>
                 )}
@@ -224,20 +235,19 @@ export default function TabbedSearch() {
         </Box>
 
         {queryState.map((query, i) => (
-          <TabPanelHelper key={query.queryIndex} value={value} index={i}>
+          <TabPanelHelper key={i} value={value} index={i}>
             <Search queryIndex={i} />
           </TabPanelHelper>
         ))}
       </Box>
 
       <div className="search-button-wrapper">
-
         <div className="container">
           <div className="row">
-            <div className="col-2">
+            <div className="col-11">
               <AlertDialog
                 openDialog={open}
-                outsideTitle="Share Search"
+                outsideTitle="Share this Search"
                 title="Share this Search"
                 content={<code>{`search.mediacloud.org/search?${urlSerializer(queryState)}`}</code>}
                 action={handleShare}
@@ -252,14 +262,6 @@ export default function TabbedSearch() {
                 className="float-end"
                 confirmButtonText="copy"
               />
-            </div>
-
-            <div className="col-7">
-              <LoadSavedSearches />
-            </div>
-
-            <div className="col-2">
-              <SaveSearch />
             </div>
 
             <div className="col-1">
@@ -297,7 +299,6 @@ export default function TabbedSearch() {
             </div>
           </div>
         </div>
-
       </div>
       <div className="search-results-wrapper">
         <div className="container">

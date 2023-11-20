@@ -2,7 +2,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import dayjs from 'dayjs';
-import Link from '@mui/material/Link';
+import Button from '@mui/material/Button';
 import PropTypes from 'prop-types';
 import { setQueryProperty } from './querySlice';
 import { latestAllowedEndDate } from '../util/platforms';
@@ -13,10 +13,8 @@ export default function DefaultDates({
   const dispatch = useDispatch();
 
   return (
-    <Link
-      underline="hover"
-      component="button"
-      variant="body2"
+    <Button
+      variant="outlined"
       sx={{ marginRight: 3 }}
       onClick={() => {
         // get last possible endDate per platform
@@ -32,7 +30,7 @@ export default function DefaultDates({
       }}
     >
       {message}
-    </Link>
+    </Button>
   );
 }
 

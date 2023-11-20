@@ -63,12 +63,13 @@ export default function TopWords() {
   let content;
 
   if (!data && !error) return null;
-  if (error) {
+
+  if (error || !data[0].words[0]) {
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.note}
+        {error ? error.note : 'No results please try a different query'}
         )
       </Alert>
     );

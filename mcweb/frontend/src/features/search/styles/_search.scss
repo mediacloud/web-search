@@ -25,8 +25,6 @@
 }
 
 .search-container {
-  padding: $padding-m 0px;
-  
   code {
     font-size: 14px;
     font-family: sans-serif;
@@ -134,10 +132,6 @@
   .end-buttons {
     display: flex;
     margin-right: 30px;
-  }
-
-  div {
-    padding-left: 10px ;
   }
   
 }
