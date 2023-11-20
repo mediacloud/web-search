@@ -11,7 +11,7 @@ export const PLATFORM_SOURCE_PUSHSHIFT = 'pushshift';
 export const PLATFORM_SOURCE_TWITTER = 'twitter';
 export const PLATFORM_SOURCE_YOUTUBE = 'youtube';
 export const PLATFORM_SOURCE_WAYBACK_MACHINE = 'waybackmachine';
-export const PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY = 'mediacloudlegacy';
+export const PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY = 'mclegacy';
 export const PLATFORM_SOURCE_MEDIA_CLOUD = 'mediacloud';
 
 const providerName = (platform, source) => `${platform}-${source}`;

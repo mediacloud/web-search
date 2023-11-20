@@ -4,11 +4,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import YouTubeIcon from '@mui/icons-material/YouTube';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import addType from './media-picker/util/addType';
 import {
-  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
+  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
 } from '../util/platforms';
 
 import {
@@ -67,9 +66,9 @@ export default function PlatformPicker({ queryIndex }) {
               value={PROVIDER_NEWS_MEDIA_CLOUD}
             >
               <NewspaperIcon fontSize="large" />
-              Online News
+              Media Cloud Online
               <br />
-              (Media Cloud)
+              News Archive (NEW)
             </ToggleButton>
             )}
 
@@ -79,9 +78,9 @@ export default function PlatformPicker({ queryIndex }) {
                 value={PROVIDER_NEWS_MEDIA_CLOUD_LEGACY}
               >
                 <NewspaperIcon fontSize="large" />
-                Online News
+                Media Cloud Legacy
                 <br />
-                (Media Cloud)
+                Online News Archive
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
@@ -90,12 +89,12 @@ export default function PlatformPicker({ queryIndex }) {
                 value={PROVIDER_NEWS_WAYBACK_MACHINE}
               >
                 <NewspaperIcon fontSize="large" />
-                Online News
+                Wayback Machine
                 <br />
-                (Wayback Machine)
+                News Archive
               </ToggleButton>
             )}
-            {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
+            {/* {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}
                 value={PROVIDER_YOUTUBE_YOUTUBE}
@@ -105,7 +104,7 @@ export default function PlatformPicker({ queryIndex }) {
                 <br />
                 (YouTube API)
               </ToggleButton>
-            )}
+            )} */}
           </ToggleButtonGroup>
         </div>
       </div>
