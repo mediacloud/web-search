@@ -4,14 +4,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import YouTubeIcon from '@mui/icons-material/YouTube';
-import RedditIcon from '@mui/icons-material/Reddit';
-import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import addType from './media-picker/util/addType';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
-  PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
+  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
 } from '../util/platforms';
 
 import {
@@ -39,7 +35,7 @@ export default function PlatformPicker({ queryIndex }) {
 */
     if (!samePlatform) {
       if (!hasSomeMedia) {
-        if ([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(newPlatform)) {
+        if ([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY].includes(newPlatform)) {
           dispatch(addSelectedMedia({ sourceOrCollection: addType(previewSources, previewCollections), queryIndex }));
           enqueueSnackbar('We reset your collections to work with this platform.', { variant: 'warning' });
         } else {
@@ -65,14 +61,26 @@ export default function PlatformPicker({ queryIndex }) {
           >
 
             {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
+            <ToggleButton
+              onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD); }}
+              value={PROVIDER_NEWS_MEDIA_CLOUD}
+            >
+              <NewspaperIcon fontSize="large" />
+              Media Cloud Online
+              <br />
+              News Archive (NEW)
+            </ToggleButton>
+            )}
+
+            {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
               <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD); }}
-                value={PROVIDER_NEWS_MEDIA_CLOUD}
+                onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY); }}
+                value={PROVIDER_NEWS_MEDIA_CLOUD_LEGACY}
               >
                 <NewspaperIcon fontSize="large" />
-                Online News
+                Media Cloud Legacy
                 <br />
-                (Media Cloud)
+                Online News Archive
               </ToggleButton>
             )}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
@@ -81,34 +89,12 @@ export default function PlatformPicker({ queryIndex }) {
                 value={PROVIDER_NEWS_WAYBACK_MACHINE}
               >
                 <NewspaperIcon fontSize="large" />
-                Online News
+                Wayback Machine
                 <br />
-                (Wayback Machine)
+                News Archive
               </ToggleButton>
             )}
-            {/* {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_REDDIT_PUSHSHIFT); }}
-                value={PROVIDER_REDDIT_PUSHSHIFT}
-              >
-                <RedditIcon fontSize="large" />
-                Reddit
-                <br />
-                (PushShift.io API)
-              </ToggleButton>
-            )} */}
-            {/* {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_TWITTER_TWITTER); }}
-                value={PROVIDER_TWITTER_TWITTER}
-              >
-                <TwitterIcon fontSize="large" />
-                Twitter
-                <br />
-                (Twitter API)
-              </ToggleButton>
-            )} */}
-            {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
+            {/* {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}
                 value={PROVIDER_YOUTUBE_YOUTUBE}
@@ -118,7 +104,7 @@ export default function PlatformPicker({ queryIndex }) {
                 <br />
                 (YouTube API)
               </ToggleButton>
-            )}
+            )} */}
           </ToggleButtonGroup>
         </div>
       </div>

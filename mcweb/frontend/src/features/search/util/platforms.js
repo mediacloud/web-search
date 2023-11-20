@@ -11,6 +11,7 @@ export const PLATFORM_SOURCE_PUSHSHIFT = 'pushshift';
 export const PLATFORM_SOURCE_TWITTER = 'twitter';
 export const PLATFORM_SOURCE_YOUTUBE = 'youtube';
 export const PLATFORM_SOURCE_WAYBACK_MACHINE = 'waybackmachine';
+export const PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY = 'mclegacy';
 export const PLATFORM_SOURCE_MEDIA_CLOUD = 'mediacloud';
 
 const providerName = (platform, source) => `${platform}-${source}`;
@@ -22,10 +23,16 @@ export const PROVIDER_NEWS_WAYBACK_MACHINE = providerName(
   PLATFORM_ONLINE_NEWS,
   PLATFORM_SOURCE_WAYBACK_MACHINE,
 );
+export const PROVIDER_NEWS_MEDIA_CLOUD_LEGACY = providerName(
+  PLATFORM_ONLINE_NEWS,
+  PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY,
+);
+
 export const PROVIDER_NEWS_MEDIA_CLOUD = providerName(
   PLATFORM_ONLINE_NEWS,
   PLATFORM_SOURCE_MEDIA_CLOUD,
 );
+
 export const PROVIDER_REDDIT_PUSHSHIFT = providerName(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT);
 
 export const PROVIDER_YOUTUBE_YOUTUBE = providerName(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE);
@@ -34,7 +41,7 @@ export const PROVIDER_YOUTUBE_YOUTUBE = providerName(PLATFORM_YOUTUBE, PLATFORM_
 export const latestAllowedEndDate = (provider) => {
   const today = dayjs();
   if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return today.subtract('4', 'day');
-  if (provider === PROVIDER_NEWS_MEDIA_CLOUD) return today.subtract('1', 'day');
+  if (provider === PROVIDER_NEWS_MEDIA_CLOUD || provider === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) return today.subtract('1', 'day');
   return today;
 };
 
