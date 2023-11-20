@@ -2,6 +2,7 @@ import datetime as dt
 import json
 from typing import List, Dict
 from django.apps import apps
+from settings import MC_API_KEY, YOUTUBE_API_KEY
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
@@ -36,7 +37,6 @@ def parse_query(request, http_method: str = 'POST') -> tuple:
     collections = payload["collections"]
     sources = payload["sources"]
     provider_props = search_props_for_provider(provider_name, collections, sources)
-    print("PROVIDER PROPS", provider_props)
     start_date = payload["startDate"]
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
@@ -52,6 +52,7 @@ def parse_query_array(queryObject) -> tuple:
     collections = payload["collections"]
     sources = payload["sources"]
     provider_props = search_props_for_provider(provider_name, collections, sources)
+    # api_key = _get_api_key(provider_name)
     start_date = payload["startDate"]
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]

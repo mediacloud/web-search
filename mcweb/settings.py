@@ -38,8 +38,8 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = environ.Env(DEBUG=(bool, False))
 
 # app.process for access from rss-fetcher
-ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web']
-
+ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', 'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.tarbell.mediacloud.org']
+CSRF_TRUSTED_ORIGINS = ['https://mcweb-staging.tarbell.mediacloud.org', 'https://search.mediacloud.org']
 # Application definition
 
 INSTALLED_APPS = [
@@ -94,7 +94,7 @@ WSGI_APPLICATION = "wsgi.application"
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.parse(env('DATABASE_URI'), conn_max_age=600)
+    "default": dj_database_url.parse(env('DATABASE_URI'), conn_max_age=0)
 }
 
 # Password validation
