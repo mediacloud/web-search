@@ -4,7 +4,8 @@ from typing import List, Dict
 from django.apps import apps
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
-    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
+    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
+from settings import MC_LEGACY_API_KEY, YOUTUBE_API_KEY
 
 
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -39,7 +40,8 @@ def parse_query(request, http_method: str = 'POST') -> tuple:
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    return start_date, end_date, query_str, provider_props, provider_name
+    api_key=api_key = _get_api_key(provider_name)
+    return start_date, end_date, query_str, provider_props, provider_name, api_key
 
 def parse_query_array(queryObject) -> tuple:
     # payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
@@ -53,8 +55,15 @@ def parse_query_array(queryObject) -> tuple:
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    return start_date, end_date, query_str, provider_props, provider_name
+    api_key = _get_api_key(provider_name)
+    return start_date, end_date, query_str, provider_props, provider_name, api_key
 
+def _get_api_key(provider): 
+    if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
+        return YOUTUBE_API_KEY
+    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
+        return MC_LEGACY_API_KEY
+    return None
 
 def search_props_for_provider(provider, collections: List, sources: List) -> Dict:
     if provider == provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER):
