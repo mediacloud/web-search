@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
-// import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Settings from '@mui/icons-material/Settings';
 // import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
@@ -13,9 +16,9 @@ import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopSourcesMutation } from '../../../app/services/searchApi';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
-import prepareDomainData from '../util/prepareDomainData';
+import prepareSourceData from '../util/prepareSourcesData';
 
-export default function TopDomains() {
+export default function TopSources() {
   const queryState = useSelector((state) => state.query);
 
   const {
@@ -29,6 +32,15 @@ export default function TopDomains() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  const [normalized, setNormalized] = useState(true);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const handleClick = (e) => setAnchorEl(e.currentTarget);
+
+  const handleClose = () => setAnchorEl(null);
+
+  const open = Boolean(anchorEl);
 
   //   const handleDownloadRequest = (qs) => {
   //     window.location = `/api/search/download-top-languages-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
@@ -74,7 +86,7 @@ export default function TopDomains() {
           <Box sx={{ width: '100%' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
               <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                {prepareDomainData(data).map((result, i) => (
+                {prepareSourceData(data, normalized).map((result, i) => (
                   <Tab
                     key={queryTitleArrays[i]}
                     label={queryTitleArrays[i]}
@@ -85,17 +97,75 @@ export default function TopDomains() {
               </Tabs>
             </Box>
 
-            {prepareDomainData(data).map((results, i) => (
+            {prepareSourceData(data, normalized).map((results, i) => (
               <TabPanelHelper value={value} index={i} key={`${results.data[0].value}`}>
                 <BarChart
                   series={[results]}
-                  normalized
+                  normalized={normalized}
                   title="Top Domains"
                   height={100 + (results.data.length * 40)}
                 />
               </TabPanelHelper>
             ))}
           </Box>
+
+          <div className="clearfix">
+            <div className="float-start">
+              {normalized && (
+                <div>
+                  <Button
+                    onClick={handleClick}
+                    startIcon={
+                      <Settings titleAccess="view other chart viewing options" />
+                    }
+                  >
+                    View Options
+                  </Button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        setNormalized(false);
+                        handleClose();
+                      }}
+                    >
+                      View Story Count
+                    </MenuItem>
+                  </Menu>
+                </div>
+              )}
+              {!normalized && (
+                <div>
+                  <Button onClick={handleClick}>View Options</Button>
+                  <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      'aria-labelledby': 'basic-button',
+                    }}
+                  >
+                    <MenuItem
+                      onClick={() => {
+                        setNormalized(true);
+                        handleClose();
+                      }}
+                    >
+                      View Normalized Story Percentage (default)
+                    </MenuItem>
+                  </Menu>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <div className="clearfix">
           <div className="float-end">
@@ -119,14 +189,15 @@ export default function TopDomains() {
       <div className="row">
         <div className="col-4">
           <h2>
-            Top Domains
+            Top Sources
             {' '}
             <Chip color="warning" label="experimental" />
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            This is an<i> experimental </i>
-            list of the top domains that returned results based your query.
+            Examine which sources wrote the most stories matching your query to understand which
+            types of media are driving coverage. Use the  &ldquo;view options&rdquo; menu to switch from story counts
+            to a percentage.
           </p>
           {/* {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
             <p>

@@ -23,7 +23,7 @@ import TotalAttentionResults from './results/TotalAttentionResults';
 import TopWords from './results/TopWords';
 import TopLanguages from './results/TopLanguages';
 import SampleStories from './results/SampleStories';
-import TopDomains from './results/TopDomains';
+import TopSources from './results/TopSources';
 import TabPanelHelper from '../ui/TabPanelHelper';
 import { searchApi } from '../../app/services/searchApi';
 import { PARTISAN, GLOBAL } from './util/generateComparativeQuery';
@@ -308,7 +308,7 @@ export default function TabbedSearch() {
           <SampleStories />
           <TopWords />
           <TopLanguages />
-          <TopDomains />
+          <TopSources />
         </div>
       </div>
     </div>

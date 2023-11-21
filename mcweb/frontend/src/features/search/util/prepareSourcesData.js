@@ -8,7 +8,7 @@ const getTotalDomainCount = (queryData) => {
   return totalCount;
 };
 
-export default function prepareDomainData(domainData) {
+export default function prepareSourceData(domainData, normalized) {
   const series = [];
 
   domainData.forEach((queryData, i) => {
@@ -16,7 +16,7 @@ export default function prepareDomainData(domainData) {
     series.push(
       {
         data: queryData.sources.map((s) => ({
-          key: s.source, value: (s.count / totalCount) * 100,
+          key: s.source, value: normalized ? (s.count / totalCount) * 100 : s.count,
         })),
         name: 'Domain',
         color: colorArray[i],
