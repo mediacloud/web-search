@@ -99,6 +99,21 @@ export const searchApi = createApi({
         );
       },
     }),
+    getTopSources: builder.mutation({
+      queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
+        const promises = queryState.map((queryObject) => timeoutAction(fetchWithBQ({
+          url: 'sources',
+          method: 'POST',
+          body: { queryObject },
+        })));
+        return Promise.all(promises).then(
+          (results) => (
+            results[0].data
+              ? { data: results.map((result) => (result.data)) }
+              : { error: results[0].error.data }),
+        );
+      },
+    }),
     sendTotalAttentionDataEmail: builder.mutation({
       query: (preparedQueryAndEmail) => ({
         url: 'send-email-large-download-csv',
@@ -117,4 +132,5 @@ export const {
   useGetTopWordsMutation,
   useGetTopLanguagesMutation,
   useSendTotalAttentionDataEmailMutation,
+  useGetTopSourcesMutation,
 } = searchApi;
