@@ -122,6 +122,19 @@ def story_detail(request):
     return HttpResponse(json.dumps({"story": story_details}, default=str), content_type="application/json",
                         status=200)
 
+@handle_provider_errors
+@require_http_methods(["POST"])
+def sources(request):
+    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key)
+    try:
+        response = provider.sources(query_str, start_date,end_date, 10, **provider_props)
+    except requests.exceptions.ConnectionError:
+        response = {'error': 'Max Retries Exceeded'}
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+    return HttpResponse(json.dumps({"sources": response}, default=str), content_type="application/json",
+                        status=200)
+
 
 @handle_provider_errors
 @require_http_methods(["POST"])
@@ -182,6 +195,7 @@ def words(request):
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
     return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
                         status=200)
+                        
 
 
 @require_http_methods(["GET"])
