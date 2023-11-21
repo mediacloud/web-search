@@ -102,7 +102,7 @@ export default function TopSources() {
                 <BarChart
                   series={[results]}
                   normalized={normalized}
-                  title="Top Domains"
+                  title="Top Sources"
                   height={100 + (results.data.length * 40)}
                 />
               </TabPanelHelper>

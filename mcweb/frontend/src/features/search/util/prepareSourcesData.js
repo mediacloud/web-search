@@ -18,7 +18,7 @@ export default function prepareSourceData(domainData, normalized) {
         data: queryData.sources.map((s) => ({
           key: s.source, value: normalized ? (s.count / totalCount) * 100 : s.count,
         })),
-        name: 'Domain',
+        name: 'Source',
         color: colorArray[i],
       },
     );
