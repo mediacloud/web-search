@@ -74,6 +74,16 @@ export default function ModifySource() {
 
   const [createSourceCollectionAssociation] = useCreateSourceCollectionAssociationMutation();
 
+  const prepareSource = (formData) => {
+    const preparedSource = {};
+    Object.keys(formData).forEach((column) => {
+      if (formData[column] && formData[column] !== '') {
+        preparedSource[column] = formData[column];
+      }
+    });
+    return preparedSource;
+  };
+
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
@@ -235,7 +245,8 @@ export default function ModifySource() {
           <Button
             variant="contained"
             onClick={() => {
-              updateSource(formState)
+              const preparedSource = prepareSource(formState);
+              updateSource(preparedSource)
                 .then((payload) => {
                   if (payload.error) {
                     setErrorMessage(payload.error.data.detail);
