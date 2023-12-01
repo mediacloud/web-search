@@ -38,7 +38,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = environ.Env(DEBUG=(bool, False))
 
 # app.process for access from rss-fetcher
-ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web']
+ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', '127.0.0.1']
 
 # Application definition
 
