@@ -62,15 +62,12 @@ def handle_provider_errors(func):
     return _handler
 
 
-# @login_required(redirect_field_name='/auth/login')
-# @require_http_methods(["POST"])
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def total_count(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
-    print(query_str)
     provider = providers.provider_by_name(provider_name)
     relevant_count = provider.count(query_str, start_date, end_date, **provider_props)
     try:
@@ -82,7 +79,7 @@ def total_count(request):
                         content_type="application/json", status=200)
 
 
-# @login_required(redirect_field_name='/auth/login')
+
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -101,10 +98,10 @@ def count_over_time(request):
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
                         status=200)
 
-
-@login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def sample(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
@@ -116,10 +113,10 @@ def sample(request):
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
-
-@login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
-@require_http_methods(["GET"])
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def story_detail(request):
     story_id = request.GET.get("storyId")
     platform = request.GET.get("platform")
@@ -132,7 +129,9 @@ def story_detail(request):
 
 
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def languages(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
@@ -178,7 +177,9 @@ def download_languages_csv(request):
 
 
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def words(request):
     start_date, end_date, query_str, provider_props, provider_name = parse_query(request)
     provider = providers.provider_by_name(provider_name)
