@@ -38,8 +38,8 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = environ.Env(DEBUG=(bool, False))
 
 # app.process for access from rss-fetcher
-ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web']
-
+ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', 'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.tarbell.mediacloud.org']
+CSRF_TRUSTED_ORIGINS = ['https://mcweb-staging.tarbell.mediacloud.org', 'https://search.mediacloud.org']
 # Application definition
 
 INSTALLED_APPS = [
@@ -206,7 +206,8 @@ CACHES = {
     }
 }
 
-
+MC_LEGACY_API_KEY = env('MEDIA_CLOUD_API_KEY')
+YOUTUBE_API_KEY=env('YOUTUBE_API_KEY')
 # email authentication
 try:
     EMAIL_BACKEND = env('EMAIL_BACKEND')

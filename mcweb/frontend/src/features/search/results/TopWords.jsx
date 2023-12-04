@@ -11,7 +11,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
+  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
+  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
 } from '../util/platforms';
 import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
@@ -133,7 +134,7 @@ export default function TopWords() {
             sample-based list of the top words in content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
-          {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+          {(platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
             <p>
               These results are from a random sample of news stories.
             </p>
