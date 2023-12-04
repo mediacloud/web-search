@@ -2,7 +2,6 @@ import datetime as dt
 import json
 from typing import List, Dict
 from django.apps import apps
-from settings import MC_API_KEY, YOUTUBE_API_KEY
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
@@ -77,7 +76,7 @@ def search_props_for_provider(provider, collections: List, sources: List) -> Dic
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
         return _for_wayback_machine(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
-        return _for_wayback_machine(collections, sources)
+        return _for_media_cloud(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
         return _for_media_cloud_legacy(collections, sources)
     return {}
@@ -152,7 +151,7 @@ def _for_media_cloud(collections: List, sources: List) -> Dict:
     sources_with_url_search_strs = []
     sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False]
     sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False]
-    domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
+    domain_url_filters = ["(canonical_domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
     return dict(domains=domains, filters=domain_url_filters)
 
 
