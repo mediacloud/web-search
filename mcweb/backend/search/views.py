@@ -7,11 +7,13 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from django.http import HttpResponse, HttpResponseBadRequest
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import action
+from rest_framework.decorators import action, authentication_classes, permission_classes
 import backend.util.csv_stream as csv_stream
 from .utils import parse_query, parse_query_array
 from .tasks import download_all_large_content_csv
@@ -60,9 +62,10 @@ def handle_provider_errors(func):
     return _handler
 
 
-@login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def total_count(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key)
@@ -76,9 +79,11 @@ def total_count(request):
                         content_type="application/json", status=200)
 
 
-@login_required(redirect_field_name='/auth/login')
+
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def count_over_time(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key)
@@ -93,10 +98,10 @@ def count_over_time(request):
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
                         status=200)
 
-
-@login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def sample(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key)
@@ -108,10 +113,10 @@ def sample(request):
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
-
-@login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
-@require_http_methods(["GET"])
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def story_detail(request):
     story_id = request.GET.get("storyId")
     platform = request.GET.get("platform")
@@ -137,7 +142,9 @@ def sources(request):
 
 
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def languages(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key)
@@ -183,7 +190,9 @@ def download_languages_csv(request):
 
 
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def words(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key)
