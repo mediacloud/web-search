@@ -128,7 +128,9 @@ def story_detail(request):
                         status=200)
 
 @handle_provider_errors
-@require_http_methods(["POST"])
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def sources(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key)
