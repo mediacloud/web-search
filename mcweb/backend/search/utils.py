@@ -32,7 +32,7 @@ def parse_query(request) -> tuple:
     http_method = request.method
     if http_method == 'POST':
         payload = json.loads(request.body).get("queryObject") 
-    # payload = request
+
     if http_method == 'POST':
         provider_name = payload["platform"]
         query_str = payload["query"]
@@ -43,19 +43,21 @@ def parse_query(request) -> tuple:
         start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
         end_date = payload["endDate"]
         end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
+        api_key = _get_api_key(provider_name)
     elif http_method == 'GET':
         provider_name = request.GET.get("p", 'onlinenews-mediacloud')
         query_str = request.GET.get("q", "*")
-        collections = request.GET.get("cs")
+        collections = request.GET.get("cs", None)
         collections = collections.split(",") if collections is not None else []
-        sources = request.GET.get("ss")
+        sources = request.GET.get("ss", None)
         sources = sources.split(",") if sources is not None else []
         provider_props = search_props_for_provider(provider_name, collections, sources)
         start_date = request.GET.get("start")
         start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
         end_date = request.GET.get("end")
         end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
-    return start_date, end_date, query_str, provider_props, provider_name
+        api_key = _get_api_key(provider_name)
+    return start_date, end_date, query_str, provider_props, provider_name, api_key
 
 def parse_query_array(queryObject) -> tuple:
     # payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
