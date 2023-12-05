@@ -4,7 +4,8 @@ from typing import List, Dict
 from django.apps import apps
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
-    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
+    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
+from settings import MC_LEGACY_API_KEY, YOUTUBE_API_KEY
 
 
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -46,12 +47,14 @@ def parse_query(request) -> tuple:
         provider_name = request.GET.get("p", 'onlinenews-mediacloud')
         query_str = request.GET.get("q", "*")
         collections = request.GET.get("cs")
+        collections = collections.split(",") if collections is not None else []
         sources = request.GET.get("ss")
+        sources = sources.split(",") if sources is not None else []
         provider_props = search_props_for_provider(provider_name, collections, sources)
         start_date = request.GET.get("start")
-        start_date = dt.datetime.strptime(start_date, '%m-%d-%Y')
+        start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
         end_date = request.GET.get("end")
-        end_date = dt.datetime.strptime(end_date, '%m-%d-%Y')
+        end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
     return start_date, end_date, query_str, provider_props, provider_name
 
 def parse_query_array(queryObject) -> tuple:
@@ -62,12 +65,20 @@ def parse_query_array(queryObject) -> tuple:
     collections = payload["collections"]
     sources = payload["sources"]
     provider_props = search_props_for_provider(provider_name, collections, sources)
+    # api_key = _get_api_key(provider_name)
     start_date = payload["startDate"]
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-    return start_date, end_date, query_str, provider_props, provider_name
+    api_key = _get_api_key(provider_name)
+    return start_date, end_date, query_str, provider_props, provider_name, api_key
 
+def _get_api_key(provider): 
+    if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
+        return YOUTUBE_API_KEY
+    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
+        return MC_LEGACY_API_KEY
+    return None
 
 def search_props_for_provider(provider, collections: List, sources: List) -> Dict:
     if provider == provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER):
@@ -79,7 +90,9 @@ def search_props_for_provider(provider, collections: List, sources: List) -> Dic
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
         return _for_wayback_machine(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
-        return _for_media_cloud(collections, sources)
+        return _for_wayback_machine(collections, sources)
+    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
+        return _for_media_cloud_legacy(collections, sources)
     return {}
 
 
@@ -129,6 +142,26 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
     selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
     domains += [s.name for s in selected_sources_in_collections if bool(s.url_search_string) is False]
     # 2. pull out all the domains that have url_search_strings and turn those into search clauses
+    # CURRENTLY URL_SEARCH_STRINGS ARE NOT IMPLEMENTED IN WB SYSTEM
+    # sources_with_url_search_strs = []
+    # sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False]
+    # sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False]
+    # domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
+    return dict(domains=domains)
+
+def _for_media_cloud(collections: List, sources: List) -> Dict:
+    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
+    Source = apps.get_model('sources', 'Source')
+    # 1. pull out all unique domains that don't have url_search_strs
+    domains = []
+    # turn media ids into list of domains
+    selected_sources = Source.objects.filter(id__in=sources)
+    domains += [s.name for s in selected_sources if s.url_search_string is None]
+    # turn collections ids into list of domains
+    selected_sources_in_collections = Source.objects.filter(collections__id__in=collections)
+    selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
+    domains += [s.name for s in selected_sources_in_collections if bool(s.url_search_string) is False]
+    # 2. pull out all the domains that have url_search_strings and turn those into search clauses
     sources_with_url_search_strs = []
     sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False]
     sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False]
@@ -136,7 +169,7 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
     return dict(domains=domains, filters=domain_url_filters)
 
 
-def _for_media_cloud(collections: List, sources: List) -> Dict:
+def _for_media_cloud_legacy(collections: List, sources: List) -> Dict:
     return dict(
         collections=collections,
         sources=sources
