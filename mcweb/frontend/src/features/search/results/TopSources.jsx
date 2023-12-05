@@ -197,7 +197,8 @@ export default function TopSources() {
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             Examine which sources wrote the most stories matching your query to understand which
             types of media are driving coverage. Use the  &ldquo;view options&rdquo; menu to switch from story counts
-            to a percentage.
+            to a percentage. The percents shown are the percent of all stories matching your query that come from that
+            particular source.
           </p>
           {/* {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
             <p>
