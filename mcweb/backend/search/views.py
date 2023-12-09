@@ -192,6 +192,24 @@ def download_languages_csv(request):
 
 
 @handle_provider_errors
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])  # API-only method for now
+@permission_classes([IsAuthenticated])
+def story_list(request):
+    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key)
+    # support returning text content for staff only
+    if provider_props.get('expanded') is not None:
+        provider_props['expanded'] = provider_props['expanded'] == '1'
+        if not request.user.is_staff:
+            del provider_props['expanded']
+    response = provider.paged_items(query_str, start_date, end_date, **provider_props)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 1)
+    return HttpResponse(json.dumps({"paged_items": response}, default=str), content_type="application/json",
+                        status=200)
+
+
+@handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
