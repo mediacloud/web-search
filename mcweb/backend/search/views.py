@@ -203,9 +203,10 @@ def story_list(request):
         provider_props['expanded'] = provider_props['expanded'] == '1'
         if not request.user.is_staff:
             del provider_props['expanded']
-    response = provider.paged_items(query_str, start_date, end_date, **provider_props)
+    page, pagination_token = provider.paged_items(query_str, start_date, end_date, **provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 1)
-    return HttpResponse(json.dumps({"paged_items": response}, default=str), content_type="application/json",
+    return HttpResponse(json.dumps({"stories": page, "pagination_token": pagination_token}, default=str),
+                        content_type="application/json",
                         status=200)
 
 
