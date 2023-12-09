@@ -4,9 +4,10 @@ import csv
 import time
 import collections
 import requests
+from typing import Optional
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -37,8 +38,10 @@ adapter = HTTPAdapter(max_retries=retry)
 session.mount('http://', adapter)
 session.mount('https://', adapter)
 
-def error_response(msg: str):
-    return HttpResponseBadRequest(json.dumps(dict(
+
+def error_response(msg: str, response_type: Optional[HttpResponse]) -> HttpResponse:
+    ResponseClass = response_type or HttpResponseBadRequest
+    return ResponseClass(json.dumps(dict(
         status="error",
         note=msg,
     )))
@@ -202,7 +205,7 @@ def story_list(request):
     if provider_props.get('expanded') is not None:
         provider_props['expanded'] = provider_props['expanded'] == '1'
         if not request.user.is_staff:
-            del provider_props['expanded']
+            raise error_response("You are not permitted to fetch `expanded` stories.", HttpResponseForbidden)
     page, pagination_token = provider.paged_items(query_str, start_date, end_date, **provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 1)
     return HttpResponse(json.dumps({"stories": page, "pagination_token": pagination_token}, default=str),
