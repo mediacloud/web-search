@@ -173,11 +173,12 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
     sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False]
     domain_url_filters = ["(canonical_domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
     # 3. assemble and add in other supported params
-    supported_extra_props = ['pagination_token', 'page_size', 'limit',
+    supported_extra_props = ['pagination_token', 'page_size', 'sort_field', 'sort_order',
                              'expanded']  # make sure nothing nefarious gets through
     extra_props = dict(domains=domains, filters=domain_url_filters)
     for prop_name in supported_extra_props:
-        extra_props[prop_name] = all_params.get(prop_name, None)
+        if prop_name in all_params:
+            extra_props[prop_name] = all_params.get(prop_name)
     return extra_props
 
 
