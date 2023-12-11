@@ -30,15 +30,14 @@ def fill_in_dates(start_date, end_date, existing_counts):
 
 def parse_query(request) -> tuple:
     http_method = request.method
-    if http_method == 'POST':
-        payload = json.loads(request.body).get("queryObject") 
 
     if http_method == 'POST':
+        payload = json.loads(request.body).get("queryObject")
         provider_name = payload["platform"]
         query_str = payload["query"]
         collections = payload["collections"]
         sources = payload["sources"]
-        provider_props = search_props_for_provider(provider_name, collections, sources)
+        provider_props = search_props_for_provider(provider_name, collections, sources, request.GET)
         start_date = payload["startDate"]
         start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
         end_date = payload["endDate"]
@@ -51,13 +50,14 @@ def parse_query(request) -> tuple:
         collections = collections.split(",") if collections is not None else []
         sources = request.GET.get("ss", None)
         sources = sources.split(",") if sources is not None else []
-        provider_props = search_props_for_provider(provider_name, collections, sources)
+        provider_props = search_props_for_provider(provider_name, collections, sources, request.GET)
         start_date = request.GET.get("start")
         start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
         end_date = request.GET.get("end")
         end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
         api_key = _get_api_key(provider_name)
     return start_date, end_date, query_str, provider_props, provider_name, api_key
+
 
 def parse_query_array(queryObject) -> tuple:
     # payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
@@ -66,7 +66,7 @@ def parse_query_array(queryObject) -> tuple:
     query_str = payload["query"]
     collections = payload["collections"]
     sources = payload["sources"]
-    provider_props = search_props_for_provider(provider_name, collections, sources)
+    provider_props = search_props_for_provider(provider_name, collections, sources, queryObject)
     # api_key = _get_api_key(provider_name)
     start_date = payload["startDate"]
     start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
@@ -75,6 +75,7 @@ def parse_query_array(queryObject) -> tuple:
     api_key = _get_api_key(provider_name)
     return start_date, end_date, query_str, provider_props, provider_name, api_key
 
+
 def _get_api_key(provider): 
     if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
         return YOUTUBE_API_KEY
@@ -82,7 +83,8 @@ def _get_api_key(provider):
         return MC_LEGACY_API_KEY
     return None
 
-def search_props_for_provider(provider, collections: List, sources: List) -> Dict:
+
+def search_props_for_provider(provider, collections: List, sources: List, all_params: Dict = None) -> Dict:
     if provider == provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER):
         return _for_twitter_api(collections, sources)
     if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
@@ -92,7 +94,7 @@ def search_props_for_provider(provider, collections: List, sources: List) -> Dic
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
         return _for_wayback_machine(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
-        return _for_media_cloud(collections, sources)
+        return _for_media_cloud(collections, sources, all_params)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
         return _for_media_cloud_legacy(collections, sources)
     return {}
@@ -151,7 +153,7 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
     # domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
     return dict(domains=domains)
 
-def _for_media_cloud(collections: List, sources: List) -> Dict:
+def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict:
     # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
     Source = apps.get_model('sources', 'Source')
     # 1. pull out all unique domains that don't have url_search_strs
@@ -168,7 +170,13 @@ def _for_media_cloud(collections: List, sources: List) -> Dict:
     sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False]
     sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False]
     domain_url_filters = ["(canonical_domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
-    return dict(domains=domains, filters=domain_url_filters)
+    # 3. assemble and add in other supported params
+    supported_extra_props = ['pagination_token', 'page_size', 'limit',
+                             'expanded']  # make sure nothing nefarious gets through
+    extra_props = dict(domains=domains, filters=domain_url_filters)
+    for prop_name in supported_extra_props:
+        extra_props[prop_name] = all_params.get(prop_name, None)
+    return extra_props
 
 
 def _for_media_cloud_legacy(collections: List, sources: List) -> Dict:
