@@ -5,7 +5,7 @@ from django.apps import apps
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
-from settings import MC_LEGACY_API_KEY, YOUTUBE_API_KEY
+from settings import MC_LEGACY_API_KEY, YOUTUBE_API_KEY, NEWS_SEARCH_API_URL
 
 
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -43,6 +43,7 @@ def parse_query(request) -> tuple:
         end_date = payload["endDate"]
         end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
         api_key = _get_api_key(provider_name)
+        base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None
     elif http_method == 'GET':
         provider_name = request.GET.get("p", 'onlinenews-mediacloud')
         query_str = request.GET.get("q", "*")
@@ -56,7 +57,8 @@ def parse_query(request) -> tuple:
         end_date = request.GET.get("end")
         end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
         api_key = _get_api_key(provider_name)
-    return start_date, end_date, query_str, provider_props, provider_name, api_key
+        base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None 
+    return start_date, end_date, query_str, provider_props, provider_name, api_key, base_url
 
 
 def parse_query_array(queryObject) -> tuple:

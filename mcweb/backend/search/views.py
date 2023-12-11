@@ -70,8 +70,8 @@ def handle_provider_errors(func):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def total_count(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     relevant_count = provider.count(query_str, start_date, end_date, **provider_props)
     try:
         total_content_count = provider.count(provider.everything_query(), start_date, end_date, **provider_props)
@@ -88,8 +88,8 @@ def total_count(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def count_over_time(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         results = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
     except UnsupportedOperationException:
@@ -106,8 +106,8 @@ def count_over_time(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def sample(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         response = provider.sample(query_str, start_date, end_date, **provider_props)
     except requests.exceptions.ConnectionError:
@@ -135,8 +135,8 @@ def story_detail(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def sources(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         response = provider.sources(query_str, start_date,end_date, 10, **provider_props)
     except requests.exceptions.ConnectionError:
@@ -151,8 +151,8 @@ def sources(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def languages(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         response = provider.languages(query_str, start_date, end_date, **provider_props)
     except requests.exceptions.ConnectionError:
@@ -199,8 +199,8 @@ def download_languages_csv(request):
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
 def story_list(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     # support returning text content for staff only
     if provider_props.get('expanded') is not None:
         provider_props['expanded'] = provider_props['expanded'] == '1'
@@ -218,8 +218,8 @@ def story_list(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def words(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         words = provider.words(query_str, start_date,end_date, **provider_props)
     except requests.exceptions.ConnectionError:
