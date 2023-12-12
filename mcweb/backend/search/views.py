@@ -57,11 +57,11 @@ def handle_provider_errors(func):
             return func(request)
         except (ProviderException, OverQuotaException) as e:
             # these are expected errors, so just report the details msg to the user
-            return error_response(str(e))
+            return error_response(str(e), HttpResponseBadRequest)
         except Exception as e:
             # these are internal errors we care about, so handle them as true errors
             logger.exception(e)
-            return error_response(str(e))
+            return error_response(str(e), HttpResponseBadRequest)
     return _handler
 
 
@@ -70,8 +70,8 @@ def handle_provider_errors(func):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def total_count(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     relevant_count = provider.count(query_str, start_date, end_date, **provider_props)
     try:
         total_content_count = provider.count(provider.everything_query(), start_date, end_date, **provider_props)
@@ -88,8 +88,8 @@ def total_count(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def count_over_time(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         results = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
     except UnsupportedOperationException:
@@ -106,8 +106,8 @@ def count_over_time(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def sample(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         response = provider.sample(query_str, start_date, end_date, **provider_props)
     except requests.exceptions.ConnectionError:
@@ -135,8 +135,8 @@ def story_detail(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def sources(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         response = provider.sources(query_str, start_date,end_date, 10, **provider_props)
     except requests.exceptions.ConnectionError:
@@ -151,8 +151,8 @@ def sources(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def languages(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         response = provider.languages(query_str, start_date, end_date, **provider_props)
     except requests.exceptions.ConnectionError:
@@ -168,8 +168,8 @@ def download_languages_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name, api_key, base_url)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
             data.append(provider.languages(
                 query_str, start_date, end_date, **provider_props))
@@ -199,8 +199,8 @@ def download_languages_csv(request):
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
 def story_list(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     # support returning text content for staff only
     if provider_props.get('expanded') is not None:
         provider_props['expanded'] = provider_props['expanded'] == '1'
@@ -218,8 +218,8 @@ def story_list(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def words(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key)
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
         words = provider.words(query_str, start_date,end_date, **provider_props)
     except requests.exceptions.ConnectionError:
@@ -237,8 +237,8 @@ def download_words_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name, api_key, base_url)
         if provider_name.split('-')[0] == PLATFORM_REDDIT:
             words = provider.words(query_str, start_date,
                                    end_date, **provider_props)
@@ -275,8 +275,8 @@ def download_counts_over_time_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name, api_key, base_url)
         try:
             data.append(provider.normalized_count_over_time(
                 query_str, start_date, end_date, **provider_props))
@@ -315,8 +315,8 @@ def download_all_content_csv(request):
     queryState = json.loads(request.GET.get("qS"))
     data = []
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name, api_key, base_url)
         data.append(provider.all_items(
             query_str, start_date, end_date, **provider_props))
 
@@ -351,8 +351,8 @@ def send_email_large_download_csv(request):
 
     # follows similiar logic from download_all_content_csv, get information and send to tasks
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key)
+        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name, api_key, base_url)
         try:
             count = provider.count(query_str, start_date, end_date, **provider_props)
             if count >= 25000 and count <= 200000:

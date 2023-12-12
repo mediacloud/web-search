@@ -5,7 +5,7 @@ from django.apps import apps
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
-from settings import MC_LEGACY_API_KEY, YOUTUBE_API_KEY
+from settings import MC_LEGACY_API_KEY, YOUTUBE_API_KEY, NEWS_SEARCH_API_URL
 
 
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -43,6 +43,7 @@ def parse_query(request) -> tuple:
         end_date = payload["endDate"]
         end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
         api_key = _get_api_key(provider_name)
+        base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None
     elif http_method == 'GET':
         provider_name = request.GET.get("p", 'onlinenews-mediacloud')
         query_str = request.GET.get("q", "*")
@@ -50,13 +51,24 @@ def parse_query(request) -> tuple:
         collections = collections.split(",") if collections is not None else []
         sources = request.GET.get("ss", None)
         sources = sources.split(",") if sources is not None else []
-        provider_props = search_props_for_provider(provider_name, collections, sources, request.GET)
+        sort_field = request.GET.get("sort_field")
+        sort_order = request.GET.get("sort_order")
+        page_size = request.GET.get("page_size")
+        provider_props = search_props_for_provider(
+            provider_name, 
+            collections,
+            sources, 
+            {"sort_field": sort_field, 
+             "sort_order": sort_order, 
+             "page_size": page_size}
+            )
         start_date = request.GET.get("start")
         start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
         end_date = request.GET.get("end")
         end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
         api_key = _get_api_key(provider_name)
-    return start_date, end_date, query_str, provider_props, provider_name, api_key
+        base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None 
+    return start_date, end_date, query_str, provider_props, provider_name, api_key, base_url
 
 
 def parse_query_array(queryObject) -> tuple:
@@ -73,7 +85,8 @@ def parse_query_array(queryObject) -> tuple:
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
     api_key = _get_api_key(provider_name)
-    return start_date, end_date, query_str, provider_props, provider_name, api_key
+    base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None 
+    return start_date, end_date, query_str, provider_props, provider_name, api_key, base_url
 
 
 def _get_api_key(provider): 
@@ -171,11 +184,12 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
     sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False]
     domain_url_filters = ["(canonical_domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
     # 3. assemble and add in other supported params
-    supported_extra_props = ['pagination_token', 'page_size', 'limit',
+    supported_extra_props = ['pagination_token', 'page_size', 'sort_field', 'sort_order',
                              'expanded']  # make sure nothing nefarious gets through
     extra_props = dict(domains=domains, filters=domain_url_filters)
     for prop_name in supported_extra_props:
-        extra_props[prop_name] = all_params.get(prop_name, None)
+        if prop_name in all_params:
+            extra_props[prop_name] = all_params.get(prop_name)
     return extra_props
 
 
