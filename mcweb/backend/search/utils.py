@@ -37,7 +37,7 @@ def parse_query(request) -> tuple:
         query_str = payload["query"]
         collections = payload["collections"]
         sources = payload["sources"]
-        provider_props = search_props_for_provider(provider_name, collections, sources, request.GET)
+        provider_props = search_props_for_provider(provider_name, collections, sources, payload)
         start_date = payload["startDate"]
         start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
         end_date = payload["endDate"]
@@ -51,21 +51,11 @@ def parse_query(request) -> tuple:
         collections = collections.split(",") if collections is not None else []
         sources = request.GET.get("ss", None)
         sources = sources.split(",") if sources is not None else []
-        sort_field = request.GET.get("sort_field")
-        sort_order = request.GET.get("sort_order")
-        page_size = request.GET.get("page_size")
-        pagination_token = request.GET.get("pagination_token")
-        expanded = request.GET.get("expanded")
         provider_props = search_props_for_provider(
             provider_name, 
             collections,
             sources, 
-            {"sort_field": sort_field, 
-             "sort_order": sort_order, 
-             "page_size": page_size,
-             "pagination_token": pagination_token,
-             "expanded": expanded,
-             }
+            request.GET
         )
         start_date = request.GET.get("start")
         start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
