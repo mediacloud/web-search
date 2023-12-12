@@ -36,7 +36,7 @@ export default function SampleStoryShow({
                   className="google-icon"
                   src={platform === PROVIDER_NEWS_MEDIA_CLOUD ? googleFaviconUrl(`https://${sampleStory.media_url}`)
                     : googleFaviconUrl(`${sampleStory.media_url}`)}
-                  alt="{sampleStory.media_name}"
+                  alt={`${sampleStory.media_name}`}
                 />
                 <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
               </td>
