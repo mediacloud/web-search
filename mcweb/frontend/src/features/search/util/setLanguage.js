@@ -7,6 +7,7 @@ import {
   PROVIDER_REDDIT_PUSHSHIFT,
   PROVIDER_YOUTUBE_YOUTUBE,
   PROVIDER_NEWS_MEDIA_CLOUD,
+  PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
 } from './platforms';
 
 Prism.languages.news = {
@@ -35,7 +36,8 @@ Prism.languages.youtube = {
 
 const setLanguage = (platform) => {
   let language;
-  if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
+  if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_WAYBACK_MACHINE
+  || platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) {
     language = Prism.languages.news;
   } else if (platform === PROVIDER_REDDIT_PUSHSHIFT) {
     language = Prism.languages.reddit;
