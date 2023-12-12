@@ -75,7 +75,8 @@ def parse_query_array(queryObject) -> tuple:
     end_date = payload["endDate"]
     end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
     api_key = _get_api_key(provider_name)
-    return start_date, end_date, query_str, provider_props, provider_name, api_key
+    base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None 
+    return start_date, end_date, query_str, provider_props, provider_name, api_key, base_url
 
 
 def _get_api_key(provider): 
