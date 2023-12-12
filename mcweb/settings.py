@@ -39,7 +39,7 @@ DEBUG = environ.Env(DEBUG=(bool, False))
 
 # app.process for access from rss-fetcher
 ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', 'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.tarbell.mediacloud.org', '127.0.0.1']
-CSRF_TRUSTED_ORIGINS = ['https://mcweb-staging.tarbell.mediacloud.org', 'https://search.mediacloud.org']
+CSRF_TRUSTED_ORIGINS = ['https://search.mediacloud.org']
 # Application definition
 
 INSTALLED_APPS = [
@@ -207,7 +207,6 @@ CACHES = {
 }
 
 MC_LEGACY_API_KEY = env('MEDIA_CLOUD_API_KEY')
-YOUTUBE_API_KEY=env('YOUTUBE_API_KEY')
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 # email authentication
 try:
