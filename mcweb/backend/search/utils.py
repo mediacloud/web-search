@@ -54,14 +54,19 @@ def parse_query(request) -> tuple:
         sort_field = request.GET.get("sort_field")
         sort_order = request.GET.get("sort_order")
         page_size = request.GET.get("page_size")
+        pagination_token = request.GET.get("pagination_token")
+        expanded = request.GET.get("expanded")
         provider_props = search_props_for_provider(
             provider_name, 
             collections,
             sources, 
             {"sort_field": sort_field, 
              "sort_order": sort_order, 
-             "page_size": page_size}
-            )
+             "page_size": page_size,
+             "pagination_token": pagination_token,
+             "expanded": expanded,
+             }
+        )
         start_date = request.GET.get("start")
         start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
         end_date = request.GET.get("end")
