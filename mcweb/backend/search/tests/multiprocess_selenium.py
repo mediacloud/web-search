@@ -12,7 +12,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from time import sleep
 from numpy.random import randint
-from settings import SAMPLE_STAGING_USER, SAMPLE_STAGING_PASSWORD
+# from settings import SAMPLE_STAGING_USER, SAMPLE_STAGING_PASSWORD
 import logging
 
 
@@ -65,9 +65,9 @@ def selenium_task(worker, data):
     WebDriverWait(worker, 5).until(EC.presence_of_element_located((By.ID, 'text')))
     username = worker.find_element(By.ID, "text")
     username.clear()
-    username.send_keys(SAMPLE_STAGING_USER)
+    # username.send_keys(SAMPLE_STAGING_USER)
     password = worker.find_element(By.ID, "password")
-    password.send_keys(SAMPLE_STAGING_PASSWORD)
+    # password.send_keys(SAMPLE_STAGING_PASSWORD)
     submit = worker.find_element(By.CLASS_NAME, 'MuiButton-containedPrimary')
     submit.click()
     try:

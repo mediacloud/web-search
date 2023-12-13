@@ -207,7 +207,6 @@ CACHES = {
 }
 
 MC_LEGACY_API_KEY = env('MEDIA_CLOUD_API_KEY')
-YOUTUBE_API_KEY=env('YOUTUBE_API_KEY')
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 # email authentication
 try:

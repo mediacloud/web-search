@@ -5,7 +5,7 @@ from django.apps import apps
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
-from settings import MC_LEGACY_API_KEY, YOUTUBE_API_KEY, NEWS_SEARCH_API_URL
+from settings import MC_LEGACY_API_KEY, NEWS_SEARCH_API_URL
 
 
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -85,8 +85,8 @@ def parse_query_array(queryObject) -> tuple:
 
 
 def _get_api_key(provider): 
-    if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
-        return YOUTUBE_API_KEY
+    # if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
+    #     return YOUTUBE_API_KEY
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
         return MC_LEGACY_API_KEY
     return None
