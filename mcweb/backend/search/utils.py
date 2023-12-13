@@ -85,8 +85,8 @@ def parse_query_array(queryObject) -> tuple:
 
 
 def _get_api_key(provider): 
-    if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
-        return YOUTUBE_API_KEY
+    # if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
+    #     return YOUTUBE_API_KEY
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
         return MC_LEGACY_API_KEY
     return None

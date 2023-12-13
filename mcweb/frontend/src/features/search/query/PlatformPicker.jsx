@@ -72,7 +72,7 @@ export default function PlatformPicker({ queryIndex }) {
             </ToggleButton>
             )}
 
-            {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
+            {/* {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY); }}
                 value={PROVIDER_NEWS_MEDIA_CLOUD_LEGACY}
@@ -82,7 +82,7 @@ export default function PlatformPicker({ queryIndex }) {
                 <br />
                 Online News Archive
               </ToggleButton>
-            )}
+            )} */}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_NEWS_WAYBACK_MACHINE); }}
@@ -94,17 +94,6 @@ export default function PlatformPicker({ queryIndex }) {
                 News Archive
               </ToggleButton>
             )}
-            {/* {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}
-                value={PROVIDER_YOUTUBE_YOUTUBE}
-              >
-                <YouTubeIcon fontSize="large" />
-                YouTube
-                <br />
-                (YouTube API)
-              </ToggleButton>
-            )} */}
           </ToggleButtonGroup>
         </div>
       </div>

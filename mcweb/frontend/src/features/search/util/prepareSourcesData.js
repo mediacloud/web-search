@@ -15,7 +15,7 @@ export default function prepareSourceData(domainData, normalized) {
     const totalCount = getTotalDomainCount(queryData);
     series.push(
       {
-        data: queryData.sources.map((s) => ({
+        data: queryData.sources.slice(0, 10).map((s) => ({
           key: s.source, value: normalized ? (s.count / totalCount) * 100 : s.count,
         })),
         name: 'Source',
