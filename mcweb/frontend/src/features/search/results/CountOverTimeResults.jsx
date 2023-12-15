@@ -103,8 +103,12 @@ export default function CountOverTimeResults() {
             <div className="float-start">
               {normalized && (
                 <div>
-                  <Button onClick={handleClick} startIcon={<Settings titleAccess="view other chart viewing options" />}>
-                    View Options
+                  <Button
+                    onClick={handleClick}
+                    variant="outlined"
+                    startIcon={<Settings titleAccess="view other chart viewing options" />}
+                  >
+                    View Options...
                   </Button>
                   <Menu
                     id="basic-menu"
@@ -127,8 +131,8 @@ export default function CountOverTimeResults() {
               )}
               {!normalized && (
                 <div>
-                  <Button onClick={handleClick}>
-                    View Options
+                  <Button variant="outlined" onClick={handleClick}>
+                    View Options...
                   </Button>
                   <Menu
                     id="basic-menu"
@@ -153,7 +157,7 @@ export default function CountOverTimeResults() {
           )}
           <div className="float-end">
             <Button
-              variant="text"
+              variant="outlined"
               startIcon={<DownloadIcon titleAccess="download attention over time results" />}
               onClick={() => {
                 handleDownloadRequest(queryState);

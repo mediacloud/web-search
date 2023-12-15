@@ -402,7 +402,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                         source.media_type])
                 first_page = False
 
-        filename = "Collection-{}-{}-sources-{}.csv".format(
+        filename = "Collection-{}-{}-sources-{}".format(
             collection_id, collection.name, _filename_timestamp())
         streamer = csv_stream.CSVStream(filename, data_generator)
         return streamer.stream()

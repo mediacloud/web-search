@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Settings from '@mui/icons-material/Settings';
-// import DownloadIcon from '@mui/icons-material/Download';
+import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
@@ -42,9 +42,9 @@ export default function TopSources() {
 
   const open = Boolean(anchorEl);
 
-  //   const handleDownloadRequest = (qs) => {
-  //     window.location = `/api/search/download-top-languages-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  //   };
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-top-sources-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
 
   useEffect(() => {
     if (!checkForBlankQuery(queryState)) {
@@ -81,106 +81,104 @@ export default function TopSources() {
   } else {
     const queryTitleArrays = queryState.map((query, index) => queryState[index].name);
     content = (
-      <>
-        <div className="container">
-          <Box sx={{ width: '100%' }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                {prepareSourceData(data, normalized).map((result, i) => (
-                  <Tab
-                    key={queryTitleArrays[i]}
-                    label={queryTitleArrays[i]}
-                    id={`simple-tab-${i}`}
-                    aria-controls={`simple-tabpanel-${i}`}
-                  />
-                ))}
-              </Tabs>
-            </Box>
-
-            {prepareSourceData(data, normalized).map((results, i) => (
-              <TabPanelHelper value={value} index={i} key={`${results.data[0].value}`}>
-                <BarChart
-                  series={[results]}
-                  normalized={normalized}
-                  title="Top Sources"
-                  height={100 + (results.data.length * 40)}
+      <div className="container">
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+              {prepareSourceData(data, normalized).map((result, i) => (
+                <Tab
+                  key={queryTitleArrays[i]}
+                  label={queryTitleArrays[i]}
+                  id={`simple-tab-${i}`}
+                  aria-controls={`simple-tabpanel-${i}`}
                 />
-              </TabPanelHelper>
-            ))}
+              ))}
+            </Tabs>
           </Box>
 
-          <div className="clearfix">
-            <div className="float-start">
-              {normalized && (
-                <div>
-                  <Button
-                    onClick={handleClick}
-                    startIcon={
-                      <Settings titleAccess="view other chart viewing options" />
-                    }
-                  >
-                    View Options
-                  </Button>
-                  <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                    }}
-                  >
-                    <MenuItem
-                      onClick={() => {
-                        setNormalized(false);
-                        handleClose();
-                      }}
-                    >
-                      View Story Count
-                    </MenuItem>
-                  </Menu>
-                </div>
-              )}
-              {!normalized && (
-                <div>
-                  <Button onClick={handleClick}>View Options</Button>
-                  <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
-                    }}
-                  >
-                    <MenuItem
-                      onClick={() => {
-                        setNormalized(true);
-                        handleClose();
-                      }}
-                    >
-                      View Normalized Story Percentage (default)
-                    </MenuItem>
-                  </Menu>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+          {prepareSourceData(data, normalized).map((results, i) => (
+            <TabPanelHelper value={value} index={i} key={`${results.data[0].value}`}>
+              <BarChart
+                series={[results]}
+                normalized={normalized}
+                title="Top Sources"
+                height={100 + (results.data.length * 40)}
+              />
+            </TabPanelHelper>
+          ))}
+        </Box>
+
         <div className="clearfix">
+          <div className="float-start">
+            {normalized && (
+            <div>
+              <Button
+                onClick={handleClick}
+                variant="outlined"
+                startIcon={
+                  <Settings titleAccess="view other chart viewing options" />
+                    }
+              >
+                View Options...
+              </Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setNormalized(false);
+                    handleClose();
+                  }}
+                >
+                  View Story Count
+                </MenuItem>
+              </Menu>
+            </div>
+            )}
+            {!normalized && (
+            <div>
+              <Button variant="outlined" onClick={handleClick}>View Options...</Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setNormalized(true);
+                    handleClose();
+                  }}
+                >
+                  View Normalized Story Percentage (default)
+                </MenuItem>
+              </Menu>
+            </div>
+            )}
+          </div>
+
           <div className="float-end">
-            {/* <Button
-              variant="text"
+            <Button
+              variant="outlined"
               startIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
               onClick={() => {
                 handleDownloadRequest(queryState);
               }}
             >
               Download CSV of Top Languages
-            </Button> */}
+            </Button>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
