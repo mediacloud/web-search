@@ -132,11 +132,12 @@ function TotalAttentionResults() {
                 <div>
                   <Button
                     onClick={handleClick}
+                    variant="outlined"
                     startIcon={
                       <Settings titleAccess="view other chart viewing options" />
                     }
                   >
-                    View Options
+                    View Options...
                   </Button>
                   <Menu
                     id="basic-menu"
@@ -160,7 +161,7 @@ function TotalAttentionResults() {
               )}
               {!normalized && (
                 <div>
-                  <Button onClick={handleClick}>View Options</Button>
+                  <Button variant="outlined" onClick={handleClick}>View Options...</Button>
                   <Menu
                     id="basic-menu"
                     anchorEl={anchorEl}
@@ -183,16 +184,15 @@ function TotalAttentionResults() {
               )}
             </div>
           )}
-        </div>
-        <div className="clearfix">
+
           <div className="float-end">
             <div>
               <TotalAttentionEmailModal
                 outsideTitle="Download All URLs"
                 title={
-                  `Your current email is: ${currentUserEmail}
-                  Would you like to send your downloaded data to your current email or a new email?`
-                }
+                `Your current email is: ${currentUserEmail}
+                Would you like to send your downloaded data to your current email or a new email?`
+              }
                 content="Enter a new email?"
                 dispatchNeeded={false}
                 navigateTo="/"
