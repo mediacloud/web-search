@@ -153,7 +153,7 @@ export default function CountOverTimeResults() {
           )}
           <div className="float-end">
             <Button
-              variant="text"
+              variant="outlined"
               startIcon={<DownloadIcon titleAccess="download attention over time results" />}
               onClick={() => {
                 handleDownloadRequest(queryState);
