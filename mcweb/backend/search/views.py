@@ -145,6 +145,39 @@ def sources(request):
     return HttpResponse(json.dumps({"sources": response}, default=str), content_type="application/json",
                         status=200)
 
+@require_http_methods(["GET"])
+@action(detail=False)
+def download_sources_csv(request):
+    queryState = json.loads(request.GET.get("qS"))
+    data = []
+    for query in queryState:
+        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
+        provider = providers.provider_by_name(provider_name, api_key, base_url)
+
+        try:
+            data.append(provider.sources(query_str, start_date,
+                        end_date, **provider_props, sample_size=5000, limit=100))
+        except Exception as e:
+            logger.exception(e)
+            return error_response(str(e), HttpResponseBadRequest)
+        QuotaHistory.increment(
+            request.user.id, request.user.is_staff, provider_name, 2)
+    filename = "mc-{}-{}-top-sources".format(
+        provider_name, _filename_timestamp())
+    response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
+    )
+    writer = csv.writer(response)
+    # TODO: extract into a constant (global)
+    cols = ['source', 'count']
+    writer.writerow(cols)
+
+    for top_sources in data:
+        for s in top_sources:
+            writer.writerow([s["source"], s["count"]])
+    return response
+
 
 @handle_provider_errors
 @api_view(['GET', 'POST'])
@@ -170,15 +203,15 @@ def download_languages_csv(request):
     for query in queryState:
         start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
         provider = providers.provider_by_name(provider_name, api_key, base_url)
-        if provider_name.split('-')[0] == PLATFORM_REDDIT:
-            data.append(provider.languages(
-                query_str, start_date, end_date, **provider_props))
-        else:
+        try:
             data.append(provider.languages(query_str, start_date,
                         end_date, **provider_props, sample_size=5000, limit=100))
+        except Exception as e: 
+            logger.exception(e)
+            return error_response(str(e), HttpResponseBadRequest)
         QuotaHistory.increment(
             request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-top-languages.csv".format(
+    filename = "mc-{}-{}-top-languages".format(
         provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -239,21 +272,17 @@ def download_words_csv(request):
     for query in queryState:
         start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
         provider = providers.provider_by_name(provider_name, api_key, base_url)
-        if provider_name.split('-')[0] == PLATFORM_REDDIT:
-            words = provider.words(query_str, start_date,
-                                   end_date, **provider_props)
-            words = add_ratios(words)
-            data.append(words)
-            QuotaHistory.increment(
-                request.user.id, request.user.is_staff, provider_name, 4)
-        else:
+        try:
             words = provider.words(query_str, start_date,
                                    end_date, **provider_props, sample_size=5000)
             words = add_ratios(words)
             data.append(words)
-            QuotaHistory.increment(
+        except Exception as e:
+            logger.exception(e)
+            return error_response(str(e), HttpResponseBadRequest)
+        QuotaHistory.increment(
                 request.user.id, request.user.is_staff, provider_name, 4)
-    filename = "mc-{}-{}-top-words.csv".format(
+    filename = "mc-{}-{}-top-words".format(
         provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -287,7 +316,7 @@ def download_counts_over_time_csv(request):
             normalized = False
         QuotaHistory.increment(
             request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-counts.csv".format(
+    filename = "mc-{}-{}-counts".format(
         provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',

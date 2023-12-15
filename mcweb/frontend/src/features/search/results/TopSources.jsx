@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Settings from '@mui/icons-material/Settings';
-// import DownloadIcon from '@mui/icons-material/Download';
+import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
@@ -42,9 +42,9 @@ export default function TopSources() {
 
   const open = Boolean(anchorEl);
 
-  //   const handleDownloadRequest = (qs) => {
-  //     window.location = `/api/search/download-top-languages-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  //   };
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-top-sources-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
 
   useEffect(() => {
     if (!checkForBlankQuery(queryState)) {
@@ -169,15 +169,15 @@ export default function TopSources() {
         </div>
         <div className="clearfix">
           <div className="float-end">
-            {/* <Button
-              variant="text"
+            <Button
+              variant="outlined"
               startIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
               onClick={() => {
                 handleDownloadRequest(queryState);
               }}
             >
               Download CSV of Top Languages
-            </Button> */}
+            </Button>
           </div>
         </div>
       </>
