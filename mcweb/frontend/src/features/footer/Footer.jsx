@@ -6,21 +6,20 @@ function Footer() {
     <Header id="footer" reversed customColumns>
       <div className="col-8 offset-2">
         <p>
-          Media Cloud is a consortium research project
-          across multiple institutions, including the&nbsp;
-          <a href="https://www.umass.edu/" target="_blank" rel="noreferrer">University of Massachusetts Amherst</a>
-          ,&nbsp;
-          <a href="https://www.northeastern.edu/" target="_blank" rel="noreferrer">Northeastern University</a>
-          , the
-          {' '}
-          <a href="https://archive.org/about" target="_blank" rel="noreferrer">Internet Archive&apos;s</a>
-          {' '}
-          <a href="https://web.archive.org" target="_blank" rel="noreferrer">Wayback Machine</a>
-          , and the&nbsp;
-          <a href="https://cyber.law.harvard.edu/" target="_blank" rel="noreferrer">
-            Berkman Klein Center for Internet & Society at Harvard University
+          Media Cloud is a consortium collaboration between the&nbsp;
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <a href="https://www.mediaecosystems.org/" target="_blank" rel="noreferrer">Media Ecosystems Analysis Group</a>,&nbsp;
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          the <a href="https://www.umass.edu/" target="_blank" rel="noreferrer">University of Massachusetts Amherst</a>,&nbsp;
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          and <a href="https://www.northeastern.edu/" target="_blank" rel="noreferrer">Northeastern University</a>.&nbsp;
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          Learn more about&nbsp;
+          <a href="https://www.mediacloud.org/consortium" target="_blank" rel="noreferrer">
+            the consortium on mediacloud.org
           </a>
           .
+
         </p>
         <p>
           Need help? Join our
