@@ -6,9 +6,8 @@ djangorestframework-simplejwt[crypto]==5.2.*
 pyhumps==3.8.*
 django-environ==0.9.*
 dj-database-url==1.0.*
-mediacloud-metadata==0.*
+mediacloud-metadata==0.11.*
 python-dateutil==2.8.*
-dateparser==1.1.*
 django-redis==5.2.*
 gunicorn==20.1.*
 whitenoise==6.2.*
