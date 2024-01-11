@@ -174,7 +174,7 @@ export default function TopSources() {
                 handleDownloadRequest(queryState);
               }}
             >
-              Download CSV of Top Languages
+              Download CSV of Top Sources
             </Button>
           </div>
         </div>

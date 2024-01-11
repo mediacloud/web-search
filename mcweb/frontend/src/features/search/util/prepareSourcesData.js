@@ -16,7 +16,9 @@ export default function prepareSourceData(domainData, normalized) {
     series.push(
       {
         data: queryData.sources.slice(0, 10).map((s) => ({
-          key: s.source, value: normalized ? (s.count / totalCount) * 100 : s.count,
+          key: `<a 
+          href="https://${s.source}" target="_blank" rel="noreferrer">${s.source}</a>`,
+          value: normalized ? (s.count / totalCount) * 100 : s.count,
         })),
         name: 'Source',
         color: colorArray[i],
