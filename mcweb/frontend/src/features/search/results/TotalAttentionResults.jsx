@@ -219,6 +219,9 @@ function TotalAttentionResults() {
             Compare the total number of items that matched your queries. Use the
             &quot;view options&quot; menu to switch between story counts and a
             percentage (if supported).
+
+            Click &quot;Download All URLs&quot; to the bottom-right to download a CSV of all the
+            matching content and associated metadata.
           </p>
         </div>
         <div className="col-8">

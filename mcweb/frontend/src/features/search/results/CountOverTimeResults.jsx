@@ -5,14 +5,17 @@ import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Settings } from '@mui/icons-material';
+import Divider from '@mui/material/Divider';
+import Settings from '@mui/icons-material/Settings';
 import DownloadIcon from '@mui/icons-material/Download';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
-import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
+import {
+  prepareCountOverTimeData, DAY, WEEK, MONTH,
+} from '../util/prepareCountOverTimeData';
 
 export default function CountOverTimeResults() {
   const queryState = useSelector((state) => state.query);
@@ -23,6 +26,8 @@ export default function CountOverTimeResults() {
   } = queryState[0];
 
   const [normalized, setNormalized] = useState(true);
+
+  const [chartBy, setChartBy] = useState(DAY);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -84,7 +89,7 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
-    const preparedData = prepareCountOverTimeData(data, normalized, queryState);
+    const preparedData = prepareCountOverTimeData(data, normalized, chartBy);
     if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
       (originalDataObj, index) => {
@@ -126,6 +131,25 @@ export default function CountOverTimeResults() {
                     >
                       View Content Count
                     </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={() => {
+                      setChartBy(DAY);
+                    }}
+                    >
+                      Chart by day
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                      setChartBy(WEEK);
+                    }}
+                    >
+                      Chart by week
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                      setChartBy(MONTH);
+                    }}
+                    >
+                      Chart by month
+                    </MenuItem>
                   </Menu>
                 </div>
               )}
@@ -149,6 +173,25 @@ export default function CountOverTimeResults() {
                     }}
                     >
                       View Normalized Content Percentage (default)
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={() => {
+                      setChartBy(DAY);
+                    }}
+                    >
+                      Chart by day
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                      setChartBy(WEEK);
+                    }}
+                    >
+                      Chart by week
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                      setChartBy(MONTH);
+                    }}
+                    >
+                      Chart by month
                     </MenuItem>
                   </Menu>
                 </div>
