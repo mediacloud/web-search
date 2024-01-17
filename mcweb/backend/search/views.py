@@ -70,7 +70,7 @@ def handle_provider_errors(func):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-@cache_by_kwargs()
+# @cache_by_kwargs()
 def total_count(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
@@ -89,7 +89,7 @@ def total_count(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-@cache_by_kwargs()
+# @cache_by_kwargs()
 def count_over_time(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
@@ -108,7 +108,7 @@ def count_over_time(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-@cache_by_kwargs()
+# @cache_by_kwargs()
 def sample(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
@@ -124,7 +124,7 @@ def sample(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-@cache_by_kwargs()
+# @cache_by_kwargs()
 def story_detail(request):
     story_id = request.GET.get("storyId")
     platform = request.GET.get("platform")
@@ -139,7 +139,7 @@ def story_detail(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-@cache_by_kwargs()
+# @cache_by_kwargs()
 def sources(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
@@ -189,7 +189,7 @@ def download_sources_csv(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-@cache_by_kwargs()
+# @cache_by_kwargs()
 def languages(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
@@ -238,7 +238,7 @@ def download_languages_csv(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
-@cache_by_kwargs()
+# @cache_by_kwargs()
 def story_list(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
@@ -258,7 +258,7 @@ def story_list(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-@cache_by_kwargs()
+# @cache_by_kwargs()
 def words(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
