@@ -31,7 +31,8 @@ import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import isNumber from './util/isNumber';
 import tabTitle from './util/tabTitles';
-import { useListCollectionsFromNestedArrayMutation } from '../../app/services/collectionsApi';
+// import { useListCollectionsFromNestedArrayMutation } from '../../app/services/collectionsApi';
+import { useLazyListCollectionsFromNestedArrayQuery } from '../../app/services/collectionsApi';
 
 function a11yProps(index) {
   return {
@@ -52,7 +53,8 @@ export default function TabbedSearch() {
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
   const { platform, advanced } = queryState[0];
 
-  const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
+  // const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
+  const [getCollectionNames] = useLazyListCollectionsFromNestedArrayQuery();
 
   useEffect(() => {
     setShow(deactivateButton(queryState));
@@ -64,9 +66,18 @@ export default function TabbedSearch() {
     navigator.clipboard.writeText(ahref);
   };
 
+  const prepareCollectionIds = (collectionIds) => {
+    const queries = {};
+    collectionIds.forEach((query, i) => {
+      queries[i] = query;
+    });
+    return queries;
+  };
+
   const fetchCollectionNames = async () => {
     const collectionIds = queryState.map((query) => query.collections);
-    const nestedArrayOfCollectionData = await getCollectionNames(collectionIds).unwrap();
+    const prepareCollections = prepareCollectionIds(collectionIds);
+    const nestedArrayOfCollectionData = await getCollectionNames(prepareCollections).unwrap();
     return nestedArrayOfCollectionData.collection;
   };
 

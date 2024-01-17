@@ -13,30 +13,27 @@ const dateHelper = (dateString) => {
   return newDate;
 };
 
+// date grouping with help from https://stackoverflow.com/questions/35441820/tomorrow-today-and-yesterday-with-momentjs
 function groupValues(elements, duration, normalized) {
-  console.log('eleements', elements);
   const formatted = elements.count_over_time.counts.map((elem) => ({
     date: dayjs(elem.date).startOf(duration).format('YYYY-MM-DD'),
     count: elem.count,
     total_count: elem.total_count,
   }));
 
-  console.log('FORMATTED', formatted);
-
   const dates = formatted.map((elem) => elem.date);
-  console.log('DATES', dates);
+
   const uniqueDates = dates.filter((date, index) => dates.indexOf(date) === index);
-  console.log('UNIQUIE DATES', uniqueDates);
+
   const returnData = uniqueDates.map((date) => {
     // const count = formatted.filter((elem) => elem.date === date).reduce((count, elem) => count + elem.count, 0);
     const filtered = formatted.filter((elem) => elem.date === date);
-    console.log('FILTERED', filtered);
     const count = filtered.reduce((redCount, elem) => redCount + elem.count, 0);
-    console.log('COUNTTTT', count);
-    return [dateHelper(date), count];
+    const totalCount = filtered.reduce((redCount, elem) => redCount + elem.total_count, 0);
+    const ratio = (count / totalCount);
+    return [dateHelper(date), normalized ? (ratio * 100) : count];
   });
 
-  console.log(returnData);
   return returnData;
 }
 
@@ -49,7 +46,6 @@ export const prepareCountOverTimeData = (results, normalized, chartBy) => {
         dateHelper(r.date),
         normalized ? r.ratio * 100 : r.count,
       ]);
-      console.log('PPPPPP', preparedData);
       series.push({
         data: preparedData,
         color: colors[i],
@@ -58,11 +54,6 @@ export const prepareCountOverTimeData = (results, normalized, chartBy) => {
   } else if (chartBy === WEEK) {
     results.forEach((result, i) => {
       const groupedData = groupValues(result, WEEK, normalized);
-      // const preparedData = groupedData.map((r) => [
-      //   dateHelper(r.date),
-      //   normalized ? r.ratio * 100 : r.count,
-      // ]);
-      console.log('WEEK', groupedData);
       series.push({
         data: groupedData,
         color: colors[i],
@@ -70,19 +61,13 @@ export const prepareCountOverTimeData = (results, normalized, chartBy) => {
     });
   } else {
     results.forEach((result, i) => {
-      const groupedData = groupValues(result, MONTH);
-      const preparedData = groupedData.map((r) => [
-        dateHelper(r.date),
-        normalized ? r.ratio * 100 : r.count,
-      ]);
-      console.log('Month', groupedData);
+      const groupedData = groupValues(result, MONTH, normalized);
       series.push({
-        data: preparedData,
+        data: groupedData,
         color: colors[i],
       });
     });
   }
-  console.log('SERIES', series);
   return series;
 };
 
