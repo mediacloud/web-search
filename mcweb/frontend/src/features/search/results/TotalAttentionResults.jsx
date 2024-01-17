@@ -220,7 +220,7 @@ function TotalAttentionResults() {
             &quot;view options&quot; menu to switch between story counts and a
             percentage (if supported).
 
-            Click &quot;Download All URLs&quot; to the bottom-right to download a CSV of all the
+            Click &quot;download all urls&quot; to the bottom-right to download a CSV of all the
             matching content and associated metadata.
           </p>
         </div>
