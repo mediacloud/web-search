@@ -174,14 +174,19 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
     selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
     domains += [s.name for s in selected_sources_in_collections if bool(s.url_search_string) is False]
     # 2. pull out all the domains that have url_search_strings and turn those into search clauses
+    #    note: ignore sources whose domain is in the list of domains that don't have a url_search_string (e.g. if
+    #    parent bizjournals.com is in domain list then ignore town-specific bizjournals.com to reduce query length)
     sources_with_url_search_strs = []
-    sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False]
-    sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False]
-    domain_url_filters = ["(canonical_domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
+    sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False
+                                     and s.name not in domains]
+    sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False
+                                     and s.name not in domains]
+    domain_url_filters = ["(canonical_domain:{} AND url:*{}*)".format(s.name, s.url_search_string)
+                          for s in sources_with_url_search_strs]
     # 3. assemble and add in other supported params
     supported_extra_props = ['pagination_token', 'page_size', 'sort_field', 'sort_order',
                              'expanded']  # make sure nothing nefarious gets through
-    extra_props = dict(domains=domains, filters=domain_url_filters)
+    extra_props = dict(domains=domains, filters=domain_url_filters, chunk=False)
     for prop_name in supported_extra_props:
         if prop_name in all_params:
             extra_props[prop_name] = all_params.get(prop_name)
