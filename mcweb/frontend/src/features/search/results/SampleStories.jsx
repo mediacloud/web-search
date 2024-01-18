@@ -113,8 +113,6 @@ export default function SampleStories() {
           <h2>Sample Content</h2>
           <p>
             This is a sample of the content that matched your queries.
-            Click the menu on the bottom  right to download a CSV of all the
-            matching content and associated metadata.
           </p>
           {(platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
             <p>

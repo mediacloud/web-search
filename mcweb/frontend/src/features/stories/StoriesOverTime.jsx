@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetCountOverTimeMutation } from '../../app/services/searchApi';
 import CountOverTimeChart from '../search/results/CountOverTimeChart';
-import prepareCountOverTimeData from '../search/util/prepareCountOverTimeData';
+import { prepareCountOverTimeData } from '../search/util/prepareCountOverTimeData';
 import prepareQueries from '../search/util/prepareQueries';
 import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate, earliestAllowedStartDate } from '../search/util/platforms';
 

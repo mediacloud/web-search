@@ -5,6 +5,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
+import DownloadIcon from '@mui/icons-material/Download';
 import Box from '@mui/material/Box';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
@@ -97,6 +98,7 @@ export default function TotalAttentionEmailModal({
         variant={variant}
         onClick={handleClickOpen}
         endIcon={endIcon}
+        startIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
       >
         {outsideTitle}
       </Button>
