@@ -4,11 +4,12 @@ import os
 import requests
 import requests.auth
 import datetime as dt
-import urllib.parse
+from urllib.parse import urlparse, parse_qs
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Case, When, Q
 from rest_framework import viewsets, permissions
 import mcmetadata.urls as urls
@@ -133,10 +134,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
         serializer = CollectionWriteSerializer(collections, many=True)
         return Response({"collections": serializer.data})
 
-    @action(methods=['POST'], detail=False, url_path='collections-from-nested-list')
+    @action(methods=['GET'], detail=False, url_path='collections-from-nested-list')
     def collections_from_nested_list(self, request):
-        nested_list = request.data
-        # nested_list is a dictionary
+        nested_list = request.query_params
         nested_collection_ids = [values for values in nested_list.values()]
         names = []
         for collection_ids in nested_collection_ids:
@@ -149,9 +149,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
         # break down the collection's serializer.data and just get the name (could be refactored in future by removing names)
         names = [[item['name'] for item in sublist] for sublist in names]
         return Response({"collection": names})
-
+    
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
-
     @action(methods=['post'], detail=False, url_path='rescrape-collection')
     def rescrape_feeds(self, request):
         collection_id = int(request.data["collection_id"])

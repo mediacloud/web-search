@@ -17,11 +17,10 @@ export const collectionsApi = managerApi.injectEndpoints({
         method: 'GET',
       }),
     }),
-    listCollectionsFromNestedArray: builder.mutation({
-      query: (nestedArrayOfCollections) => ({
-        url: 'collections/collections-from-nested-list/',
-        method: 'POST',
-        body: { ...nestedArrayOfCollections },
+    listCollectionsFromNestedArray: builder.query({
+      query: (params) => ({
+        url: `collections/collections-from-nested-list/?${toSearchUrlParams(params, true)}`,
+        method: 'GET',
       }),
     }),
     listCollections: builder.query({
@@ -92,5 +91,5 @@ export const {
   useLazyGetCollectionQuery,
   useGetGlobalCollectionsQuery,
   useRescrapeCollectionMutation,
-  useListCollectionsFromNestedArrayMutation,
+  useLazyListCollectionsFromNestedArrayQuery,
 } = collectionsApi;
