@@ -1,4 +1,12 @@
-[{"version": "v2.0.0",
+[{"version": "v2.0.1",
+"date": "2024-01-22",
+"notes": ["add day, week, month views to attention over time",
+"fix email bug",
+"fix large downloads",
+"stability fixes for new index",
+"fix typos in results components"
+]
+},{"version": "v2.0.0",
 "date": "2023-12-21",
 "notes": ["primary provider to search against is now the new media cloud online news archive",
 "new feature top sources",
