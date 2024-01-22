@@ -61,6 +61,7 @@ def send_zipped_large_download_email(zipped_filename, zipped_data, to):
     if not EMAIL_HOST:
         return
     email = EmailMessage(subject="Downloaded Total Attention's Data",
+                         body=zipped_filename,
                          from_email='noreply@mediacloud.org', to=[to])
     try:
         email.attach(zipped_filename, zipped_data, 'application/zip')
