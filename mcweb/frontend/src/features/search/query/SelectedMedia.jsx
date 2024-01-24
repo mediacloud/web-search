@@ -54,7 +54,7 @@ export default function SelectedMedia({
                     width: '100%',
                   }}
                 >
-                  {source.label || source.name}
+                  {source.name || source.label}
                 </Link>
                 <IconButton
                   size="small"
@@ -88,7 +88,9 @@ export default function SelectedMedia({
                 <IconButton
                   size="small"
                   aria-label="remove"
-                  onClick={() => dispatch(onRemove({ sourceOrCollection: { type: 'collection', id: collection.id }, queryIndex }))}
+                  onClick={() => dispatch(onRemove(
+                    { sourceOrCollection: { type: 'collection', id: collection.id }, queryIndex },
+                  ))}
                 >
                   <RemoveCircleIcon sx={{ color: '#d24527' }} />
                 </IconButton>
