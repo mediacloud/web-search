@@ -42,8 +42,8 @@ class django_caching_interface():
     def __call__(self, fn, *args, **kwargs):
         key = _cache_get_key(fn.__name__, *args, **kwargs)
         results = cache.get(key)
-        if not result:
-            result = fn(*args, **kwargs)
-            cache.set(key, result, self.time_secs)
-        return result
+        if not results:
+            results = fn(*args, **kwargs)
+            cache.set(key, results, self.time_secs)
+        return results
     

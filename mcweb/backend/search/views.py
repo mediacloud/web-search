@@ -31,7 +31,7 @@ from util.cache import django_caching_interface
 logger = logging.getLogger(__name__)
 
 # This is where we set the caching manager and the cache_time
-CachingManager.caching_function = django_caching_interface(time_secs=60*60*24)
+CachingManager.cache_function = django_caching_interface(time_secs=60*60*24)
 
 session = requests.Session()
 retry = Retry(connect=3, backoff_factor=0.5)
