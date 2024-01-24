@@ -411,7 +411,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         source_ids = request.query_params.get('s', None)  # decode
         if len(source_ids) != 0:
             source_ids = source_ids.split(',')
-            source_ids = [int(i) for i in source_ids]
+            source_ids = [int(i) for i in source_ids if i.isnumeric()]
         sources = Source.objects.filter(id__in=source_ids)
         serializer = SourceSerializer(sources, many=True)
         return Response({"sources": serializer.data})
