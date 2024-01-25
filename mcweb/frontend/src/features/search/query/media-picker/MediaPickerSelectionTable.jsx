@@ -85,5 +85,9 @@ MediaPickerSelectionTable.propTypes = {
   selected: PropTypes.arrayOf(PropTypes.number).isRequired,
   collection: PropTypes.bool.isRequired,
   queryIndex: PropTypes.number.isRequired,
-  isGlobalCollection: PropTypes.bool.isRequired,
+  isGlobalCollection: PropTypes.bool,
+};
+
+MediaPickerSelectionTable.defaultProps = {
+  isGlobalCollection: false,
 };

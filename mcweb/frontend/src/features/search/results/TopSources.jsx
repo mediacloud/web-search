@@ -69,7 +69,7 @@ export default function TopSources() {
   let content;
   if (!data && !error) return null;
 
-  if (error) {
+  if (error || !data[0].sources[0]) {
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.
