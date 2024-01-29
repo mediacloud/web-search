@@ -74,7 +74,7 @@ def handle_provider_errors(func):
 def total_count(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
-    relevant_count = provider.count(query_str, start_date, end_date, **provider_props)
+    relevant_count = provider.count(f"({query_str})", start_date, end_date, **provider_props)
     try:
         total_content_count = provider.count(provider.everything_query(), start_date, end_date, **provider_props)
     except QueryingEverythingUnsupportedQuery as e:
@@ -94,10 +94,10 @@ def count_over_time(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
-        results = provider.normalized_count_over_time(query_str, start_date, end_date, **provider_props)
+        results = provider.normalized_count_over_time(f"({query_str})", start_date, end_date, **provider_props)
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
-        results = provider.count_over_time(query_str, start_date, end_date, **provider_props)
+        results = provider.count_over_time(f"({query_str})", start_date, end_date, **provider_props)
     response = results
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, provider_name)
@@ -113,7 +113,7 @@ def sample(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
-        response = provider.sample(query_str, start_date, end_date, **provider_props)
+        response = provider.sample(f"({query_str})", start_date, end_date, **provider_props)
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
@@ -144,7 +144,7 @@ def sources(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
-        response = provider.sources(query_str, start_date,end_date, 10, **provider_props)
+        response = provider.sources(f"({query_str})", start_date,end_date, 10, **provider_props)
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
@@ -161,7 +161,7 @@ def download_sources_csv(request):
         provider = providers.provider_by_name(provider_name, api_key, base_url)
 
         try:
-            data.append(provider.sources(query_str, start_date,
+            data.append(provider.sources(f"({query_str})", start_date,
                         end_date, **provider_props, sample_size=5000, limit=100))
         except Exception as e:
             logger.exception(e)
@@ -194,7 +194,7 @@ def languages(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
-        response = provider.languages(query_str, start_date, end_date, **provider_props)
+        response = provider.languages(f"({query_str})", start_date, end_date, **provider_props)
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
@@ -211,7 +211,7 @@ def download_languages_csv(request):
         start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
         provider = providers.provider_by_name(provider_name, api_key, base_url)
         try:
-            data.append(provider.languages(query_str, start_date,
+            data.append(provider.languages(f"({query_str})", start_date,
                         end_date, **provider_props, sample_size=5000, limit=100))
         except Exception as e: 
             logger.exception(e)
@@ -247,7 +247,7 @@ def story_list(request):
         provider_props['expanded'] = provider_props['expanded'] == '1'
         if not request.user.is_staff:
             raise error_response("You are not permitted to fetch `expanded` stories.", HttpResponseForbidden)
-    page, pagination_token = provider.paged_items(query_str, start_date, end_date, **provider_props)
+    page, pagination_token = provider.paged_items(f"({query_str})", start_date, end_date, **provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 1)
     return HttpResponse(json.dumps({"stories": page, "pagination_token": pagination_token}, default=str),
                         content_type="application/json",
@@ -263,7 +263,7 @@ def words(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
     try:
-        words = provider.words(query_str, start_date,end_date, **provider_props)
+        words = provider.words(f"({query_str})", start_date,end_date, **provider_props)
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
     response = add_ratios(words)
@@ -282,7 +282,7 @@ def download_words_csv(request):
         start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
         provider = providers.provider_by_name(provider_name, api_key, base_url)
         try:
-            words = provider.words(query_str, start_date,
+            words = provider.words(f"({query_str})", start_date,
                                    end_date, **provider_props, sample_size=5000)
             words = add_ratios(words)
             data.append(words)
@@ -317,7 +317,7 @@ def download_counts_over_time_csv(request):
         provider = providers.provider_by_name(provider_name, api_key, base_url)
         try:
             data.append(provider.normalized_count_over_time(
-                query_str, start_date, end_date, **provider_props))
+                f"({query_str})", start_date, end_date, **provider_props))
             normalized = True
         except UnsupportedOperationException:
             data.append(provider.count_over_time(
@@ -356,7 +356,7 @@ def download_all_content_csv(request):
         start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
         provider = providers.provider_by_name(provider_name, api_key, base_url)
         data.append(provider.all_items(
-            query_str, start_date, end_date, **provider_props))
+            f"({query_str})", start_date, end_date, **provider_props))
 
     def data_generator():
         for result in data:
@@ -392,7 +392,7 @@ def send_email_large_download_csv(request):
         start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
         provider = providers.provider_by_name(provider_name, api_key, base_url)
         try:
-            count = provider.count(query_str, start_date, end_date, **provider_props)
+            count = provider.count(f"({query_str})", start_date, end_date, **provider_props)
             if count >= 25000 and count <= 200000:
                 download_all_large_content_csv(queryState, request.user.id, request.user.is_staff, email)
         except UnsupportedOperationException:
