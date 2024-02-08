@@ -188,6 +188,8 @@ class Source(models.Model):
 
         return obj
     
+    
+    ## THIS METHOD WAS COPIED FROM TASKS TO BE USED IN SCRAPE COLLECTION TASK, CAN DEFINITELY BE CLEANED UP TO REMOVE THIS
     @classmethod
     def _scrape_source(cls, source_id: int, homepage: str):
         logger.info(f"==== starting _scrape_source(source_id, homepage)")
