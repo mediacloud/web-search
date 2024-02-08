@@ -46,12 +46,14 @@ export default function CopyToAll({
 
   return (
     <>
-      <p
-        style={{ color: '#d24527', fontSize: '12px' }}
+      <div
+        style={{
+          color: '#d24527', fontSize: '12px', marginLeft: '3px', cursor: 'pointer',
+        }}
         onClick={handleClickOpen}
       >
         &gt;&gt;
-      </p>
+      </div>
       <Dialog
         open={open}
         onClose={handleClose}

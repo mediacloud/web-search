@@ -26,9 +26,11 @@ export default function SimpleSearch({ queryIndex }) {
 
         <div className="col-4">
           <div className="query-section">
-            <h3>
-              <em>1</em>
-              Enter search phrases
+            <div className="copy-toall">
+              <h3>
+                <em>1</em>
+                Enter search phrases
+              </h3>
               <CopyToAll
                 openDialog={openQuery}
                 title="Copy To All Queries"
@@ -43,7 +45,7 @@ export default function SimpleSearch({ queryIndex }) {
                 className="float-end"
                 confirmButtonText="OK"
               />
-            </h3>
+            </div>
             {/*  can't use <p> tag here, because UL of options can't be child of it :-( */}
             <div className="description">
               Match

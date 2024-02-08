@@ -31,7 +31,6 @@ import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import isNumber from './util/isNumber';
 import tabTitle from './util/tabTitles';
-// import { useListCollectionsFromNestedArrayMutation } from '../../app/services/collectionsApi';
 import { useLazyListCollectionsFromNestedArrayQuery } from '../../app/services/collectionsApi';
 
 function a11yProps(index) {
@@ -53,7 +52,6 @@ export default function TabbedSearch() {
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
   const { platform, advanced } = queryState[0];
 
-  // const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
   const [getCollectionNames] = useLazyListCollectionsFromNestedArrayQuery();
 
   useEffect(() => {
