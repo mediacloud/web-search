@@ -5,6 +5,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
+import Tooltip from '@mui/material/Tooltip';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useDispatch } from 'react-redux';
 import { useSnackbar } from 'notistack';
@@ -46,14 +47,16 @@ export default function CopyToAll({
 
   return (
     <>
-      <div
-        style={{
-          color: '#d24527', fontSize: '12px', marginLeft: '3px', cursor: 'pointer',
-        }}
-        onClick={handleClickOpen}
-      >
-        &gt;&gt;
-      </div>
+      <Tooltip title="Copy To All Queries">
+        <div
+          style={{
+            color: '#d24527', marginLeft: '3px', cursor: 'pointer',
+          }}
+          onClick={handleClickOpen}
+        >
+          &#187;
+        </div>
+      </Tooltip>
       <Dialog
         open={open}
         onClose={handleClose}
