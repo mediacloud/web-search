@@ -9,18 +9,20 @@ import { useCreateFeedMutation } from '../../app/services/feedsApi';
 export default function CreateFeed() {
   const navigate = useNavigate();
   const params = useParams();
+
   const sourceId = Number(params.sourceId);
+
   const [formState, setFormState] = useState({
-    name: '', url: '', adminEnabled: true, source: sourceId,
+    name: '', url: '', admin_rss_enabled: true, source: sourceId,
   });
 
-  const handleChange = ({ target: { name, value } }) => (
-    setFormState((prev) => ({ ...prev, [name]: value }))
-  );
+  const handleChange = ({ target: { name, value } }) => {
+    setFormState((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleCheck = () => (
-    setFormState((prev) => ({ ...prev, adminEnabled: !prev.adminEnabled }))
-  );
+  const handleCheck = () => {
+    setFormState((prev) => ({ ...prev, admin_rss_enabled: !prev.admin_rss_enabled }));
+  };
 
   const [createFeed] = useCreateFeedMutation();
 
@@ -54,7 +56,7 @@ export default function CreateFeed() {
           <br />
           <FormControl>
             <FormControlLabel
-              control={<Checkbox onChange={handleCheck} checked={formState.adminEnabled} />}
+              control={<Checkbox onChange={handleCheck} checked={formState.admin_rss_enabled} />}
               label="Admin enabled?"
             />
           </FormControl>

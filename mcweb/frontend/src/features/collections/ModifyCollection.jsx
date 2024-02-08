@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
-import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import InputLabel from '@mui/material/InputLabel';
 import FormGroup from '@mui/material/FormGroup';
@@ -239,7 +239,7 @@ export default function ModifyCollection() {
           <h3>Add/Remove Sources</h3>
           <Autocomplete
             ref={autocompleteRef}
-            id="quick-directory-search"
+            id="quick-source-search"
             open={open}
             filterOptions={(x) => x} /* let the server filter optons */
             onOpen={() => {}}

@@ -18,7 +18,7 @@ export default function SourceSearch() {
       <div className="container">
         <div className="row">
 
-          {/* CollectionSearch */}
+          {/* SourceSearch */}
           <div className="col-6">
             <TextField
               fullWidth
@@ -41,8 +41,6 @@ export default function SourceSearch() {
         </div>
         <div className="row">
           <div className="col-12">
-
-            {/* CollectionSearch results? */}
             {isLoading && <CircularProgress size={75} />}
             {data && (
             <>

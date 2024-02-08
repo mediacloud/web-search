@@ -6,6 +6,10 @@ import { generateComparativeQuery } from '../util/generateComparativeQuery';
 const DEFAULT_PROVIDER = PROVIDER_NEWS_MEDIA_CLOUD;
 export const DEFAULT_ONLINE_NEWS_COLLECTIONS = [34412234];
 
+export const QUERY = 'query';
+export const MEDIA = 'media';
+export const DATES = 'dates';
+
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 
 const cleanQuery = (platform) => ({
@@ -191,6 +195,49 @@ const querySlice = createSlice({
         freezeState.splice(payload, 1);
       }
     },
+    copyToAllQueries: (state, { payload }) => {
+      const freezeState = state;
+      const queryProperty = payload.property;
+      const { queryIndex } = payload;
+      const queryData = freezeState[queryIndex];
+
+      if (queryProperty === QUERY) {
+        if (queryData.advanced) {
+          const { queryString } = queryData;
+          freezeState.forEach((query) => {
+            const qsCopy = query;
+            qsCopy.queryString = queryString;
+          });
+        } else {
+          const { queryList, negatedQueryList, anyAll } = queryData;
+          freezeState.forEach((query) => {
+            const qsCopy = query;
+            qsCopy.queryList = queryList;
+            qsCopy.negatedQueryList = negatedQueryList;
+            qsCopy.anyAll = anyAll;
+          });
+        }
+      } else if (queryProperty === MEDIA) {
+        const {
+          collections, sources, previewCollections, previewSources,
+        } = queryData;
+        freezeState.forEach((query) => {
+          const qsCopy = query;
+          qsCopy.collections = collections;
+          qsCopy.sources = sources;
+          qsCopy.previewCollections = previewCollections;
+          qsCopy.previewSources = previewSources;
+        });
+      } else if (queryProperty === DATES) {
+        const { startDate: start, endDate: end } = queryData;
+        freezeState.forEach((query) => {
+          const qsCopy = query;
+          qsCopy.startDate = start;
+          qsCopy.endDate = end;
+        });
+      }
+      return freezeState;
+    },
   },
 });
 
@@ -208,6 +255,7 @@ export const {
   removeQuery,
   setSelectedMedia,
   addComparativeQuery,
+  copyToAllQueries,
 } = querySlice.actions;
 
 export default querySlice.reducer;
