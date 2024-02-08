@@ -47,7 +47,21 @@ export default function CopyToAll({
 
   return (
     <>
-      <Tooltip title="Copy To All Queries">
+      <Tooltip
+        slotProps={{
+          popper: {
+            modifiers: [
+              {
+                name: 'offset',
+                options: {
+                  offset: [0, -17],
+                },
+              },
+            ],
+          },
+        }}
+        title="Copy To All Queries"
+      >
         <div
           style={{
             color: '#d24527', marginLeft: '3px', cursor: 'pointer',
