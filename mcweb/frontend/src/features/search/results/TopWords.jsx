@@ -139,18 +139,6 @@ export default function TopWords() {
               These results are from a random sample of news stories.
             </p>
           )}
-          {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-            <p>
-              These results are from a sample titles from top scoring Reddit submissions.
-              Common terms (ie. stopwords) have been removed based on the language of each submission.
-            </p>
-          )}
-          {(platform === PROVIDER_TWITTER_TWITTER) && (
-            <p>
-              These results are from a sample of the text from the most recent Tweets.
-              Common terms (ie. stopwords) have been removed based on the language of each Tweet.
-            </p>
-          )}
           {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
             <p>
               These results are from a sample of titles from 5000 random news stories.
