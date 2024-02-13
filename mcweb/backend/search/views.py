@@ -238,7 +238,6 @@ def download_languages_csv(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
-# @cache_by_kwargs()
 def story_list(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
@@ -247,7 +246,7 @@ def story_list(request):
         provider_props['expanded'] = provider_props['expanded'] == '1'
         if not request.user.is_staff:
             raise error_response("You are not permitted to fetch `expanded` stories.", HttpResponseForbidden)
-    page, pagination_token = provider.paged_items(f"({query_str})", start_date, end_date, **provider_props)
+    page, pagination_token = provider.paged_items(f"({query_str})", start_date, end_date, **provider_props, sort_field="indexed_date")
     QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 1)
     return HttpResponse(json.dumps({"stories": page, "pagination_token": pagination_token}, default=str),
                         content_type="application/json",
