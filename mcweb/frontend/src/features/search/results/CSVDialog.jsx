@@ -8,15 +8,20 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
+import prepareQueries from '../util/prepareQueries';
 
 export default function CSVDialog({
-  openDialog, queryState, outsideTitle, title, content, action, actionTarget,
+  openDialog, queryState, downloadType, outsideTitle, title, content, action, actionTarget,
   snackbar, snackbarText, variant, startIcon, secondAction,
   confirmButtonText,
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [open, setOpen] = React.useState(openDialog);
+
+  const handleDownloadRequest = (qs) => {
+    window.location = `/api/search/download-top-words-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -60,6 +65,9 @@ export default function CSVDialog({
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-between' }}>
           {/* Table with each query and a button to download */}
+          {queryState.map((querySlice) => {
+
+          })}
           {/* Additional button to download all CSVs */}
           <Button
             variant="outlined"
