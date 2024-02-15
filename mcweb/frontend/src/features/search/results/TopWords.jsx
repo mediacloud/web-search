@@ -104,6 +104,7 @@ export default function TopWords() {
         </div>
         <div className="clearfix">
           <div className="float-end">
+            <CSVDialog />
             <Button
               variant="outlined"
               startIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}

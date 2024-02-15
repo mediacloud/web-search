@@ -19,8 +19,11 @@ export default function CSVDialog({
 
   const [open, setOpen] = React.useState(openDialog);
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-top-words-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  const query = prepareQueries(queryState);
+
+  const handleDownloadRequest = () => {
+    const url = getDownloadURL(downloadType);
+    window.location = `/api/search/${url}?qS=${encodeURIComponent(JSON.stringify(query))}`;
   };
 
   const handleClickOpen = () => {
