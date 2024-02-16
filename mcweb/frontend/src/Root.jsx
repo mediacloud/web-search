@@ -15,10 +15,13 @@ import { Box } from '@mui/material';
 import './style/Application.scss';
 
 // Components
+import * as Sentry from '@sentry/react';
 import App from './App';
 
 // Store
 import getStore from './app/store';
+
+// Sentry
 
 const theme = createTheme({
   palette: {
@@ -57,6 +60,24 @@ const theme = createTheme({
       },
     },
   },
+});
+
+Sentry.init({
+  dsn: 'https://5379abd35ad573aaa8b239552bf28393@o33894.ingest.sentry.io/4506751471321093',
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration({
+      maskAllText: false,
+      blockAllMedia: false,
+    }),
+  ],
+  // Performance Monitoring
+  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+  // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
+  tracePropagationTargets: [/^https:\/\/search\.mediacloud\.org/],
+  // Session Replay
+  replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%.
+  replaysOnErrorSampleRate: 1.0,
 });
 
 function Root() {
