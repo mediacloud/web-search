@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
-import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
+import CSVDialog from './CSVDialog';
+import { LANG } from '../util/getDownloadUrl';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopLanguagesMutation } from '../../../app/services/searchApi';
 import {
@@ -29,13 +29,11 @@ export default function TopLanguages() {
   const [dispatchQuery, { isLoading, data, error }] = useGetTopLanguagesMutation();
   const [newQuery, setNewQuery] = useState(false);
 
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
+
   const [value, setValue] = useState(0);
   const handleChange = (event, newValue) => {
     setValue(newValue);
-  };
-
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-top-languages-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
   };
 
   useEffect(() => {
@@ -103,15 +101,17 @@ export default function TopLanguages() {
         </div>
         <div className="clearfix">
           <div className="float-end">
-            <Button
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={LANG}
+              outsideTitle="Download CSV of Top Languages"
+              title="Choose a Query to Download a Top Languages CSV or you can choose to download all queries"
+              snackbar
+              snackbarText="Top Languages CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
               variant="outlined"
-              startIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV of Top Languages
-            </Button>
+            />
           </div>
         </div>
       </>

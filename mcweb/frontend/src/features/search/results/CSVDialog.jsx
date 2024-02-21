@@ -6,23 +6,29 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import prepareQueries from '../util/prepareQueries';
+import { getDownloadUrl } from '../util/getDownloadUrl';
 
 export default function CSVDialog({
-  openDialog, queryState, downloadType, outsideTitle, title, content, action, actionTarget,
-  snackbar, snackbarText, variant, startIcon, secondAction,
+  openDialog, queryState, downloadType, outsideTitle, title, content,
+  snackbar, snackbarText, variant, startIcon,
   confirmButtonText,
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [open, setOpen] = React.useState(openDialog);
 
-  const query = prepareQueries(queryState);
+  // const query = prepareQueries(queryState);
 
-  const handleDownloadRequest = () => {
-    const url = getDownloadURL(downloadType);
+  const handleDownloadRequest = (queryIndex) => {
+    const url = getDownloadUrl(downloadType);
+    const querySlice = queryState[queryIndex];
+    const query = prepareQueries([querySlice]);
+
     window.location = `/api/search/${url}?qS=${encodeURIComponent(JSON.stringify(query))}`;
   };
 
@@ -46,7 +52,7 @@ export default function CSVDialog({
       <Button
         variant={variant}
         onClick={handleClickOpen}
-        startIcon={startIcon}
+        startIcon={<DownloadIcon />}
       >
         {outsideTitle}
         ...
@@ -59,18 +65,39 @@ export default function CSVDialog({
       >
         <DialogTitle id="alert-dialog-title">
           {title}
-          Choose Which Query You Would Like to Download A CSV
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {content}
+            <table className="col-12">
+              <thead>
+                <tr className="row">
+                  <th className="col-6">Name</th>
+                  <th className="col-6">Download</th>
+                </tr>
+              </thead>
+              <tbody>
+                {queryState.map((querySlice, i) => (
+                  <tr key={querySlice.name} className="row">
+                    <td className="col-6">
+                      {querySlice.name}
+                    </td>
+                    <td className="col-6">
+                      <IconButton
+                        size="sm"
+                        aria-label="remove"
+                        onClick={() => handleDownloadRequest(i)}
+                      >
+                        <DownloadIcon sx={{ color: '#d24527' }} />
+                      </IconButton>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'space-between' }}>
-          {/* Table with each query and a button to download */}
-          {queryState.map((querySlice) => {
+        <DialogActions>
 
-          })}
           {/* Additional button to download all CSVs */}
           <Button
             variant="outlined"
@@ -85,7 +112,7 @@ export default function CSVDialog({
               onClick={handleClick}
               autoFocus
             >
-              {confirmButtonText}
+              Download All
             </Button>
           </Box>
         </DialogActions>
@@ -99,16 +126,10 @@ CSVDialog.propTypes = {
   outsideTitle: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   content: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
-  action: PropTypes.func.isRequired,
-  actionTarget: PropTypes.oneOfType([PropTypes.object, PropTypes.bool, PropTypes.number]).isRequired,
-  dispatchNeeded: PropTypes.bool.isRequired,
   snackbar: PropTypes.bool,
   snackbarText: PropTypes.string,
   variant: PropTypes.string,
   startIcon: PropTypes.element,
-  navigateNeeded: PropTypes.bool,
-  navigateTo: PropTypes.string,
-  secondAction: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
   confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 };
 
@@ -117,7 +138,4 @@ CSVDialog.defaultProps = {
   snackbarText: '',
   variant: 'text',
   startIcon: null,
-  navigateNeeded: false,
-  navigateTo: '',
-  secondAction: null,
 };

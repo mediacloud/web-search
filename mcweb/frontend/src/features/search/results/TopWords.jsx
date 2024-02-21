@@ -10,10 +10,12 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import checkForBlankQuery from '../util/checkForBlankQuery';
+import CSVDialog from './CSVDialog';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
+  PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
 } from '../util/platforms';
+import { WORDS } from '../util/getDownloadUrl';
 import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
 import TabPanelHelper from '../../ui/TabPanelHelper';
@@ -28,12 +30,10 @@ export default function TopWords() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetTopWordsMutation();
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-top-words-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
-
   const [value, setValue] = useState(0);
   const [newQuery, setNewQuery] = useState(false);
+
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -104,16 +104,17 @@ export default function TopWords() {
         </div>
         <div className="clearfix">
           <div className="float-end">
-            <CSVDialog />
-            <Button
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={WORDS}
+              outsideTitle="Download CSV of Top Terms"
+              title="Choose a Query to Download a Top Terms CSV or you can choose to download all queries"
+              snackbar
+              snackbarText="Top Words CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
               variant="outlined"
-              startIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV of Top Terms
-            </Button>
+            />
           </div>
         </div>
 

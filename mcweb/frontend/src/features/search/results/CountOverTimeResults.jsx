@@ -7,7 +7,8 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import Settings from '@mui/icons-material/Settings';
-import DownloadIcon from '@mui/icons-material/Download';
+import CSVDialog from './CSVDialog';
+import { AOT } from '../util/getDownloadUrl';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
 import { supportsNormalizedCount } from './TotalAttentionResults';
@@ -31,6 +32,8 @@ export default function CountOverTimeResults() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
+
   const handleClick = (e) => setAnchorEl(e.currentTarget);
 
   const handleClose = () => setAnchorEl(null);
@@ -38,10 +41,6 @@ export default function CountOverTimeResults() {
   const open = Boolean(anchorEl);
 
   const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
-
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-counts-over-time-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
 
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
@@ -199,15 +198,17 @@ export default function CountOverTimeResults() {
             </div>
           )}
           <div className="float-end">
-            <Button
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={AOT}
+              outsideTitle="Download CSV of Attention Over Time"
+              title="Choose a Query to Download a Attention Over Time CSV or you can choose to download all queries"
+              snackbar
+              snackbarText="Attention Over Time CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
               variant="outlined"
-              startIcon={<DownloadIcon titleAccess="download attention over time results" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV
-            </Button>
+            />
           </div>
         </div>
       </>
