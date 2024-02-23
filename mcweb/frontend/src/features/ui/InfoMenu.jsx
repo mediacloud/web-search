@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import {
-  PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
+  PROVIDER_NEWS_MEDIA_CLOUD,
   PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../search/util/platforms';
 
@@ -92,9 +92,9 @@ export default function InfoMenu({ platform, sampleStory }) {
             )} */}
 
             {/* media-cloud story is a bit different, taken out of id */}
-            {(platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
+            {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
               <NavLink
-                to={`/story/${platform}/${sampleStory.id}`}
+                to={`/story/${platform}/${encodeURIComponent(sampleStory.url)}`}
                 target="_blank"
                 rel="noreferrer"
                 onClick={handleClose}

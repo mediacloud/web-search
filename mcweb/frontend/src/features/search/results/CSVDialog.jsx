@@ -12,13 +12,15 @@ import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import prepareQueries from '../util/prepareQueries';
 import { getDownloadUrl } from '../util/getDownloadUrl';
+import { useDownloadAllQueriesMutation } from '../../../app/services/searchApi';
 
 export default function CSVDialog({
-  openDialog, queryState, downloadType, outsideTitle, title, content,
-  snackbar, snackbarText, variant, startIcon,
-  confirmButtonText,
+  openDialog, queryState, downloadType, outsideTitle, title,
+  snackbar, snackbarText, variant,
 }) {
   const { enqueueSnackbar } = useSnackbar();
+
+  const [downloadAll, { isLoading }] = useDownloadAllQueriesMutation();
 
   const [open, setOpen] = React.useState(openDialog);
 
@@ -30,6 +32,11 @@ export default function CSVDialog({
     const query = prepareQueries([querySlice]);
 
     window.location = `/api/search/${url}?qS=${encodeURIComponent(JSON.stringify(query))}`;
+  };
+
+  const handleDownloadAll = () => {
+    console.log(prepareQueries(queryState));
+    downloadAll(prepareQueries(queryState));
   };
 
   const handleClickOpen = () => {
@@ -71,17 +78,17 @@ export default function CSVDialog({
             <table className="col-12">
               <thead>
                 <tr className="row">
-                  <th className="col-6">Name</th>
-                  <th className="col-6">Download</th>
+                  <th className="col-8">Name</th>
+                  <th className="col-4">Download</th>
                 </tr>
               </thead>
               <tbody>
                 {queryState.map((querySlice, i) => (
                   <tr key={querySlice.name} className="row">
-                    <td className="col-6">
+                    <td className="col-8">
                       {querySlice.name}
                     </td>
-                    <td className="col-6">
+                    <td className="col-4">
                       <IconButton
                         size="sm"
                         aria-label="remove"
@@ -109,7 +116,7 @@ export default function CSVDialog({
           <Box>
             <Button
               variant="contained"
-              onClick={handleClick}
+              onClick={handleDownloadAll}
               autoFocus
             >
               Download All
@@ -125,17 +132,14 @@ CSVDialog.propTypes = {
   openDialog: PropTypes.bool.isRequired,
   outsideTitle: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  content: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+  downloadType: PropTypes.string.isRequired,
   snackbar: PropTypes.bool,
   snackbarText: PropTypes.string,
   variant: PropTypes.string,
-  startIcon: PropTypes.element,
-  confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 };
 
 CSVDialog.defaultProps = {
   snackbar: false,
   snackbarText: '',
   variant: 'text',
-  startIcon: null,
 };
