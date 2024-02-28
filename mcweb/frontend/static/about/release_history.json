@@ -2,6 +2,7 @@
 "date": "2024-02-28",
 "notes": ["add feature copy to all queries",
 "allow all of 2023 to be queried against",
+"add feature compare across the globe",
 "bug fixes for feeds",
 "fix story list paging"
 ]
