@@ -88,9 +88,9 @@ export default function Homepage() {
             </div>
             <div className="col-5">
               <img
-                src={assetUrl('img/compare-global.png')}
+                src={assetUrl('img/total-attention-global.png')}
                 alt="total attention across different country collections"
-                width="100%"
+                width="140%"
               />
             </div>
           </div>
