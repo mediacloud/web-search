@@ -1,4 +1,11 @@
-[{"version": "v2.0.1",
+[{"version": "v2.0.2",
+"date": "2024-02-28",
+"notes": ["add feature copy to all queries",
+"allow all of 2023 to be queried against",
+"bug fixes for feeds",
+"fix story list paging"
+]
+},{"version": "v2.0.1",
 "date": "2024-01-22",
 "notes": ["add day, week, month views to attention over time",
 "fix email bug",
