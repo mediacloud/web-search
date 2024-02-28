@@ -7,7 +7,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import PropTypes from 'prop-types';
 import ArrowRight from '@mui/icons-material/ArrowRight';
 import CloseIcon from '@mui/icons-material/Close';
-import { PARTISAN } from '../search/util/generateComparativeQuery';
+import { PARTISAN, GLOBAL } from '../search/util/generateComparativeQuery';
 import { PROVIDER_NEWS_MEDIA_CLOUD } from '../search/util/platforms';
 
 // https://medium.com/geekculture/creating-a-dropdown-with-nested-menu-items-using-react-mui-bb0c084226da was a helpful tool
@@ -70,13 +70,13 @@ export default function TabDropDownMenuItems({
         )}
 
         {/* compare across the globe, temp disabled until 504 solution */}
-        {/* <MenuItem onClick={() => {
+        <MenuItem onClick={() => {
           handleComparative(GLOBAL);
           setColorSubMenuOpen(false);
         }}
         >
           Compare Across the Globe
-        </MenuItem> */}
+        </MenuItem>
         {/* Add Color Option */}
         <MenuItem
           onMouseEnter={handleMouseEnter}
