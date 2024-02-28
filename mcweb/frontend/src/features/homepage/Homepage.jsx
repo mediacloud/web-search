@@ -31,9 +31,9 @@ export default function Homepage() {
         <div className="container">
           <div className="row">
             <div className="col-5 offset-1">
-              <h2>Search Online News & Social Media</h2>
+              <h2>Search Online News</h2>
               <p>
-                Our search tools let you author queries across media platforms,
+                Our search tools let you author queries across news archives,
                 without having to worry about platform-specific search syntax.
                 Based on what their APIs support, we can show attention over time,
                 total attention, and sample matching content. This lets you quickly
@@ -43,7 +43,7 @@ export default function Homepage() {
             </div>
             <div className="col-5">
               <img
-                src={assetUrl('img/screenshot-search-ui.png')}
+                src={assetUrl('img/query-screen.png')}
                 alt="screenshot of online media search interface"
                 width="100%"
               />
@@ -88,8 +88,8 @@ export default function Homepage() {
             </div>
             <div className="col-5">
               <img
-                src={assetUrl('img/mc-country-coverage.png')}
-                alt="heatmap visualization showing countries stories ahve come from"
+                src={assetUrl('img/compare-global.png')}
+                alt="total attention across different country collections"
                 width="100%"
               />
             </div>
