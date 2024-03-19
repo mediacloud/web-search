@@ -57,9 +57,9 @@ def parse_query(request) -> tuple:
             sources, 
             request.GET
         )
-        start_date = request.GET.get("start")
+        start_date = request.GET.get("start", "2010-01-01")
         start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = request.GET.get("end")
+        end_date = request.GET.get("end", "2030-01-01")
         end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
         api_key = _get_api_key(provider_name)
         base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None 
