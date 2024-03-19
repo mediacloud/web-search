@@ -10,8 +10,7 @@ from rest_framework.authtoken.models import Token
 
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER,\
     PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, \
-    PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD, \
-    PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
+    PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD
 from mc_providers import UnknownProviderException
 
 from .exceptions import OverQuotaException
@@ -43,11 +42,9 @@ class Profile(models.Model):
             return self.quota_reddit_pushshift
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
             return self.quota_wayback_machine
-        if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
-            return self.quota_mediacloud_legacy
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
             return self.quota_mediacloud
-        raise UnknownProviderException(provider)
+        raise UnknownProviderException(provider, "")
 
     @classmethod
     def user_provider_quota(cls, user_id: int, provider: str) -> int:
