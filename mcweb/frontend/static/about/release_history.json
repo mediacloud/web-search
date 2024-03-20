@@ -1,4 +1,9 @@
-[{"version": "v2.0.2",
+[{"version": "v2.0.3",
+"date": "2024-03-19",
+"notes": ["update low-level internal libraries",
+"fixes on story API call"
+]
+},{"version": "v2.0.2",
 "date": "2024-02-28",
 "notes": ["add feature copy to all queries",
 "allow all of 2023 to be queried against",
