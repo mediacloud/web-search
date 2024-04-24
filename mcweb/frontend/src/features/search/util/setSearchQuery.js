@@ -4,7 +4,7 @@ import {
   setPreviewSelectedMedia,
   addQuery,
   setPlatform,
-  setLastSearchTime,
+  setInitialSearchTime,
   setSelectedMedia,
 } from '../query/querySlice';
 
@@ -146,7 +146,7 @@ export const setState = (
 
   dispatch(setPreviewSelectedMedia({ sourceOrCollection: media }));
   dispatch(setSelectedMedia({ sourceOrCollection: media }));
-  dispatch(setLastSearchTime(dayjs().unix()));
+  dispatch(setInitialSearchTime(dayjs().unix()));
 
   if (edited) {
     edited.forEach((edit, i) => {

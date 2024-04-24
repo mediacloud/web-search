@@ -24,6 +24,7 @@ const cleanQuery = (platform) => ({
   sources: [],
   previewSources: [],
   lastSearchTime: dayjs().unix(),
+  initialSearchTime: dayjs().unix(),
   isFromDateValid: true,
   isToDateValid: true,
   anyAll: 'any',
@@ -48,6 +49,7 @@ const querySlice = createSlice({
         sources: [],
         previewSources: [],
         lastSearchTime: dayjs().unix(),
+        initialSearchTime: dayjs().unix(),
         isFromDateValid: true,
         isToDateValid: true,
         anyAll: 'any',
@@ -179,6 +181,14 @@ const querySlice = createSlice({
         copyQs.lastSearchTime = payload;
       });
     },
+    setInitialSearchTime: (state, { payload }) => {
+      const freezeState = state;
+
+      freezeState.forEach((qS) => {
+        const copyQs = qS;
+        copyQs.initialSearchTime = payload;
+      });
+    },
     addComparativeQuery: (state, { payload }) => {
       const { type, query } = payload;
       const newState = generateComparativeQuery(type, query);
@@ -256,6 +266,7 @@ export const {
   setSelectedMedia,
   addComparativeQuery,
   copyToAllQueries,
+  setInitialSearchTime,
 } = querySlice.actions;
 
 export default querySlice.reducer;

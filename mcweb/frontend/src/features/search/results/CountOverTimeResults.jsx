@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import dayjs from 'dayjs';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
@@ -10,6 +11,7 @@ import Settings from '@mui/icons-material/Settings';
 import DownloadIcon from '@mui/icons-material/Download';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
+import { setLastSearchTime } from '../query/querySlice';
 import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
@@ -18,11 +20,12 @@ import {
 } from '../util/prepareCountOverTimeData';
 
 export default function CountOverTimeResults() {
+  const dispatch = useDispatch();
   const queryState = useSelector((state) => state.query);
 
   const {
     platform,
-    lastSearchTime,
+    initialSearchTime,
   } = queryState[0];
 
   const [normalized, setNormalized] = useState(true);
@@ -53,7 +56,7 @@ export default function CountOverTimeResults() {
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
-  }, [lastSearchTime]);
+  }, [initialSearchTime]);
 
   useEffect(() => {
     if (checkForBlankQuery(queryState) && queryState.length === 1) {
@@ -61,7 +64,7 @@ export default function CountOverTimeResults() {
     } else {
       setNewQuery(false);
     }
-  }, [lastSearchTime, queryState.length]);
+  }, [initialSearchTime, queryState.length]);
 
   useEffect(() => {
     if ((data)) {
@@ -70,7 +73,9 @@ export default function CountOverTimeResults() {
       executeScroll();
     }
   }, [data, error]);
+
   if (newQuery) return null;
+
   let content;
 
   if (isLoading) {
@@ -89,6 +94,7 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
+    dispatch(setLastSearchTime(dayjs().unix()));
     const preparedData = prepareCountOverTimeData(data, normalized, chartBy);
     if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
