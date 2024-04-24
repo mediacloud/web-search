@@ -126,12 +126,12 @@ def sample(request):
 @permission_classes([IsAuthenticated])
 # @cache_by_kwargs()
 def story_detail(request):
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     story_id = request.GET.get("storyId")
     platform = request.GET.get("platform")
-
-    provider = providers.provider_by_name(platform)
+    provider = providers.provider_by_name(platform, api_key, base_url)
     story_details = provider.item(story_id)
-    # QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
     return HttpResponse(json.dumps({"story": story_details}, default=str), content_type="application/json",
                         status=200)
 

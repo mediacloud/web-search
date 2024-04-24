@@ -4,8 +4,8 @@ from typing import List, Dict
 from django.apps import apps
 from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
-    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY
-from settings import MC_LEGACY_API_KEY, NEWS_SEARCH_API_URL
+    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
+from settings import NEWS_SEARCH_API_URL
 
 
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -57,9 +57,9 @@ def parse_query(request) -> tuple:
             sources, 
             request.GET
         )
-        start_date = request.GET.get("start")
+        start_date = request.GET.get("start", "2010-01-01")
         start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = request.GET.get("end")
+        end_date = request.GET.get("end", "2030-01-01")
         end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
         api_key = _get_api_key(provider_name)
         base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None 
@@ -84,11 +84,8 @@ def parse_query_array(queryObject) -> tuple:
     return start_date, end_date, query_str, provider_props, provider_name, api_key, base_url
 
 
-def _get_api_key(provider): 
-    # if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
-    #     return YOUTUBE_API_KEY
-    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
-        return MC_LEGACY_API_KEY
+def _get_api_key(provider: str) -> str:
+    # no system-level API keys right now
     return None
 
 
@@ -103,8 +100,6 @@ def search_props_for_provider(provider, collections: List, sources: List, all_pa
         return _for_wayback_machine(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
         return _for_media_cloud(collections, sources, all_params)
-    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD_LEGACY):
-        return _for_media_cloud_legacy(collections, sources)
     return {}
 
 
@@ -191,10 +186,3 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
         if prop_name in all_params:
             extra_props[prop_name] = all_params.get(prop_name)
     return extra_props
-
-
-def _for_media_cloud_legacy(collections: List, sources: List) -> Dict:
-    return dict(
-        collections=collections,
-        sources=sources
-    )

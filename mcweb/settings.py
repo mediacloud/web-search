@@ -23,7 +23,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.0.2"
+VERSION = "2.0.3"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -206,7 +206,6 @@ CACHES = {
     }
 }
 
-MC_LEGACY_API_KEY = env('MEDIA_CLOUD_API_KEY')
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 # email authentication
 try:
