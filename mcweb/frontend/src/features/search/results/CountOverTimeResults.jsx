@@ -69,6 +69,7 @@ export default function CountOverTimeResults() {
   useEffect(() => {
     if ((data)) {
       if ((data.length === queryState.length)) { executeScroll(); }
+      dispatch(setLastSearchTime(dayjs().unix()));
     } else if (error) {
       executeScroll();
     }
@@ -94,7 +95,6 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
-    dispatch(setLastSearchTime(dayjs().unix()));
     const preparedData = prepareCountOverTimeData(data, normalized, chartBy);
     if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
