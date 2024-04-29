@@ -7,23 +7,20 @@ import requests
 from typing import Optional
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import action, authentication_classes, permission_classes
 import backend.util.csv_stream as csv_stream
 from .utils import parse_query, parse_query_array
-from util.cache import cache_by_kwargs
 from .tasks import download_all_large_content_csv
 from ..users.models import QuotaHistory
 from backend.users.exceptions import OverQuotaException
 import mc_providers as providers
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
-from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_REDDIT
 from mc_providers.exceptions import ProviderException
 from mc_providers.cache import CachingManager
 

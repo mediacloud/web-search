@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from typing import Callable, Any
 
 # not integrated yet: super useful (we keep results of api) (lasts for 24 hours)
 
@@ -39,11 +40,13 @@ class django_caching_interface():
     def __init__(self, time_secs: int = 60*60*24):
         self.time_secs = time_secs
         
-    def __call__(self, fn, *args, **kwargs):
-        key = _cache_get_key(fn.__name__, *args, **kwargs)
+    def __call__(self, fn: Callable, cache_prefix: str, *args, **kwargs) -> tuple[Any, bool]:
+        was_cached = True
+        key = _cache_get_key(cache_prefix, *args, **kwargs)
         results = cache.get(key)
         if not results:
+            was_cached = False
             results = fn(*args, **kwargs)
             cache.set(key, results, self.time_secs)
-        return results
+        return results, was_cached
     
