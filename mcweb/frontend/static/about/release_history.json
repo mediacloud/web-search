@@ -1,4 +1,10 @@
-[{"version": "v2.0.3",
+[{"version": "v2.0.4",
+"date": "2024-05-14",
+"notes": ["update cacheing",
+"now search attention over time first, followed by other results components",
+"decrease earliest searchable start date to 01/01/2022"
+]},
+{"version": "v2.0.3",
 "date": "2024-03-19",
 "notes": ["update low-level internal libraries",
 "fixes on story API call"
