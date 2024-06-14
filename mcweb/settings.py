@@ -89,7 +89,6 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://o33894.ingest.sentry.io",
 ]
 
 ROOT_URLCONF = "urls"
