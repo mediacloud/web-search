@@ -63,6 +63,7 @@ const theme = createTheme({
 });
 
 Sentry.init({
+  
   dsn: 'https://5379abd35ad573aaa8b239552bf28393@o33894.ingest.sentry.io/4506751471321093',
   integrations: [
     Sentry.browserTracingIntegration(),
@@ -71,13 +72,18 @@ Sentry.init({
       blockAllMedia: false,
     }),
   ],
+  //environment: ENV // I'd really like to be able to get an environment in here dynamically- any thoughts?
   // Performance Monitoring
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
+  tracesSampleRate: 1.0,//  Capture 100% of the transactions
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-  tracePropagationTargets: [/^https:\/\/search\.mediacloud\.org/],
+  tracePropagationTargets: [/^https:\/\/search\.mediacloud\.org/, "/^http:\/\/localhost:8000/"],
   // Session Replay
   replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%.
   replaysOnErrorSampleRate: 1.0,
+  _experiments:{
+    profilesSampleRate: 1.0
+  },
+  shouldCreateSpanForRequest: (url) => true,
 });
 
 function Root() {

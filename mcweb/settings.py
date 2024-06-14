@@ -19,6 +19,19 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from django.core.exceptions import ImproperlyConfigured
 
+def getenv_float(name: str, defval: float | None) -> float | None:
+    """
+    fetch environment variable with name `name`
+    if not set, return defval
+    if set to empty string, return None
+    else interpret as floating point number
+    """
+    val = os.getenv(name)
+    if val is None:
+        return defval
+    if val == "":
+        return None
+    return float(val)
 
 logger = logging.getLogger(__file__)
 
@@ -37,12 +50,15 @@ SECRET_KEY = env("SECRET_KEY")
 
 DEBUG = environ.Env(DEBUG=(bool, False))
 
+
+
 # app.process for access from rss-fetcher
 ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', 'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.tarbell.mediacloud.org', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://search.mediacloud.org']
 # Application definition
 
 INSTALLED_APPS = [
+    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -67,6 +83,13 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://o33894.ingest.sentry.io",
 ]
 
 ROOT_URLCONF = "urls"
@@ -234,11 +257,13 @@ try:
             DjangoIntegration(),
         ],
         release=VERSION,
+
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
+
+        traces_sample_rate=getenv_float("TRACES_SAMPLE_RATE", 1.0),
+        profiles_sample_rate=getenv_float("PROFILES_SAMPLE_RATE", 1.0),
 
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
