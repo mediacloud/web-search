@@ -10,9 +10,7 @@ const statPanelValues = [
 const buildStatArray = (sourceObject) => {
   const returnArr = [];
   statPanelValues.forEach((panelValue) => {
-    if (sourceObject[panelValue.value]) {
-      returnArr.push({ label: panelValue.label, value: sourceObject[panelValue.value] });
-    }
+    returnArr.push({ label: panelValue.label, value: sourceObject[panelValue.value] });
   });
   return returnArr;
 };
