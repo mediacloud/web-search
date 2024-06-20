@@ -60,7 +60,7 @@ export default function ModifySource() {
         homepage: data.homepage,
         label: data.label,
         platform: data.platform,
-        url_search_string: data.url_search_string,
+        url_search_string: data.url_search_string ? data.url_search_string : '',
         media_type: data.media_type ? data.media_type : '',
         primary_language: data.primary_language,
         pub_country: data.pub_country,
@@ -77,7 +77,7 @@ export default function ModifySource() {
   const prepareSource = (formData) => {
     const preparedSource = {};
     Object.keys(formData).forEach((column) => {
-      if (formData[column] && formData[column] !== '') {
+      if ((formData[column] && formData[column] !== '') || column === 'url_search_string') {
         preparedSource[column] = formData[column];
       }
     });
