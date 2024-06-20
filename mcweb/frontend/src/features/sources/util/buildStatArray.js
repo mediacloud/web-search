@@ -1,18 +1,16 @@
 const statPanelValues = [
   { label: 'First Story', value: 'first_story' },
   { label: 'Stories per Week', value: 'stories_per_week' },
-  { label: 'Publication Country', value: 'pub_country' },
-  { label: 'Publication State', value: 'pub_state' },
-  { label: 'Primary Language', value: 'primary_language' },
+  { label: 'Pub Country', value: 'pub_country' },
+  { label: 'Pub State', value: 'pub_state' },
+  { label: 'Language', value: 'primary_language' },
   { label: 'Media Type', value: 'media_type' },
 ];
 
 const buildStatArray = (sourceObject) => {
   const returnArr = [];
   statPanelValues.forEach((panelValue) => {
-    if (sourceObject[panelValue.value]) {
-      returnArr.push({ label: panelValue.label, value: sourceObject[panelValue.value] });
-    }
+    returnArr.push({ label: panelValue.label, value: sourceObject[panelValue.value] });
   });
   return returnArr;
 };
