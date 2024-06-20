@@ -58,8 +58,10 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
   if (negatedQuery.length > 0) {
     if (platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) {
       fullQuery = `(${fullQuery}) AND NOT (${negatedQuery.join(' OR ')})`;
-    } else if (platform === PROVIDER_NEWS_WAYBACK_MACHINE || platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+    } else if (platform === PROVIDER_NEWS_WAYBACK_MACHINE) {
       fullQuery = `(${fullQuery}) -(${negatedQuery.join(' -')})`;
+    } else if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+      fullQuery = `(${fullQuery}) -(${negatedQuery.join(' OR ')})`;
     } else if (platform === PROVIDER_REDDIT_PUSHSHIFT) {
       fullQuery = `(${fullQuery}) -${negatedQuery.join(' -')}`;
     } else if (platform === PROVIDER_YOUTUBE_YOUTUBE) {
