@@ -72,17 +72,6 @@ export default function PlatformPicker({ queryIndex }) {
             </ToggleButton>
             )}
 
-            {/* {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY); }}
-                value={PROVIDER_NEWS_MEDIA_CLOUD_LEGACY}
-              >
-                <NewspaperIcon fontSize="large" />
-                Media Cloud Legacy
-                <br />
-                Online News Archive
-              </ToggleButton>
-            )} */}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_NEWS_WAYBACK_MACHINE); }}

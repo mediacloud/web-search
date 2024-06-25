@@ -64,6 +64,7 @@ export default function QueryList({ negated, queryIndex }) {
   return (
     <div className="query-term-list">
       {serviceList.map((singleService, index) => (
+        // eslint-disable-next-line react/no-array-index-key
         <div key={index} className="query-term-item">
 
           <div className="first-division">

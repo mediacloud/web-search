@@ -10,10 +10,7 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import checkForBlankQuery from '../util/checkForBlankQuery';
-import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
-  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
-} from '../util/platforms';
+import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
 import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
 import TabPanelHelper from '../../ui/TabPanelHelper';
@@ -125,8 +122,7 @@ export default function TopWords() {
         <div className="col-4">
           <h2>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            Top Words
-            <Chip color="warning" label="experimental" />
+            Top Words <Chip color="warning" label="experimental" />
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
@@ -134,21 +130,9 @@ export default function TopWords() {
             sample-based list of the top words in content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
-          {(platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
+          {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
             <p>
               These results are from a random sample of news stories.
-            </p>
-          )}
-          {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-            <p>
-              These results are from a sample titles from top scoring Reddit submissions.
-              Common terms (ie. stopwords) have been removed based on the language of each submission.
-            </p>
-          )}
-          {(platform === PROVIDER_TWITTER_TWITTER) && (
-            <p>
-              These results are from a sample of the text from the most recent Tweets.
-              Common terms (ie. stopwords) have been removed based on the language of each Tweet.
             </p>
           )}
           {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
