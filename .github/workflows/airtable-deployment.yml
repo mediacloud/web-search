@@ -1,0 +1,20 @@
+name: Publish Deployment Record
+
+on: 
+  push:
+    tags: 
+      - "*"
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    name: Report Deployment to MEAG Treehouse
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+    - name: install mc-manage
+      run: pip install git+https://github.com/mediacloud/mc-manage
+      
+    
