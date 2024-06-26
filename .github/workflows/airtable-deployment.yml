@@ -1,0 +1,58 @@
+name: Publish Deployment Record
+
+on: 
+  push:
+    tags: 
+      - "*"
+
+jobs:
+  check-current-branch:
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.check_step.outputs.branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get current branch
+        id: check_step
+        # 1. Get the list of branches ref where this tag exists
+        # 2. Remove 'origin/' from that result
+        # 3. Put that string in output
+        # => We can now use function 'contains(list, item)''
+        run: |
+          raw=$(git branch -r --contains ${{ github.ref }})
+          branch="$(echo ${raw//origin\//} | tr -d '\n')"
+          echo "{name}=branch" >> $GITHUB_OUTPUT
+          echo "Branches where this tag exists : $branch."
+
+
+  report:
+    runs-on: ubuntu-latest
+    needs: check-current-branch
+    name: Report Deployment to MEAG Treehouse
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+    - name: install mc-manage
+      run: pip install git+https://github.com/mediacloud/mc-manage
+
+    - name: run airtable-deployment-update
+      env:
+        AIRTABLE_API_KEY: ${{}}
+        MEAG_BASE_ID: ${{}}
+      run: >- 
+        ##QUESTION is how to get these various values in this context.
+        python -m mc-manage.airtable-deployment-update 
+        --codebase mcweb  #hardcoded
+        --name ${{needs.check.outputs.branch}} ##Branch name
+        --env ${{needs.check.outputs.branch}} #in the branch name?
+        --version ${{??}} #the tag name
+        --hardware ${??} #This one is a mystery to me.
+    
+      
+    
