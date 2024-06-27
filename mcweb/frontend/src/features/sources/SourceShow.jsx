@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -33,6 +33,10 @@ export default function SourceShow() {
     data: source,
     isLoading,
   } = useGetSourceQuery(sourceId);
+
+  useEffect(() => {
+    document.title = `${source.name} | Media Cloud`;
+  });
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
