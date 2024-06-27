@@ -58,8 +58,8 @@ export default function SourceShow() {
           )}
           {source.notes && (
             <p>
-              <b>Notes</b>
-              {source.notes}
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              <b>Notes:</b> {source.notes}
             </p>
           )}
         </div>
