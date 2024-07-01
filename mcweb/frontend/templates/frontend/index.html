@@ -9,6 +9,9 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700,700italic%7CRoboto:100,100italic,300,300italic,regular,italic,500,500italic,700,700italic,900,900italic%7CInter:300,regular,500,600,700,800,900%7CSpace+Grotesk:regular,500,600" media="all">
         <title>Media Cloud</title>
         <script id="version">
+            
+            window.sentry_config = {{ sentry_config|safe }}
+
             document.settings = {};
             document.settings.appVersion = "{{ version }}";
             document.settings.availableProviders = {{ providers|safe }};
@@ -16,7 +19,8 @@
                 document.settings.systemAlert = "{{ system_alert|safe }}";
             {% else %}
                 document.settings.systemAlert = undefined;
-            {% endif %}            
+            {% endif %}    
+      
         </script>
 
     </head>
@@ -28,7 +32,6 @@
         {% load static %}
 
         <script src="{% static "frontend/main.js" %}"></script>
-
 
         {% if analytics_matomo_domain and analytics_matomo_id %}
             <script>
