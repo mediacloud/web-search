@@ -59,6 +59,10 @@ export default function TabbedSearch() {
     setTextFieldValues(queryState.map((query) => query.name));
   }, [queryState, edit]);
 
+  useEffect(() => {
+    document.title = 'Media Cloud Search';
+  });
+
   const handleShare = () => {
     const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
     navigator.clipboard.writeText(ahref);
