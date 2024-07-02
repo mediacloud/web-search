@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 ANALYTICS_MATOMO_DOMAIN = os.getenv('ANALYTICS_MATOMO_DOMAIN', None)
 ANALYTICS_MATOMO_SITE_ID = os.getenv('ANALYTICS_MATOMO_SITE_ID', None)
 SENTRY_DSN = os.getenv('SENTRY_DSN', None)
-SENTRY_ENV = os.getenv('SENTRY_ENV', None)
+SENTRY_ENV = os.getenv('ENV_NAME', None)
 SENTRY_TRACES_RATE = os.getenv('SENTRY_TRACES_RATE')
 SENTRY_REPLAY_RATE = os.getenv('SENTRY_REPLAY_RATE')
 
