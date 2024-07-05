@@ -20,6 +20,7 @@ from .utils import parse_query, parse_query_array
 from util.cache import cache_by_kwargs
 from .tasks import download_all_large_content_csv, download_all_queries_csv_task
 from ..users.models import QuotaHistory
+from util.csvwriter import CSVWriterHelper
 from backend.users.exceptions import OverQuotaException
 import mc_providers as providers
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
@@ -163,10 +164,8 @@ def download_sources_csv(request):
     except Exception as e:
         logger.exception(e)
         return error_response(str(e), HttpResponseBadRequest)
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-top-sources".format(
-        provider_name, _filename_timestamp())
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    filename = "mc-{}-{}-top-sources".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -174,10 +173,7 @@ def download_sources_csv(request):
     writer = csv.writer(response)
     # TODO: extract into a constant (global)
     cols = ['source', 'count']
-    writer.writerow(cols)
-
-    for top_source in data:
-        writer.writerow([top_source["source"], top_source["count"]])
+    CSVWriterHelper.write_top_sources(writer, data, cols)
     return response
 
 
@@ -210,20 +206,15 @@ def download_languages_csv(request):
     except Exception as e: 
         logger.exception(e)
         return error_response(str(e), HttpResponseBadRequest)
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-top-languages".format(
-        provider_name, _filename_timestamp())
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    filename = "mc-{}-{}-top-languages".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    # TODO: extract into a constant (global)
     cols = ['language', 'count', 'ratio']
-    writer.writerow(cols)
-    for top_lang in data:
-        writer.writerow([top_lang["language"], top_lang["value"], top_lang['ratio']])
+    CSVWriterHelper.write_top_langs(writer, data, cols)
     return response
 
 
@@ -279,20 +270,15 @@ def download_words_csv(request):
     except Exception as e:
         logger.exception(e)
         return error_response(str(e), HttpResponseBadRequest)
-    QuotaHistory.increment(
-            request.user.id, request.user.is_staff, provider_name, 4)
-    filename = "mc-{}-{}-top-words".format(
-        provider_name, _filename_timestamp())
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+    filename = "mc-{}-{}-top-words".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    # TODO: extract into a constant (global)
     cols = ['term', 'count', 'ratio']
-    writer.writerow(cols)
-    for top_terms in words:
-        writer.writerow([top_terms["term"], top_terms["count"], top_terms['ratio']])
+    CSVWriterHelper.write_top_words(writer, words, cols)
     return response
 
 
@@ -307,11 +293,9 @@ def download_counts_over_time_csv(request):
             f"({query_str})", start_date, end_date, **provider_props)
         normalized = True
     except UnsupportedOperationException:
-        data = provider.count_over_time(
-            query_str, start_date, end_date, **provider_props)
+        data = provider.count_over_time(query_str, start_date, end_date, **provider_props)
         normalized = False
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name, 2)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     filename = "mc-{}-{}-counts".format(
         provider_name, _filename_timestamp())
     response = HttpResponse(
@@ -319,16 +303,9 @@ def download_counts_over_time_csv(request):
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    # TODO: extract into a constant (global)
     cols = ['date', 'count', 'total_count',
             'ratio'] if normalized else ['date', 'count']
-    writer.writerow(cols)
-    for day in data["counts"]:
-        if 'ratio' in day:
-            writer.writerow([day["date"], day["count"],
-                            day["total_count"], day["ratio"]])
-        else:
-            writer.writerow([day["date"], day["count"]])
+    CSVWriterHelper.write_attn_over_time(writer, data, cols)
     return response
 
 
