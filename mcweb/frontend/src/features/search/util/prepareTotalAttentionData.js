@@ -7,7 +7,6 @@ const colors = ['#2f2d2b', '#d24527', '#f7a44e', '#334cda', '#d23716'];
 
 const prepareTotalAttentionData = (results, normalized) => {
   const series = [];
-  // const { relevant, total } = results.data.count;
   results.forEach((result, i) => {
     const { relevant, total } = result.count;
     const prepareData = {};
