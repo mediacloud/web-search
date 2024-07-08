@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -34,6 +34,10 @@ export default function SourceShow() {
     isLoading,
   } = useGetSourceQuery(sourceId);
 
+  useEffect(() => {
+    document.title = `${source.name} | Media Cloud`;
+  });
+
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
@@ -58,8 +62,8 @@ export default function SourceShow() {
           )}
           {source.notes && (
             <p>
-              <b>Notes</b>
-              {source.notes}
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              <b>Notes:</b> {source.notes}
             </p>
           )}
         </div>

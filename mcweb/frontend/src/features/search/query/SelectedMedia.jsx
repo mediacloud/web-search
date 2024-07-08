@@ -52,7 +52,7 @@ export default function SelectedMedia({
                     width: '100%',
                   }}
                 >
-                  {source.name || source.label}
+                  {source.label || source.name}
                 </Link>
                 <IconButton
                   size="small"
