@@ -13,7 +13,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
 import TabDropDownMenu from '../ui/TabDropDownMenu';
 import {
-  addQuery, setLastSearchTime, removeQuery, setQueryProperty, addComparativeQuery,
+  addQuery, setInitialSearchTime, removeQuery, setQueryProperty, addComparativeQuery,
 } from './query/querySlice';
 import Search from './query/Search';
 import PlatformPicker from './query/PlatformPicker';
@@ -58,6 +58,10 @@ export default function TabbedSearch() {
     setShow(deactivateButton(queryState));
     setTextFieldValues(queryState.map((query) => query.name));
   }, [queryState, edit]);
+
+  useEffect(() => {
+    document.title = 'Media Cloud Search';
+  });
 
   const handleShare = () => {
     const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
@@ -282,7 +286,7 @@ export default function TabbedSearch() {
                 startIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={async () => {
                   dispatch(searchApi.util.resetApiState());
-                  dispatch(setLastSearchTime(dayjs().unix()));
+                  dispatch(setInitialSearchTime(dayjs().unix()));
                   const collectionNames = await fetchCollectionNames();
                   const updatedQueryState = JSON.parse(JSON.stringify(queryState));
                   queryState.forEach((q, i) => {

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -52,6 +53,11 @@ export default function ResetPassword() {
           <Typography component="h1" variant="h5">
             Reset Password
           </Typography>
+
+          <Alert severity="warning">
+            Please do not refresh the page in the time between enterting your email and entering
+            the verification code that was emailed to you
+          </Alert>
 
           <Box
             component="form"
@@ -108,7 +114,7 @@ export default function ResetPassword() {
                   }
                 }}
               >
-                Send Login Link
+                Email Reset Code
               </Button>
             )}
 

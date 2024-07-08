@@ -1,4 +1,34 @@
-[{"version": "v2.0.1",
+[{"version": "v2.0.5",
+"date": "2024-06-27",
+"notes": ["Add tab titles to most pages",
+"Add favicon",
+"allow admins to delete url search strings",
+"formatting changes on source show page",
+"show label for sources in selected media",
+"fix negated queries for MC",
+"show all metadata for sources",
+"allow searches into 2022"
+]},
+{"version": "v2.0.4",
+"date": "2024-05-14",
+"notes": ["update cacheing",
+"now search attention over time first, followed by other results components",
+"decrease earliest searchable start date to 01/01/2022"
+]},
+{"version": "v2.0.3",
+"date": "2024-03-19",
+"notes": ["update low-level internal libraries",
+"fixes on story API call"
+]
+},{"version": "v2.0.2",
+"date": "2024-02-28",
+"notes": ["add feature copy to all queries",
+"allow all of 2023 to be queried against",
+"add feature compare across the globe",
+"bug fixes for feeds",
+"fix story list paging"
+]
+},{"version": "v2.0.1",
 "date": "2024-01-22",
 "notes": ["add day, week, month views to attention over time",
 "fix email bug",

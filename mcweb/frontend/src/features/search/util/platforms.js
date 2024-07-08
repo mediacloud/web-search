@@ -49,7 +49,7 @@ export const latestAllowedEndDate = (provider) => {
 export const earliestAllowedStartDate = (provider) => {
   if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return dayjs('2022-08-01');
   if (provider === PROVIDER_REDDIT_PUSHSHIFT) return dayjs('2022-11-1');
-  return dayjs('2023-10-17');
+  return dayjs('2022-01-01');
 };
 
 export const defaultPlatformProvider = (platform) => {

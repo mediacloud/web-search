@@ -23,7 +23,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.0.1"
+VERSION = "2.0.5"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -206,7 +206,6 @@ CACHES = {
     }
 }
 
-MC_LEGACY_API_KEY = env('MEDIA_CLOUD_API_KEY')
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 # email authentication
 try:
@@ -234,7 +233,7 @@ try:
         integrations=[
             DjangoIntegration(),
         ],
-
+        release=VERSION,
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
