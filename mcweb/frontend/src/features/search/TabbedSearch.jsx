@@ -131,7 +131,6 @@ export default function TabbedSearch() {
   };
 
   const handleClose = (index, colorValue) => {
-    // SyntheticBaseEvent (click outside of menu)
     if (isNumber(index)) {
       setValue(index);
     }

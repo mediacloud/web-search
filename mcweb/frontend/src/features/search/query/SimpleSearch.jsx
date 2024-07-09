@@ -67,11 +67,8 @@ export default function SimpleSearch({ queryIndex }) {
           <div className="query-section">
             <h3>&nbsp;</h3>
             <div className="description">
-              And
-              {' '}
-              <b> none</b>
-              {' '}
-              of these phrases:
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              And <b> none</b> of these phrases:
             </div>
             <QueryList queryIndex={queryIndex} negated />
           </div>
