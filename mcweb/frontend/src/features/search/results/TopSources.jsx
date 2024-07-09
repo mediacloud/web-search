@@ -11,7 +11,7 @@ import Settings from '@mui/icons-material/Settings';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
-import CSVDialog from './CSVDialog';
+import CSVDialog from '../util/CSVDialog';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopSourcesMutation } from '../../../app/services/searchApi';
 import { SOURCES } from '../util/getDownloadUrl';

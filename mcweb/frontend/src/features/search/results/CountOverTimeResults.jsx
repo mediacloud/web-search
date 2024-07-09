@@ -8,7 +8,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import Settings from '@mui/icons-material/Settings';
-import CSVDialog from './CSVDialog';
+import CSVDialog from '../util/CSVDialog';
 import { AOT } from '../util/getDownloadUrl';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';

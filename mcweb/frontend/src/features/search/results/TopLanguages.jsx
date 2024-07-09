@@ -7,7 +7,7 @@ import Tab from '@mui/material/Tab';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
-import CSVDialog from './CSVDialog';
+import CSVDialog from '../util/CSVDialog';
 import { LANG } from '../util/getDownloadUrl';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopLanguagesMutation } from '../../../app/services/searchApi';

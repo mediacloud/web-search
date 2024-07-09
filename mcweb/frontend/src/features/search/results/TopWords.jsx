@@ -8,7 +8,7 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import checkForBlankQuery from '../util/checkForBlankQuery';
-import CSVDialog from './CSVDialog';
+import CSVDialog from '../util/CSVDialog';
 import {
   PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,

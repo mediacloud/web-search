@@ -10,8 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import DownloadIcon from '@mui/icons-material/Download';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
-import prepareQueries from '../util/prepareQueries';
-import { getDownloadUrl } from '../util/getDownloadUrl';
+import prepareQueries from './prepareQueries';
+import { getDownloadUrl } from './getDownloadUrl';
 import { useDownloadAllQueriesMutation } from '../../../app/services/searchApi';
 
 export default function CSVDialog({
@@ -36,7 +36,9 @@ export default function CSVDialog({
 
   const handleDownloadAll = () => {
     console.log(prepareQueries(queryState));
-    downloadAll(prepareQueries(queryState));
+    const url = getDownloadUrl(downloadType);
+    const queries = prepareQueries(queryState);
+    // downloadAll(prepareQueries(queryState));
   };
 
   const handleClickOpen = () => {
