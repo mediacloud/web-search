@@ -7,8 +7,7 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD,
-  PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
+  PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
@@ -114,25 +113,9 @@ export default function SampleStories() {
           <p>
             This is a sample of the content that matched your queries.
           </p>
-          {(platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
+          {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
             <p>
               These results are a random sample of news stories that matched your searches.
-            </p>
-          )}
-          {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-            <p>
-              These results are the top scoring Reddit submissions that matched your
-              searches.
-            </p>
-          )}
-          {(platform === PROVIDER_TWITTER_TWITTER) && (
-            <p>
-              These results are the most recent tweets that matched your searches.
-            </p>
-          )}
-          {(platform === PROVIDER_YOUTUBE_YOUTUBE) && (
-            <p>
-              These results are the most viewed videos that matched your searches.
             </p>
           )}
         </div>

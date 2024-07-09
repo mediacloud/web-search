@@ -20,8 +20,6 @@ export default function SelectedMedia({
 
   const dispatch = useDispatch();
 
-  // const preview = platform === 'onlinenews-mediacloud' || platform === 'onlinenews-waybackmachine';
-
   const {
     data: collectionsData,
     isLoadingCollections,
