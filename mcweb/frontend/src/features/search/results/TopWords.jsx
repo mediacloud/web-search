@@ -108,7 +108,6 @@ export default function TopWords() {
               downloadType={WORDS}
               outsideTitle="Download CSV of Top Terms"
               title="Choose a Query to Download a Top Terms CSV or you can choose to download all queries"
-              snackbar
               snackbarText="Top Words CSV Downloading"
               onClick={() => setopenDownloadDialog(true)}
               variant="outlined"

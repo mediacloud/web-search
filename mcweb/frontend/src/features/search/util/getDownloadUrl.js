@@ -11,9 +11,9 @@ export const getDownloadUrl = (downloadType) => {
   if (downloadType === AOT) {
     return 'download-counts-over-time-csv';
   }
-  //   if (downloadType === TA) {
-  //     return 'download-top-words-csv';
-  //   }
+  if (downloadType === TA) {
+      return 'download-all-content-csv';
+    }
   if (downloadType === LANG) {
     return 'download-top-languages-csv';
   }

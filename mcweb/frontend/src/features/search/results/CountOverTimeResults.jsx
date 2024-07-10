@@ -210,7 +210,6 @@ export default function CountOverTimeResults() {
               downloadType={AOT}
               outsideTitle="Download CSV of Attention Over Time"
               title="Choose a Query to Download a Attention Over Time CSV or you can choose to download all queries"
-              snackbar
               snackbarText="Attention Over Time CSV Downloading"
               onClick={() => setopenDownloadDialog(true)}
               variant="outlined"

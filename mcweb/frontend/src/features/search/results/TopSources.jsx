@@ -172,7 +172,6 @@ export default function TopSources() {
               downloadType={SOURCES}
               outsideTitle="Download CSV of Top Sources"
               title="Choose a Query to Download a Top Sources CSV or you can choose to download all queries"
-              snackbar
               snackbarText="Top Sources CSV Downloading"
               onClick={() => setopenDownloadDialog(true)}
               variant="outlined"

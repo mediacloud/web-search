@@ -107,7 +107,6 @@ export default function TopLanguages() {
               downloadType={LANG}
               outsideTitle="Download CSV of Top Languages"
               title="Choose a Query to Download a Top Languages CSV or you can choose to download all queries"
-              snackbar
               snackbarText="Top Languages CSV Downloading"
               onClick={() => setopenDownloadDialog(true)}
               variant="outlined"
