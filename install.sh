@@ -25,6 +25,4 @@ fi
 
 git clone git@github.com:mediacloud/web-search-config.git
 
-cp "web-search-config/web-search.$ENV_TYPE.sh mcweb/.env
-
-
+cp "web-search-config/web-search.$ENV_TYPE.sh mcweb/.env"
