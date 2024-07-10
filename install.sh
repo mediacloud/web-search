@@ -18,12 +18,13 @@ if [ -z "$DOKKU_APP_NAME" ]; then
 else
     echo "DOKKU_APP_NAME is set to $DOKKU_APP_NAME"
     if [[ "$DOKKU_APP_NAME" == "mcweb" ]]; then
-    	ENV_TYPE = "prod"
+    	ENV_TYPE="prod"
     elif [[ "$DOKKU_APP_NAME" == "mcweb-staging" ]]; then
-    	ENV_TYPE = "staging"
+    	ENV_TYPE="staging"
+    fi
 
 fi
 
 git clone git@github.com:mediacloud/web-search-config.git
 
-cp "web-search-config/web-search.$ENV_TYPE.sh mcweb/.env"
+cp "web-search-config/web-search.$ENV_TYPE.sh" mcweb/.env
