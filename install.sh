@@ -2,7 +2,7 @@
 
 echo "Running migrations and building javacsript"
 python mcweb.manage.py makemigrations
-python mcweb/manage.py migrate
+python mcweb.manage.py migrate
 npm run build
 python mcweb/manage.py collectstatic --noinput
 echo "  done with migrations and javascript build"
@@ -11,6 +11,7 @@ echo "  done with migrations and javascript build"
 ###get the config variables from github (avoiding referencing directly)
 #This is just for reference
 printenv > /tmp/dokku_predeploy_env.txt
+echo $(printenv)
 
 if [ -z "$DOKKU_APP_NAME" ]; then
     echo "DOKKU_APP_NAME is not set"
