@@ -69,7 +69,6 @@ def handle_provider_errors(func):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-# @cache_by_kwargs()
 def total_count(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)

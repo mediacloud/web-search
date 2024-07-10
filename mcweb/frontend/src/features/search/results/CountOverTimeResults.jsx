@@ -84,7 +84,6 @@ export default function CountOverTimeResults() {
 
   if (!data && !error) return null;
   if (error) {
-    // const msg = data.note;
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.

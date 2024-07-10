@@ -1,11 +1,11 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import TextField from '@mui/material/TextField';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useDispatch, useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 import { setQueryProperty } from './querySlice';
@@ -76,7 +76,6 @@ export default function SearchDatePicker({ queryIndex }) {
       handleChangeFromDate(earliestAllowedStartDate(platform));
       enqueueSnackbar('We changed your start date to match this platform limit', { variant: 'warning' });
     }
-    // why do we do this?
     // we don't save invalid dates, so going into another tab would leave these set to false and a correct date
     dispatch(setQueryProperty({ isToDateValid: true, queryIndex, property: 'isToDateValid' }));
     dispatch(setQueryProperty({ isFromDateValid: true, queryIndex, property: 'isFromDateValid' }));

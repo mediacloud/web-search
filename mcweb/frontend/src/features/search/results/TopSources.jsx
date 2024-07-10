@@ -187,9 +187,8 @@ export default function TopSources() {
       <div className="row">
         <div className="col-4">
           <h2>
-            Top Sources
-            {' '}
-            <Chip color="warning" label="experimental" />
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            Top Sources <Chip color="warning" label="experimental" />
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
@@ -199,24 +198,6 @@ export default function TopSources() {
             Please note these percentages are not normalized; therefore, a source that publishes a lower overall volume
             of content will contribute less to your query results, but may still focus proportionately more on the topic.
           </p>
-          {/* {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-            <p>
-              These results are from a sample of titles of top scoring Reddit submissions. Reddit provieds
-              the language of the submission.
-            </p>
-          )}
-          {(platform === PROVIDER_TWITTER_TWITTER) && (
-            <p>
-              These results are from a sample of the text from the most recent Tweets.
-              Twitter provides the language of the submission.
-            </p>
-          )} */}
-          {/* {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
-            <p>
-              These results are from a sample of titles from 5000 random news stories.
-              We use popular software libraries to guess the langage of the extracted text of the articles.
-            </p>
-          )} */}
         </div>
         <div className="col-8">
           {content}

@@ -13,7 +13,6 @@ export default function SaveSearch() {
   const [name, setName] = useState('');
   const [open, setOpen] = useState(false);
   const queryState = useSelector((state) => state.query);
-  // const serializedSearch = `https://search.mediacloud.org/search?${urlSerializer([queryState])}`;
   const [createSavedSearch] = useCreateSavedSearchMutation();
 
   const handleSaveSearch = async () => {

@@ -122,9 +122,8 @@ export default function TopLanguages() {
       <div className="row">
         <div className="col-4">
           <h2>
-            Top Languages
-            {' '}
-            <Chip color="warning" label="experimental" />
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            Top Languages <Chip color="warning" label="experimental" />
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}

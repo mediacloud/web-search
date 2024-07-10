@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import IconButton from '@mui/material/IconButton';
 import AddCircleIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircleOutline';
-import { Link } from 'react-router-dom';
 import { asNumber } from '../../../ui/uiUtil';
 
 export default function MediaPickerSelectionTable({
