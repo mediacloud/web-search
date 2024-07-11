@@ -6,7 +6,5 @@ else
     echo "Attempting to apply environment for: $STACK_NAME"
     
     . web-search-config/web-search.$STACK_NAME.sh
-fi
-
-HOSTNAME=$(hostname --short)
-python -m mc-manage.airtable-deployment-update --codebase 'web-search' --name $STACK_NAME --env $STACK_NAME --version "latest" --hardware $HOSTNAME
+    env AIRTABLE_API_KEY=$AIRTABLE_API_KEY  MEAG_BASE_ID=$MEAG_BASE_ID python -m mc-manage.airtable-deployment-update --codebase 'web-search' --name $STACK_NAME --env $STACK_NAME --version "latest" --hardware $HOSTNAME
+fi 
