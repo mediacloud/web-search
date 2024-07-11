@@ -47,7 +47,7 @@ dokku config:set --no-restart mcweb \
 6. on your local machine setup the remote: `git remote add mcweb-prod dokku@<SERVER>:mcweb`
 
 ### NB: 
-On staging and production, provide a STAGE_NAME, GITHUB_USR, and GITHUB_PAT to download environment variables from a common secret store before deployment
+On staging and production, provide a STAGE_NAME, GITHUB_USR, and GITHUB_PAT to download environment variables from a common secret store before deployment. If no STAGE_NAME is provided, then the app will default to deploying with manually applied environment variables. 
 
 Deploying
 ---------
