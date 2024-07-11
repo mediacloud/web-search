@@ -9,6 +9,6 @@ else
     export $AIRTABLE_API_KEY
     export $MEAG_BASE_ID
     HOSTNAME=$(hostname --short)
-    python -m mc-manage.airtable-deployment-update --codebase 'web-search' --name $STACK_NAME --env $STACK_NAME --version "latest" --hardware $HOSTNAME
+    env AIRTABLE_API_KEY=$AIRTABLE_API_KEY  MEAG_BASE_ID=$MEAG_BASE_ID python -m mc-manage.airtable-deployment-update --codebase 'web-search' --name $STACK_NAME --env $STACK_NAME --version "latest" --hardware $HOSTNAME
 
 fi
