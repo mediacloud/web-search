@@ -13,7 +13,7 @@ import SelectedMedia from '../SelectedMedia';
 import FeaturedCollectionsPicker from './FeaturedCollectionsPicker';
 import GeographicCollectionsPicker from './GeographicCollectionsPicker';
 import SourceSearchPicker from './SourceSearchPicker';
-import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY } from '../../util/platforms';
+import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../../util/platforms';
 import addType from './util/addType';
 
 export default function MediaPicker({ queryIndex }) {
@@ -51,9 +51,7 @@ export default function MediaPicker({ queryIndex }) {
               <Tab label="Featured Collections" id="tab1" />
               <Tab label="Search All Collections" id="tab1" />
               <Tab label="Search All Sources" id="tab1" />
-              {[
-                PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
-              ].includes(platform) && (
+              {[PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && (
                 <Tab label="Geographic Collections" id="tab1" />
               )}
 
@@ -104,7 +102,7 @@ export default function MediaPicker({ queryIndex }) {
                 </>
               )}
             </div>
-            {[PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY].includes(platform) && (
+            {[PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && (
 
               <div className="tabpanel" role="tabpanel" hidden={value !== 3} id="tabpanel-1">
                 {value === 3 && (
