@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import {
-  PROVIDER_NEWS_MEDIA_CLOUD,
+  PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
   PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../search/util/platforms';
 
@@ -92,7 +92,7 @@ export default function InfoMenu({ platform, sampleStory }) {
             )} */}
 
             {/* media-cloud story is a bit different, taken out of id */}
-            {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
+            {/* {(platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
               <NavLink
                 to={`/story/${platform}/${encodeURIComponent(sampleStory.url)}`}
                 target="_blank"
@@ -102,7 +102,7 @@ export default function InfoMenu({ platform, sampleStory }) {
               >
                 View extracted content (from Media Cloud)
               </NavLink>
-            )}
+            )} 
 
             {/* wayback-machine story id is taken out of getStoryId function  */}
             {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (

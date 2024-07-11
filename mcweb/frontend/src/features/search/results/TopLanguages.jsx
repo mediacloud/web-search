@@ -11,9 +11,7 @@ import CSVDialog from '../util/CSVDialog';
 import { LANG } from '../util/getDownloadUrl';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopLanguagesMutation } from '../../../app/services/searchApi';
-import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_TWITTER_TWITTER,
-} from '../util/platforms';
+import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareLanguageData from '../util/prepareLanguageData';
@@ -131,18 +129,6 @@ export default function TopLanguages() {
             sample-based list of the top languages of content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
-          {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-            <p>
-              These results are from a sample of titles of top scoring Reddit submissions. Reddit provieds
-              the language of the submission.
-            </p>
-          )}
-          {(platform === PROVIDER_TWITTER_TWITTER) && (
-            <p>
-              These results are from a sample of the text from the most recent Tweets.
-              Twitter provides the language of the submission.
-            </p>
-          )}
           {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
             <p>
               These results are from a sample of titles from 5000 random news stories.
