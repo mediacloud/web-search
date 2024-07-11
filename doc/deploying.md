@@ -46,6 +46,9 @@ dokku config:set --no-restart mcweb \
 5. setup the domain: `dokku domains:add mcweb search.mediacloud.org`
 6. on your local machine setup the remote: `git remote add mcweb-prod dokku@<SERVER>:mcweb`
 
+### NB: 
+On staging and production, provide a STAGE_NAME, GITHUB_USR, and GITHUB_PAT to download environment variables from a common secret store before deployment. If no STAGE_NAME is provided, then the app will default to deploying with manually applied environment variables. 
+
 Deploying
 ---------
 
@@ -54,3 +57,4 @@ Deploying
 3. run all the tests to make sure they still pass: `python mcweb/manage.py test`
 4. commit and tag the release with the version number (ie. "v0.1.1")
 5. push the tag to the server: `git push mcweb-prod v0.1.1:main`
+
