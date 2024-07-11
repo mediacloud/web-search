@@ -22,7 +22,7 @@ else
     fi
     echo "deploying $STACK_NAME stack"
     
-    git clone https://"$GITHUB_USR":"$GITHUB_PAT">@github.com/mediacloud/web-search-config.git
+    git clone https://"$GITHUB_USR":"$GITHUB_PAT"@github.com/mediacloud/web-search-config.git
     cp "web-search-config/web-search.$STACK_NAME.sh" mcweb/.env
 fi
 
