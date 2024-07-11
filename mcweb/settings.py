@@ -255,7 +255,7 @@ try:
         integrations=[
             DjangoIntegration(),
         ],
-        environment=os.getenv('ENV_NAME', None),
+        environment=os.getenv('STACK_NAME', None),
         release=VERSION,
 
         # Set traces_sample_rate to 1.0 to capture 100%
