@@ -4,8 +4,9 @@ if [ -z "$STACK_NAME" ]; then
     echo "STACK_NAME is not set, using local .env"
 else
     echo "Attempting to apply environment for: $STACK_NAME"
-    
+    tail web-search-config/websearch.$STACK_NAME.sh 
     . web-search-config/web-search.$STACK_NAME.sh
+    echo $AIRTABLE_API_KEY
 fi
 
 HOSTNAME=$(hostname --short)
