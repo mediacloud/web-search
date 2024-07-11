@@ -11,7 +11,7 @@ import {
 import CopyToAll from '../util/CopyToAll';
 import AdvancedSearch from './AdvancedSearch';
 import MediaPicker from './media-picker/MediaPicker';
-import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT } from '../util/platforms';
+import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../util/platforms';
 
 export default function Search({ queryIndex }) {
   const queryState = useSelector((state) => state.query[queryIndex]);
@@ -98,11 +98,6 @@ export default function Search({ queryIndex }) {
                 <Alert severity="warning">
                   Your dates have been limited to the range of available data.
                   We are still working with the Wayback Machine to ingest the historical data.
-                </Alert>
-              )}
-              {platform === PROVIDER_REDDIT_PUSHSHIFT && (
-                <Alert severity="warning">
-                  PushShift.io moved to a new server; data before 11/1/22 unavailable.
                 </Alert>
               )}
               <SearchDatePicker queryIndex={queryIndex} />
