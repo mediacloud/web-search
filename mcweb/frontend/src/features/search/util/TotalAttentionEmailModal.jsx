@@ -168,7 +168,6 @@ export default function TotalAttentionEmailModal({
 
 TotalAttentionEmailModal.propTypes = {
   openDialog: PropTypes.bool.isRequired,
-  outsideTitle: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   variant: PropTypes.string,
   endIcon: PropTypes.element,
