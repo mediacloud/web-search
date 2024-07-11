@@ -12,11 +12,14 @@ echo "  done with migrations and javascript build"
 #This is just for reference
 echo $STACK_NAME
 
-if [ -z "$STACK_NAME" ]; then
+if [ -z "$STACK_NAME"]; then
     echo "STACK_NAME is not set, using local .env"
 else
+    if [ -z ${GITHUB_USR} || -z ${GITHUB_PAT} ]; then
+        echo "Can't deploy $STACK_NAME without setting GITHUB_USR and GITHUB_PAT"
     echo "deploying $STACK_NAME stack"
-    git clone git@github.com:mediacloud/web-search-config.git
+    
+    https://$GITHUB_USR:$GITHUB_PAT>@github.com/mediacloud/web-search-config.git
     cp "web-search-config/web-search.$STACK_NAME.sh" mcweb/.env
 fi
 
