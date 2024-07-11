@@ -6,8 +6,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import dayjs from 'dayjs';
 import { useGetStoryDetailsQuery } from '../../app/services/searchApi';
 import {
-  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
-  PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
+  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE
 } from '../search/util/platforms';
 
 export default function StoryShow() {
@@ -18,7 +17,7 @@ export default function StoryShow() {
   const [platformName, setPlatformName] = useState('');
 
   useEffect(() => {
-    if (platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) {
+    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
       setPlatformName('Media Cloud');
     } else {
       setPlatformName('Wayback Machine');
@@ -61,7 +60,7 @@ export default function StoryShow() {
           </h5>
         )}
 
-        {(platform === PROVIDER_NEWS_MEDIA_CLOUD || platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
+        {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
           <h5>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             Originally published on {dayjs(story.publish_date).format('MM/DD/YYYY')} in <b>{story.media_name}</b>
