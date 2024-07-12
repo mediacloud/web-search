@@ -91,7 +91,7 @@ export default function InfoMenu({ platform, sampleStory }) {
             {/* media-cloud story is a bit different, taken out of id */}
             {/* {(platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
               <NavLink
-                to={`/story/${platform}/${sampleStory.id}`}
+                to={`/story/${platform}/${encodeURIComponent(sampleStory.url)}`}
                 target="_blank"
                 rel="noreferrer"
                 onClick={handleClose}
@@ -99,7 +99,7 @@ export default function InfoMenu({ platform, sampleStory }) {
               >
                 View extracted content (from Media Cloud)
               </NavLink>
-            )} */}
+            )} 
 
             {/* wayback-machine story id is taken out of getStoryId function  */}
             {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (

@@ -6,8 +6,8 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Settings from '@mui/icons-material/Settings';
-import TotalAttentionEmailModal from '../../ui/TotalAttentionEmailModal';
 import BarChart from './BarChart';
+import CSVDialog from '../util/CSVDialog';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
   PROVIDER_NEWS_WAYBACK_MACHINE,
@@ -17,6 +17,7 @@ import { selectCurrentUser } from '../../auth/authSlice';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
+import { TA } from '../util/getDownloadUrl';
 
 export const supportsNormalizedCount = (platform) =>
   // eslint-disable-next-line implicit-arrow-linebreak
@@ -25,9 +26,8 @@ export const supportsNormalizedCount = (platform) =>
 function TotalAttentionResults() {
   const queryState = useSelector((state) => state.query);
 
-  const [openModal, setModalOpen] = useState(false);
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
 
-  // fetch currentUser to access email if their downloaded csv needs to be emailed
   const currentUser = useSelector(selectCurrentUser);
 
   const {
@@ -50,17 +50,6 @@ function TotalAttentionResults() {
   const [dispatchQuery, { isLoading, data, error }] = useGetTotalCountMutation();
 
   const currentUserEmail = currentUser.email;
-
-  const getCountsArray = (countsData) => countsData.map((count) => count.count.relevant);
-
-  const getTotalCountOfQuery = () => {
-    const arrayOfCounts = getCountsArray(data);
-    let count = 0;
-    for (let i = 0; i < arrayOfCounts.length; i += 1) {
-      count += arrayOfCounts[i];
-    }
-    return count;
-  };
 
   useEffect(() => {
     if (!checkForBlankQuery(queryState)) {
@@ -184,22 +173,18 @@ function TotalAttentionResults() {
 
           <div className="float-end">
             <div>
-              <TotalAttentionEmailModal
-                outsideTitle="Download All URLs"
-                title={
-                `Your current email is: ${currentUserEmail}
-                Would you like to send your downloaded data to your current email or a new email?`
-              }
-                content="Enter a new email?"
-                dispatchNeeded={false}
-                navigateTo="/"
-                onClick={() => setModalOpen(true)}
-                openDialog={openModal}
-                variant="outlined"
-                confirmButtonText="Confirm New Email"
-                currentUserEmail={currentUserEmail}
-                totalCountOfQuery={getTotalCountOfQuery()}
-              />
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={TA}
+              outsideTitle="Download All URLS"
+              title="Choose a Query to Download a CSV of all the URLs for that query"
+              snackbarText="Total attention CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
+              variant="outlined"
+              userEmail={currentUserEmail}
+              data={data}
+            />
             </div>
           </div>
         </div>
