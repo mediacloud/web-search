@@ -3,10 +3,7 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
-import {
-  PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
-  PROVIDER_NEWS_WAYBACK_MACHINE,
-} from '../search/util/platforms';
+import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
 
 export default function InfoMenu({ platform, sampleStory }) {
   const getStoryId = (url) => {
