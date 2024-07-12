@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
-import DownloadIcon from '@mui/icons-material/Download';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetTopWordsMutation } from '../../../app/services/searchApi';
 import checkForBlankQuery from '../util/checkForBlankQuery';
+import CSVDialog from '../util/CSVDialog';
+import { WORDS } from '../util/getDownloadUrl';
 import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
 import prepareQueries from '../util/prepareQueries';
 import OrderedWordCloud from './OrderedWordCloud';
@@ -25,12 +25,10 @@ export default function TopWords() {
 
   const [dispatchQuery, { isLoading, data, error }] = useGetTopWordsMutation();
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-top-words-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
-
   const [value, setValue] = useState(0);
   const [newQuery, setNewQuery] = useState(false);
+
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -101,15 +99,16 @@ export default function TopWords() {
         </div>
         <div className="clearfix">
           <div className="float-end">
-            <Button
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={WORDS}
+              outsideTitle="Download CSV of Top Terms"
+              title="Choose a Query to Download a Top Terms CSV or you can choose to download all queries"
+              snackbarText="Top Words CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
               variant="outlined"
-              startIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV of Top Terms
-            </Button>
+            />
           </div>
         </div>
 

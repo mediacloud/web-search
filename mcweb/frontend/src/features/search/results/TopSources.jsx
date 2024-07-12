@@ -8,12 +8,13 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Settings from '@mui/icons-material/Settings';
-import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
+import CSVDialog from '../util/CSVDialog';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopSourcesMutation } from '../../../app/services/searchApi';
+import { SOURCES } from '../util/getDownloadUrl';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareSourceData from '../util/prepareSourcesData';
@@ -35,16 +36,14 @@ export default function TopSources() {
 
   const [normalized, setNormalized] = useState(true);
 
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const handleClick = (e) => setAnchorEl(e.currentTarget);
 
   const handleClose = () => setAnchorEl(null);
 
   const open = Boolean(anchorEl);
-
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-top-sources-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
 
   useEffect(() => {
     if (!checkForBlankQuery(queryState)) {
@@ -167,15 +166,16 @@ export default function TopSources() {
           </div>
 
           <div className="float-end">
-            <Button
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={SOURCES}
+              outsideTitle="Download CSV of Top Sources"
+              title="Choose a Query to Download a Top Sources CSV or you can choose to download all queries"
+              snackbarText="Top Sources CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
               variant="outlined"
-              startIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV of Top Sources
-            </Button>
+            />
           </div>
         </div>
       </div>

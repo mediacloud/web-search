@@ -11,8 +11,10 @@ import {
 
 export default function StoryShow() {
   const params = useParams();
-  const { storyId, platform } = params;
-  const { data, isLoading } = useGetStoryDetailsQuery({ storyId, platform });
+  const { storyURL, platform } = params;
+  // const decodedStoryURL = decodeURIComponent(storyURL);
+  // console.log(decodedStoryURL);
+  const { data, isLoading } = useGetStoryDetailsQuery(storyURL);
 
   const [platformName, setPlatformName] = useState('');
 

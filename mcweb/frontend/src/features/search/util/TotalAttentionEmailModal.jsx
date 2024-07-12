@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -11,11 +12,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
-import prepareQueries from '../search/util/prepareQueries';
-import { useSendTotalAttentionDataEmailMutation } from '../../app/services/searchApi';
+import prepareQueries from './prepareQueries';
+import { useSendTotalAttentionDataEmailMutation } from '../../../app/services/searchApi';
 
 export default function TotalAttentionEmailModal({
-  openDialog, outsideTitle, title, variant, endIcon, confirmButtonText, currentUserEmail, totalCountOfQuery,
+  openDialog, title, confirmButtonText, currentUserEmail, totalCountOfQuery,
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
@@ -94,14 +95,11 @@ export default function TotalAttentionEmailModal({
 
   return (
     <>
-      <Button
-        variant={variant}
-        onClick={handleClickOpen}
-        endIcon={endIcon}
-        startIcon={<DownloadIcon titleAccess="Download CSV of Top Terms" />}
+      <IconButton
+        onClick={() => handleClickOpen()}
       >
-        {outsideTitle}
-      </Button>
+        <DownloadIcon sx={{ color: '#d24527' }} />
+      </IconButton>
       <Dialog
         open={open}
         onClose={(event, reason) => {
@@ -170,7 +168,6 @@ export default function TotalAttentionEmailModal({
 
 TotalAttentionEmailModal.propTypes = {
   openDialog: PropTypes.bool.isRequired,
-  outsideTitle: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   variant: PropTypes.string,
   endIcon: PropTypes.element,
@@ -184,5 +181,4 @@ TotalAttentionEmailModal.defaultProps = {
   endIcon: null,
   currentUserEmail: '',
   totalCountOfQuery: 0,
-
 };

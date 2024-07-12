@@ -16,8 +16,10 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import action, authentication_classes, permission_classes
 import backend.util.csv_stream as csv_stream
 from .utils import parse_query, parse_query_array
-from .tasks import download_all_large_content_csv
+from util.cache import cache_by_kwargs
+from .tasks import download_all_large_content_csv, download_all_queries_csv_task
 from ..users.models import QuotaHistory
+from util.csvwriter import CSVWriterHelper
 from backend.users.exceptions import OverQuotaException
 import mc_providers as providers
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
@@ -150,22 +152,17 @@ def sources(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_sources_csv(request):
-    queryState = json.loads(request.GET.get("qS"))
-    data = []
-    for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key, base_url)
-
-        try:
-            data.append(provider.sources(f"({query_str})", start_date,
-                        end_date, **provider_props, sample_size=5000, limit=100))
-        except Exception as e:
-            logger.exception(e)
-            return error_response(str(e), HttpResponseBadRequest)
-        QuotaHistory.increment(
-            request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-top-sources".format(
-        provider_name, _filename_timestamp())
+    query = json.loads(request.GET.get("qS"))
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query[0])
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    try:
+        data = provider.sources(f"({query_str})", start_date,
+                    end_date, **provider_props, sample_size=5000, limit=100)
+    except Exception as e:
+        logger.exception(e)
+        return error_response(str(e), HttpResponseBadRequest)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    filename = "mc-{}-{}-top-sources".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -173,11 +170,7 @@ def download_sources_csv(request):
     writer = csv.writer(response)
     # TODO: extract into a constant (global)
     cols = ['source', 'count']
-    writer.writerow(cols)
-
-    for top_sources in data:
-        for s in top_sources:
-            writer.writerow([s["source"], s["count"]])
+    CSVWriterHelper.write_top_sources(writer, data, cols)
     return response
 
 
@@ -201,32 +194,24 @@ def languages(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_languages_csv(request):
-    queryState = json.loads(request.GET.get("qS"))
-    data = []
-    for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key, base_url)
-        try:
-            data.append(provider.languages(f"({query_str})", start_date,
-                        end_date, **provider_props, sample_size=5000, limit=100))
-        except Exception as e: 
-            logger.exception(e)
-            return error_response(str(e), HttpResponseBadRequest)
-        QuotaHistory.increment(
-            request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-top-languages".format(
-        provider_name, _filename_timestamp())
+    query = json.loads(request.GET.get("qS"))
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query[0])
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    try:
+        data = provider.languages(f"({query_str})", start_date,
+                    end_date, **provider_props, sample_size=5000, limit=100)
+    except Exception as e: 
+        logger.exception(e)
+        return error_response(str(e), HttpResponseBadRequest)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    filename = "mc-{}-{}-top-languages".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    # TODO: extract into a constant (global)
     cols = ['language', 'count', 'ratio']
-    writer.writerow(cols)
-    for top_terms in data:
-        for t in top_terms:
-            writer.writerow([t["language"], t["value"], t['ratio']])
+    CSVWriterHelper.write_top_langs(writer, data, cols)
     return response
 
 
@@ -271,55 +256,42 @@ def words(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_words_csv(request):
-    queryState = json.loads(request.GET.get("qS"))
-    data = []
-    for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key, base_url)
-        try:
-            words = provider.words(f"({query_str})", start_date,
-                                   end_date, **provider_props, sample_size=5000)
-            words = add_ratios(words)
-            data.append(words)
-        except Exception as e:
-            logger.exception(e)
-            return error_response(str(e), HttpResponseBadRequest)
-        QuotaHistory.increment(
-                request.user.id, request.user.is_staff, provider_name, 4)
-    filename = "mc-{}-{}-top-words".format(
-        provider_name, _filename_timestamp())
+    query = json.loads(request.GET.get("qS"))
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query[0])
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    try:
+        words = provider.words(f"({query_str})", start_date,
+                                end_date, **provider_props, sample_size=5000)
+        words = add_ratios(words)
+    except Exception as e:
+        logger.exception(e)
+        return error_response(str(e), HttpResponseBadRequest)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+    filename = "mc-{}-{}-top-words".format(provider_name, _filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    # TODO: extract into a constant (global)
     cols = ['term', 'count', 'ratio']
-    writer.writerow(cols)
-    for top_terms in data:
-        for t in top_terms:
-            writer.writerow([t["term"], t["count"], t['ratio']])
+    CSVWriterHelper.write_top_words(writer, words, cols)
     return response
 
 
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
-    queryState = json.loads(request.GET.get("qS"))
-    data = []
-    for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key, base_url)
-        try:
-            data.append(provider.normalized_count_over_time(
-                f"({query_str})", start_date, end_date, **provider_props))
-            normalized = True
-        except UnsupportedOperationException:
-            data.append(provider.count_over_time(
-                query_str, start_date, end_date, **provider_props))
-            normalized = False
-        QuotaHistory.increment(
-            request.user.id, request.user.is_staff, provider_name, 2)
+    query = json.loads(request.GET.get("qS"))
+    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query[0])
+    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    try:
+        data = provider.normalized_count_over_time(
+            f"({query_str})", start_date, end_date, **provider_props)
+        normalized = True
+    except UnsupportedOperationException:
+        data = provider.count_over_time(query_str, start_date, end_date, **provider_props)
+        normalized = False
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
     filename = "mc-{}-{}-counts".format(
         provider_name, _filename_timestamp())
     response = HttpResponse(
@@ -327,17 +299,9 @@ def download_counts_over_time_csv(request):
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    # TODO: extract into a constant (global)
     cols = ['date', 'count', 'total_count',
             'ratio'] if normalized else ['date', 'count']
-    writer.writerow(cols)
-    for result in data:
-        for day in result["counts"]:
-            if 'ratio' in day:
-                writer.writerow([day["date"], day["count"],
-                                day["total_count"], day["ratio"]])
-            else:
-                writer.writerow([day["date"], day["count"]])
+    CSVWriterHelper.write_attn_over_time(writer, data, cols)
     return response
 
 
@@ -393,6 +357,27 @@ def send_email_large_download_csv(request):
         except UnsupportedOperationException:
             return error_response("Can't count results for download in {}... continuing anyway".format(provider_name))
     return HttpResponse(content_type="application/json", status=200)
+
+
+@login_required(redirect_field_name='/auth/login')
+@require_http_methods(["POST"])
+@action(detail=False)
+def download_all_queries_csv(request):
+    # get data from request
+    payload = json.loads(request.body)
+    queryState = payload.get('queryState', None)
+    print("test")
+    queries = []
+    for query in queryState:
+        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
+        queries.append({
+            "start_date": start_date, "end_date": end_date,  "query_str": query_str,  
+            "provider_props": provider_props,  "provider_name": provider_name,  "api_key": api_key,  "base_url": base_url,  
+            })
+    # make background task to fetch each query and zip into file then send email
+    download_all_queries_csv_task(queries, request)
+    return HttpResponse(content_type="application/json", status=200)
+
 
 def add_ratios(words_data):
     for word in words_data:
