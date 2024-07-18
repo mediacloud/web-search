@@ -126,12 +126,12 @@ export default function TopWords() {
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             This is an<i> experimental </i>
-            sample-based list of the top words in content matching your query.
+            sample-based list of the top words in headlines of content matching your query.
             We have not strongly validated the results as representative. Use at your own risk.
           </p>
           {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
             <p>
-              These results are from a random sample of news stories.
+              These results are from a random sample of titles from news stories.
             </p>
           )}
           {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
