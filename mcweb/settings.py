@@ -51,7 +51,6 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = environ.Env(DEBUG=(bool, False))
 
 
-
 # app.process for access from rss-fetcher
 ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', 'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.tarbell.mediacloud.org', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://search.mediacloud.org']
@@ -252,6 +251,7 @@ try:
     sentry_sdk.init(
 
         dsn=env('SENTRY_DSN'),
+        environment=env('ENV_NAME', 'dev'),
         integrations=[
             DjangoIntegration(),
         ],
