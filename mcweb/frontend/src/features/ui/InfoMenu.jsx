@@ -3,10 +3,7 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
-import {
-  PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
-  PROVIDER_NEWS_WAYBACK_MACHINE,
-} from '../search/util/platforms';
+import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
 
 export default function InfoMenu({ platform, sampleStory }) {
   const getStoryId = (url) => {
@@ -92,9 +89,9 @@ export default function InfoMenu({ platform, sampleStory }) {
             )} */}
 
             {/* media-cloud story is a bit different, taken out of id */}
-            {(platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
+            {/* {(platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
               <NavLink
-                to={`/story/${platform}/${sampleStory.id}`}
+                to={`/story/${platform}/${encodeURIComponent(sampleStory.url)}`}
                 target="_blank"
                 rel="noreferrer"
                 onClick={handleClose}
@@ -102,7 +99,7 @@ export default function InfoMenu({ platform, sampleStory }) {
               >
                 View extracted content (from Media Cloud)
               </NavLink>
-            )}
+            )} 
 
             {/* wayback-machine story id is taken out of getStoryId function  */}
             {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (

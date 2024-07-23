@@ -8,12 +8,13 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Settings from '@mui/icons-material/Settings';
-import DownloadIcon from '@mui/icons-material/Download';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
+import CSVDialog from '../util/CSVDialog';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 import { useGetTopSourcesMutation } from '../../../app/services/searchApi';
+import { SOURCES } from '../util/getDownloadUrl';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareSourceData from '../util/prepareSourcesData';
@@ -35,16 +36,14 @@ export default function TopSources() {
 
   const [normalized, setNormalized] = useState(true);
 
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const handleClick = (e) => setAnchorEl(e.currentTarget);
 
   const handleClose = () => setAnchorEl(null);
 
   const open = Boolean(anchorEl);
-
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-top-sources-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
 
   useEffect(() => {
     if (!checkForBlankQuery(queryState)) {
@@ -167,15 +166,16 @@ export default function TopSources() {
           </div>
 
           <div className="float-end">
-            <Button
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={SOURCES}
+              outsideTitle="Download CSV of Top Sources"
+              title="Choose a Query to Download a Top Sources CSV or you can choose to download all queries"
+              snackbarText="Top Sources CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
               variant="outlined"
-              startIcon={<DownloadIcon titleAccess="Download CSV of Top Languages" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV of Top Sources
-            </Button>
+            />
           </div>
         </div>
       </div>
@@ -187,9 +187,8 @@ export default function TopSources() {
       <div className="row">
         <div className="col-4">
           <h2>
-            Top Sources
-            {' '}
-            <Chip color="warning" label="experimental" />
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            Top Sources <Chip color="warning" label="experimental" />
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
@@ -199,24 +198,6 @@ export default function TopSources() {
             Please note these percentages are not normalized; therefore, a source that publishes a lower overall volume
             of content will contribute less to your query results, but may still focus proportionately more on the topic.
           </p>
-          {/* {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-            <p>
-              These results are from a sample of titles of top scoring Reddit submissions. Reddit provieds
-              the language of the submission.
-            </p>
-          )}
-          {(platform === PROVIDER_TWITTER_TWITTER) && (
-            <p>
-              These results are from a sample of the text from the most recent Tweets.
-              Twitter provides the language of the submission.
-            </p>
-          )} */}
-          {/* {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
-            <p>
-              These results are from a sample of titles from 5000 random news stories.
-              We use popular software libraries to guess the langage of the extracted text of the articles.
-            </p>
-          )} */}
         </div>
         <div className="col-8">
           {content}

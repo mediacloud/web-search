@@ -6,13 +6,8 @@ import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import addType from './media-picker/util/addType';
-import {
-  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY,
-} from '../util/platforms';
-
-import {
-  resetSelectedAndPreviewMedia, addSelectedMedia, setPlatform,
-} from './querySlice';
+import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../util/platforms';
+import { resetSelectedAndPreviewMedia, addSelectedMedia, setPlatform } from './querySlice';
 
 export default function PlatformPicker({ queryIndex }) {
   const {
@@ -35,7 +30,7 @@ export default function PlatformPicker({ queryIndex }) {
 */
     if (!samePlatform) {
       if (!hasSomeMedia) {
-        if ([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_MEDIA_CLOUD_LEGACY].includes(newPlatform)) {
+        if ([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(newPlatform)) {
           dispatch(addSelectedMedia({ sourceOrCollection: addType(previewSources, previewCollections), queryIndex }));
           enqueueSnackbar('We reset your collections to work with this platform.', { variant: 'warning' });
         } else {
@@ -72,17 +67,6 @@ export default function PlatformPicker({ queryIndex }) {
             </ToggleButton>
             )}
 
-            {/* {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD_LEGACY); }}
-                value={PROVIDER_NEWS_MEDIA_CLOUD_LEGACY}
-              >
-                <NewspaperIcon fontSize="large" />
-                Media Cloud Legacy
-                <br />
-                Online News Archive
-              </ToggleButton>
-            )} */}
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_NEWS_WAYBACK_MACHINE); }}

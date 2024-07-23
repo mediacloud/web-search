@@ -121,6 +121,13 @@ export const searchApi = createApi({
         body: { ...preparedQueryAndEmail },
       }),
     }),
+    downloadAllQueries: builder.mutation({
+      query: (queryState) => ({
+        url: 'download-all-queries',
+        method: 'POST',
+        body: { queryState },
+      }),
+    }),
   }),
 });
 
@@ -133,4 +140,5 @@ export const {
   useGetTopLanguagesMutation,
   useSendTotalAttentionDataEmailMutation,
   useGetTopSourcesMutation,
+  useDownloadAllQueriesMutation,
 } = searchApi;

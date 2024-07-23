@@ -97,7 +97,7 @@ function App() {
           />
 
           <Route
-            path="story/:platform/:storyId"
+            path="story/:platform/:storyURL"
             element={(
               <RequireAuth>
                 <StoryShow />
