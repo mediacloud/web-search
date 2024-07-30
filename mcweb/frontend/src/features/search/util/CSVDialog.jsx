@@ -106,6 +106,7 @@ export default function CSVDialog({
                            navigateTo="/"
                            onClick={() => handleTAClick()}
                            openDialog={openTAModal}
+                           querySlice={querySlice}
                            confirmButtonText="Confirm New Email"
                            currentUserEmail={currentUserEmail}
                            totalCountOfQuery={getRelevantCount(i)}

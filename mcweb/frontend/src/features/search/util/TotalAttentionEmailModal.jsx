@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Dialog from '@mui/material/Dialog';
@@ -16,12 +15,11 @@ import prepareQueries from './prepareQueries';
 import { useSendTotalAttentionDataEmailMutation } from '../../../app/services/searchApi';
 
 export default function TotalAttentionEmailModal({
-  openDialog, title, confirmButtonText, currentUserEmail, totalCountOfQuery,
+  openDialog, title, confirmButtonText, currentUserEmail, totalCountOfQuery, querySlice
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [sendTotalAttentionDataEmail] = useSendTotalAttentionDataEmailMutation();
-  const queryState = useSelector((state) => state.query);
   const [open, setOpen] = useState(openDialog);
   const [emailModal, setModalEmail] = useState('');
 
@@ -29,15 +27,15 @@ export default function TotalAttentionEmailModal({
     setModalEmail((prev) => ({ ...prev, [name]: value }))
   );
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  const handleDownloadRequest = () => {
+    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries([querySlice])))}`;
   };
 
   // download button is hit but the count is less than 25k, no need to ask for an email it will download
   const handleClickOpen = () => {
     if (totalCountOfQuery < 25000) {
       enqueueSnackbar('Downloading your data!', { variant: 'success' });
-      handleDownloadRequest(queryState);
+      handleDownloadRequest([querySlice]);
     } else if (!currentUserEmail) {
       enqueueSnackbar('You do not have an email registered, please input an email', { variant: 'error' });
       setOpen(true);
@@ -51,7 +49,7 @@ export default function TotalAttentionEmailModal({
     if (currentUserEmail) {
       if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
         sendTotalAttentionDataEmail({
-          prepareQuery: prepareQueries(queryState),
+          prepareQuery: prepareQueries([querySlice]),
           email: currentUserEmail,
         }).unwrap();
         enqueueSnackbar(
@@ -72,7 +70,7 @@ export default function TotalAttentionEmailModal({
     if (emailModal.email) {
       if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
         sendTotalAttentionDataEmail({
-          prepareQuery: prepareQueries(queryState),
+          prepareQuery: prepareQueries([querySlice]),
           email: emailModal.email,
         }).unwrap();
 
@@ -174,6 +172,7 @@ TotalAttentionEmailModal.propTypes = {
   confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   currentUserEmail: PropTypes.string,
   totalCountOfQuery: PropTypes.number,
+  querySlice: PropTypes.object.isRequired,
 };
 
 TotalAttentionEmailModal.defaultProps = {
