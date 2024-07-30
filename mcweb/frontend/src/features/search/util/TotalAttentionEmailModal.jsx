@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Dialog from '@mui/material/Dialog';
@@ -21,7 +20,6 @@ export default function TotalAttentionEmailModal({
   const { enqueueSnackbar } = useSnackbar();
 
   const [sendTotalAttentionDataEmail] = useSendTotalAttentionDataEmailMutation();
-  const queryState = useSelector((state) => state.query);
   const [open, setOpen] = useState(openDialog);
   const [emailModal, setModalEmail] = useState('');
 
@@ -37,7 +35,7 @@ export default function TotalAttentionEmailModal({
   const handleClickOpen = () => {
     if (totalCountOfQuery < 25000) {
       enqueueSnackbar('Downloading your data!', { variant: 'success' });
-      handleDownloadRequest(queryState);
+      handleDownloadRequest([querySlice]);
     } else if (!currentUserEmail) {
       enqueueSnackbar('You do not have an email registered, please input an email', { variant: 'error' });
       setOpen(true);
@@ -51,7 +49,7 @@ export default function TotalAttentionEmailModal({
     if (currentUserEmail) {
       if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
         sendTotalAttentionDataEmail({
-          prepareQuery: prepareQueries(queryState),
+          prepareQuery: prepareQueries([querySlice]),
           email: currentUserEmail,
         }).unwrap();
         enqueueSnackbar(
@@ -72,7 +70,7 @@ export default function TotalAttentionEmailModal({
     if (emailModal.email) {
       if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
         sendTotalAttentionDataEmail({
-          prepareQuery: prepareQueries(queryState),
+          prepareQuery: prepareQueries([querySlice]),
           email: emailModal.email,
         }).unwrap();
 
