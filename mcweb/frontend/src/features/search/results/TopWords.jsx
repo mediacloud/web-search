@@ -88,10 +88,8 @@ export default function TopWords() {
 
               </Tabs>
             </Box>
-
             {data.map((results, i) => (
-              <TabPanelHelper value={value} index={i} key={`${results.words[0].term}`}>
-
+              <TabPanelHelper value={value} index={i} key={`words-key-${i}`}>
                 <OrderedWordCloud width={600} color="#000" data={results.words} />
               </TabPanelHelper>
             ))}
