@@ -16,7 +16,7 @@ import prepareQueries from './prepareQueries';
 import { useSendTotalAttentionDataEmailMutation } from '../../../app/services/searchApi';
 
 export default function TotalAttentionEmailModal({
-  openDialog, title, confirmButtonText, currentUserEmail, totalCountOfQuery,
+  openDialog, title, confirmButtonText, currentUserEmail, totalCountOfQuery, querySlice
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
@@ -29,8 +29,8 @@ export default function TotalAttentionEmailModal({
     setModalEmail((prev) => ({ ...prev, [name]: value }))
   );
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  const handleDownloadRequest = () => {
+    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries([querySlice])))}`;
   };
 
   // download button is hit but the count is less than 25k, no need to ask for an email it will download
@@ -174,6 +174,7 @@ TotalAttentionEmailModal.propTypes = {
   confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   currentUserEmail: PropTypes.string,
   totalCountOfQuery: PropTypes.number,
+  querySlice: PropTypes.object.isRequired,
 };
 
 TotalAttentionEmailModal.defaultProps = {
