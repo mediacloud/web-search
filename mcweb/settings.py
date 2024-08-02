@@ -249,9 +249,7 @@ except ImproperlyConfigured:
 # sentry config
 try:
     sentry_sdk.init(
-
         dsn=env('SENTRY_DSN'),
-        environment=env('ENV_NAME', 'dev'),
         integrations=[
             DjangoIntegration(),
         ],
