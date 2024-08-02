@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo "Running migrations and building javacsript"
+bin/start-pgbouncer
 python mcweb/manage.py makemigrations
 python mcweb/manage.py migrate
 npm run build
