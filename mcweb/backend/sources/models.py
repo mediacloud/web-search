@@ -1,10 +1,13 @@
 import logging
 from typing import Dict
 
-from feed_seeker import generate_feed_urls
+import feed_seeker.feed_seeker as feed_seeker
 from mcmetadata.feeds import normalize_url
 import mcmetadata.urls as urls
 from django.db import models
+
+# not from PyPI: package installed via github URL
+from mc_sitemap_tools import find_gnews_fast
 
 SCRAPE_TIMEOUT_SECONDS = 120
 logger = logging.getLogger(__name__)
@@ -188,32 +191,65 @@ class Source(models.Model):
 
         return obj
     
-    
-    ## THIS METHOD WAS COPIED FROM TASKS TO BE USED IN SCRAPE COLLECTION TASK, CAN DEFINITELY BE CLEANED UP TO REMOVE THIS
-    @classmethod
-    def _scrape_source(cls, source_id: int, homepage: str):
-        logger.info(f"==== starting _scrape_source(source_id, homepage)")
+    @staticmethod
+    def _scrape_source(source_id: int, homepage: str, name: str, verbose: bool = True) -> str:
+        """
+        returns text for email
+        """
+        logger.info(f"==== starting _scrape_source({source_id}, {homepage}, {name})")
 
-        # work around not having a column/index for normalized feed url:
-        # create set of normalized urls of current feeds
-        old_urls = set([normalize_url(feed.url)
-                        for feed in Feed.objects.filter(source_id=source_id)])
+        # create dict of full urls of current feeds indexed by normalized urls
+        old_urls = {normalize_url(feed.url): feed.url
+                    for feed in Feed.objects.filter(source_id=source_id)}
+        found = set()           # normalized urls
 
-        # background_tasks does not implement job timeouts, so use
-        # feed_seeker's; returns a generator, so gobble up returns so that
-        # DB operations are not under the timeout gun.
-        new_urls = list(generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS))
+        # header, might be only output if verbose is False and no new feeds found
+        # NOTE! Each line appended to list must end with a newline!
+        lines = [f"Scraped source {source_id} ({name}), {homepage}\n"]
 
-        for url in new_urls:
-            if normalize_url(url) not in old_urls:
-                logger.info(f"scrape_source({source_id}, {homepage}) found new feed {url}")
-                feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
-                feed.save()
-            else:
-                logger.info(f"scrape_source({source_id}, {homepage}) found old feed {url}")
+        if not homepage:
+            lines.append("MISSING HOMEPAGE\n")
+            return "".join(lines)
 
-        # send email????
-        return(f"scraped_source({source_id}, {homepage})")
+        def process_urls(from_: str, urls: list[str]):
+            for url in urls:
+                nurl = normalize_url(url)
+                if nurl not in old_urls:
+                    logger.info(f"scrape_source({source_id}, {homepage}) found new {from_} feed {url}")
+                    feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
+                    feed.save()
+                    lines.append(f"added new {from_} feed {url}\n")
+                else:
+                    logger.info(f"scrape_source({source_id}, {homepage}) found old {from_} feed {url}")
+                    found.add(nurl)
+
+            if verbose:
+                for nurl in found:
+                    lines.append(f"found old {from_} feed {old_urls[nurl]}\n")
+            # end process_feeds
+
+        # Look for RSS feeds
+        # create list so DB operations in process_urls are not under the timeout gun.
+        new_feed_generator = feed_seeker.generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS)
+        process_urls("rss", list(new_feed_generator))
+
+        # Look for Google News Sitemaps (does NOT do full site crawl)
+        # use feed_seeker alarm/signal based timeout.
+        # NOTE! not in the public API, but better than copying?!
+        with feed_seeker.timeout(SCRAPE_TIMEOUT_SECONDS):
+            gnews_urls = find_gnews_fast(homepage)
+        process_urls("news sitemap", gnews_urls)
+
+        if verbose:
+            not_found = set(old_urls.keys()) - found
+            for nurl in not_found:
+                lines.append(f"old feed {old_urls[nurl]} not found!\n")
+
+            if len(lines) == 1: # just header
+                lines.append("no new or old feeds\n")
+
+        indent = "  "           # not applied to header line
+        return indent.join(lines)
 
     @classmethod
     def update_stories_per_week(cls, source_id: int , weekly_story_count):
