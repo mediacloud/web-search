@@ -111,13 +111,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "wsgi.application"
 
-
-
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.parse(env('DATABASE_URI'), conn_max_age=0)
+    "default": dj_database_url.parse(env('DATABASE_URL'), conn_max_age=0)
 }
 
 # Password validation
