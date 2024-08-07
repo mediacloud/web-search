@@ -77,14 +77,16 @@ export default function TabDropDownMenuItems({
         >
           Compare Across the Globe
         </MenuItem>
+
         {/* Add Color Option */}
-        <MenuItem
+        {/* <MenuItem
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
           Add Color
           <ArrowRight />
-        </MenuItem>
+        </MenuItem> */}
+
         {/* Edit Tab Name Option */}
         <MenuItem onClick={() => {
           handleClose('edit');
