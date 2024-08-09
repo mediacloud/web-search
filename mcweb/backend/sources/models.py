@@ -7,7 +7,7 @@ import mcmetadata.urls as urls
 from django.db import models
 
 # not from PyPI: package installed via github URL
-from mc_sitemap_tools import find_gnews_fast
+from mc_sitemap_tools.discover import find_gnews_fast
 
 SCRAPE_TIMEOUT_SECONDS = 120
 logger = logging.getLogger(__name__)
