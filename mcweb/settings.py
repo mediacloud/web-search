@@ -41,18 +41,29 @@ VERSION = "2.0.5"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
-env = environ.Env(
-    DEBUG=(bool, False)  # set casting, default value
+_DEFAULT_ALLOWED_HOSTS = [
+    'search.mediacloud.org', 'mcweb.web', # production
+    # app.process for rss-fetcher on tarbell; https://search.mediacloud.org should now work
+    # (need to adjust rss-fetcher config first)
+
+    'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.steinam.angwin', # staging
+    'localhost', '127.0.0.1' # local development/debug
+]
+
+env = environ.Env( # set casting, default value
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(list, _DEFAULT_ALLOWED_HOSTS)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env("SECRET_KEY")
 
+# PLB: UM... isn't this exactly the same as "env" above???
+#   perhaps env("DEBUG")?
 DEBUG = environ.Env(DEBUG=(bool, False))
+print("DEBUG", DEBUG, env("DEBUG"))
 
-
-# app.process for access from rss-fetcher
-ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', 'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.tarbell.mediacloud.org', '127.0.0.1']
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 CSRF_TRUSTED_ORIGINS = ['https://mcweb-staging.tarbell.mediacloud.org', 'https://search.mediacloud.org']
 # Application definition
 
