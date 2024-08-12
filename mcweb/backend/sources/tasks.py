@@ -69,9 +69,11 @@ def _scrape_source(source_id, homepage, name, user_email):
     send_email(subject, email_body, FROM_EMAIL, [user_email])
     logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
 
+# Phil: this could take quite a while;
+# pass queue="slow-lane" to decorator (and run another process_tasks worker in Procfile)??
 @background()
 def _scrape_collection(collection_id, user_email):
-    logger.info(f"==== starting _scrape_collection(collection_id)")
+    logger.info(f"==== starting _scrape_collection(collection_id) for {user_email}")
 
     collection = Collection.objects.get(id=collection_id)
     if not collection:
@@ -83,15 +85,16 @@ def _scrape_collection(collection_id, user_email):
     sources = collection.source_set.all()
     email_body: list[str] = []
     for source in sources:
-        logger.info(f"== starting Source._scrape_source {source.id} {source.name}")
+        logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
         # pass verbose=False if too much output:
         email_body.append(Source._scrape_source(source.id, source.homepage, source.name))
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
     subject = f"[Media Cloud] Collection {collection.id} ({collection.name}) scrape complete"
+    # separate sources with blank lines
     send_email(subject, "\n".join(email_body), FROM_EMAIL, [user_email])
 
-    logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name})")
+    logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email}")
 
 run_at = dt.time(hour=14, minute=32)
 # Calculate the number of days until next Friday
