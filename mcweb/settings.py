@@ -227,6 +227,8 @@ CACHES = {
     }
 }
 
+DISABLE_SERVER_SIDE_CURSORS = True
+
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 # email authentication
 try:
