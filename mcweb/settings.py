@@ -19,21 +19,19 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from django.core.exceptions import ImproperlyConfigured
 
-def getenv_float(name: str, defval: float | None) -> float | None:
+logger = logging.getLogger(__file__)
+
+def env_float(name: str, defval: float) -> float | None:
     """
     fetch environment variable with name `name`
     if not set, return defval
     if set to empty string, return None
     else interpret as floating point number
     """
-    val = os.getenv(name)
-    if val is None:
-        return defval
-    if val == "":
+    value = env(name, default=defval)
+    if value == "":
         return None
-    return float(val)
-
-logger = logging.getLogger(__file__)
+    return float(value)
 
 # The static version of the app
 VERSION = "2.0.5"
@@ -41,19 +39,36 @@ VERSION = "2.0.5"
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
-env = environ.Env(
-    DEBUG=(bool, False)  # set casting, default value
+_DEFAULT_ALLOWED_HOSTS = [
+    #### production:
+    # app.process (mcweb.web) for rss-fetcher on tarbell
+    # https://search.mediacloud.org should now work
+    # (need to adjust rss-fetcher config first)
+    'search.mediacloud.org', 'mcweb.web',
+
+    #### staging:
+    'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.steinam.angwin',
+
+    #### development (outside dokku)
+    'localhost', '127.0.0.1'
+]
+
+_DEFAULT_CSRF_TRUSTED_ORIGINS = ['https://mcweb-staging.tarbell.mediacloud.org', 'https://search.mediacloud.org']
+
+env = environ.Env( # set casting, default value
+    ALLOWED_HOSTS=(list, _DEFAULT_ALLOWED_HOSTS),
+    CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
+    DEBUG=(bool, False)
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
+# type/cast and default values declared above in environ.Env creation
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
+DEBUG = env("DEBUG")
+
 SECRET_KEY = env("SECRET_KEY")
 
-DEBUG = environ.Env(DEBUG=(bool, False))
-
-
-# app.process for access from rss-fetcher
-ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', 'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.tarbell.mediacloud.org', '127.0.0.1']
-CSRF_TRUSTED_ORIGINS = ['https://mcweb-staging.tarbell.mediacloud.org', 'https://search.mediacloud.org']
 # Application definition
 
 INSTALLED_APPS = [
@@ -261,6 +276,8 @@ try:
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
 
+        # NOTE! mcweb/frontend/views.py uses SENTRY_{REPLAY,TRACES}_RATE vars
+        # (passed to JS code?)
         traces_sample_rate=getenv_float("TRACES_SAMPLE_RATE", 1.0),
         profiles_sample_rate=getenv_float("PROFILES_SAMPLE_RATE", 1.0),
 
