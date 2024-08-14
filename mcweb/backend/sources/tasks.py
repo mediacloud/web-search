@@ -18,7 +18,7 @@ from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.utils import timezone
-import pandas as pd
+#import pandas as pd             # not currently used
 import numpy as np
 
 # from sources app:
@@ -36,6 +36,7 @@ ALERT_HIGH = 'alert_high'
 
 
 SCRAPE_TIMEOUT_SECONDS = 120
+FROM_EMAIL = 'noreply@mediacloud.org'
 
 logger = logging.getLogger(__name__)
 
@@ -61,58 +62,39 @@ logger = logging.getLogger(__name__)
 # calling decorated_function.now() invokes decorated function synchronously.
 
 @background()
-def _scrape_source(source_id, homepage, user_email):
-    logger.info(f"==== starting _scrape_source(source_id, homepage)")
-    # print("USERRRRR", user_email)
-    # work around not having a column/index for normalized feed url:
-    # create set of normalized urls of current feeds
-    old_urls = set([normalize_url(feed.url)
-                    for feed in Feed.objects.filter(source_id=source_id)])
+def _scrape_source(source_id, homepage, name, user_email):
+    logger.info(f"==== starting _scrape_source {source_id} ({name}) {homepage} for {user_email}")
+    email_body = Source._scrape_source(source_id, homepage, name)
+    subject = f"[Media Cloud] Source {source_id} ({name}) scrape complete"
+    send_email(subject, email_body, FROM_EMAIL, [user_email])
+    logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
 
-    # background_tasks does not implement job timeouts, so use
-    # feed_seeker's; returns a generator, so gobble up returns so that
-    # DB operations are not under the timeout gun.
-    new_urls = list(generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS))
-
-    for url in new_urls:
-        if normalize_url(url) not in old_urls:
-            logger.info(f"scrape_source({source_id}, {homepage}) found new feed {url}")
-            feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
-            feed.save()
-            #send email about new feed
-            subject = "[Media Cloud] New Feed Found"
-            body = f"A new feed with the url: {url} has been found and added"
-            from_email = 'noreply@mediacloud.org'
-            recepient = [user_email]
-            send_email(subject, body, from_email, recepient)
-        else:
-            logger.info(f"scrape_source({source_id}, {homepage}) found old feed {url}")
-
-    # send email????
-    logger.info(f"==== finished _scrape_source(source_id, homepage)")
-
-
-
+# Phil: this could take quite a while;
+# pass queue="slow-lane" to decorator (and run another process_tasks worker in Procfile)??
 @background()
 def _scrape_collection(collection_id, user_email):
-    logger.info(f"==== starting _scrape_collection(collection_id)")
+    logger.info(f"==== starting _scrape_collection(collection_id) for {user_email}")
 
     collection = Collection.objects.get(id=collection_id)
     if not collection:
+        # now checked in schedule_scrape_collection
+        logger.error(f"_scrape_collection collection {collection_id} not found")
+        # in background task runner nobody can hear you scream?
         return _return_error(f"collection {collection_id} not found")
-    
+
     sources = collection.source_set.all()
-    email = ""
+    email_body: list[str] = []
     for source in sources:
-        # check source.homepage not empty??
-        if not source.homepage:
-            return _return_error(f"source {source.id} missing homepage")
-        scraped_source_text = Source._scrape_source(source.id, source.homepage, user_email)
-        email += f"{scraped_source_text} \n"
-        logger.info(f"==== finished _scrape_source {source.name}")
-        
-    # send email????
-    logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name})")
+        logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
+        # pass verbose=False if too much output:
+        email_body.append(Source._scrape_source(source.id, source.homepage, source.name))
+        logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
+
+    subject = f"[Media Cloud] Collection {collection.id} ({collection.name}) scrape complete"
+    # separate sources with blank lines
+    send_email(subject, "\n".join(email_body), FROM_EMAIL, [user_email])
+
+    logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email}")
 
 run_at = dt.time(hour=14, minute=32)
 # Calculate the number of days until next Friday
@@ -273,7 +255,11 @@ def schedule_scrape_collection(collection_id, user):
     call this function from a view action to schedule a (re)scrape for a collection
     """
     collection = Collection.objects.get(id=collection_id)
-    task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape {collection.name}", remove_existing_tasks=True)
+    if not collection:
+        return _return_error(f"collection {collection_id} not found")
+
+    name_or_id = collection.name or str(collection_id)
+    task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape collection {name_or_id}", remove_existing_tasks=True)
 
     return {'task': _return_task(task)}
 
@@ -297,8 +283,9 @@ def schedule_scrape_source(source_id, user):
     # NOTE! Will remove any other pending scrapes for same source
     # rather than queuing a duplicate; the new user will "steal" the task
     # (leaving no trace of the old one). Returns a Task object.
-    task = _scrape_source(source_id, source.homepage, user.email, creator=user,
-                          verbose_name=f"rescrape {name_or_home}",
+    task = _scrape_source(source_id, source.homepage, source.name, user.email,
+                          creator=user,
+                          verbose_name=f"rescrape source {name_or_home}",
                           remove_existing_tasks=True)
     return {'task': _return_task(task)}
 
