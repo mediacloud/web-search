@@ -23,7 +23,7 @@ class EmailThread(threading.Thread):
         self.email.send()
 
 # used only by (re)scraping; change to use Email{Message,Thread}??
-def send_email(subject: str, body: str, from_mail: str, recipients: list[str]) -> None:
+def send_email(subject: str, body: str, from_email: str, recipients: list[str]) -> None:
     logger.info(f"send_email '{subject}' to {recipients}")
     if not EMAIL_HOST:
         logger.info("no EMAIL_HOST")
