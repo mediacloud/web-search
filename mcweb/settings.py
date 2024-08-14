@@ -279,8 +279,8 @@ try:
 
         # NOTE! mcweb/frontend/views.py uses SENTRY_{REPLAY,TRACES}_RATE vars
         # (passed to JS code?)
-        traces_sample_rate=getenv_float("TRACES_SAMPLE_RATE", 1.0),
-        profiles_sample_rate=getenv_float("PROFILES_SAMPLE_RATE", 1.0),
+        traces_sample_rate=env_float("TRACES_SAMPLE_RATE", 1.0),
+        profiles_sample_rate=env_float("PROFILES_SAMPLE_RATE", 1.0),
 
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
