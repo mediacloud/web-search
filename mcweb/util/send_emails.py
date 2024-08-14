@@ -30,7 +30,7 @@ def send_email(subject: str, body: str, from_email: str, recipients: list[str]) 
         print("body:", body)    # TEMP for testing
         return
     try:
-        send_mail(subject, body, from_email, recepients, fail_silently=False)
+        send_mail(subject, body, from_email, recipients, fail_silently=False)
     except Exception as e:
         logger.exception(e)
 
