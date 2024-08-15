@@ -5,6 +5,7 @@ import feed_seeker.feed_seeker as feed_seeker
 from mcmetadata.feeds import normalize_url
 import mcmetadata.urls as urls
 from django.db import models
+from django.db.utils import IntegrityError
 import requests
 
 # not from PyPI: package installed via github URL
@@ -202,7 +203,7 @@ class Source(models.Model):
         # create dict of full urls of current feeds indexed by normalized urls
         old_urls = {normalize_url(feed.url): feed.url
                     for feed in Feed.objects.filter(source_id=source_id)}
-        found = set()           # normalized urls
+        found = set() # pre-existing (in DB) normalized URLs found in scan of site (for verbose output)
 
         # header, might be only output if verbose is False and no new feeds found
         # NOTE! Each line appended to list must end with a newline!
@@ -216,53 +217,63 @@ class Source(models.Model):
             for url in urls:
                 nurl = normalize_url(url)
                 if nurl not in old_urls:
-                    logger.info(f"scrape_source({source_id}, {homepage}) found new {from_} feed {url}")
-                    feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
-                    feed.save()
-                    lines.append(f"added new {from_} feed {url}\n")
+                    try:
+                        feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
+                        feed.save()
+                        lines.append(f"added new {from_} feed {url}\n")
+                        logger.info(f"scrape_source({source_id}, {homepage}) added new {from_} feed {url}")
+                    except IntegrityError:
+                        # feeds for michaelsavage.com (srcid 543138) exist under wnd.com (srcid 22339)!!
+                        # could do lookup by URL, and report what source (name & id) it's under....
+                        lines.append(f"{from_} feed {url} exists under some other source!!!")
+                        logger.warning("scrape_source({source_id}, {homepage}) duplicate {from_} feed {url} (exists under another source?)")
+                    old_urls.add(nurl)
                 else:
-                    logger.info(f"scrape_source({source_id}, {homepage}) found old {from_} feed {url}")
+                    logger.info(f"scrape_source({source_id}, {homepage}) found previously seen {from_} feed {url}")
                     found.add(nurl)
 
             if verbose:
                 for nurl in found:
-                    lines.append(f"found old {from_} feed {old_urls[nurl]}\n")
+                    lines.append(f"found previously seen {from_} feed {old_urls[nurl]}\n")
             # end process_feeds
 
         # Look for RSS feeds
-        # create list so DB operations in process_urls are not under the timeout gun.
         try:
             new_feed_generator = feed_seeker.generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS)
+            # create list so DB operations in process_urls are not under the timeout gun.
             process_urls("rss", list(new_feed_generator))
-        except requests.RequestException as e:
-            lines.append(f"fatal error scraping rss feeds: {e!r}")
-            logger.exception("generate_feed_urls")
+        except requests.RequestException as e: # maybe just catch Exception?
+            lines.append(f"fatal error for rss: {e!r}")
+            logger.warning("generate_feed_urls(%s): %r, homepage, e)
         except TimeoutError:
-            lines.append("timeout")
-            logger.warning("rss timeout: %s", homepage)
+            lines.append(f"timeout for rss")
+            logger.warning("generate_feed_urls(%s): timeout", homepage)
 
         # Look for Google News Sitemaps (does NOT do full site crawl)
         # use feed_seeker alarm/signal based timeout.
         # NOTE! not in the public API, but better than copying?!
         gnews_urls = []
+        sitemaps = "news sitemaps" # say something once, why say it again?
+
         with feed_seeker.timeout(SCRAPE_TIMEOUT_SECONDS):
             try:
                 gnews_urls = find_gnews_fast(homepage)
             except requests.RequestException as e:
-                lines.append(f"fatal error scraping sitemaps: {e!r}")
+                lines.append(f"fatal error for {sitemaps}: {e!r}")
                 logger.exception("find_gnews_fast")
             except TimeoutError:
-                lines.append("timeout")
+                lines.append(f"timeout for {sitemaps}")
                 logger.warning("gnews timeout: %s", homepage)
 
         if gnews_urls:
-            process_urls("news sitemap", gnews_urls)
+            process_urls(sitemaps, gnews_urls)
 
         if verbose:
             not_found = set(old_urls.keys()) - found
             for nurl in not_found:
-                lines.append(f"old feed {old_urls[nurl]} not found!\n")
-
+                old_url = old_urls[nurl]
+                lines.append(f"existing feed {old_url} not (re)found\n")
+                logger.warning("scrape_source({source_id}, {homepage}) existing feed {old_url} not (re)found")
             if len(lines) == 1: # just header
                 lines.append("no new or old feeds\n")
 
