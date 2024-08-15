@@ -73,7 +73,7 @@ def _scrape_source(source_id, homepage, name, user_email):
 # pass queue="slow-lane" to decorator (and run another process_tasks worker in Procfile)??
 @background()
 def _scrape_collection(collection_id, user_email):
-    logger.info(f"==== starting _scrape_collection(collection_id) for {user_email}")
+    logger.info(f"==== starting _scrape_collection({collection_id}) for {user_email}")
 
     collection = Collection.objects.get(id=collection_id)
     if not collection:
