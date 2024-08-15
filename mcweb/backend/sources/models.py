@@ -5,6 +5,7 @@ import feed_seeker.feed_seeker as feed_seeker
 from mcmetadata.feeds import normalize_url
 import mcmetadata.urls as urls
 from django.db import models
+import requests
 
 # not from PyPI: package installed via github URL
 from mc_sitemap_tools.discover import find_gnews_fast
@@ -230,15 +231,32 @@ class Source(models.Model):
 
         # Look for RSS feeds
         # create list so DB operations in process_urls are not under the timeout gun.
-        new_feed_generator = feed_seeker.generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS)
-        process_urls("rss", list(new_feed_generator))
+        try:
+            new_feed_generator = feed_seeker.generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS)
+            process_urls("rss", list(new_feed_generator))
+        except requests.RequestException as e:
+            lines.append(f"fatal error scraping rss feeds: {e!r}")
+            logger.exception("generate_feed_urls")
+        except TimeoutError:
+            lines.append("timeout")
+            logger.warning("rss timeout: %s", homepage)
 
         # Look for Google News Sitemaps (does NOT do full site crawl)
         # use feed_seeker alarm/signal based timeout.
         # NOTE! not in the public API, but better than copying?!
+        gnews_urls = []
         with feed_seeker.timeout(SCRAPE_TIMEOUT_SECONDS):
-            gnews_urls = find_gnews_fast(homepage)
-        process_urls("news sitemap", gnews_urls)
+            try:
+                gnews_urls = find_gnews_fast(homepage)
+            except requests.RequestException as e:
+                lines.append(f"fatal error scraping sitemaps: {e!r}")
+                logger.exception("find_gnews_fast")
+            except TimeoutError:
+                lines.append("timeout")
+                logger.warning("gnews timeout: %s", homepage)
+
+        if gnews_urls:
+            process_urls("news sitemap", gnews_urls)
 
         if verbose:
             not_found = set(old_urls.keys()) - found
