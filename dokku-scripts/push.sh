@@ -233,6 +233,7 @@ git tag $TAG
 # (ISTR seeing refs/tags/..../refs/tags/....)
 
 echo ''
+# start shutdown while working on config...
 #echo stopping processes...
 #dokku ps:stop $APP
 
@@ -267,7 +268,7 @@ prod|staging)
     PRIVATE_CONF_FILE=$PRIVATE_CONF_REPO/web-search.${BRANCH}.sh
     cd ..
     ;;
-dev)
+*)
     # XXX ALLWAYS SET THESE (for prod & staging too)?? put in FILTER (see above)????
     PG_DSN=$(dokku postgres:info $PG_SVC --dsn)    # XXX 
 
@@ -314,8 +315,9 @@ else
 fi
 
 exit
-
+# end config
 ################################################################
+
 echo ''
 CURR_GIT_BRANCH=$(dokku git:report $APP | awk '/Git deploy branch:/ { print $4 }')
 if [ "x$CURR_GIT_BRANCH" != "x$DOKKU_GIT_BRANCH" ]; then
