@@ -304,7 +304,6 @@ done
 
 if [ "x$NEED" != x ]; then
     echo setting dokku config: $NEED
-exit
     dokku config:set $CONFIG_OPTIONS $APP $NEED
 else
     echo no dokku config changes
