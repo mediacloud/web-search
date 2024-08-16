@@ -46,8 +46,9 @@ staging) APP=${APP}-staging;;
 esac
 
 # w/ app set; must agree w/ instance.sh
-REDIS_SVC=${APP}-cache
+APP_FQDN=$APP.$FQDN
 PG_SVC=${APP}-db
+REDIS_SVC=${APP}-cache
 
 # tmp files to clean up on exit
 TMP=/tmp/mcweb-push$$
@@ -265,13 +266,14 @@ prod|staging)
     cd ..
     ;;
 *)
-    # XXX ALLWAYS SET THESE (for prod & staging too)?? put in FILTER (see above)????
-    PG_DSN=$(dokku postgres:info $PG_SVC --dsn)    # XXX 
-
     # NOTE!!! Dokku generates DATABASE_URL and REDIS_URL; just use them????!!!
-    add_vars CACHE_URL=$(dokku redis:info $REDIS_SVC --dsn) \
-	     DATABASE_URI=$PG_DSN \
-	     DATABASE_URL=$PG_DSN
+    # fix noted places to use them?!!!
+
+    # mcweb/settings.py wants CACHE_URL
+    add_vars CACHE_URL=$(dokku redis:info $REDIS_SVC --dsn)
+
+    # mcweb/backend/sources/management/commands/importdata.py wants DATABASE_URI
+    add_vars DATABASE_URI=$(dokku postgres:info $PG_SVC --dsn)
     
     # maybe check for env.$LOGIN_USER and set PRIVATE_CONF_FILE=env.$LOGIN_USER
     # and only use these if it doesn't exist?
@@ -282,10 +284,8 @@ prod|staging)
 esac
 
 if [ -f "$PRIVATE_CONF_FILE" ]; then
-    add_vars $(sed 's/#.*$//' < $PRIVATE_CONF_FILE $FILTER)
+    add_vars $(sed 's/#.*$//' $FILTER < $PRIVATE_CONF_FILE $FILTER)
 fi
-
-# call add_vars here for any stock/manual settings
 
 CONFIG_OPTIONS=--no-restart
 

@@ -44,12 +44,13 @@ if [ -n "$ERR" ]; then
 fi
 
 
-REDIS_SVC=${APP}-cache
-PG_SVC=${APP}-db
-
-GIT_REMOTE=mcweb_$(echo "$TYPE" | sed 's/^dev-//')
-APP_PORT=8000
+# must agree with push.sh:
 APP_FQDN=$APP.$FQDN
+DOKKU_GIT_REMOTE=mcweb_$(echo "$TYPE" | sed 's/^dev-//')
+PG_SVC=${APP}-db
+REDIS_SVC=${APP}-cache
+
+APP_PORT=8000
 
 
 # copied from rss-fetcher/dokku-scripts/instance.sh
@@ -95,11 +96,11 @@ create_app() {
     check_service postgres $PG_SVC $APP
     check_service redis $REDIS_SVC $APP
 
-    if git remote | grep $GIT_REMOTE >/dev/null; then
-	echo found git remote $GIT_REMOTE
+    if git remote | grep $DOKKU_GIT_REMOTE >/dev/null; then
+	echo found git remote $DOKKU_GIT_REMOTE
     else
-	echo adding git remote $GIT_REMOTE
-	git remote add $GIT_REMOTE dokku@$FQDN:$APP
+	echo adding git remote $DOKKU_GIT_REMOTE
+	git remote add $DOKKU_GIT_REMOTE dokku@$FQDN:$APP
     fi
 
     if dokku domains:report $APP | grep "vhosts:.*$APP_FQDN" >/dev/null 2>&1; then
