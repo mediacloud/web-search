@@ -310,7 +310,6 @@ else
     echo no dokku config changes
 fi
 
-exit
 # end config
 ################################################################
 
