@@ -130,7 +130,7 @@ create_app() {
 
     # get git commit hash of last change to this file
     SCRIPT_HASH=$(git log -n1 --oneline --no-abbrev-commit --format='%H' $0)
-    dokku config:set --no-restart INSTANCE_SH_GIT_HASH=$SCRIPT_HASH
+    dokku config:set --no-restart $APP INSTANCE_SH_GIT_HASH=$SCRIPT_HASH
 }
 
 # copied from rss-fetcher/dokku-scripts/instance.sh
