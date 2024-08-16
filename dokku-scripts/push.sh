@@ -274,7 +274,7 @@ prod|staging)
 
     # mcweb/backend/sources/management/commands/importdata.py wants DATABASE_URI
     add_vars DATABASE_URI=$(dokku postgres:info $PG_SVC --dsn)
-    
+
     # maybe check for env.$LOGIN_USER and set PRIVATE_CONF_FILE=env.$LOGIN_USER
     # and only use these if it doesn't exist?
     add_vars ALLOWED_HOSTS=${APP_FQDN},localhost \
@@ -284,7 +284,7 @@ prod|staging)
 esac
 
 if [ -f "$PRIVATE_CONF_FILE" ]; then
-    add_vars $(sed 's/#.*$//' $FILTER < $PRIVATE_CONF_FILE $FILTER)
+    add_vars $(sed 's/#.*$//' < $PRIVATE_CONF_FILE $FILTER)
 fi
 
 CONFIG_OPTIONS=--no-restart
