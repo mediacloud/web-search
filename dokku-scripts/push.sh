@@ -22,27 +22,17 @@ else
 	echo "ssh dokku@$FQDN failed; need to run 'dokku ssh-keys' as root first" 1>&2
 	exit 1
     fi
-
-    run_as_login_user() {
-	$*
-    }
 fi
 
-# get logged in user (even if su(do)ing)
-# (lookup utmp entry for name of tty from stdio)
-# will lose if run non-interactively via ssh (no utmp entry)
-LOGIN_USER=$(who am i | awk '{ print $1 }')
-if [ "x$LOGIN_USER" = x ]; then
-    echo could not find login user 2>&1
-    exit 1
-fi
+# works when su'ed to another user, invoked via ssh
+UNAME=$(whoami)
 
 APP=mcweb
 # Update instance.sh if you change this:
 case $BRANCH in
 prod) ;;
 staging) APP=${APP}-staging;;
-*) APP=${LOGIN_USER}-$APP;;
+*) APP=${UNAME}-$APP;;
 esac
 
 # w/ app set; must agree w/ instance.sh
@@ -230,12 +220,9 @@ fi
 # (ISTR seeing refs/tags/..../refs/tags/....)
 
 echo ''
-# start shutdown while working on config...
-#echo stopping processes...
-#dokku ps:stop $APP
 
 ################################
-echo checking dokku config...
+echo making dokku config...
 
 # some of this from rss-fetcher/dokku-scripts/config.sh
 # (only called from push.sh, so inlined here)
@@ -251,13 +238,13 @@ FILTER=
 case $BRANCH in
 prod|staging)
     rm -rf $PRIVATE_CONF_DIR
-    run_as_login_user mkdir $PRIVATE_CONF_DIR
+    mkdir $PRIVATE_CONF_DIR
     chmod go-rwx $PRIVATE_CONF_DIR
     cd $PRIVATE_CONF_DIR
     CONFIG_REPO_PREFIX=$(zzz tvg@tvguho.pbz:zrqvnpybhq)
     CONFIG_REPO_NAME=$(zzz jro-frnepu-pbasvt)
     echo cloning $CONFIG_REPO_NAME repo 1>&2
-    if ! run_as_login_user "git clone $CONFIG_REPO_PREFIX/$CONFIG_REPO_NAME.git" >/dev/null 2>&1; then
+    if ! git clone $CONFIG_REPO_PREFIX/$CONFIG_REPO_NAME.git >/dev/null 2>&1; then
 	echo "FATAL: could not clone config repo" 1>&2
 	exit 1
     fi
@@ -286,6 +273,10 @@ esac
 if [ -f "$PRIVATE_CONF_FILE" ]; then
     add_vars $(sed 's/#.*$//' < $PRIVATE_CONF_FILE $FILTER)
 fi
+
+# start shutdown while working on config...
+#echo stopping processes...
+#dokku ps:stop $APP
 
 CONFIG_OPTIONS=--no-restart
 
@@ -353,6 +344,7 @@ if [ -d "$PRIVATE_CONF_REPO" ]; then
 	echo tagging $CONFIG_REPO_NAME
 	git tag $TAG
 	echo pushing tag
+	# freshly cloned, so upstream == origin
 	git push origin $TAG
     )
 fi

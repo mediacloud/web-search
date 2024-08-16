@@ -6,7 +6,7 @@
 
 FQDN=$(hostname -f)
 if [ "x$(whoami)" = xroot ]; then
-    echo "run as normal user" 1>&2
+    echo "run as normal user with dokku ssh access (via dokku ssh-keys:add)" 1>&2
     exit 1
 else
     dokku() {
@@ -21,6 +21,7 @@ fi
 
 OP=$1
 TYPE=$2
+TYPE_OR_UNAME="$TYPE"
 
 # initial name, modified by instance type; used for service names
 APP=mcweb
@@ -29,7 +30,14 @@ case "$OP" in
 create|destroy)
     # Update push.sh if you change this:
     case "$TYPE" in
-    dev-?*) APP=$(echo "$TYPE" | sed 's/^dev-//')-${APP};;
+    dev-?*)
+	UNAME=$(echo "$TYPE" | sed 's/^dev-//')
+	TYPE=user
+	APP=${UNAME}-${APP}
+	case "$UNAME" in
+	prod|staging) echo "bad dev name $UNAME" 1>&2; exit 1;;
+	esac
+	;;
     prod) ;;
     staging) APP=${APP}-staging;;
     *) ERR=1;;
@@ -46,7 +54,7 @@ fi
 
 # must agree with push.sh:
 APP_FQDN=$APP.$FQDN
-DOKKU_GIT_REMOTE=mcweb_$(echo "$TYPE" | sed 's/^dev-//')
+DOKKU_GIT_REMOTE=mcweb_$TYPE_OR_UNAME
 PG_SVC=${APP}-db
 REDIS_SVC=${APP}-cache
 
