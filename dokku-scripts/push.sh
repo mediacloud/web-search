@@ -215,10 +215,6 @@ else
     # XXX use staging or $USER instead of full $APP for brevity?
     TAG=$(date -u '+%F-%H-%M-%S')-$HOSTNAME-$APP
 fi
-echo ''
-echo adding local tag $TAG
-git tag $TAG
-
 # NOTE: push will complain if you (developer) switch branches
 # (or your branch has been perturbed upstream, ie; by a force push)
 # so add script option to enable --force to push to dokku git repo?
@@ -317,6 +313,10 @@ fi
 exit
 # end config
 ################################################################
+
+echo ''
+echo adding local tag $TAG
+git tag $TAG
 
 echo ''
 CURR_GIT_BRANCH=$(dokku git:report $APP | awk '/Git deploy branch:/ { print $4 }')
