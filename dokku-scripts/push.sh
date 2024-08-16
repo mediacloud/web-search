@@ -346,14 +346,23 @@ for REMOTE in $PUSH_TAG_TO; do
     echo "================"
 done
 
+# not tested: for prod/staging: tag config repo and push tag
 if [ -d "$PRIVATE_CONF_REPO" ]; then
-    echo "TODO: tag $PRIVATE_CONF_REPO and push!!!"
+    (
+	cd $PRIVATE_CONF_REPO
+	echo tagging $CONFIG_REPO_NAME
+	git tag $TAG
+	echo pushing tag
+	git push origin $TAG
+    )
 fi
 
-# start fetcher/worker processes (only needed first time)
-echo scaling up
-PROCS="web=1 worker=1"
-dokku ps:scale --skip-deploy $APP $PROCS
-dokku ps:start $APP
+# start worker process(es); first time only
+# if additional kinds of workers do "for nn in NAME=NUMBER; do ..... "
+if ! dokku ps:report $APP | grep -q 'Status worker 1:'; then
+    echo starting worker process
+    dokku ps:scale --skip-deploy $APP worker=1
+fi
+#dokku ps:start $APP
 
 echo "$(date '+%F %T') $APP $REMOTE $TAG" >> push.log
