@@ -244,7 +244,7 @@ class Source(models.Model):
             process_urls("rss", list(new_feed_generator))
         except requests.RequestException as e: # maybe just catch Exception?
             lines.append(f"fatal error for rss: {e!r}")
-            logger.warning("generate_feed_urls(%s): %r, homepage, e)
+            logger.warning("generate_feed_urls(%s): %r", homepage, e)
         except TimeoutError:
             lines.append(f"timeout for rss")
             logger.warning("generate_feed_urls(%s): timeout", homepage)
