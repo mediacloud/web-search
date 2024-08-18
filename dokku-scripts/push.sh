@@ -8,14 +8,14 @@
 SCRIPT_DIR=$(dirname $0)
 BRANCH=$(git branch --show-current)
 
+# works when su'ed to another user or invoked via ssh
+UNAME=$(whoami)
+
 # DOES NOT NEED TO BE RUN AS ROOT!!!
-if [ "x$(whoami)" = xroot ]; then
+if [ "x$UNAME" = xroot ]; then
     echo "run as normal user" 1>&2
     exit 1
 fi
-
-# works when su'ed to another user or invoked via ssh
-UNAME=$(whoami)
 
 APP=mcweb
 # Update instance.sh if you change this:
@@ -110,7 +110,7 @@ prod|staging)
 	exit 1
     fi
 
-    DOKKU_GIT_REMOTE=mcweb_$LOGIN_USER
+    DOKKU_GIT_REMOTE=mcweb_$UNAME
     ;;
 esac
 
@@ -247,11 +247,12 @@ prod|staging)
     # mcweb/backend/sources/management/commands/importdata.py wants DATABASE_URI
     add_vars DATABASE_URI=$(dokku postgres:info $PG_SVC --dsn)
 
-    # maybe check for env.$LOGIN_USER and set PRIVATE_CONF_FILE=env.$LOGIN_USER
+    add_vars ALLOWED_HOSTS=${APP_FQDN},localhost
+    add_vars NEWS_SEARCH_API_URL=http://ramos.angwin:8000/v1/
+
+    # maybe check for env.$UNAME and set as PRIVATE_CONF_FILE??
     # and only use these if it doesn't exist?
-    add_vars ALLOWED_HOSTS=${APP_FQDN},localhost \
-	     NEWS_SEARCH_API_URL=http://ramos.angwin:8000/v1/ \
-	     SECRET_KEY=BE_VEWY_VEWY_QUIET
+    add_vars SECRET_KEY=BE_VEWY_VEWY_QUIET
     ;;
 esac
 
