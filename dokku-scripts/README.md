@@ -1,10 +1,13 @@
 
 ## Scripts to assist creating and deploying web-search as a Dokku App
 
-All scripts require the user has been set up to be a dokku
-user using `sudo dokku ssh-keys:add .....`
+These scripts are intended to allow multiple instances of
+the app to run on a single Dokku server.
 
 NOTE!!! ONLY TESTED FOR "USER" INSTANCES!!!!
+
+All scripts require that the user has been set up to be a dokku ssh
+user using `sudo dokku ssh-keys:add .....`
 
 The directory, script names, branch and instance naming conventions
 are the same as used by `rss-fetcher`.
