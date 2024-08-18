@@ -72,7 +72,7 @@ def _scrape_source(source_id, homepage, name, user_email):
     errors = 0
     try:
         email_body = Source._scrape_source(source_id, homepage, name)
-    except Exception
+    except:
         logger.exception("Source._scrape_source exception in _scrape_source")
         email_body = f"FATAL ERROR:\n{traceback.format_exc()}"
         errors += 1
