@@ -6,22 +6,22 @@
 # (from rss-fetcher/dokku-scripts/push.sh Sept 2022)
 
 SCRIPT_DIR=$(dirname $0)
-BRANCH=$(git branch --show-current)
 
 # works when su'ed to another user or invoked via ssh
 UNAME=$(whoami)
 
-# DOES NOT NEED TO BE RUN AS ROOT!!!
 if [ "x$UNAME" = xroot ]; then
     echo "run as normal user" 1>&2
     exit 1
 fi
 
+BRANCH=$(git branch --show-current)
+
 APP=mcweb
-# Update instance.sh if you change this:
+# Update instance.sh if you change how instances are named!
 case $BRANCH in
 prod) ;;
-staging) APP=${APP}-staging;;
+staging) APP=staging-${APP};;
 *) APP=${UNAME}-$APP;;
 esac
 
@@ -76,6 +76,8 @@ prod|staging)
 	exit 1
     fi
 
+    git fetch $MCREMOTE $BRANCH >/dev/null 2>&1
+
     # check if MCREMOTE up to date.
     #    XXX sufficient if current commit part of remote branch???
     #
@@ -90,18 +92,20 @@ prod|staging)
     else
 	# pushing to mediacloud repo should NOT be optional
 	# for production or staging!!!
-	echo "$MCREMOTE $BRANCH branch not up to date. run 'git push' first!!"
+	echo "$MCREMOTE $BRANCH branch not up to date. run 'git push $MCREMOTE' first!!"
 	exit 1
     fi
     # push tag back to JUST github mediacloud branch
     # (might be "origin", might not)
     PUSH_TAG_TO="$MCREMOTE"
-    DOKKU_GIT_REMOTE=dokku_$BRANCH
+    INSTANCE=$BRANCH
     ;;
 *)
     # here with some other branch; development.
     # check if origin (ie; user github fork) not up to date
-    # XXX need "git fetch" ??
+
+    git fetch origin $BRANCH >/dev/null 2>&1
+
     if git diff --quiet origin/$BRANCH --; then
 	echo "origin/$BRANCH up to date"
     else
@@ -110,9 +114,11 @@ prod|staging)
 	exit 1
     fi
 
-    DOKKU_GIT_REMOTE=mcweb_$UNAME
+    INSTANCE=$UNAME
     ;;
 esac
+
+DOKKU_GIT_REMOTE=dokku_$INSTANCE
 
 # name of deploy branch in DOKKU_GIT_REMOTE repo
 DOKKU_GIT_BRANCH=main
@@ -128,7 +134,7 @@ if ! grep "^$DOKKU_GIT_REMOTE$TAB" $TMP >/dev/null; then
     exit 1
 fi
 
-# before check for no changes!
+# before check for no changes! see if instance is up-to-date w/ instance.sh
 echo checking INSTANCE_SH_GIT_HASH
 INSTANCE_SH=$SCRIPT_DIR/instance.sh
 INSTANCE_SH_CURR_GIT_HASH=$(dokku config:get $APP INSTANCE_SH_GIT_HASH)
@@ -136,7 +142,7 @@ INSTANCE_SH_FILE_GIT_HASH=$(git log -n1 --oneline --no-abbrev-commit --format='%
 if [ "x$INSTANCE_SH_CURR_GIT_HASH" != "x$INSTANCE_SH_FILE_GIT_HASH" ]; then
     echo $APP INSTANCE_SH_FILE_GIT_HASH $INSTANCE_SH_CURR_GIT_HASH 1>&2
     echo does not match $SCRIPT_DIR/instance.sh hash $INSTANCE_SH_FILE_GIT_HASH 1>&2
-    echo re-run $INSTANCE_SH create NAME 1>&2
+    echo "re-run '$INSTANCE_SH create $INSTANCE' to update it" 1>&2
     exit 1
 fi
 

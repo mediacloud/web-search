@@ -8,7 +8,9 @@ SCRIPT_DIR=$(dirname $0)
 
 OP=$1
 TYPE=$2
-TYPE_OR_UNAME="$TYPE"
+
+TMPFILE=/var/tmp/mcweb-instance$$
+trap "rm -f $TMPFILE" 0
 
 # initial name, modified by instance type; used for service names
 APP=mcweb
@@ -20,26 +22,25 @@ fi
 
 case "$OP" in
 create|destroy)
-    # Update push.sh if you change this:
+    # Update push.sh if you change how instances are named
     case "$TYPE" in
-    dev-?*)
-	UNAME=$(echo "$TYPE" | sed 's/^dev-//')
-	TYPE=user
-	APP=${UNAME}-${APP}
-	case "$UNAME" in
-	prod|staging) echo "bad dev name $UNAME" 1>&2; exit 1;;
-	esac
+    prod)
 	;;
-    prod) ;;
-    staging) APP=${APP}-staging;;
-    *) ERR=1;;
+    staging)
+	APP=staging-${APP}
+	EXTRA_DOMAINS=mcweb-staging.tarbell.mediacloud.org
+	;;
+    *)
+	UNAME=$TYPE
+	APP=${UNAME}-${APP}
+	;;
     esac
     ;;
 *) ERR=1;;
 esac
 
 if [ -n "$ERR" ]; then
-    echo "Usage: $0 create|destroy dev-USER|prod|staging" 1>&2
+    echo "Usage: $0 create|destroy prod|staging|USERNAME" 1>&2
     exit 1
 fi
 
@@ -48,7 +49,7 @@ fi
 . $SCRIPT_DIR/common.sh
 
 # must agree with push.sh:
-DOKKU_GIT_REMOTE=mcweb_$TYPE_OR_UNAME
+DOKKU_GIT_REMOTE=mcweb_$TYPE
 
 APP_PORT=8000
 
@@ -95,6 +96,16 @@ create_app() {
     check_service postgres $PG_SVC $APP
     check_service redis $REDIS_SVC $APP
 
+    dokku domains:report $APP > $TMPFILE
+    for DOMAIN in $APP_FQDN $EXTRA_DOMAINS; do
+	if grep -q "vhosts:.*$DOMAIN" $TMPFILE; then
+	    echo found domain $DOMAIN for $APP
+	else
+	    echo adding domain $DOMAIN to $APP
+	    dokku domains:add $APP $DOMAIN
+	fi
+    done
+
     if git remote | grep $DOKKU_GIT_REMOTE >/dev/null; then
 	echo found git remote $DOKKU_GIT_REMOTE
     else
@@ -102,12 +113,7 @@ create_app() {
 	git remote add $DOKKU_GIT_REMOTE dokku@$FQDN:$APP
     fi
 
-    if dokku domains:report $APP | grep "vhosts:.*$APP_FQDN" >/dev/null 2>&1; then
-	echo found domain $APP_FQDN
-    else
-	echo adding domain $APP_FQDN to $APP
-	dokku domains:add $APP $APP_FQDN
-    fi
+    # XXX if staging, 
 
     # needed because dokku PORT env var not honored??
     if dokku ports:help >/dev/null 2>&1; then
