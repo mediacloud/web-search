@@ -227,7 +227,7 @@ class Source(models.Model):
                         # feeds for michaelsavage.com (srcid 543138) exist under wnd.com (srcid 22339)!!
                         # could do lookup by URL, and report what source (name & id) it's under....
                         lines.append(f"{from_} feed {url} exists under some other source!!!")
-                        logger.warning("scrape_source({source_id}, {homepage}) duplicate {from_} feed {url} (exists under another source?)")
+                        logger.warning(f"scrape_source({source_id}, {homepage}) duplicate {from_} feed {url} (exists under another source?)")
                 else:
                     logger.info(f"scrape_source({source_id}, {homepage}) found previously seen {from_} feed {url}")
                     found.add(nurl)
@@ -273,7 +273,7 @@ class Source(models.Model):
             for nurl in not_found:
                 old_url = old_urls[nurl]
                 lines.append(f"existing feed {old_url} not (re)found\n")
-                logger.warning("scrape_source({source_id}, {homepage}) existing feed {old_url} not (re)found")
+                logger.warning(f"scrape_source({source_id}, {homepage}) existing feed {old_url} not (re)found")
             if len(lines) == 1: # just header
                 lines.append("no new or old feeds\n")
 
