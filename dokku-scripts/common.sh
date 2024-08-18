@@ -1,4 +1,4 @@
-# sourced by instance.sh & push.sh after INSTANCE & BASE_APP properly set
+# sourced by instance.sh & push.sh after INSTANCE set
 
 BASE_APP=mcweb
 
@@ -7,6 +7,7 @@ prod)
     APP=$BASE_APP
     ;;
 *)
+    # staging or username
     APP=${INSTANCE}-${BASE_APP}
     ;;
 esac
