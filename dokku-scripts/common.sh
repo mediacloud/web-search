@@ -1,4 +1,18 @@
-# sourced by instance.sh & push.sh after APP is properly set
+# sourced by instance.sh & push.sh after INSTANCE & BASE_APP properly set
+
+BASE_APP=mcweb
+
+case "$INSTANCE" in
+prod)
+    APP=$BASE_APP
+    ;;
+*)
+    APP=${INSTANCE}-${BASE_APP}
+    ;;
+esac
+
+# git remote for app; created by instance.sh, used by push.sh
+DOKKU_GIT_REMOTE=${BASE_APP}_$INSTANCE
 
 FQDN=$(hostname -f)
 HOST=$(hostname -s)
@@ -7,6 +21,7 @@ dokku() {
     ssh dokku@$FQDN "$*"
 }
 
+# check ssh access working:
 if ! dokku version | grep -q '^dokku version'; then
     echo "ssh dokku@$FQDN failed; need to run 'dokku ssh-keys' first" 1>&2
     exit 1

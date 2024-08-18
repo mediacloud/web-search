@@ -7,13 +7,10 @@
 SCRIPT_DIR=$(dirname $0)
 
 OP=$1
-TYPE=$2
+INSTANCE=$2
 
 TMPFILE=/var/tmp/mcweb-instance$$
 trap "rm -f $TMPFILE" 0
-
-# initial name, modified by instance type; used for service names
-APP=mcweb
 
 if [ "x$(whoami)" = xroot ]; then
     echo "run as normal user with dokku ssh access (via dokku ssh-keys:add)" 1>&2
@@ -23,16 +20,13 @@ fi
 case "$OP" in
 create|destroy)
     # Update push.sh if you change how instances are named
-    case "$TYPE" in
+    case "$INSTANCE" in
     prod)
 	;;
     staging)
-	APP=staging-${APP}
 	EXTRA_DOMAINS=mcweb-staging.tarbell.mediacloud.org
 	;;
     *)
-	UNAME=$TYPE
-	APP=${UNAME}-${APP}
 	;;
     esac
     ;;
@@ -45,11 +39,8 @@ if [ -n "$ERR" ]; then
 fi
 
 
-# after APP set:
+# after INSTANCE set, sets APP:
 . $SCRIPT_DIR/common.sh
-
-# must agree with push.sh:
-DOKKU_GIT_REMOTE=mcweb_$TYPE
 
 APP_PORT=8000
 
@@ -173,6 +164,6 @@ destroy_app() {
 case "$OP" in
 create) create_app;;
 destroy) destroy_app;;
-*) echo "SHOULD NOT HAPPEN" 1>&2; exit 1;;
+*) echo "$0: unknown command $OP" 1>&2; exit 1;;
 esac
 

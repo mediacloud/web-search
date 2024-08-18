@@ -20,12 +20,13 @@ BRANCH=$(git branch --show-current)
 APP=mcweb
 # Update instance.sh if you change how instances are named!
 case $BRANCH in
-prod) ;;
-staging) APP=staging-${APP};;
-*) APP=${UNAME}-$APP;;
+prod|staging)
+    INSTANCE=$BRANCH;;
+*)
+    INSTANCE=$UNAME;;
 esac
 
-# after APP set:
+# after INSTANCE set, sets APP:
 . $SCRIPT_DIR/common.sh
 
 # tmp files to clean up on exit
@@ -118,7 +119,7 @@ prod|staging)
     ;;
 esac
 
-DOKKU_GIT_REMOTE=dokku_$INSTANCE
+DOKKU_GIT_REMOTE=mcweb_$INSTANCE
 
 # name of deploy branch in DOKKU_GIT_REMOTE repo
 DOKKU_GIT_BRANCH=main
