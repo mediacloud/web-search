@@ -13,7 +13,7 @@ PROD_DB=mcweb-db
 SCRIPT_DIR=$(dirname $0)
 
 if [ "x$DB" = x ]; then
-    echo "Usage: $0 dokku-pg-service-name" 1>&2
+    echo "Usage: $0 NAME-mcweb-db" 1>&2
     exit 1
 fi
 
