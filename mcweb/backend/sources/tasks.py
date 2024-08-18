@@ -34,9 +34,14 @@ ALERT_LOW = 'alert_low'
 GOOD = 'good'
 ALERT_HIGH = 'alert_high'
 
-
 SCRAPE_TIMEOUT_SECONDS = 120
 FROM_EMAIL = 'noreply@mediacloud.org'
+
+# have this one place, get from config!!!
+ADMIN_USER = 'e.leon@northeastern.edu'
+
+# user to run alerts task under
+ALERTS_TASK_USER = ADMIN_USER
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +69,22 @@ logger = logging.getLogger(__name__)
 @background()
 def _scrape_source(source_id, homepage, name, user_email):
     logger.info(f"==== starting _scrape_source {source_id} ({name}) {homepage} for {user_email}")
+    errors = 0
     try:
         email_body = Source._scrape_source(source_id, homepage, name)
-    except Exception:
+    except Exception
+        logger.exception("Source._scrape_source exception in _scrape_source")
         email_body = f"FATAL ERROR:\n{traceback.format_exc()}"
+        errors += 1
+
+    recipients = [user_email]
     subject = f"[Media Cloud] Source {source_id} ({name}) scrape complete"
-    send_email(subject, email_body, FROM_EMAIL, [user_email])
+    if errors:
+        subject += " (WITH ERRORS)"
+        if ADMIN_USER not in recipients:
+            recipients.append(ADMIN_USER)
+
+    send_email(subject, email_body, FROM_EMAIL, recipients)
     logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
 
 # Phil: this could take quite a while;
@@ -86,20 +101,28 @@ def _scrape_collection(collection_id, user_email):
         return _return_error(f"collection {collection_id} not found")
 
     sources = collection.source_set.all()
-    email_body: list[str] = []
+    email_body: list[str] = []  # blocks of output, one per source MUST CONTAIN FINAL NEWLINE
+    errors = 0
     for source in sources:
         logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
         try:
             # pass verbose=False if too much output:
             email_body.append(Source._scrape_source(source.id, source.homepage, source.name))
         except:
-            email_body.append("FATAL ERROR:\n")
-            email_body.append(traceback.format_exc())
+            logger.exception(f"Source._scrape_source exception in _scrape_source {source.id}")
+            email_body.append(f"FATAL ERROR:\n{traceback.format_exc()}") # format_exc has final newline
+            errors += 1
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
+    recipients = [user_email]
     subject = f"[Media Cloud] Collection {collection.id} ({collection.name}) scrape complete"
+    if errors:
+        subject += " (WITH ERRORS)"
+        if ADMIN_USER not in recipients:
+            recipients.append(ADMIN_USER)
+
     # separate sources with blank lines
-    send_email(subject, "\n".join(email_body), FROM_EMAIL, [user_email])
+    send_email(subject, "\n".join(email_body), FROM_EMAIL, recipients)
 
     logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email}")
 
@@ -112,7 +135,7 @@ next_friday = today + dt.timedelta(days=days_until_friday)
 run_datetime = dt.datetime.combine(next_friday, run_at)
 
 def run_alert_system():
-    user = User.objects.get(username='e.leon@northeastern.edu')
+    user = User.objects.get(username=ALERTS_TASK_USER)
     with open('mcweb/backend/sources/data/collections-to-monitor.json') as collection_ids:
         collection_ids = collection_ids.read()
         collection_ids = json.loads(collection_ids)
