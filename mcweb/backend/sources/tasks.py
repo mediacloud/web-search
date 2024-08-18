@@ -8,7 +8,7 @@ import datetime as dt
 import logging
 import json
 import logging
-
+import traceback
 
 # PyPI:
 from background_task import background
@@ -64,7 +64,10 @@ logger = logging.getLogger(__name__)
 @background()
 def _scrape_source(source_id, homepage, name, user_email):
     logger.info(f"==== starting _scrape_source {source_id} ({name}) {homepage} for {user_email}")
-    email_body = Source._scrape_source(source_id, homepage, name)
+    try:
+        email_body = Source._scrape_source(source_id, homepage, name)
+    except Exception:
+        email_body = f"FATAL ERROR:\n{traceback.format_exc()}"
     subject = f"[Media Cloud] Source {source_id} ({name}) scrape complete"
     send_email(subject, email_body, FROM_EMAIL, [user_email])
     logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
@@ -86,8 +89,12 @@ def _scrape_collection(collection_id, user_email):
     email_body: list[str] = []
     for source in sources:
         logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
-        # pass verbose=False if too much output:
-        email_body.append(Source._scrape_source(source.id, source.homepage, source.name))
+        try:
+            # pass verbose=False if too much output:
+            email_body.append(Source._scrape_source(source.id, source.homepage, source.name))
+        except:
+            email_body.append("FATAL ERROR:\n")
+            email_body.append(traceback.format_exc())
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
     subject = f"[Media Cloud] Collection {collection.id} ({collection.name}) scrape complete"
