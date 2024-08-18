@@ -222,12 +222,12 @@ class Source(models.Model):
                         feed.save()
                         lines.append(f"added new {from_} feed {url}\n")
                         logger.info(f"scrape_source({source_id}, {homepage}) added new {from_} feed {url}")
+                        old_urls[nurl] = url # try to prevent trying to add twice
                     except IntegrityError:
                         # feeds for michaelsavage.com (srcid 543138) exist under wnd.com (srcid 22339)!!
                         # could do lookup by URL, and report what source (name & id) it's under....
                         lines.append(f"{from_} feed {url} exists under some other source!!!")
                         logger.warning("scrape_source({source_id}, {homepage}) duplicate {from_} feed {url} (exists under another source?)")
-                    old_urls.add(nurl)
                 else:
                     logger.info(f"scrape_source({source_id}, {homepage}) found previously seen {from_} feed {url}")
                     found.add(nurl)
