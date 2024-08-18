@@ -35,6 +35,7 @@ esac
 
 if [ -n "$ERR" ]; then
     echo "Usage: $0 create|destroy prod|staging|USERNAME" 1>&2
+    echo '   "create" can be re-run, will only update as-needed.' 1>&2
     exit 1
 fi
 
