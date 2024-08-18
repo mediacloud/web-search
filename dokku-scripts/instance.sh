@@ -4,20 +4,7 @@
 # Phil Budne, August 2014
 # (after rss-fetcher/dokku-scripts/instance.sh, September 2022)
 
-FQDN=$(hostname -f)
-if [ "x$(whoami)" = xroot ]; then
-    echo "run as normal user with dokku ssh access (via dokku ssh-keys:add)" 1>&2
-    exit 1
-else
-    dokku() {
-	ssh dokku@$FQDN "$*"
-    }
-
-    if ! dokku version | grep -q 'dokku version'; then
-	echo "ssh dokku@$FQDN failed; need to run 'dokku ssh-keys' as root first" 1>&2
-	exit 1
-    fi
-fi
+SCRIPT_DIR=$(dirname $0)
 
 OP=$1
 TYPE=$2
@@ -25,6 +12,11 @@ TYPE_OR_UNAME="$TYPE"
 
 # initial name, modified by instance type; used for service names
 APP=mcweb
+
+if [ "x$(whoami)" = xroot ]; then
+    echo "run as normal user with dokku ssh access (via dokku ssh-keys:add)" 1>&2
+    exit 1
+fi
 
 case "$OP" in
 create|destroy)
@@ -52,14 +44,13 @@ if [ -n "$ERR" ]; then
 fi
 
 
+# after APP set:
+. $SCRIPT_DIR/common.sh
+
 # must agree with push.sh:
-APP_FQDN=$APP.$FQDN
 DOKKU_GIT_REMOTE=mcweb_$TYPE_OR_UNAME
-PG_SVC=${APP}-db
-REDIS_SVC=${APP}-cache
 
 APP_PORT=8000
-
 
 # copied from rss-fetcher/dokku-scripts/instance.sh
 check_service() {
@@ -134,6 +125,14 @@ create_app() {
 	else
 	    echo adding proxy port $APP_PORT mapping
 	    dokku proxy:ports-add http:80:$APP_PORT
+	fi
+    fi
+
+    if public_server; then
+	if ! dokku letsencrypt:active $APP >/dev/null; then
+	    echo enabling lets encrypt
+	    # This requires $APP.$HOST.$PUBLIC_DOMAIN to be visible from Internet:
+	    dokku letsencrypt:enable $APP
 	fi
     fi
 

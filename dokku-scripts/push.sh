@@ -6,25 +6,15 @@
 # (from rss-fetcher/dokku-scripts/push.sh Sept 2022)
 
 SCRIPT_DIR=$(dirname $0)
-FQDN=$(hostname -f)
 BRANCH=$(git branch --show-current)
 
 # DOES NOT NEED TO BE RUN AS ROOT!!!
 if [ "x$(whoami)" = xroot ]; then
     echo "run as normal user" 1>&2
     exit 1
-else
-    dokku() {
-	ssh dokku@$FQDN "$*"
-    }
-
-    if ! dokku version | grep -q 'dokku version'; then
-	echo "ssh dokku@$FQDN failed; need to run 'dokku ssh-keys' as root first" 1>&2
-	exit 1
-    fi
 fi
 
-# works when su'ed to another user, invoked via ssh
+# works when su'ed to another user or invoked via ssh
 UNAME=$(whoami)
 
 APP=mcweb
@@ -35,18 +25,13 @@ staging) APP=${APP}-staging;;
 *) APP=${UNAME}-$APP;;
 esac
 
-# w/ app set; must agree w/ instance.sh
-APP_FQDN=$APP.$FQDN
-PG_SVC=${APP}-db
-REDIS_SVC=${APP}-cache
+# after APP set:
+. $SCRIPT_DIR/common.sh
 
 # tmp files to clean up on exit
 TMP=/tmp/mcweb-push$$
 PRIVATE_CONF_DIR=$(pwd)/private-conf$$
 trap "rm -rf $TMP $PRIVATE_CONF_DIR" 0
-
-# hostname w/o any domain
-HOSTNAME=$(hostname --short)
 
 if ! dokku apps:exists $APP >/dev/null 2>&1; then
     echo "app $APP not found; run instance.sh?!" 1>&2
@@ -204,7 +189,7 @@ if [ "x$BRANCH" = xprod ]; then
     fi
 else
     # XXX use staging or $USER instead of full $APP for brevity?
-    TAG=$(date -u '+%F-%H-%M-%S')-$HOSTNAME-$APP
+    TAG=$(date -u '+%F-%H-%M-%S')-${HOST}-${APP}
 fi
 # NOTE: push will complain if you (developer) switch branches
 # (or your branch has been perturbed upstream, ie; by a force push)
