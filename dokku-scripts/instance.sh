@@ -27,7 +27,7 @@ create|destroy)
 	EXTRA_DOMAINS=mcweb-staging.tarbell.mediacloud.org
 	;;
     *)
-	if ! id $INSTANCE 2>/dev/null; then
+	if ! id $INSTANCE >/dev/null 2>&1; then
 	    echo "$0: user $INSTANCE does not exist"
 	    exit 1
 	fi
