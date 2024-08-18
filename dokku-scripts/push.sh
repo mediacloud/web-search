@@ -110,7 +110,7 @@ prod|staging)
 	echo "origin/$BRANCH up to date"
     else
 	# have an option to override this??
-	echo "origin/$BRANCH not up to date.  push!"
+	echo "origin/$BRANCH not up to date. run 'git push origin'" 1>&2
 	exit 1
     fi
 
