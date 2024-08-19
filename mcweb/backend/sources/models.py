@@ -1,7 +1,7 @@
 import logging
 from typing import Dict
 
-import feed_seeker.feed_seeker as feed_seeker
+import feed_seeker
 from mcmetadata.feeds import normalize_url
 import mcmetadata.urls as urls
 from django.db import models
@@ -260,18 +260,11 @@ class Source(models.Model):
         gnews_urls = []
         sitemaps = "news sitemap" # say something once, why say it again?
 
-        # XXX sitemap-tools should take timeout!
-        # use feed_seeker alarm/signal based timeout.
-        # NOTE! not in the public API, but better than copying?!
-        with feed_seeker.timeout(SCRAPE_TIMEOUT_SECONDS):
-            try:
-                gnews_urls = find_gnews_fast(homepage)
-            except requests.RequestException as e:
-                add_line(f"fatal error for {sitemaps}: {e!r}")
-                logger.exception("find_gnews_fast")
-            except TimeoutError:
-                add_line(f"timeout for {sitemaps}")
-                logger.warning("gnews timeout: %s", homepage)
+        try:
+            gnews_urls = find_gnews_fast(homepage, timeout=SCRAPE_TIMEOUT_SECONDS)
+        except requests.RequestException as e:
+            add_line(f"fatal error for {sitemaps}: {e!r}")
+            logger.exception("find_gnews_fast")
 
         if gnews_urls:
             process_urls(sitemaps, gnews_urls)
