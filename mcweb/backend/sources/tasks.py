@@ -35,7 +35,6 @@ GOOD = 'good'
 ALERT_HIGH = 'alert_high'
 
 # get all of these from config.py (define with defaulting)!!!?
-SCRAPE_TIMEOUT_SECONDS = 30     # per HTTP fetch
 SCRAPE_FROM_EMAIL = 'noreply@mediacloud.org'
 
 # have this one place, get from config???

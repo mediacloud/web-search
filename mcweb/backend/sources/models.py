@@ -11,7 +11,8 @@ import requests
 # not from PyPI: package installed via github URL
 from mc_sitemap_tools.discover import find_gnews_fast
 
-SCRAPE_TIMEOUT_SECONDS = 120
+SCRAPE_TIMEOUT_SECONDS = 30     # for each http connect, read
+
 logger = logging.getLogger(__name__)
 
 class Collection(models.Model):
