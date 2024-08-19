@@ -34,14 +34,17 @@ ALERT_LOW = 'alert_low'
 GOOD = 'good'
 ALERT_HIGH = 'alert_high'
 
-SCRAPE_TIMEOUT_SECONDS = 120
-FROM_EMAIL = 'noreply@mediacloud.org'
+# get all of these from config.py (define with defaulting)!!!?
+SCRAPE_TIMEOUT_SECONDS = 30     # per HTTP fetch
+SCRAPE_FROM_EMAIL = 'noreply@mediacloud.org'
 
-# have this one place, get from config!!!
+# have this one place, get from config???
 ADMIN_USER = 'e.leon@northeastern.edu'
 
 # user to run alerts task under
 ALERTS_TASK_USER = ADMIN_USER
+
+SCRAPE_ERROR_USERS = [ADMIN_USER] # maybe include phil?
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +70,7 @@ logger = logging.getLogger(__name__)
 # calling decorated_function.now() invokes decorated function synchronously.
 
 @background()
-def _scrape_source(source_id, homepage, name, user_email):
+def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) -> None:
     logger.info(f"==== starting _scrape_source {source_id} ({name}) {homepage} for {user_email}")
     errors = 0
     try:
@@ -81,36 +84,47 @@ def _scrape_source(source_id, homepage, name, user_email):
     subject = f"[Media Cloud] Source {source_id} ({name}) scrape complete"
     if errors:
         subject += " (WITH ERRORS)"
-        if ADMIN_USER not in recipients:
-            recipients.append(ADMIN_USER)
+        _add_scrape_error_users(recipients)
 
-    send_email(subject, email_body, FROM_EMAIL, recipients)
+    send_email(subject, email_body, SCRAPE_FROM_EMAIL, recipients)
     logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
+
+def _add_scrape_error_users(users: list[str]) -> None:
+    """
+    take recipents list, add users in SCRAPE_ERROR_USERS in place
+    """
+    for u in SCRAPE_ERROR_USERS:
+        if u not in users:
+            users.append(u)
 
 # Phil: this could take quite a while;
 # pass queue="slow-lane" to decorator (and run another process_tasks worker in Procfile)??
 @background()
-def _scrape_collection(collection_id, user_email):
+def _scrape_collection(collection_id: int, user_email: str) -> None:
     logger.info(f"==== starting _scrape_collection({collection_id}) for {user_email}")
 
     collection = Collection.objects.get(id=collection_id)
     if not collection:
         # now checked in schedule_scrape_collection
         logger.error(f"_scrape_collection collection {collection_id} not found")
-        # in background task runner nobody can hear you scream?
-        return _return_error(f"collection {collection_id} not found")
+        # was _return_error here, but could not be seen! check done in caller.
+        return
 
     sources = collection.source_set.all()
     email_body: list[str] = []  # blocks of output, one per source MUST CONTAIN FINAL NEWLINE
     errors = 0
     for source in sources:
         logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
+        if source.url_search_string:
+            logger.info(f"  Source {source.id} ({source.name}) has url_search_string {source.url_search_string}")
+            continue
+
         try:
-            # pass verbose=False if too much output:
+            # pass verbose=0 if too much output:
             email_body.append(Source._scrape_source(source.id, source.homepage, source.name))
         except:
             logger.exception(f"Source._scrape_source exception in _scrape_source {source.id}")
-            email_body.append(f"FATAL ERROR:\n{traceback.format_exc()}") # format_exc has final newline
+            email_body.append(f"ERROR:\n{traceback.format_exc()}") # format_exc has final newline
             errors += 1
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
@@ -118,21 +132,21 @@ def _scrape_collection(collection_id, user_email):
     subject = f"[Media Cloud] Collection {collection.id} ({collection.name}) scrape complete"
     if errors:
         subject += " (WITH ERRORS)"
-        if ADMIN_USER not in recipients:
-            recipients.append(ADMIN_USER)
+        _add_scrape_error_users(recipients)
 
     # separate sources with blank lines
-    send_email(subject, "\n".join(email_body), FROM_EMAIL, recipients)
+    send_email(subject, "\n".join(email_body), SCRAPE_FROM_EMAIL, recipients)
 
     logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email}")
 
-run_at = dt.time(hour=14, minute=32)
-# Calculate the number of days until next Friday
-today = dt.date.today()
-days_until_friday = (4 - today.weekday()) % 7
-# Calculate the datetime when the task should run
-next_friday = today + dt.timedelta(days=days_until_friday)
-run_datetime = dt.datetime.combine(next_friday, run_at)
+# Phil: not used:
+#run_at = dt.time(hour=14, minute=32)
+## Calculate the number of days until next Friday
+#today = dt.date.today()
+#days_until_friday = (4 - today.weekday()) % 7
+## Calculate the datetime when the task should run
+#next_friday = today + dt.timedelta(days=days_until_friday)
+#run_datetime = dt.datetime.combine(next_friday, run_at)
 
 def run_alert_system():
     user = User.objects.get(username=ALERTS_TASK_USER)
@@ -144,7 +158,7 @@ def run_alert_system():
                         creator= user,
                         verbose_name=f"source alert system {dt.datetime.now()}",
                         remove_existing_tasks=True)
-    return {'task': _return_task(task)}
+    return _return_task(task)
 
 @background()
 def _alert_system(collection_ids):
@@ -238,7 +252,7 @@ def update_stories_per_week():
                         creator= user,
                         verbose_name=f"update stories per week {dt.datetime.now()}",
                         remove_existing_tasks=True)
-    return {'task': _return_task(task)}
+    return _return_task(task)
 
 @background()
 def _update_stories_counts():
@@ -262,7 +276,7 @@ def _calculate_stories_last_week(stories_fetched):
     sum_count = sum(day_data['stories'] for day_data in last_7_days_data)
     return sum_count
 
-def _return_task(task):
+def _serialize_task(task):
     """
     helper to return JSON representation of a Task.
     """
@@ -271,7 +285,7 @@ def _return_task(task):
     return { key: (value.isoformat() if isinstance(value, dt.datetime) else value)
              for key, value in task.__dict__.items() if key[0] != '_' }
 
-_return_completed_task = _return_task
+_serialize_completed_task = _serialize_task
 
 def _return_error(message):
     """
@@ -279,6 +293,13 @@ def _return_error(message):
     """
     logger.info(f"_return_error {message}")
     return {'error': message}
+
+def _return_task(task):
+    """
+    formulate "task" return (analagous to _return_error)
+    returns dict that "task" with serialized task
+    """
+    return {'task': _serialize_task(task)}
 
 def schedule_scrape_collection(collection_id, user):
     """
@@ -291,7 +312,7 @@ def schedule_scrape_collection(collection_id, user):
     name_or_id = collection.name or str(collection_id)
     task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape collection {name_or_id}", remove_existing_tasks=True)
 
-    return {'task': _return_task(task)}
+    return _return_task(task)
 
 
 def schedule_scrape_source(source_id, user):
@@ -302,9 +323,11 @@ def schedule_scrape_source(source_id, user):
     if not source:
         return _return_error(f"source {source_id} not found")
 
-    # check source.homepage not empty??
     if not source.homepage:
         return _return_error(f"source {source_id} missing homepage")
+
+    if source.url_search_string:
+        return _return_error(f"source {source_id} has url_search_string")
 
     # maybe check if re-scraped recently????
 
@@ -317,7 +340,7 @@ def schedule_scrape_source(source_id, user):
                           creator=user,
                           verbose_name=f"rescrape source {name_or_home}",
                           remove_existing_tasks=True)
-    return {'task': _return_task(task)}
+    return _return_task(task)
 
 
 
@@ -329,7 +352,7 @@ def get_completed_tasks(user):
     tasks = CompletedTask.objects
     if user:
         tasks = tasks.created_by(user)
-    return {'completed_tasks': [_return_completed_task(task) for task in tasks]}
+    return {'completed_tasks': [_serialize_completed_task(task) for task in tasks]}
 
 
 def get_pending_tasks(user):
@@ -340,4 +363,4 @@ def get_pending_tasks(user):
     tasks = Task.objects
     if user:
         tasks = tasks.created_by(user)
-    return {'tasks': [_return_task(task) for task in tasks]}
+    return {'tasks': [_serialize_task(task) for task in tasks]}

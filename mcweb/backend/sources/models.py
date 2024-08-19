@@ -194,7 +194,7 @@ class Source(models.Model):
         return obj
     
     @staticmethod
-    def _scrape_source(source_id: int, homepage: str, name: str, verbose: bool = True) -> str:
+    def _scrape_source(source_id: int, homepage: str, name: str, verbose: int = 2) -> str: # TEMP lower verbose to 1!
         """
         returns text for email
         """
@@ -203,38 +203,51 @@ class Source(models.Model):
         # create dict of full urls of current feeds indexed by normalized urls
         old_urls = {normalize_url(feed.url): feed.url
                     for feed in Feed.objects.filter(source_id=source_id)}
+
+        print("old_urls:")      # TEMP
+        for n, u in old_urls.items(): # TEMP
+            print("", n, u)           # TEMP
+
         found = set() # pre-existing (in DB) normalized URLs found in scan of site (for verbose output)
 
-        # header, might be only output if verbose is False and no new feeds found
         # NOTE! Each line appended to list must end with a newline!
-        lines = [f"Scraped source {source_id} ({name}), {homepage}\n"]
+        lines = []
+        def add_line(line):
+            if not line.endswith("\n"):
+                logger.warning("missing newline on %s", line)
+                line += "\n"
+            lines.append(line)
+
+        # per-source header line
+        add_line(f"Scraped source {source_id} ({name}), {homepage}\n")
 
         if not homepage:
-            lines.append("MISSING HOMEPAGE\n")
+            add_line("MISSING HOMEPAGE\n")
             return "".join(lines)
 
         def process_urls(from_: str, urls: list[str]):
             for url in urls:
                 nurl = normalize_url(url)
-                if nurl not in old_urls:
+                print("new:", url, "=>", nurl) # TEMP
+                if nurl in old_urls:
+                    logger.info(f"scrape_source({source_id}, {homepage}) found previously seen {from_} feed {url}")
+                    found.add(nurl)
+                else:
                     try:
                         feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
                         feed.save()
-                        lines.append(f"added new {from_} feed {url}\n")
+                        add_line(f"added new {from_} feed {url}\n")
                         logger.info(f"scrape_source({source_id}, {homepage}) added new {from_} feed {url}")
                         old_urls[nurl] = url # try to prevent trying to add twice
                     except IntegrityError:
                         # feeds for michaelsavage.com (srcid 543138) exist under wnd.com (srcid 22339)!!
                         # could do lookup by URL, and report what source (name & id) it's under....
-                        lines.append(f"{from_} feed {url} exists under some other source!!!")
+                        add_line(f"{from_} feed {url} exists under some other source!!!\n")
                         logger.warning(f"scrape_source({source_id}, {homepage}) duplicate {from_} feed {url} (exists under another source?)")
-                else:
-                    logger.info(f"scrape_source({source_id}, {homepage}) found previously seen {from_} feed {url}")
-                    found.add(nurl)
 
-            if verbose:
+            if verbose >= 1:
                 for nurl in found:
-                    lines.append(f"found previously seen {from_} feed {old_urls[nurl]}\n")
+                    add_line(f"found previously seen {from_} feed {old_urls[nurl]}\n")
             # end process_feeds
 
         # Look for RSS feeds
@@ -243,39 +256,49 @@ class Source(models.Model):
             # create list so DB operations in process_urls are not under the timeout gun.
             process_urls("rss", list(new_feed_generator))
         except requests.RequestException as e: # maybe just catch Exception?
-            lines.append(f"fatal error for rss: {e!r}")
+            add_line(f"fatal error for rss: {e!r}\n")
             logger.warning("generate_feed_urls(%s): %r", homepage, e)
         except TimeoutError:
-            lines.append(f"timeout for rss")
+            add_line(f"timeout for rss")
             logger.warning("generate_feed_urls(%s): timeout", homepage)
 
         # Look for Google News Sitemaps (does NOT do full site crawl)
-        # use feed_seeker alarm/signal based timeout.
-        # NOTE! not in the public API, but better than copying?!
         gnews_urls = []
         sitemaps = "news sitemaps" # say something once, why say it again?
 
+        # XXX sitemap-tools should take timeout!
+        # use feed_seeker alarm/signal based timeout.
+        # NOTE! not in the public API, but better than copying?!
         with feed_seeker.timeout(SCRAPE_TIMEOUT_SECONDS):
             try:
                 gnews_urls = find_gnews_fast(homepage)
             except requests.RequestException as e:
-                lines.append(f"fatal error for {sitemaps}: {e!r}")
+                add_line(f"fatal error for {sitemaps}: {e!r}")
                 logger.exception("find_gnews_fast")
             except TimeoutError:
-                lines.append(f"timeout for {sitemaps}")
+                add_line(f"timeout for {sitemaps}")
                 logger.warning("gnews timeout: %s", homepage)
 
         if gnews_urls:
             process_urls(sitemaps, gnews_urls)
 
-        if verbose:
-            not_found = set(old_urls.keys()) - found
+        # after all calls to process_urls:
+        if verbose >= 2:
+            # not SUPER useful: this will call out any URL that was
+            # added manually and was never "published" on the home
+            # page.
+            ou = set(old_urls.keys())
+            not_found = ou - found
+            print("ou", ou)     # TEMP
+            print("found", found) # TEMP
+            print("not_found", not_found) # TEMP
             for nurl in not_found:
                 old_url = old_urls[nurl]
-                lines.append(f"existing feed {old_url} not (re)found\n")
+                add_line(f"existing feed {old_url} not (re)found\n")
                 logger.warning(f"scrape_source({source_id}, {homepage}) existing feed {old_url} not (re)found")
-            if len(lines) == 1: # just header
-                lines.append("no new or old feeds\n")
+
+        if len(lines) == 1: # just header
+            add_line("no feeds found\n")
 
         indent = "  "           # not applied to header line
         return indent.join(lines)
