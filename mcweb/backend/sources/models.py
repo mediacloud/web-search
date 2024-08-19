@@ -273,8 +273,8 @@ class Source(models.Model):
         # after all calls to process_urls:
         if verbosity >= 2:
             # not SUPER useful: this will call out any URL that was
-            # added manually and was never "published" on the home
-            # page.
+            # added manually and was never "published" (as well as
+            # feeds that were once published and no longer are).
             ou = set(old_urls.keys())
             not_found = ou - found
             for nurl in not_found:
@@ -283,7 +283,7 @@ class Source(models.Model):
                 logger.warning(f"scrape_source({source_id}, {homepage}) existing feed {old_url} not rediscovered")
 
         if len(lines) == 1: # just header
-            add_line("no feeds\n")
+            add_line("no feeds found\n")
 
         indent = "  "           # not applied to header line
         return indent.join(lines)
