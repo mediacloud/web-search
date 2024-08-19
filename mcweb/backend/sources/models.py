@@ -194,7 +194,7 @@ class Source(models.Model):
         return obj
     
     @staticmethod
-    def _scrape_source(source_id: int, homepage: str, name: str, verbose: int = 2) -> str: # TEMP lower verbose to 1!
+    def _scrape_source(source_id: int, homepage: str, name: str, verbosity: int = 1) -> str:
         """
         returns text for email
         """
@@ -204,11 +204,7 @@ class Source(models.Model):
         old_urls = {normalize_url(feed.url): feed.url
                     for feed in Feed.objects.filter(source_id=source_id)}
 
-        print("old_urls:")      # TEMP
-        for n, u in old_urls.items(): # TEMP
-            print("", n, u)           # TEMP
-
-        found = set() # pre-existing (in DB) normalized URLs found in scan of site (for verbose output)
+        found = set() # pre-existing (in DB) normalized URLs found in scan of site
 
         # NOTE! Each line appended to list must end with a newline!
         lines = []
@@ -228,9 +224,10 @@ class Source(models.Model):
         def process_urls(from_: str, urls: list[str]):
             for url in urls:
                 nurl = normalize_url(url)
-                print("new:", url, "=>", nurl) # TEMP
                 if nurl in old_urls:
-                    logger.info(f"scrape_source({source_id}, {homepage}) found previously seen {from_} feed {url}")
+                    if verbosity >= 1:
+                        add_line(f"found existing {from_} feed {url}\n")
+                    logger.info(f"scrape_source({source_id}, {homepage}) found existing {from_} feed {url}")
                     found.add(nurl)
                 else:
                     try:
@@ -240,14 +237,11 @@ class Source(models.Model):
                         logger.info(f"scrape_source({source_id}, {homepage}) added new {from_} feed {url}")
                         old_urls[nurl] = url # try to prevent trying to add twice
                     except IntegrityError:
-                        # feeds for michaelsavage.com (srcid 543138) exist under wnd.com (srcid 22339)!!
+                        # happens when feed exists, but under a different source!
                         # could do lookup by URL, and report what source (name & id) it's under....
                         add_line(f"{from_} feed {url} exists under some other source!!!\n")
                         logger.warning(f"scrape_source({source_id}, {homepage}) duplicate {from_} feed {url} (exists under another source?)")
 
-            if verbose >= 1:
-                for nurl in found:
-                    add_line(f"found previously seen {from_} feed {old_urls[nurl]}\n")
             # end process_feeds
 
         # Look for RSS feeds
@@ -262,9 +256,9 @@ class Source(models.Model):
             add_line(f"timeout for rss")
             logger.warning("generate_feed_urls(%s): timeout", homepage)
 
-        # Look for Google News Sitemaps (does NOT do full site crawl)
+        # Do quick look for Google News Sitemaps (does NOT do full site crawl)
         gnews_urls = []
-        sitemaps = "news sitemaps" # say something once, why say it again?
+        sitemaps = "news sitemap" # say something once, why say it again?
 
         # XXX sitemap-tools should take timeout!
         # use feed_seeker alarm/signal based timeout.
@@ -283,22 +277,19 @@ class Source(models.Model):
             process_urls(sitemaps, gnews_urls)
 
         # after all calls to process_urls:
-        if verbose >= 2:
+        if verbosity >= 2:
             # not SUPER useful: this will call out any URL that was
             # added manually and was never "published" on the home
             # page.
             ou = set(old_urls.keys())
             not_found = ou - found
-            print("ou", ou)     # TEMP
-            print("found", found) # TEMP
-            print("not_found", not_found) # TEMP
             for nurl in not_found:
                 old_url = old_urls[nurl]
-                add_line(f"existing feed {old_url} not (re)found\n")
-                logger.warning(f"scrape_source({source_id}, {homepage}) existing feed {old_url} not (re)found")
+                add_line(f"existing feed {old_url} not rediscovered\n")
+                logger.warning(f"scrape_source({source_id}, {homepage}) existing feed {old_url} not rediscovered")
 
         if len(lines) == 1: # just header
-            add_line("no feeds found\n")
+            add_line("no feeds\n")
 
         indent = "  "           # not applied to header line
         return indent.join(lines)

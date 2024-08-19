@@ -111,20 +111,28 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
         return
 
     sources = collection.source_set.all()
-    email_body: list[str] = []  # blocks of output, one per source MUST CONTAIN FINAL NEWLINE
+    email_body_chunks: list[str] = []  # chunks of output, one per source
     errors = 0
+
+    def add_body_chunk(chunk):
+        if not chunk.endswith("\n"):
+            chunk += "\n"
+            # XXX complain?
+        email_body_chunks.append(chunk)
+
     for source in sources:
         logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
         if source.url_search_string:
+            add_body_chunk(f"Skippped source {source_id} ({name}) with URL search string {source.url_search_string}\n")
             logger.info(f"  Source {source.id} ({source.name}) has url_search_string {source.url_search_string}")
             continue
 
         try:
-            # pass verbose=0 if too much output:
-            email_body.append(Source._scrape_source(source.id, source.homepage, source.name))
+            # remove verbosity=0 for more output!
+            add_body_chunk(Source._scrape_source(source.id, source.homepage, source.name, verbosity=0))
         except:
             logger.exception(f"Source._scrape_source exception in _scrape_source {source.id}")
-            email_body.append(f"ERROR:\n{traceback.format_exc()}") # format_exc has final newline
+            add_body_chunk(f"ERROR:\n{traceback.format_exc()}") # format_exc has final newline
             errors += 1
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
@@ -134,8 +142,8 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
         subject += " (WITH ERRORS)"
         _add_scrape_error_users(recipients)
 
-    # separate sources with blank lines
-    send_email(subject, "\n".join(email_body), SCRAPE_FROM_EMAIL, recipients)
+    # separate source chunks with blank lines (each already has trailing newline)
+    send_email(subject, "\n".join(email_body_chunks), SCRAPE_FROM_EMAIL, recipients)
 
     logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email}")
 
