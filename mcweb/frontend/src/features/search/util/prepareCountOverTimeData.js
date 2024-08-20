@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import getColors from './getColors';
 
 export const DAY = 'day';
 export const WEEK = 'week';
 export const MONTH = 'month';
 
-const colors = ['#2f2d2b', '#d24527', '#f7a44e', '#334cda', '#d23716'];
+// const colors = ['#2f2d2b', '#d24527', '#f7a44e', '#334cda', '#d23716'];
 
 const dateHelper = (dateString) => {
   dayjs.extend(utc);
@@ -37,9 +38,9 @@ function groupValues(elements, duration, normalized) {
   return returnData;
 }
 
-export const prepareCountOverTimeData = (results, normalized, chartBy) => {
+export const prepareCountOverTimeData = (results, normalized, chartBy, queryState) => {
   const series = [];
-
+  const colors = getColors(queryState)
   if (chartBy === DAY) {
     results.forEach((result, i) => {
       const preparedData = result.count_over_time.counts.map((r) => [

@@ -1,12 +1,18 @@
 import logging
 from typing import Dict
 
-from feed_seeker import generate_feed_urls
+import feed_seeker
 from mcmetadata.feeds import normalize_url
 import mcmetadata.urls as urls
 from django.db import models
+from django.db.utils import IntegrityError
+import requests
 
-SCRAPE_TIMEOUT_SECONDS = 120
+# not from PyPI: package installed via github URL
+from mc_sitemap_tools.discover import find_gnews_fast
+
+SCRAPE_TIMEOUT_SECONDS = 30     # for each http connect, read
+
 logger = logging.getLogger(__name__)
 
 class Collection(models.Model):
@@ -188,32 +194,99 @@ class Source(models.Model):
 
         return obj
     
-    
-    ## THIS METHOD WAS COPIED FROM TASKS TO BE USED IN SCRAPE COLLECTION TASK, CAN DEFINITELY BE CLEANED UP TO REMOVE THIS
-    @classmethod
-    def _scrape_source(cls, source_id: int, homepage: str):
-        logger.info(f"==== starting _scrape_source(source_id, homepage)")
+    @staticmethod
+    def _scrape_source(source_id: int, homepage: str, name: str, verbosity: int = 1) -> str:
+        """
+        returns text for email
+        """
+        logger.info(f"==== starting _scrape_source({source_id}, {homepage}, {name})")
 
-        # work around not having a column/index for normalized feed url:
-        # create set of normalized urls of current feeds
-        old_urls = set([normalize_url(feed.url)
-                        for feed in Feed.objects.filter(source_id=source_id)])
+        # create dict of full urls of current feeds indexed by normalized urls
+        old_urls = {normalize_url(feed.url): feed.url
+                    for feed in Feed.objects.filter(source_id=source_id)}
 
-        # background_tasks does not implement job timeouts, so use
-        # feed_seeker's; returns a generator, so gobble up returns so that
-        # DB operations are not under the timeout gun.
-        new_urls = list(generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS))
+        found = set() # pre-existing (in DB) normalized URLs found in scan of site
 
-        for url in new_urls:
-            if normalize_url(url) not in old_urls:
-                logger.info(f"scrape_source({source_id}, {homepage}) found new feed {url}")
-                feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
-                feed.save()
-            else:
-                logger.info(f"scrape_source({source_id}, {homepage}) found old feed {url}")
+        # NOTE! Each line appended to list must end with a newline!
+        lines = []
+        def add_line(line):
+            if not line.endswith("\n"):
+                logger.warning("missing newline on %s", line)
+                line += "\n"
+            lines.append(line)
 
-        # send email????
-        return(f"scraped_source({source_id}, {homepage})")
+        # per-source header line
+        add_line(f"Scraped source {source_id} ({name}), {homepage}\n")
+
+        if not homepage:
+            add_line("MISSING HOMEPAGE\n")
+            return "".join(lines)
+
+        def process_urls(from_: str, urls: list[str]):
+            for url in urls:
+                nurl = normalize_url(url)
+                if nurl in old_urls:
+                    if verbosity >= 1:
+                        add_line(f"found existing {from_} feed {url}\n")
+                    logger.info(f"scrape_source({source_id}, {homepage}) found existing {from_} feed {url}")
+                    found.add(nurl)
+                else:
+                    try:
+                        feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
+                        feed.save()
+                        add_line(f"added new {from_} feed {url}\n")
+                        logger.info(f"scrape_source({source_id}, {homepage}) added new {from_} feed {url}")
+                        old_urls[nurl] = url # try to prevent trying to add twice
+                    except IntegrityError:
+                        # happens when feed exists, but under a different source!
+                        # could do lookup by URL, and report what source (name & id) it's under....
+                        add_line(f"{from_} feed {url} exists under some other source!!!\n")
+                        logger.warning(f"scrape_source({source_id}, {homepage}) duplicate {from_} feed {url} (exists under another source?)")
+
+            # end process_feeds
+
+        # Look for RSS feeds
+        try:
+            new_feed_generator = feed_seeker.generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS)
+            # create list so DB operations in process_urls are not under the timeout gun.
+            process_urls("rss", list(new_feed_generator))
+        except requests.RequestException as e: # maybe just catch Exception?
+            add_line(f"fatal error for rss: {e!r}\n")
+            logger.warning("generate_feed_urls(%s): %r", homepage, e)
+        except TimeoutError:
+            add_line(f"timeout for rss")
+            logger.warning("generate_feed_urls(%s): timeout", homepage)
+
+        # Do quick look for Google News Sitemaps (does NOT do full site crawl)
+        gnews_urls = []
+        sitemaps = "news sitemap" # say something once, why say it again?
+
+        try:
+            gnews_urls = find_gnews_fast(homepage, timeout=SCRAPE_TIMEOUT_SECONDS)
+        except requests.RequestException as e:
+            add_line(f"fatal error for {sitemaps}: {e!r}")
+            logger.exception("find_gnews_fast")
+
+        if gnews_urls:
+            process_urls(sitemaps, gnews_urls)
+
+        # after all calls to process_urls:
+        if verbosity >= 2:
+            # not SUPER useful: this will call out any URL that was
+            # added manually and was never "published" (as well as
+            # feeds that were once published and no longer are).
+            ou = set(old_urls.keys())
+            not_found = ou - found
+            for nurl in not_found:
+                old_url = old_urls[nurl]
+                add_line(f"existing feed {old_url} not rediscovered\n")
+                logger.warning(f"scrape_source({source_id}, {homepage}) existing feed {old_url} not rediscovered")
+
+        if len(lines) == 1: # just header
+            add_line("no feeds found\n")
+
+        indent = "  "           # not applied to header line
+        return indent.join(lines)
 
     @classmethod
     def update_stories_per_week(cls, source_id: int , weekly_story_count):
