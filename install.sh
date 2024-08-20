@@ -8,6 +8,11 @@ python mcweb/manage.py collectstatic --noinput
 echo "  done with migrations and javascript build"
 
 
+#### TEMP
+echo env:
+env
+#### END TEMP
+
 ###get the config variables from github (avoiding referencing directly)
 #This is just for reference
 

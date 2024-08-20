@@ -161,7 +161,7 @@ class RssFetcherApi:
         if not days:
             return []
         return [(d.get('sources_id'), d.get('count')/days)
-                for d in r.get('sources')]
+                for d in r.get('sources', [])]
 
 if __name__ == '__main__':
     # test run via:

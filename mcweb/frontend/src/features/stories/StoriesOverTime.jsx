@@ -42,7 +42,7 @@ export default function StoriesOverTime({ collectionId, sourceId }) {
 
   if (!data && !error) return null;
 
-  const preparedData = prepareCountOverTimeData(data, false, query);
+  const preparedData = prepareCountOverTimeData(data, false, query, query);
   const updatedPrepareCountOverTimeData = preparedData.map(
     (originalDataObj) => {
       const queryTitleForPreparation = { name: 'All Stories' };

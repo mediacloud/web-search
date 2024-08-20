@@ -22,14 +22,15 @@ class EmailThread(threading.Thread):
     def run(self):
         self.email.send()
 
-
-def send_email(mail_params):
+# used only by (re)scraping; change to use Email{Message,Thread}??
+def send_email(subject: str, body: str, from_email: str, recipients: list[str]) -> None:
+    logger.info(f"send_email '{subject}' to {recipients}")
     if not EMAIL_HOST:
+        logger.info("no EMAIL_HOST")
+        print("body:", body)    # TEMP for testing
         return
-    subject, body, from_email, recepient = mail_params
-    print(mail_params)
     try:
-        send_mail(subject, body, from_email, [recepient], fail_silently=False)
+        send_mail(subject, body, from_email, recipients, fail_silently=False)
     except Exception as e:
         logger.exception(e)
 
