@@ -6,7 +6,6 @@ so can be put into a repo of its own.
 """
 
 import logging
-import os
 from typing import Any, Type
 
 # PyPI
@@ -169,9 +168,9 @@ if __name__ == '__main__':
 
     url = os.getenv("RSS_FETCHER_URL")
     user = os.getenv("RSS_FETCHER_USER")
-    pass = os.getenv("RSS_FETCHER_PASS")
+    password = os.getenv("RSS_FETCHER_PASS")
 
-    with RssFetcherApi(ur, user, pass) as rss:
+    with RssFetcherApi(ur, user, password) as rss:
         # tested against staging-rss-fetcher.ifill.angwin:
 
         SRC = 1                 # NYT
