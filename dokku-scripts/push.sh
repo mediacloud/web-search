@@ -133,7 +133,7 @@ fi
 
 # before check for no changes! see if instance is up-to-date w/ instance.sh
 echo checking $INSTANCE_HASH_VAR
-INSTANCE_SH_FILE_GIT_HASH=(instance_sh_file_git_hash) # run function
+INSTANCE_SH_FILE_GIT_HASH=$(instance_sh_file_git_hash) # run function
 INSTANCE_SH_CURR_GIT_HASH=$(dokku config:get $APP $INSTANCE_HASH_VAR)
 if [ "x$INSTANCE_SH_CURR_GIT_HASH" != "x$INSTANCE_SH_FILE_GIT_HASH" ]; then
     echo $APP INSTANCE_SH_FILE_GIT_HASH $INSTANCE_SH_CURR_GIT_HASH 1>&2
