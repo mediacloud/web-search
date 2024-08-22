@@ -84,6 +84,7 @@ create_app() {
     else
 	echo creating app $APP
 	dokku apps:create $APP
+	CREATED_APP=1
     fi
 
     check_service postgres $PG_SVC $APP
@@ -134,9 +135,11 @@ create_app() {
     SCRIPT_HASH=$(instance_sh_file_git_hash) # run function
     dokku config:set --no-restart $APP ${INSTANCE_HASH_VAR}=$SCRIPT_HASH
 
-    echo "app created, but not deployed." 1>&2
-    echo "run '$SCRIPT_DIR/clone-db.sh $PG_SVC' to clone database from production." 1>&2
-    echo "then run '$SCRIPT_DIR/push.sh'" 1>&2
+    if [ -n "$CREATED_APP" ]; then
+	echo "app created, but not deployed." 1>&2
+	echo "run '$SCRIPT_DIR/clone-db.sh $PG_SVC' to clone database from production." 1>&2
+	echo "then run '$SCRIPT_DIR/push.sh'" 1>&2
+    fi
 }
 
 # copied from rss-fetcher/dokku-scripts/instance.sh
