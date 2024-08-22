@@ -57,7 +57,7 @@ add_extras() {
 }
 add_extras "AIRTABLE_HARDWARE=$HOST" \
 	   "AIRTABLE_ENV=$INSTANCE" \
-	   "AIRTABLE_NAME=$APP" \
+	   "AIRTABLE_NAME=$INSTANCE" \
 	   "SENTRY_ENV=$INSTANCE"
 
 # NOTE! vars.py output is shell-safe; it contains only VAR=BASE64ENCODEDVALUE ...
