@@ -13,6 +13,9 @@ PUBLIC_DOMAIN=mediacloud.org
 # Internet visible server
 PUBLIC_SERVER=tarbell
 
+FQDN=$(hostname -f)
+HOST=$(hostname -s)
+
 public_server() {
     # replace with true if all servers public:
     test "$HOST" = "$PUBLIC_SERVER"
@@ -42,9 +45,6 @@ esac
 
 # git remote for app; created by instance.sh, used by push.sh
 DOKKU_GIT_REMOTE=${BASE_APP}_$INSTANCE
-
-FQDN=$(hostname -f)
-HOST=$(hostname -s)
 
 dokku() {
     ssh dokku@$FQDN "$*"
