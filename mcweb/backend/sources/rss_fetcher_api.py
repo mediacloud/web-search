@@ -19,22 +19,20 @@ class RssFetcherError(Exception):
     """class for RssFetcherApi error"""
 
 class RssFetcherApi:
-    def __init__(self, url: str, user: str | None, pass: str | None):
+    def __init__(self, url: str, user: str | None, password: str | None):
         self._session = requests.sessions.Session()
         self._url = url
         self._user = user
-        self._pass = pass
+        self._pass = password
 
     def __enter__(self):
-        #logger.debug("__enter__")
         return self
 
     def __exit__(self, *args):
-        #logger.debug("__exit__")
         self._session.close()
 
     def _request(self, method: str, path: str) -> Any:
-        if self._user and self._PASS:
+        if self._user and self._pass:
             auth = requests.auth.HTTPBasicAuth(self._user, self._pass)
         else:
             auth = None
