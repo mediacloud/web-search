@@ -17,7 +17,6 @@ fi
 
 BRANCH=$(git branch --show-current)
 
-APP=mcweb
 # Update instance.sh if you change how instances are named!
 case $BRANCH in
 prod|staging)
@@ -26,7 +25,7 @@ prod|staging)
     INSTANCE=$UNAME;;
 esac
 
-# after INSTANCE set, sets APP:
+# after INSTANCE set, sets APP, DOKKU_GIT_REMOTE, ..._SVC, APP_FQDN
 . $SCRIPT_DIR/common.sh
 
 # tmp files to clean up on exit
@@ -62,7 +61,6 @@ ORIGIN="origin"
 # PUSH_TAG_TO: other remotes to push tag to
 PUSH_TAG_TO="$ORIGIN"
 
-# DOKKU_GIT_REMOTE: Name of git remote for Dokku instance
 git remote -v > $TMP
 
 case "$BRANCH" in
@@ -99,7 +97,6 @@ prod|staging)
     # push tag back to JUST github mediacloud branch
     # (might be "origin", might not)
     PUSH_TAG_TO="$MCREMOTE"
-    INSTANCE=$BRANCH
     ;;
 *)
     # here with some other branch; development.
@@ -114,12 +111,8 @@ prod|staging)
 	echo "origin/$BRANCH not up to date. run 'git push origin'" 1>&2
 	exit 1
     fi
-
-    INSTANCE=$UNAME
     ;;
 esac
-
-DOKKU_GIT_REMOTE=mcweb_$INSTANCE
 
 # name of deploy branch in DOKKU_GIT_REMOTE repo
 DOKKU_GIT_BRANCH=main
@@ -156,7 +149,7 @@ fi
 
 # XXX log all commits not in Dokku repo?? git log ${BRANCH}..$INSTANCE_SH_GIT_HASH/$DOKKU_GIT_BRANCH ???
 echo "Last commit:"
-git log -n1
+git log -n1 | head -20
 
 # XXX display URL for DOKKU_GIT_REMOTE??
 echo ''
@@ -217,15 +210,8 @@ echo ''
 echo making dokku config...
 
 # some of this from rss-fetcher/dokku-scripts/config.sh
-# (only called from push.sh, so inlined here)
-
-# call with VAR=VALUE ...
-add_vars() {
-    VARS="$VARS $*"
-}
-
-# maybe "grep -Ev '^(VAR1|VAR2)=' w/ vars NOT to honor from files?
-FILTER=
+# fetching private repo could be made generic (moved to a devops repo)
+# would need to supply script to create/augment per-user vars...
 
 case $BRANCH in
 prod|staging)
@@ -244,57 +230,42 @@ prod|staging)
     PRIVATE_CONF_FILE=$PRIVATE_CONF_REPO/web-search.${BRANCH}.sh
     cd ..
     ;;
+
 *)
-    # NOTE!!! Dokku generates DATABASE_URL and REDIS_URL; just use them????!!!
-    # fix noted places to use them?!!!
+    # create (or add to) per-user config settings
+    USER_CONF=vars.$UNAME
+    if [ ! -f $USER_CONF ]; then
+	echo creating $USER_CONF
+	echo '# per-user conf, feel free to edit and add' > $USER_CONF
+    fi
+    # NOTE! wants two args!
+    user_conf() {
+	VAR=$1
+	VAL=$2
+	if ! grep -q "^$VAR=" $USER_CONF; then
+	    echo "setting $VAR=$VAL in $USER_CONF"
+	    echo "$VAR=$VAL" >> $USER_CONF
+	fi
+    }
+    # create basic/necessary config:
+    # localhost/127.0.0.1 for ssh tunnels:
+    user_conf ALLOWED_HOSTS ${APP_FQDN},localhost,127.0.0.1
 
-    # mcweb/settings.py wants CACHE_URL
-    add_vars CACHE_URL=$(dokku redis:info $REDIS_SVC --dsn)
+    # used to salt cryptographic hashes.
+    # could generate random secret with $(python -c 'import uuid; print(uuid.uuid4())')
+    # but dev servers shouldn't be public!
+    user_conf SECRET_KEY BE_VEWY_VEWY_QUIET
 
-    # mcweb/backend/sources/management/commands/importdata.py wants DATABASE_URI
-    add_vars DATABASE_URI=$(dokku postgres:info $PG_SVC --dsn)
-
-    add_vars ALLOWED_HOSTS=${APP_FQDN},localhost
-    add_vars NEWS_SEARCH_API_URL=http://ramos.angwin:8000/v1/
-
-    # maybe check for env.$UNAME and set as PRIVATE_CONF_FILE??
-    # and only use these if it doesn't exist?
-    add_vars SECRET_KEY=BE_VEWY_VEWY_QUIET
+    PRIVATE_CONF_FILE=$USER_CONF
     ;;
 esac
-
-if [ -f "$PRIVATE_CONF_FILE" ]; then
-    add_vars $(sed 's/#.*$//' < $PRIVATE_CONF_FILE $FILTER)
-fi
 
 # start shutdown while working on config...
 #echo stopping processes...
 #dokku ps:stop $APP
 
-CONFIG_OPTIONS=--no-restart
-
-dokku config:show $APP | tail -n +2 | sed 's/: */=/' > $TMP
-NEED=""
-# loop for var=val (VV) pairs
-for VV in $VARS; do
-    # VE: var equals
-    VE=$(echo $VV | sed 's/=.*$/=/')
-    # find current value
-    CURR=$(grep "^$VE" $TMP)
-    if [ "x$VV" != "x$CURR" ]; then
-	NEED="$NEED $VV"
-    fi
-done
-
-if [ "x$NEED" != x ]; then
-    echo setting dokku config: $NEED
-    dokku config:set $CONFIG_OPTIONS $APP $NEED
-else
-    echo no dokku config changes
-fi
-
-# end config
-################################################################
+echo configuring app...
+$SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE
 
 echo ''
 echo adding local tag $TAG

@@ -21,28 +21,17 @@ from django.core.exceptions import ImproperlyConfigured
 
 logger = logging.getLogger(__file__)
 
-def env_float(name: str, defval: float) -> float | None:
-    """
-    fetch environment variable with name `name`
-    if not set, return defval
-    if set to empty string, return None
-    else interpret as floating point number
-    """
-    value = env(name, default=defval)
-    if value == "":
-        return None
-    return float(value)
-
 # The static version of the app
 VERSION = "2.0.5"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
+# new config should make this obsolete!
 _DEFAULT_ALLOWED_HOSTS = [
     #### production:
-    # app.process (mcweb.web) for rss-fetcher on tarbell
-    # https://search.mediacloud.org should now work
+    # app.process (mcweb.web) was for rss-fetcher on tarbell
+    # now uses https://search.mediacloud.org should now work
     # (need to adjust rss-fetcher config first)
     'search.mediacloud.org', 'mcweb.web',
 
@@ -53,19 +42,40 @@ _DEFAULT_ALLOWED_HOSTS = [
     'localhost', '127.0.0.1'
 ]
 
-_DEFAULT_CSRF_TRUSTED_ORIGINS = ['https://mcweb-staging.tarbell.mediacloud.org', 'https://search.mediacloud.org']
+# new config should make this obsolete!
+_DEFAULT_CSRF_TRUSTED_ORIGINS = [
+    'https://mcweb-staging.tarbell.mediacloud.org',
+    'https://search.mediacloud.org'
+]
 
-env = environ.Env( # set casting, default value
+env = environ.Env( # set casting, defaults
+    # in alphabetical order:
     ALLOWED_HOSTS=(list, _DEFAULT_ALLOWED_HOSTS),
+    ANALYTICS_MATOMO_DOMAIN=(str, "null"),
+    ANALYTICS_MATOMO_SITE_ID=(str, "null"),
     CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    GIT_REV=(str, ""),
+    NEWS_SEARCH_API=(str, "http://ramos.angwin:8000/v1/"),
+    SENTRY_DSN=(str, ""),
+    SENTRY_ENV=(str, ""),
+    SENTRY_JS_REPLAY_RATE=(float, 0.1),
+    SENTRY_JS_TRACES_RATE=(float, 0.2),
+    SENTRY_PY_PROFILES_RATE=(float, 1.0),
+    SENTRY_PY_TRACES_RATE=(float, 1.0),
+    SYSTEM_ALERT=(str,""),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # type/cast and default values declared above in environ.Env creation
-ALLOWED_HOSTS = env("ALLOWED_HOSTS")
-CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
+ALLOWED_HOSTS = env("ALLOWED_HOSTS") # defined as list
+ANALYTICS_MATOMO_DOMAIN = env('ANALYTICS_MATOMO_DOMAIN') or "null"
+ANALYTICS_MATOMO_SITE_ID = env('ANALYTICS_MATOMO_SITE_ID') or "null"
+
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS") # defined as list
 DEBUG = env("DEBUG")
+
+GIT_REV = env("GIT_REV")      # supplied by Dokku, used by API version
 
 SECRET_KEY = env("SECRET_KEY")
 
@@ -234,7 +244,8 @@ LOGGING = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': env('CACHE_URL'),
+        # REDIS_URL supplied by Dokku:
+        'LOCATION': env('REDIS_URL'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
@@ -245,6 +256,7 @@ CACHES = {
 DISABLE_SERVER_SIDE_CURSORS = True
 
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
+
 # email authentication
 try:
     EMAIL_BACKEND = env('EMAIL_BACKEND')
@@ -263,28 +275,30 @@ except ImproperlyConfigured:
     EMAIL_HOST_USER = None
     EMAIL_HOST_PASSWORD = None
 
-# sentry config
-try:
+SENTRY_DSN = env('SENTRY_DSN')
+SENTRY_ENV = env('SENTRY_ENV')
+SENTRY_JS_TRACES_RATE = env('SENTRY_JS_TRACES_RATE') or "null"
+SENTRY_JS_REPLAY_RATE = env('SENTRY_JS_REPLAY_RATE') or "null"
+SENTRY_PY_PROFILES_RATE = env('SENTRY_PY_PROFILES_RATE')
+SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
+
+SYSTEM_ALERT = env('SYSTEM_ALERT') or None
+
+# sentry config for Python code:
+if SENTRY_DSN:
     sentry_sdk.init(
-        dsn=env('SENTRY_DSN'),
+        dsn=SENTRY_DSN,
         integrations=[
             DjangoIntegration(),
         ],
-        environment=os.getenv('STACK_NAME', None),
+        environment=SENTRY_ENV,
+        traces_sample_rate=SENTRY_PY_TRACES_RATE,
+        profiles_sample_rate=SENTRY_PY_PROFILES_RATE,
         release=VERSION,
-
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        # We recommend adjusting this value in production.
-
-        # NOTE! mcweb/frontend/views.py uses SENTRY_{REPLAY,TRACES}_RATE vars
-        # (passed to JS code?)
-        traces_sample_rate=env_float("TRACES_SAMPLE_RATE", 1.0),
-        profiles_sample_rate=env_float("PROFILES_SAMPLE_RATE", 1.0),
 
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True
     )
-except ImproperlyConfigured:
-    logger.debug("Sentry DSN not configured")
+else:
+    logger.debug("Sentry not configured")

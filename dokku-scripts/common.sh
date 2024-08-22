@@ -12,6 +12,16 @@ prod)
     ;;
 esac
 
+# TODO: use to generate set ALLOWED_HOSTS
+case "$INSTANCE" in
+prod)
+    EXTRA_DOMAINS=search.mediacloud.org
+    ;;
+staging)
+    EXTRA_DOMAINS=mcweb-staging.tarbell.mediacloud.org
+    ;;
+esac
+
 # git remote for app; created by instance.sh, used by push.sh
 DOKKU_GIT_REMOTE=${BASE_APP}_$INSTANCE
 

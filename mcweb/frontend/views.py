@@ -2,21 +2,18 @@ import logging
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 import os
-from settings import VERSION
+from settings import (
+    ANALYTICS_MATOMO_DOMAIN,
+    ANALYTICS_MATOMO_SITE_ID,
+    SENTRY_DSN, SENTRY_ENV,
+    SENTRY_JS_TRACES_RATE,
+    SENTRY_JS_REPLAY_RATE,
+    SYSTEM_ALERT,
+    VERSION
+)
 import mc_providers as providers
 
-
-
 logger = logging.getLogger(__name__)
-
-ANALYTICS_MATOMO_DOMAIN = os.getenv('ANALYTICS_MATOMO_DOMAIN', "null")
-ANALYTICS_MATOMO_SITE_ID = os.getenv('ANALYTICS_MATOMO_SITE_ID', "null")
-SENTRY_DSN = os.getenv('SENTRY_DSN',"null")
-SENTRY_ENV = os.getenv('ENV_NAME', "null")
-SENTRY_TRACES_RATE = os.getenv('SENTRY_TRACES_RATE',"null")
-SENTRY_REPLAY_RATE = os.getenv('SENTRY_REPLAY_RATE',"null")
-
-SYSTEM_ALERT = os.getenv('SYSTEM_ALERT', None)
 
 @ensure_csrf_cookie
 def index(request):
@@ -28,10 +25,10 @@ def index(request):
         analytics_matomo_id=ANALYTICS_MATOMO_SITE_ID,
         system_alert=SYSTEM_ALERT,
         sentry_config={
-            "sentry_dsn": SENTRY_DSN,
-            "sentry_env": SENTRY_ENV,
-            "traces_rate": SENTRY_TRACES_RATE,
-            "replay_rate": SENTRY_REPLAY_RATE,
+            "sentry_dsn": (SENTRY_DSN or "null"),
+            "sentry_env": (SENTRY_ENV or "null"),
+            "traces_rate": SENTRY_JS_TRACES_RATE,
+            "replay_rate": SENTRY_JS_REPLAY_RATE,
         }
 
     ))

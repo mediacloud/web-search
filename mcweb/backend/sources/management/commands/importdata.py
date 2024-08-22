@@ -5,10 +5,11 @@ import glob
 import tempfile
 
 from ...models import Collection, Source, Feed
-
+# import env from mcweb.settings
 
 def _run_psql_command(cmd: str):
-    db_uri = os.getenv('DATABASE_URI')
+    # DATABASE_URL is supplied automagically by Dokku
+    db_uri = os.getenv('DATABASE_URL') # get from settings.env?
     call(['psql', '-Atx', db_uri, '-c', cmd])
 
 

@@ -21,10 +21,7 @@ case "$OP" in
 create|destroy)
     # Update push.sh if you change how instances are named
     case "$INSTANCE" in
-    prod)
-	;;
-    staging)
-	EXTRA_DOMAINS=mcweb-staging.tarbell.mediacloud.org
+    prod|staging)
 	;;
     *)
 	if ! id $INSTANCE >/dev/null 2>&1; then
