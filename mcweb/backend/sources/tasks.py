@@ -21,29 +21,29 @@ from django.utils import timezone
 #import pandas as pd             # not currently used
 import numpy as np
 
-# from sources app:
+# mcweb/backend/sources
 from .models import Feed, Source, Collection
-# emails
-from util.send_emails import send_alert_email, send_email
-
-
-#rss fetcher
 from .rss_fetcher_api import RssFetcherApi
+
+# mcweb/
+from util.send_emails import send_alert_email, send_rescrape_email
+from settings import (
+    ADMIN_USERNAME,
+    EMAIL_ORGANIZATION,
+    RSS_FETCHER_PASS,
+    RSS_FETCHER_URL,
+    RSS_FETCHER_USER,
+    EMAIL_NOREPLY,
+    SCRAPE_ERROR_RECIPIENTS,
+    SCRAPE_TIMEOUT_SECONDS
+)
 
 ALERT_LOW = 'alert_low'
 GOOD = 'good'
 ALERT_HIGH = 'alert_high'
 
-# get all of these from config.py (define with defaulting)!!!?
-SCRAPE_FROM_EMAIL = 'noreply@mediacloud.org'
-
-# have this one place, get from config???
-ADMIN_USER = 'e.leon@northeastern.edu'
-
-# user to run alerts task under
-ALERTS_TASK_USER = ADMIN_USER
-
-SCRAPE_ERROR_USERS = [ADMIN_USER] # maybe include phil?
+ALERTS_TASK_USERNAME = ADMIN_USERNAME
+SCRAPE_FROM_EMAIL = EMAIL_NOREPLY
 
 logger = logging.getLogger(__name__)
 
@@ -85,14 +85,14 @@ def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) ->
         subject += " (WITH ERRORS)"
         _add_scrape_error_users(recipients)
 
-    send_email(subject, email_body, SCRAPE_FROM_EMAIL, recipients)
+    send_rescrape_email(subject, email_body, SCRAPE_FROM_EMAIL, recipients)
     logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
 
 def _add_scrape_error_users(users: list[str]) -> None:
     """
-    take recipents list, add users in SCRAPE_ERROR_USERS in place
+    take recipents list, add users in SCRAPE_ERROR_RECIPIENTS in place
     """
-    for u in SCRAPE_ERROR_USERS:
+    for u in SCRAPE_ERROR_RECIPIENTS:
         if u not in users:
             users.append(u)
 
@@ -136,13 +136,13 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
     recipients = [user_email]
-    subject = f"[Media Cloud] Collection {collection.id} ({collection.name}) scrape complete"
+    subject = f"[{EMAIL_ORGANIZATION}] Collection {collection.id} ({collection.name}) scrape complete"
     if errors:
         subject += " (WITH ERRORS)"
         _add_scrape_error_users(recipients)
 
     # separate source chunks with blank lines (each already has trailing newline)
-    send_email(subject, "\n".join(email_body_chunks), SCRAPE_FROM_EMAIL, recipients)
+    send_rescrape_email(subject, "\n".join(email_body_chunks), SCRAPE_FROM_EMAIL, recipients)
 
     logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email}")
 
@@ -156,7 +156,7 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
 #run_datetime = dt.datetime.combine(next_friday, run_at)
 
 def run_alert_system():
-    user = User.objects.get(username=ALERTS_TASK_USER)
+    user = User.objects.get(username=ALERTS_TASK_USERNAME)
     with open('mcweb/backend/sources/data/collections-to-monitor.json') as collection_ids:
         collection_ids = collection_ids.read()
         collection_ids = json.loads(collection_ids)
@@ -166,6 +166,9 @@ def run_alert_system():
                         verbose_name=f"source alert system {dt.datetime.now()}",
                         remove_existing_tasks=True)
     return _return_task(task)
+
+def _rss_fetcher_api():
+    return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
 @background()
 def _alert_system(collection_ids):
@@ -178,7 +181,7 @@ def _alert_system(collection_ids):
             except:
                 print(collection_id)
 
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
         # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
           
             email="test"
@@ -253,7 +256,7 @@ def _classify_alert(month_mean, week_mean, std_dev):
         return GOOD
 
 def update_stories_per_week():
-    user = User.objects.get(username='e.leon@northeastern.edu')
+    user = User.objects.get(username=ALERTS_TASK_USERNAME)
 
     task = _update_stories_counts(
                         creator= user,
@@ -263,8 +266,7 @@ def update_stories_per_week():
 
 @background()
 def _update_stories_counts():
-
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
             for source_tuple in stories_by_source:
                 source_id, stories_per_day = source_tuple

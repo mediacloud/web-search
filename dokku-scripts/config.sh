@@ -10,18 +10,18 @@ INSTANCE=$1
 CONFIG=$2
 # could use remainder to make "EXTRAS"
 
-if [ -z "$INSTANCE" -o -z "$CONFIG" -o ! -f "$CONFIG" ]; then
-    echo Usage: $0 INSTANCE CONFIG_FILE 1>&2
-    echo '(this script is NOT meant for user invocation!)' 1>&2
-    exit 1
-fi
-
 # uses INSTANCE, sets APP, defines dokku function
 . $SCRIPT_DIR/common.sh
 
+if [ -z "$INSTANCE" -o -z "$CONFIG" -o ! -f "$CONFIG" ]; then
+    echo Usage: $0 INSTANCE CONFIG_FILE 1>&2
+    echo '(this script is NOT meant for user invocation!)' 1>&2
+    exit $CONFIG_STATUS_ERROR
+fi
+
 if [ -z "$APP" ]; then
     echo APP not set 1>&2
-    exit 1
+    exit $CONFIG_STATUS_ERROR
 fi
 
 # get current app setttings (fail out if app does not exist)
@@ -29,7 +29,7 @@ CURR=/var/tmp/curr-config$$.json
 trap "rm -f $CURR" 0
 if ! dokku config:export --format=json $APP > $CURR; then
     echo could not get $APP config 1>&2
-    exit 1
+    exit $CONFIG_STATUS_ERROR
 fi
 
 # shell variable ("dotenv") files are hard to read, So use
@@ -42,7 +42,7 @@ if [ ! -d $LIBDIR ]; then
     mkdir $LIBDIR
     echo "created by $0" > $LIBDIR/README
     if ! python -m pip install --target $LIBDIR python-dotenv; then
-	exit 1
+	exit $CONFIG_STATUS_ERROR
     fi
 fi
 
@@ -68,6 +68,9 @@ CONFIG_VARS=$(PYTHONPATH=$LIBDIR python $SCRIPT_DIR/vars.py --file $CONFIG --cur
 if [ -z "$CONFIG_VARS" ]; then
     # nothing to set... exit stage left!
     # https://en.wikipedia.org/wiki/Snagglepuss
-    exit 0
+    exit $CONFIG_STATUS_NOCHANGE
+elif dokku config:set $APP $CONFIG_OPTIONS $CONFIG_VARS; then
+    exit $CONFIG_STATUS_CHANGED
+else
+    exit $CONFIG_STATUS_ERROR
 fi
-dokku config:set $APP $CONFIG_OPTIONS $CONFIG_VARS

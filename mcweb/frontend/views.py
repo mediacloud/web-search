@@ -1,17 +1,23 @@
+# python
 import logging
+import os
+
+# PyPI
+import mc_providers as providers
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
-import os
+
+# app
 from settings import (
     ANALYTICS_MATOMO_DOMAIN,
     ANALYTICS_MATOMO_SITE_ID,
-    SENTRY_DSN, SENTRY_ENV,
+    SENTRY_DSN,
+    SENTRY_ENV,
     SENTRY_JS_TRACES_RATE,
     SENTRY_JS_REPLAY_RATE,
     SYSTEM_ALERT,
     VERSION
 )
-import mc_providers as providers
 
 logger = logging.getLogger(__name__)
 

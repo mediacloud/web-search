@@ -89,14 +89,11 @@ create_app() {
     check_service postgres $PG_SVC $APP
     check_service redis $REDIS_SVC $APP
 
-    dokku domains:report $APP > $TMPFILE
-    for DOMAIN in $APP_FQDN $EXTRA_DOMAINS; do
-	if grep -q "vhosts:.*$DOMAIN" $TMPFILE; then
-	    echo found domain $DOMAIN for $APP
-	else
-	    echo adding domain $DOMAIN to $APP
-	    dokku domains:add $APP $DOMAIN
-	fi
+    if dokku domains:report $APP | grep -q "vhosts:.*$APP_FQDN"; then
+	echo found domain $APP_FQDN for $APP
+    else
+	echo adding domain $APP_FQDN to $APP
+	dokku domains:add $APP $APP_FQDN
     done
 
     if git remote | grep $DOKKU_GIT_REMOTE >/dev/null; then
@@ -106,38 +103,40 @@ create_app() {
 	git remote add $DOKKU_GIT_REMOTE dokku@$FQDN:$APP
     fi
 
-    # XXX if staging, 
-
-    # needed because dokku PORT env var not honored??
-    if dokku ports:help >/dev/null 2>&1; then
-	# newer version of dokku
-	if dokku ports:list $APP | grep -q " $APP_PORT\$"; then
-	    echo found port $APP_PORT mapping
-	else
-	    echo adding port $APP_PORT mapping
-	    dokku ports:add $APP http:80:$APP_PORT
-	fi
-    else
-	# older version of dokku
-	if dokku proxy:ports | grep -q $APP_PORT; then
-	    echo found proxy port $APP_PORT mapping
-	else
-	    echo adding proxy port $APP_PORT mapping
-	    dokku proxy:ports-add http:80:$APP_PORT
-	fi
-    fi
+#    # needed because dokku PORT env var not honored??
+#    if dokku ports:help >/dev/null 2>&1; then
+#	# newer version of dokku
+#	if dokku ports:list $APP | grep -q " $APP_PORT\$"; then
+#	    echo found port $APP_PORT mapping
+#	else
+#	    echo adding port $APP_PORT mapping
+#	    dokku ports:add $APP http:80:$APP_PORT
+#	fi
+#    else
+#	# older version of dokku
+#	if dokku proxy:ports | grep -q $APP_PORT; then
+#	    echo found proxy port $APP_PORT mapping
+#	else
+#	    echo adding proxy port $APP_PORT mapping
+#	    dokku proxy:ports-add http:80:$APP_PORT
+#	fi
+#    fi
 
     if public_server; then
 	if ! dokku letsencrypt:active $APP >/dev/null; then
-	    echo enabling lets encrypt
-	    # This requires $APP.$HOST.$PUBLIC_DOMAIN to be visible from Internet:
+	    echo enabling lets encrypt APP_FQDN $APP_FQDN
+	    # This requires $APP_FQDN to be visible from Internet:
 	    dokku letsencrypt:enable $APP
 	fi
     fi
 
-    # get git commit hash of last change to this file
-    SCRIPT_HASH=$(git log -n1 --oneline --no-abbrev-commit --format='%H' $0)
-    dokku config:set --no-restart $APP INSTANCE_SH_GIT_HASH=$SCRIPT_HASH
+    # get git commit hash of last change to this file (verified by push.sh)
+    SCRIPT_HASH=$(instance_sh_file_git_hash) # run function
+    dokku config:set --no-restart $APP ${INSTANCE_HASH_VAR}=$SCRIPT_HASH
+
+    echo "app created, but not deployed." 1>&2
+    echo "run '$SCRIPT_DIR/clone-db.sh $PG_SVC' to clone database from production." 1>&2
+    echo "then run '$SCRIPT_DIR/push.sh' 1>&2
 }
 
 # copied from rss-fetcher/dokku-scripts/instance.sh

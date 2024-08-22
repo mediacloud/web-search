@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import logging
 from pathlib import Path
 import os
+
+# PyPI
 import dj_database_url
 import environ
 import sentry_sdk
@@ -48,37 +50,93 @@ _DEFAULT_CSRF_TRUSTED_ORIGINS = [
     'https://search.mediacloud.org'
 ]
 
-env = environ.Env( # set casting, defaults
-    # in alphabetical order:
+_DEFAULT_ADMIN_EMAIL = 'e.leon@northeastern.edu'
+
+# used in defaults below:
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", _DEFAULT_ADMIN_EMAIL) # email destination
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", ADMIN_EMAIL) # user in database
+
+env = environ.Env(      # @@CONFIGURATION@@ definitions
+    # (cast, default_value) in alphabetical order:
+    ALERTS_RECIPIENTS=(list, [ADMIN_EMAIL]),
     ALLOWED_HOSTS=(list, _DEFAULT_ALLOWED_HOSTS),
     ANALYTICS_MATOMO_DOMAIN=(str, "null"),
     ANALYTICS_MATOMO_SITE_ID=(str, "null"),
     CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
     DEBUG=(bool, False),
+
+    EMAIL_NOREPLY=(str, 'noreply@mediacloud.org'),
+    EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
     GIT_REV=(str, ""),
     NEWS_SEARCH_API=(str, "http://ramos.angwin:8000/v1/"),
+    SCRAPE_ERROR_RECIPIENTS=(list, [ADMIN_EMAIL]),
+    SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
     SENTRY_DSN=(str, ""),
     SENTRY_ENV=(str, ""),
-    SENTRY_JS_REPLAY_RATE=(float, 0.1),
-    SENTRY_JS_TRACES_RATE=(float, 0.2),
-    SENTRY_PY_PROFILES_RATE=(float, 1.0),
-    SENTRY_PY_TRACES_RATE=(float, 1.0),
-    SYSTEM_ALERT=(str,""),
+    SENTRY_JS_REPLAY_RATE=(float, 0.1), # fraction 0 to 1.0
+    SENTRY_JS_TRACES_RATE=(float, 0.2), # fraction 0 to 1.0
+    SENTRY_PY_PROFILES_RATE=(float, 1.0), # fraction 0 to 1.0
+    SENTRY_PY_TRACES_RATE=(float, 1.0),  # fraction 0 to 1.0
+    SYSTEM_ALERT=(str,None),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# type/cast and default values declared above in environ.Env creation
-ALLOWED_HOSTS = env("ALLOWED_HOSTS") # defined as list
-ANALYTICS_MATOMO_DOMAIN = env('ANALYTICS_MATOMO_DOMAIN') or "null"
-ANALYTICS_MATOMO_SITE_ID = env('ANALYTICS_MATOMO_SITE_ID') or "null"
+################ @@CONFIGURATION@@ variables
+# (casts and defaults declared above)
+
+# IN ALPHABETICAL ORDER:
+
+ALERTS_RECIPENTS = env('ALERTS_RECIPIENTS') # list
+ALLOWED_HOSTS = env("ALLOWED_HOSTS") # list
+ANALYTICS_MATOMO_DOMAIN = env('ANALYTICS_MATOMO_DOMAIN')
+ANALYTICS_MATOMO_SITE_ID = env('ANALYTICS_MATOMO_SITE_ID')
 
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS") # defined as list
+
 DEBUG = env("DEBUG")
 
-GIT_REV = env("GIT_REV")      # supplied by Dokku, used by API version
+EMAIL_NOREPLY = env('EMAIL_NOREPLY') # email sender address
 
-SECRET_KEY = env("SECRET_KEY")
+# email authentication
+try:
+    # no casts/defaults declared
+    EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 
+    # vars used by django.core.mail.backends.smtp.EmailBackend:
+    EMAIL_HOST = env('EMAIL_HOST')
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+    EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
+    EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
+    assert EMAIL_BACKEND and EMAIL_HOST
+except (ImproperlyConfigured, AssertionError):
+    # don't require email settings (for development)
+    logger.warning("Email not configured")
+    EMAIL_BACKEND = None
+    EMAIL_HOST = None
+    EMAIL_HOST_USER = None
+    EMAIL_HOST_PASSWORD = None
+    EMAIL_HOST_PORT = None
+    EMAIL_HOST_USE_SSL = None
+
+GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
+
+NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
+
+SCRAPE_ERROR_RECIPIENTS = env('SCRAPE_ERROR_RECIPIENTS') # email recipients
+SCRAPE_TIMEOUT_SECONDS = env('SCRAPE_TIMEOUT_SECONDS') # HTTP connect/read timeout
+SECRET_KEY = env('SECRET_KEY')
+SENTRY_DSN = env('SENTRY_DSN')
+SENTRY_ENV = env('SENTRY_ENV')
+SENTRY_JS_TRACES_RATE = env('SENTRY_JS_TRACES_RATE')
+SENTRY_JS_REPLAY_RATE = env('SENTRY_JS_REPLAY_RATE')
+SENTRY_PY_PROFILES_RATE = env('SENTRY_PY_PROFILES_RATE')
+SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
+
+SYSTEM_ALERT = env('SYSTEM_ALERT') or None
+
+# end config
+################
 # Application definition
 
 INSTALLED_APPS = [
@@ -255,37 +313,8 @@ CACHES = {
 
 DISABLE_SERVER_SIDE_CURSORS = True
 
-NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
-
-# email authentication
-try:
-    EMAIL_BACKEND = env('EMAIL_BACKEND')
-    EMAIL_HOST = env('EMAIL_HOST')
-    EMAIL_PORT = env('EMAIL_PORT')
-    EMAIL_USE_SSL = env('EMAIL_USE_SSL')
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-except ImproperlyConfigured:
-    # don't require email settings; for instance on localhost
-    logger.warning("Email not configured")
-    EMAIL_BACKEND = None
-    EMAIL_HOST = None
-    EMAIL_PORT = None
-    EMAIL_USE_SSL = None
-    EMAIL_HOST_USER = None
-    EMAIL_HOST_PASSWORD = None
-
-SENTRY_DSN = env('SENTRY_DSN')
-SENTRY_ENV = env('SENTRY_ENV')
-SENTRY_JS_TRACES_RATE = env('SENTRY_JS_TRACES_RATE') or "null"
-SENTRY_JS_REPLAY_RATE = env('SENTRY_JS_REPLAY_RATE') or "null"
-SENTRY_PY_PROFILES_RATE = env('SENTRY_PY_PROFILES_RATE')
-SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
-
-SYSTEM_ALERT = env('SYSTEM_ALERT') or None
-
 # sentry config for Python code:
-if SENTRY_DSN:
+if SENTRY_DSN and SENTRY_ENV:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[
@@ -301,4 +330,6 @@ if SENTRY_DSN:
         send_default_pii=True
     )
 else:
-    logger.debug("Sentry not configured")
+    logger.warning("Sentry not configured")
+
+# add configuration variables above (search for @@CONFIGURATION@@)
