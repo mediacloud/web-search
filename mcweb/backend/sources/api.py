@@ -26,7 +26,7 @@ from util.send_emails import send_source_upload_email
 
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 from .tasks import schedule_scrape_source, get_completed_tasks, get_pending_tasks, schedule_scrape_collection
-
+from settings import RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS # mcweb.settings
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -157,6 +157,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
         return Response(schedule_scrape_collection(collection_id, request.user))
 
 
+def _rss_fetcher_api():
+    return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
+
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
     permission_classes = [
@@ -204,13 +207,13 @@ class FeedsViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def details(self, request):
         source_id = int(self.request.query_params.get("source_id"))
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             return Response({"feeds": rss.source_feeds(source_id)})
 
     @action(detail=False, url_path='feed-details')
     def feed_details(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             return Response({"feed": rss.feed(feed_id)})
 
     @action(detail=False)
@@ -218,7 +221,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
         feed_id = self.request.query_params.get("feed_id", None)
         source_id = self.request.query_params.get("source_id", None)
 
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             if feed_id is not None:
                 stories = rss.feed_stories(int(feed_id))
 
@@ -230,7 +233,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def history(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             feed_history = rss.feed_history(feed_id)
             feed_history = sorted(
                 feed_history, key=lambda d: d['created_at'], reverse=True)
@@ -241,7 +244,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
         feed_id = self.request.query_params.get("feed_id", None)
         source_id = self.request.query_params.get("source_id", None)
         total = 0
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             if feed_id is not None:
                 total += rss.feed_fetch_soon(int(feed_id))
 
