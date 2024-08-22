@@ -248,8 +248,7 @@ prod|staging)
 	fi
     }
     # create basic/necessary config:
-    # localhost/127.0.0.1 for ssh tunnels:
-    user_conf ALLOWED_HOSTS ${APP_FQDN},localhost,127.0.0.1
+    user_conf ALLOWED_HOSTS ${APP_FQDN}
 
     # used to salt cryptographic hashes.
     # could generate random secret with $(python -c 'import uuid; print(uuid.uuid4())')
