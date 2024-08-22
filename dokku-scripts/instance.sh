@@ -94,7 +94,7 @@ create_app() {
     else
 	echo adding domain $APP_FQDN to $APP
 	dokku domains:add $APP $APP_FQDN
-    done
+    fi
 
     if git remote | grep $DOKKU_GIT_REMOTE >/dev/null; then
 	echo found git remote $DOKKU_GIT_REMOTE
@@ -136,7 +136,7 @@ create_app() {
 
     echo "app created, but not deployed." 1>&2
     echo "run '$SCRIPT_DIR/clone-db.sh $PG_SVC' to clone database from production." 1>&2
-    echo "then run '$SCRIPT_DIR/push.sh' 1>&2
+    echo "then run '$SCRIPT_DIR/push.sh'" 1>&2
 }
 
 # copied from rss-fetcher/dokku-scripts/instance.sh
@@ -167,4 +167,3 @@ create) create_app;;
 destroy) destroy_app;;
 *) echo "$0: unknown command $OP" 1>&2; exit 1;;
 esac
-
