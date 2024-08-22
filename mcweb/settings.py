@@ -69,7 +69,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
     GIT_REV=(str, ""),
     NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
-    SCRAPE_ERROR_RECIPIENTS=(list, [ADMIN_EMAIL]),
+    SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
     SENTRY_DSN=(str, ""),
     SENTRY_ENV=(str, ""),
@@ -96,6 +96,7 @@ CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS") # defined as list
 DEBUG = env("DEBUG")
 
 EMAIL_NOREPLY = env('EMAIL_NOREPLY') # email sender address
+EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
 
 # email authentication
 try:
@@ -123,7 +124,7 @@ GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
 
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 
-SCRAPE_ERROR_RECIPIENTS = env('SCRAPE_ERROR_RECIPIENTS') # email recipients
+SCRAPE_ERROR_RECIPIENTS = env('SCRAPE_ERROR_RECIPIENTS') # list
 SCRAPE_TIMEOUT_SECONDS = env('SCRAPE_TIMEOUT_SECONDS') # HTTP connect/read timeout
 SECRET_KEY = env('SECRET_KEY')
 SENTRY_DSN = env('SENTRY_DSN')

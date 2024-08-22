@@ -28,6 +28,7 @@ from .rss_fetcher_api import RssFetcherApi
 # mcweb/
 from util.send_emails import send_alert_email, send_rescrape_email
 from settings import (
+    ADMIN_EMAIL,
     ADMIN_USERNAME,
     EMAIL_ORGANIZATION,
     RSS_FETCHER_PASS,
@@ -80,7 +81,7 @@ def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) ->
         errors += 1
 
     recipients = [user_email]
-    subject = f"[Media Cloud] Source {source_id} ({name}) scrape complete"
+    subject = f"[{EMAIL_ORGANIZATION}] Source {source_id} ({name}) scrape complete"
     if errors:
         subject += " (WITH ERRORS)"
         _add_scrape_error_users(recipients)
@@ -90,12 +91,15 @@ def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) ->
 
 def _add_scrape_error_users(users: list[str]) -> None:
     """
-    take recipents list, add users in SCRAPE_ERROR_RECIPIENTS in place
+    take recipents list
+    add ADMIN_EMAIL & users in SCRAPE_ERROR_RECIPIENTS in place
     """
+    if ADMIN_EMAIL not in users:
+        users.append(ADMIN_EMAIL)
     for u in SCRAPE_ERROR_RECIPIENTS:
         if u not in users:
             users.append(u)
-
+    
 # Phil: this could take quite a while;
 # pass queue="slow-lane" to decorator (and run another process_tasks worker in Procfile)??
 @background()
