@@ -36,16 +36,16 @@ esac
 . $SCRIPT_DIR/common.sh
 
 # tmp files to clean up on exit
-TMP=/tmp/mcweb-push$$
+REMOTES=/tmp/mcweb-remotes$$
 
-# will only exist if using private config:
+# dir will only exist if using private config:
 PRIVATE_CONF_DIR=$(pwd)/private-conf$$
 rm -rf $PRIVATE_CONF_DIR
 
-trap "rm -rf $TMP $PRIVATE_CONF_DIR" 0
+trap "rm -rf $REMOTES $PRIVATE_CONF_DIR" 0
 
 if ! dokku apps:exists $APP >/dev/null 2>&1; then
-    echo "app $APP not found; run instance.sh?!" 1>&2
+    echo "app $APP not found; run 'instance.sh create ${INSTANCE}'??" 1>&2
     exit 1
 fi
 
@@ -64,17 +64,19 @@ ORIGIN="origin"
 # PUSH_TAG_TO: other remotes to push tag to
 PUSH_TAG_TO="$ORIGIN"
 
-git remote -v > $TMP
+git remote -v > $REMOTES
 
 case "$BRANCH" in
 prod|staging)
     # check if corresponding branch in mediacloud acct up to date
+    GIT_ORG='mediacloud'
 
-    # get remote for mediacloud account
+    # get git remote for mediacloud account
     # ONLY match ssh remote, since will want to push tag.
-    MCREMOTE=$(awk '/github\.com:mediacloud\// { print $1; exit }' $TMP)
+    # XXX use common REPO_PREFIX?
+    MCREMOTE=$(awk '/git@github\.com:'$GIT_ORG'\// { print $1; exit }' $REMOTES)
     if [ "x$MCREMOTE" = x ]; then
-	echo "could not find an ssh git remote for mediacloud org repo; add upstream?" 1>&2
+	echo "could not find an ssh git remote for $GIT_ORG org repo; add upstream?" 1>&2
 	exit 1
     fi
 
@@ -126,7 +128,7 @@ if ! dokku apps:exists "$APP" >/dev/null 2>&1; then
 fi
 
 TAB='	'
-if ! grep "^$DOKKU_GIT_REMOTE$TAB" $TMP >/dev/null; then
+if ! grep "^$DOKKU_GIT_REMOTE$TAB" $REMOTES >/dev/null; then
     echo git remote $DOKKU_GIT_REMOTE not found 1>&2
     exit 1
 fi
@@ -257,30 +259,26 @@ prod|staging)
     ;;
 
 *)
-    # create (or add to) per-user config settings
+    ENV_TEMPLATE=mcweb/.env-template
+    # create (or add to) per-user config settings.
+    # maybe take entire ENV_TEMPLATE file,
+    # but without ALLOWED_HOSTS, DATABASE_URL, REDIS_URL??
+
     USER_CONF=vars.$UNAME
     if [ ! -f $USER_CONF ]; then
 	echo creating $USER_CONF
-	echo '# per-user conf, feel free to edit and add' > $USER_CONF
+	echo '# mostly copied from mcweb/.env-template' > $USER_CONF
+	echo '# (see it for comments)' >> $USER_CONF
+	echo '# feel free to edit/add' >> $USER_CONF
     fi
-    # NOTE! wants two args!
-    user_conf() {
-	VAR=$1
-	VAL=$2
+    # pick up new vars from template as added.
+    # always re-write ALLOWED_HOSTS, in case invoked on different servers
+    for VAR in $(grep '^[A-Z]' $ENV_TEMPLATE | grep -Ev '^(DATABASE_URL|REDIS_URL)' | sed 's/=.*$//' | sort); do
 	if ! grep -q "^$VAR=" $USER_CONF; then
-	    echo "adding $VAR=$VAL to $USER_CONF"
-	    echo "$VAR=$VAL" >> $USER_CONF
+	    echo "grabbing $VAR from $ENV_TEMPLATE"
+	    grep "^$VAR=" $ENV_TEMPLATE | sed "s/^ALLOWED_HOSTS=.*$/ALLOWED_HOSTS='$APP_FQDN'/" >> $USER_CONF
 	fi
-    }
-    # create basic/necessary config
-
-    # NOTE! Anything here must be set as dokku domain for the app:
-    user_conf ALLOWED_HOSTS ${APP_FQDN}
-
-    # used to salt cryptographic hashes.
-    # could generate random secret with $(python -c 'import uuid; print(uuid.uuid4())')
-    # but dev servers shouldn't be public!
-    user_conf SECRET_KEY BE_VEWY_VEWY_QUIET
+    done
 
     # XXX require ADMIN_EMAIL to be present??
 
@@ -294,6 +292,7 @@ esac
 
 echo configuring app...
 $SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE
+
 CONFIG_STATUS=$?
 case $CONFIG_STATUS in
 $CONFIG_STATUS_CHANGED)
