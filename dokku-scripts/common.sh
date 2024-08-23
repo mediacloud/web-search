@@ -29,19 +29,23 @@ else
     APP=${INSTANCE}-${BASE_APP}
 fi
 
-# TODO: use to generate set ALLOWED_HOSTS
+APP_FQDN=${APP}.${FQDN}
 case "$INSTANCE" in
 prod)
-    APP_FQDN=search.${PUBLIC_DOMAIN}
+    PUBLIC_FQDNS=search.${PUBLIC_DOMAIN},mcweb.${PUBLIC_SERVER}.${PUBLIC_DOMAIN}
     ;;
 staging)
     # note mcweb-staging word order different from APP name
-    APP_FQDN=mcweb-staging.${PUBLIC_SERVER}.${PUBLIC_DOMAIN}
+    # proxied on PUBLIC_SERVER via rss-fetcher/dokku-scripts/http-proxy.sh
+    PUBLIC_FQDNS=mcweb-staging.${PUBLIC_SERVER}.${PUBLIC_DOMAIN},mcweb-staging.${FQDN},${APP}.${PUBLIC_SERVER}.${PUBLIC_DOMAIN}
     ;;
 *)
-    APP_FQDN=${APP}.${FQDN}
     ;;
 esac
+
+# used in instance.sh to set app domains, used to set config in push.sh:
+# environ package is fine with extras commas (ignore empties)
+ALLOWED_HOSTS=${PUBLIC_FQDNS},${APP_FQDN}
 
 # git remote for app; created by instance.sh, used by push.sh
 DOKKU_GIT_REMOTE=${BASE_APP}_$INSTANCE

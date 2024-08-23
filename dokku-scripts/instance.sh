@@ -9,8 +9,8 @@ SCRIPT_DIR=$(dirname $0)
 OP=$1
 INSTANCE=$2
 
-TMPFILE=/var/tmp/mcweb-instance$$
-trap "rm -f $TMPFILE" 0
+VHOSTS=/var/tmp/mcweb-vhosts$$
+trap "rm -f $VHOSTS" 0
 
 if [ "x$(whoami)" = xroot ]; then
     echo "run as normal user with dokku ssh access (via dokku ssh-keys:add)" 1>&2
@@ -43,8 +43,6 @@ fi
 
 # after INSTANCE set, sets APP:
 . $SCRIPT_DIR/common.sh
-
-APP_PORT=8000
 
 # copied from rss-fetcher/dokku-scripts/instance.sh
 check_service() {
@@ -90,12 +88,18 @@ create_app() {
     check_service postgres $PG_SVC $APP
     check_service redis $REDIS_SVC $APP
 
-    if dokku domains:report $APP | grep -q "vhosts:.*$APP_FQDN"; then
-	echo found domain $APP_FQDN for $APP
-    else
-	echo adding domain $APP_FQDN to $APP
-	dokku domains:add $APP $APP_FQDN
-    fi
+    # culd be fragile
+    # just do "dokku domains:set $APP $(echo $ALLOWED_HOSTS | tr , ' ')"??
+    dokku domains:report $APP | grep 'Domains app vhosts:' | \
+	sed -e 's/^ *Domains app vhosts: */ /' -e 's/$/ /' > $VHOSTS
+    for DOMAIN in $(echo $ALLOWED_HOSTS | tr , ' '); do
+	if  grep -q " $DOMAIN " $VHOSTS; then
+	    echo found domain $DOMAIN for $APP
+	else
+	    echo adding domain $DOMAIN to $APP
+	    dokku domains:add $APP $DOMAIN
+	fi
+    done
 
     if git remote | grep $DOKKU_GIT_REMOTE >/dev/null; then
 	echo found git remote $DOKKU_GIT_REMOTE
@@ -103,25 +107,6 @@ create_app() {
 	echo adding git remote $DOKKU_GIT_REMOTE
 	git remote add $DOKKU_GIT_REMOTE dokku@$FQDN:$APP
     fi
-
-#    # needed because dokku PORT env var not honored??
-#    if dokku ports:help >/dev/null 2>&1; then
-#	# newer version of dokku
-#	if dokku ports:list $APP | grep -q " $APP_PORT\$"; then
-#	    echo found port $APP_PORT mapping
-#	else
-#	    echo adding port $APP_PORT mapping
-#	    dokku ports:add $APP http:80:$APP_PORT
-#	fi
-#    else
-#	# older version of dokku
-#	if dokku proxy:ports | grep -q $APP_PORT; then
-#	    echo found proxy port $APP_PORT mapping
-#	else
-#	    echo adding proxy port $APP_PORT mapping
-#	    dokku proxy:ports-add http:80:$APP_PORT
-#	fi
-#    fi
 
     if public_server; then
 	if ! dokku letsencrypt:active $APP >/dev/null; then

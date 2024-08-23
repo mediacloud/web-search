@@ -32,11 +32,11 @@ prod|staging)
     INSTANCE=$UNAME;;
 esac
 
-# after INSTANCE set, sets APP, DOKKU_GIT_REMOTE, ..._SVC, APP_FQDN
+# after INSTANCE set, sets APP, DOKKU_GIT_REMOTE, ..._SVC, ALLOWED_HOSTS
 . $SCRIPT_DIR/common.sh
 
 # tmp files to clean up on exit
-REMOTES=/tmp/mcweb-remotes$$
+REMOTES=/var/tmp/mcweb-remotes$$
 
 # dir will only exist if using private config:
 PRIVATE_CONF_DIR=$(pwd)/private-conf$$
@@ -225,7 +225,11 @@ echo making dokku config...
 
 # fetching private repo could be made generic (moved to a devops repo)
 # would need to supply script to create/augment per-user vars...
-# XXX There should be an easy way to customize CONFIG_REPO_ORG!
+# XXX There should be an easy way to customize (CONFIG_)REPO_ORG!
+
+# override ALLOWED_HOSTS with value from common.sh
+# (used to set app domains in instance.sh)
+CONFIG_EXTRAS="-S ALLOWED_HOSTS=$ALLOWED_HOSTS"
 
 case $BRANCH in
 prod|staging)
@@ -244,7 +248,6 @@ prod|staging)
     fi
     PRIVATE_CONF_REPO=$PRIVATE_CONF_DIR/$CONFIG_REPO_NAME
     PRIVATE_CONF_FILE=$PRIVATE_CONF_REPO/web-search.${BRANCH}.sh
-    # XXX verify APP_FQDN present in PRIVATE_CONF_FILE ALLOWED_HOSTS?
 
     tag_conf_repo() {
 	(
@@ -265,8 +268,8 @@ prod|staging)
 	echo creating $USER_CONF for overrides
 	echo '# put config overrides in this file' >> $USER_CONF
     fi
-    # unset DATABASE/REDIS URLs, override ALLOWED_HOSTS, read override file
-    CONFIG_EXTRAS="-U DATABASE_URL -U REDIS_URL -S ALLOWED_HOSTS=$APP_FQDN -F $USER_CONF"
+    # unset DATABASE/REDIS URLs, read override file
+    CONFIG_EXTRAS="$CONFIG_EXTRAS -U DATABASE_URL -U REDIS_URL -F $USER_CONF"
     ;;
 esac
 
