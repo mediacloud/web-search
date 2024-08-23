@@ -64,7 +64,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions
     ANALYTICS_MATOMO_SITE_ID=(str, "null"),
     CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
     DEBUG=(bool, False),
-
+    EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     EMAIL_NOREPLY=(str, 'noreply@mediacloud.org'),
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
     GIT_REV=(str, ""),
@@ -81,6 +81,10 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
+# suppress environ package debug messages:
+_env_logger = logging.getLogger('environ.environ')
+_env_log_level = _env_logger.getEffectiveLevel()
+_env_logger.setLevel(logging.INFO)
 ################ @@CONFIGURATION@@ variables
 # (casts and defaults declared above)
 
@@ -100,9 +104,9 @@ EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
 
 # email authentication
 try:
-    # no casts/defaults declared
-    EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+    EMAIL_BACKEND = env('EMAIL_BACKEND')
 
+    # no casts/defaults declared
     # vars used by django.core.mail.backends.smtp.EmailBackend:
     EMAIL_HOST = env('EMAIL_HOST')
     EMAIL_HOST_USER = env('EMAIL_HOST_USER')
@@ -137,10 +141,10 @@ SENTRY_JS_TRACES_RATE = env('SENTRY_JS_TRACES_RATE')
 SENTRY_JS_REPLAY_RATE = env('SENTRY_JS_REPLAY_RATE')
 SENTRY_PY_PROFILES_RATE = env('SENTRY_PY_PROFILES_RATE')
 SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
-
-SYSTEM_ALERT = env('SYSTEM_ALERT') or None
+SYSTEM_ALERT = env('SYSTEM_ALERT')
 
 # end config
+_env_logger.setLevel(_env_logger_level) # restore log level
 ################
 # Application definition
 
