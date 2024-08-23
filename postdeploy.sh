@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ "x$AIRTABLE_API_KEY" != x ]; then
-    # try extracting version from mcweb.settings, suppress "not configured" log messages
-    VERSION=$(python -c 'from mcweb.settings import VERSION; print(VERSION)') 2>&1 | grep -v 'not configured'
+    # try extracting version from mcweb.settings
+    VERSION=$(python -c 'from mcweb.settings import VERSION; print(VERSION)')
 
     echo TEMP-- should all be supplied via Dokku config:
     echo "AIRTABLE_API_KEY=$AIRTABLE_API_KEY"
