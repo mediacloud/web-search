@@ -117,8 +117,13 @@ create_app() {
     fi
 
     # get git commit hash of last change to this file (verified by push.sh)
-    SCRIPT_HASH=$(instance_sh_file_git_hash) # run function
-    dokku config:set --no-restart $APP ${INSTANCE_HASH_VAR}=$SCRIPT_HASH
+    INSTANCE_SH_FILE_GIT_HASH=$(instance_sh_file_git_hash) # run function
+    INSTANCE_SH_CURR_GIT_HASH=$(dokku config:get $APP $INSTANCE_HASH_VAR)
+    if [ "$INSTANCE_SH_FILE_GIT_HASH" = "$INSTANCE_SH_CURR_GIT_HASH" ]; then
+	echo no change in ${INSTANCE_HASH_VAR}
+    else
+	dokku config:set --no-restart $APP ${INSTANCE_HASH_VAR}=$INSTANCE_SH_FILE_GIT_HASH
+    fi
 
     if [ -n "$CREATED_APP" ]; then
 	echo "app created, but not deployed." 1>&2
