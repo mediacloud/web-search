@@ -1,7 +1,7 @@
 # NOTE!! Written to be app independent!
 # Move to a devops repo?
 """
-generates VAR=VALUE arguments to pass to dokku config:set --encoded
+generates VAR=BASE64_VALUE arguments to pass to dokku config:set --encoded
 (in the absense of a dokku config:import command)
 
 Requirements:

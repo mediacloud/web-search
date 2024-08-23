@@ -7,8 +7,10 @@
 SCRIPT_DIR=$(dirname $0)
 
 INSTANCE=$1
-CONFIG=$2
-# could use remainder to make "EXTRAS"
+shift
+CONFIG=$1
+shift
+# remainder passed as args to vars.py
 
 # uses INSTANCE, sets APP, defines dokku function
 . $SCRIPT_DIR/common.sh
@@ -46,15 +48,17 @@ if [ ! -d $LIBDIR ]; then
     fi
 fi
 
-# _could_ supply ..._ENV via private conf files, but supplying here makes
-# values consistant, and one place to change for apps that use this script
-# (if moved to devops repo).  Supplying "..._ENV" values separately per
-# facility is to avoid temptation to transmogrify values in code.
+# takes any number of VAR=VALUE pairs
 add_extras() {
     for x in $*; do
 	EXTRAS="$EXTRAS -S $x"
     done
 }
+# added for all instances:
+# _could_ supply ..._ENV via private conf files, but supplying here makes
+# values consistant, and one place to change for apps that use this script
+# (if moved to devops repo).  Supplying "..._ENV" values separately per
+# facility is to avoid temptation to transmogrify values in code.
 add_extras "AIRTABLE_HARDWARE=$HOST" \
 	   "AIRTABLE_ENV=$INSTANCE" \
 	   "AIRTABLE_NAME=$INSTANCE" \
@@ -63,7 +67,7 @@ add_extras "AIRTABLE_HARDWARE=$HOST" \
 # NOTE! vars.py output is shell-safe; it contains only VAR=BASE64ENCODEDVALUE ...
 # Want config:import! Whcih would avoid need for b64 (--encoded) values
 CONFIG_OPTIONS='--no-restart --encoded'
-CONFIG_VARS=$(PYTHONPATH=$LIBDIR python $SCRIPT_DIR/vars.py --file $CONFIG --current $CURR $EXTRAS)
+CONFIG_VARS=$(PYTHONPATH=$LIBDIR python $SCRIPT_DIR/vars.py --file $CONFIG --current $CURR $EXTRAS "$@")
 
 if [ -z "$CONFIG_VARS" ]; then
     # nothing to set... exit stage left!

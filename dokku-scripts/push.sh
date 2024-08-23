@@ -259,30 +259,14 @@ prod|staging)
     ;;
 
 *)
-    ENV_TEMPLATE=mcweb/.env-template
-    # create (or add to) per-user config settings.
-    # maybe take entire ENV_TEMPLATE file,
-    # but without ALLOWED_HOSTS, DATABASE_URL, REDIS_URL??
-
+    PRIVATE_CONF_FILE=mcweb/.env-template
     USER_CONF=vars.$UNAME
     if [ ! -f $USER_CONF ]; then
-	echo creating $USER_CONF
-	echo '# mostly copied from mcweb/.env-template' > $USER_CONF
-	echo '# (see it for comments)' >> $USER_CONF
-	echo '# feel free to edit/add' >> $USER_CONF
+	echo creating $USER_CONF for overrides
+	echo '# put config overrides in this file' >> $USER_CONF
     fi
-    # pick up new vars from template as added.
-    # always re-write ALLOWED_HOSTS, in case invoked on different servers
-    for VAR in $(grep '^[A-Z]' $ENV_TEMPLATE | grep -Ev '^(DATABASE_URL|REDIS_URL)' | sed 's/=.*$//' | sort); do
-	if ! grep -q "^$VAR=" $USER_CONF; then
-	    echo "grabbing $VAR from $ENV_TEMPLATE"
-	    grep "^$VAR=" $ENV_TEMPLATE | sed "s/^ALLOWED_HOSTS=.*$/ALLOWED_HOSTS='$APP_FQDN'/" >> $USER_CONF
-	fi
-    done
-
-    # XXX require ADMIN_EMAIL to be present??
-
-    PRIVATE_CONF_FILE=$USER_CONF
+    # unset DATABASE/REDIS URLs, override ALLOWED_HOSTS, read override file
+    CONFIG_EXTRAS="-U DATABASE_URL -U REDIS_URL -S ALLOWED_HOSTS=$APP_FQDN -F $USER_CONF"
     ;;
 esac
 
@@ -291,7 +275,7 @@ esac
 #dokku ps:stop $APP
 
 echo configuring app...
-$SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE
+$SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE $CONFIG_EXTRAS
 
 CONFIG_STATUS=$?
 case $CONFIG_STATUS in
