@@ -144,7 +144,7 @@ SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
 SYSTEM_ALERT = env('SYSTEM_ALERT')
 
 # end config
-_env_logger.setLevel(_env_logger_level) # restore log level
+_env_logger.setLevel(_env_log_level) # restore log level
 ################
 # Application definition
 
