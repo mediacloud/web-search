@@ -6,6 +6,10 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action, authentication_classes, permission_classes
+from rest_framework.decorators import api_view
 from django.core.exceptions import ValidationError
 import humps
 from django.core.mail import send_mail
@@ -89,9 +93,9 @@ def reset_password(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
-
-@login_required(redirect_field_name='/auth/login')
-@require_http_methods(["GET"])
+# @api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def profile(request):
     if request.user.id is not None:
         data = _serialized_current_user(request)
