@@ -15,10 +15,13 @@ if [ "x$UNAME" = xroot ]; then
     exit 1
 fi
 
+PUSH_FLAGS=
+# MCWEB_UNPUSHED inherited from environment
 for ARG in $*; do
     case "$ARG" in
     --force-push) PUSH_FLAGS=--force;; # force push code to dokku repo
-    *) echo unknown argument $ARG; exit 1;;
+    --unpushed|-u) MCWEB_UNPUSHED=1;; # allow unpushed repo for development
+    *) echo "$0: unknown argument $ARG"; exit 1;;
     esac
 done
 
@@ -111,8 +114,7 @@ prod|staging)
 
     if git diff --quiet origin/$BRANCH --; then
 	echo "origin/$BRANCH up to date"
-    else
-	# have an option to override this??
+    elif [ -z "$MCWEB_UNPUSHED" ]; then
 	echo "origin/$BRANCH not up to date. run 'git push origin'" 1>&2
 	exit 1
     fi
