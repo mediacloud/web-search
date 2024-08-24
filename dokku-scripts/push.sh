@@ -275,7 +275,7 @@ prod|staging)
 	echo creating $USER_CONF for overrides
 	echo '# put config overrides in this file' >> $USER_CONF
 	echo 'ADMIN_EMAIL= # gets alerts, scrape errors' >> $USER_CONF
-	echo "SYSTEM_ALERT='🚧 ${UNAME} dev instance 🚧'" >> $USER_CONF
+	echo "SYSTEM_ALERT=\"🚧 ${UNAME}'s dev instance 🚧\"" >> $USER_CONF
     fi
     # unset DATABASE/REDIS URLs from .env-template, read user override file
     CONFIG_EXTRAS="$CONFIG_EXTRAS -U DATABASE_URL -U REDIS_URL -F $USER_CONF"
