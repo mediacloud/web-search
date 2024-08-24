@@ -286,13 +286,13 @@ CONFIG_STATUS=$?
 case $CONFIG_STATUS in
 $CONFIG_STATUS_CHANGED)
     if [ "x$NO_CODE_CHANGE" != x ]; then
-	echo config updated, but no code change: need to restart app 1>&2
+	echo config updated, but no code changes: restarting $APP 1>&2
 
 	if [ -d $PRIVATE_CONF_DIR ]; then
 	    tag_conf_repo
 	fi
-	# XXX restart app?
-	exit 1
+	dokku ps:restart $APP
+	exit 0
     fi
     ;;
 $CONFIG_STATUS_ERROR)
