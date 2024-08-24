@@ -44,8 +44,12 @@ staging)
 esac
 
 # used in instance.sh to set app domains, used to set config in push.sh:
-# environ package is fine with extras commas (ignore empties)
-ALLOWED_HOSTS=${PUBLIC_FQDNS},${APP_FQDN}
+ALLOWED_HOSTS=${APP_FQDN}
+if [ "x$PUBLIC_FQDNS" ]; then
+    # environ package is fine with extras commas (ignores empties)
+    # but it's unnerving to see it
+    ALLOWED_HOSTS="${ALLOWED_HOSTS},${PUBLIC_FQDNS}"
+fi
 
 # git remote for app; created by instance.sh, used by push.sh
 DOKKU_GIT_REMOTE=${BASE_APP}_$INSTANCE

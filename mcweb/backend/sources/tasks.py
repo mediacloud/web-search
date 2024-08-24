@@ -84,17 +84,17 @@ def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) ->
     subject = f"[{EMAIL_ORGANIZATION}] Source {source_id} ({name}) scrape complete"
     if errors:
         subject += " (WITH ERRORS)"
-        _add_scrape_error_users(recipients)
+        _add_scrape_error_rcpts(recipients)
 
     send_rescrape_email(subject, email_body, SCRAPE_FROM_EMAIL, recipients)
     logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
 
-def _add_scrape_error_users(users: list[str]) -> None:
+def _add_scrape_error_rcpts(users: list[str]) -> None:
     """
     take recipents list
     add ADMIN_EMAIL & users in SCRAPE_ERROR_RECIPIENTS in place
     """
-    if ADMIN_EMAIL not in users:
+    if ADMIN_EMAIL and ADMIN_EMAIL not in users:
         users.append(ADMIN_EMAIL)
     for u in SCRAPE_ERROR_RECIPIENTS:
         if u not in users:
@@ -143,7 +143,7 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
     subject = f"[{EMAIL_ORGANIZATION}] Collection {collection.id} ({collection.name}) scrape complete"
     if errors:
         subject += " (WITH ERRORS)"
-        _add_scrape_error_users(recipients)
+        _add_scrape_error_rcpts(recipients)
 
     # separate source chunks with blank lines (each already has trailing newline)
     send_rescrape_email(subject, "\n".join(email_body_chunks), SCRAPE_FROM_EMAIL, recipients)

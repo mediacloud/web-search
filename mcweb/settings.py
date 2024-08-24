@@ -50,15 +50,19 @@ _DEFAULT_CSRF_TRUSTED_ORIGINS = [
     'https://search.mediacloud.org'
 ]
 
-_DEFAULT_ADMIN_EMAIL = 'e.leon@northeastern.edu'
-
 # used in defaults below:
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", _DEFAULT_ADMIN_EMAIL) # email destination
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
+
+_DEFAULT_ALERTS_RECIPIENTS = []
+if ADMIN_EMAIL:
+    _DEFAULT_ALERTS_RECIPIENTS.append(ADMIN_EMAIL)
+
+# necessary to run source alerts
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", ADMIN_EMAIL) # user in database
 
 env = environ.Env(      # @@CONFIGURATION@@ definitions
     # (cast, default_value) in alphabetical order:
-    ALERTS_RECIPIENTS=(list, [ADMIN_EMAIL]),
+    ALERTS_RECIPIENTS=(list, _DEFAULT_ALERTS_RECIPIENTS),
     ALLOWED_HOSTS=(list, _DEFAULT_ALLOWED_HOSTS),
     ANALYTICS_MATOMO_DOMAIN=(str, "null"),
     ANALYTICS_MATOMO_SITE_ID=(str, "null"),
@@ -115,10 +119,11 @@ try:
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # no default
     EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
     EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
-except ImproperlyConfigured:
+    assert EMAIL_HOST
+    logger.info("Email host %s", EMAIL_HOST)
+except (ImproperlyConfigured, AssertionError):
     # don't require email settings (for development)
     logger.warning("Email not configured")
-    logger.exception("email")   # TEMP
     EMAIL_BACKEND = None
     EMAIL_HOST = None
     EMAIL_HOST_USER = None

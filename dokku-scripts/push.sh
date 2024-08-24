@@ -249,8 +249,13 @@ prod|staging)
 	exit 1
     fi
     PRIVATE_CONF_REPO=$PRIVATE_CONF_DIR/$CONFIG_REPO_NAME
-    PRIVATE_CONF_FILE=$PRIVATE_CONF_REPO/web-search.${BRANCH}.sh
 
+    # always read prod first
+    PRIVATE_CONF_FILE=$PRIVATE_CONF_REPO/web-search.prod.sh
+    # use web-search.staging.sh for overrides on staging:
+    if [ "x$BRANCH" = xstaging ]; then
+	CONFIG_EXTRAS="$CONFIG_EXTRAS -F $PRIVATE_CONF_REPO/web-search.staging.sh"
+    fi
     tag_conf_repo() {
 	(
 	    cd $PRIVATE_CONF_REPO
@@ -269,8 +274,10 @@ prod|staging)
     if [ ! -f $USER_CONF ]; then
 	echo creating $USER_CONF for overrides
 	echo '# put config overrides in this file' >> $USER_CONF
+	echo 'ADMIN_EMAIL= # gets alerts, scrape errors' >> $USER_CONF
+	echo "SYSTEM_ALERT='🚧 ${UNAME} dev instance 🚧'" >> $USER_CONF
     fi
-    # unset DATABASE/REDIS URLs, read override file
+    # unset DATABASE/REDIS URLs from .env-template, read user override file
     CONFIG_EXTRAS="$CONFIG_EXTRAS -U DATABASE_URL -U REDIS_URL -F $USER_CONF"
     ;;
 esac
