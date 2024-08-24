@@ -65,8 +65,11 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions
     CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
     DEBUG=(bool, False),
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
+    # EMAIL_HOST[_{PASWORD,USER}] must be supplied
+    EMAIL_HOST_PORT=(int,465),  # ssmtp (SSL submission)
     EMAIL_NOREPLY=(str, 'noreply@mediacloud.org'),
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
+    EMAIL_USE_SSL=(bool, True),
     GIT_REV=(str, ""),
     NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
@@ -106,17 +109,16 @@ EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
 try:
     EMAIL_BACKEND = env('EMAIL_BACKEND')
 
-    # no casts/defaults declared
     # vars used by django.core.mail.backends.smtp.EmailBackend:
-    EMAIL_HOST = env('EMAIL_HOST')
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+    EMAIL_HOST = env('EMAIL_HOST') # no default
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER') # no default
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # no default
     EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
     EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
-    assert EMAIL_BACKEND and EMAIL_HOST
-except (ImproperlyConfigured, AssertionError):
+except ImproperlyConfigured:
     # don't require email settings (for development)
     logger.warning("Email not configured")
+    logger.exception("email")   # TEMP
     EMAIL_BACKEND = None
     EMAIL_HOST = None
     EMAIL_HOST_USER = None
