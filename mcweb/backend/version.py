@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 
 # web-search/mcweb:
-from settings import VERSION
+from settings import VERSION, GIT_REV
 
 
 @require_http_methods(["GET"])
@@ -22,7 +22,7 @@ def version(request):
     """
     # could include "uptime" (now - start_time)?
     data = json.dumps({
-        'GIT_REV': os.environ.get('GIT_REV'),  # supplied by Dokku
+        'GIT_REV': GIT_REV,
         'now': time.time(),                    # float: used by rss-fetcher
         'version': VERSION,
     })

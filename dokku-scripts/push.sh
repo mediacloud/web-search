@@ -15,9 +15,18 @@ if [ "x$UNAME" = xroot ]; then
     exit 1
 fi
 
+PUSH_FLAGS=
+# MCWEB_UNPUSHED inherited from environment
+for ARG in $*; do
+    case "$ARG" in
+    --force-push) PUSH_FLAGS=--force;; # force push code to dokku repo
+    --unpushed|-u) MCWEB_UNPUSHED=1;; # allow unpushed repo for development
+    *) echo "$0: unknown argument $ARG"; exit 1;;
+    esac
+done
+
 BRANCH=$(git branch --show-current)
 
-APP=mcweb
 # Update instance.sh if you change how instances are named!
 case $BRANCH in
 prod|staging)
@@ -26,30 +35,26 @@ prod|staging)
     INSTANCE=$UNAME;;
 esac
 
-# after INSTANCE set, sets APP:
+# after INSTANCE set, sets APP, DOKKU_GIT_REMOTE, ..._SVC, ALLOWED_HOSTS
 . $SCRIPT_DIR/common.sh
 
 # tmp files to clean up on exit
-TMP=/tmp/mcweb-push$$
+REMOTES=/var/tmp/mcweb-remotes$$
+
+# dir will only exist if using private config:
 PRIVATE_CONF_DIR=$(pwd)/private-conf$$
-trap "rm -rf $TMP $PRIVATE_CONF_DIR" 0
+rm -rf $PRIVATE_CONF_DIR
+
+trap "rm -rf $REMOTES $PRIVATE_CONF_DIR" 0
 
 if ! dokku apps:exists $APP >/dev/null 2>&1; then
-    echo "app $APP not found; run instance.sh?!" 1>&2
+    echo "app $APP not found; run 'instance.sh create ${INSTANCE}'??" 1>&2
     exit 1
 fi
 
 if ! git diff --quiet; then
     echo 'local changes not checked in' 1>&2
     # XXX display diffs, or just dirty files??
-    exit 1
-fi
-
-# XXX handle options for real!!
-if [ "x$1" = x--force-push ]; then
-    PUSH_FLAGS=--force
-elif [ "x$1" != x ]; then
-    echo "Unknown argument $1" 1>&2
     exit 1
 fi
 
@@ -62,18 +67,19 @@ ORIGIN="origin"
 # PUSH_TAG_TO: other remotes to push tag to
 PUSH_TAG_TO="$ORIGIN"
 
-# DOKKU_GIT_REMOTE: Name of git remote for Dokku instance
-git remote -v > $TMP
+git remote -v > $REMOTES
 
 case "$BRANCH" in
 prod|staging)
     # check if corresponding branch in mediacloud acct up to date
+    GIT_ORG='mediacloud'
 
-    # get remote for mediacloud account
+    # get git remote for mediacloud account
     # ONLY match ssh remote, since will want to push tag.
-    MCREMOTE=$(awk '/github\.com:mediacloud\// { print $1; exit }' $TMP)
+    # XXX use common REPO_PREFIX?
+    MCREMOTE=$(awk '/git@github\.com:'$GIT_ORG'\// { print $1; exit }' $REMOTES)
     if [ "x$MCREMOTE" = x ]; then
-	echo "could not find an ssh git remote for mediacloud org repo; add upstream?" 1>&2
+	echo "could not find an ssh git remote for $GIT_ORG org repo; add upstream?" 1>&2
 	exit 1
     fi
 
@@ -99,7 +105,6 @@ prod|staging)
     # push tag back to JUST github mediacloud branch
     # (might be "origin", might not)
     PUSH_TAG_TO="$MCREMOTE"
-    INSTANCE=$BRANCH
     ;;
 *)
     # here with some other branch; development.
@@ -109,17 +114,12 @@ prod|staging)
 
     if git diff --quiet origin/$BRANCH --; then
 	echo "origin/$BRANCH up to date"
-    else
-	# have an option to override this??
+    elif [ -z "$MCWEB_UNPUSHED" ]; then
 	echo "origin/$BRANCH not up to date. run 'git push origin'" 1>&2
 	exit 1
     fi
-
-    INSTANCE=$UNAME
     ;;
 esac
-
-DOKKU_GIT_REMOTE=mcweb_$INSTANCE
 
 # name of deploy branch in DOKKU_GIT_REMOTE repo
 DOKKU_GIT_BRANCH=main
@@ -130,16 +130,15 @@ if ! dokku apps:exists "$APP" >/dev/null 2>&1; then
 fi
 
 TAB='	'
-if ! grep "^$DOKKU_GIT_REMOTE$TAB" $TMP >/dev/null; then
+if ! grep "^$DOKKU_GIT_REMOTE$TAB" $REMOTES >/dev/null; then
     echo git remote $DOKKU_GIT_REMOTE not found 1>&2
     exit 1
 fi
 
 # before check for no changes! see if instance is up-to-date w/ instance.sh
-echo checking INSTANCE_SH_GIT_HASH
-INSTANCE_SH=$SCRIPT_DIR/instance.sh
-INSTANCE_SH_CURR_GIT_HASH=$(dokku config:get $APP INSTANCE_SH_GIT_HASH)
-INSTANCE_SH_FILE_GIT_HASH=$(git log -n1 --oneline --no-abbrev-commit --format='%H' $INSTANCE_SH)
+echo checking $INSTANCE_HASH_VAR
+INSTANCE_SH_FILE_GIT_HASH=$(instance_sh_file_git_hash) # run function
+INSTANCE_SH_CURR_GIT_HASH=$(dokku config:get $APP $INSTANCE_HASH_VAR)
 if [ "x$INSTANCE_SH_CURR_GIT_HASH" != "x$INSTANCE_SH_FILE_GIT_HASH" ]; then
     echo $APP INSTANCE_SH_FILE_GIT_HASH $INSTANCE_SH_CURR_GIT_HASH 1>&2
     echo does not match $SCRIPT_DIR/instance.sh hash $INSTANCE_SH_FILE_GIT_HASH 1>&2
@@ -151,12 +150,12 @@ git fetch $DOKKU_GIT_REMOTE
 # have a --push-if-no-changes option?
 if git diff --quiet $BRANCH $DOKKU_GIT_REMOTE/$DOKKU_GIT_BRANCH --; then
     echo no changes from $DOKKU_GIT_REMOTE 1>&2
-    exit
+    NO_CODE_CHANGE=1
 fi
 
 # XXX log all commits not in Dokku repo?? git log ${BRANCH}..$INSTANCE_SH_GIT_HASH/$DOKKU_GIT_BRANCH ???
 echo "Last commit:"
-git log -n1
+git log -n1 | head -20
 
 # XXX display URL for DOKKU_GIT_REMOTE??
 echo ''
@@ -167,6 +166,7 @@ case "$CONFIRM" in
 *) echo '[cancelled]'; exit;;
 esac
 
+DATE_TIME=$(date -u '+%F-%H-%M-%S')
 if [ "x$BRANCH" = xprod ]; then
     # XXX check if pushed to github/mediacloud/PROJECT prod branch??
     # (for staging too?)
@@ -174,10 +174,17 @@ if [ "x$BRANCH" = xprod ]; then
     TAG=v$(grep '^VERSION' mcweb/settings.py | sed -e 's/^.*= *//' -e 's/"//g' -e "s/'//g" -e 's/#.*//')
     echo "Found version number: $TAG"
 
-    # NOTE! fgrep -x (-F -x) to match literal whole line (w/o regexps)
-    if git tag | grep -F -x "$TAG" >/dev/null; then
-	echo "found local tag $TAG: update mcweb.settings.VERSION?"
-	exit 1
+    CONFIG_TAG=${TAG}
+    if [ "x$NO_CODE_CHANGE" = x ]; then
+	# NOTE! fgrep -x (-F -x) to match literal whole line (w/o regexps)
+	if git tag | grep -F -x "$TAG" >/dev/null; then
+	    echo "found local tag $TAG: update mcweb.settings.VERSION?"
+	    exit 1
+	fi
+    else
+	# here with no code change, $TAG should already exist on code & config
+	# new tag for config:
+	CONFIG_TAG=${CONFIG_TAG}-${DATE_TIME}
     fi
 
     # https://stackoverflow.com/questions/5549479/git-check-if-commit-xyz-in-remote-repo
@@ -194,9 +201,11 @@ if [ "x$BRANCH" = xprod ]; then
        echo '[cancelled]'
        exit
     fi
+
+    # XXX prompt for one line reason (to send to AIRTABLE)?
 else
-    # XXX use staging or $USER instead of full $APP for brevity?
-    TAG=$(date -u '+%F-%H-%M-%S')-${HOST}-${APP}
+    TAG=${DATE_TIME}-${HOST}-${INSTANCE}
+    CONFIG_TAG=${TAG}		# only used for staging
 fi
 # NOTE: push will complain if you (developer) switch branches
 # (or your branch has been perturbed upstream, ie; by a force push)
@@ -216,85 +225,97 @@ echo ''
 ################################
 echo making dokku config...
 
-# some of this from rss-fetcher/dokku-scripts/config.sh
-# (only called from push.sh, so inlined here)
+# fetching private repo could be made generic (moved to a devops repo)
+# would need to supply script to create/augment per-user vars...
+# XXX There should be an easy way to customize (CONFIG_)REPO_ORG!
 
-# call with VAR=VALUE ...
-add_vars() {
-    VARS="$VARS $*"
-}
-
-# maybe "grep -Ev '^(VAR1|VAR2)=' w/ vars NOT to honor from files?
-FILTER=
+# override ALLOWED_HOSTS with value from common.sh
+# (used to set app domains in instance.sh)
+CONFIG_EXTRAS="-S ALLOWED_HOSTS=$ALLOWED_HOSTS"
 
 case $BRANCH in
 prod|staging)
+    # always do fresh clone of config repo main branch
     rm -rf $PRIVATE_CONF_DIR
     mkdir $PRIVATE_CONF_DIR
     chmod go-rwx $PRIVATE_CONF_DIR
     cd $PRIVATE_CONF_DIR
-    CONFIG_REPO_PREFIX=$(zzz tvg@tvguho.pbz:zrqvnpybhq)
+    CONFIG_REPO_ORG=zrqvnpybhq
+    CONFIG_REPO_PREFIX=$(zzz tvg@tvguho.pbz:$CONFIG_REPO_ORG)
     CONFIG_REPO_NAME=$(zzz jro-frnepu-pbasvt)
     echo cloning $CONFIG_REPO_NAME repo 1>&2
     if ! git clone $CONFIG_REPO_PREFIX/$CONFIG_REPO_NAME.git >/dev/null 2>&1; then
-	echo "FATAL: could not clone config repo" 1>&2
+	echo "could not clone config repo" 1>&2
 	exit 1
     fi
     PRIVATE_CONF_REPO=$PRIVATE_CONF_DIR/$CONFIG_REPO_NAME
-    PRIVATE_CONF_FILE=$PRIVATE_CONF_REPO/web-search.${BRANCH}.sh
-    cd ..
+
+    # always read prod first
+    PRIVATE_CONF_FILE=$PRIVATE_CONF_REPO/web-search.prod.sh
+    # use web-search.staging.sh for overrides on staging:
+    if [ "x$BRANCH" = xstaging ]; then
+	CONFIG_EXTRAS="$CONFIG_EXTRAS -F $PRIVATE_CONF_REPO/web-search.staging.sh"
+    fi
+    tag_conf_repo() {
+	(
+	    cd $PRIVATE_CONF_REPO
+	    echo tagging $CONFIG_REPO_NAME
+	    git tag $CONFIG_TAG
+	    echo pushing tag $CONFIG_TAG
+	    # freshly cloned, so upstream == origin
+	    git push origin $CONFIG_TAG
+	)
+    }
     ;;
+
 *)
-    # NOTE!!! Dokku generates DATABASE_URL and REDIS_URL; just use them????!!!
-    # fix noted places to use them?!!!
-
-    # mcweb/settings.py wants CACHE_URL
-    add_vars CACHE_URL=$(dokku redis:info $REDIS_SVC --dsn)
-
-    # mcweb/backend/sources/management/commands/importdata.py wants DATABASE_URI
-    add_vars DATABASE_URI=$(dokku postgres:info $PG_SVC --dsn)
-
-    add_vars ALLOWED_HOSTS=${APP_FQDN},localhost
-    add_vars NEWS_SEARCH_API_URL=http://ramos.angwin:8000/v1/
-
-    # maybe check for env.$UNAME and set as PRIVATE_CONF_FILE??
-    # and only use these if it doesn't exist?
-    add_vars SECRET_KEY=BE_VEWY_VEWY_QUIET
+    PRIVATE_CONF_FILE=mcweb/.env-template
+    USER_CONF=vars.$UNAME
+    if [ ! -f $USER_CONF ]; then
+	echo creating $USER_CONF for overrides
+	echo '# put config overrides in this file' >> $USER_CONF
+	echo 'ADMIN_EMAIL= # gets alerts, scrape errors' >> $USER_CONF
+	echo "SYSTEM_ALERT=\"🚧 ${UNAME}'s dev instance 🚧\"" >> $USER_CONF
+    fi
+    # unset DATABASE/REDIS URLs from .env-template, read user override file
+    CONFIG_EXTRAS="$CONFIG_EXTRAS -U DATABASE_URL -U REDIS_URL -F $USER_CONF"
     ;;
 esac
-
-if [ -f "$PRIVATE_CONF_FILE" ]; then
-    add_vars $(sed 's/#.*$//' < $PRIVATE_CONF_FILE $FILTER)
-fi
 
 # start shutdown while working on config...
 #echo stopping processes...
 #dokku ps:stop $APP
 
-CONFIG_OPTIONS=--no-restart
+echo configuring app...
+$SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE $CONFIG_EXTRAS
 
-dokku config:show $APP | tail -n +2 | sed 's/: */=/' > $TMP
-NEED=""
-# loop for var=val (VV) pairs
-for VV in $VARS; do
-    # VE: var equals
-    VE=$(echo $VV | sed 's/=.*$/=/')
-    # find current value
-    CURR=$(grep "^$VE" $TMP)
-    if [ "x$VV" != "x$CURR" ]; then
-	NEED="$NEED $VV"
+CONFIG_STATUS=$?
+case $CONFIG_STATUS in
+$CONFIG_STATUS_CHANGED)
+    if [ "x$NO_CODE_CHANGE" != x ]; then
+	echo config updated, but no code changes: restarting $APP 1>&2
+
+	if [ -d $PRIVATE_CONF_DIR ]; then
+	    tag_conf_repo
+	fi
+	dokku ps:restart $APP
+	exit 0
     fi
-done
-
-if [ "x$NEED" != x ]; then
-    echo setting dokku config: $NEED
-    dokku config:set $CONFIG_OPTIONS $APP $NEED
-else
-    echo no dokku config changes
-fi
-
-# end config
-################################################################
+    ;;
+$CONFIG_STATUS_ERROR)
+    echo config script failed 1>&2
+    exit 1
+    ;;
+$CONFIG_STATUS_NOCHANGE)
+    if [ "x$NO_CODE_CHANGE" != x ]; then
+	echo no change to code or config 1>&2
+	exit 1
+    fi
+    ;;
+*)
+    echo $0: unknown CONFIG_STATUS $CONFIG_STATUS 1>&2
+    exit 1
+esac
 
 echo ''
 echo adding local tag $TAG
@@ -302,13 +323,14 @@ git tag $TAG
 
 echo ''
 CURR_GIT_BRANCH=$(dokku git:report $APP | awk '/Git deploy branch:/ { print $4 }')
+# maybe accept old values for existing deployments?
 if [ "x$CURR_GIT_BRANCH" != "x$DOKKU_GIT_BRANCH" ]; then
     echo "Setting $APP deploy-branch to $DOKKU_GIT_BRANCH"
     dokku git:set $APP deploy-branch $DOKKU_GIT_BRANCH
 fi
 
 echo "pushing branch $BRANCH to $DOKKU_GIT_REMOTE $DOKKU_GIT_BRANCH"
-if git push $DOKKU_GIT_REMOTE $BRANCH:$DOKKU_GIT_BRANCH; then
+if git push $PUSH_FLAGS $DOKKU_GIT_REMOTE $BRANCH:$DOKKU_GIT_BRANCH; then
     echo OK
 else
     STATUS=$?
@@ -330,16 +352,9 @@ for REMOTE in $PUSH_TAG_TO; do
     echo "================"
 done
 
-# not tested: for prod/staging: tag config repo and push tag
+# for prod/staging: tag config repo and push tag
 if [ -d "$PRIVATE_CONF_REPO" ]; then
-    (
-	cd $PRIVATE_CONF_REPO
-	echo tagging $CONFIG_REPO_NAME
-	git tag $TAG
-	echo pushing tag
-	# freshly cloned, so upstream == origin
-	git push origin $TAG
-    )
+    tag_conf_repo
 fi
 
 # start worker process(es); first time only

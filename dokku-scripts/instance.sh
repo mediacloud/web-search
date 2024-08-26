@@ -9,8 +9,8 @@ SCRIPT_DIR=$(dirname $0)
 OP=$1
 INSTANCE=$2
 
-TMPFILE=/var/tmp/mcweb-instance$$
-trap "rm -f $TMPFILE" 0
+VHOSTS=/var/tmp/mcweb-vhosts$$
+trap "rm -f $VHOSTS" 0
 
 if [ "x$(whoami)" = xroot ]; then
     echo "run as normal user with dokku ssh access (via dokku ssh-keys:add)" 1>&2
@@ -21,10 +21,7 @@ case "$OP" in
 create|destroy)
     # Update push.sh if you change how instances are named
     case "$INSTANCE" in
-    prod)
-	;;
-    staging)
-	EXTRA_DOMAINS=mcweb-staging.tarbell.mediacloud.org
+    prod|staging)
 	;;
     *)
 	if ! id $INSTANCE >/dev/null 2>&1; then
@@ -46,8 +43,6 @@ fi
 
 # after INSTANCE set, sets APP:
 . $SCRIPT_DIR/common.sh
-
-APP_PORT=8000
 
 # copied from rss-fetcher/dokku-scripts/instance.sh
 check_service() {
@@ -87,14 +82,18 @@ create_app() {
     else
 	echo creating app $APP
 	dokku apps:create $APP
+	CREATED_APP=1
     fi
 
     check_service postgres $PG_SVC $APP
     check_service redis $REDIS_SVC $APP
 
-    dokku domains:report $APP > $TMPFILE
-    for DOMAIN in $APP_FQDN $EXTRA_DOMAINS; do
-	if grep -q "vhosts:.*$DOMAIN" $TMPFILE; then
+    # culd be fragile
+    # just do "dokku domains:set $APP $(echo $ALLOWED_HOSTS | tr , ' ')"??
+    dokku domains:report $APP | grep 'Domains app vhosts:' | \
+	sed -e 's/^ *Domains app vhosts: */ /' -e 's/$/ /' > $VHOSTS
+    for DOMAIN in $(echo $ALLOWED_HOSTS | tr , ' '); do
+	if  grep -q " $DOMAIN " $VHOSTS; then
 	    echo found domain $DOMAIN for $APP
 	else
 	    echo adding domain $DOMAIN to $APP
@@ -109,38 +108,28 @@ create_app() {
 	git remote add $DOKKU_GIT_REMOTE dokku@$FQDN:$APP
     fi
 
-    # XXX if staging, 
-
-    # needed because dokku PORT env var not honored??
-    if dokku ports:help >/dev/null 2>&1; then
-	# newer version of dokku
-	if dokku ports:list $APP | grep -q " $APP_PORT\$"; then
-	    echo found port $APP_PORT mapping
-	else
-	    echo adding port $APP_PORT mapping
-	    dokku ports:add $APP http:80:$APP_PORT
-	fi
-    else
-	# older version of dokku
-	if dokku proxy:ports | grep -q $APP_PORT; then
-	    echo found proxy port $APP_PORT mapping
-	else
-	    echo adding proxy port $APP_PORT mapping
-	    dokku proxy:ports-add http:80:$APP_PORT
-	fi
-    fi
-
     if public_server; then
 	if ! dokku letsencrypt:active $APP >/dev/null; then
-	    echo enabling lets encrypt
-	    # This requires $APP.$HOST.$PUBLIC_DOMAIN to be visible from Internet:
+	    echo enabling lets encrypt APP_FQDN $APP_FQDN
+	    # This requires $APP_FQDN to be visible from Internet:
 	    dokku letsencrypt:enable $APP
 	fi
     fi
 
-    # get git commit hash of last change to this file
-    SCRIPT_HASH=$(git log -n1 --oneline --no-abbrev-commit --format='%H' $0)
-    dokku config:set --no-restart $APP INSTANCE_SH_GIT_HASH=$SCRIPT_HASH
+    # get git commit hash of last change to this file (verified by push.sh)
+    INSTANCE_SH_FILE_GIT_HASH=$(instance_sh_file_git_hash) # run function
+    INSTANCE_SH_CURR_GIT_HASH=$(dokku config:get $APP $INSTANCE_HASH_VAR)
+    if [ "$INSTANCE_SH_FILE_GIT_HASH" = "$INSTANCE_SH_CURR_GIT_HASH" ]; then
+	echo no change in ${INSTANCE_HASH_VAR}
+    else
+	dokku config:set --no-restart $APP ${INSTANCE_HASH_VAR}=$INSTANCE_SH_FILE_GIT_HASH
+    fi
+
+    if [ -n "$CREATED_APP" ]; then
+	echo "app created, but not deployed." 1>&2
+	echo "run '$SCRIPT_DIR/clone-db.sh $PG_SVC' to clone database from production." 1>&2
+	echo "then run '$SCRIPT_DIR/push.sh'" 1>&2
+    fi
 }
 
 # copied from rss-fetcher/dokku-scripts/instance.sh
@@ -171,4 +160,3 @@ create) create_app;;
 destroy) destroy_app;;
 *) echo "$0: unknown command $OP" 1>&2; exit 1;;
 esac
-

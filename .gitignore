@@ -29,6 +29,11 @@ mcweb/static/rest_framework
 
 tmp/*.csv
 
+# dokku scripts files
+vars.*
+dokku-scripts/.configlib
+push.log
+
 .vscode
 package-lock.json
 
