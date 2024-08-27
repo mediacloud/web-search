@@ -181,7 +181,7 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
     # 3. assemble and add in other supported params
     supported_extra_props = ['pagination_token', 'page_size', 'sort_field', 'sort_order',
                              'expanded']  # make sure nothing nefarious gets through
-    extra_props = dict(domains=domains, filters=domain_url_filters, chunk=False)
+    extra_props = dict(domains=domains, filters=domain_url_filters, chunk=True) 
     for prop_name in supported_extra_props:
         if prop_name in all_params:
             extra_props[prop_name] = all_params.get(prop_name)
