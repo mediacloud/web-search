@@ -29,8 +29,16 @@ mcweb/static/rest_framework
 
 tmp/*.csv
 
+# dokku scripts files
+vars.*
+dokku-scripts/.configlib
+push.log
+
 .vscode
 package-lock.json
 
 # language detected model downloaded by install script
 mcweb/backend/search/providers/language/lid.176.bin
+
+# emacs backup files
+*~

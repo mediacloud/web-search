@@ -8,7 +8,7 @@ import datetime as dt
 import logging
 import json
 import logging
-
+import traceback
 
 # PyPI:
 from background_task import background
@@ -21,22 +21,30 @@ from django.utils import timezone
 #import pandas as pd             # not currently used
 import numpy as np
 
-# from sources app:
+# mcweb/backend/sources
 from .models import Feed, Source, Collection
-# emails
-from util.send_emails import send_alert_email, send_email
-
-
-#rss fetcher
 from .rss_fetcher_api import RssFetcherApi
+
+# mcweb/
+from util.send_emails import send_alert_email, send_rescrape_email
+from settings import (
+    ADMIN_EMAIL,
+    ADMIN_USERNAME,
+    EMAIL_ORGANIZATION,
+    RSS_FETCHER_PASS,
+    RSS_FETCHER_URL,
+    RSS_FETCHER_USER,
+    EMAIL_NOREPLY,
+    SCRAPE_ERROR_RECIPIENTS,
+    SCRAPE_TIMEOUT_SECONDS
+)
 
 ALERT_LOW = 'alert_low'
 GOOD = 'good'
 ALERT_HIGH = 'alert_high'
 
-
-SCRAPE_TIMEOUT_SECONDS = 120
-FROM_EMAIL = 'noreply@mediacloud.org'
+ALERTS_TASK_USERNAME = ADMIN_USERNAME
+SCRAPE_FROM_EMAIL = EMAIL_NOREPLY
 
 logger = logging.getLogger(__name__)
 
@@ -62,50 +70,97 @@ logger = logging.getLogger(__name__)
 # calling decorated_function.now() invokes decorated function synchronously.
 
 @background()
-def _scrape_source(source_id, homepage, name, user_email):
+def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) -> None:
     logger.info(f"==== starting _scrape_source {source_id} ({name}) {homepage} for {user_email}")
-    email_body = Source._scrape_source(source_id, homepage, name)
-    subject = f"[Media Cloud] Source {source_id} ({name}) scrape complete"
-    send_email(subject, email_body, FROM_EMAIL, [user_email])
+    errors = 0
+    try:
+        email_body = Source._scrape_source(source_id, homepage, name)
+    except:
+        logger.exception("Source._scrape_source exception in _scrape_source")
+        email_body = f"FATAL ERROR:\n{traceback.format_exc()}"
+        errors += 1
+
+    recipients = [user_email]
+    subject = f"[{EMAIL_ORGANIZATION}] Source {source_id} ({name}) scrape complete"
+    if errors:
+        subject += " (WITH ERRORS)"
+        _add_scrape_error_rcpts(recipients)
+
+    send_rescrape_email(subject, email_body, SCRAPE_FROM_EMAIL, recipients)
     logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
 
+def _add_scrape_error_rcpts(users: list[str]) -> None:
+    """
+    take recipents list
+    add ADMIN_EMAIL & users in SCRAPE_ERROR_RECIPIENTS in place
+    """
+    if ADMIN_EMAIL and ADMIN_EMAIL not in users:
+        users.append(ADMIN_EMAIL)
+    for u in SCRAPE_ERROR_RECIPIENTS:
+        if u not in users:
+            users.append(u)
+    
 # Phil: this could take quite a while;
 # pass queue="slow-lane" to decorator (and run another process_tasks worker in Procfile)??
 @background()
-def _scrape_collection(collection_id, user_email):
-    logger.info(f"==== starting _scrape_collection(collection_id) for {user_email}")
+def _scrape_collection(collection_id: int, user_email: str) -> None:
+    logger.info(f"==== starting _scrape_collection({collection_id}) for {user_email}")
 
     collection = Collection.objects.get(id=collection_id)
     if not collection:
         # now checked in schedule_scrape_collection
         logger.error(f"_scrape_collection collection {collection_id} not found")
-        # in background task runner nobody can hear you scream?
-        return _return_error(f"collection {collection_id} not found")
+        # was _return_error here, but could not be seen! check done in caller.
+        return
 
     sources = collection.source_set.all()
-    email_body: list[str] = []
+    email_body_chunks: list[str] = []  # chunks of output, one per source
+    errors = 0
+
+    def add_body_chunk(chunk):
+        if not chunk.endswith("\n"):
+            chunk += "\n"
+            # XXX complain?
+        email_body_chunks.append(chunk)
+
     for source in sources:
         logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
-        # pass verbose=False if too much output:
-        email_body.append(Source._scrape_source(source.id, source.homepage, source.name))
+        if source.url_search_string:
+            add_body_chunk(f"Skippped source {source_id} ({name}) with URL search string {source.url_search_string}\n")
+            logger.info(f"  Source {source.id} ({source.name}) has url_search_string {source.url_search_string}")
+            continue
+
+        try:
+            # remove verbosity=0 for more output!
+            add_body_chunk(Source._scrape_source(source.id, source.homepage, source.name, verbosity=0))
+        except:
+            logger.exception(f"Source._scrape_source exception in _scrape_source {source.id}")
+            add_body_chunk(f"ERROR:\n{traceback.format_exc()}") # format_exc has final newline
+            errors += 1
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
-    subject = f"[Media Cloud] Collection {collection.id} ({collection.name}) scrape complete"
-    # separate sources with blank lines
-    send_email(subject, "\n".join(email_body), FROM_EMAIL, [user_email])
+    recipients = [user_email]
+    subject = f"[{EMAIL_ORGANIZATION}] Collection {collection.id} ({collection.name}) scrape complete"
+    if errors:
+        subject += " (WITH ERRORS)"
+        _add_scrape_error_rcpts(recipients)
+
+    # separate source chunks with blank lines (each already has trailing newline)
+    send_rescrape_email(subject, "\n".join(email_body_chunks), SCRAPE_FROM_EMAIL, recipients)
 
     logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email}")
 
-run_at = dt.time(hour=14, minute=32)
-# Calculate the number of days until next Friday
-today = dt.date.today()
-days_until_friday = (4 - today.weekday()) % 7
-# Calculate the datetime when the task should run
-next_friday = today + dt.timedelta(days=days_until_friday)
-run_datetime = dt.datetime.combine(next_friday, run_at)
+# Phil: not used:
+#run_at = dt.time(hour=14, minute=32)
+## Calculate the number of days until next Friday
+#today = dt.date.today()
+#days_until_friday = (4 - today.weekday()) % 7
+## Calculate the datetime when the task should run
+#next_friday = today + dt.timedelta(days=days_until_friday)
+#run_datetime = dt.datetime.combine(next_friday, run_at)
 
 def run_alert_system():
-    user = User.objects.get(username='e.leon@northeastern.edu')
+    user = User.objects.get(username=ALERTS_TASK_USERNAME)
     with open('mcweb/backend/sources/data/collections-to-monitor.json') as collection_ids:
         collection_ids = collection_ids.read()
         collection_ids = json.loads(collection_ids)
@@ -114,7 +169,10 @@ def run_alert_system():
                         creator= user,
                         verbose_name=f"source alert system {dt.datetime.now()}",
                         remove_existing_tasks=True)
-    return {'task': _return_task(task)}
+    return _return_task(task)
+
+def _rss_fetcher_api():
+    return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
 @background()
 def _alert_system(collection_ids):
@@ -127,7 +185,7 @@ def _alert_system(collection_ids):
             except:
                 print(collection_id)
 
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
         # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
           
             email="test"
@@ -202,18 +260,17 @@ def _classify_alert(month_mean, week_mean, std_dev):
         return GOOD
 
 def update_stories_per_week():
-    user = User.objects.get(username='e.leon@northeastern.edu')
+    user = User.objects.get(username=ALERTS_TASK_USERNAME)
 
     task = _update_stories_counts(
                         creator= user,
                         verbose_name=f"update stories per week {dt.datetime.now()}",
                         remove_existing_tasks=True)
-    return {'task': _return_task(task)}
+    return _return_task(task)
 
 @background()
 def _update_stories_counts():
-
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
             for source_tuple in stories_by_source:
                 source_id, stories_per_day = source_tuple
@@ -232,7 +289,7 @@ def _calculate_stories_last_week(stories_fetched):
     sum_count = sum(day_data['stories'] for day_data in last_7_days_data)
     return sum_count
 
-def _return_task(task):
+def _serialize_task(task):
     """
     helper to return JSON representation of a Task.
     """
@@ -241,7 +298,7 @@ def _return_task(task):
     return { key: (value.isoformat() if isinstance(value, dt.datetime) else value)
              for key, value in task.__dict__.items() if key[0] != '_' }
 
-_return_completed_task = _return_task
+_serialize_completed_task = _serialize_task
 
 def _return_error(message):
     """
@@ -249,6 +306,13 @@ def _return_error(message):
     """
     logger.info(f"_return_error {message}")
     return {'error': message}
+
+def _return_task(task):
+    """
+    formulate "task" return (analagous to _return_error)
+    returns dict that "task" with serialized task
+    """
+    return {'task': _serialize_task(task)}
 
 def schedule_scrape_collection(collection_id, user):
     """
@@ -261,7 +325,7 @@ def schedule_scrape_collection(collection_id, user):
     name_or_id = collection.name or str(collection_id)
     task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape collection {name_or_id}", remove_existing_tasks=True)
 
-    return {'task': _return_task(task)}
+    return _return_task(task)
 
 
 def schedule_scrape_source(source_id, user):
@@ -272,9 +336,11 @@ def schedule_scrape_source(source_id, user):
     if not source:
         return _return_error(f"source {source_id} not found")
 
-    # check source.homepage not empty??
     if not source.homepage:
         return _return_error(f"source {source_id} missing homepage")
+
+    if source.url_search_string:
+        return _return_error(f"source {source_id} has url_search_string")
 
     # maybe check if re-scraped recently????
 
@@ -287,7 +353,7 @@ def schedule_scrape_source(source_id, user):
                           creator=user,
                           verbose_name=f"rescrape source {name_or_home}",
                           remove_existing_tasks=True)
-    return {'task': _return_task(task)}
+    return _return_task(task)
 
 
 
@@ -299,7 +365,7 @@ def get_completed_tasks(user):
     tasks = CompletedTask.objects
     if user:
         tasks = tasks.created_by(user)
-    return {'completed_tasks': [_return_completed_task(task) for task in tasks]}
+    return {'completed_tasks': [_serialize_completed_task(task) for task in tasks]}
 
 
 def get_pending_tasks(user):
@@ -310,4 +376,4 @@ def get_pending_tasks(user):
     tasks = Task.objects
     if user:
         tasks = tasks.created_by(user)
-    return {'tasks': [_return_task(task) for task in tasks]}
+    return {'tasks': [_serialize_task(task) for task in tasks]}

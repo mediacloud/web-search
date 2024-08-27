@@ -79,7 +79,7 @@ Sentry.init({
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
   tracePropagationTargets: [/^https:\/\/search\.mediacloud\.org/, "/^http:\/\/localhost:8000/"],
   // Session Replay
-  replaysSessionSampleRate: config.replay_rate, // This sets the sample rate at 10%.
+  replaysSessionSampleRate: config.replay_rate,
   replaysOnErrorSampleRate: 1.0,
   _experiments:{
     profilesSampleRate: config.traces_rate

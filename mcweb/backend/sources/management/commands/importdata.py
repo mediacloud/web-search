@@ -6,10 +6,10 @@ import tempfile
 
 from ...models import Collection, Source, Feed
 
+DATABASE_URL = os.getenv('DATABASE_URL') # get from mcweb.settings!
 
 def _run_psql_command(cmd: str):
-    db_uri = os.getenv('DATABASE_URI')
-    call(['psql', '-Atx', db_uri, '-c', cmd])
+    call(['psql', '-Atx', DATABASE_URL, '-c', cmd])
 
 
 class Command(BaseCommand):

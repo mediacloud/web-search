@@ -1,51 +1,44 @@
 """
-Interface to rss-fetcher API
+Interface to rss-fetcher API.
+
+Not tied to Django/web-search infrastructure
+so can be put into a repo of its own.
 """
 
 import logging
-import os
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Type
 
 # PyPI
 import requests.auth
 import requests.sessions
 
-# Same env var names as rss-fetcher config:
-# Allows testing against alternate (eg; dev, staging) instances of rss-fetcher:
-RSS_FETCHER_USER = os.getenv('RSS_FETCHER_USER', None)
-RSS_FETCHER_PASS = os.getenv('RSS_FETCHER_PASS', None)
-RSS_FETCHER_URL = os.getenv('RSS_FETCHER_URL',
-                            'https://rss-fetcher.tarbell.mediacloud.org')
-
-logger = logging.getLogger('rss_fetcher_api')
+logger = logging.getLogger(__name__)
 
 class RssFetcherError(Exception):
     """class for RssFetcherApi error"""
 
 class RssFetcherApi:
-    def __init__(self):
+    def __init__(self, url: str, user: str | None, password: str | None):
         self._session = requests.sessions.Session()
+        self._url = url
+        self._user = user
+        self._pass = password
 
     def __enter__(self):
-        #logger.debug("__enter__")
         return self
 
     def __exit__(self, *args):
-        #logger.debug("__exit__")
         self._session.close()
 
     def _request(self, method: str, path: str) -> Any:
-        if RSS_FETCHER_USER and RSS_FETCHER_PASS:
-            auth = requests.auth.HTTPBasicAuth(RSS_FETCHER_USER, RSS_FETCHER_PASS)
+        if self._user and self._pass:
+            auth = requests.auth.HTTPBasicAuth(self._user, self._pass)
         else:
             auth = None
 
-        if not RSS_FETCHER_URL:
-            raise RssFetcherError('RSS_FETCHER_URL not set')
-
         hdrs = { 'User-Agent': __name__ }
 
-        url = f'{RSS_FETCHER_URL}/api/{path}'
+        url = f'{self._url}/api/{path}'
         response = self._session.request(method, url, auth=auth, headers=hdrs)
 
         logger.debug(f"{method} {url}: status: {response.status_code} data: {len(response.text)} bytes")
@@ -68,13 +61,13 @@ class RssFetcherApi:
 
     # helpers to check return type
 
-    def _get_list(self, path: str) -> List:
+    def _get_list(self, path: str) -> list:
         r = self._get(path)
         if not isinstance(r, list):
             raise RssFetcherError(f"{path} expected list got {type(r).__name__}")
         return r
 
-    def _get_dict(self, path: str) -> Dict:
+    def _get_dict(self, path: str) -> dict:
         r = self._get(path)
         if not isinstance(r, dict):
             raise RssFetcherError(f"{path} expected dict got {type(r).__name__}")
@@ -82,11 +75,11 @@ class RssFetcherApi:
 
     ################ feeds methods
 
-    def feed(self, feed_id: int) -> Dict[str, Any]:
+    def feed(self, feed_id: int) -> dict[str, Any]:
         """return single dict for a rss-fetcher Feeds row"""
         return self._get_dict(f"feeds/{feed_id}")
 
-    def feed_history(self, feed_id: int) -> List[Dict[str, Any]]:
+    def feed_history(self, feed_id: int) -> list[dict[str, Any]]:
         """return list of dicts for rss-fetcher FetchHistory rows"""
         # NOTE: takes ?limit=N
         return self._get_list(f"feeds/{feed_id}/history")
@@ -98,7 +91,7 @@ class RssFetcherApi:
         """
         return int(self._post(f"feeds/{feed_id}/fetch-soon"))
 
-    def feed_stories(self, feed_id: int) -> List[Dict[str, Any]]:
+    def feed_stories(self, feed_id: int) -> list[dict[str, Any]]:
         """
         GET request to fetch recent stories fetched from feed
         returns list of Dict
@@ -107,7 +100,7 @@ class RssFetcherApi:
 
     ################ sources methods
 
-    def source_feeds(self, source_id: int) -> List[Dict[str, Any]]:
+    def source_feeds(self, source_id: int) -> list[dict[str, Any]]:
         """return list dicts of rss-fetcher Feeds rows"""
         return self._get_list(f"sources/{source_id}/feeds")
 
@@ -118,21 +111,21 @@ class RssFetcherApi:
         """
         return int(self._post(f"sources/{source_id}/fetch-soon"))
 
-    def source_stories(self, source_id: int) -> List[Dict[str, Any]]:
+    def source_stories(self, source_id: int) -> list[dict[str, Any]]:
         """
         GET request to fetch recent stories fetched from source feeds
         returns list of Dict
         """
         return self._get_list(f"sources/{source_id}/stories")
 
-    def source_stories_fetched_by_day(self, source_id: int) -> List[Dict[str, Any]]:
+    def source_stories_fetched_by_day(self, source_id: int) -> list[dict[str, Any]]:
         """
         GET request to fetch counts of recent stories by fetched_at date
         returns list of Dict: {"date": "YYYY-MM-DD", "count": N}
         """
         return self._get_list(f"sources/{source_id}/stories/fetched-by-day")
 
-    def source_stories_published_by_day(self, source_id: int) -> List[Dict[str, Any]]:
+    def source_stories_published_by_day(self, source_id: int) -> list[dict[str, Any]]:
         """
         GET request to fetch counts of recent stories by published_at date
         returns list of Dict: {"date": "YYYY-MM-DD", "count": N}
@@ -141,19 +134,19 @@ class RssFetcherApi:
 
     ################ stories methods
 
-    def stories_fetched_by_day(self) -> List[Dict[str, Any]]:
+    def stories_fetched_by_day(self) -> list[dict[str, Any]]:
         """
         returns list of dict w/ 'date', 'type', 'count'
         """
         return self._get_list("stories/fetched-by-day")
 
-    def stories_published_by_day(self) -> List[Dict[str, Any]]:
+    def stories_published_by_day(self) -> list[dict[str, Any]]:
         """
         returns list of dict w/ 'date', 'type', 'count'
         """
         return self._get_list("stories/published-by-day")
 
-    def stories_by_source(self) -> List[Tuple[int,float]]:
+    def stories_by_source(self) -> list[tuple[int,float]]:
         """return list of tuples (source_id, stories_per_day)"""
         # dict w/ days, sources
         r = self._get_dict("stories/by-source")
@@ -161,18 +154,23 @@ class RssFetcherApi:
         if not days:
             return []
         return [(d.get('sources_id'), d.get('count')/days)
-                for d in r.get('sources')]
+                for d in r.get('sources', [])]
 
 if __name__ == '__main__':
     # test run via:
     # venv/bin/python -m backend.sources.rss_fetcher_api
     # from mcweb directory
+    import os
 
     logging.basicConfig(level=logging.DEBUG)
 
     DUMP = False                # XXX take command line arg/option!
 
-    with RssFetcherApi() as rss:
+    url = os.getenv("RSS_FETCHER_URL")
+    user = os.getenv("RSS_FETCHER_USER")
+    password = os.getenv("RSS_FETCHER_PASS")
+
+    with RssFetcherApi(ur, user, password) as rss:
         # tested against staging-rss-fetcher.ifill.angwin:
 
         SRC = 1                 # NYT
