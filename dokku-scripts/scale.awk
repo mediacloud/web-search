@@ -1,6 +1,6 @@
 # awk script, run like:
 # GOALS="web=5 worker=1"
-# SCALE=$(dokku ps:scale $APP | awk -f scale.awk)
+# SCALE=$(dokku ps:scale $APP | awk -v "goals=$GOALS" -f scale.awk)
 # if SCALE is non-empty, run dokku ps:scale $APP $SCALE
 # NOTE! The ONLY thing that should go to stdout is proc=N ...
 
