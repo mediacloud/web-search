@@ -248,6 +248,7 @@ prod|staging)
 	echo "could not clone config repo" 1>&2
 	exit 1
     fi
+    cd ..
     PRIVATE_CONF_REPO=$PRIVATE_CONF_DIR/$CONFIG_REPO_NAME
 
     # always read prod first
@@ -289,7 +290,7 @@ esac
 #echo stopping processes...
 #dokku ps:stop $APP
 
-echo configuring app...
+echo configuring app ${APP}...
 $SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE $CONFIG_EXTRAS
 
 CONFIG_STATUS=$?
@@ -332,7 +333,7 @@ if [ "x$CURR_GIT_BRANCH" != "x$DOKKU_GIT_BRANCH" ]; then
     dokku git:set $APP deploy-branch $DOKKU_GIT_BRANCH
 fi
 
-echo "pushing branch $BRANCH to $DOKKU_GIT_REMOTE $DOKKU_GIT_BRANCH"
+echo "pushing branch $BRANCH to remote $DOKKU_GIT_REMOTE branch $DOKKU_GIT_BRANCH"
 if git push $PUSH_FLAGS $DOKKU_GIT_REMOTE $BRANCH:$DOKKU_GIT_BRANCH; then
     echo OK
 else
@@ -364,6 +365,7 @@ fi
 # if additional kinds of workers do "for nn in NAME=NUMBER; do ..... "
 if ! dokku ps:report $APP | grep -q 'Status worker 1:'; then
     echo starting worker process
+    # XXX prod/staging run more!
     dokku ps:scale --skip-deploy $APP worker=1
 fi
 #dokku ps:start $APP
