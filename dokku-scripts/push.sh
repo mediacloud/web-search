@@ -254,6 +254,9 @@ prod|staging)
     PRIVATE_CONF_FILE=$PRIVATE_CONF_REPO/web-search.prod.sh
     # use web-search.staging.sh for overrides on staging:
     if [ "x$BRANCH" = xstaging ]; then
+	echo 'TEMPORARY! checking out config "staging" branch!!!'
+	(cd $PRIVATE_CONF_REPO; git checkout staging)
+
 	CONFIG_EXTRAS="$CONFIG_EXTRAS -F $PRIVATE_CONF_REPO/web-search.staging.sh"
     fi
     tag_conf_repo() {
