@@ -370,7 +370,14 @@ prod)
 esac
 
 # add new Procfile entries to next line!!
-dokku ps:scale $APP web=$WEB_PROCS worker=1
+GOALS="web=$WEB_PROCS worker=1"
+
+# avoid unnecessary redeploys
+SCALE=$(dokku ps:scale $APP | awk -v "goals=$GOALS" -f $SCRIPT_DIR/scale.awk)
+if [ "x$SCALE" != x ]; then
+    echo scaling $SCALE
+    dokku ps:scale $APP $SCALE
+fi
 
 #dokku ps:start $APP
 
