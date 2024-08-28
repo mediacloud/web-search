@@ -361,7 +361,7 @@ if [ -d "$PRIVATE_CONF_REPO" ]; then
     tag_conf_repo
 fi
 
-# process scaling, always set them all
+# process scaling
 WEB_PROCS=5
 case $BRANCH in
 prod)
