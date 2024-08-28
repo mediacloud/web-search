@@ -170,7 +170,7 @@ if __name__ == '__main__':
     user = os.getenv("RSS_FETCHER_USER")
     password = os.getenv("RSS_FETCHER_PASS")
 
-    with RssFetcherApi(ur, user, password) as rss:
+    with RssFetcherApi(url, user, password) as rss:
         # tested against staging-rss-fetcher.ifill.angwin:
 
         SRC = 1                 # NYT

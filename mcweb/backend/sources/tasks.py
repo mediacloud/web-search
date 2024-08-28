@@ -126,7 +126,7 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
     for source in sources:
         logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
         if source.url_search_string:
-            add_body_chunk(f"Skippped source {source_id} ({name}) with URL search string {source.url_search_string}\n")
+            add_body_chunk(f"Skippped source {source.id} ({source.name}) with URL search string {source.url_search_string}\n")
             logger.info(f"  Source {source.id} ({source.name}) has url_search_string {source.url_search_string}")
             continue
 
