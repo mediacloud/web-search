@@ -119,11 +119,11 @@ try:
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # no default
     EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
     EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
-    assert EMAIL_HOST
+    assert EMAIL_HOST, "EMAIL_HOST empty"
     logger.info("Email host %s", EMAIL_HOST)
-except (ImproperlyConfigured, AssertionError):
+except (ImproperlyConfigured, AssertionError) as exc:
     # don't require email settings (for development)
-    logger.warning("Email not configured")
+    logger.warning("Email not configured: %r", exc)
     EMAIL_BACKEND = None
     EMAIL_HOST = None
     EMAIL_HOST_USER = None
