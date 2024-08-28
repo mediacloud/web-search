@@ -361,13 +361,24 @@ if [ -d "$PRIVATE_CONF_REPO" ]; then
     tag_conf_repo
 fi
 
-# start worker process(es); first time only
-# if additional kinds of workers do "for nn in NAME=NUMBER; do ..... "
-if ! dokku ps:report $APP | grep -q 'Status worker 1:'; then
-    echo starting worker process
-    # XXX prod/staging run more!
-    dokku ps:scale --skip-deploy $APP worker=1
+# process scaling
+WEB_PROCS=5
+case $BRANCH in
+prod)
+    WEB_PROCS=16 # times 64 (WEB_CONCURRENCY) threads seems... excessive!
+    ;;
+esac
+
+# add new Procfile entries to next line!!
+GOALS="web=$WEB_PROCS worker=1"
+
+# avoid unnecessary redeploys
+SCALE=$(dokku ps:scale $APP | awk -v "goals=$GOALS" -f $SCRIPT_DIR/scale.awk)
+if [ "x$SCALE" != x ]; then
+    echo scaling $SCALE
+    dokku ps:scale $APP $SCALE
 fi
+
 #dokku ps:start $APP
 
 echo "$(date '+%F %T') $APP $REMOTE $TAG" >> push.log
