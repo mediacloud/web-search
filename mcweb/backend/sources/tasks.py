@@ -144,7 +144,7 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
     sec = time.monotonic() - t0
-    add_body_chunk("elapsed time: {sec:.3f} seconds\n")
+    add_body_chunk(f"elapsed time: {sec:.3f} seconds\n")
 
     recipients = [user_email]
     subject = f"[{EMAIL_ORGANIZATION}] Collection {collection.id} ({collection.name}) scrape complete"
