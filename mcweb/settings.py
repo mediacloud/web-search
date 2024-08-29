@@ -76,6 +76,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
     GIT_REV=(str, ""),
     NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
+    PROVIDERS_TIMEOUT=(int, 60*10),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
     SENTRY_DSN=(str, ""),
