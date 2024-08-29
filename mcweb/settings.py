@@ -71,9 +71,9 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     # EMAIL_HOST[_{PASWORD,USER}] must be supplied
     EMAIL_HOST_PORT=(int,465),  # ssmtp (SSL submission)
+    EMAIL_HOST_USE_SSL=(bool, True),
     EMAIL_NOREPLY=(str, 'noreply@mediacloud.org'),
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
-    EMAIL_USE_SSL=(bool, True),
     GIT_REV=(str, ""),
     NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
@@ -119,11 +119,11 @@ try:
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # no default
     EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
     EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
-    assert EMAIL_HOST
+    assert EMAIL_HOST, "EMAIL_HOST is empty"
     logger.info("Email host %s", EMAIL_HOST)
-except (ImproperlyConfigured, AssertionError):
+except (ImproperlyConfigured, AssertionError) as exc:
     # don't require email settings (for development)
-    logger.warning("Email not configured")
+    logger.warning("Email not configured: %s", exc)
     EMAIL_BACKEND = None
     EMAIL_HOST = None
     EMAIL_HOST_USER = None
