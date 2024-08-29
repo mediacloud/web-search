@@ -135,6 +135,7 @@ except (ImproperlyConfigured, AssertionError) as exc:
 GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
 
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
+PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
 RSS_FETCHER_URL = env('RSS_FETCHER_URL')
 RSS_FETCHER_USER = env('RSS_FETCHER_USER')
