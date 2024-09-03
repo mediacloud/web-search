@@ -91,7 +91,8 @@ def total_count(request):
 def count_over_time(request):
     start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
     provider = providers.provider_by_name(provider_name, api_key, base_url)
-    print(provider.TIMEOUT_SECS)
+    print(provider._timeout)
+    print(provider._client.TIMEOUT_SECS)
     try:
         results = provider.normalized_count_over_time(f"({query_str})", start_date, end_date, **provider_props)
     except UnsupportedOperationException:
