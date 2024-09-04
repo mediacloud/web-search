@@ -71,11 +71,12 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     # EMAIL_HOST[_{PASWORD,USER}] must be supplied
     EMAIL_HOST_PORT=(int,465),  # ssmtp (SSL submission)
+    EMAIL_HOST_USE_SSL=(bool, True),
     EMAIL_NOREPLY=(str, 'noreply@mediacloud.org'),
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
-    EMAIL_USE_SSL=(bool, True),
     GIT_REV=(str, ""),
     NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
+    PROVIDERS_TIMEOUT=(int, 60*10),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
     SENTRY_DSN=(str, ""),
@@ -119,11 +120,11 @@ try:
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # no default
     EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
     EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
-    assert EMAIL_HOST
+    assert EMAIL_HOST, "EMAIL_HOST is empty"
     logger.info("Email host %s", EMAIL_HOST)
-except (ImproperlyConfigured, AssertionError):
+except (ImproperlyConfigured, AssertionError) as exc:
     # don't require email settings (for development)
-    logger.warning("Email not configured")
+    logger.warning("Email not configured: %s", exc)
     EMAIL_BACKEND = None
     EMAIL_HOST = None
     EMAIL_HOST_USER = None
@@ -134,6 +135,7 @@ except (ImproperlyConfigured, AssertionError):
 GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
 
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
+PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
 RSS_FETCHER_URL = env('RSS_FETCHER_URL')
 RSS_FETCHER_USER = env('RSS_FETCHER_USER')

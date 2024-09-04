@@ -8,6 +8,7 @@ import datetime as dt
 import logging
 import json
 import logging
+import time
 import traceback
 
 # PyPI:
@@ -71,6 +72,7 @@ logger = logging.getLogger(__name__)
 
 @background()
 def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) -> None:
+    t0 = time.monotonic()
     logger.info(f"==== starting _scrape_source {source_id} ({name}) {homepage} for {user_email}")
     errors = 0
     try:
@@ -87,7 +89,8 @@ def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) ->
         _add_scrape_error_rcpts(recipients)
 
     send_rescrape_email(subject, email_body, SCRAPE_FROM_EMAIL, recipients)
-    logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
+    sec = time.monotonic() - t0
+    logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email} in {sec:.3f}")
 
 def _add_scrape_error_rcpts(users: list[str]) -> None:
     """
@@ -104,6 +107,7 @@ def _add_scrape_error_rcpts(users: list[str]) -> None:
 # pass queue="slow-lane" to decorator (and run another process_tasks worker in Procfile)??
 @background()
 def _scrape_collection(collection_id: int, user_email: str) -> None:
+    t0 = time.monotonic()
     logger.info(f"==== starting _scrape_collection({collection_id}) for {user_email}")
 
     collection = Collection.objects.get(id=collection_id)
@@ -139,6 +143,9 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
             errors += 1
         logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
 
+    sec = time.monotonic() - t0
+    add_body_chunk(f"elapsed time: {sec:.3f} seconds\n")
+
     recipients = [user_email]
     subject = f"[{EMAIL_ORGANIZATION}] Collection {collection.id} ({collection.name}) scrape complete"
     if errors:
@@ -148,7 +155,7 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
     # separate source chunks with blank lines (each already has trailing newline)
     send_rescrape_email(subject, "\n".join(email_body_chunks), SCRAPE_FROM_EMAIL, recipients)
 
-    logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email}")
+    logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email} in {sec:.3f}")
 
 # Phil: not used:
 #run_at = dt.time(hour=14, minute=32)

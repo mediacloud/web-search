@@ -203,12 +203,12 @@ class Source(models.Model):
         # create dict of full urls of current feeds indexed by normalized urls
         old_urls = {normalize_url(feed.url): feed.url
                     for feed in Feed.objects.filter(source_id=source_id)}
-
-        found = set() # pre-existing (in DB) normalized URLs found in scan of site
+        old = len(old_urls)
 
         # NOTE! Each line appended to list must end with a newline!
         lines = []
         def add_line(line):
+            logger.debug("add_line: %s", line.rstrip()) # without newlines!
             if not line.endswith("\n"):
                 logger.warning("missing newline on %s", line)
                 line += "\n"
@@ -221,14 +221,17 @@ class Source(models.Model):
             add_line("MISSING HOMEPAGE\n")
             return "".join(lines)
 
+        total = added = confirmed = 0
         def process_urls(from_: str, urls: list[str]):
+            nonlocal total, added, confirmed
             for url in urls:
+                total += 1
                 nurl = normalize_url(url)
                 if nurl in old_urls:
                     if verbosity >= 1:
                         add_line(f"found existing {from_} feed {url}\n")
                     logger.info(f"scrape_source({source_id}, {homepage}) found existing {from_} feed {url}")
-                    found.add(nurl)
+                    confirmed += 1
                 else:
                     try:
                         feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
@@ -236,6 +239,7 @@ class Source(models.Model):
                         add_line(f"added new {from_} feed {url}\n")
                         logger.info(f"scrape_source({source_id}, {homepage}) added new {from_} feed {url}")
                         old_urls[nurl] = url # try to prevent trying to add twice
+                        added += 1
                     except IntegrityError:
                         # happens when feed exists, but under a different source!
                         # could do lookup by URL, and report what source (name & id) it's under....
@@ -269,20 +273,9 @@ class Source(models.Model):
         if gnews_urls:
             process_urls(sitemaps, gnews_urls)
 
-        # after all calls to process_urls:
-        if verbosity >= 2:
-            # not SUPER useful: this will call out any URL that was
-            # added manually and was never "published" (as well as
-            # feeds that were once published and no longer are).
-            ou = set(old_urls.keys())
-            not_found = ou - found
-            for nurl in not_found:
-                old_url = old_urls[nurl]
-                add_line(f"existing feed {old_url} not rediscovered\n")
-                logger.warning(f"scrape_source({source_id}, {homepage}) existing feed {old_url} not rediscovered")
 
-        if len(lines) == 1: # just header
-            add_line("no feeds found\n")
+        # after many tries to give a summary in english:
+        add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
 
         indent = "  "           # not applied to header line
         return indent.join(lines)
