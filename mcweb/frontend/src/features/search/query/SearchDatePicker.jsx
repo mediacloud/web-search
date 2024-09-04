@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import TextField from '@mui/material/TextField';
+import Alert from '@mui/material/Alert';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -83,6 +84,7 @@ export default function SearchDatePicker({ queryIndex }) {
 
   return (
     <>
+      <Alert severity="warning">Historical reingest in progress, current dates available to 01/01/2021</Alert>
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <div className="date-accuracy-alert">

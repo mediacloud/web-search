@@ -30,7 +30,7 @@ export const latestAllowedEndDate = (provider) => {
 // the earliest starting date for the type of platform
 export const earliestAllowedStartDate = (provider) => {
   if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return dayjs('2022-08-01');
-  return dayjs('2022-01-01');
+  return dayjs('2021-01-01');
 };
 
 export const defaultPlatformProvider = (platform) => {
