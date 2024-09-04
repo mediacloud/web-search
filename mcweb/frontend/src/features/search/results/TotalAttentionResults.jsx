@@ -6,11 +6,10 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Settings from '@mui/icons-material/Settings';
-import TotalAttentionEmailModal from '../../ui/TotalAttentionEmailModal';
 import BarChart from './BarChart';
+import CSVDialog from '../util/CSVDialog';
 import { useGetTotalCountMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT,
   PROVIDER_NEWS_WAYBACK_MACHINE,
   PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
@@ -18,17 +17,17 @@ import { selectCurrentUser } from '../../auth/authSlice';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
+import { TA } from '../util/getDownloadUrl';
 
 export const supportsNormalizedCount = (platform) =>
   // eslint-disable-next-line implicit-arrow-linebreak
-  [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform);
+  [PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD].includes(platform);
 
 function TotalAttentionResults() {
   const queryState = useSelector((state) => state.query);
 
-  const [openModal, setModalOpen] = useState(false);
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
 
-  // fetch currentUser to access email if their downloaded csv needs to be emailed
   const currentUser = useSelector(selectCurrentUser);
 
   const {
@@ -51,21 +50,6 @@ function TotalAttentionResults() {
   const [dispatchQuery, { isLoading, data, error }] = useGetTotalCountMutation();
 
   const currentUserEmail = currentUser.email;
-
-  // gets total count of entire query
-  // I'm assuming each query's data is put into one csv file
-  // my question: https://stackoverflow.com/questions/29615196/is-csv-with-multi-tabs-sheet-possible
-  // in the case that there is only one csv we have to make sure the count of all csv don't exceed our limits
-  const getTotalCountOfQuery = () => {
-    const arrayOfCounts = data.count.relevant;
-    // gets total count of query
-    let count = 0;
-    for (let i = 0; i < arrayOfCounts.length; i += 1) {
-      count += arrayOfCounts[i];
-    }
-
-    return count;
-  };
 
   useEffect(() => {
     if (!checkForBlankQuery(queryState)) {
@@ -102,12 +86,13 @@ function TotalAttentionResults() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error.note}
         )
       </Alert>
     );
   } else {
-    const preparedTAdata = prepareTotalAttentionData(data, normalized);
+    const preparedTAdata = prepareTotalAttentionData(data, normalized, queryState);
+
     if (preparedTAdata.length !== queryState.length) return null;
     const updatedTotalAttentionData = preparedTAdata.map(
       (originalDataObj, index) => {
@@ -133,11 +118,12 @@ function TotalAttentionResults() {
                 <div>
                   <Button
                     onClick={handleClick}
+                    variant="outlined"
                     startIcon={
                       <Settings titleAccess="view other chart viewing options" />
                     }
                   >
-                    View Options
+                    View Options...
                   </Button>
                   <Menu
                     id="basic-menu"
@@ -161,7 +147,7 @@ function TotalAttentionResults() {
               )}
               {!normalized && (
                 <div>
-                  <Button onClick={handleClick}>View Options</Button>
+                  <Button variant="outlined" onClick={handleClick}>View Options...</Button>
                   <Menu
                     id="basic-menu"
                     anchorEl={anchorEl}
@@ -184,27 +170,21 @@ function TotalAttentionResults() {
               )}
             </div>
           )}
-        </div>
-        <div className="clearfix">
+
           <div className="float-end">
             <div>
-              <TotalAttentionEmailModal
-                outsideTitle="Download CSV of All Content"
-                title={
-                  `Your current email is: ${currentUserEmail}
-                  Would you like to send your downloaded data to your current email or a new email?`
-                }
-                content="Enter a new email?"
-                dispatchNeeded={false}
-                navigateTo="/"
-                onClick={() => setModalOpen(true)}
-                openDialog={openModal}
-                variant="outlined"
-                confirmButtonText="Confirm New Email"
-                currentUserEmail={currentUserEmail}
-                totalCountOfQuery={getTotalCountOfQuery()}
-                queryState={queryState}
-              />
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={TA}
+              outsideTitle="Download All URLS"
+              title="Choose a Query to Download a CSV of all the URLs for that query"
+              snackbarText="Total attention CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
+              variant="outlined"
+              userEmail={currentUserEmail}
+              data={data}
+            />
             </div>
           </div>
         </div>
@@ -221,6 +201,9 @@ function TotalAttentionResults() {
             Compare the total number of items that matched your queries. Use the
             &quot;view options&quot; menu to switch between story counts and a
             percentage (if supported).
+
+            Click &quot;download all urls&quot; to the bottom-right to download a CSV of all the
+            matching content and associated metadata.
           </p>
         </div>
         <div className="col-8">

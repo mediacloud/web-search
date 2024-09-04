@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
@@ -10,6 +10,10 @@ import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 
 export default function DirectoryHome() {
+  useEffect(() => {
+    document.title = 'Media Cloud Directory';
+  });
+
   return (
     <>
       <Header columns={6}>

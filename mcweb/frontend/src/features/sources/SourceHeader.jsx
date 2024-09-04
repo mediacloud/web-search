@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+import { useParams, Link, Outlet } from 'react-router-dom';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import { CircularProgress } from '@mui/material';
-import { useParams, Link, Outlet } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useGetSourceQuery, useDeleteSourceMutation, useRescrapeForFeedsMutation } from '../../app/services/sourceApi';
@@ -58,14 +58,14 @@ export default function SourceHeader() {
       <ControlBar>
         <Button variant="outlined" startIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
-            href={`/search/${urlSerializer([{
+            href={`/search?${urlSerializer([{
               queryList: defaultPlatformQuery(source.platform),
               anyAll: 'any',
               negatedQueryList: [],
               startDate: dayjs().subtract(35, 'day'),
               endDate: dayjs().subtract(5, 'day'),
               collections: [],
-              sources: [source],
+              sources: [source.id],
               platform: defaultPlatformProvider(source.platform),
               advanced: false,
             }])}`}
@@ -159,7 +159,3 @@ export default function SourceHeader() {
     </>
   );
 }
-
-// SourceHeader.propTypes = {
-//   sourceId: PropTypes.number.isRequired,
-// };

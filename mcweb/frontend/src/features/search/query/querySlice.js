@@ -1,9 +1,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import dayjs from 'dayjs';
 import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate } from '../util/platforms';
+import { generateComparativeQuery } from '../util/generateComparativeQuery';
 
 const DEFAULT_PROVIDER = PROVIDER_NEWS_MEDIA_CLOUD;
 export const DEFAULT_ONLINE_NEWS_COLLECTIONS = [34412234];
+
+export const QUERY = 'query';
+export const MEDIA = 'media';
+export const DATES = 'dates';
 
 const startDate = dayjs().subtract(34, 'day').format('MM/DD/YYYY');
 
@@ -19,6 +24,7 @@ const cleanQuery = (platform) => ({
   sources: [],
   previewSources: [],
   lastSearchTime: dayjs().unix(),
+  initialSearchTime: dayjs().unix(),
   isFromDateValid: true,
   isToDateValid: true,
   anyAll: 'any',
@@ -43,6 +49,7 @@ const querySlice = createSlice({
         sources: [],
         previewSources: [],
         lastSearchTime: dayjs().unix(),
+        initialSearchTime: dayjs().unix(),
         isFromDateValid: true,
         isToDateValid: true,
         anyAll: 'any',
@@ -174,7 +181,19 @@ const querySlice = createSlice({
         copyQs.lastSearchTime = payload;
       });
     },
+    setInitialSearchTime: (state, { payload }) => {
+      const freezeState = state;
 
+      freezeState.forEach((qS) => {
+        const copyQs = qS;
+        copyQs.initialSearchTime = payload;
+      });
+    },
+    addComparativeQuery: (state, { payload }) => {
+      const { type, query } = payload;
+      const newState = generateComparativeQuery(type, query);
+      return newState;
+    },
     removeQuery: (state, { payload }) => {
       const freezeState = state;
       if (payload === 0 && freezeState.length === 1) {
@@ -185,6 +204,49 @@ const querySlice = createSlice({
       } else {
         freezeState.splice(payload, 1);
       }
+    },
+    copyToAllQueries: (state, { payload }) => {
+      const freezeState = state;
+      const queryProperty = payload.property;
+      const { queryIndex } = payload;
+      const queryData = freezeState[queryIndex];
+
+      if (queryProperty === QUERY) {
+        if (queryData.advanced) {
+          const { queryString } = queryData;
+          freezeState.forEach((query) => {
+            const qsCopy = query;
+            qsCopy.queryString = queryString;
+          });
+        } else {
+          const { queryList, negatedQueryList, anyAll } = queryData;
+          freezeState.forEach((query) => {
+            const qsCopy = query;
+            qsCopy.queryList = queryList;
+            qsCopy.negatedQueryList = negatedQueryList;
+            qsCopy.anyAll = anyAll;
+          });
+        }
+      } else if (queryProperty === MEDIA) {
+        const {
+          collections, sources, previewCollections, previewSources,
+        } = queryData;
+        freezeState.forEach((query) => {
+          const qsCopy = query;
+          qsCopy.collections = collections;
+          qsCopy.sources = sources;
+          qsCopy.previewCollections = previewCollections;
+          qsCopy.previewSources = previewSources;
+        });
+      } else if (queryProperty === DATES) {
+        const { startDate: start, endDate: end } = queryData;
+        freezeState.forEach((query) => {
+          const qsCopy = query;
+          qsCopy.startDate = start;
+          qsCopy.endDate = end;
+        });
+      }
+      return freezeState;
     },
   },
 });
@@ -202,6 +264,9 @@ export const {
   setLastSearchTime,
   removeQuery,
   setSelectedMedia,
+  addComparativeQuery,
+  copyToAllQueries,
+  setInitialSearchTime,
 } = querySlice.actions;
 
 export default querySlice.reducer;

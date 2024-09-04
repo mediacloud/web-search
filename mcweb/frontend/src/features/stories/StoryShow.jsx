@@ -5,12 +5,16 @@ import Alert from '@mui/material/Alert';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import dayjs from 'dayjs';
 import { useGetStoryDetailsQuery } from '../../app/services/searchApi';
-import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
+import {
+  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE
+} from '../search/util/platforms';
 
 export default function StoryShow() {
   const params = useParams();
-  const { storyId, platform } = params;
-  const { data, isLoading } = useGetStoryDetailsQuery({ storyId, platform });
+  const { storyURL, platform } = params;
+  // const decodedStoryURL = decodeURIComponent(storyURL);
+  // console.log(decodedStoryURL);
+  const { data, isLoading } = useGetStoryDetailsQuery(storyURL);
 
   const [platformName, setPlatformName] = useState('');
 

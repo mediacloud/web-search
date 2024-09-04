@@ -6,21 +6,20 @@ function Footer() {
     <Header id="footer" reversed customColumns>
       <div className="col-8 offset-2">
         <p>
-          Media Cloud is a consortium research project
-          across multiple institutions, including the&nbsp;
-          <a href="https://www.umass.edu/" target="_blank" rel="noreferrer">University of Massachusetts Amherst</a>
-          ,&nbsp;
-          <a href="https://www.northeastern.edu/" target="_blank" rel="noreferrer">Northeastern University</a>
-          , the
-          {' '}
-          <a href="https://archive.org/about" target="_blank" rel="noreferrer">Internet Archive&apos;s</a>
-          {' '}
-          <a href="https://web.archive.org" target="_blank" rel="noreferrer">Wayback Machine</a>
-          , and the&nbsp;
-          <a href="https://cyber.law.harvard.edu/" target="_blank" rel="noreferrer">
-            Berkman Klein Center for Internet & Society at Harvard University
+          Media Cloud is a consortium collaboration between the&nbsp;
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <a href="https://www.mediaecosystems.org/" target="_blank" rel="noreferrer">Media Ecosystems Analysis Group</a>,&nbsp;
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          the <a href="https://www.umass.edu/" target="_blank" rel="noreferrer">University of Massachusetts Amherst</a>,&nbsp;
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          and <a href="https://www.northeastern.edu/" target="_blank" rel="noreferrer">Northeastern University</a>.&nbsp;
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          Learn more about&nbsp;
+          <a href="https://www.mediacloud.org/consortium" target="_blank" rel="noreferrer">
+            the consortium on mediacloud.org
           </a>
           .
+
         </p>
         <p>
           Need help? Join our
@@ -29,21 +28,21 @@ function Footer() {
           {' '}
           or fill out
           {' '}
-          <a href="https://mediacloud.org/#contact" target="_blank" rel="noreferrer">our support form</a>
+          <a href="https://mediacloud.org/contact" target="_blank" rel="noreferrer">our support form</a>
           .
           <br />
           Read our
           {' '}
-          <a href="https://mediacloud.org/privacy-policy" target="_blank" rel="noreferrer">privacy policy</a>
+          <a href="https://www.mediacloud.org/legal/media-cloud-privacy-policy" target="_blank" rel="noreferrer">privacy policy</a>
           {' '}
           and
           {' '}
-          <a href="https://mediacloud.org/terms-of-use" target="_blank" rel="noreferrer">terms of use</a>
+          <a href="https://www.mediacloud.org/legal/media-cloud-terms-of-use" target="_blank" rel="noreferrer">terms of use</a>
           .
         </p>
         <p>
           v
-          { document.settings.appVersion }
+          {document.settings.appVersion}
         </p>
       </div>
     </Header>

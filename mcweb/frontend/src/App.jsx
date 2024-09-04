@@ -37,7 +37,7 @@ import StoryShow from './features/stories/StoryShow';
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
 import { selectIsLoggedIn } from './features/auth/authSlice';
-import setSearchQuery from './features/search/util/setSearchQuery';
+import { setSearchQuery } from './features/search/util/setSearchQuery';
 
 function App() {
   const { lastSearchTime } = useSelector((state) => state.query);
@@ -48,7 +48,7 @@ function App() {
 
   useEffect(() => {
     if (trigger && searchParams.get('start')) {
-      setSearchQuery(searchParams, dispatch);
+      setSearchQuery(searchParams, dispatch, false);
       setTrigger(false);
     }
   }, [lastSearchTime]);
@@ -97,7 +97,7 @@ function App() {
           />
 
           <Route
-            path="story/:platform/:storyId"
+            path="story/:platform/:storyURL"
             element={(
               <RequireAuth>
                 <StoryShow />

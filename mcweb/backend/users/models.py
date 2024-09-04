@@ -1,3 +1,4 @@
+from django import db
 from django.db import models
 from django.contrib.auth.models import User
 import datetime as dt
@@ -24,6 +25,7 @@ class Profile(models.Model):
     imported_password_hash = models.TextField(null=True, blank=True)
     # fields that store user-specific weekly quota for each provider, to block system abuse
     quota_mediacloud_legacy = models.IntegerField(default=100000, null=False)
+    quota_mediacloud = models.IntegerField(default=100000, null=False)
     quota_wayback_machine = models.IntegerField(default=100000, null=False)
     quota_reddit_pushshift = models.IntegerField(default=10000, null=False)
     quota_twitter = models.IntegerField(default=10, null=False)
@@ -41,8 +43,8 @@ class Profile(models.Model):
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
             return self.quota_wayback_machine
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
-            return self.quota_mediacloud_legacy
-        raise UnknownProviderException(provider)
+            return self.quota_mediacloud
+        raise UnknownProviderException(provider, "")
 
     @classmethod
     def user_provider_quota(cls, user_id: int, provider: str) -> int:

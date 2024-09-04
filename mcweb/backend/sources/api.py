@@ -4,11 +4,12 @@ import os
 import requests
 import requests.auth
 import datetime as dt
-import urllib.parse
+from urllib.parse import urlparse, parse_qs
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Case, When, Q
 from rest_framework import viewsets, permissions
 import mcmetadata.urls as urls
@@ -25,7 +26,7 @@ from util.send_emails import send_source_upload_email
 
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 from .tasks import schedule_scrape_source, get_completed_tasks, get_pending_tasks, schedule_scrape_collection
-
+from settings import RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS # mcweb.settings
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -133,10 +134,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
         serializer = CollectionWriteSerializer(collections, many=True)
         return Response({"collections": serializer.data})
 
-    @action(methods=['POST'], detail=False, url_path='collections-from-nested-list')
+    @action(methods=['GET'], detail=False, url_path='collections-from-nested-list')
     def collections_from_nested_list(self, request):
-        nested_list = request.data
-        # nested_list is a dictionary
+        nested_list = request.query_params
         nested_collection_ids = [values for values in nested_list.values()]
         names = []
         for collection_ids in nested_collection_ids:
@@ -149,14 +149,16 @@ class CollectionViewSet(viewsets.ModelViewSet):
         # break down the collection's serializer.data and just get the name (could be refactored in future by removing names)
         names = [[item['name'] for item in sublist] for sublist in names]
         return Response({"collection": names})
-
+    
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
-
     @action(methods=['post'], detail=False, url_path='rescrape-collection')
     def rescrape_feeds(self, request):
         collection_id = int(request.data["collection_id"])
         return Response(schedule_scrape_collection(collection_id, request.user))
 
+
+def _rss_fetcher_api():
+    return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
@@ -205,13 +207,13 @@ class FeedsViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def details(self, request):
         source_id = int(self.request.query_params.get("source_id"))
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             return Response({"feeds": rss.source_feeds(source_id)})
 
     @action(detail=False, url_path='feed-details')
     def feed_details(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             return Response({"feed": rss.feed(feed_id)})
 
     @action(detail=False)
@@ -219,7 +221,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
         feed_id = self.request.query_params.get("feed_id", None)
         source_id = self.request.query_params.get("source_id", None)
 
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             if feed_id is not None:
                 stories = rss.feed_stories(int(feed_id))
 
@@ -231,7 +233,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
     @action(detail=False)
     def history(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             feed_history = rss.feed_history(feed_id)
             feed_history = sorted(
                 feed_history, key=lambda d: d['created_at'], reverse=True)
@@ -242,7 +244,7 @@ class FeedsViewSet(viewsets.ModelViewSet):
         feed_id = self.request.query_params.get("feed_id", None)
         source_id = self.request.query_params.get("source_id", None)
         total = 0
-        with RssFetcherApi() as rss:
+        with _rss_fetcher_api() as rss:
             if feed_id is not None:
                 total += rss.feed_fetch_soon(int(feed_id))
 
@@ -301,8 +303,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
             return Response({"source": serializer.data})
         else:
             error_string = str(serializer.errors)
-            print(error_string)
-            # error_string = str(error_string['name'][0])
             raise APIException(f"{error_string}")
 
     def partial_update(self, request, pk=None):
@@ -313,7 +313,6 @@ class SourcesViewSet(viewsets.ModelViewSet):
             return Response({"source": serializer.data})
         else:
             error_string = serializer.errors
-            error_string = str(error_string['name'][0])
             raise APIException(f"{error_string}")
 
     @action(methods=['post'], detail=False)
@@ -405,7 +404,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                         source.media_type])
                 first_page = False
 
-        filename = "Collection-{}-{}-sources-{}.csv".format(
+        filename = "Collection-{}-{}-sources-{}".format(
             collection_id, collection.name, _filename_timestamp())
         streamer = csv_stream.CSVStream(filename, data_generator)
         return streamer.stream()
@@ -415,7 +414,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         source_ids = request.query_params.get('s', None)  # decode
         if len(source_ids) != 0:
             source_ids = source_ids.split(',')
-            source_ids = [int(i) for i in source_ids]
+            source_ids = [int(i) for i in source_ids if i.isnumeric()]
         sources = Source.objects.filter(id__in=source_ids)
         serializer = SourceSerializer(sources, many=True)
         return Response({"sources": serializer.data})
@@ -504,3 +503,4 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
+

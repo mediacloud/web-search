@@ -13,7 +13,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import dayjs from 'dayjs';
 import TabDropDownMenu from '../ui/TabDropDownMenu';
 import {
-  addQuery, setLastSearchTime, removeQuery, setQueryProperty,
+  addQuery, setInitialSearchTime, removeQuery, setQueryProperty, addComparativeQuery,
 } from './query/querySlice';
 import Search from './query/Search';
 import PlatformPicker from './query/PlatformPicker';
@@ -23,13 +23,15 @@ import TotalAttentionResults from './results/TotalAttentionResults';
 import TopWords from './results/TopWords';
 import TopLanguages from './results/TopLanguages';
 import SampleStories from './results/SampleStories';
+import TopSources from './results/TopSources';
 import TabPanelHelper from '../ui/TabPanelHelper';
 import { searchApi } from '../../app/services/searchApi';
+import { PARTISAN, GLOBAL } from './util/generateComparativeQuery';
 import deactivateButton from './util/deactivateButton';
 import urlSerializer from './util/urlSerializer';
 import isNumber from './util/isNumber';
 import tabTitle from './util/tabTitles';
-import { useListCollectionsFromNestedArrayMutation } from '../../app/services/collectionsApi';
+import { useLazyListCollectionsFromNestedArrayQuery } from '../../app/services/collectionsApi';
 
 function a11yProps(index) {
   return {
@@ -50,21 +52,34 @@ export default function TabbedSearch() {
   const [textFieldsValues, setTextFieldValues] = useState(queryState.map((query) => query.name));
   const { platform, advanced } = queryState[0];
 
-  const [getCollectionNames] = useListCollectionsFromNestedArrayMutation();
+  const [getCollectionNames] = useLazyListCollectionsFromNestedArrayQuery();
 
   useEffect(() => {
     setShow(deactivateButton(queryState));
     setTextFieldValues(queryState.map((query) => query.name));
   }, [queryState, edit]);
 
+  useEffect(() => {
+    document.title = 'Media Cloud Search';
+  });
+
   const handleShare = () => {
     const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;
     navigator.clipboard.writeText(ahref);
   };
 
+  const prepareCollectionIds = (collectionIds) => {
+    const queries = {};
+    collectionIds.forEach((query, i) => {
+      queries[i] = query;
+    });
+    return queries;
+  };
+
   const fetchCollectionNames = async () => {
     const collectionIds = queryState.map((query) => query.collections);
-    const nestedArrayOfCollectionData = await getCollectionNames(collectionIds).unwrap();
+    const prepareCollections = prepareCollectionIds(collectionIds);
+    const nestedArrayOfCollectionData = await getCollectionNames(prepareCollections).unwrap();
     return nestedArrayOfCollectionData.collection;
   };
 
@@ -116,7 +131,6 @@ export default function TabbedSearch() {
   };
 
   const handleClose = (index, colorValue) => {
-    // SyntheticBaseEvent (click outside of menu)
     if (isNumber(index)) {
       setValue(index);
     }
@@ -132,8 +146,19 @@ export default function TabbedSearch() {
     setAnchorEl(null);
   };
 
+  const handleComparative = (i, type) => {
+    if (type === PARTISAN) {
+      dispatch(addComparativeQuery({ type: PARTISAN, query: queryState[i] }));
+    }
+    if (type === GLOBAL) {
+      dispatch(addComparativeQuery({ type: GLOBAL, query: queryState[i] }));
+    }
+    setAnchorEl(null);
+  };
+
   return (
     <div className="container search-container">
+      <br />
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', marginLeft: 6 }}>
@@ -210,6 +235,7 @@ export default function TabbedSearch() {
                         setEdit(updatedEdit);
                       }}
                       handleMenuOpen={handleMenuOpen}
+                      handleComparative={(type) => handleComparative(i, type)}
                     />
                   </Box>
                 )}
@@ -259,7 +285,7 @@ export default function TabbedSearch() {
                 startIcon={<SearchIcon titleAccess="search this query" />}
                 onClick={async () => {
                   dispatch(searchApi.util.resetApiState());
-                  dispatch(setLastSearchTime(dayjs().unix()));
+                  dispatch(setInitialSearchTime(dayjs().unix()));
                   const collectionNames = await fetchCollectionNames();
                   const updatedQueryState = JSON.parse(JSON.stringify(queryState));
                   queryState.forEach((q, i) => {
@@ -294,6 +320,7 @@ export default function TabbedSearch() {
           <SampleStories />
           <TopWords />
           <TopLanguages />
+          <TopSources />
         </div>
       </div>
     </div>

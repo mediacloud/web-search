@@ -8,10 +8,13 @@ import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import queryGenerator from '../util/queryGenerator';
 import setLanguage from '../util/setLanguage';
-import { setQueryProperty } from './querySlice';
+import { setQueryProperty, copyToAllQueries, QUERY } from './querySlice';
+import CopyToAll from '../util/CopyToAll';
 
 function AdvancedSearch({ queryIndex }) {
   const dispatch = useDispatch();
+
+  const [openCopy, setOpenCopy] = useState(false);
   const {
     queryString,
     queryList,
@@ -46,16 +49,38 @@ function AdvancedSearch({ queryIndex }) {
 
   return (
     <div className="query-section">
-      <h3>
-        <em>1</em>
-        Enter search phrases
-      </h3>
+      <div className="copy-toall">
+        <h3>
+          <em>1</em>
+          Enter search phrases
+        </h3>
+        <CopyToAll
+          openDialog={openCopy}
+          title="Copy To All Queries"
+          content="Are you sure you want to copy these keywords
+                to all your queries? This will replace the keywords for all of your queries."
+          action={copyToAllQueries}
+          actionTarget={{ property: QUERY, queryIndex }}
+          snackbar
+          snackbarText="Media Copied To All Queries"
+          dispatchNeeded
+          onClick={() => setOpenCopy(true)}
+          className="float-end"
+          confirmButtonText="OK"
+        />
+      </div>
       {language && (
         <div className="container">
           <div className="row">
             <div className="col-4">
               <p>
-                Please enter query terms following the proper query syntax
+
+                Please enter query terms following the
+                {' '}
+                <a target="_blank" href="https://www.mediacloud.org/documentation/query-guide" rel="noreferrer">
+                  proper query syntax
+                </a>
+                {' '}
                 for the choosen platform.
               </p>
             </div>

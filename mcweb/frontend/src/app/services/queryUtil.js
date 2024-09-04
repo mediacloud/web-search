@@ -1,11 +1,13 @@
 export const PAGE_SIZE = 100;
-
-export const toSearchUrlParams = (params) => {
+// added noLimit argument, bool if limit should be added to params (true = no limit, false/undefined = limit)
+export const toSearchUrlParams = (params, noLimit) => {
   if (params === undefined) {
     return '';
   }
   const queryParams = {};
-  queryParams.limit = PAGE_SIZE;
+  if (!noLimit) {
+    queryParams.limit = PAGE_SIZE;
+  }
   if (params.page) {
     queryParams.offset = params.page ? PAGE_SIZE * params.page : 0;
   }
@@ -16,5 +18,6 @@ export const toSearchUrlParams = (params) => {
     }
     queryParams[key] = value;
   });
+
   return new URLSearchParams(queryParams).toString();
 };

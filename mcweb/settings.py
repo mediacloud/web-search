@@ -13,36 +13,150 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import logging
 from pathlib import Path
 import os
+
+# PyPI
 import dj_database_url
 import environ
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from django.core.exceptions import ImproperlyConfigured
 
-
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "1.4.4"
+VERSION = "2.0.5"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
-env = environ.Env(
-    DEBUG=(bool, False)  # set casting, default value
+# new config should make this obsolete!
+_DEFAULT_ALLOWED_HOSTS = [
+    #### production:
+    # app.process (mcweb.web) was for rss-fetcher on tarbell
+    # now uses https://search.mediacloud.org should now work
+    # (need to adjust rss-fetcher config first)
+    'search.mediacloud.org', 'mcweb.web',
+
+    #### staging:
+    'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.steinam.angwin',
+
+    #### development (outside dokku)
+    'localhost', '127.0.0.1'
+]
+
+# new config should make this obsolete!
+_DEFAULT_CSRF_TRUSTED_ORIGINS = [
+    'https://mcweb-staging.tarbell.mediacloud.org',
+    'https://search.mediacloud.org'
+]
+
+# used in defaults below:
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
+
+_DEFAULT_ALERTS_RECIPIENTS = []
+if ADMIN_EMAIL:
+    _DEFAULT_ALERTS_RECIPIENTS.append(ADMIN_EMAIL)
+
+# necessary to run source alerts
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", ADMIN_EMAIL) # user in database
+
+env = environ.Env(      # @@CONFIGURATION@@ definitions
+    # (cast, default_value) in alphabetical order:
+    ALERTS_RECIPIENTS=(list, _DEFAULT_ALERTS_RECIPIENTS),
+    ALLOWED_HOSTS=(list, _DEFAULT_ALLOWED_HOSTS),
+    ANALYTICS_MATOMO_DOMAIN=(str, "null"),
+    ANALYTICS_MATOMO_SITE_ID=(str, "null"),
+    CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
+    DEBUG=(bool, False),
+    EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
+    # EMAIL_HOST[_{PASWORD,USER}] must be supplied
+    EMAIL_HOST_PORT=(int,465),  # ssmtp (SSL submission)
+    EMAIL_HOST_USE_SSL=(bool, True),
+    EMAIL_NOREPLY=(str, 'noreply@mediacloud.org'),
+    EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
+    GIT_REV=(str, ""),
+    NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
+    SCRAPE_ERROR_RECIPIENTS=(list, []),
+    SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
+    SENTRY_DSN=(str, ""),
+    SENTRY_ENV=(str, ""),
+    SENTRY_JS_REPLAY_RATE=(float, 0.1), # fraction 0 to 1.0
+    SENTRY_JS_TRACES_RATE=(float, 0.2), # fraction 0 to 1.0
+    SENTRY_PY_PROFILES_RATE=(float, 1.0), # fraction 0 to 1.0
+    SENTRY_PY_TRACES_RATE=(float, 1.0),  # fraction 0 to 1.0
+    SYSTEM_ALERT=(str,None),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-SECRET_KEY = env("SECRET_KEY")
+# suppress environ package debug messages:
+_env_logger = logging.getLogger('environ.environ')
+_env_log_level = _env_logger.getEffectiveLevel()
+_env_logger.setLevel(logging.INFO)
+################ @@CONFIGURATION@@ variables
+# (casts and defaults declared above)
 
-DEBUG = environ.Env(DEBUG=(bool, False))
+# IN ALPHABETICAL ORDER:
 
-# app.process for access from rss-fetcher
-ALLOWED_HOSTS = ['search.mediacloud.org', 'localhost', 'mcweb.web', 'mcweb-staging.tarbell.mediacloud.org', 'mcweb-staging.tarbell.mediacloud.org']
-CSRF_TRUSTED_ORIGINS = ['https://mcweb-staging.tarbell.mediacloud.org', 'https://search.mediacloud.org']
+ALERTS_RECIPIENTS = env('ALERTS_RECIPIENTS') # list
+ALLOWED_HOSTS = env("ALLOWED_HOSTS") # list
+ANALYTICS_MATOMO_DOMAIN = env('ANALYTICS_MATOMO_DOMAIN')
+ANALYTICS_MATOMO_SITE_ID = env('ANALYTICS_MATOMO_SITE_ID')
+
+CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS") # defined as list
+
+DEBUG = env("DEBUG")
+
+EMAIL_NOREPLY = env('EMAIL_NOREPLY') # email sender address
+EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
+
+# email authentication
+try:
+    EMAIL_BACKEND = env('EMAIL_BACKEND')
+
+    # vars used by django.core.mail.backends.smtp.EmailBackend:
+    EMAIL_HOST = env('EMAIL_HOST') # no default
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER') # no default
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # no default
+    EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
+    EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
+    assert EMAIL_HOST, "EMAIL_HOST is empty"
+    logger.info("Email host %s", EMAIL_HOST)
+except (ImproperlyConfigured, AssertionError) as exc:
+    # don't require email settings (for development)
+    logger.warning("Email not configured: %s", exc)
+    EMAIL_BACKEND = None
+    EMAIL_HOST = None
+    EMAIL_HOST_USER = None
+    EMAIL_HOST_PASSWORD = None
+    EMAIL_HOST_PORT = None
+    EMAIL_HOST_USE_SSL = None
+
+GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
+
+NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
+
+RSS_FETCHER_URL = env('RSS_FETCHER_URL')
+RSS_FETCHER_USER = env('RSS_FETCHER_USER')
+RSS_FETCHER_PASS = env('RSS_FETCHER_PASS')
+
+SCRAPE_ERROR_RECIPIENTS = env('SCRAPE_ERROR_RECIPIENTS') # list
+SCRAPE_TIMEOUT_SECONDS = env('SCRAPE_TIMEOUT_SECONDS') # HTTP connect/read timeout
+SECRET_KEY = env('SECRET_KEY')
+SENTRY_DSN = env('SENTRY_DSN')
+SENTRY_ENV = env('SENTRY_ENV')
+SENTRY_JS_TRACES_RATE = env('SENTRY_JS_TRACES_RATE')
+SENTRY_JS_REPLAY_RATE = env('SENTRY_JS_REPLAY_RATE')
+SENTRY_PY_PROFILES_RATE = env('SENTRY_PY_PROFILES_RATE')
+SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
+SYSTEM_ALERT = env('SYSTEM_ALERT')
+
+# end config
+_env_logger.setLevel(_env_log_level) # restore log level
+################
 # Application definition
 
 INSTALLED_APPS = [
+    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -67,6 +181,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
 ]
 
 ROOT_URLCONF = "urls"
@@ -94,7 +214,7 @@ WSGI_APPLICATION = "wsgi.application"
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.parse(env('DATABASE_URI'), conn_max_age=600)
+    "default": dj_database_url.parse(env('DATABASE_URL'), conn_max_age=0)
 }
 
 # Password validation
@@ -198,7 +318,8 @@ LOGGING = {
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': env('CACHE_URL'),
+        # REDIS_URL supplied by Dokku:
+        'LOCATION': env('REDIS_URL'),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
@@ -206,45 +327,25 @@ CACHES = {
     }
 }
 
-# add api keys
-MC_API_KEY = env("MEDIA_CLOUD_API_KEY")
-YOUTUBE_API_KEY = env("YOUTUBE_API_KEY")
+DISABLE_SERVER_SIDE_CURSORS = True
 
-# email authentication
-try:
-    EMAIL_BACKEND = env('EMAIL_BACKEND')
-    EMAIL_HOST = env('EMAIL_HOST')
-    EMAIL_PORT = env('EMAIL_PORT')
-    EMAIL_USE_SSL = env('EMAIL_USE_SSL')
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-except ImproperlyConfigured:
-    # don't require email settings; for instance on localhost
-    logger.warning("Email not configured")
-    EMAIL_BACKEND = None
-    EMAIL_HOST = None
-    EMAIL_PORT = None
-    EMAIL_USE_SSL = None
-    EMAIL_HOST_USER = None
-    EMAIL_HOST_PASSWORD = None
-
-# sentry config
-try:
+# sentry config for Python code:
+if SENTRY_DSN and SENTRY_ENV:
     sentry_sdk.init(
-
-        dsn=env('SENTRY_DSN'),
+        dsn=SENTRY_DSN,
         integrations=[
             DjangoIntegration(),
         ],
-
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        # We recommend adjusting this value in production.
-        traces_sample_rate=1.0,
+        environment=SENTRY_ENV,
+        traces_sample_rate=SENTRY_PY_TRACES_RATE,
+        profiles_sample_rate=SENTRY_PY_PROFILES_RATE,
+        release=VERSION,
 
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True
     )
-except ImproperlyConfigured:
-    logger.debug("Sentry DSN not configured")
+else:
+    logger.warning("Sentry not configured")
+
+# add configuration variables above (search for @@CONFIGURATION@@)

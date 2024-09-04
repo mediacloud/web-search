@@ -23,7 +23,17 @@ export default function ModifySource() {
   const sourceId = Number(params.sourceId);
 
   const [formState, setFormState] = React.useState({
-    name: '', notes: '', homepage: '', label: '', service: '', platform: '', url_search_string: '',
+    name: '',
+    notes: '',
+    homepage: '',
+    label: '',
+    service: '',
+    platform: '',
+    url_search_string: '',
+    media_type: '',
+    primary_language: '',
+    pub_country: '',
+    pub_state: '',
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -50,7 +60,11 @@ export default function ModifySource() {
         homepage: data.homepage,
         label: data.label,
         platform: data.platform,
-        url_search_string: data.url_search_string,
+        url_search_string: data.url_search_string ? data.url_search_string : '',
+        media_type: data.media_type ? data.media_type : '',
+        primary_language: data.primary_language,
+        pub_country: data.pub_country,
+        pub_state: data.pub_state,
       };
       setFormState(formData);
     }
@@ -58,9 +72,17 @@ export default function ModifySource() {
 
   const [collectionId, setCollectionId] = useState('');
 
-  // const collectionData = useGetCollectionQuery(collectionId);
-
   const [createSourceCollectionAssociation] = useCreateSourceCollectionAssociationMutation();
+
+  const prepareSource = (formData) => {
+    const preparedSource = {};
+    Object.keys(formData).forEach((column) => {
+      if ((formData[column] && formData[column] !== '') || column === 'url_search_string') {
+        preparedSource[column] = formData[column];
+      }
+    });
+    return preparedSource;
+  };
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
@@ -171,10 +193,60 @@ export default function ModifySource() {
           />
           <br />
           <br />
+          <TextField
+            fullWidth
+            name="primary_language"
+            label="Primary Language"
+            value={formState.primary_language}
+            onChange={handleChange}
+            helperText="Primary language, code should be valid ISO 639-1"
+          />
+          <br />
+          <br />
+          <TextField
+            fullWidth
+            name="pub_country"
+            label="Publication Country"
+            value={formState.pub_country}
+            onChange={handleChange}
+            helperText="Publication country code, country code should be valid ISO 3166-1 alpha-3"
+          />
+          <br />
+          <br />
+          <TextField
+            fullWidth
+            name="pub_state"
+            label="Publication State"
+            value={formState.pub_state}
+            onChange={handleChange}
+            helperText="Publication State code, should be valid ISO 3166-2"
+          />
+          <br />
+          <br />
+          <FormControl fullWidth>
+            <InputLabel id="media-select-label">Media Type</InputLabel>
+            <Select
+              labelId="media-select-label"
+              id="media-select"
+              value={formState.media_type}
+              name="media_type"
+              label="Media Type"
+              onChange={handleChange}
+            >
+              <MenuItem value="audio_broadcast">Audio Broadcast</MenuItem>
+              <MenuItem value="digital_native">Digital Native</MenuItem>
+              <MenuItem value="print_native">Print Native</MenuItem>
+              <MenuItem value="video_broadcast">Video Broadcast</MenuItem>
+              <MenuItem value="other">Other</MenuItem>
+            </Select>
+          </FormControl>
+          <br />
+          <br />
           <Button
             variant="contained"
             onClick={() => {
-              updateSource(formState)
+              const preparedSource = prepareSource(formState);
+              updateSource(preparedSource)
                 .then((payload) => {
                   if (payload.error) {
                     setErrorMessage(payload.error.data.detail);

@@ -7,13 +7,19 @@ import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetSampleStoriesMutation } from '../../../app/services/searchApi';
 import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_NEWS_MEDIA_CLOUD,
-  PROVIDER_TWITTER_TWITTER, PROVIDER_YOUTUBE_YOUTUBE,
+  PROVIDER_NEWS_MEDIA_CLOUD,
 } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
 import SampleStoryShow from './SampleStoryShow';
 import TabPanelHelper from '../../ui/TabPanelHelper';
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
 
 export default function SampleStories() {
   const queryState = useSelector((state) => state.query);
@@ -57,14 +63,13 @@ export default function SampleStories() {
 
   let content;
   if (!data && !error) return null;
-  if (error) {
-    // const msg = data.note;
 
+  if (error || !data[0].sample[0]) {
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error ? error.note : 'No results please try a different query'}
         )
       </Alert>
     );
@@ -76,16 +81,21 @@ export default function SampleStories() {
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-              {data.sample.map((result, i) => (
-                <Tab key={queryTitleArrays[i]} label={queryTitleArrays[i]} {...a11yProps(i)} />
+              {data.map((result, i) => (
+                <Tab
+                  key={queryTitleArrays[i]}
+                  label={queryTitleArrays[i]}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...a11yProps(i)}
+                />
               ))}
             </Tabs>
           </Box>
 
-          {data.sample.map((results, i) => (
-            <TabPanelHelper value={value} index={i}>
+          {data.map((results, i) => (
+            <TabPanelHelper value={value} index={i} key={`${results.sample[0].id}`}>
               <SampleStoryShow
-                data={results}
+                data={results.sample}
                 lSTP={lastSearchTimePlatform}
                 platform={platform}
               />
@@ -102,28 +112,10 @@ export default function SampleStories() {
           <h2>Sample Content</h2>
           <p>
             This is a sample of the content that matched your queries.
-            Click the menu on the bottom  right to download a CSV of all the
-            matching content and associated metadata.
           </p>
           {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
             <p>
               These results are a random sample of news stories that matched your searches.
-            </p>
-          )}
-          {(platform === PROVIDER_REDDIT_PUSHSHIFT) && (
-            <p>
-              These results are the top scoring Reddit submissions that matched your
-              searches.
-            </p>
-          )}
-          {(platform === PROVIDER_TWITTER_TWITTER) && (
-            <p>
-              These results are the most recent tweets that matched your searches.
-            </p>
-          )}
-          {(platform === PROVIDER_YOUTUBE_YOUTUBE) && (
-            <p>
-              These results are the most viewed videos that matched your searches.
             </p>
           )}
         </div>
@@ -133,11 +125,4 @@ export default function SampleStories() {
       </div>
     </div>
   );
-}
-
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
 }

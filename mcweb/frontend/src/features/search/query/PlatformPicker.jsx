@@ -4,19 +4,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import YouTubeIcon from '@mui/icons-material/YouTube';
-import RedditIcon from '@mui/icons-material/Reddit';
-import TwitterIcon from '@mui/icons-material/Twitter';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
 import addType from './media-picker/util/addType';
-import {
-  PROVIDER_REDDIT_PUSHSHIFT, PROVIDER_TWITTER_TWITTER, PROVIDER_NEWS_MEDIA_CLOUD,
-  PROVIDER_YOUTUBE_YOUTUBE, PROVIDER_NEWS_WAYBACK_MACHINE,
-} from '../util/platforms';
-
-import {
-  resetSelectedAndPreviewMedia, addSelectedMedia, setPlatform,
-} from './querySlice';
+import { PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE } from '../util/platforms';
+import { resetSelectedAndPreviewMedia, addSelectedMedia, setPlatform } from './querySlice';
 
 export default function PlatformPicker({ queryIndex }) {
   const {
@@ -65,58 +56,26 @@ export default function PlatformPicker({ queryIndex }) {
           >
 
             {document.settings.availableProviders.includes(PROVIDER_NEWS_MEDIA_CLOUD) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD); }}
-                value={PROVIDER_NEWS_MEDIA_CLOUD}
-              >
-                <NewspaperIcon fontSize="large" />
-                Online News
-                <br />
-                (Media Cloud)
-              </ToggleButton>
+            <ToggleButton
+              onClick={() => { handleChangePlatform(PROVIDER_NEWS_MEDIA_CLOUD); }}
+              value={PROVIDER_NEWS_MEDIA_CLOUD}
+            >
+              <NewspaperIcon fontSize="large" />
+              Media Cloud Online
+              <br />
+              News Archive (NEW)
+            </ToggleButton>
             )}
+
             {document.settings.availableProviders.includes(PROVIDER_NEWS_WAYBACK_MACHINE) && (
               <ToggleButton
                 onClick={() => { handleChangePlatform(PROVIDER_NEWS_WAYBACK_MACHINE); }}
                 value={PROVIDER_NEWS_WAYBACK_MACHINE}
               >
                 <NewspaperIcon fontSize="large" />
-                Online News
+                Wayback Machine
                 <br />
-                (Wayback Machine)
-              </ToggleButton>
-            )}
-            {/* {document.settings.availableProviders.includes(PROVIDER_REDDIT_PUSHSHIFT) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_REDDIT_PUSHSHIFT); }}
-                value={PROVIDER_REDDIT_PUSHSHIFT}
-              >
-                <RedditIcon fontSize="large" />
-                Reddit
-                <br />
-                (PushShift.io API)
-              </ToggleButton>
-            )} */}
-            {/* {document.settings.availableProviders.includes(PROVIDER_TWITTER_TWITTER) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_TWITTER_TWITTER); }}
-                value={PROVIDER_TWITTER_TWITTER}
-              >
-                <TwitterIcon fontSize="large" />
-                Twitter
-                <br />
-                (Twitter API)
-              </ToggleButton>
-            )} */}
-            {document.settings.availableProviders.includes(PROVIDER_YOUTUBE_YOUTUBE) && (
-              <ToggleButton
-                onClick={() => { handleChangePlatform(PROVIDER_YOUTUBE_YOUTUBE); }}
-                value={PROVIDER_YOUTUBE_YOUTUBE}
-              >
-                <YouTubeIcon fontSize="large" />
-                YouTube
-                <br />
-                (YouTube API)
+                News Archive
               </ToggleButton>
             )}
           </ToggleButtonGroup>

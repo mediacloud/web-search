@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import dayjs from 'dayjs';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -13,7 +14,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Autocomplete from '@mui/material/Autocomplete';
-import dayjs from 'dayjs';
 import {
   useUpdateFeedMutation,
   useGetFeedQuery,
@@ -27,30 +27,37 @@ const MAX_RESULTS = 10; // per endpoint
 const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 function ModifyFeed() {
-  // const [lastRequestTime, setLastRequestTime] = useState(0);
-  const [open, setOpen] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedSource, setSelectedSource] = useState({
-    id: '',
-    label: '',
-  });
-  const [sourceOptions, setSourceOptions] = useState([]);
-  const [
-    sourceTrigger,
-    { isFetching: isSourceSearchFetching, data: sourceSearchResults },
-  ] = useLazyListSourcesQuery();
   const navigate = useNavigate();
   const params = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const feedId = Number(params.feedId);
+
+  const [open, setOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const [selectedSource, setSelectedSource] = useState({
+    id: '',
+    label: '',
+  });
+
+  const [sourceOptions, setSourceOptions] = useState([]);
+
+  const [
+    sourceTrigger,
+    { isFetching: isSourceSearchFetching, data: sourceSearchResults },
+  ] = useLazyListSourcesQuery();
+
+  const autocompleteRef = useRef(null);
+
   const { data, isLoading } = useGetFeedQuery(feedId);
+
   const {
     data: sourceData,
     isLoading: isSourceLoading,
   } = useGetSourceQuery(data.source);
+
   const [updateFeed] = useUpdateFeedMutation(feedId);
 
-  // form state for text fields
   const [formState, setFormState] = useState({
     name: '',
     url: '',
@@ -92,7 +99,6 @@ function ModifyFeed() {
     }
   }, [data]);
 
-  // handle source search results
   useEffect(() => {
     if (sourceSearchResults) {
       const existingOptionIds = sourceOptions
@@ -115,8 +121,6 @@ function ModifyFeed() {
       );
     }
   }, [sourceSearchResults]);
-
-  const somethingIsFetching = isSourceSearchFetching;
 
   useEffect(() => {
     if (!open) {
@@ -166,8 +170,16 @@ function ModifyFeed() {
           />
           <br />
           <br />
+          <p>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            <b>Parent Source</b>: {sourceData.name}
+          </p>
+          <h3>Change Feed Parent Source</h3>
+          <br />
+          {/* SHOULD MAKE A REUSABLE AUTOCOMPLETE, for this and ModifyCollection */}
           <Autocomplete
-            id="quick-directory-search"
+            ref={autocompleteRef}
+            id="quick-source-search"
             open={open}
             filterOptions={(x) => x} // let the server filter optons
             onOpen={() => {}}
@@ -175,23 +187,25 @@ function ModifyFeed() {
               setOpen(false);
             }}
             blurOnSelect
-            isOptionEqualToValue={(option, value) => option?.id === value?.id}
-            getOptionLabel={(option) => option?.label || ''}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            getOptionLabel={(option) => option.label || ''}
             noOptionsText="No matches"
-            groupBy={(option) => option?.displayGroup || ''}
+            groupBy={(option) => option.displayGroup || ''}
             options={[...sourceOptions]}
-            defaultValue={sourceData || null}
-            loading={somethingIsFetching}
+            defaultValue={sourceData.name || ''}
+            loading={isSourceSearchFetching}
             onChange={defaultSelectionHandler}
             renderInput={(inputParams) => (
               <TextField
+                {...inputParams}
                 label="Parent Source"
-                disabled={somethingIsFetching}
+                value={formState.source}
+                disabled={isSourceSearchFetching}
                 InputProps={{
                   ...inputParams.InputProps,
                   endAdornment: (
                     <>
-                      {somethingIsFetching ? (
+                      {isSourceSearchFetching ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
                       {inputParams.InputProps.endAdornment}

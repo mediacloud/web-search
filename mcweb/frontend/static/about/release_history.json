@@ -1,4 +1,85 @@
-[{"version": "v1.4.4",
+[{"version": "v2.0.5",
+"date": "2024-06-27",
+"notes": ["Add tab titles to most pages",
+"Add favicon",
+"allow admins to delete url search strings",
+"formatting changes on source show page",
+"show label for sources in selected media",
+"fix negated queries for MC",
+"show all metadata for sources",
+"allow searches into 2022"
+]},
+{"version": "v2.0.4",
+"date": "2024-05-14",
+"notes": ["update cacheing",
+"now search attention over time first, followed by other results components",
+"decrease earliest searchable start date to 01/01/2022"
+]},
+{"version": "v2.0.3",
+"date": "2024-03-19",
+"notes": ["update low-level internal libraries",
+"fixes on story API call"
+]
+},{"version": "v2.0.2",
+"date": "2024-02-28",
+"notes": ["add feature copy to all queries",
+"allow all of 2023 to be queried against",
+"add feature compare across the globe",
+"bug fixes for feeds",
+"fix story list paging"
+]
+},{"version": "v2.0.1",
+"date": "2024-01-22",
+"notes": ["add day, week, month views to attention over time",
+"fix email bug",
+"fix large downloads",
+"stability fixes for new index",
+"fix typos in results components"
+]
+},{"version": "v2.0.0",
+"date": "2023-12-21",
+"notes": ["primary provider to search against is now the new media cloud online news archive",
+"new feature top sources",
+"remove redundant .csv on small all url downloads",
+"bug fix for source creation",
+"add token access for get requests to search",
+"fix for source url serialization in search",
+"add workers to assist search speed and responsiveness",
+"minor styling changes",
+"fix search now from source page",
+"fix for top words for new media cloud provider"
+]
+},
+{"version": "v1.4.7",
+"date": "2023-11-01",
+"notes": ["change download all content to download all urls",
+"add query guide link to advanced search",
+"remove redundant .csv on small all url downloads",
+"fix larger all url downloads",
+"Add source and collection stories over time to source and collection pages",
+"fix for added whitespace in simple search",
+"add fix for collection serialization in advanced search",
+"fix to remove user added quotes in simple search"
+]
+},
+{"version": "v1.4.6",
+"date": "2023-10-12",
+"notes": ["add support for larger number of queries",
+"add feature compare across partisanship",
+"fix bug for app crash when returning 0 results successfully",
+"fix large indentation in search"
+]
+},
+{"version": "v1.4.5",
+"date": "2023-09-21",
+"notes": ["refactor search frontend architecture",
+"allow admins to edit source meta data",
+"don't show source metadata we do not have",
+"fix for downloading all content",
+"adjustments to source alert system"
+]
+},
+{"version": "v1.4.4",
 "date": "2023-07-27",
 "notes": ["Add new tab naming conventions in search",
 "send email when finding new feed",

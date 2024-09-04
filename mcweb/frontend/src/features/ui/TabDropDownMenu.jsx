@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
@@ -6,12 +7,15 @@ import CircleIcon from '@mui/icons-material/Circle';
 import PropTypes from 'prop-types';
 import ArrowRight from '@mui/icons-material/ArrowRight';
 import CloseIcon from '@mui/icons-material/Close';
+import { PARTISAN, GLOBAL } from '../search/util/generateComparativeQuery';
+import { PROVIDER_NEWS_MEDIA_CLOUD } from '../search/util/platforms';
 
 // https://medium.com/geekculture/creating-a-dropdown-with-nested-menu-items-using-react-mui-bb0c084226da was a helpful tool
 
 export default function TabDropDownMenuItems({
-  anchorEl, open, handleClose, handleMenuOpen,
+  anchorEl, open, handleClose, handleMenuOpen, handleComparative,
 }) {
+  const platform = useSelector((state) => state.query[0].platform);
   const [colorSubMenuOpen, setColorSubMenuOpen] = useState(false);
 
   const handleMouseEnter = () => {
@@ -21,6 +25,19 @@ export default function TabDropDownMenuItems({
   const closeColorSubMenu = (event, color) => {
     handleClose(color);
     setColorSubMenuOpen(false);
+  };
+
+  const colorMenuSizing = () => {
+    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+      return {
+        vertical: -15,
+        horizontal: -232,
+      };
+    }
+    return {
+      vertical: -15,
+      horizontal: -122.5,
+    };
   };
 
   // mouse leaves main menu
@@ -42,14 +59,34 @@ export default function TabDropDownMenuItems({
         open={open}
         onClose={handleClose}
       >
+        {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
+        <MenuItem onClick={() => {
+          handleComparative(PARTISAN);
+          setColorSubMenuOpen(false);
+        }}
+        >
+          Compare Across Partisanship
+        </MenuItem>
+        )}
+
+        {/* compare across the globe, temp disabled until 504 solution */}
+        <MenuItem onClick={() => {
+          handleComparative(GLOBAL);
+          setColorSubMenuOpen(false);
+        }}
+        >
+          Compare Across the Globe
+        </MenuItem>
+
         {/* Add Color Option */}
-        <MenuItem
+        {/* <MenuItem
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
           Add Color
           <ArrowRight />
-        </MenuItem>
+        </MenuItem> */}
+
         {/* Edit Tab Name Option */}
         <MenuItem onClick={() => {
           handleClose('edit');
@@ -63,7 +100,6 @@ export default function TabDropDownMenuItems({
       {/* Color Submenu */}
       <Menu
         hideBackdrop
-        sx={{ marginLeft: '120px', marginTop: '20px' }}
         style={{ pointerEvents: 'none' }}
         open={colorSubMenuOpen && open && Boolean(anchorEl)}
         anchorEl={anchorEl}
@@ -77,10 +113,7 @@ export default function TabDropDownMenuItems({
           vertical: 'right',
           horizontal: 'right',
         }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
+        transformOrigin={colorMenuSizing()}
       >
         <div style={{ pointerEvents: 'all' }}>
           <MenuItem onClick={(e) => closeColorSubMenu(e, 'orange')}>
@@ -117,4 +150,5 @@ TabDropDownMenuItems.propTypes = {
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   handleMenuOpen: PropTypes.func.isRequired,
+  handleComparative: PropTypes.func.isRequired,
 };

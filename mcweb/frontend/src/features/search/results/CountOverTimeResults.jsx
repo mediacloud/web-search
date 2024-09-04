@@ -1,30 +1,41 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import dayjs from 'dayjs';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Settings } from '@mui/icons-material';
-import DownloadIcon from '@mui/icons-material/Download';
+import Divider from '@mui/material/Divider';
+import Settings from '@mui/icons-material/Settings';
+import CSVDialog from '../util/CSVDialog';
+import { AOT } from '../util/getDownloadUrl';
 import CountOverTimeChart from './CountOverTimeChart';
 import { useGetCountOverTimeMutation } from '../../../app/services/searchApi';
+import { setLastSearchTime } from '../query/querySlice';
 import { supportsNormalizedCount } from './TotalAttentionResults';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
-import prepareCountOverTimeData from '../util/prepareCountOverTimeData';
+import {
+  prepareCountOverTimeData, DAY, WEEK, MONTH,
+} from '../util/prepareCountOverTimeData';
 
 export default function CountOverTimeResults() {
+  const dispatch = useDispatch();
   const queryState = useSelector((state) => state.query);
 
   const {
     platform,
-    lastSearchTime,
+    initialSearchTime,
   } = queryState[0];
 
   const [normalized, setNormalized] = useState(true);
 
+  const [chartBy, setChartBy] = useState(DAY);
+
   const [anchorEl, setAnchorEl] = useState(null);
+
+  const [openDownloadDialog, setopenDownloadDialog] = useState(false);
 
   const handleClick = (e) => setAnchorEl(e.currentTarget);
 
@@ -33,10 +44,6 @@ export default function CountOverTimeResults() {
   const open = Boolean(anchorEl);
 
   const [dispatchQuery, { isLoading, data, error }] = useGetCountOverTimeMutation();
-
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-counts-over-time-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
-  };
 
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
@@ -48,7 +55,7 @@ export default function CountOverTimeResults() {
       dispatchQuery(preparedQueries);
       setNormalized(supportsNormalizedCount(platform));
     }
-  }, [lastSearchTime]);
+  }, [initialSearchTime]);
 
   useEffect(() => {
     if (checkForBlankQuery(queryState) && queryState.length === 1) {
@@ -56,16 +63,19 @@ export default function CountOverTimeResults() {
     } else {
       setNewQuery(false);
     }
-  }, [lastSearchTime, queryState.length]);
+  }, [initialSearchTime, queryState.length]);
 
   useEffect(() => {
     if ((data)) {
-      if ((data.count_over_time.length === queryState.length)) { executeScroll(); }
+      if ((data.length === queryState.length)) { executeScroll(); }
+      dispatch(setLastSearchTime(dayjs().unix()));
     } else if (error) {
       executeScroll();
     }
   }, [data, error]);
+
   if (newQuery) return null;
+
   let content;
 
   if (isLoading) {
@@ -74,17 +84,16 @@ export default function CountOverTimeResults() {
 
   if (!data && !error) return null;
   if (error) {
-    // const msg = data.note;
     content = (
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.data.note}
+        {error.note}
         )
       </Alert>
     );
   } else {
-    const preparedData = prepareCountOverTimeData(data.count_over_time, normalized, queryState);
+    const preparedData = prepareCountOverTimeData(data, normalized, chartBy, queryState);
     if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
       (originalDataObj, index) => {
@@ -103,8 +112,12 @@ export default function CountOverTimeResults() {
             <div className="float-start">
               {normalized && (
                 <div>
-                  <Button onClick={handleClick} startIcon={<Settings titleAccess="view other chart viewing options" />}>
-                    View Options
+                  <Button
+                    onClick={handleClick}
+                    variant="outlined"
+                    startIcon={<Settings titleAccess="view other chart viewing options" />}
+                  >
+                    View Options...
                   </Button>
                   <Menu
                     id="basic-menu"
@@ -122,13 +135,32 @@ export default function CountOverTimeResults() {
                     >
                       View Content Count
                     </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={() => {
+                      setChartBy(DAY);
+                    }}
+                    >
+                      Chart by day
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                      setChartBy(WEEK);
+                    }}
+                    >
+                      Chart by week
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                      setChartBy(MONTH);
+                    }}
+                    >
+                      Chart by month
+                    </MenuItem>
                   </Menu>
                 </div>
               )}
               {!normalized && (
                 <div>
-                  <Button onClick={handleClick}>
-                    View Options
+                  <Button variant="outlined" onClick={handleClick}>
+                    View Options...
                   </Button>
                   <Menu
                     id="basic-menu"
@@ -146,21 +178,41 @@ export default function CountOverTimeResults() {
                     >
                       View Normalized Content Percentage (default)
                     </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={() => {
+                      setChartBy(DAY);
+                    }}
+                    >
+                      Chart by day
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                      setChartBy(WEEK);
+                    }}
+                    >
+                      Chart by week
+                    </MenuItem>
+                    <MenuItem onClick={() => {
+                      setChartBy(MONTH);
+                    }}
+                    >
+                      Chart by month
+                    </MenuItem>
                   </Menu>
                 </div>
               )}
             </div>
           )}
           <div className="float-end">
-            <Button
-              variant="text"
-              startIcon={<DownloadIcon titleAccess="download attention over time results" />}
-              onClick={() => {
-                handleDownloadRequest(queryState);
-              }}
-            >
-              Download CSV
-            </Button>
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={AOT}
+              outsideTitle="Download CSV of Attention Over Time"
+              title="Choose a Query to Download a Attention Over Time CSV or you can choose to download all queries"
+              snackbarText="Attention Over Time CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
+              variant="outlined"
+            />
           </div>
         </div>
       </>

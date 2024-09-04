@@ -63,7 +63,7 @@ export default function SourceList(props) {
                     {source.label || source.name}
                   </Link>
                 </td>
-                <td className="numeric">{asNumber(source.stories_per_week)}</td>
+                <td>{asNumber(source.stories_per_week)}</td>
                 {edit && (
                   <td>
                     <IconButton

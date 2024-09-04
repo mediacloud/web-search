@@ -5,7 +5,6 @@ import Tab from '@mui/material/Tab';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import Box from '@mui/material/Box';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import CollectionSearch from './CollectionSearch';
 import SourceSearch from './SourceSearch';
 import GeographicCollectionsSearch from './GeographicCollectionsSearch';

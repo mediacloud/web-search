@@ -1,24 +1,25 @@
 import React, { useState } from 'react';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
+import DownloadIcon from '@mui/icons-material/Download';
 import Box from '@mui/material/Box';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
-import prepareQueries from '../search/util/prepareQueries';
-import { useSendTotalAttentionDataEmailMutation } from '../../app/services/searchApi';
+import prepareQueries from './prepareQueries';
+import { useSendTotalAttentionDataEmailMutation } from '../../../app/services/searchApi';
 
 export default function TotalAttentionEmailModal({
-  openDialog, outsideTitle, title, variant, endIcon, confirmButtonText, currentUserEmail, totalCountOfQuery, queryState,
+  openDialog, title, confirmButtonText, currentUserEmail, totalCountOfQuery, querySlice
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const [sendTotalAttentionDataEmail] = useSendTotalAttentionDataEmailMutation();
-
   const [open, setOpen] = useState(openDialog);
   const [emailModal, setModalEmail] = useState('');
 
@@ -26,15 +27,15 @@ export default function TotalAttentionEmailModal({
     setModalEmail((prev) => ({ ...prev, [name]: value }))
   );
 
-  const handleDownloadRequest = (qs) => {
-    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries(qs)))}`;
+  const handleDownloadRequest = () => {
+    window.location = `/api/search/download-all-content-csv?qS=${encodeURIComponent(JSON.stringify(prepareQueries([querySlice])))}`;
   };
 
   // download button is hit but the count is less than 25k, no need to ask for an email it will download
   const handleClickOpen = () => {
     if (totalCountOfQuery < 25000) {
       enqueueSnackbar('Downloading your data!', { variant: 'success' });
-      handleDownloadRequest(queryState);
+      handleDownloadRequest([querySlice]);
     } else if (!currentUserEmail) {
       enqueueSnackbar('You do not have an email registered, please input an email', { variant: 'error' });
       setOpen(true);
@@ -48,7 +49,7 @@ export default function TotalAttentionEmailModal({
     if (currentUserEmail) {
       if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
         sendTotalAttentionDataEmail({
-          prepareQuery: prepareQueries(queryState),
+          prepareQuery: prepareQueries([querySlice]),
           email: currentUserEmail,
         }).unwrap();
         enqueueSnackbar(
@@ -69,7 +70,7 @@ export default function TotalAttentionEmailModal({
     if (emailModal.email) {
       if (totalCountOfQuery >= 25000 && totalCountOfQuery <= 200000) {
         sendTotalAttentionDataEmail({
-          prepareQuery: prepareQueries(queryState),
+          prepareQuery: prepareQueries([querySlice]),
           email: emailModal.email,
         }).unwrap();
 
@@ -92,13 +93,11 @@ export default function TotalAttentionEmailModal({
 
   return (
     <>
-      <Button
-        variant={variant}
-        onClick={handleClickOpen}
-        endIcon={endIcon}
+      <IconButton
+        onClick={() => handleClickOpen()}
       >
-        {outsideTitle}
-      </Button>
+        <DownloadIcon sx={{ color: '#d24527' }} />
+      </IconButton>
       <Dialog
         open={open}
         onClose={(event, reason) => {
@@ -167,15 +166,13 @@ export default function TotalAttentionEmailModal({
 
 TotalAttentionEmailModal.propTypes = {
   openDialog: PropTypes.bool.isRequired,
-  outsideTitle: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   variant: PropTypes.string,
   endIcon: PropTypes.element,
   confirmButtonText: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
   currentUserEmail: PropTypes.string,
   totalCountOfQuery: PropTypes.number,
-  queryState: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
-
+  querySlice: PropTypes.object.isRequired,
 };
 
 TotalAttentionEmailModal.defaultProps = {
@@ -183,5 +180,4 @@ TotalAttentionEmailModal.defaultProps = {
   endIcon: null,
   currentUserEmail: '',
   totalCountOfQuery: 0,
-
 };

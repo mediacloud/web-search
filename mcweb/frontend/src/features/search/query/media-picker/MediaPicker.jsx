@@ -18,7 +18,6 @@ import addType from './util/addType';
 
 export default function MediaPicker({ queryIndex }) {
   const [value, setValue] = React.useState(0);
-  // const [tab, setTab] = useState('featuredCollections');
   const dispatch = useDispatch();
   const { previewCollections, previewSources, platform } = useSelector((state) => state.query[queryIndex]);
   const [open, setOpen] = useState(false);
