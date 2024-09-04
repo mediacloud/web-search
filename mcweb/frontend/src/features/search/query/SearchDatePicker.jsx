@@ -15,10 +15,13 @@ import validateDate from '../util/dateValidation';
 import DefaultDates from './DefaultDates';
 import isQueryStateEmpty from '../util/isQueryStateEmpty';
 
+const utc = require('dayjs/plugin/utc');
+
 export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
+  dayjs.extend(utc);
   const { enqueueSnackbar } = useSnackbar();
-
+  const { earliestAvailableDate } = document.settings;
   const {
     platform, startDate, endDate, isFromDateValid, isToDateValid,
   } = useSelector((state) => state.query[queryIndex]);
@@ -84,7 +87,11 @@ export default function SearchDatePicker({ queryIndex }) {
 
   return (
     <>
-      <Alert severity="warning">Historical reingest in progress, current dates available to 01/01/2021</Alert>
+      <Alert severity="warning">
+        Historical reingest in progress, current dates available to
+        {/* {dayjs.unix(earliestAvailableDate)} */}
+        {dayjs.utc(earliestAvailableDate).local().format('MM/DD/YYYY')}
+      </Alert>
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <div className="date-accuracy-alert">

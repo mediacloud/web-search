@@ -62,9 +62,9 @@ const theme = createTheme({
   },
 });
 
-const config = window.sentry_config
+const config = window.sentry_config;
 Sentry.init({
-  
+
   dsn: config.sentry_dsn,
   integrations: [
     Sentry.browserTracingIntegration(),
@@ -77,12 +77,12 @@ Sentry.init({
   // Performance Monitoring
   tracesSampleRate: config.traces_rate,
   // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-  tracePropagationTargets: [/^https:\/\/search\.mediacloud\.org/, "/^http:\/\/localhost:8000/"],
+  tracePropagationTargets: [/^https:\/\/search\.mediacloud\.org/, '/^http:\/\/localhost:8000/'],
   // Session Replay
   replaysSessionSampleRate: config.replay_rate,
   replaysOnErrorSampleRate: 1.0,
-  _experiments:{
-    profilesSampleRate: config.traces_rate
+  _experiments: {
+    profilesSampleRate: config.traces_rate,
   },
   shouldCreateSpanForRequest: (url) => true,
 });
