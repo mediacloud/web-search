@@ -21,7 +21,7 @@ public_server() {
     test "$HOST" = "$PUBLIC_SERVER"
 }
 
-if [ "x$INSTANCE" = prod ]; then
+if [ "x$INSTANCE" = xprod ]; then
     APP=$BASE_APP
 else
     # INSTANCE is staging or username
