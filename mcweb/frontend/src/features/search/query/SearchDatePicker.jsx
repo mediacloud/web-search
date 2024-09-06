@@ -87,7 +87,7 @@ export default function SearchDatePicker({ queryIndex }) {
     <>
       <Alert severity="warning">
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        Historical reingest in progress, current dates available to {getEarliestAvailableDate(earliestAvailableDate)}
+        Reingest of historical data in progress. Search results available from present back to {getEarliestAvailableDate(earliestAvailableDate)}
       </Alert>
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
