@@ -1,8 +1,5 @@
 import dayjs from 'dayjs';
-
-const utc = require('dayjs/plugin/utc');
-
-dayjs.extend(utc);
+import getEarliestAvailableDate from './dateHelpers';
 // keep in sync with mcweb/frontend/views.py
 export const PLATFORM_ONLINE_NEWS = 'onlinenews';
 
@@ -35,7 +32,7 @@ export const latestAllowedEndDate = (provider) => {
 // the earliest starting date for the type of platform
 export const earliestAllowedStartDate = (provider) => {
   if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return dayjs('2022-08-01');
-  return dayjs.utc(earliestAvailableDate).local().format('MM/DD/YYYY');
+  return getEarliestAvailableDate(earliestAvailableDate);
 };
 
 export const defaultPlatformProvider = (platform) => {
