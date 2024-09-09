@@ -1,4 +1,11 @@
-[{"version": "v2.0.5",
+[{"version": "v2.0.6",
+"date": "2024-09-09",
+"notes": ["update deployment infrastructure",
+"update csv download menu to allow downloading of single query",
+"bug fixes",
+"add banner to alert about earliest search date",
+"update collection scraping"
+]},{"version": "v2.0.5",
 "date": "2024-06-27",
 "notes": ["Add tab titles to most pages",
 "Add favicon",
