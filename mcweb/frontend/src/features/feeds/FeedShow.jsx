@@ -100,7 +100,7 @@ function FeedShow() {
               {' '}
               {details.last_fetch_failures}
               {' '}
-              (to many of these and the system will disable this feed)
+              (too many of these and the system will disable this feed)
             </li>
           </ul>
         </div>

@@ -95,7 +95,7 @@ function ListSourceFeeds() {
               <td>
                 <Link to={`/feeds/${feed.id}`}>
                   {' '}
-                  {feed.name}
+                  {feed.name ? feed.name : 'no name'}
                 </Link>
               </td>
               <td><a target="_blank" href={`${feed.url}`} rel="noreferrer">{feed.url}</a></td>
