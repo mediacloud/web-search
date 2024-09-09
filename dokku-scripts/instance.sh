@@ -90,10 +90,9 @@ create_app() {
 
     # culd be fragile
     # just do "dokku domains:set $APP $(echo $ALLOWED_HOSTS | tr , ' ')"??
-    dokku domains:report $APP | grep 'Domains app vhosts:' | \
-	sed -e 's/^ *Domains app vhosts: */ /' -e 's/$/ /' > $VHOSTS
+    dokku domains:report $APP | awk '/Domains app vhosts:/ { for (i = 4; i <= NF; i++) print $i }' > $VHOSTS
     for DOMAIN in $(echo $ALLOWED_HOSTS | tr , ' '); do
-	if  grep -q " $DOMAIN " $VHOSTS; then
+	if  grep -Fiqx "$DOMAIN" $VHOSTS; then
 	    echo found domain $DOMAIN for $APP
 	else
 	    echo adding domain $DOMAIN to $APP

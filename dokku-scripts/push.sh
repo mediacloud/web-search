@@ -58,10 +58,6 @@ if ! git diff --quiet; then
     exit 1
 fi
 
-zzz() {
-    echo $1 | tr 'A-Za-z' 'N-ZA-Mn-za-m'
-}
-
 ORIGIN="origin"
 
 # PUSH_TAG_TO: other remotes to push tag to
@@ -71,12 +67,10 @@ git remote -v > $REMOTES
 
 case "$BRANCH" in
 prod|staging)
-    # check if corresponding branch in mediacloud acct up to date
-    GIT_ORG='mediacloud'
+    # check if corresponding branch in GIT_ORG acct up to date
 
-    # get git remote for mediacloud account
-    # ONLY match ssh remote, since will want to push tag.
-    # XXX use common REPO_PREFIX?
+    # get git remote for GIT_ORG account
+    # ONLY match ssh remote, since need to push tag.
     MCREMOTE=$(awk '/git@github\.com:'$GIT_ORG'\// { print $1; exit }' $REMOTES)
     if [ "x$MCREMOTE" = x ]; then
 	echo "could not find an ssh git remote for $GIT_ORG org repo; add upstream?" 1>&2
@@ -102,7 +96,7 @@ prod|staging)
 	echo "$MCREMOTE $BRANCH branch not up to date. run 'git push $MCREMOTE' first!!"
 	exit 1
     fi
-    # push tag back to JUST github mediacloud branch
+    # push tag back to JUST github GIT_ORG branch
     # (might be "origin", might not)
     PUSH_TAG_TO="$MCREMOTE"
     ;;
@@ -149,7 +143,7 @@ fi
 git fetch $DOKKU_GIT_REMOTE
 # have a --push-if-no-changes option?
 if git diff --quiet $BRANCH $DOKKU_GIT_REMOTE/$DOKKU_GIT_BRANCH --; then
-    echo no changes from $DOKKU_GIT_REMOTE 1>&2
+    echo no code changes from $DOKKU_GIT_REMOTE 1>&2
     NO_CODE_CHANGE=1
 fi
 
@@ -240,9 +234,6 @@ prod|staging)
     mkdir $PRIVATE_CONF_DIR
     chmod go-rwx $PRIVATE_CONF_DIR
     cd $PRIVATE_CONF_DIR
-    CONFIG_REPO_ORG=zrqvnpybhq
-    CONFIG_REPO_PREFIX=$(zzz tvg@tvguho.pbz:$CONFIG_REPO_ORG)
-    CONFIG_REPO_NAME=$(zzz jro-frnepu-pbasvt)
     echo cloning $CONFIG_REPO_NAME repo 1>&2
     if ! git clone $CONFIG_REPO_PREFIX/$CONFIG_REPO_NAME.git >/dev/null 2>&1; then
 	echo "could not clone config repo" 1>&2
@@ -288,18 +279,19 @@ esac
 #dokku ps:stop $APP
 
 echo configuring app ${APP}...
+
+# export NO_CODE_CHANGE for config.sh; pass as option?!!
+export NO_CODE_CHANGE
 $SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE $CONFIG_EXTRAS
 
 CONFIG_STATUS=$?
 case $CONFIG_STATUS in
 $CONFIG_STATUS_CHANGED)
     if [ "x$NO_CODE_CHANGE" != x ]; then
-	echo config updated, but no code changes: restarting $APP 1>&2
-
 	if [ -d $PRIVATE_CONF_DIR ]; then
 	    tag_conf_repo
 	fi
-	dokku ps:restart $APP
+	echo 'config updated; no code changes' 1>&2
 	exit 0
     fi
     ;;
@@ -309,7 +301,7 @@ $CONFIG_STATUS_ERROR)
     ;;
 $CONFIG_STATUS_NOCHANGE)
     if [ "x$NO_CODE_CHANGE" != x ]; then
-	echo no change to code or config 1>&2
+	echo no changes to code or config 1>&2
 	exit 1
     fi
     ;;
