@@ -11,6 +11,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from settings import (
     ANALYTICS_MATOMO_DOMAIN,
     ANALYTICS_MATOMO_SITE_ID,
+    EARLIEST_AVAILABLE_DATE,
     SENTRY_DSN,
     SENTRY_ENV,
     SENTRY_JS_TRACES_RATE,
@@ -29,6 +30,7 @@ def index(request):
         providers=providers.available_provider_names(),
         analytics_matomo_domain=ANALYTICS_MATOMO_DOMAIN,
         analytics_matomo_id=ANALYTICS_MATOMO_SITE_ID,
+        earliest_available_date=EARLIEST_AVAILABLE_DATE,
         system_alert=SYSTEM_ALERT,
         sentry_config={
             "sentry_dsn": (SENTRY_DSN or "null"),

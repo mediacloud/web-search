@@ -107,6 +107,8 @@ CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS") # defined as list
 
 DEBUG = env("DEBUG")
 
+EARLIEST_AVAILABLE_DATE = env('EARLIEST_AVAILABLE_DATE') # earliest available date for elastic search
+
 EMAIL_NOREPLY = env('EMAIL_NOREPLY') # email sender address
 EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
 

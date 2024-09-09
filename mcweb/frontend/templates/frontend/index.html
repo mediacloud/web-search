@@ -20,7 +20,8 @@
                 document.settings.systemAlert = "{{ system_alert|safe }}";
             {% else %}
                 document.settings.systemAlert = undefined;
-            {% endif %}    
+            {% endif %}
+            document.settings.earliestAvailableDate = {{earliest_available_date|safe}};    
       
         </script>
 
