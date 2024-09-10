@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import TextField from '@mui/material/TextField';
+import Alert from '@mui/material/Alert';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -13,11 +14,12 @@ import { earliestAllowedStartDate, latestAllowedEndDate } from '../util/platform
 import validateDate from '../util/dateValidation';
 import DefaultDates from './DefaultDates';
 import isQueryStateEmpty from '../util/isQueryStateEmpty';
+import getEarliestAvailableDate from '../util/dateHelpers';
 
 export default function SearchDatePicker({ queryIndex }) {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-
+  const { earliestAvailableDate } = document.settings;
   const {
     platform, startDate, endDate, isFromDateValid, isToDateValid,
   } = useSelector((state) => state.query[queryIndex]);
@@ -83,6 +85,10 @@ export default function SearchDatePicker({ queryIndex }) {
 
   return (
     <>
+      <Alert severity="warning">
+        {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+        Reingest of historical data in progress. Search results available from present back to {getEarliestAvailableDate(earliestAvailableDate)}
+      </Alert>
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <div className="date-accuracy-alert">

@@ -66,7 +66,14 @@ add_extras "AIRTABLE_HARDWARE=$HOST" \
 
 # NOTE! vars.py output is shell-safe; it contains only VAR=BASE64ENCODEDVALUE ...
 # Want config:import! Whcih would avoid need for b64 (--encoded) values
-CONFIG_OPTIONS='--no-restart --encoded'
+CONFIG_OPTIONS='--encoded'
+
+# NO_CODE_CHANGES exported by push.sh:
+if [ -e "$NO_CODE_CHANGES" ]; then
+    # if code changes, don't restart before pushing
+    CONFIG_OPTIONS="$CONFIG_OPTIONS --no-restart"
+fi
+
 CONFIG_VARS=$(PYTHONPATH=$LIBDIR python $SCRIPT_DIR/vars.py --file $CONFIG --current $CURR $EXTRAS "$@")
 
 if [ -z "$CONFIG_VARS" ]; then

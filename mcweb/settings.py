@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.0.5"
+VERSION = "2.0.6"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -106,6 +106,8 @@ ANALYTICS_MATOMO_SITE_ID = env('ANALYTICS_MATOMO_SITE_ID')
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS") # defined as list
 
 DEBUG = env("DEBUG")
+
+EARLIEST_AVAILABLE_DATE = env('EARLIEST_AVAILABLE_DATE') # earliest available date for elastic search
 
 EMAIL_NOREPLY = env('EMAIL_NOREPLY') # email sender address
 EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
