@@ -144,7 +144,7 @@ git fetch $DOKKU_GIT_REMOTE
 # have a --push-if-no-changes option?
 if git diff --quiet $BRANCH $DOKKU_GIT_REMOTE/$DOKKU_GIT_BRANCH --; then
     echo no code changes from $DOKKU_GIT_REMOTE 1>&2
-    NO_CODE_CHANGE=1
+    NO_CODE_CHANGES=1
 fi
 
 # XXX log all commits not in Dokku repo?? git log ${BRANCH}..$INSTANCE_SH_GIT_HASH/$DOKKU_GIT_BRANCH ???
@@ -169,7 +169,7 @@ if [ "x$BRANCH" = xprod ]; then
     echo "Found version number: $TAG"
 
     CONFIG_TAG=${TAG}
-    if [ "x$NO_CODE_CHANGE" = x ]; then
+    if [ "x$NO_CODE_CHANGES" = x ]; then
 	# NOTE! fgrep -x (-F -x) to match literal whole line (w/o regexps)
 	if git tag | grep -F -x "$TAG" >/dev/null; then
 	    echo "found local tag $TAG: update mcweb.settings.VERSION?"
@@ -280,14 +280,14 @@ esac
 
 echo configuring app ${APP}...
 
-# export NO_CODE_CHANGE for config.sh; pass as option?!!
-export NO_CODE_CHANGE
+# export NO_CODE_CHANGES for config.sh; pass as option?!!
+export NO_CODE_CHANGES
 $SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE $CONFIG_EXTRAS
 
 CONFIG_STATUS=$?
 case $CONFIG_STATUS in
 $CONFIG_STATUS_CHANGED)
-    if [ "x$NO_CODE_CHANGE" != x ]; then
+    if [ "x$NO_CODE_CHANGES" != x ]; then
 	if [ -d $PRIVATE_CONF_DIR ]; then
 	    tag_conf_repo
 	fi
@@ -300,7 +300,7 @@ $CONFIG_STATUS_ERROR)
     exit 1
     ;;
 $CONFIG_STATUS_NOCHANGE)
-    if [ "x$NO_CODE_CHANGE" != x ]; then
+    if [ "x$NO_CODE_CHANGES" != x ]; then
 	echo no changes to code or config 1>&2
 	exit 1
     fi
@@ -346,7 +346,7 @@ for REMOTE in $PUSH_TAG_TO; do
 done
 
 # for prod/staging: tag config repo and push tag
-if [ -d "$PRIVATE_CONF_REPO" ]; then
+if [ -n "$PRIVATE_CONF_REPO" -a -d "$PRIVATE_CONF_REPO" ]; then
     tag_conf_repo
 fi
 
