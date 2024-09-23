@@ -86,7 +86,6 @@ export default function CSVDialog({
               <tbody>
                 {queryState.map((querySlice, i) => (
                   <tr key={querySlice.name} className="row">
-                    {/* {console.log(getRelevantCount(i), 'RC')} */}
                     <td className="col-11">
                       {querySlice.name}
                     </td>
