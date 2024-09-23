@@ -41,6 +41,9 @@ function Footer() {
           .
         </p>
         <p>
+          This material is based upon work supported by the National Science Foundation under Grant No. 2341858.
+        </p>
+        <p>
           v
           {document.settings.appVersion}
         </p>
