@@ -1,52 +1,70 @@
-from django.core.cache import cache
+"""
+provide wrappers around Django's caching
+super useful (we keep results of api)
+
+adapted from https://james.lin.net.nz/2011/09/08/python-decorator-caching-your-functions/
+"""
+
+# Python
+import hashlib
+import logging
 from typing import Callable, Any
 
-# not integrated yet: super useful (we keep results of api) (lasts for 24 hours)
+# PyPI
+from django.core.cache import cache
 
-# provide helpers for working with Django's caching
-# adapted from https://james.lin.net.nz/2011/09/08/python-decorator-caching-your-functions/
+# mcweb
+from settings import CACHE_SECONDS
 
+logger = logging.getLogger(__name__)
 
-# get the cache key for storage
-def _cache_get_key(*args, **kwargs):
-    import hashlib
-    serialise = []
+def cached_function_call(fn: Callable, cache_prefix: str, seconds: int | None = None, *args, **kwargs) -> tuple[Any, bool]:
+    """
+    mother of all caching functions
+    """
+    # inlined to avoid expanding args/kwargs again.
+    # tweaked key generation to delimit concatenated strings with non-printing
+    # characters unlikely to appear in argument strings to avoid ambiguity
+    # (everything was one continuous string)
+    elements = [cache_prefix]
     for arg in args:
-        serialise.append(str(arg))
-    for key, arg in kwargs.items():
-        serialise.append(str(key))
-        serialise.append(str(arg))
-    key = hashlib.md5("".join(serialise).encode("UTF8")).hexdigest()
-    return key
+        elements.append(str(arg))
+    for key, val in kwargs.items():
+        elements.append(f"{key}\x02{val}")
+    readable_key = "\x01".join(elements)
+    key = hashlib.md5(readable_key.encode("UTF8")).hexdigest()
 
+    results = cache.get(key)
+    if results:
+        # increment counter?
+        logger.debug("found %r", readable_key)
+        return results, True
 
-# decorator for caching functions (default to one day)
-def cache_by_kwargs(time_secs: int = 60*60*24):
+    logger.debug("not found %r", readable_key)
+    results = fn(*args, **kwargs)
+    if seconds is None:
+        # this is the one place where the default value is used.
+        # NOTE! used here to allow wacking CACHE_SECONDS in debugger!
+        seconds = CACHE_SECONDS
+    cache.set(key, results, seconds)
+    logger.debug("set %r", readable_key)
+    return results, False
+
+def mc_providers_cacher(fn: Callable, cache_prefix: str, *args, **kwargs) -> tuple[Any, bool]:
+    """
+    callable passed to mc_providers caching interface.
+    this is the one place that needs to return the was_cached bool
+    (changing the cacheing function API would require an mc_providers major version change)
+    always gets default cache time (could have a separate setting)
+    """
+    return cached_function_call(fn, cache_prefix, None, *args, **kwargs)
+
+# decorator for caching functions/methods in backend code
+def cache_by_kwargs(seconds: int | None = None):
     def decorator(fn):
         def wrapper(*args, **kwargs):
-            key = _cache_get_key(fn.__name__, *args, **kwargs)
-            result = cache.get(key)
-            if not result:
-                result = fn(*args, **kwargs)
-                cache.set(key, result, time_secs)
-            return result
-
+            value, cached = cached_function_call(fn, fn.__qualname__, seconds, *args, **kwargs)
+            return value
         return wrapper
 
     return decorator
-
-#Function to pass to the caching interface 
-class django_caching_interface():
-    def __init__(self, time_secs: int = 60*60*24):
-        self.time_secs = time_secs
-        
-    def __call__(self, fn: Callable, cache_prefix: str, *args, **kwargs) -> tuple[Any, bool]:
-        was_cached = True
-        key = _cache_get_key(cache_prefix, *args, **kwargs)
-        results = cache.get(key)
-        if not results:
-            was_cached = False
-            results = fn(*args, **kwargs)
-            cache.set(key, results, self.time_secs)
-        return results, was_cached
-    

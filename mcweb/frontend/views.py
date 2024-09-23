@@ -1,14 +1,16 @@
-# python
+# Python
 import logging
 import os
 
 # PyPI
-import mc_providers as providers
+import mc_providers
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-# app
+# mcweb
 from settings import (
+    ALL_URLS_CSV_EMAIL_MAX,
+    ALL_URLS_CSV_EMAIL_MIN,
     ANALYTICS_MATOMO_DOMAIN,
     ANALYTICS_MATOMO_SITE_ID,
     EARLIEST_AVAILABLE_DATE,
@@ -27,7 +29,9 @@ def index(request):
     # the main entry point for the web app - it just renders the index HTML file to load all the JS
     return render(request, 'frontend/index.html', dict(
         version=VERSION,
-        providers=providers.available_provider_names(),
+        providers=mc_providers.available_provider_names(),
+        all_urls_csv_email_max=ALL_URLS_CSV_EMAIL_MAX,
+        all_urls_csv_email_min=ALL_URLS_CSV_EMAIL_MIN,
         analytics_matomo_domain=ANALYTICS_MATOMO_DOMAIN,
         analytics_matomo_id=ANALYTICS_MATOMO_SITE_ID,
         earliest_available_date=EARLIEST_AVAILABLE_DATE,
