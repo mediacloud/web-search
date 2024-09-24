@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -10,23 +10,20 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { useSnackbar } from 'notistack';
 import PropTypes from 'prop-types';
 import prepareQueries from './prepareQueries';
-import { getDownloadUrl } from './getDownloadUrl';
-import { useDownloadAllQueriesMutation } from '../../../app/services/searchApi';
+import {
+  getDownloadUrl, TA, AOT, WORDS, SOURCES, LANG,
+} from './getDownloadUrl';
 import TotalAttentionEmailModal from './TotalAttentionEmailModal';
-import { TA, AOT, WORDS, SOURCES, LANG } from './getDownloadUrl'
 
 export default function CSVDialog({
   openDialog, queryState, downloadType, outsideTitle, title,
-  snackbarText, variant, currentUserEmail, data
+  snackbarText, variant, userEmail, data,
 }) {
   const { enqueueSnackbar } = useSnackbar();
 
-  const [downloadAll, { isLoading }] = useDownloadAllQueriesMutation();
-
   const [open, setOpen] = useState(openDialog);
-  
-  const [openTAModal, setOpenTAModal] = useState(false);
 
+  const [openTAModal, setOpenTAModal] = useState(false);
   // const query = prepareQueries(queryState);
 
   const handleDownloadRequest = (queryIndex) => {
@@ -34,18 +31,16 @@ export default function CSVDialog({
     const querySlice = queryState[queryIndex];
     const query = prepareQueries([querySlice]);
     window.location = `/api/search/${url}?qS=${encodeURIComponent(JSON.stringify(query))}`;
-    enqueueSnackbar(snackbarText, {variant: 'success'})
+    enqueueSnackbar(snackbarText, { variant: 'success' });
   };
 
-  const handleDownloadAll = () => {
-    const url = getDownloadUrl(downloadType);
-    const queries = prepareQueries(queryState);
-    // downloadAll(prepareQueries(queryState));
-  };
+  // const handleDownloadAll = () => {
+  //   const url = getDownloadUrl(downloadType);
+  //   const queries = prepareQueries(queryState);
+  //   // downloadAll(prepareQueries(queryState));
+  // };
 
-  const getRelevantCount = (index) => {
-    return data[index].count.relevant
-  }
+  const getRelevantCount = (index) => data[index].count.relevant;
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -56,9 +51,9 @@ export default function CSVDialog({
   };
 
   const handleTAClick = () => {
-    setOpen(false)
-    setOpenTAModal(true)
-  }
+    setOpen(false);
+    setOpenTAModal(true);
+  };
 
   return (
     <>
@@ -97,20 +92,17 @@ export default function CSVDialog({
                     <td className="col-1">
                       {(downloadType === TA) && (
                         <TotalAttentionEmailModal
-                           title={
-                           `Your current email is: ${currentUserEmail}
-                           Would you like to send your downloaded data to your current email or a new email?`
-                            }
-                           content="Enter a new email?"
-                           dispatchNeeded={false}
-                           navigateTo="/"
-                           onClick={() => handleTAClick()}
-                           openDialog={openTAModal}
-                           querySlice={querySlice}
-                           confirmButtonText="Confirm New Email"
-                           currentUserEmail={currentUserEmail}
-                           totalCountOfQuery={getRelevantCount(i)}
-                         /> 
+                          title="Download all urls for your query?"
+                          content="For a download of this size a zipped csv will need to be sent to you via email"
+                          dispatchNeeded={false}
+                          navigateTo="/"
+                          onClick={() => handleTAClick()}
+                          openDialog={openTAModal}
+                          querySlice={querySlice}
+                          confirmButtonText="Confirm"
+                          userEmail={userEmail}
+                          totalCountOfQuery={getRelevantCount(i)}
+                        />
                       )}
                       {([AOT, WORDS, SOURCES, LANG].includes(downloadType)) && (
                         <IconButton
@@ -158,15 +150,14 @@ CSVDialog.propTypes = {
   downloadType: PropTypes.string.isRequired,
   snackbarText: PropTypes.string,
   variant: PropTypes.string,
-  currentUserEmail: PropTypes.string,
+  userEmail: PropTypes.string,
   data: PropTypes.arrayOf(PropTypes.object),
+  queryState: PropTypes.arrayOf(PropTypes.object),
 };
 
 CSVDialog.defaultProps = {
-  snackbar: false,
   snackbarText: '',
   variant: 'text',
-  currentUserEmail: '',
-  totalCount: 0,
-  data: [{}]
+  userEmail: '',
+  data: [{}],
 };
