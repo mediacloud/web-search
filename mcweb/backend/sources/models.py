@@ -275,7 +275,7 @@ class Source(models.Model):
 
 
         # after many tries to give a summary in english:
-        add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
+        add_line(f"{added}/{total} added, {confirmed}/{old} confirmed\n")
 
         indent = "  "           # not applied to header line
         return indent.join(lines)

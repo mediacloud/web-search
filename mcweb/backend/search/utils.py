@@ -1,13 +1,33 @@
+# Python
 import datetime as dt
 import json
-from typing import List, Dict
+import time
+from typing import Callable, Dict, Generator, List, NamedTuple, Optional, Tuple
+
+# PyPI
 from django.apps import apps
-from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
+from mc_providers import provider_by_name, provider_name, ContentProvider, \
+    PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
     PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
-from settings import NEWS_SEARCH_API_URL
 
+# mcweb
+from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, NEWS_SEARCH_API_URL
 
+# mcweb/backend/users
+from ..users.models import QuotaHistory
+
+class ParsedQuery(NamedTuple):
+    start_date: dt.datetime
+    end_date: dt.datetime
+    query_str: str
+    provider_props: dict
+    provider_name: str
+    api_key: str | None
+    base_url: str | None
+    caching: bool = True
+
+# not used?
 def fill_in_dates(start_date, end_date, existing_counts):
     delta = (end_date + dt.timedelta(1)) - start_date
     date_count_dict = {k['date']: k['count'] for k in existing_counts}
@@ -27,69 +47,110 @@ def fill_in_dates(start_date, end_date, existing_counts):
             filled_counts.append({'count': date_count_dict[day_string], 'date': day_string})
     return filled_counts
 
+def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvider:
+    """
+    take parsed query, return mc_providers ContentProvider.
+    (one place to pass new things to mc_providers)
+    """
+    # disabled until new mc-providers available!
+    #return provider_by_name(platform or pq.provider_name, pq.api_key, pq.base_url, caching=pq.caching)
+    return provider_by_name(platform or pq.provider_name, pq.api_key, pq.base_url)
 
-def parse_query(request) -> tuple:
-    http_method = request.method
-
-    if http_method == 'POST':
-        payload = json.loads(request.body).get("queryObject")
-        provider_name = payload["platform"]
-        query_str = payload["query"]
-        collections = payload["collections"]
-        sources = payload["sources"]
-        provider_props = search_props_for_provider(provider_name, collections, sources, payload)
-        start_date = payload["startDate"]
-        start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
-        end_date = payload["endDate"]
-        end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
-        api_key = _get_api_key(provider_name)
-        base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None
-    elif http_method == 'GET':
-        provider_name = request.GET.get("p", 'onlinenews-mediacloud')
-        query_str = request.GET.get("q", "*")
-        collections = request.GET.get("cs", None)
-        collections = collections.split(",") if collections is not None else []
-        sources = request.GET.get("ss", None)
-        sources = sources.split(",") if sources is not None else []
-        provider_props = search_props_for_provider(
-            provider_name, 
-            collections,
-            sources, 
-            request.GET
-        )
-        start_date = request.GET.get("start", "2010-01-01")
-        start_date = dt.datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = request.GET.get("end", "2030-01-01")
-        end_date = dt.datetime.strptime(end_date, '%Y-%m-%d')
-        api_key = _get_api_key(provider_name)
-        base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None 
-    return start_date, end_date, query_str, provider_props, provider_name, api_key, base_url
+def parse_date_str(date_str: str) -> dt.datetime:
+    """
+    accept both YYYY-MM-DD and MM/DD/YYYY
+    (was accepting former in JSON and latter in GET/query-str)
+    """
+    if '-' in date_str:
+        return dt.datetime.strptime(date_str, '%Y-%m-%d')
+    else:
+        return dt.datetime.strptime(date_str, '%m/%d/%Y')
 
 
-def parse_query_array(queryObject) -> tuple:
-    # payload = json.loads(request.body).get("queryObject") if http_method == 'POST' else json.loads(request.GET.get("queryObject"))
-    payload = queryObject
+def listify(input: str) -> list[str]:
+    if input:
+        return input.split(',')
+    return []
+
+_BASE_URL = {
+    'onlinenews-mediacloud': NEWS_SEARCH_API_URL,
+}
+
+def parse_query_params(request) -> (ParsedQuery, dict):
+    """
+    return ParsedQuery plus dict for other params
+    """
+    if request.method == 'POST':
+        payload = json.loads(request.body)
+        return (parsed_query_from_dict(payload.get("queryObject")), payload)
+
+    provider_name = request.GET.get("p", 'onlinenews-mediacloud')
+    query_str = request.GET.get("q", "*")
+    collections = listify(request.GET.get("cs", None))
+    sources = listify(request.GET.get("ss", None))
+    provider_props = search_props_for_provider(
+        provider_name,
+        collections,
+        sources,
+        request.GET
+    )
+    start_date = parse_date_str(request.GET.get("start", "2010-01-01"))
+    end_date = parse_date_str(request.GET.get("end", "2030-01-01"))
+    api_key = _get_api_key(provider_name)
+    base_url = _BASE_URL.get(provider_name)
+
+    # caching is enabled unless cache is passed ONCE with "f" or "0" as value
+    caching = request.GET.get("cache", "1") not in ["f", "0"]
+
+    pq = ParsedQuery(start_date=start_date, end_date=end_date,
+                     query_str=query_str, provider_props=provider_props,
+                     provider_name=provider_name, api_key=api_key,
+                     base_url=base_url, caching=caching)
+    return (pq, request.GET)
+
+def parse_query(request) -> ParsedQuery:
+    pq, payload = parse_query_params(request)
+    return pq
+
+def parsed_query_from_dict(payload) -> ParsedQuery:
+    """
+    Takes a queryObject dict, returns ParsedQuery
+    """
     provider_name = payload["platform"]
     query_str = payload["query"]
     collections = payload["collections"]
     sources = payload["sources"]
-    provider_props = search_props_for_provider(provider_name, collections, sources, queryObject)
-    # api_key = _get_api_key(provider_name)
-    start_date = payload["startDate"]
-    start_date = dt.datetime.strptime(start_date, '%m/%d/%Y')
-    end_date = payload["endDate"]
-    end_date = dt.datetime.strptime(end_date, '%m/%d/%Y')
+    provider_props = search_props_for_provider(provider_name, collections, sources, payload)
+    start_date = parse_date_str(payload["startDate"])
+    end_date = parse_date_str(payload["endDate"])
     api_key = _get_api_key(provider_name)
-    base_url = NEWS_SEARCH_API_URL if provider_name == 'onlinenews-mediacloud' else None 
-    return start_date, end_date, query_str, provider_props, provider_name, api_key, base_url
+    base_url = _BASE_URL.get(provider_name)
+    caching = payload.get("caching", True)
+    return ParsedQuery(start_date=start_date, end_date=end_date,
+                       query_str=query_str, provider_props=provider_props,
+                       provider_name=provider_name, api_key=api_key,
+                       base_url=base_url, caching=caching)
 
+def parsed_query_state(request) -> list[ParsedQuery]:
+    """
+    return list of parsed queries from "queryState" (list of dicts).
+    Expects POST with JSON object with a "queryState" element (download-all-queries)
+    or GET with qs=JSON_STRING (many)
+    """
+    if request.method == 'POST':
+        payload = json.loads(request.body)
+        queries = payload.get("queryState")
+    else:
+        queries = json.loads(request.GET.get("qS"))
 
-def _get_api_key(provider: str) -> str:
+    pqs = [parsed_query_from_dict(q) for q in queries]
+    return pqs
+
+def _get_api_key(provider: str) -> str | None:
     # no system-level API keys right now
     return None
 
-
-def search_props_for_provider(provider, collections: List, sources: List, all_params: Dict = None) -> Dict:
+def search_props_for_provider(provider, collections: List, sources: List, all_params: Dict) -> Dict:
     if provider == provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER):
         return _for_twitter_api(collections, sources)
     if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
@@ -186,3 +247,38 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
         if prop_name in all_params:
             extra_props[prop_name] = all_params.get(prop_name)
     return extra_props
+
+def filename_timestamp() -> str:
+    """
+    used for CSV & ZIP filenames in both views.py and tasks.py
+    """
+    return time.strftime("%Y%m%d%H%M%S", time.localtime())
+
+def all_content_csv_generator(pqs: list[ParsedQuery], user_id, is_staff) -> Callable[[],Generator[list, None, None]]:
+    """
+    returns function returning generator for "total attention" CSV file
+    with rows from all queries.
+    used for both immediate CSV download (download_all_content_csv)
+    and emailed CSV (download_all_large_content_csv)
+    """
+    def data_generator() -> Generator[list, None, None]:
+        # phil: moved outside per-query loop (so headers appear once)
+        first_page = True
+        for pq in pqs:
+            provider = pq_provider(pq)
+            result = provider.all_items(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+            for page in result:
+                QuotaHistory.increment(user_id, is_staff, pq.provider_name)
+                if first_page:  # send back column names, which differ by platform
+                    yield sorted(page[0].keys())
+                    first_page = False
+                for story in page:
+                    yield [v for k, v in sorted(story.items())]
+    return data_generator
+
+def all_content_csv_basename(pqs: list[ParsedQuery]) -> str:
+    """
+    returns a base filename for CSV and ZIP filenames
+    """
+    base_filename = "mc-{}-{}-content".format(pqs[-1].provider_name, filename_timestamp())
+    return base_filename
