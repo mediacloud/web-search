@@ -60,21 +60,27 @@ if ADMIN_EMAIL:
 # necessary to run source alerts
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", ADMIN_EMAIL) # user in database
 
-env = environ.Env(      # @@CONFIGURATION@@ definitions
+env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value)
     # (cast, default_value) in alphabetical order:
     ALERTS_RECIPIENTS=(list, _DEFAULT_ALERTS_RECIPIENTS),
+    ALL_URLS_CSV_EMAIL_MAX=(int, 200000),
+    ALL_URLS_CSV_EMAIL_MIN=(int, 25000),
     ALLOWED_HOSTS=(list, _DEFAULT_ALLOWED_HOSTS),
     ANALYTICS_MATOMO_DOMAIN=(str, "null"),
     ANALYTICS_MATOMO_SITE_ID=(str, "null"),
+    CACHE_SECONDS=(int, 24*60*60),
     CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
     DEBUG=(bool, False),
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
-    # EMAIL_HOST[_{PASWORD,USER}] must be supplied
+    EMAIL_HOST=(str, ""),
+    EMAIL_HOST_PASSWORD=(str, ""),
+    EMAIL_HOST_USER=(str, ""),
     EMAIL_HOST_PORT=(int,465),  # ssmtp (SSL submission)
     EMAIL_HOST_USE_SSL=(bool, True),
     EMAIL_NOREPLY=(str, 'noreply@mediacloud.org'),
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
     GIT_REV=(str, ""),
+    LOG_LEVEL=(str, "DEBUG"),
     NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
     PROVIDERS_TIMEOUT=(int, 60*10),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
@@ -99,43 +105,33 @@ _env_logger.setLevel(logging.INFO)
 # IN ALPHABETICAL ORDER:
 
 ALERTS_RECIPIENTS = env('ALERTS_RECIPIENTS') # list
+ALL_URLS_CSV_EMAIL_MAX = env('ALL_URLS_CSV_EMAIL_MAX')
+ALL_URLS_CSV_EMAIL_MIN = env('ALL_URLS_CSV_EMAIL_MIN')
 ALLOWED_HOSTS = env("ALLOWED_HOSTS") # list
 ANALYTICS_MATOMO_DOMAIN = env('ANALYTICS_MATOMO_DOMAIN')
 ANALYTICS_MATOMO_SITE_ID = env('ANALYTICS_MATOMO_SITE_ID')
 
+CACHE_SECONDS = env("CACHE_SECONDS")
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS") # defined as list
 
 DEBUG = env("DEBUG")
 
 EARLIEST_AVAILABLE_DATE = env('EARLIEST_AVAILABLE_DATE') # earliest available date for elastic search
 
+EMAIL_BACKEND = env('EMAIL_BACKEND') # select django.core.mail.backend
+
+# vars used by django.core.mail.backends.smtp.EmailBackend:
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
+EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
+
 EMAIL_NOREPLY = env('EMAIL_NOREPLY') # email sender address
 EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
 
-# email authentication
-try:
-    EMAIL_BACKEND = env('EMAIL_BACKEND')
-
-    # vars used by django.core.mail.backends.smtp.EmailBackend:
-    EMAIL_HOST = env('EMAIL_HOST') # no default
-    EMAIL_HOST_USER = env('EMAIL_HOST_USER') # no default
-    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD') # no default
-    EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
-    EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
-    assert EMAIL_HOST, "EMAIL_HOST is empty"
-    logger.info("Email host %s", EMAIL_HOST)
-except (ImproperlyConfigured, AssertionError) as exc:
-    # don't require email settings (for development)
-    logger.warning("Email not configured: %s", exc)
-    EMAIL_BACKEND = None
-    EMAIL_HOST = None
-    EMAIL_HOST_USER = None
-    EMAIL_HOST_PASSWORD = None
-    EMAIL_HOST_PORT = None
-    EMAIL_HOST_USE_SSL = None
-
 GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
-
+LOG_LEVEL = env('LOG_LEVEL').upper()
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
@@ -314,7 +310,7 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'DEBUG',
+        'level': LOG_LEVEL,
     },
 }
 
@@ -331,6 +327,28 @@ CACHES = {
 }
 
 DISABLE_SERVER_SIDE_CURSORS = True
+
+################
+# since this file is read before logging is configured,
+# logging before here is .... unreliable
+
+# this is what happens by default in django.setup() (after loading this file):
+logging.config.dictConfig(LOGGING)
+
+try:
+    assert EMAIL_HOST, "EMAIL_HOST is empty"
+    assert EMAIL_HOST_PASSWORD, "EMAIL_HOST_PASSWORD is empty"
+    assert EMAIL_HOST_USER, "EMAIL_HOST_USER is empty"
+    logger.info("Email host %s", EMAIL_HOST)
+except AssertionError as exc:
+    # don't require email settings (for development)
+    logger.warning("Email not configured: %s", exc)
+    EMAIL_BACKEND = None
+    EMAIL_HOST = None
+    EMAIL_HOST_USER = None
+    EMAIL_HOST_PASSWORD = None
+    EMAIL_HOST_PORT = None
+    EMAIL_HOST_USE_SSL = None
 
 # sentry config for Python code:
 if SENTRY_DSN and SENTRY_ENV:
@@ -351,4 +369,5 @@ if SENTRY_DSN and SENTRY_ENV:
 else:
     logger.warning("Sentry not configured")
 
-# add configuration variables above (search for @@CONFIGURATION@@)
+# add configuration variables above
+# (search for @@CONFIGURATION@@ above, in two places)
