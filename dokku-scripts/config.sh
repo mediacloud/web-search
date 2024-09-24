@@ -8,14 +8,14 @@ SCRIPT_DIR=$(dirname $0)
 
 INSTANCE=$1
 shift
-CONFIG=$1
+CONFIG_FILE=$1
 shift
 # remainder passed as args to vars.py
 
 # uses INSTANCE, sets APP, defines dokku function
 . $SCRIPT_DIR/common.sh
 
-if [ -z "$INSTANCE" -o -z "$CONFIG" -o ! -f "$CONFIG" ]; then
+if [ -z "$INSTANCE" -o -z "$CONFIG_FILE" -o ! -f "$CONFIG_FILE" ]; then
     echo Usage: $0 INSTANCE CONFIG_FILE 1>&2
     echo '(this script is NOT meant for user invocation!)' 1>&2
     exit $CONFIG_STATUS_ERROR
@@ -49,6 +49,7 @@ if [ ! -d $LIBDIR ]; then
 fi
 
 # takes any number of VAR=VALUE pairs
+# values with spaces probably lose!!!!!!
 add_extras() {
     for x in $*; do
 	EXTRAS="$EXTRAS -S $x"
@@ -74,7 +75,7 @@ if [ -e "$NO_CODE_CHANGES" ]; then
     CONFIG_OPTIONS="$CONFIG_OPTIONS --no-restart"
 fi
 
-CONFIG_VARS=$(PYTHONPATH=$LIBDIR python $SCRIPT_DIR/vars.py --file $CONFIG --current $CURR $EXTRAS "$@")
+CONFIG_VARS=$(PYTHONPATH=$LIBDIR python $SCRIPT_DIR/vars.py --file $CONFIG_FILE --current $CURR $EXTRAS "$@")
 
 if [ -z "$CONFIG_VARS" ]; then
     # nothing to set... exit stage left!

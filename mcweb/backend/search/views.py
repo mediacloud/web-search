@@ -1,54 +1,74 @@
+import csv
+import datetime as dt
 import json
 import logging
-import csv
-import time
-import collections
+
+# PyPI
+import mc_providers
 import requests
-from typing import Optional
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view
-from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import action, authentication_classes, permission_classes
-import backend.util.csv_stream as csv_stream
-from .utils import parse_query, parse_query_array
-from util.cache import cache_by_kwargs
-from .tasks import download_all_large_content_csv, download_all_queries_csv_task
-from ..users.models import QuotaHistory
-from util.csvwriter import CSVWriterHelper
-from backend.users.exceptions import OverQuotaException
-import mc_providers as providers
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
+from django.views.decorators.http import require_http_methods
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
 from mc_providers.exceptions import ProviderException
-from mc_providers.cache import CachingManager
+from requests.adapters import HTTPAdapter
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.decorators import api_view, action, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from urllib3.util.retry import Retry
 
-from util.cache import django_caching_interface
+# mcweb
+from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
+
+# mcweb/util
+from util.cache import cache_by_kwargs, mc_providers_cacher
+from util.csvwriter import CSVWriterHelper
+
+# mcweb/backend/search (local dir)
+from .utils import (
+    ParsedQuery,
+    all_content_csv_basename,
+    all_content_csv_generator,
+    filename_timestamp,
+    parse_query,
+    parse_query_params,
+    parsed_query_from_dict,
+    parsed_query_state,
+    pq_provider,
+    search_props_for_provider
+)
+from .tasks import download_all_large_content_csv, download_all_queries_csv_task
+
+# mcweb/backend/users
+from ..users.models import QuotaHistory
+from backend.users.exceptions import OverQuotaException
+
+# mcweb/backend/util
+import backend.util.csv_stream as csv_stream
+
 logger = logging.getLogger(__name__)
 
-# This is where we set the caching manager and the cache_time
-CachingManager.cache_function = django_caching_interface(time_secs=60*60*24)
+# enable caching for mc_providers results (explicitly referencing pkg for clarity)
+mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
-session = requests.Session()
-retry = Retry(connect=3, backoff_factor=0.5)
-adapter = HTTPAdapter(max_retries=retry)
-session.mount('http://', adapter)
-session.mount('https://', adapter)
+# not used in this file?
+#session = requests.Session()
+#retry = Retry(connect=3, backoff_factor=0.5)
+#adapter = HTTPAdapter(max_retries=retry)
+#session.mount('http://', adapter)
+#session.mount('https://', adapter)
 
-
-def error_response(msg: str, response_type: Optional[HttpResponse]) -> HttpResponse:
+def error_response(msg: str, response_type: HttpResponse | None) -> HttpResponse:
     ResponseClass = response_type or HttpResponseBadRequest
     return ResponseClass(json.dumps(dict(
         status="error",
         note=msg,
     )))
 
-
 def handle_provider_errors(func):
     """
+    Decorator for view functions.
+
     If a provider-related method returns a JSON error we want to send it back to the client with information
     that can be used to show the user some kind of error.
     """
@@ -70,14 +90,14 @@ def handle_provider_errors(func):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def total_count(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
-    relevant_count = provider.count(f"({query_str})", start_date, end_date, **provider_props)
+    pq = parse_query(request)
+    provider = pq_provider(pq)
+    relevant_count = provider.count(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     try:
-        total_content_count = provider.count(provider.everything_query(), start_date, end_date, **provider_props)
+        total_content_count = provider.count(provider.everything_query(), pq.start_date, pq.end_date, **pq.provider_props)
     except QueryingEverythingUnsupportedQuery as e:
         total_content_count = None
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
 
@@ -89,16 +109,16 @@ def total_count(request):
 @permission_classes([IsAuthenticated])
 # @cache_by_kwargs()
 def count_over_time(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    pq = parse_query(request)
+    provider = pq_provider(pq)
     try:
-        results = provider.normalized_count_over_time(f"({query_str})", start_date, end_date, **provider_props)
+        results = provider.normalized_count_over_time(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
-        results = provider.count_over_time(f"({query_str})", start_date, end_date, **provider_props)
+        results = provider.count_over_time(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     response = results
     QuotaHistory.increment(
-        request.user.id, request.user.is_staff, provider_name)
+        request.user.id, request.user.is_staff, pq.provider_name)
     return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -108,13 +128,13 @@ def count_over_time(request):
 @permission_classes([IsAuthenticated])
 # @cache_by_kwargs()
 def sample(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    pq = parse_query(request)
+    provider = pq_provider(pq)
     try:
-        response = provider.sample(f"({query_str})", start_date, end_date, **provider_props)
+        response = provider.sample(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -124,12 +144,12 @@ def sample(request):
 @permission_classes([IsAuthenticated])
 # @cache_by_kwargs()
 def story_detail(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
-    story_id = request.GET.get("storyId")
-    platform = request.GET.get("platform")
-    provider = providers.provider_by_name(platform, api_key, base_url)
+    pq, params = parse_query_params(request) # unlikely to handle POST!
+    story_id = params.get("storyId")
+    platform = params.get("platform")
+    provider = pq_provider(pq, platform)
     story_details = provider.item(story_id)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, provider)
     return HttpResponse(json.dumps({"story": story_details}, default=str), content_type="application/json",
                         status=200)
 
@@ -139,30 +159,31 @@ def story_detail(request):
 @permission_classes([IsAuthenticated])
 # @cache_by_kwargs()
 def sources(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    pq = parse_query(request)
+    provider = pq_provider(pq)
     try:
-        response = provider.sources(f"({query_str})", start_date,end_date, 10, **provider_props)
+        response = provider.sources(f"({pq.query_str})", pq.start_date, pq.end_date, 10, **pq.provider_props)
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return HttpResponse(json.dumps({"sources": response}, default=str), content_type="application/json",
                         status=200)
 
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_sources_csv(request):
-    query = json.loads(request.GET.get("qS"))
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query[0])
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    queries = parsed_query_state(request) # handles POST!
+    pq = queries[0]
+
+    provider = pq_provider(pq)
     try:
-        data = provider.sources(f"({query_str})", start_date,
-                    end_date, **provider_props, sample_size=5000, limit=100)
+        data = provider.sources(f"({pq.query_str})", pq.start_date,
+                    pq.end_date, **pq.provider_props, sample_size=5000, limit=100)
     except Exception as e:
         logger.exception(e)
         return error_response(str(e), HttpResponseBadRequest)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-top-sources".format(provider_name, _filename_timestamp())
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
+    filename = "mc-{}-{}-top-sources".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -180,13 +201,13 @@ def download_sources_csv(request):
 @permission_classes([IsAuthenticated])
 # @cache_by_kwargs()
 def languages(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    pq = parse_query(request)
+    provider = pq_provider(pq)
     try:
-        response = provider.languages(f"({query_str})", start_date, end_date, **provider_props)
+        response = provider.languages(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
                         status=200)
 
@@ -194,17 +215,17 @@ def languages(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_languages_csv(request):
-    query = json.loads(request.GET.get("qS"))
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query[0])
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    queries = parsed_query_state(request) # handles POST!
+    pq = queries[0]
+    provider = pq_provider(pq)
     try:
-        data = provider.languages(f"({query_str})", start_date,
-                    end_date, **provider_props, sample_size=5000, limit=100)
+        data = provider.languages(f"({pq.query_str})", pq.start_date,
+                    pq.end_date, **pq.provider_props, sample_size=5000, limit=100)
     except Exception as e: 
         logger.exception(e)
         return error_response(str(e), HttpResponseBadRequest)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
-    filename = "mc-{}-{}-top-languages".format(provider_name, _filename_timestamp())
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
+    filename = "mc-{}-{}-top-languages".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -220,15 +241,15 @@ def download_languages_csv(request):
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
 def story_list(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    pq = parse_query(request)
+    provider = pq_provider(pq)
     # support returning text content for staff only
-    if provider_props.get('expanded') is not None:
-        provider_props['expanded'] = provider_props['expanded'] == '1'
+    if pq.provider_props.get('expanded') is not None:
+        pq.provider_props['expanded'] = pq.provider_props['expanded'] == '1'
         if not request.user.is_staff:
             raise error_response("You are not permitted to fetch `expanded` stories.", HttpResponseForbidden)
-    page, pagination_token = provider.paged_items(f"({query_str})", start_date, end_date, **provider_props, sort_field="indexed_date")
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 1)
+    page, pagination_token = provider.paged_items(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 1)
     return HttpResponse(json.dumps({"stories": page, "pagination_token": pagination_token}, default=str),
                         content_type="application/json",
                         status=200)
@@ -240,14 +261,14 @@ def story_list(request):
 @permission_classes([IsAuthenticated])
 # @cache_by_kwargs()
 def words(request):
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query(request)
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    pq = parse_query(request)
+    provider = pq_provider(pq)
     try:
-        words = provider.words(f"({query_str})", start_date,end_date, **provider_props)
+        words = provider.words(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
         response = {'error': 'Max Retries Exceeded'}
     response = add_ratios(words)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
                         status=200)
                         
@@ -256,18 +277,18 @@ def words(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_words_csv(request):
-    query = json.loads(request.GET.get("qS"))
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query[0])
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    queries = parsed_query_state(request) # handles POST!
+    pq = queries[0]
+    provider = pq_provider(pq)
     try:
-        words = provider.words(f"({query_str})", start_date,
-                                end_date, **provider_props, sample_size=5000)
+        words = provider.words(f"({pq.query_str})", pq.start_date,
+                                pq.end_date, **pq.provider_props, sample_size=5000)
         words = add_ratios(words)
     except Exception as e:
         logger.exception(e)
         return error_response(str(e), HttpResponseBadRequest)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 4)
-    filename = "mc-{}-{}-top-words".format(provider_name, _filename_timestamp())
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
+    filename = "mc-{}-{}-top-words".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -281,19 +302,19 @@ def download_words_csv(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
-    query = json.loads(request.GET.get("qS"))
-    start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query[0])
-    provider = providers.provider_by_name(provider_name, api_key, base_url)
+    queries = parsed_query_state(request) # handles POST!
+    pq = queries[0]
+    provider = pq_provider(pq)
     try:
         data = provider.normalized_count_over_time(
-            f"({query_str})", start_date, end_date, **provider_props)
+            f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
         normalized = True
     except UnsupportedOperationException:
-        data = provider.count_over_time(query_str, start_date, end_date, **provider_props)
+        data = provider.count_over_time(pq.query_str, pq.start_date, pq.end_date, **pq.provider_props)
         normalized = False
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider_name, 2)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     filename = "mc-{}-{}-counts".format(
-        provider_name, _filename_timestamp())
+        pq.provider_name, filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -309,71 +330,53 @@ def download_counts_over_time_csv(request):
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_all_content_csv(request):
-    queryState = json.loads(request.GET.get("qS"))
-    data = []
-    for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key, base_url)
-        data.append(provider.all_items(
-            f"({query_str})", start_date, end_date, **provider_props))
-
-    def data_generator():
-        for result in data:
-            first_page = True
-            for page in result:
-                QuotaHistory.increment(
-                    request.user.id, request.user.is_staff, provider_name)
-                if first_page:  # send back column names, which differ by platform
-                    yield sorted(list(page[0].keys()))
-                for story in page:
-                    ordered_story = collections.OrderedDict(
-                        sorted(story.items()))
-                    yield [v for k, v in ordered_story.items()]
-                first_page = False
-
-    filename = "mc-{}-{}-content".format(
-        provider_name, _filename_timestamp())
+    parsed_queries = parsed_query_state(request) # handles POST!
+    data_generator = all_content_csv_generator(parsed_queries, request.user.id, request.user.is_staff)
+    filename = all_content_csv_basename(parsed_queries)
     streamer = csv_stream.CSVStream(filename, data_generator)
     return streamer.stream()
 
 
+# called by frontend sendTotalAttentionDataEmail
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def send_email_large_download_csv(request):
     # get queryState and email
     payload = json.loads(request.body)
-    queryState = payload.get('prepareQuery', None)
-    email = payload.get('email', None)
+    queryState = payload.get('prepareQuery')
+    email = payload.get('email')
 
-    # follows similiar logic from download_all_content_csv, get information and send to tasks
+    # TotalAttentionEmailModal.jsx does range check.
+    # NOTE: download_all_content_csv doesn't check count!
+    # applying range check to sum of all queries!
+    total = 0
     for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
-        provider = providers.provider_by_name(provider_name, api_key, base_url)
+        pq = parsed_query_from_dict(query)
+        provider = pq_provider(pq)
         try:
-            count = provider.count(f"({query_str})", start_date, end_date, **provider_props)
-            if count >= 25000 and count <= 200000:
-                download_all_large_content_csv(queryState, request.user.id, request.user.is_staff, email)
+            total += provider.count(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
         except UnsupportedOperationException:
-            return error_response("Can't count results for download in {}... continuing anyway".format(provider_name))
-    return HttpResponse(content_type="application/json", status=200)
+            # said "continuing anyway", but didn't!
+            return error_response("Can't count results for download in {}".format(pq.provider_name))
 
+    # phil: moved outside loop (was looping for all queries, AND sending all queries in email)!
+    # was sending empty response regardless
+    if total >= ALL_URLS_CSV_EMAIL_MIN and total <= ALL_URLS_CSV_EMAIL_MAX:
+        # task arguments must be JSONifiable, so must pass queryState instead of pqs
+        response = download_all_large_content_csv(queryState, request.user.id, request.user.is_staff, email)
+        return HttpResponse(json.dumps(response, default=str),
+                            content_type="application/json", status=200)
+    else:
+        return error_response("Total {} not between {} and {}".format(
+            total, ALL_URLS_CSV_EMAIL_MIN, ALL_URLS_CSV_EMAIL_MAX))
 
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["POST"])
 @action(detail=False)
 def download_all_queries_csv(request):
-    # get data from request
-    payload = json.loads(request.body)
-    queryState = payload.get('queryState', None)
-    print("test")
-    queries = []
-    for query in queryState:
-        start_date, end_date, query_str, provider_props, provider_name, api_key, base_url = parse_query_array(query)
-        queries.append({
-            "start_date": start_date, "end_date": end_date,  "query_str": query_str,  
-            "provider_props": provider_props,  "provider_name": provider_name,  "api_key": api_key,  "base_url": base_url,  
-            })
+    queries = parsed_query_state(request) # handles GET with qS=JSON
+
     # make background task to fetch each query and zip into file then send email
     download_all_queries_csv_task(queries, request)
     return HttpResponse(content_type="application/json", status=200)
@@ -385,5 +388,3 @@ def add_ratios(words_data):
     return words_data
 
 
-def _filename_timestamp() -> str:
-    return time.strftime("%Y%m%d%H%M%S", time.localtime())

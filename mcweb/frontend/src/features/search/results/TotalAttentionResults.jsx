@@ -173,18 +173,18 @@ function TotalAttentionResults() {
 
           <div className="float-end">
             <div>
-            <CSVDialog
-              openDialog={openDownloadDialog}
-              queryState={queryState}
-              downloadType={TA}
-              outsideTitle="Download All URLS"
-              title="Choose a Query to Download a CSV of all the URLs for that query"
-              snackbarText="Total attention CSV Downloading"
-              onClick={() => setopenDownloadDialog(true)}
-              variant="outlined"
-              userEmail={currentUserEmail}
-              data={data}
-            />
+              <CSVDialog
+                openDialog={openDownloadDialog}
+                queryState={queryState}
+                downloadType={TA}
+                outsideTitle="Download All URLS"
+                title="Choose a Query to Download a CSV of all the URLs for that query"
+                snackbarText="Total attention CSV Downloading"
+                onClick={() => setopenDownloadDialog(true)}
+                variant="outlined"
+                userEmail={currentUserEmail}
+                data={data}
+              />
             </div>
           </div>
         </div>
