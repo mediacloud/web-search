@@ -41,7 +41,11 @@ function Footer() {
           .
         </p>
         <p>
-          This material is based upon work supported by the National Science Foundation under Grant No. 2341858.
+          This material is based upon work supported by the National Science Foundation under
+          {' '}
+          <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2341858&HistoricalAwards=false">
+            Grant No. 2341858.
+          </a>
         </p>
         <p>
           v
