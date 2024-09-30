@@ -93,7 +93,8 @@ export default function SampleStories() {
           </Box>
 
           {data.map((results, i) => (
-            <TabPanelHelper value={value} index={i} key={`${results.sample[0].id}`}>
+            // eslint-disable-next-line react/no-array-index-key
+            <TabPanelHelper value={value} index={i} key={`$sample-story-${i}`}>
               <SampleStoryShow
                 data={results.sample}
                 lSTP={lastSearchTimePlatform}
