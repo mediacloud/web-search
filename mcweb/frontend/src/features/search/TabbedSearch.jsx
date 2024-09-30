@@ -166,6 +166,7 @@ export default function TabbedSearch() {
             {queryState.map((query, i) => (
               <Tab
                 disableRipple
+                // eslint-disable-next-line react/no-array-index-key
                 key={i}
                 sx={{ marginRight: 0.5 }}
                 style={{ outline: `4px solid ${color[i]}`, outlineOffset: '-4px', borderRadius: '4px' }}
@@ -248,6 +249,7 @@ export default function TabbedSearch() {
         </Box>
 
         {queryState.map((query, i) => (
+          // eslint-disable-next-line react/no-array-index-key
           <TabPanelHelper key={i} value={value} index={i}>
             <Search queryIndex={i} />
           </TabPanelHelper>
