@@ -86,7 +86,8 @@ export default function TopLanguages() {
             </Box>
 
             {prepareLanguageData(data).map((results, i) => (
-              <TabPanelHelper value={value} index={i} key={`${results.data[0].value}`}>
+              // eslint-disable-next-line react/no-array-index-key
+              <TabPanelHelper value={value} index={i} key={`top-language-${i}`}>
                 <BarChart
                   series={[results]}
                   normalized

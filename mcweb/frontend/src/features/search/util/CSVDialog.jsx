@@ -151,7 +151,9 @@ CSVDialog.propTypes = {
   snackbarText: PropTypes.string,
   variant: PropTypes.string,
   userEmail: PropTypes.string,
+  // eslint-disable-next-line react/forbid-prop-types
   data: PropTypes.arrayOf(PropTypes.object),
+  // eslint-disable-next-line react/forbid-prop-types
   queryState: PropTypes.arrayOf(PropTypes.object),
 };
 
@@ -160,4 +162,5 @@ CSVDialog.defaultProps = {
   variant: 'text',
   userEmail: '',
   data: [{}],
+  queryState: [{}],
 };
