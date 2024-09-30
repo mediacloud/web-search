@@ -166,9 +166,9 @@ if __name__ == '__main__':
 
     DUMP = False                # XXX take command line arg/option!
 
-    url = os.getenv("RSS_FETCHER_URL")
-    user = os.getenv("RSS_FETCHER_USER")
-    password = os.getenv("RSS_FETCHER_PASS")
+    url = os.environ["RSS_FETCHER_URL"]
+    user = os.environ["RSS_FETCHER_USER"]
+    password = os.environ["RSS_FETCHER_PASS"]
 
     with RssFetcherApi(url, user, password) as rss:
         # tested against staging-rss-fetcher.ifill.angwin:
