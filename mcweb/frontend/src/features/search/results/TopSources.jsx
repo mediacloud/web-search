@@ -96,7 +96,8 @@ export default function TopSources() {
           </Box>
 
           {prepareSourceData(data, normalized).map((results, i) => (
-            <TabPanelHelper value={value} index={i} key={`${results.data[0].value}`}>
+            // eslint-disable-next-line react/no-array-index-key
+            <TabPanelHelper value={value} index={i} key={`top-sources-${i}`}>
               <BarChart
                 series={[results]}
                 normalized={normalized}
