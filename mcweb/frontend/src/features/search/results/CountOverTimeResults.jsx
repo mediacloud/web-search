@@ -23,7 +23,6 @@ import {
 export default function CountOverTimeResults() {
   const dispatch = useDispatch();
   const queryState = useSelector((state) => state.query);
-  const multiQuery = (queryState.length > 1);
   const {
     platform,
     initialSearchTime,
