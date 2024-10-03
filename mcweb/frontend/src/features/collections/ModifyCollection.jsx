@@ -10,6 +10,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
+import Alert from '@mui/material/Alert';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
@@ -139,7 +140,11 @@ export default function ModifyCollection() {
 
   return (
     <div className="container">
-
+      {staticCollection && (
+      <Alert severity="warning">
+        This is a static collection, to make any changes contact an admin
+      </Alert>
+      )}
       <div className="row">
         <div className="col-12">
           <h2>Edit Collection</h2>
@@ -232,6 +237,7 @@ export default function ModifyCollection() {
           <br />
           <Button
             variant="contained"
+            disabled={staticCollection}
             onClick={async () => {
               try {
                 await updateCollection({

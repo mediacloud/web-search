@@ -59,8 +59,12 @@ export default function CollectionHeader() {
             {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
           </Link>
         </h1>
+
         {collection.featured && (
           <Chip label="Featured Collection" color="success" />
+        )}
+        {collection.static && (
+          <Chip label="Static Collection" color="warning" />
         )}
       </Header>
       <ControlBar>

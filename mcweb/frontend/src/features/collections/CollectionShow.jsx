@@ -45,18 +45,6 @@ export default function CollectionShow() {
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
         <b>Notes:</b> {collection.notes}
       </p>
-      { collection.featured && (
-      <p>
-        {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        <b>This is a featured collection</b>
-      </p>
-      )}
-      { collection.static && (
-      <p>
-        {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        <b>This is a static collection, changes can only be made by Staff or Admins</b>
-      </p>
-      )}
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
