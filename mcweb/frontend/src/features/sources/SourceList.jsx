@@ -11,7 +11,7 @@ import { useDeleteSourceCollectionAssociationMutation } from '../../app/services
 import { sourceFavIcon, asNumber } from '../ui/uiUtil';
 
 export default function SourceList(props) {
-  const { collectionId, edit } = props;
+  const { collectionId, edit, staticCollection } = props;
   const [page, setPage] = useState(0);
   const {
     data: sources,
@@ -68,6 +68,7 @@ export default function SourceList(props) {
                   <td>
                     <IconButton
                       aria-label="remove"
+                      disabled={staticCollection}
                       onClick={() => {
                         deleteSourceCollectionAssociation({
                           source_id: source.id,
@@ -91,8 +92,10 @@ export default function SourceList(props) {
 SourceList.propTypes = {
   collectionId: PropTypes.number.isRequired,
   edit: PropTypes.bool,
+  staticCollection: PropTypes.bool,
 };
 
 SourceList.defaultProps = {
   edit: false,
+  staticCollection: false,
 };

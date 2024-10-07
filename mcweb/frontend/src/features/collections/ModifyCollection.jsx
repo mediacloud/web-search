@@ -10,6 +10,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
+import Alert from '@mui/material/Alert';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
@@ -23,6 +24,7 @@ import UploadSources from '../sources/UploadSources';
 import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
 import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
 
 const MIN_QUERY_LEN = 1; // don't query for super short things
 const MAX_RESULTS = 10; // per endpoint
@@ -38,7 +40,7 @@ export default function ModifyCollection() {
 
   // form state for text fields
   const [formState, setFormState] = useState({
-    id: 0, name: '', notes: '', platform: 'online_news', public: true, featured: false, rescrape: true,
+    id: 0, name: '', notes: '', platform: 'online_news', public: true, featured: false, rescrape: true, static: false,
   });
 
   const [open, setOpen] = useState(false);
@@ -85,6 +87,7 @@ export default function ModifyCollection() {
         public: data.public,
         featured: data.featured,
         rescrape: data.platform === 'online_news',
+        static: data.static,
       };
       setFormState(formData);
     }
@@ -133,9 +136,15 @@ export default function ModifyCollection() {
     return <CircularProgress size="75px" />;
   }
 
+  const staticCollection = data.static;
+
   return (
     <div className="container">
-
+      {staticCollection && (
+      <Alert severity="warning">
+        This is a static collection, to make any changes contact an admin
+      </Alert>
+      )}
       <div className="row">
         <div className="col-12">
           <h2>Edit Collection</h2>
@@ -152,6 +161,7 @@ export default function ModifyCollection() {
             name="name"
             value={formState.name}
             onChange={handleChange}
+            disabled={staticCollection}
           />
           <br />
           <br />
@@ -164,6 +174,7 @@ export default function ModifyCollection() {
             rows={4}
             value={formState.notes}
             onChange={handleChange}
+            disabled={staticCollection}
           />
           <br />
           <br />
@@ -176,6 +187,7 @@ export default function ModifyCollection() {
               name="platform"
               label="Platform"
               onChange={handleChange}
+              disabled={staticCollection}
             >
               <MenuItem value="online_news">{platformDisplayName('online_news')}</MenuItem>
               <MenuItem value="reddit">{platformDisplayName('reddit')}</MenuItem>
@@ -186,12 +198,25 @@ export default function ModifyCollection() {
           <br />
           <br />
           <FormGroup>
+            <Permissioned role={ROLE_STAFF}>
+              <FormControlLabel
+                control={(
+                  <Checkbox
+                    name="static"
+                    checked={formState.static}
+                    onChange={handleChange}
+                  />
+)}
+                label="Static?"
+              />
+            </Permissioned>
             <FormControlLabel
               control={(
                 <Checkbox
                   name="public"
                   checked={formState.public}
                   onChange={handleChange}
+                  disabled={staticCollection}
                 />
 )}
               label="Public?"
@@ -202,6 +227,7 @@ export default function ModifyCollection() {
                   name="featured"
                   checked={formState.featured}
                   onChange={handleChange}
+                  disabled={staticCollection}
                 />
               )}
               label="Featured?"
@@ -211,6 +237,7 @@ export default function ModifyCollection() {
           <br />
           <Button
             variant="contained"
+            disabled={staticCollection}
             onClick={async () => {
               try {
                 await updateCollection({
@@ -220,6 +247,7 @@ export default function ModifyCollection() {
                   platform: formState.platform,
                   public: formState.public,
                   featured: formState.featured,
+                  static: formState.static,
                 }).unwrap();
                 enqueueSnackbar('Saved changes', { variant: 'success' });
                 navigate(`/collections/${collectionId}`);
@@ -241,6 +269,7 @@ export default function ModifyCollection() {
             ref={autocompleteRef}
             id="quick-source-search"
             open={open}
+            disabled={staticCollection}
             filterOptions={(x) => x} /* let the server filter optons */
             onOpen={() => {}}
             onClose={() => {
@@ -254,20 +283,21 @@ export default function ModifyCollection() {
             options={[...sourceOptions]}
             loading={somethingIsFetching}
             onChange={defaultSelectionHandler}
-            renderInput={(params) => (
+            renderInput={(renderParams) => (
               <TextField
-                {...params}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...renderParams}
                 label="Add a source to this collection"
                 value={formState.source}
                 disabled={somethingIsFetching}
                 InputProps={{
-                  ...params.InputProps,
+                  ...renderParams.InputProps,
                   endAdornment: (
                     <>
                       {somethingIsFetching ? (
                         <CircularProgress color="inherit" size={20} />
                       ) : null}
-                      {params.InputProps.endAdornment}
+                      {renderParams.InputProps.endAdornment}
                     </>
                   ),
                 }}
@@ -300,13 +330,19 @@ export default function ModifyCollection() {
                 name="rescrape"
                 checked={formState.rescrape}
                 onChange={handleChange}
+                disabled={staticCollection}
               />
               )}
             label="Automatically discover RSS feeds in new sources?"
           />
           )}
 
-          <UploadSources className="col-6" collectionId={collectionId} rescrape={formState.rescrape} />
+          <UploadSources
+            className="col-6"
+            collectionId={collectionId}
+            rescrape={formState.rescrape}
+            staticCollection={staticCollection}
+          />
         </div>
 
       </div>
@@ -335,7 +371,7 @@ export default function ModifyCollection() {
 
       <div className="row">
         <div className="col-12">
-          <SourceList collectionId={collectionId} edit />
+          <SourceList collectionId={collectionId} edit staticCollection={staticCollection} />
         </div>
       </div>
     </div>

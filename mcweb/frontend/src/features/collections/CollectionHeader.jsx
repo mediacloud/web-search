@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import ShieldIcon from '@mui/icons-material/Shield';
 import SearchIcon from '@mui/icons-material/Search';
 import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Outlet, Link, useParams } from 'react-router-dom';
 import {
@@ -59,8 +60,14 @@ export default function CollectionHeader() {
             {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
           </Link>
         </h1>
+
         {collection.featured && (
           <Chip label="Featured Collection" color="success" />
+        )}
+        {collection.static && (
+          <Tooltip title="This is a static collection, to make any changes contact an admin">
+            <Chip label="Static Collection" color="warning" />
+          </Tooltip>
         )}
       </Header>
       <ControlBar>
