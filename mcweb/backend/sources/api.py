@@ -1,32 +1,43 @@
-import time
+# Python
+import datetime as dt
 import json
 import os
+import time
+from typing import List, Optional
+from urllib.parse import urlparse, parse_qs
+
+# PyPI
+import mcmetadata.urls as urls
 import requests
 import requests.auth
-import datetime as dt
-from urllib.parse import urlparse, parse_qs
-from django.db.models import Count
+from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
-from rest_framework.response import Response
-from rest_framework.decorators import action, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from django.db.models import Case, When, Q
+from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 from rest_framework import viewsets, permissions
-import mcmetadata.urls as urls
-from rest_framework.renderers import JSONRenderer
-from typing import List, Optional
+from rest_framework.decorators import action, permission_classes
 from rest_framework.exceptions import APIException
-from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
-from backend.util import csv_stream
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+
+# mcweb
+from settings import RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS # mcweb.settings
+
+# mcweb/util
 from util.cache import cache_by_kwargs
+from util.send_emails import send_source_upload_email
+
+# mcweb/backend/util
+from backend.util import csv_stream
+from backend.util.tasks import get_completed_tasks, get_pending_tasks
+
+# local directory (mcweb/backend/sources)
+from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaff
 from .rss_fetcher_api import RssFetcherApi
-from util.send_emails import send_source_upload_email
+from .tasks import schedule_scrape_source, schedule_scrape_collection
 
-from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
-from .tasks import schedule_scrape_source, get_completed_tasks, get_pending_tasks, schedule_scrape_collection
-from settings import RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS # mcweb.settings
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))

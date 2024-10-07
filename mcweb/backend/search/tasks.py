@@ -11,7 +11,6 @@ from io import StringIO, BytesIO
 
 # PyPI
 import mc_providers
-from background_task import background
 
 # mcweb/backend/search (local directory)
 from .utils import (
@@ -25,7 +24,11 @@ from .utils import (
 
 # mcweb/backend
 from ..users.models import QuotaHistory
-from ..sources.tasks import _return_task
+from backend.util.tasks import (
+    USER_SLOW,
+    background,
+    return_task
+)
 
 # mcweb/util
 from util.send_emails import send_zipped_large_download_email
@@ -37,9 +40,9 @@ logger = logging.getLogger(__name__)
 # by frontend sendTotalAttentionDataEmail
 def download_all_large_content_csv(queryState: list[dict], user_id: int, user_isStaff: bool, email: str):
     task = _download_all_large_content_csv(queryState, user_id, user_isStaff, email)
-    return {'task': _return_task(task)}
+    return {'task': return_task(task)}  # XXX double wraps {task: {task: TASK_DATA}}??
 
-@background(remove_existing_tasks=True)
+@background(queue=USER_SLOW, remove_existing_tasks=True)
 def _download_all_large_content_csv(queryState: list[dict], user_id: int, user_isStaff: bool, email: str):
     parsed_queries = [parsed_query_from_dict(q) for q in queryState]
     # code from: https://stackoverflow.com/questions/17584550/attach-generated-csv-file-to-email-and-send-with-django
@@ -100,7 +103,7 @@ def _download_all_large_content_csv(queryState: list[dict], user_id: int, user_i
 
 def download_all_queries_csv_task(data, request):
     task = _download_all_queries_csv(data, request.user.id, request.user.is_staff, request.user.email)
-    return {'task': _return_task(task)}
+    return {'task': return_task(task)}  # XXX double wraps {task: {task: TASK_DATA}}??
 
 # Phil writes: As I found it, this function used query.thing, which I
 # don't think could have worked (was a regular tuple)!  It also (and
@@ -114,7 +117,7 @@ def download_all_queries_csv_task(data, request):
 
 # All of the above makes me think this is dead code!
 
-@background(remove_existing_tasks=True)
+@background(queue=USER_SLOW, remove_existing_tasks=True)
 def _download_all_queries_csv(data: list[ParsedQuery], user_id, is_staff, email):
     for pq in data:
         provider = pq_provider(pq)
