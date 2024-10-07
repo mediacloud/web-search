@@ -8,6 +8,7 @@ import logging
 
 # PyPI
 import background_task
+from background_task.models import Task, CompletedTask
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +16,10 @@ logger = logging.getLogger(__name__)
 
 # periodic system tasks, not launched on demand
 SYSTEM_FAST = 'system-fast'
-SYSTEM_SLOW = None          # pre-existing/default
+SYSTEM_SLOW = None          # pre-existing/default (pain to delete existing Proc)
 
 # admin/collections tasks, launched on demand
-ADMIN_FAST = 'admin-slow'  # eg scrape source
+ADMIN_FAST = 'admin-fast'  # eg scrape source
 ADMIN_SLOW = 'admin-slow'  # eg scrape collection
 
 # ordinary user tasks, launched on demand
@@ -29,8 +30,8 @@ def background(queue: str, **kws):
     """
     @background decorator for background task functions.
 
-    wrapper for background_task.background decorator,
-    with required queue name argument!
+    (wrapper for background_task.background
+    with required queue name argument!)
 
     see https://django-background-tasks.readthedocs.io/en/latest/
     optional arguments:
@@ -48,8 +49,7 @@ def background(queue: str, **kws):
                   Task.DAILY, Task.WEEKLY, Task.EVERY_2_WEEKS, Task.EVERY_4_WEEKS
 
     decorated function return value is not saved!
-    and returns a background_task.models.Task object.
-   
+    background_task.models.Task is returned to caller.
     calling decorated_function.now() invokes decorated function synchronously.
 
     NOTE!!! to avoid problems with previously queued tasks,

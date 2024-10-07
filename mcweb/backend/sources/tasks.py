@@ -7,7 +7,6 @@ import time
 import traceback
 
 # PyPI:
-from background_task.models import Task, CompletedTask
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
 from django.contrib.auth.models import User
@@ -250,15 +249,14 @@ def update_stories_per_week():
                         remove_existing_tasks=True)
     return return_task(task)
 
-@background(queue=SYSTEM_SLOW)  # maybe _FAST??
+@background(queue=SYSTEM_FAST)
 def _update_stories_counts():
         with _rss_fetcher_api() as rss:
             stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
             for source_tuple in stories_by_source:
                 source_id, stories_per_day = source_tuple
-                print(source_id, stories_per_day)
                 weekly_count = int(stories_per_day * 7)
-                print(weekly_count)
+                print(source_id, stories_per_day, weekly_count)
                 Source.update_stories_per_week(int(source_id), weekly_count)
 
             
