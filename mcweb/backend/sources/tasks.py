@@ -14,7 +14,6 @@ import traceback
 # PyPI:
 from background_task import background
 from background_task.models import Task, CompletedTask
-from feed_seeker import generate_feed_urls
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
 from django.contrib.auth.models import User
@@ -77,6 +76,8 @@ def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) ->
     errors = 0
     try:
         email_body = Source._scrape_source(source_id, homepage, name)
+    except KeyboardInterrupt:  # for debug (seeing where hung)
+        raise
     except:
         logger.exception("Source._scrape_source exception in _scrape_source")
         email_body = f"FATAL ERROR:\n{traceback.format_exc()}"
@@ -137,6 +138,8 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
         try:
             # remove verbosity=0 for more output!
             add_body_chunk(Source._scrape_source(source.id, source.homepage, source.name, verbosity=0))
+        except KeyboardInterrupt:  # for debug (seeing where hung)
+            raise
         except:
             logger.exception(f"Source._scrape_source exception in _scrape_source {source.id}")
             add_body_chunk(f"ERROR:\n{traceback.format_exc()}") # format_exc has final newline
