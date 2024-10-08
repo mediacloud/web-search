@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 # NOTE! To enable/add a new queue you must also add a new line to Procfile!!
 
 # periodic system tasks, not launched on demand
-SYSTEM_FAST = 'system-fast'
-SYSTEM_SLOW = None          # pre-existing/default (pain to delete existing Proc)
+SYSTEM_FAST = 'system-fast'  # eg stories/week update
+SYSTEM_SLOW = 'system-slow'  # eg sources alerts
 
 # admin/collections tasks, launched on demand
 ADMIN_FAST = 'admin-fast'  # eg scrape source

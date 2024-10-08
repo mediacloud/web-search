@@ -1,3 +1,8 @@
+"""
+Background tasks for "sources" app
+(must be named tasks.py? next to app models.py??)
+"""
+
 # standard:
 import datetime as dt
 import logging
