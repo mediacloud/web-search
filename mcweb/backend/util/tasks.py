@@ -105,7 +105,7 @@ def get_completed_tasks(user: str | None) -> dict:
 
 def get_pending_tasks(user: str | None) -> dict[str, list[dict]]:
     """
-    return ALL completed tasks.
+    return ALL pending tasks.
     If user provided, return just tasks for that user.
 
     Currently available thru SourcesViewSet for historical reasons.
