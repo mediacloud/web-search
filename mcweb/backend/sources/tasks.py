@@ -24,7 +24,8 @@ from backend.util.tasks import (
     ADMIN_FAST,
     ADMIN_SLOW,
     background,
-    return_error
+    return_error,
+    return_task
 )
 
 # mcweb/

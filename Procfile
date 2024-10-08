@@ -4,8 +4,8 @@ web: bin/start-pgbouncer gunicorn --timeout 500 --pythonpath mcweb --bind 0.0.0.
 # workers for queues defined in mcweb/backend/util/task_queues.py:
 # NOTE! names must end in "worker" for dokku-scripts/push.sh!!!
 #
-# original/default queue (now used for SYSTEM_SLOW):
-worker: python mcweb/manage.py process_tasks
+# painful to delete old "procs", so "worker" runs system-slow queue
+worker: python mcweb/manage.py process_tasks --queue system-slow
 system-fast-worker: python mcweb/manage.py process_tasks --queue system-fast
 admin-slow-worker: python mcweb/manage.py process_tasks --queue admin-slow
 admin-fast-worker: python mcweb/manage.py process_tasks --queue admin-fast
