@@ -1,18 +1,54 @@
 import logging
 from typing import Dict
 
+# PyPI:
 import feed_seeker
-from mcmetadata.feeds import normalize_url
 import mcmetadata.urls as urls
+import requests
+import urllib3
 from django.db import models
 from django.db.utils import IntegrityError
-import requests
+from mcmetadata.feeds import normalize_url
+from mcmetadata.requests_arcana import insecure_requests_session
+from mcmetadata.webpages import MEDIA_CLOUD_USER_AGENT
+from requests.adapters import HTTPAdapter
 
 # not from PyPI: package installed via github URL
-from mc_sitemap_tools.discover import find_gnews_fast
+from mc_sitemap_tools.discover import NewsDiscoverer
+
+# mcweb
 from settings import SCRAPE_TIMEOUT_SECONDS
 
 logger = logging.getLogger(__name__)
+
+def rss_page_fetcher(url: str) -> str:
+    """
+    custom fetcher for RSS pages
+    (adapted from from feed_seeker default_fetch_function)
+    """
+    logger.debug("rss_page_fetcher %s", url)
+    session = insecure_requests_session(MEDIA_CLOUD_USER_AGENT)
+
+    try:
+        # provide connection and read timeouts in case alarm based timeout fails
+        # (scrapes sometimes hang).  SCRAPE_TIMEOUT_SECONDS is meant to be total
+        # time for scraping ENTIRE source (including all pages), so the values
+        # supplied here should be smaller (read timeout applies to EACH read),
+        # but it's a start!
+        response = session.get(url,
+                               timeout=(SCRAPE_TIMEOUT_SECONDS, SCRAPE_TIMEOUT_SECONDS))
+        if response.ok:
+            return response.text
+        else:
+            return ''  # non-fatal error
+    except (requests.ConnectTimeout, # connect timeout
+            requests.ConnectionError, # 404's
+            requests.ReadTimeout,     # read timeout
+            requests.TooManyRedirects, # redirect loop
+            requests.exceptions.InvalidSchema, # email addresses
+            requests.exceptions.RetryError):
+        # signal page failure, but not bad enough to abandon site:
+        return ''
 
 class Collection(models.Model):
 
@@ -251,7 +287,8 @@ class Source(models.Model):
 
         # Look for RSS feeds
         try:
-            new_feed_generator = feed_seeker.generate_feed_urls(homepage, max_time=SCRAPE_TIMEOUT_SECONDS)
+            new_feed_generator = feed_seeker.generate_feed_urls(
+                homepage, max_time=SCRAPE_TIMEOUT_SECONDS, fetcher=rss_page_fetcher)
             # create list so DB operations in process_urls are not under the timeout gun.
             process_urls("rss", list(new_feed_generator))
         except requests.RequestException as e: # maybe just catch Exception?
@@ -266,14 +303,14 @@ class Source(models.Model):
         sitemaps = "news sitemap" # say something once, why say it again?
 
         try:
-            gnews_urls = find_gnews_fast(homepage, timeout=SCRAPE_TIMEOUT_SECONDS)
+            nd = NewsDiscoverer(MEDIA_CLOUD_USER_AGENT)
+            gnews_urls = nd.find_gnews_fast(homepage, timeout=SCRAPE_TIMEOUT_SECONDS)
         except requests.RequestException as e:
             add_line(f"fatal error for {sitemaps}: {e!r}")
             logger.exception("find_gnews_fast")
 
         if gnews_urls:
             process_urls(sitemaps, gnews_urls)
-
 
         # after many tries to give a summary in english:
         add_line(f"{added}/{total} added, {confirmed}/{old} confirmed\n")
