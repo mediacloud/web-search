@@ -6,6 +6,7 @@ import { selectIsLoggedIn, selectCurrentUser } from './authSlice';
 export const ROLE_USER = 'USER'; // this is kind of implicit
 export const ROLE_STAFF = 'STAFF';
 export const ROLE_ADMIN = 'ADMIN';
+export const ROLE_CONTRIBUTOR = 'CONTRIBUTOR';
 
 export default function Permissioned({ children, role }) {
   const isLoggedIn = useSelector(selectIsLoggedIn); // will be undefined if not logged in
