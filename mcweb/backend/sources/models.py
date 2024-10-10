@@ -5,25 +5,26 @@ from typing import Dict
 import feed_seeker
 import mcmetadata.urls as urls
 import requests
-import urllib3
 from django.db import models
 from django.db.utils import IntegrityError
 from mcmetadata.feeds import normalize_url
 from mcmetadata.requests_arcana import insecure_requests_session
 from mcmetadata.webpages import MEDIA_CLOUD_USER_AGENT
-from requests.adapters import HTTPAdapter
 
 # not from PyPI: package installed via github URL
 from mc_sitemap_tools.discover import NewsDiscoverer
 
 # mcweb
-from settings import SCRAPE_TIMEOUT_SECONDS
+from settings import SCRAPE_TIMEOUT_SECONDS # time to scrape an entire source
 
 logger = logging.getLogger(__name__)
 
+# time for individual HTTP connect/read
+SCRAPE_HTTP_SECONDS = SCRAPE_TIMEOUT_SECONDS / 5
+
 def rss_page_fetcher(url: str) -> str:
     """
-    custom fetcher for RSS pages
+    custom fetcher for RSS pages for feed_seeker
     (adapted from from feed_seeker default_fetch_function)
     """
     logger.debug("rss_page_fetcher %s", url)
@@ -31,12 +32,9 @@ def rss_page_fetcher(url: str) -> str:
 
     try:
         # provide connection and read timeouts in case alarm based timeout fails
-        # (scrapes sometimes hang).  SCRAPE_TIMEOUT_SECONDS is meant to be total
-        # time for scraping ENTIRE source (including all pages), so the values
-        # supplied here should be smaller (read timeout applies to EACH read),
-        # but it's a start!
+        # (scrapes sometimes hang).
         response = session.get(url,
-                               timeout=(SCRAPE_TIMEOUT_SECONDS, SCRAPE_TIMEOUT_SECONDS))
+                               timeout=(SCRAPE_HTTP_SECONDS, SCRAPE_HTTP_SECONDS))
         if response.ok:
             return response.text
         else:
@@ -247,16 +245,15 @@ class Source(models.Model):
         def add_line(line):
             logger.debug("add_line: %s", line.rstrip()) # without newlines!
             if not line.endswith("\n"):
-                logger.warning("missing newline on %s", line)
                 line += "\n"
             lines.append(line)
 
         # per-source header line
-        add_line(f"Scraped source {source_id} ({name}), {homepage}\n")
+        add_line(f"Scraped source {source_id} ({name}), {homepage}")
 
         if not homepage:
-            add_line("MISSING HOMEPAGE\n")
-            return "".join(lines)
+            add_line("MISSING HOMEPAGE")
+            return "".join(lines) # error not indented
 
         total = added = confirmed = 0
         def process_urls(from_: str, urls: list[str]):
@@ -266,21 +263,21 @@ class Source(models.Model):
                 nurl = normalize_url(url)
                 if nurl in old_urls:
                     if verbosity >= 1:
-                        add_line(f"found existing {from_} feed {url}\n")
+                        add_line(f"found existing {from_} feed {url}")
                     logger.info(f"scrape_source({source_id}, {homepage}) found existing {from_} feed {url}")
                     confirmed += 1
                 else:
                     try:
                         feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
                         feed.save()
-                        add_line(f"added new {from_} feed {url}\n")
+                        add_line(f"added new {from_} feed {url}")
                         logger.info(f"scrape_source({source_id}, {homepage}) added new {from_} feed {url}")
                         old_urls[nurl] = url # try to prevent trying to add twice
                         added += 1
                     except IntegrityError:
                         # happens when feed exists, but under a different source!
                         # could do lookup by URL, and report what source (name & id) it's under....
-                        add_line(f"{from_} feed {url} exists under some other source!!!\n")
+                        add_line(f"{from_} feed {url} exists under some other source!!!")
                         logger.warning(f"scrape_source({source_id}, {homepage}) duplicate {from_} feed {url} (exists under another source?)")
 
             # end process_feeds
@@ -292,7 +289,7 @@ class Source(models.Model):
             # create list so DB operations in process_urls are not under the timeout gun.
             process_urls("rss", list(new_feed_generator))
         except requests.RequestException as e: # maybe just catch Exception?
-            add_line(f"fatal error for rss: {e!r}\n")
+            add_line(f"fatal error for rss: {e!r}")
             logger.warning("generate_feed_urls(%s): %r", homepage, e)
         except TimeoutError:
             add_line(f"timeout for rss")
@@ -304,7 +301,7 @@ class Source(models.Model):
 
         try:
             nd = NewsDiscoverer(MEDIA_CLOUD_USER_AGENT)
-            gnews_urls = nd.find_gnews_fast(homepage, timeout=SCRAPE_TIMEOUT_SECONDS)
+            gnews_urls = nd.find_gnews_fast(homepage, timeout=SCRAPE_HTTP_SECONDS)
         except requests.RequestException as e:
             add_line(f"fatal error for {sitemaps}: {e!r}")
             logger.exception("find_gnews_fast")
@@ -313,7 +310,7 @@ class Source(models.Model):
             process_urls(sitemaps, gnews_urls)
 
         # after many tries to give a summary in english:
-        add_line(f"{added}/{total} added, {confirmed}/{old} confirmed\n")
+        add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
 
         indent = "  "           # not applied to header line
         return indent.join(lines)
