@@ -325,7 +325,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         counts = dict(updated=0, skipped=0, created=0)
         for row in request.data['sources']:
             # skip empty rows
-            if len(row.keys()) <= 1:
+            if len(row.keys()) < 1:
                 continue
             # check if this is an update
             if row.get('id', None) and (int(row['id']) > 0) and (row['id'] != 'null'):
