@@ -6,7 +6,7 @@ djangorestframework-simplejwt[crypto]==5.2.*
 pyhumps==3.8.*
 django-environ==0.9.*
 dj-database-url==1.0.*
-mediacloud-metadata==1.*
+mediacloud-metadata==1.1.*
 python-dateutil==2.8.*
 django-redis==5.2.*
 gunicorn==20.1.*
@@ -19,7 +19,7 @@ mc-manage @ git+https://github.com/mediacloud/mc-manage@v1.1.4
 pycountry==22.3.*
 django-background-tasks-updated==1.2.* # need >= 1.2.6
 django-cors-headers==4.3.*
-feed-seeker==1.0.*
+feed-seeker==1.1.*
 numpy
-pandas
-sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v1.0.0
+#pandas
+sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v2.0.0
