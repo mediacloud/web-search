@@ -13,7 +13,7 @@ import {
   useRescrapeCollectionMutation,
 } from '../../app/services/collectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedContributor } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
@@ -85,7 +85,7 @@ export default function CollectionHeader() {
           </a>
         </Button>
         <DownloadSourcesCsv collectionId={collectionId} />
-        <Permissioned role={ROLE_STAFF}>
+        <PermissionedContributor>
           <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
             <Link to={`${collectionId}/edit`}>Edit</Link>
           </Button>
@@ -128,7 +128,7 @@ export default function CollectionHeader() {
               confirmButtonText="Rescrape"
             />
           )}
-        </Permissioned>
+        </PermissionedContributor>
 
       </ControlBar>
       <Outlet />

@@ -8,7 +8,9 @@ import IconButton from '@mui/material/IconButton';
 import AlertTitle from '@mui/material/AlertTitle';
 import { useSnackbar } from 'notistack';
 import { useResetTokenMutation, useDeleteUserMutation } from '../../app/services/authApi';
-import Permissioned, { ROLE_STAFF } from './Permissioned';
+import {
+  PermissionedStaff, PermissionedContributor, ROLE_STAFF, isContributor,
+} from './Permissioned';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
@@ -28,6 +30,8 @@ function Account() {
       window.location.reload();
     }, delay);
   };
+
+  console.log(currentUser, 'In profile');
 
   return (
     <>
@@ -64,12 +68,17 @@ function Account() {
             </Tooltip>
           </div>
 
-          <Permissioned role={ROLE_STAFF}>
+          <PermissionedContributor>
+            <dt>Contributor?</dt>
+            <dd>{isContributor(currentUser.groupNames) ? 'yes' : 'no'}</dd>
+          </PermissionedContributor>
+
+          <PermissionedStaff role={ROLE_STAFF}>
             <dt>Staff?</dt>
             <dd>{currentUser.isStaff ? 'yes' : 'no'}</dd>
             <dt>Super User?</dt>
             <dd>{currentUser.isSuperuser ? 'yes' : 'no'}</dd>
-          </Permissioned>
+          </PermissionedStaff>
         </dl>
         <Alert severity="error">
           <AlertTitle>Delete Account</AlertTitle>
@@ -93,7 +102,7 @@ function Account() {
             confirmButtonText="Delete"
           />
         </Alert>
-        <Permissioned role={ROLE_STAFF}>
+        <PermissionedContributor>
           <div className="row">
             <div className="col-6">
               <TaskList completed={false} />
@@ -103,7 +112,7 @@ function Account() {
               <TaskList completed />
             </div>
           </div>
-        </Permissioned>
+        </PermissionedContributor>
       </div>
     </>
   );
