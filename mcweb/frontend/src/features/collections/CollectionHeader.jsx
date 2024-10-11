@@ -64,9 +64,9 @@ export default function CollectionHeader() {
         {collection.featured && (
           <Chip label="Featured Collection" color="success" />
         )}
-        {collection.static && (
-          <Tooltip title="This is a static collection, to make any changes contact an admin">
-            <Chip label="Static Collection" color="warning" />
+        {collection.managed && (
+          <Tooltip title="This is a managed collection, to make any changes contact an admin">
+            <Chip label="Managed Collection" color="warning" />
           </Tooltip>
         )}
       </Header>
