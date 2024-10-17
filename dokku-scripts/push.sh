@@ -358,8 +358,11 @@ prod)
     ;;
 esac
 
+# extract list of task workers from Procfile
+TASK_WORKERS=$(grep -o '^[a-z-]*worker:' Procfile | sed 's/:/=1/')
+
 # add new Procfile entries to next line!!
-GOALS="web=$WEB_PROCS worker=1"
+GOALS="web=$WEB_PROCS $TASK_WORKERS"
 
 # avoid unnecessary redeploys
 SCALE=$(dokku ps:scale $APP | awk -v "goals=$GOALS" -f $SCRIPT_DIR/scale.awk)

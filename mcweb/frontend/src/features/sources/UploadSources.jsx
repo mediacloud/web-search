@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 
-export default function UploadSources({ collectionId, rescrape }) {
+export default function UploadSources({ collectionId, rescrape, staticCollection }) {
   const { enqueueSnackbar } = useSnackbar();
   const [updating, setUpdating] = useState(false);
   const [uploadSources, { isLoading: isUpdating }] = useUploadSourcesMutation();
@@ -32,7 +32,12 @@ export default function UploadSources({ collectionId, rescrape }) {
           acceptedFile,
         }) => (
           <div>
-            <Button disabled={updating} variant="outlined" {...getRootProps()}>
+            <Button
+              disabled={updating || staticCollection}
+              variant="outlined"
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...getRootProps()}
+            >
               Upload CSV
             </Button>
             {(isUpdating || updating) && <CircularProgress />}
@@ -55,4 +60,5 @@ export default function UploadSources({ collectionId, rescrape }) {
 UploadSources.propTypes = {
   collectionId: PropTypes.number.isRequired,
   rescrape: PropTypes.bool.isRequired,
+  staticCollection: PropTypes.bool.isRequired,
 };
