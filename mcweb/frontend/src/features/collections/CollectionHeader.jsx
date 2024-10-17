@@ -13,7 +13,7 @@ import {
   useRescrapeCollectionMutation,
 } from '../../app/services/collectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
-import { PermissionedContributor } from '../auth/Permissioned';
+import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
@@ -89,25 +89,6 @@ export default function CollectionHeader() {
           <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
             <Link to={`${collectionId}/edit`}>Edit</Link>
           </Button>
-          <AlertDialog
-            outsideTitle="Delete Collection"
-            title={`Delete ${platformDisplayName(collection.platform)} Collection #${collectionId}: ${collection.name}`}
-            content={`Are you sure you want to delete ${platformDisplayName(collection.platform)}
-                Collection #${collectionId}: ${collection.name} permanently?`}
-            dispatchNeeded={false}
-            action={deleteCollection}
-            actionTarget={collectionId}
-            snackbar
-            snackbarText="Collection Deleted!"
-            onClick={() => setOpen(true)}
-            openDialog={open}
-            variant="outlined"
-            navigateNeeded
-            navigateTo="/directory"
-            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
-            secondAction={false}
-            confirmButtonText="Delete"
-          />
           {collection.platform === 'online_news' && (
 
             <AlertDialog
@@ -129,6 +110,26 @@ export default function CollectionHeader() {
             />
           )}
         </PermissionedContributor>
+        <AlertDialog
+          outsideTitle="Delete Collection"
+          title={`Delete ${platformDisplayName(collection.platform)} Collection #${collectionId}: ${collection.name}`}
+          content={`Are you sure you want to delete ${platformDisplayName(collection.platform)}
+                Collection #${collectionId}: ${collection.name} permanently?`}
+          dispatchNeeded={false}
+          action={deleteCollection}
+          actionTarget={collectionId}
+          snackbar
+          snackbarText="Collection Deleted!"
+          onClick={() => setOpen(true)}
+          openDialog={open}
+          variant="outlined"
+          navigateNeeded
+          navigateTo="/directory"
+          startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+          secondAction={false}
+          confirmButtonText="Delete"
+        />
+        <PermissionedStaff role={ROLE_STAFF} />
 
       </ControlBar>
       <Outlet />
