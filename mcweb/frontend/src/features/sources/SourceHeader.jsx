@@ -9,7 +9,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useGetSourceQuery, useDeleteSourceMutation, useRescrapeForFeedsMutation } from '../../app/services/sourceApi';
 import { useLazyFetchFeedQuery } from '../../app/services/feedsApi';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
@@ -84,7 +84,7 @@ export default function SourceHeader() {
           <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
         </Button>
 
-        <Permissioned role={ROLE_STAFF}>
+        <PermissionedContributor>
           <AlertDialog
             outsideTitle="Refetch Feeds"
             title={`Refetch all of ${source.name} feeds`}
@@ -111,26 +111,6 @@ export default function SourceHeader() {
           <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin-create" />}>
             <Link to={`/sources/${sourceId}/feeds/create`}>Create Feed</Link>
           </Button>
-
-          <AlertDialog
-            outsideTitle="Delete Source"
-            title={`Delete ${platformDisplayName(source.platform)} Source #${sourceId}: ${source.name}`}
-            content={`Are you sure you want to delete ${platformDisplayName(source.platform)}
-                Source #${sourceId}: ${source.name} permanently?`}
-            dispatchNeeded={false}
-            action={deleteSource}
-            actionTarget={sourceId}
-            snackbar
-            snackbarText="Source Deleted!"
-            onClick={() => setOpenDelete(true)}
-            openDialog={openDelete}
-            variant="outlined"
-            navigateNeeded
-            navigateTo="/directory"
-            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
-            secondAction={false}
-            confirmButtonText="delete"
-          />
           {source.platform === 'online_news' && (
 
             <AlertDialog
@@ -152,8 +132,30 @@ export default function SourceHeader() {
               confirmButtonText="Rescrape"
             />
           )}
+        </PermissionedContributor>
 
-        </Permissioned>
+        <PermissionedStaff role={ROLE_STAFF}>
+          <AlertDialog
+            outsideTitle="Delete Source"
+            title={`Delete ${platformDisplayName(source.platform)} Source #${sourceId}: ${source.name}`}
+            content={`Are you sure you want to delete ${platformDisplayName(source.platform)}
+                Source #${sourceId}: ${source.name} permanently?`}
+            dispatchNeeded={false}
+            action={deleteSource}
+            actionTarget={sourceId}
+            snackbar
+            snackbarText="Source Deleted!"
+            onClick={() => setOpenDelete(true)}
+            openDialog={openDelete}
+            variant="outlined"
+            navigateNeeded
+            navigateTo="/directory"
+            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            secondAction={false}
+            confirmButtonText="delete"
+          />
+
+        </PermissionedStaff>
       </ControlBar>
       <Outlet />
     </>

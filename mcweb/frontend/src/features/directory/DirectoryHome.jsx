@@ -3,7 +3,7 @@ import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import FeaturedCollections from '../collections/FeaturedCollections';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedContributor } from '../auth/Permissioned';
 import DirectorySearch from './DirectorySearch';
 import DetailedSearch from './DetailedSearch';
 import Header from '../ui/Header';
@@ -32,7 +32,7 @@ export default function DirectoryHome() {
             <Link to="/collections/news/geographic">Browse Geographic News Collections</Link>
           </Button>
           <DetailedSearch />
-          <Permissioned role={ROLE_STAFF}>
+          <PermissionedContributor>
             <>
               <Button variant="outlined" startIcon={<LockOpenIcon />}>
                 <Link to="/collections/create">Create Collection</Link>
@@ -41,7 +41,7 @@ export default function DirectoryHome() {
                 <Link to="/sources/create">Create Source</Link>
               </Button>
             </>
-          </Permissioned>
+          </PermissionedContributor>
         </div>
         <div className="col-5 float-right">
           <DirectorySearch />

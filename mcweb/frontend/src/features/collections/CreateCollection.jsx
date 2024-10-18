@@ -14,7 +14,7 @@ export default function CreateCollection() {
   const navigate = useNavigate();
 
   const [formState, setFormState] = useState({
-    name: '', notes: '', platform: '',
+    name: '', notes: '', platform: '', managed: false,
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -90,6 +90,7 @@ export default function CreateCollection() {
                     name: formState.name,
                     notes: formState.notes,
                     platform: formState.platform,
+                    managed: formState.managed,
                   }).unwrap()
                     .then((collection) => navigate(`/collections/${collection.id}`));
                 }}

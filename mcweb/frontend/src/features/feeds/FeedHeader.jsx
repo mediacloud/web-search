@@ -8,7 +8,7 @@ import RSSFeedIcon from '@mui/icons-material/RssFeed';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { useSnackbar } from 'notistack';
 import { useGetFeedQuery, useLazyFetchFeedQuery, useDeleteFeedMutation } from '../../app/services/feedsApi';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
@@ -59,7 +59,7 @@ export default function FeedHeader() {
         <Button variant="outlined">
           <Link to={`/sources/${feed.source}`}>Visit Source</Link>
         </Button>
-        <Permissioned role={ROLE_STAFF}>
+        <PermissionedContributor role={ROLE_STAFF}>
           <Button
             variant="outlined"
             startIcon={<LockOpenIcon titleAccess="admin" />}
@@ -70,7 +70,9 @@ export default function FeedHeader() {
           <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin" />}>
             <Link to={`/feeds/${feedId}/edit`}>Edit</Link>
           </Button>
+        </PermissionedContributor>
 
+        <PermissionedStaff>
           <AlertDialog
             outsideTitle="Delete"
             title={`Delete ${feed.name}? `}
@@ -90,7 +92,8 @@ export default function FeedHeader() {
             secondAction={false}
             confirmButtonText="Delete"
           />
-        </Permissioned>
+        </PermissionedStaff>
+
       </ControlBar>
       <Outlet />
     </>

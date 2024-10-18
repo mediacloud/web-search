@@ -1,4 +1,12 @@
-[{"version": "v2.0.8",
+[{"version": "v2.0.9",
+"date": "2024-10-18",
+"notes": ["add multiple task queues",
+"update scraping collections",
+"add managed attribute for collections",
+"add longer timeout to search requests",
+"add contributor user role",
+"update url_search_string wildcarding"
+]},{"version": "v2.0.8",
 "date": "2024-09-30",
 "notes": ["fix for multi-query crashing bug",
 "add nsf grant to footer"

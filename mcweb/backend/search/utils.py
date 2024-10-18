@@ -52,9 +52,7 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
     take parsed query, return mc_providers ContentProvider.
     (one place to pass new things to mc_providers)
     """
-    # disabled until new mc-providers available!
-    #return provider_by_name(platform or pq.provider_name, pq.api_key, pq.base_url, caching=pq.caching)
-    return provider_by_name(platform or pq.provider_name, pq.api_key, pq.base_url)
+    return provider_by_name(platform or pq.provider_name, pq.api_key, pq.base_url, caching=pq.caching)
 
 def parse_date_str(date_str: str) -> dt.datetime:
     """
@@ -237,7 +235,8 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
                                      and s.name not in domains]
     sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False
                                      and s.name not in domains]
-    domain_url_filters = ["(canonical_domain:{} AND url:*{}*)".format(s.name, s.url_search_string)
+   
+    domain_url_filters = [f"(canonical_domain:{s.name} AND (url:http\://{s.url_search_string} OR url:https\://{s.url_search_string}))"
                           for s in sources_with_url_search_strs]
     # 3. assemble and add in other supported params
     supported_extra_props = ['pagination_token', 'page_size', 'sort_field', 'sort_order',

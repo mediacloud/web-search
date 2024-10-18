@@ -11,7 +11,6 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpRespo
 from django.views.decorators.http import require_http_methods
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
 from mc_providers.exceptions import ProviderException
-from requests.adapters import HTTPAdapter
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, action, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -50,13 +49,6 @@ logger = logging.getLogger(__name__)
 
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
-
-# not used in this file?
-#session = requests.Session()
-#retry = Retry(connect=3, backoff_factor=0.5)
-#adapter = HTTPAdapter(max_retries=retry)
-#session.mount('http://', adapter)
-#session.mount('https://', adapter)
 
 def error_response(msg: str, response_type: HttpResponse | None) -> HttpResponse:
     ResponseClass = response_type or HttpResponseBadRequest
