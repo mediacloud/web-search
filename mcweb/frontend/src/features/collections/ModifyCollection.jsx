@@ -237,7 +237,6 @@ export default function ModifyCollection() {
           <br />
           <Button
             variant="contained"
-            disabled={managedCollection}
             onClick={async () => {
               try {
                 await updateCollection({
