@@ -9,7 +9,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import dayjs from 'dayjs';
 import UserMenu from './UserMenu';
 import { assetUrl } from '../ui/uiUtil';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import SystemAlert from './SystemAlert';
 import releases from '../../../static/about/release_history.json';
 
@@ -108,13 +108,13 @@ function Header() {
             </div>
             <div className="col-6">
               <div id="menuButtonWrapper" className="float-end">
-                <Permissioned role={ROLE_STAFF}>
+                <PermissionedStaff role={ROLE_STAFF}>
                   { /* need to do an a link here to a new window so that it does
                     NOT go throug hthe Router */ }
                   <a href="/adminauth/user/" target="_blank">
                     <Button variant="text" startIcon={<LockOpenIcon titleAccess="admin only" />}>Admin</Button>
                   </a>
-                </Permissioned>
+                </PermissionedStaff>
                 <UserMenu />
               </div>
             </div>
