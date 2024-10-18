@@ -10,7 +10,7 @@ import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useListFeedsQuery, useListFeedDetailsQuery, useDeleteFeedMutation } from '../../app/services/feedsApi';
 import { asNumber } from '../ui/uiUtil';
 import AlertDialog from '../ui/AlertDialog';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 
 const relativeTime = require('dayjs/plugin/relativeTime');
 const utc = require('dayjs/plugin/utc');
@@ -84,9 +84,9 @@ function ListSourceFeeds() {
             <th>System status</th>
             <th>Last Attempt</th>
             <th>Last Success</th>
-            <Permissioned role={ROLE_STAFF}>
+            <PermissionedContributor>
               <th>Admin</th>
-            </Permissioned>
+            </PermissionedContributor>
           </tr>
         </thead>
         <tbody>
@@ -113,37 +113,37 @@ function ListSourceFeeds() {
 
               </td>
               <td>
-                <Permissioned role={ROLE_STAFF}>
-                  <>
-                    <Button
-                      variant="outlined"
-                      startIcon={<EditIcon />}
-                      component={Link}
-                      to={`/feeds/${feed.id}/edit`}
-                    >
-                      Edit
-                    </Button>
+                <PermissionedContributor>
+                  <Button
+                    variant="outlined"
+                    startIcon={<EditIcon />}
+                    component={Link}
+                    to={`/feeds/${feed.id}/edit`}
+                  >
+                    Edit
+                  </Button>
 
-                    <AlertDialog
-                      outsideTitle="Delete"
-                      title={`Delete ${feed.name}? `}
-                      content={`Are you sure you would like to delete RSS Feed #${feed.id}: ${feed.name}?
+                </PermissionedContributor>
+                <PermissionedStaff role={ROLE_STAFF}>
+                  <AlertDialog
+                    outsideTitle="Delete"
+                    title={`Delete ${feed.name}? `}
+                    content={`Are you sure you would like to delete RSS Feed #${feed.id}: ${feed.name}?
                       After confirming, this feed will be permanently deleted.`}
-                      dispatchNeeded={false}
-                      action={deleteFeed}
-                      actionTarget={feed.id}
-                      snackbar
-                      snackbarText="Feed Deleted!"
-                      onClick={() => setOpen(true)}
-                      openDialog={open}
-                      variant="outlined"
-                      startIcon={<DeleteIcon titleAccess="delete-feed" />}
-                      secondAction={false}
-                      confirmButtonText="Delete"
-                    />
+                    dispatchNeeded={false}
+                    action={deleteFeed}
+                    actionTarget={feed.id}
+                    snackbar
+                    snackbarText="Feed Deleted!"
+                    onClick={() => setOpen(true)}
+                    openDialog={open}
+                    variant="outlined"
+                    startIcon={<DeleteIcon titleAccess="delete-feed" />}
+                    secondAction={false}
+                    confirmButtonText="Delete"
+                  />
+                </PermissionedStaff>
 
-                  </>
-                </Permissioned>
               </td>
             </tr>
           ))}

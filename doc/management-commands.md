@@ -78,3 +78,12 @@ with the `importdata` command.
 - Step 9: Delete the new migration files created in mcweb.backend.sources.migrations (there should be 2 for each model change)
 
 - Step 10: There should be no new changes (git status) and you should be able to checkout `main`
+
+Create Groups
+---------
+This command is intended to create user auth groups and add users to those groups. To update groups or users either edit the management file or can use the admin page, after creating the group.
+
+### To run Create Groups
+* `python mcweb/manage.py create-groups` in production terminal
+- the underlying command utilizes Django user groups and permissions, running through a dictionary of settings
+  - currently the only role is contributor and is manually assigned to `e.leon@northeastern.edu`, can be reassigned in mcweb/backend/users/management/commands/create-groups.py
