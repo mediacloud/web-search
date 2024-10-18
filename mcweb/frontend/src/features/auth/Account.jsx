@@ -31,8 +31,6 @@ function Account() {
     }, delay);
   };
 
-  console.log(currentUser, 'In profile');
-
   return (
     <>
       <Header>
