@@ -14,7 +14,7 @@ GROUPS = {
 
 
 USERS = {
-    "contributor" : ["e.leon@northeastern.ed"],
+    "contributor" : ["e.leon@northeastern.edu"],
 }
 
 class Command(BaseCommand):
