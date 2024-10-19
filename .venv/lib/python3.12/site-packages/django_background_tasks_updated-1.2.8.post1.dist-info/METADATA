@@ -1,0 +1,38 @@
+Metadata-Version: 2.1
+Name: django-background-tasks-updated
+Version: 1.2.8.post1
+Summary: Database backed asynchronous task queue
+Home-page: http://github.com/iamjonmiller/django-background-tasks
+Author: arteria GmbH, John Montgomery, Alberto Petrucci, Jon Miller
+Author-email: iamjonamiller@gmail.com
+License: BSD
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 3.0
+Classifier: Framework :: Django :: 4.0
+Classifier: Framework :: Django :: 5.0
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+License-File: AUTHORS.txt
+Requires-Dist: six
+Requires-Dist: Django >=4.0
+
+# This code has been merged into the original repository and the original package is now updated.
+
+Please use the original repository
+at [django-background-tasks](https://github.com/django-background-tasks/django-background-tasks) and the original
+package at [django-background-tasks](https://pypi.org/project/django-background-tasks/) going forward.
