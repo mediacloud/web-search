@@ -62,13 +62,6 @@ export default function SearchDatePicker({ queryIndex }) {
 
   // if the platform changes, we want to update the validity of the dates
   useEffect(() => {
-    const {
-      collections,
-      sources,
-      advanced,
-      platform,
-    } = queryState;
-
     // if the queries are empty, change the end date to the latest allowed end date per the platform
     if (isQueryStateEmpty(queryState)) {
       handleChangeToDate(maxDJS);
