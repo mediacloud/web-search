@@ -97,7 +97,6 @@ export default function Search({ queryIndex }) {
               {platform === PROVIDER_NEWS_WAYBACK_MACHINE && (
                 <Alert severity="warning">
                   Your dates have been limited to the range of available data.
-                  We are still working with the Wayback Machine to ingest the historical data.
                 </Alert>
               )}
               <SearchDatePicker queryIndex={queryIndex} />
