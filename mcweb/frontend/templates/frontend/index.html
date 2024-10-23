@@ -21,7 +21,7 @@
             {% else %}
                 document.settings.systemAlert = undefined;
             {% endif %}
-            document.settings.earliestAvailableDate = {{earliest_available_date|safe}};    
+            document.settings.earliestAvailableDate = "{{earliest_available_date|safe}}";
             document.settings.allUrlsCsvEmailMax = {{all_urls_csv_email_max|safe}};
             document.settings.allUrlsCsvEmailMin = {{all_urls_csv_email_min|safe}};
         </script>

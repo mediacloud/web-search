@@ -24,7 +24,7 @@ import UploadSources from '../sources/UploadSources';
 import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
 import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import Permissioned, { ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 
 const MIN_QUERY_LEN = 1; // don't query for super short things
 const MAX_RESULTS = 10; // per endpoint
@@ -198,7 +198,7 @@ export default function ModifyCollection() {
           <br />
           <br />
           <FormGroup>
-            <Permissioned role={ROLE_STAFF}>
+            <PermissionedStaff role={ROLE_STAFF}>
               <FormControlLabel
                 control={(
                   <Checkbox
@@ -209,7 +209,7 @@ export default function ModifyCollection() {
 )}
                 label="Managed?"
               />
-            </Permissioned>
+            </PermissionedStaff>
             <FormControlLabel
               control={(
                 <Checkbox
@@ -237,7 +237,6 @@ export default function ModifyCollection() {
           <br />
           <Button
             variant="contained"
-            disabled={managedCollection}
             onClick={async () => {
               try {
                 await updateCollection({

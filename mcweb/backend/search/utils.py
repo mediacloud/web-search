@@ -222,7 +222,7 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
     domains = []
     # turn media ids into list of domains
     selected_sources = Source.objects.filter(id__in=sources)
-    domains += [s.name for s in selected_sources if s.url_search_string is None]
+    domains += [s.name for s in selected_sources if not s.url_search_string]
     # turn collections ids into list of domains
     selected_sources_in_collections = Source.objects.filter(collections__id__in=collections)
     selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
@@ -235,7 +235,8 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
                                      and s.name not in domains]
     sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False
                                      and s.name not in domains]
-    domain_url_filters = ["(canonical_domain:{} AND url:*{}*)".format(s.name, s.url_search_string)
+   
+    domain_url_filters = [f"(canonical_domain:{s.name} AND (url:http\://{s.url_search_string} OR url:https\://{s.url_search_string}))"
                           for s in sources_with_url_search_strs]
     # 3. assemble and add in other supported params
     supported_extra_props = ['pagination_token', 'page_size', 'sort_field', 'sort_order',

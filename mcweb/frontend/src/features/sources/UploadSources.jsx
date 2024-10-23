@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import { CircularProgress } from '@mui/material';
 import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 
-export default function UploadSources({ collectionId, rescrape, staticCollection }) {
+export default function UploadSources({ collectionId, rescrape, managedCollection }) {
   const { enqueueSnackbar } = useSnackbar();
   const [updating, setUpdating] = useState(false);
   const [uploadSources, { isLoading: isUpdating }] = useUploadSourcesMutation();
@@ -33,7 +33,7 @@ export default function UploadSources({ collectionId, rescrape, staticCollection
         }) => (
           <div>
             <Button
-              disabled={updating || staticCollection}
+              disabled={updating || managedCollection}
               variant="outlined"
               // eslint-disable-next-line react/jsx-props-no-spreading
               {...getRootProps()}
@@ -60,5 +60,5 @@ export default function UploadSources({ collectionId, rescrape, staticCollection
 UploadSources.propTypes = {
   collectionId: PropTypes.number.isRequired,
   rescrape: PropTypes.bool.isRequired,
-  staticCollection: PropTypes.bool.isRequired,
+  managedCollection: PropTypes.bool.isRequired,
 };
