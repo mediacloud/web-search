@@ -4,7 +4,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import exporting from 'highcharts/modules/exporting';
 
-exporting(Highcharts);
+// exporting(Highcharts);
 
 export default function BarChart({
   normalized, height, title, series,
@@ -48,6 +48,7 @@ export default function BarChart({
     series: series.map((s) => ({
       color: s.color,
       name: s.name,
+      minPointLength: 20,
       data: s.data.map((d) => ({
         y: d.value,
         dataLabels: {
