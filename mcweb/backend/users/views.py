@@ -21,6 +21,7 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile
+from ..sources.permissions import get_groups
 
 
 logger = logging.getLogger(__name__)
@@ -299,12 +300,6 @@ def _serialized_current_user(request) -> str:
     Token = apps.get_model('authtoken', 'Token')
     token = Token.objects.get(user=current_user)
     data['token'] = token.key
-    # get permission group name
-    group_names = []
-    for group in data['groups']:
-        group_obj = Group.objects.get(id=group)
-        group_names.append(group_obj.name)
-    # return it nicely
-    data['group_names'] = group_names
+    data['group_names'] = get_groups(request)
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)

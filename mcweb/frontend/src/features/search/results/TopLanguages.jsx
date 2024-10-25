@@ -5,7 +5,6 @@ import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Alert from '@mui/material/Alert';
-import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
 import CSVDialog from '../util/CSVDialog';
 import { LANG } from '../util/getDownloadUrl';
@@ -92,7 +91,7 @@ export default function TopLanguages() {
                   series={[results]}
                   normalized
                   title="Top Languages"
-                  height={100 + (results.data.length * 40)}
+                  height={120 + (results.data.length * 40)}
                 />
               </TabPanelHelper>
             ))}
@@ -121,8 +120,7 @@ export default function TopLanguages() {
       <div className="row">
         <div className="col-4">
           <h2>
-            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            Top Languages <Chip color="warning" label="experimental" />
+            Top Languages
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}

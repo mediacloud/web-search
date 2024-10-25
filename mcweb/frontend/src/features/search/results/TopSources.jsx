@@ -9,7 +9,6 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Settings from '@mui/icons-material/Settings';
 import Alert from '@mui/material/Alert';
-import Chip from '@mui/material/Chip';
 import BarChart from './BarChart';
 import CSVDialog from '../util/CSVDialog';
 import TabPanelHelper from '../../ui/TabPanelHelper';
@@ -102,7 +101,7 @@ export default function TopSources() {
                 series={[results]}
                 normalized={normalized}
                 title="Top Sources"
-                height={100 + (results.data.length * 40)}
+                height={120 + (results.data.length * 40)}
               />
             </TabPanelHelper>
           ))}
@@ -188,8 +187,7 @@ export default function TopSources() {
       <div className="row">
         <div className="col-4">
           <h2>
-            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            Top Sources <Chip color="warning" label="experimental" />
+            Top Sources
           </h2>
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
