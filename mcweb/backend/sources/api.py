@@ -34,7 +34,7 @@ from backend.util.tasks import get_completed_tasks, get_pending_tasks
 # local directory (mcweb/backend/sources)
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
 from .models import Collection, Feed, Source
-from .permissions import IsGetOrIsStaff
+from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
 
@@ -66,7 +66,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     MAX_SEARCH_RESULTS = 50
 
     permission_classes = [
-        IsGetOrIsStaff,
+        IsGetOrIsStaffOrContributor,
     ]
     serializer_class = CollectionSerializer
 
@@ -174,7 +174,7 @@ def _rss_fetcher_api():
 class FeedsViewSet(viewsets.ModelViewSet):
     queryset = Feed.objects.all()
     permission_classes = [
-        IsGetOrIsStaff
+        IsGetOrIsStaffOrContributor
     ]
     serializer_class = FeedSerializer
 
@@ -271,7 +271,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         order_by('-collection_count').\
         all()
     permission_classes = [
-        IsGetOrIsStaff
+        IsGetOrIsStaffOrContributor
     ]
     serializers_by_action = {
         'default': SourceSerializer,
@@ -462,7 +462,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
 class SourcesCollectionsViewSet(viewsets.ViewSet):
 
     permission_classes = [
-        IsGetOrIsStaff
+        IsGetOrIsStaffOrContributor
     ]
 
     def retrieve(self, request, pk=None):

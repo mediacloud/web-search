@@ -1,22 +1,13 @@
 import dayjs from 'dayjs';
 
 const validateDate = (currentDate, minDate, maxDate) => {
-  const daysBetweenMinAndtoDate = dayjs(currentDate).diff(dayjs(minDate), 'day');
+  // just in case, make sure dates are dayjs, then convert
+  // to Unix timestamp (int seconds since 1970-01-01)
+  const curr = dayjs(currentDate).unix();
+  const min = dayjs(minDate).unix();
+  const max = dayjs(maxDate).unix();
 
-  const daysBetweenToDateAndMax = dayjs(maxDate).diff(dayjs(currentDate), 'day');
-
-  const daysBetweenMinAndMax = dayjs(maxDate).diff(dayjs(minDate), 'day');
-
-  const currentYear = dayjs(currentDate).year();
-  const minYear = dayjs(minDate).year();
-  const maxYear = dayjs(maxDate).year();
-
-  const isCurrentYearInBetweenMinAndMax = currentYear >= minYear && currentYear <= maxYear;
-
-  const isCurrentDateInBetween = daysBetweenMinAndtoDate <= daysBetweenMinAndMax
-    && daysBetweenToDateAndMax <= daysBetweenMinAndMax;
-
-  return isCurrentYearInBetweenMinAndMax && isCurrentDateInBetween;
+  return curr >= min && curr <= max;
 };
 
 export default validateDate;

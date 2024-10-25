@@ -10,9 +10,14 @@ function Footer() {
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
           <a href="https://www.mediaecosystems.org/" target="_blank" rel="noreferrer">Media Ecosystems Analysis Group</a>,&nbsp;
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          the <a href="https://www.umass.edu/" target="_blank" rel="noreferrer">University of Massachusetts Amherst</a>,&nbsp;
+          <br />
+          the <a href="https://publicinfrastructure.org/" target="_blank" rel="noreferrer">Initiative for Digital Public Infrastructure</a> at&nbsp; 
+          <a href="https://www.umass.edu/" target="_blank" rel="noreferrer">University of Massachusetts Amherst</a>,&nbsp;
+          <br />
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          and <a href="https://www.northeastern.edu/" target="_blank" rel="noreferrer">Northeastern University</a>.&nbsp;
+          and <a href="https://camd.northeastern.edu/journalism/" target="_blank" rel="noreferrer">the School of Journalism</a> at&nbsp;
+          <a href="https://www.northeastern.edu/" target="_blank" rel="noreferrer">Northeastern University</a>,&nbsp;
+          <br />
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
           Learn more about&nbsp;
           <a href="https://www.mediacloud.org/consortium" target="_blank" rel="noreferrer">

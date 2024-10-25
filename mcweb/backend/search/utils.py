@@ -222,7 +222,7 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
     domains = []
     # turn media ids into list of domains
     selected_sources = Source.objects.filter(id__in=sources)
-    domains += [s.name for s in selected_sources if s.url_search_string is None]
+    domains += [s.name for s in selected_sources if not s.url_search_string]
     # turn collections ids into list of domains
     selected_sources_in_collections = Source.objects.filter(collections__id__in=collections)
     selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
