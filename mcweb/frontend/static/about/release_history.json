@@ -1,4 +1,10 @@
-[{"version": "v2.0.9",
+[{"version": "v2.1.0",
+"date": "2024-10-25",
+"notes": ["fix bug where bar chart doesn't show for one result",
+"fix bug with contributor permissions",
+"update colleges in footer",
+"update date handling in search"
+]},{"version": "v2.0.9",
 "date": "2024-10-18",
 "notes": ["add multiple task queues",
 "update scraping collections",
