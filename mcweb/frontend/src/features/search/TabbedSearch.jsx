@@ -320,9 +320,9 @@ export default function TabbedSearch() {
           <CountOverTimeResults />
           <TotalAttentionResults />
           <SampleStories />
-          <TopWords />
           <TopLanguages />
           <TopSources />
+          <TopWords />
         </div>
       </div>
     </div>
