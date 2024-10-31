@@ -3,7 +3,8 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
-import { PROVIDER_NEWS_WAYBACK_MACHINE } from '../search/util/platforms';
+import { PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
+import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD } from '../search/util/platforms';
 
 export default function InfoMenu({ platform, sampleStory }) {
   const getStoryId = (url) => {
@@ -22,7 +23,7 @@ export default function InfoMenu({ platform, sampleStory }) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
+  console.log('sample story', sampleStory);
   return (
     <td>
       <div>
@@ -89,9 +90,10 @@ export default function InfoMenu({ platform, sampleStory }) {
             )} */}
 
             {/* media-cloud story is a bit different, taken out of id */}
-            {/* {(platform === PROVIDER_NEWS_MEDIA_CLOUD_LEGACY) && (
+            <PermissionedStaff role={ROLE_STAFF}>
+              {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
               <NavLink
-                to={`/story/${platform}/${encodeURIComponent(sampleStory.url)}`}
+                to={`/story/${platform}/${encodeURIComponent(sampleStory.id)}`}
                 target="_blank"
                 rel="noreferrer"
                 onClick={handleClose}
@@ -99,7 +101,8 @@ export default function InfoMenu({ platform, sampleStory }) {
               >
                 View extracted content (from Media Cloud)
               </NavLink>
-            )} 
+              )}
+            </PermissionedStaff>
 
             {/* wayback-machine story id is taken out of getStoryId function  */}
             {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (

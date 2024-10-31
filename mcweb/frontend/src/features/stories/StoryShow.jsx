@@ -6,7 +6,7 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import dayjs from 'dayjs';
 import { useGetStoryDetailsQuery } from '../../app/services/searchApi';
 import {
-  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE
+  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../search/util/platforms';
 
 export default function StoryShow() {
@@ -14,7 +14,9 @@ export default function StoryShow() {
   const { storyURL, platform } = params;
   // const decodedStoryURL = decodeURIComponent(storyURL);
   // console.log(decodedStoryURL);
-  const { data, isLoading } = useGetStoryDetailsQuery(storyURL);
+  console.log(storyURL);
+  console.log(platform);
+  const { data, isLoading } = useGetStoryDetailsQuery({ storyId: storyURL, platform });
 
   const [platformName, setPlatformName] = useState('');
 
@@ -31,8 +33,9 @@ export default function StoryShow() {
   }
 
   if (!data) return null;
-
+  console.log(data);
   const { story } = data;
+  console.log(story, 'STORY');
   return (
     <div className="container" style={{ paddingTop: 50 }}>
       <div className="row">
