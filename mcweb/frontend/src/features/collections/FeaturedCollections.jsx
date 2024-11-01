@@ -9,6 +9,7 @@ import formatNotesToHTML from './util/formatNotesToHTML';
 export default function FeaturedCollections() {
   const { data, isLoading } = useGetFeaturedCollectionsQuery({ platform: 'onlinenews' });
   const featuredCollections = data;
+  const formattedNotes = formatNotesToHTML(collection.notes);
   return (
     <div className="featured-collections-wrapper">
       <div className="row">
@@ -29,11 +30,9 @@ export default function FeaturedCollections() {
                   <Link to={`/collections/${collection.id}`}>
                     <h3>{collection.name}</h3>
                   </Link>
-                  <div
-                      dangerouslySetInnerHTML={{
-                          __html: formatNotesToHTML(collection.notes),
-                      }}
-                  />
+                  <div>
+                    {parse(formattedNotes)}
+                  </div>
                 </div>
               </div>
             )))}
