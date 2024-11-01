@@ -32,6 +32,8 @@ export default function CollectionShow() {
     isLoading,
   } = useGetCollectionQuery(collectionId);
 
+  const formattedNotes = formatNotesToHTML(collection.notes);
+
   useEffect(() => {
     document.title = `${collection.name} | Media Cloud`;
   });
@@ -44,12 +46,10 @@ export default function CollectionShow() {
     <div className="container">
       <p>
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        <b>Notes:</b> 
-        <div
-            dangerouslySetInnerHTML={{
-                __html: formatNotesToHTML(collection.notes),
-            }}
-        />
+        <p><b>Notes:</b></p> 
+        <div>
+                {parse(formattedNotes)}
+        </div>
       </p>
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
