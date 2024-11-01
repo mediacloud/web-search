@@ -8,6 +8,7 @@ import TabPanelHelper from '../ui/TabPanelHelper';
 import SourceList from '../sources/SourceList';
 import StoriesOverTime from '../stories/StoriesOverTime';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
+import formatNotesToHTML from './util/formatNotesToHTML';
 
 function a11yProps(index) {
   return {
@@ -43,7 +44,12 @@ export default function CollectionShow() {
     <div className="container">
       <p>
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        <b>Notes:</b> {collection.notes}
+        <b>Notes:</b> 
+        <div
+            dangerouslySetInnerHTML={{
+                __html: formatNotesToHTML(collection.notes),
+            }}
+        />
       </p>
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
