@@ -53,9 +53,5 @@ class RequestLoggingMiddleware:
         return response
 
 
-<<<<<<< HEAD
 #Just do this here since we have no search admin panel yet. 
 admin.site.register(RequestLoggingConfig)
-=======
-admin.site.register(RequestLoggingConfig)
->>>>>>> 7c1980b6b3b256946fbe5b4c10e2f600fde8342f
