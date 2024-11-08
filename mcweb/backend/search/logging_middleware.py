@@ -3,6 +3,7 @@ from django.utils.timezone import now
 from django.core.cache import cache
 from django.contrib import admin
 from django.db import models
+import time
 
 #Doing this all in one place is maybe heretical? but simple-making for this purpose. 
 class RequestLoggingConfig(models.Model):
