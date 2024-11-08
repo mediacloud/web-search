@@ -183,6 +183,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "util.logging_middleware.RequestLoggingMiddleware"
 ]
 
 CORS_ALLOWED_ORIGINS = [
