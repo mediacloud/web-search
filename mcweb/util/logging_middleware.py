@@ -1,6 +1,6 @@
 import logging
 from django.utils.timezone import now
-from django.code.cache import cache
+from django.core.cache import cache
 from django.contrib import admin
 from django.db import models
 
