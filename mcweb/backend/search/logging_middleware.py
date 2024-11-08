@@ -26,14 +26,14 @@ class RequestLoggingMiddleware:
         duration = time.time() - start_time
 
         #Check if logging is enabled (with caching to reduce database hits)
-        is_logging_enabled = cache.get("is_logging_enabled")
-        if is_logging_enabled is None:
+        request_logging_enabled = cache.get("request_logging_enabled")
+        if request_logging_enabled is None:
             # Retrieve from database if not in cache
             config = RequestLoggingConfig.objects.first()
-            is_logging_enabled = config.is_logging_enabled if config else False
-            cache.set("is_logging_enabled", is_logging_enabled, timeout=60)  # Cache for 60 seconds
+            request_logging_enabled = config.request_logging_enabled if config else False
+            cache.set("request_logging_enabled", request_logging_enabled, timeout=60)  # Cache for 60 seconds
 
-        if(is_logging_enabled):
+        if(request_logging_enabled):
             
             # Check if user is authenticated and add user data
             user = request.user if request.user.is_authenticated else "Anonymous"
