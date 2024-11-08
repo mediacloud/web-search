@@ -8,3 +8,10 @@ class SavedSearch(models.Model):
     serialized_search = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
+
+
+class RequestLoggingConfig(models.Model):
+    request_logging_enabled = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"Request Logging Enabled: {self.request_logging_enabled}"

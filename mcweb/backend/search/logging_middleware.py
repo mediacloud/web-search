@@ -4,13 +4,7 @@ from django.core.cache import cache
 from django.contrib import admin
 from django.db import models
 import time
-
-#Doing this all in one place is maybe heretical? but simple-making for this purpose. 
-class RequestLoggingConfig(models.Model):
-    request_logging_enabled = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"Request Logging Enabled: {self.request_logging_enabled}"
+from .models import RequestLoggingConfig
 
 
 logger = logging.getLogger(__name__)
@@ -59,4 +53,5 @@ class RequestLoggingMiddleware:
         return response
 
 
+#Just do this here since we have no search admin panel yet. 
 admin.site.register(RequestLoggingConfig)
