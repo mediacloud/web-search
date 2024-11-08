@@ -77,18 +77,6 @@ export default function InfoMenu({ platform, sampleStory }) {
               </a>
             )}
 
-            {/* {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
-            <a
-              href={sampleStory.url}
-              target="_blank"
-              rel="noreferrer"
-              onClick={handleClose}
-              className="menu-item"
-            >
-              Visit archived content (on Wayback Machine)
-            </a>
-            )} */}
-
             {/* media-cloud story is a bit different, taken out of id */}
             <PermissionedStaff role={ROLE_STAFF}>
               {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (

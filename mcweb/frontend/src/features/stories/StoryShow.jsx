@@ -8,6 +8,7 @@ import { useGetStoryDetailsQuery } from '../../app/services/searchApi';
 import {
   PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../search/util/platforms';
+import { ROLE_STAFF, PermissionedStaff } from '../auth/Permissioned';
 
 export default function StoryShow() {
   const params = useParams();
@@ -33,9 +34,9 @@ export default function StoryShow() {
   }
 
   if (!data) return null;
-  console.log(data);
+
   const { story } = data;
-  console.log(story, 'STORY');
+
   return (
     <div className="container" style={{ paddingTop: 50 }}>
       <div className="row">
@@ -88,13 +89,9 @@ export default function StoryShow() {
           </div>
         </div>
       )}
-
-      {/* Archived Playback Url and Story Snippet does not exist in returned data with Media Cloud */}
-      {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
-        <div className="clearfix">
-          <h3 className="float-start">Story Text and Information Unavailable</h3>
-        </div>
-      )}
+      <PermissionedStaff role={ROLE_STAFF}>
+        <p>{story.text}</p>
+      </PermissionedStaff>
 
     </div>
   );
