@@ -13,10 +13,7 @@ import { ROLE_STAFF, PermissionedStaff } from '../auth/Permissioned';
 export default function StoryShow() {
   const params = useParams();
   const { storyURL, platform } = params;
-  // const decodedStoryURL = decodeURIComponent(storyURL);
-  // console.log(decodedStoryURL);
-  console.log(storyURL);
-  console.log(platform);
+
   const { data, isLoading } = useGetStoryDetailsQuery({ storyId: storyURL, platform });
 
   const [platformName, setPlatformName] = useState('');
