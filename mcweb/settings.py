@@ -135,6 +135,8 @@ LOG_LEVEL = env('LOG_LEVEL').upper()
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
+REQUEST_LOG_PATH = env('REQUEST_LOG_PATH', "/app/request_log.log")
+
 RSS_FETCHER_URL = env('RSS_FETCHER_URL')
 RSS_FETCHER_USER = env('RSS_FETCHER_USER')
 RSS_FETCHER_PASS = env('RSS_FETCHER_PASS')
@@ -301,7 +303,6 @@ APPEND_SLASH = False
 
 MAX_ATTEMPTS = 1
 
-REQUEST_LOG_FILE = os.path.join(BASE_DIR, 'request_logs.log')
 
 LOGGING = {
     'version': 1,
@@ -313,7 +314,7 @@ LOGGING = {
         'request_file': {  # Custom handler for request logs
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': REQUEST_LOG_FILE,
+            'filename': REQUEST_LOG_PATH,
         },
     },
     'root': {
