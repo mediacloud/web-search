@@ -28,7 +28,9 @@ export default function FeaturedCollections() {
                   <Link to={`/collections/${collection.id}`}>
                     <h3>{collection.name}</h3>
                   </Link>
-                  <p>{collection.notes}</p>
+                  <div>
+                    {collection.notes}
+                  </div>
                 </div>
               </div>
             )))}
