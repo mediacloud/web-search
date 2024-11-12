@@ -316,6 +316,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': REQUEST_LOG_PATH,
+    
         },
     },
     'root': {
@@ -324,8 +325,8 @@ LOGGING = {
     },
     'loggers':{
         'request_logger':{
-            'handlers':['request_file'],
-            'level':'INFO',
+            'handlers':['request_file', 'console'],
+            'level':'DEBUG',
             'propagate':False,
         }
     }
