@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.db import models
 import time
 from .models import RequestLoggingConfig
-
+from .utils import parse_query
 
 logger = logging.getLogger(__name__)
 
@@ -35,15 +35,7 @@ class RequestLoggingMiddleware:
 
             #General incantation for request params-- maybe more dedicated parsing would eventually be 
             #preferable for grabbing query terms, but this will do for now.
-            if(request.method == "GET"):
-                request_params = request.GET.dict()
-            elif(request.method == "POST"):
-                try:
-                    request_params = request.POST.dict()
-                except QueryDict:
-                    request_params = json.loads(request.body.decode())
-            else:
-                request_params = {}
+            request_params = parse_query(request)
 
             # Log the request details
             logger.info(
