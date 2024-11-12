@@ -301,6 +301,8 @@ APPEND_SLASH = False
 
 MAX_ATTEMPTS = 1
 
+REQUEST_LOG_FILE = os.path.join(BASE_DIR, 'request_logs.log')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -308,11 +310,23 @@ LOGGING = {
         'console': {
             'class': 'logging.StreamHandler',
         },
+        'request_file': {  # Custom handler for request logs
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': REQUEST_LOG_FILE,
+        },
     },
     'root': {
         'handlers': ['console'],
         'level': LOG_LEVEL,
     },
+    'loggers':{
+        'request_logger':{
+            'handlers':['request_file'],
+            'level':'INFO',
+            'propagate':False,
+        }
+    }
 }
 
 CACHES = {

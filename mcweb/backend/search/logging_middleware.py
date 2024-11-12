@@ -6,7 +6,7 @@ import time
 from .models import RequestLoggingConfig
 from .utils import parse_query
 
-logger = logging.getLogger(__name__)
+request_logger = logging.getLogger("request_logger")
 
 class RequestLoggingMiddleware:
     def __init__(self, get_response):
@@ -40,7 +40,7 @@ class RequestLoggingMiddleware:
                 request_params = request.GET.get("q", '')    
 
             # Log the request details
-            logger.info(
+            request_logger.info(
                 f"{now()} - Method: {request.method}, Path: {request.path}, User: {user}, Duration: {duration:.4f} s, "
                 f"IP: {request.META.get('REMOTE_ADDR')}, Params: {request_params}"
             )
