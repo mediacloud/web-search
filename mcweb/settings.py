@@ -83,6 +83,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     LOG_LEVEL=(str, "DEBUG"),
     NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
     PROVIDERS_TIMEOUT=(int, 60*10),
+    REQUEST_LOG_PATH=(str, "/app/request_log.log"),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
     SENTRY_DSN=(str, ""),
@@ -135,7 +136,7 @@ LOG_LEVEL = env('LOG_LEVEL').upper()
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
-REQUEST_LOG_PATH = env('REQUEST_LOG_PATH', "/app/request_log.log")
+REQUEST_LOG_PATH = env('REQUEST_LOG_PATH')
 
 RSS_FETCHER_URL = env('RSS_FETCHER_URL')
 RSS_FETCHER_USER = env('RSS_FETCHER_USER')
