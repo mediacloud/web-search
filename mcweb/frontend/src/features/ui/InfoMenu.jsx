@@ -23,7 +23,7 @@ export default function InfoMenu({ platform, sampleStory }) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  console.log('sample story', sampleStory);
+
   return (
     <td>
       <div>
