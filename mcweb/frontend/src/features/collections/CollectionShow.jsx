@@ -43,13 +43,10 @@ export default function CollectionShow() {
 
     <div className="container">
       <p>
-        {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        <b>Notes:</b> 
-        <div
-            dangerouslySetInnerHTML={{
-                __html: formatNotesToHTML(collection.notes),
-            }}
-        />
+        <div>
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <b>Notes:</b> {collection.notes}
+        </div>
       </p>
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
