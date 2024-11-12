@@ -1,7 +1,6 @@
 import logging
 from django.utils.timezone import now
 from django.core.cache import cache
-from django.contrib import admin
 from django.db import models
 import time
 from .models import RequestLoggingConfig
@@ -48,5 +47,3 @@ class RequestLoggingMiddleware:
         return response
 
 
-#Just do this here since we have no search admin panel yet. 
-admin.site.register(RequestLoggingConfig)
