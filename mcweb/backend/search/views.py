@@ -141,7 +141,7 @@ def story_detail(request):
     platform = params.get("platform")
     provider = pq_provider(pq, platform)
     story_details = provider.item(story_id)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, provider)
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     return HttpResponse(json.dumps({"story": story_details}, default=str), content_type="application/json",
                         status=200)
 

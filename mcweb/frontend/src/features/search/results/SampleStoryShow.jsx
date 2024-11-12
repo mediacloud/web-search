@@ -23,32 +23,32 @@ export default function SampleStoryShow({
         </tr>
 
         {([PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD]).includes(platform) && (data.map((sampleStory) => (
-            <tr key={`story-${sampleStory.id}`}>
+          <tr key={`story-${sampleStory.id}`}>
 
-              <td>
-                <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
-              </td>
+            <td>
+              <a href={sampleStory.url} target="_blank" rel="noreferrer">{sampleStory.title}</a>
+            </td>
 
-              <td>
-                <img
-                  className="google-icon"
-                  src={platform === PROVIDER_NEWS_MEDIA_CLOUD ? googleFaviconUrl(`https://${sampleStory.media_url}`)
-                    : googleFaviconUrl(`${sampleStory.media_url}`)}
-                  alt={`${sampleStory.media_name}`}
-                />
-                <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
-              </td>
+            <td>
+              <img
+                className="google-icon"
+                src={platform === PROVIDER_NEWS_MEDIA_CLOUD ? googleFaviconUrl(`https://${sampleStory.media_url}`)
+                  : googleFaviconUrl(`${sampleStory.media_url}`)}
+                alt={`${sampleStory.media_name}`}
+              />
+              <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
+            </td>
 
-              <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
-              {/* if platform is wayback-machine OR media-cloud and the currentUser is a staff */}
-              {
+            <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
+            {/* if platform is wayback-machine OR media-cloud and the currentUser is a staff */}
+            {
               (([PROVIDER_NEWS_WAYBACK_MACHINE].includes(platform) && lSTP === PROVIDER_NEWS_WAYBACK_MACHINE)
                 || ([PROVIDER_NEWS_MEDIA_CLOUD].includes(platform) && lSTP === PROVIDER_NEWS_MEDIA_CLOUD && currentUser.isStaff))
               && (
                 <InfoMenu platform={platform} sampleStory={sampleStory} />
               )
             }
-            </tr>
+          </tr>
         )))}
       </tbody>
     </table>
