@@ -35,7 +35,10 @@ class RequestLoggingMiddleware:
 
             #General incantation for request params-- maybe more dedicated parsing would eventually be 
             #preferable for grabbing query terms, but this will do for now.
-            request_params = parse_query(request)
+            try:
+                request_params = parse_query(request)
+            except ValueError:
+                request_params = request.GET.get("q", '')    
 
             # Log the request details
             logger.info(
