@@ -4,7 +4,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { platformDisplayName } from '../ui/uiUtil';
 
 import { useGetFeaturedCollectionsQuery } from '../../app/services/collectionsApi';
-import formatNotesToHTML from './util/formatNotesToHTML';
 
 export default function FeaturedCollections() {
   const { data, isLoading } = useGetFeaturedCollectionsQuery({ platform: 'onlinenews' });
@@ -29,11 +28,9 @@ export default function FeaturedCollections() {
                   <Link to={`/collections/${collection.id}`}>
                     <h3>{collection.name}</h3>
                   </Link>
-                  <div
-                      dangerouslySetInnerHTML={{
-                          __html: formatNotesToHTML(collection.notes),
-                      }}
-                  />
+                  <div>
+                    {collection.notes}
+                  </div>
                 </div>
               </div>
             )))}
