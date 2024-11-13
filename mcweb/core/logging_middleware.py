@@ -3,7 +3,7 @@ from django.utils.timezone import now
 from django.core.cache import cache
 from django.db import models
 import time
-from .models import RequestLoggingConfig
+
 from backend.search.utils import parse_query
 from .utils import get_config_value
 
