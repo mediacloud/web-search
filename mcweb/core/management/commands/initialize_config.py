@@ -15,4 +15,4 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(self.style.SUCCESS(f"Created {key} with default value"))
             else:
-                self.stdout.write(f"{key} already exists in the config database.")
+                self.stdout.write(f"{key} already exists in the config database.") 

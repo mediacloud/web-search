@@ -11,9 +11,9 @@ class ConfigPropertyForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Set widget based on property_type
-        if self.instance.property_type == "boolean":
+        if self.instance.property_type == "bool":
             self.fields["property_value"].widget = forms.CheckboxInput()
-        elif self.instance.property_type == "integer":
+        elif self.instance.property_type == "int":
             self.fields["property_value"].widget = forms.NumberInput()
         else:
             self.fields["property_value"].widget = forms.TextInput()
@@ -21,9 +21,9 @@ class ConfigPropertyForm(forms.ModelForm):
     def clean_property_value(self):
         value = self.cleaned_data["property_value"]
         # Convert the input based on property_type before saving
-        if self.instance.property_type == "boolean":
+        if self.instance.property_type == "bool":
             return str(bool(value))  # Store as "True" or "False"
-        elif self.instance.property_type == "integer":
+        elif self.instance.property_type == "int":
             return str(int(value))   # Store as a string representing an integer
         return value  # Default to string as-is for other types
 
@@ -32,7 +32,7 @@ class ConfigPropertyForm(forms.ModelForm):
 class ConfigPropertyAdmin(admin.ModelAdmin):
     form = ConfigPropertyForm
     list_display = ("property_name", "property_value",)
-    readonly_fields = ("property_name",)
+    readonly_fields = ("property_name","property_type")
 
     def has_add_permission(self, request):
         #disable addition of new configuration properties

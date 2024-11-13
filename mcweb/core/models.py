@@ -6,9 +6,9 @@ from django.contrib import admin
 class ConfigProperty(models.Model):
 
     TYPE_CHOICES = [
-        ('boolean', 'Boolean'),
-        ('integer', 'Integer'),
-        ('string', 'String'),
+        ('bool', 'Boolean'),
+        ('int', 'Integer'),
+        ('str', 'String'),
     ]
 
     property_name = models.CharField(max_length=255, unique=True)
@@ -17,7 +17,7 @@ class ConfigProperty(models.Model):
 
     def get_typed_value(self):
         if self.property_type == "bool":
-            return self.property_value.lower() in ["true", "1", "yes"]
+            return self.property_value.lower() in ["true", "1"]
         elif self.property_type == "int":
             return int(self.property_value)
         return self.property_value
