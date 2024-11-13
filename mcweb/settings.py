@@ -172,6 +172,7 @@ INSTALLED_APPS = [
     "backend.sources",
     "backend.search",
     "backend.users",
+    "core.apps.CoreConfig",
     "background_task",
 ]
 
@@ -186,7 +187,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "backend.search.logging_middleware.RequestLoggingMiddleware"
+    "core.logging_middleware.RequestLoggingMiddleware"
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -316,7 +317,7 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': REQUEST_LOG_PATH,
-    
+
         },
     },
     'root': {
@@ -345,6 +346,12 @@ CACHES = {
 }
 
 DISABLE_SERVER_SIDE_CURSORS = True
+
+
+CONFIG_DEFAULTS = {
+    "request_logging_enabled": False
+}
+
 
 ################
 # since this file is read before logging is configured,
