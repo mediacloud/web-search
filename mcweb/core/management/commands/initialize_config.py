@@ -9,7 +9,8 @@ class Command(BaseCommand):
         for key, config in settings.CONFIG_DEFAULTS.items():
             config_property, created = ConfigProperty.objects.get_or_create(
                 property_name=key,
-                defaults={"property_value": config}
+                defaults={"property_value": str(config["value"]), "property_type": config["type"].__name__}
+            
             )
             if created:
                 self.stdout.write(self.style.SUCCESS(f"Created {key} with default value"))

@@ -23,7 +23,7 @@ class RequestLoggingMiddleware:
         request_logging_enabled = cache.get("request_logging_enabled")
         if request_logging_enabled is None:
             # Retrieve from database if not in cache
-            request_logging_enabled = get_config_value('request_logging_enabled') == "True"
+            request_logging_enabled = get_config_value('request_logging_enabled')
             cache.set("request_logging_enabled", request_logging_enabled, timeout=60)  # Cache for 60 seconds
 
         if(request_logging_enabled):

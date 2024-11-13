@@ -347,9 +347,10 @@ CACHES = {
 
 DISABLE_SERVER_SIDE_CURSORS = True
 
-
+#Key: {Value, Type} sets for runtime-configurable app properties. 
+#These are editable within the admin console 
 CONFIG_DEFAULTS = {
-    "request_logging_enabled": False
+    "request_logging_enabled": {"value": False, "type": bool},
 }
 
 
