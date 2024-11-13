@@ -4,7 +4,8 @@ from django.core.cache import cache
 from django.db import models
 import time
 from .models import RequestLoggingConfig
-from .utils import parse_query
+from backend.search.utils import parse_query
+from .utils import get_config_value
 
 request_logger = logging.getLogger("request_logger")
 
@@ -22,8 +23,7 @@ class RequestLoggingMiddleware:
         request_logging_enabled = cache.get("request_logging_enabled")
         if request_logging_enabled is None:
             # Retrieve from database if not in cache
-            config = RequestLoggingConfig.objects.first()
-            request_logging_enabled = config.request_logging_enabled if config else False
+            request_logging_enabled = get_config_value('request_logging_enabled')
             cache.set("request_logging_enabled", request_logging_enabled, timeout=60)  # Cache for 60 seconds
 
         if(request_logging_enabled):
