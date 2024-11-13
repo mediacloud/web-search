@@ -42,6 +42,12 @@ export default function CollectionShow() {
   return (
 
     <div className="container">
+      <p>
+        <div>
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <b>Notes:</b> {collection.notes}
+        </div>
+      </p>
       <div>
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
         <b>Notes:</b> {collection.notes && renderNotes(collection.notes)}
