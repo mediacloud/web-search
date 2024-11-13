@@ -8,3 +8,6 @@ class ConfigProperty(models.Model):
     def __str__(self):
         return f"{self.property_name}: {self.property_value}"
 
+    class Meta:
+        verbose_name = "Configuration Property"
+        verbose_name_plural = "Configuration Properties"
