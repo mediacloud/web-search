@@ -172,7 +172,7 @@ INSTALLED_APPS = [
     "backend.sources",
     "backend.search",
     "backend.users",
-    "core.apps.CoreConfig",
+    "core",
     "background_task",
 ]
 
