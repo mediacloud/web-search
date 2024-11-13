@@ -8,7 +8,7 @@ import TabPanelHelper from '../ui/TabPanelHelper';
 import SourceList from '../sources/SourceList';
 import StoriesOverTime from '../stories/StoriesOverTime';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
-import formatNotesToHTML from './util/formatNotesToHTML';
+import { renderNotes } from './util/formatNotesToHTML';
 
 function a11yProps(index) {
   return {
@@ -32,8 +32,6 @@ export default function CollectionShow() {
     isLoading,
   } = useGetCollectionQuery(collectionId);
 
-  const formattedNotes = formatNotesToHTML(collection.notes);
-
   useEffect(() => {
     document.title = `${collection.name} | Media Cloud`;
   });
@@ -44,13 +42,10 @@ export default function CollectionShow() {
   return (
 
     <div className="container">
-      <p>
+      <div>
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        <p><b>Notes:</b></p> 
-        <div>
-                {parse(formattedNotes)}
-        </div>
-      </p>
+        <b>Notes:</b> {collection.notes && renderNotes(collection.notes)}
+      </div>
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">

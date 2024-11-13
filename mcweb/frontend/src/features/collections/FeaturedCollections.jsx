@@ -4,12 +4,11 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { platformDisplayName } from '../ui/uiUtil';
 
 import { useGetFeaturedCollectionsQuery } from '../../app/services/collectionsApi';
-import formatNotesToHTML from './util/formatNotesToHTML';
+import { renderNotes } from './util/formatNotesToHTML';
 
 export default function FeaturedCollections() {
   const { data, isLoading } = useGetFeaturedCollectionsQuery({ platform: 'onlinenews' });
   const featuredCollections = data;
-  const formattedNotes = formatNotesToHTML(collection.notes);
   return (
     <div className="featured-collections-wrapper">
       <div className="row">
@@ -31,7 +30,7 @@ export default function FeaturedCollections() {
                     <h3>{collection.name}</h3>
                   </Link>
                   <div>
-                    {parse(formattedNotes)}
+                  <div>{collection.notes && renderNotes(collection.notes)}</div>
                   </div>
                 </div>
               </div>
