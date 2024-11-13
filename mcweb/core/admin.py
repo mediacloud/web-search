@@ -18,10 +18,20 @@ class ConfigPropertyForm(forms.ModelForm):
         else:
             self.fields["property_value"].widget = forms.TextInput()
 
+    def clean_property_value(self):
+        value = self.cleaned_data["property_value"]
+        # Convert the input based on property_type before saving
+        if self.instance.property_type == "boolean":
+            return str(bool(value))  # Store as "True" or "False"
+        elif self.instance.property_type == "integer":
+            return str(int(value))   # Store as a string representing an integer
+        return value  # Default to string as-is for other types
+
+
 @admin.register(ConfigProperty)
 class ConfigPropertyAdmin(admin.ModelAdmin):
     form = ConfigPropertyForm
-    list_display = ("property_name", "property_value", "property_type")
+    list_display = ("property_name", "property_value",)
     readonly_fields = ("property_name",)
 
     def has_add_permission(self, request):
