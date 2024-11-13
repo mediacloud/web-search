@@ -142,6 +142,8 @@ def story_detail(request):
     provider = pq_provider(pq, platform)
     story_details = provider.item(story_id)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
+    if not request.user.is_staff: # maybe some group membership?
+        del story_details['text']
     return HttpResponse(json.dumps({"story": story_details}, default=str), content_type="application/json",
                         status=200)
 
