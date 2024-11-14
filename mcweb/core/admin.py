@@ -20,9 +20,9 @@ class ConfigPropertyForm(forms.ModelForm):
 
     def get_widget_for_property_type(self):
         """Returns the appropriate widget based on property_type."""
-        if self.instance.property_type == "boolean":
+        if self.instance.property_type == "bool":
             return forms.CheckboxInput()
-        elif self.instance.property_type == "integer":
+        elif self.instance.property_type == "int":
             return forms.NumberInput()
         elif self.instance.property_type == "date":
             return forms.DateInput(attrs={"type": "date"})
@@ -31,9 +31,9 @@ class ConfigPropertyForm(forms.ModelForm):
     def clean_property_display(self):
         # Transform the cleaned display field input to be saved in property_value
         value = self.cleaned_data["property_display"]
-        if self.instance.property_type == "boolean":
+        if self.instance.property_type == "bool":
             return str(bool(value))  # Store as "True" or "False"
-        elif self.instance.property_type == "integer":
+        elif self.instance.property_type == "int":
             return str(int(value))   # Store as a string representing an integer
         elif self.instance.property_type == "date":
             return value.strftime("%Y-%m-%d")  # Convert date to "YYYY-MM-DD"
