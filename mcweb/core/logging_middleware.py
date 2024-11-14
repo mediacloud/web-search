@@ -21,15 +21,12 @@ class RequestLoggingMiddleware:
 
         #Check if logging is enabled (with caching to reduce database hits)
         request_logging_enabled = cache.get("request_logging_enabled")
-        print(request_logging_enabled)
         if request_logging_enabled is None:
             # Retrieve from database if not in cache
             request_logging_enabled = get_config_value('request_logging_enabled')
-            print(request_logging_enabled)
             cache.set("request_logging_enabled", request_logging_enabled, timeout=60)  # Cache for 60 seconds
 
         if(request_logging_enabled):
-            print("logging...")
             # Check if user is authenticated and add user data
             user = request.user if request.user.is_authenticated else "Anonymous"
             ip = request.META.get('REMOTE_ADDR')
