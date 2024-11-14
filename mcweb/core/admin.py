@@ -7,9 +7,10 @@ class ConfigPropertyForm(forms.ModelForm):
     # Define a field for displaying property name alongside property value
     property_display = forms.Field(label="", required=False)
 
+
     class Meta:
         model = ConfigProperty
-        fields = ["property_display", "property_type"]  # Hide raw property_name, property_value
+        fields = ["property_display", "property_type"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -18,14 +19,19 @@ class ConfigPropertyForm(forms.ModelForm):
         self.fields["property_display"].label = self.instance.property_name
         self.fields["property_display"].widget = self.get_widget_for_property_type()
 
+        # Convert the stored string value to the correct type for display
+        if self.instance.property_type == "bool":
+            self.initial["property_display"] = self.instance.property_value == "True"
+        elif self.instance.property_type == "int":
+            self.initial["property_display"] = int(self.instance.property_value)
+
     def get_widget_for_property_type(self):
         """Returns the appropriate widget based on property_type."""
         if self.instance.property_type == "bool":
             return forms.CheckboxInput()
         elif self.instance.property_type == "int":
             return forms.NumberInput()
-        elif self.instance.property_type == "date":
-            return forms.DateInput(attrs={"type": "date"})
+
         return forms.TextInput()
 
     def clean_property_display(self):
@@ -35,8 +41,7 @@ class ConfigPropertyForm(forms.ModelForm):
             return str(bool(value))  # Store as "True" or "False"
         elif self.instance.property_type == "int":
             return str(int(value))   # Store as a string representing an integer
-        elif self.instance.property_type == "date":
-            return value.strftime("%Y-%m-%d")  # Convert date to "YYYY-MM-DD"
+
         return value
 
     def save(self, commit=True):
