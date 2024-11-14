@@ -19,6 +19,7 @@ class ConfigPropertyForm(forms.ModelForm):
             self.fields["property_value"].widget = forms.TextInput()
 
     def clean_property_value(self):
+    	#the value is serialized as a string
         value = self.cleaned_data["property_value"]
         # Convert the input based on property_type before saving
         if self.instance.property_type == "bool":
