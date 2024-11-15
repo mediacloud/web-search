@@ -27,7 +27,6 @@ class RequestLoggingMiddleware:
             cache.set("request_logging_enabled", request_logging_enabled, timeout=60)  # Cache for 60 seconds
 
         if(request_logging_enabled):
-            
             # Check if user is authenticated and add user data
             user = request.user if request.user.is_authenticated else "Anonymous"
             ip = request.META.get('REMOTE_ADDR')

@@ -17,7 +17,7 @@ class ConfigProperty(models.Model):
 
     def get_typed_value(self):
         if self.property_type == "bool":
-            return self.property_value.lower() == "True"
+            return self.property_value == "True"
         elif self.property_type == "int":
             return int(self.property_value)
         return self.property_value
