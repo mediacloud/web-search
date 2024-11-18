@@ -14,6 +14,6 @@ class Command(BaseCommand):
                 
                 )
                 if created:
-                    self.stdout.write(self.style.SUCCESS(f"Created {key} with default value"))
+                    self.stdout.write(self.style.SUCCESS(f"Created {section_name}.{key} with default value"))
                 else:
                     self.stdout.write(f"{key} already exists in the config database.") 

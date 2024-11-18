@@ -6,4 +6,4 @@ def get_config_value(section, property_name):
             section=section,
             property_name=property_name).get_typed_value()
     except ConfigProperty.DoesNotExist:
-        raise ValueError(f"Configuration key '{key}' is missing and no default is set.")
+        raise ValueError(f"Configuration key '{section}.{property_name}' is missing and no default is set.")
