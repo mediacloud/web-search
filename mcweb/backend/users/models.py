@@ -88,6 +88,15 @@ class QuotaHistory(models.Model):
                                                                week=cls._this_week())
         return matching
 
+
+    @classmethod
+    def check(cls, user_id: int, is_staff:bool, provider:str):
+        matching = cls.current_for(user_id, provider)
+        quota = Profile.user_provider_quota(user_id, provider)
+        if (quota <= matching.hits) and not is_staff:
+            raise OverQuotaException(provider, quota)
+        return matching.hits
+
     @classmethod
     def increment(cls, user_id: int, is_staff: bool, provider: str, amount: int = 1) -> int:
         matching = cls.current_for(user_id, provider)
