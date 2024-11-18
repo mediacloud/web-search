@@ -1,7 +1,9 @@
 from .models import ConfigProperty
 
-def get_config_value(key):
+def get_config_value(section, property_name):
     try:
-        return ConfigProperty.objects.get(property_name=key).get_typed_value()
+        return ConfigProperty.objects.get(
+            section=section,
+            property_name=property_name).get_typed_value()
     except ConfigProperty.DoesNotExist:
         raise ValueError(f"Configuration key '{key}' is missing and no default is set.")
