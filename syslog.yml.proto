@@ -46,14 +46,14 @@ handlers:
   messages:
     class: logging.handlers.TimedRotatingFileHandler
     filename: "data/logs/messages.log"
-    when: h		# rotate hourly
-    utc: true		# name files after UTC hours
-    backupCount: 168	# 7 days
+    when: h             # rotate hourly
+    utc: true           # name files after UTC hours
+    backupCount: 168    # 7 days
 
   # facility_1 from request_logger
   requests:
     class : logging.handlers.TimedRotatingFileHandler
     filename: "data/logs/requests.log"
-    when: h		# rotate hourly
-    utc: true		# name files after UTC hours
-    backupCount: 72	# 3 days
+    when: h             # rotate hourly
+    utc: true           # name files after UTC hours
+    backupCount: 72     # 3 days
