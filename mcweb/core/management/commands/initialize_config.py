@@ -9,7 +9,7 @@ class Command(BaseCommand):
         for section_name, config_section in settings.CONFIG_DEFAULTS.items():
             self.stdout.write(f"Found config section {section_name}")
             for property_name, config in config_section.items():
-                self.stdout.write(f"Found config {section_name}.{key}:{str(config['value'])}")
+                self.stdout.write(f"Found config {section_name}.{property_name}:{str(config['value'])}")
                 config_property, created = ConfigProperty.objects.get_or_create(
                     property_name=property_name,
                     defaults={"section_name":section_name, "property_value": str(config["value"]), "property_type": config["type"].__name__}
