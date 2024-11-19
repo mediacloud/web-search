@@ -324,66 +324,51 @@ __ENABLE_SYSLOG = False
 if __DOKKU:
     from mcweb.backend.util.syslog_config import SYSLOG_SOCKET
     import socket
-    import time
 
-    # GRUMBLE!  Python SysLogHandler NEVER connects a UDP socket
-    # (causing constant DNS lookups), but connects with Unix-domain
-    # socket (which fails if listener not up, at least under Linux)!!
-    s = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
-    for x in range(0, 10):
-        try:
-            s.connect(SYSLOG_SOCKET)
-            __ENABLE_SYSLOG = True
-            break
-        except OSError:
-            time.sleep(1.0)
-    s.close()
+    _SYSLOG_FORMATTER = 'syslog'
 
-    if __ENABLE_SYSLOG:
-        _SYSLOG_FORMATTER = 'syslog'
+    hostname = socket.gethostname().split('.')[0]
 
-        # in Python 3.12 can use:
-        # format = '%(asctime)s %(hostname)s %(levelname)s: %(message)s'
-        format = f'%(asctime)s {hostname} %(levelname)s: %(message)s'
+    # in Python 3.12 can use:
+    # format = '%(asctime)s %(hostname)s %(levelname)s: %(message)s'
+    format = f'%(asctime)s {hostname} %(levelname)s: %(message)s'
 
-        LOGGING['formatters'][_SYSLOG_FORMATTER] = {
-            'format': format, # format NOT fmt as in the Formatter object
-            'defaults': {    # used in Python >= 3.12
-                'hostname': hostname
-            },
-        } 
+    LOGGING['formatters'][_SYSLOG_FORMATTER] = {
+        'format': format, # format NOT fmt as in the Formatter object
+        'defaults': {    # used in Python >= 3.12
+            'hostname': hostname
+        },
+    }
 
-        def add_syslog_handler(handler_name: str, facility: int, add_to_logger: str):
-            """
-            add a handler that sends messages to syslog-sink process
-            """
-            LOGGING['handlers'][handler_name] = {
-                'class': 'logging.handlers.SysLogHandler',
-                'facility': facility,      # see syslog.yml.proto for routing
-                'address': SYSLOG_SOCKET,
-                'formatter': _SYSLOG_FORMATTER,
-            }
-            if add_to_logger:
-                if add_to_logger == 'root':
-                    LOGGING['root']['handlers'].append(handler_name)
-                else:
-                    ll = LOGGING['loggers']
-                    al = ll.get(add_to_logger)
-                    if al is None:
-                        al = ll[add_to_logger] = {}
-                    handlers = al.get('handlers')
-                    if handlers is None:
-                        handlers = al['handlers'] = []
-                    handlers.append(handler_name)
+    def add_syslog_handler(handler_name: str, facility: int, add_to_logger: str):
+        """
+        add a handler that sends messages to syslog-sink process
+        """
+        LOGGING['handlers'][handler_name] = {
+            'class': 'mcweb.backend.util.handlers.SysLogHandler',
+            'facility': facility,      # see syslog.yml.proto for routing
+            'address': SYSLOG_SOCKET,
+            'formatter': _SYSLOG_FORMATTER,
+        }
+        if add_to_logger:
+            if add_to_logger == 'root':
+                LOGGING['root']['handlers'].append(handler_name)
+            else:
+                ll = LOGGING['loggers']
+                al = ll.get(add_to_logger)
+                if al is None:
+                    al = ll[add_to_logger] = {}
+                handlers = al.get('handlers')
+                if handlers is None:
+                    handlers = al['handlers'] = []
+                handlers.append(handler_name)
 
-        # When adding an entry here, add an entry to syslog.yml.proto
-        # routing the new facility code to a file!!!
-        add_syslog_handler('syslog_messages', 0, 'root')
-        add_syslog_handler('syslog_access', 1, '') # XXX add logger name here
+    # When adding an entry here, add an entry to syslog.yml.proto
+    # routing the new facility code to a file!!!
+    add_syslog_handler('syslog_messages', 0, 'root')
+    add_syslog_handler('syslog_access', 1, '') # XXX add logger name here
 
-# eventually move this under a check so not enabled under Dokku?
-# (not __DOKKU or not __SYSLOG_ENABLED?)
-if True:
+if True: # eventually change to else: so not enabled under Dokku?
     LOGGING['handlers']['console'] = {
         'class': 'logging.StreamHandler',
     }
