@@ -11,7 +11,7 @@ class ConfigProperty(models.Model):
         ('str', 'String'),
     ]
 
-    section = models.CharField(max_length=255)
+    section_name = models.CharField(max_length=255)
     property_name = models.CharField(max_length=255)
     property_value = models.CharField(max_length=255)
     property_type = models.CharField(max_length=50, choices=TYPE_CHOICES)
@@ -24,11 +24,11 @@ class ConfigProperty(models.Model):
         return self.property_value
 
     def __str__(self):
-        return f"{self.section}.{self.property_name}: {self.property_value}"
+        return f"{self.section_name}.{self.property_name}: {self.property_value}"
 
     class Meta:
         verbose_name = "Configuration Property"
         verbose_name_plural = "Configuration Properties"
         constraints = [
-            models.UniqueConstraint(fields=['section', 'property_name'], name='section.property_name must be unique')
+            models.UniqueConstraint(fields=['section_name', 'property_name'], name='section_name.property_name must be unique')
         ]

@@ -8,14 +8,14 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         for section_name, config_section in settings.CONFIG_DEFAULTS.items()
             self.stdout.write(f"Found config section {section_name}")
-            for key, config in config_section.items():
+            for property_name, config in config_section.items():
                 self.stdout.write(f"Found config {section_name}.{key}:{str(config['value'])}")
                 config_property, created = ConfigProperty.objects.get_or_create(
-                    property_name=key,
-                    defaults={"section":section_name, "property_value": str(config["value"]), "property_type": config["type"].__name__}
+                    property_name=property_name,
+                    defaults={"section_name":section_name, "property_value": str(config["value"]), "property_type": config["type"].__name__}
                 
                 )
                 if created:
-                    self.stdout.write(self.style.SUCCESS(f"Created {section_name}.{key} with default value"))
+                    self.stdout.write(self.style.SUCCESS(f"Created {section_name}.{property_name} with default value"))
                 else:
-                    self.stdout.write(f"{key} already exists in the config database.") 
+                    self.stdout.write(f"{section_name}.{property_name} already exists in the config database.") 
