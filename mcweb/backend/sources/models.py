@@ -106,6 +106,7 @@ class Source(models.Model):
     primary_language = models.CharField(max_length=5, null=True, blank=True)
     media_type = models.CharField(max_length=100, choices=SourceMediaTypes.choices, blank=True, null=True)
     alerted = models.BooleanField(default=False)
+    last_rescraped = models.DateTimeField(null=True)
 
     class Meta:
         indexes = [
