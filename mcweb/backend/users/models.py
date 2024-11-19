@@ -90,7 +90,7 @@ class QuotaHistory(models.Model):
 
 
     @classmethod
-    def check(cls, user_id: int, is_staff:bool, provider:str):
+    def check_quota(cls, user_id: int, is_staff:bool, provider:str):
         matching = cls.current_for(user_id, provider)
         quota = Profile.user_provider_quota(user_id, provider)
         if (quota <= matching.hits) and not is_staff:
