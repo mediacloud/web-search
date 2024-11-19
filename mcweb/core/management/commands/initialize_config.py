@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = "Initialize configuration properties with default values from settings"
 
     def handle(self, *args, **kwargs):
-        for section_name, config_section in settings.CONFIG_DEFAULTS.items()
+        for section_name, config_section in settings.CONFIG_DEFAULTS.items():
             self.stdout.write(f"Found config section {section_name}")
             for property_name, config in config_section.items():
                 self.stdout.write(f"Found config {section_name}.{key}:{str(config['value'])}")
