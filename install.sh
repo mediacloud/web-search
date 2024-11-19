@@ -24,3 +24,4 @@ if ! cmp -s syslog.yml.proto $LOGDIR/syslog.yml.proto; then
     cp -p syslog.yml.proto $LOGDIR/syslog.yml
     cp -p syslog.yml.proto $LOGDIR/syslog.yml.proto
 fi
+chown -R herokuishuser:herokuishuser $LOGDIR
