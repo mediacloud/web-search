@@ -24,12 +24,12 @@ class Profile(models.Model):
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
     # fields that store user-specific weekly quota for each provider, to block system abuse
-    quota_mediacloud_legacy = models.IntegerField(default=100000, null=False)
-    quota_mediacloud = models.IntegerField(default=100000, null=False)
-    quota_wayback_machine = models.IntegerField(default=100000, null=False)
-    quota_reddit_pushshift = models.IntegerField(default=10000, null=False)
+    quota_mediacloud_legacy = models.IntegerField(default=4000, null=False)
+    quota_mediacloud = models.IntegerField(default=4000, null=False)
+    quota_wayback_machine = models.IntegerField(default=4000, null=False)
+    quota_reddit_pushshift = models.IntegerField(default=4000, null=False)
     quota_twitter = models.IntegerField(default=10, null=False)
-    quota_youtube = models.IntegerField(default=10000, null=False)
+    quota_youtube = models.IntegerField(default=4000, null=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
