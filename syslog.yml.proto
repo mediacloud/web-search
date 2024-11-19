@@ -1,0 +1,59 @@
+# config file for mcweb/backend/utils/syslog-sink.py
+# (run under Dokku to collect and write log messages
+# to auto-rotated log files in /app/data/logs)
+
+# syslog.yml.proto is copied to data/logs/syslog.yml and
+# data/logs/syslog.yml.proto by install.sh (on app build) when the top
+# level copy differs from the one in data/logs
+
+# syslog-sink periodically checks for changes to data/logs/syslog.yml
+# But (see above) local changes will not survive changes to the
+# checked in version of the file!
+
+# see
+#  https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
+# for the structure of this file!
+
+# NOTE!!! logging.config.dictConfig is NOT verbose about errors that
+# happen when configuring handlers and loggers (any extraneous or
+# missing arguments will cause heartache and will NOT be seen) so be
+# careful!
+
+version: 1
+
+# Formatting should have been done on sender side
+# (has more data to work with and want ACTUAL time of event)
+
+# web-search log handlers that send messages here are created using
+# mc.settings function add_syslog_handler and must have a unique
+# integer facility code.
+
+# SysLogHandler used to send messages here preserves the original
+# message priority, the "level" setting here determines whether the
+# messages are logged (providing the logger in the originator was ALSO
+# so configured!).
+
+loggers:
+  facility_0:
+    level: DEBUG
+    handlers: [messages]
+  facility_1:
+    level: DEBUG
+    handlers: [requests]
+
+handlers:
+  # facility_0 from root logger; general log file
+  messages:
+    class: logging.handlers.TimedRotatingFileHandler
+    filename: "data/logs/messages.log"
+    when: h		# rotate hourly
+    utc: true		# name files after UTC hours
+    backupCount: 168	# 7 days
+
+  # facility_1 from request_logger
+  requests:
+    class : logging.handlers.TimedRotatingFileHandler
+    filename: "data/logs/requests.log"
+    when: h		# rotate hourly
+    utc: true		# name files after UTC hours
+    backupCount: 72	# 3 days
