@@ -1,5 +1,5 @@
 """
-Simple Unix-domain socket syslog sink; writes to hourly log files.
+Simple Unix-domain socket syslog sink for writing rotating log files
 Adapted from story-indexer/indexer/scripts/syslog-sink.py
 
 Implements simple legacy BSD syslog protocol (implemented in python
@@ -117,8 +117,8 @@ def main() -> None:
             if read_log_config(SYSLOG_CONFIG):
                 logger.info("re-read %s", SYSLOG_CONFIG)
                 next = args.config_check_seconds
-            else:
-                next = 1        # check again in a second
+            else:               # log read failed
+                next = 60       # check again in a minute
             next_config_check = now + next
 
         msg, addr = s.recvfrom(MAXMSG)

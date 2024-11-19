@@ -314,20 +314,19 @@ LOGGING = {
         'level': LOG_LEVEL,
     },
     'loggers': {
-        # see below
+        # set below
     },
 }
 
 # set up handlers based on environment
 __DOKKU = os.environ.get("DYNO") is not None
-__ENABLE_SYSLOG = False
 if __DOKKU:
     from mcweb.backend.util.syslog_config import SYSLOG_SOCKET
     import socket
 
     _SYSLOG_FORMATTER = 'syslog'
 
-    hostname = socket.gethostname().split('.')[0]
+    hostname = socket.gethostname().split('.')[0] # host/container w/o domain
 
     # in Python 3.12 can use:
     # format = '%(asctime)s %(hostname)s %(levelname)s: %(message)s'
@@ -340,7 +339,7 @@ if __DOKKU:
         },
     }
 
-    def add_syslog_handler(facility: int, add_to_logger: str):
+    def add_syslog_handler(facility: int, add_to_loggers: list[str]):
         """
         add a handler that sends messages to syslog-sink process
         """
@@ -351,22 +350,23 @@ if __DOKKU:
             'address': SYSLOG_SOCKET,
             'formatter': _SYSLOG_FORMATTER,
         }
-        if add_to_logger == 'root':
-            LOGGING['root']['handlers'].append(handler_name)
-        else:
-            ll = LOGGING['loggers']
-            al = ll.get(add_to_logger)
-            if al is None:
-                al = ll[add_to_logger] = {}
-            handlers = al.get('handlers')
-            if handlers is None:
-                handlers = al['handlers'] = []
-            handlers.append(handler_name)
+        for logger_name in add_to_loggers:
+            if logger_name == 'root':
+                LOGGING['root']['handlers'].append(handler_name)
+            else:
+                ll = LOGGING['loggers']
+                al = ll.get(logger_name)
+                if al is None:
+                    al = ll[logger_name] = {}
+                handlers = al.get('handlers')
+                if handlers is None:
+                    handlers = al['handlers'] = []
+                handlers.append(handler_name)
 
-    # When adding an entry here, add an entry to syslog.yml.proto
-    # routing the new facility code to a file!!!
-    add_syslog_handler(0, 'root')
-    add_syslog_handler(1, 'request_logger')
+    # When adding an entry here, add an entries to syslog.yml.proto
+    # for routing the new facility code to a file!!!
+    add_syslog_handler(0, ['root'])
+    add_syslog_handler(1, ['request_logger'])
 else:
     # not under Dokku: log to stderr:
     LOGGING['handlers']['console'] = {

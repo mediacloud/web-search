@@ -7,10 +7,11 @@
 # level copy differs from the one in data/logs
 
 # syslog-sink periodically checks for changes to data/logs/syslog.yml
-# But (see above) changes will not survive changes to the checked in
-# version of the file!
+# But (see above) local changes will not survive changes to the
+# checked in version of the file!
 
-# see https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
+# see
+#  https://docs.python.org/3/library/logging.config.html#logging-config-dictschema
 # for the structure of this file!
 
 # NOTE!!! logging.config.dictConfig is NOT verbose about errors that
@@ -21,7 +22,7 @@
 version: 1
 
 # Formatting should have been done on sender side
-# (has more data to work with # and want ACTUAL time of event)
+# (has more data to work with and want ACTUAL time of event)
 
 # web-search log handlers that send messages here are created using
 # mc.settings function add_syslog_handler and must have a unique
@@ -45,14 +46,14 @@ handlers:
   messages:
     class: logging.handlers.TimedRotatingFileHandler
     filename: "data/logs/messages.log"
-    when: h
-    utc: true # name files after UTC hours
-    backupCount: 168 # 7 days
+    when: h		# rotate hourly
+    utc: true		# name files after UTC hours
+    backupCount: 168	# 7 days
 
   # facility_1 from request_logger
   requests:
     class : logging.handlers.TimedRotatingFileHandler
     filename: "data/logs/requests.log"
-    when: h
-    utc: true # name files after UTC hours
-    backupCount: 72 # 3 days
+    when: h		# rotate hourly
+    utc: true		# name files after UTC hours
+    backupCount: 72	# 3 days
