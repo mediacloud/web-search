@@ -340,35 +340,35 @@ if __DOKKU:
         },
     }
 
-    def add_syslog_handler(handler_name: str, facility: int, add_to_logger: str):
+    def add_syslog_handler(facility: int, add_to_logger: str):
         """
         add a handler that sends messages to syslog-sink process
         """
+        handler_name = f"facility_{facility}"
         LOGGING['handlers'][handler_name] = {
             'class': 'mcweb.backend.util.handlers.SysLogHandler',
             'facility': facility,      # see syslog.yml.proto for routing
             'address': SYSLOG_SOCKET,
             'formatter': _SYSLOG_FORMATTER,
         }
-        if add_to_logger:
-            if add_to_logger == 'root':
-                LOGGING['root']['handlers'].append(handler_name)
-            else:
-                ll = LOGGING['loggers']
-                al = ll.get(add_to_logger)
-                if al is None:
-                    al = ll[add_to_logger] = {}
-                handlers = al.get('handlers')
-                if handlers is None:
-                    handlers = al['handlers'] = []
-                handlers.append(handler_name)
+        if add_to_logger == 'root':
+            LOGGING['root']['handlers'].append(handler_name)
+        else:
+            ll = LOGGING['loggers']
+            al = ll.get(add_to_logger)
+            if al is None:
+                al = ll[add_to_logger] = {}
+            handlers = al.get('handlers')
+            if handlers is None:
+                handlers = al['handlers'] = []
+            handlers.append(handler_name)
 
     # When adding an entry here, add an entry to syslog.yml.proto
     # routing the new facility code to a file!!!
-    add_syslog_handler('syslog_messages', 0, 'root')
-    add_syslog_handler('syslog_access', 1, '') # XXX add logger name here
-
-if True: # eventually change to else: so not enabled under Dokku?
+    add_syslog_handler(0, 'root')
+    add_syslog_handler(1, 'request_logger')
+else:
+    # not under Dokku: log to stderr:
     LOGGING['handlers']['console'] = {
         'class': 'logging.StreamHandler',
     }
