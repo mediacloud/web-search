@@ -44,6 +44,14 @@ fi
 # after INSTANCE set, sets APP:
 . $SCRIPT_DIR/common.sh
 
+# non-volatile storage mount for generated RSS files, db CSV files, logs
+STORAGE=${APP}
+# STORAGE mount point inside container (matches story-indexer)
+# NOTE: wired into mcweb/backend/util/syslog_config.py
+STORAGE_MOUNT_POINT=/app/data
+# Location of storage dir from outside container:
+STDIR=$STORAGE_HOME/$STORAGE
+
 # copied from rss-fetcher/dokku-scripts/instance.sh
 check_service() {
     local PLUGIN=$1
@@ -87,6 +95,20 @@ create_app() {
 
     check_service postgres $PG_SVC $APP
     check_service redis $REDIS_SVC $APP
+
+    if [ -d $STDIR ]; then
+	echo using $STORAGE dir $STDIR
+    else
+	echo creating $STORAGE storage dir $STDIR
+	dokku storage:ensure-directory $STORAGE
+    fi
+
+    if dokku storage:list $APP | fgrep "$STDIR:$STORAGE_MOUNT_POINT" >/dev/null; then
+	echo storage directory $STDIR linked to app dir $STORAGE_MOUNT_POINT
+    else
+	echo linking storage directory $STDIR to app dir $STORAGE_MOUNT_POINT
+	dokku storage:mount $APP $STDIR:$STORAGE_MOUNT_POINT
+    fi
 
     # culd be fragile
     # just do "dokku domains:set $APP $(echo $ALLOWED_HOSTS | tr , ' ')"??
