@@ -116,3 +116,6 @@ instance_sh_file_git_hash() {
     fi
     echo $IHASH$CHASH$LHASH
 }
+
+# host server location of storage dirs
+STORAGE_HOME=/var/lib/dokku/data/storage
