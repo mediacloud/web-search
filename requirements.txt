@@ -23,3 +23,4 @@ feed-seeker==1.1.*
 numpy
 #pandas
 sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v2.0.0
+supervisor==4.2.*
