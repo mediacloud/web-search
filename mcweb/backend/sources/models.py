@@ -1,5 +1,7 @@
 import logging
 from typing import Dict
+from django.utils import timezone
+
 
 # PyPI:
 import feed_seeker
@@ -16,6 +18,7 @@ from mc_sitemap_tools.discover import NewsDiscoverer
 
 # mcweb
 from settings import SCRAPE_TIMEOUT_SECONDS # time to scrape an entire source
+from .serializer import SourceSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -251,7 +254,7 @@ class Source(models.Model):
 
         # per-source header line
         add_line(f"Scraped source {source_id} ({name}), {homepage}")
-
+    
         if not homepage:
             add_line("MISSING HOMEPAGE")
             return "".join(lines) # error not indented
@@ -313,7 +316,8 @@ class Source(models.Model):
         # after many tries to give a summary in english:
         add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
         # add last time this source was rescraped
-        
+
+        SourcesViewSet.partial_update({"last_rescraped": timezone.now()}, pk=source_id)
         indent = "  "           # not applied to header line
         return indent.join(lines)
 
