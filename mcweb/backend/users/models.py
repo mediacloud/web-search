@@ -24,12 +24,12 @@ class Profile(models.Model):
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
     # fields that store user-specific weekly quota for each provider, to block system abuse
-    quota_mediacloud_legacy = models.IntegerField(default=100000, null=False)
-    quota_mediacloud = models.IntegerField(default=100000, null=False)
-    quota_wayback_machine = models.IntegerField(default=100000, null=False)
-    quota_reddit_pushshift = models.IntegerField(default=10000, null=False)
+    quota_mediacloud_legacy = models.IntegerField(default=4000, null=False)
+    quota_mediacloud = models.IntegerField(default=4000, null=False)
+    quota_wayback_machine = models.IntegerField(default=4000, null=False)
+    quota_reddit_pushshift = models.IntegerField(default=4000, null=False)
     quota_twitter = models.IntegerField(default=10, null=False)
-    quota_youtube = models.IntegerField(default=10000, null=False)
+    quota_youtube = models.IntegerField(default=4000, null=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
@@ -87,6 +87,15 @@ class QuotaHistory(models.Model):
         matching, created = QuotaHistory.objects.get_or_create(user_id=user_id, provider=provider,
                                                                week=cls._this_week())
         return matching
+
+
+    @classmethod
+    def check_quota(cls, user_id: int, is_staff:bool, provider:str):
+        matching = cls.current_for(user_id, provider)
+        quota = Profile.user_provider_quota(user_id, provider)
+        if (quota <= matching.hits) and not is_staff:
+            raise OverQuotaException(provider, quota)
+        return matching.hits
 
     @classmethod
     def increment(cls, user_id: int, is_staff: bool, provider: str, amount: int = 1) -> int:
