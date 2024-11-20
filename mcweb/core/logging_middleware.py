@@ -5,7 +5,7 @@ from django.db import models
 import time
 
 from backend.search.utils import parse_query
-from .utils import get_config_value
+from .utils import get_property_value
 
 import json
 request_logger = logging.getLogger("request_logger")
@@ -43,7 +43,7 @@ class RequestLoggingMiddleware:
             log_msg["duration"] = duration
             log_msg["request_time"] = start_time
             # Log the request details
-            request_logger.info(log_msg)
+            request_logger.info(json.dumps(log_msg))
         return response
 
 
