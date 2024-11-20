@@ -84,7 +84,7 @@ def handle_provider_errors(func):
 def total_count(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     relevant_count = provider.count(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     try:
         total_content_count = provider.count(provider.everything_query(), pq.start_date, pq.end_date, **pq.provider_props)
@@ -104,7 +104,7 @@ def total_count(request):
 def count_over_time(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
         results = provider.normalized_count_over_time(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except UnsupportedOperationException:
@@ -124,7 +124,7 @@ def count_over_time(request):
 def sample(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
         response = provider.sample(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
@@ -140,7 +140,7 @@ def sample(request):
 # @cache_by_kwargs()
 def story_detail(request):
     pq, params = parse_query_params(request) # unlikely to handle POST!
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     story_id = params.get("storyId")
     platform = params.get("platform")
     provider = pq_provider(pq, platform)
@@ -159,7 +159,7 @@ def story_detail(request):
 def sources(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
         response = provider.sources(f"({pq.query_str})", pq.start_date, pq.end_date, 10, **pq.provider_props)
     except requests.exceptions.ConnectionError:
@@ -174,7 +174,7 @@ def download_sources_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     
     try:
         data = provider.sources(f"({pq.query_str})", pq.start_date,
@@ -203,7 +203,7 @@ def download_sources_csv(request):
 def languages(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
 
     try:
         response = provider.languages(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
@@ -220,7 +220,7 @@ def download_languages_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
 
     try:
         data = provider.languages(f"({pq.query_str})", pq.start_date,
@@ -247,7 +247,7 @@ def download_languages_csv(request):
 def story_list(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
 
     # support returning text content for staff only
     if pq.provider_props.get('expanded') is not None:
@@ -269,7 +269,7 @@ def story_list(request):
 def words(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
         words = provider.words(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
@@ -287,7 +287,7 @@ def download_words_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
         words = provider.words(f"({pq.query_str})", pq.start_date,
                                 pq.end_date, **pq.provider_props, sample_size=5000)
@@ -313,7 +313,7 @@ def download_counts_over_time_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
-    QuotaHistory.check(request.user.id, request.user.is_staff, pq.provider_name)
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
         data = provider.normalized_count_over_time(
             f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
@@ -356,7 +356,7 @@ def send_email_large_download_csv(request):
     queryState = payload.get('prepareQuery')
     email = payload.get('email')
 
-    # TotalAttentionEmailModal.jsx does range check.
+    # TotalAttentionEmailModal.jsx does range check_quota.
     # NOTE: download_all_content_csv doesn't check count!
     # applying range check to sum of all queries!
     total = 0
