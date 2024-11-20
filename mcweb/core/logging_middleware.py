@@ -29,8 +29,9 @@ class RequestLoggingMiddleware:
 
         if(request_logging_enabled):
             # Check if user is authenticated and add user data
-            user = request.user if request.user.is_authenticated else "Anonymous"
-            ip = request.META.get('REMOTE_ADDR')
+            log_msg = {}
+            log_msg['user'] = request.user if request.user.is_authenticated else "Anonymous"
+            log_msg['ip'] = request.META.get('REMOTE_ADDR')
 
             #General incantation for request params-- maybe more dedicated parsing would eventually be 
             #preferable for grabbing query terms, but this will do for now.
@@ -40,12 +41,13 @@ class RequestLoggingMiddleware:
                 request_params = request.GET
             else:
                 request_params = {}
-            
+
+            log_msg["method"] = request.method
+            log_msg["params"] = request_params
+            log_msg["duration"] = duration
+            log_msg["request_time"] = start_tim
             # Log the request details
-            request_logger.info(
-                f"{now()} - Method: {request.method}, Path: {request.path}, User: {user}, Duration: {duration:.4f} s, "
-                f"IP: {request.META.get('REMOTE_ADDR')}, Params: {request_params}"
-            )
+            request_logger.info(log_msg)
         return response
 
 
