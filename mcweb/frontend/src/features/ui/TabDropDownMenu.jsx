@@ -75,7 +75,7 @@ export default function TabDropDownMenuItems({
           setColorSubMenuOpen(false);
         }}
         >
-          Compare Across the Globe(EN)
+          Compare Across the Globe (EN)
         </MenuItem>
 
         {/* Add Color Option */}
