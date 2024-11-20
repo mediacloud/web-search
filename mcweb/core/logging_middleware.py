@@ -34,7 +34,7 @@ class RequestLoggingMiddleware:
             #General incantation for request params-- maybe more dedicated parsing would eventually be 
             #preferable for grabbing query terms, but this will do for now.
             try:
-                request_params = parse_query(request)
+                request_params = params = {**request.GET, **request.POST, **request.FILES}
             except ValueError:
                 request_params = request.GET.get("q", '')    
 

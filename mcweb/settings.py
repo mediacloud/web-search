@@ -83,7 +83,6 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     LOG_LEVEL=(str, "DEBUG"),
     NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
     PROVIDERS_TIMEOUT=(int, 60*10),
-    REQUEST_LOG_PATH=(str, "/app/requests.log"),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
     SENTRY_DSN=(str, ""),
@@ -136,8 +135,6 @@ LOG_LEVEL = env('LOG_LEVEL').upper()
 NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
-REQUEST_LOG_PATH = env('REQUEST_LOG_PATH')
-
 RSS_FETCHER_URL = env('RSS_FETCHER_URL')
 RSS_FETCHER_USER = env('RSS_FETCHER_USER')
 RSS_FETCHER_PASS = env('RSS_FETCHER_PASS')
@@ -155,7 +152,7 @@ SYSTEM_ALERT = env('SYSTEM_ALERT')
 
 # end config
 _env_logger.setLevel(_env_log_level) # restore log level
-#################
+################
 # Application definition
 
 INSTALLED_APPS = [
@@ -314,17 +311,14 @@ LOGGING = {
     },
     'handlers': {
         # set below
-
     },
     'root': {
         'handlers': [], # set below
         'level': LOG_LEVEL,
     },
-
     'loggers': {
         # set below
     },
-
 }
 
 # set up handlers based on environment
@@ -399,7 +393,7 @@ DISABLE_SERVER_SIDE_CURSORS = True
 
 #Section: {Key: {Value, Type}} sets for runtime-configurable app properties. 
 #These are editable within the admin console 
-CONFIG_DEFAULTS = {
+PROPERTY_DEFINITIONS = {
     "obs":{ #Observability settings
         "request_logging_enabled": {"value": False, "type": bool},
     }
