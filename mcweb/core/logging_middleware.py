@@ -21,16 +21,12 @@ class RequestLoggingMiddleware:
         duration = time.time() - start_time
 
         #Check if logging is enabled (with caching to reduce database hits)
-        request_logging_enabled = cache.get("request_logging_enabled")
-        if request_logging_enabled is None:
-            # Retrieve from database if not in cache
-            request_logging_enabled = get_config_value('obs','request_logging_enabled')
-            cache.set("request_logging_enabled", request_logging_enabled, timeout=60)  # Cache for 60 seconds
+        request_logging_enabled = get_property_value('obs','request_logging_enabled')
 
         if(request_logging_enabled):
             # Check if user is authenticated and add user data
             log_msg = {}
-            log_msg['user'] = request.user if request.user.is_authenticated else "Anonymous"
+            log_msg['user'] = str(request.user)if request.user.is_authenticated else "Anonymous"
             log_msg['ip'] = request.META.get('REMOTE_ADDR')
 
             #General incantation for request params-- maybe more dedicated parsing would eventually be 
