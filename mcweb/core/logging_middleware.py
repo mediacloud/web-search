@@ -7,6 +7,7 @@ import time
 from backend.search.utils import parse_query
 from .utils import get_config_value
 
+import json
 request_logger = logging.getLogger("request_logger")
 
 class RequestLoggingMiddleware:
@@ -33,8 +34,13 @@ class RequestLoggingMiddleware:
 
             #General incantation for request params-- maybe more dedicated parsing would eventually be 
             #preferable for grabbing query terms, but this will do for now.
-            request_params = {**request.GET, **request.POST, **request.FILES}
-
+            if request.method == 'POST':
+                request_params = json.loads(request.body)
+            elif request.method == 'GET':
+                request_params = request.GET
+            else:
+                request_params = {}
+            
             # Log the request details
             request_logger.info(
                 f"{now()} - Method: {request.method}, Path: {request.path}, User: {user}, Duration: {duration:.4f} s, "
