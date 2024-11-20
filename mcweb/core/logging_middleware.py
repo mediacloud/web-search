@@ -45,7 +45,7 @@ class RequestLoggingMiddleware:
             log_msg["method"] = request.method
             log_msg["params"] = request_params
             log_msg["duration"] = duration
-            log_msg["request_time"] = start_tim
+            log_msg["request_time"] = start_time
             # Log the request details
             request_logger.info(log_msg)
         return response
