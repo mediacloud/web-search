@@ -6,15 +6,15 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import dayjs from 'dayjs';
 import { useGetStoryDetailsQuery } from '../../app/services/searchApi';
 import {
-  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE
+  PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../search/util/platforms';
+import { ROLE_STAFF, PermissionedStaff } from '../auth/Permissioned';
 
 export default function StoryShow() {
   const params = useParams();
   const { storyURL, platform } = params;
-  // const decodedStoryURL = decodeURIComponent(storyURL);
-  // console.log(decodedStoryURL);
-  const { data, isLoading } = useGetStoryDetailsQuery(storyURL);
+
+  const { data, isLoading } = useGetStoryDetailsQuery({ storyId: storyURL, platform });
 
   const [platformName, setPlatformName] = useState('');
 
@@ -33,6 +33,7 @@ export default function StoryShow() {
   if (!data) return null;
 
   const { story } = data;
+
   return (
     <div className="container" style={{ paddingTop: 50 }}>
       <div className="row">
@@ -85,13 +86,9 @@ export default function StoryShow() {
           </div>
         </div>
       )}
-
-      {/* Archived Playback Url and Story Snippet does not exist in returned data with Media Cloud */}
-      {(platform === PROVIDER_NEWS_MEDIA_CLOUD) && (
-        <div className="clearfix">
-          <h3 className="float-start">Story Text and Information Unavailable</h3>
-        </div>
-      )}
+      <PermissionedStaff role={ROLE_STAFF}>
+        <p>{story.text}</p>
+      </PermissionedStaff>
 
     </div>
   );
