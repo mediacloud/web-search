@@ -60,9 +60,4 @@ PermissionedContributor.propTypes = {
     PropTypes.element,
     PropTypes.arrayOf(PropTypes.element),
   ]).isRequired,
-  role: PropTypes.string,
-};
-
-PermissionedContributor.defaultProps = {
-  role: ROLE_USER,
 };

@@ -15,13 +15,28 @@ if [ "x$UNAME" = xroot ]; then
     exit 1
 fi
 
+usage() {
+cat 1>&2 <<-EOF
+$0: push current branch to dokku instance (depending on branch)
+options:
+ --force-push
+      add --force to git push commands
+      needed when switching dev branches, after rebase or --amend.
+ --help or -h
+      this message.
+ --unpushed or -u
+      allow dev deployment even if current branch not pushed to github.
+EOF
+}
+
 PUSH_FLAGS=
 # MCWEB_UNPUSHED inherited from environment
 for ARG in $*; do
     case "$ARG" in
     --force-push) PUSH_FLAGS=--force;; # force push code to dokku repo
     --unpushed|-u) MCWEB_UNPUSHED=1;; # allow unpushed repo for development
-    *) echo "$0: unknown argument $ARG"; exit 1;;
+    --help|-h) usage; exit 0;;
+    *) echo "$0: unknown argument $ARG"; usage; exit 1;;
     esac
 done
 
@@ -358,12 +373,12 @@ prod)
     ;;
 esac
 
-# extract list of task workers from Procfile
-TASK_WORKERS=$(grep -o '^[a-z-]*worker:' Procfile | sed 's/:/=1/')
-
 # add new Procfile entries to next line!!
-GOALS="web=$WEB_PROCS $TASK_WORKERS"
-
+GOALS="web=$WEB_PROCS supervisord=1"
+#
+# TEMP scale down old workers:
+#GOALS="$GOALS worker=0 system-fast-worker=0 admin-slow-worker=0 admin-fast-worker=0 user-slow-worker=0 user-fast-worker=0"
+#
 # avoid unnecessary redeploys
 SCALE=$(dokku ps:scale $APP | awk -v "goals=$GOALS" -f $SCRIPT_DIR/scale.awk)
 if [ "x$SCALE" != x ]; then
