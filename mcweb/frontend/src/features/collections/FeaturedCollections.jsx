@@ -30,7 +30,7 @@ export default function FeaturedCollections() {
                     <h3>{collection.name}</h3>
                   </Link>
                   <div>
-                  <div>{collection.notes && renderNotes(collection.notes)}</div>
+                    <div>{collection.notes && renderNotes(collection.notes)}</div>
                   </div>
                 </div>
               </div>
