@@ -143,6 +143,9 @@ class Source(models.Model):
         platform = source.get("platform", None)
         if platform is not None and len(platform) > 0:
             obj.platform = platform
+        # last_rescraped = source.get("last_rescraped", None)
+        # if last_rescraped is not None and len(last_rescraped) > 0:
+        #     obj.last_rescraped = last_rescraped
         url_search_string = source.get("url_search_string", None)
         if url_search_string is not None and len(url_search_string) > 0:
             obj.url_search_string = url_search_string
@@ -184,6 +187,10 @@ class Source(models.Model):
         homepage = source.get("homepage", None)
         if homepage:
             obj["homepage"] = homepage.strip()
+
+        # last_rescraped = source.get("last_rescraped", None)
+        # if last_rescraped:
+        #     obj["last_rescraped"] = last_rescraped.strip()
         
         name = source.get("name", None)
         if name:
@@ -316,8 +323,9 @@ class Source(models.Model):
         # after many tries to give a summary in english:
         add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
         # add last time this source was rescraped
-
-        SourcesViewSet.partial_update({"last_rescraped": timezone.now()}, pk=source_id)
+        source = Source.objects.get(id=source_id)
+        serializer = SourceSerializer(source, data={"last_rescraped": timezone.now()})
+        serializer.save()
         indent = "  "           # not applied to header line
         return indent.join(lines)
 
