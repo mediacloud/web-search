@@ -394,7 +394,7 @@ DISABLE_SERVER_SIDE_CURSORS = True
 #Section: {Key: {Value, Type}} sets for runtime-configurable app properties. 
 #These are editable within the admin console 
 PROPERTY_DEFINITIONS = {
-    "obs":{ #Observability settings
+    "observability":{ #Observability settings
         "request_logging_enabled": {"value": False, "type": bool},
     }
 }

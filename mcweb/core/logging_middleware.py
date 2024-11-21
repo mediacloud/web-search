@@ -21,7 +21,7 @@ class RequestLoggingMiddleware:
         duration = time.time() - start_time
 
         #Check if logging is enabled (with caching to reduce database hits)
-        request_logging_enabled = get_property_value('obs','request_logging_enabled')
+        request_logging_enabled = get_property_value('observability','request_logging_enabled')
 
         if(request_logging_enabled):
             # Check if user is authenticated and add user data
@@ -42,6 +42,7 @@ class RequestLoggingMiddleware:
             log_msg["params"] = request_params
             log_msg["duration"] = duration
             log_msg["request_time"] = start_time
+            log_msg["headers"] = {key: value for key, value in request.headers.items()}
             # Log the request details
             request_logger.info(json.dumps(log_msg))
         return response
