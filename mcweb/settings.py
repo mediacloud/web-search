@@ -342,7 +342,12 @@ if __DOKKU:
         },
     }
 
-    def add_syslog_handler(facility: int, add_to_loggers: list[str]):
+    _BREIF_FORMATTER = 'breif'
+    LOGGING['formatters'][_BREIF_FORMATTER] = {
+        'format':'%(message)s'
+    }
+
+    def add_syslog_handler(facility: int, add_to_loggers: list[str], formatter:str):
         """
         add a handler that sends messages to syslog-sink process
         """
@@ -351,7 +356,7 @@ if __DOKKU:
             'class': 'mcweb.backend.util.handlers.SysLogHandler',
             'facility': facility,      # see syslog.yml.proto for routing
             'address': SYSLOG_SOCKET,
-            'formatter': _SYSLOG_FORMATTER,
+            'formatter': formatter,
         }
         for logger_name in add_to_loggers:
             if logger_name == 'root':
@@ -368,8 +373,8 @@ if __DOKKU:
 
     # When adding an entry here, add an entries to syslog.yml.proto
     # for routing the new facility code to a file!!!
-    add_syslog_handler(0, ['root'])
-    add_syslog_handler(1, ['request_logger'])
+    add_syslog_handler(0, ['root'], _SYSLOG_FORMATTER)
+    add_syslog_handler(1, ['request_logger'], _BREIF_FORMATTER)
 else:
     # not under Dokku: log to stderr:
     LOGGING['handlers']['console'] = {
