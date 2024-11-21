@@ -33,11 +33,11 @@ class RequestLoggingMiddleware:
             if request.method == 'POST':
                 if request.content_type == "application/json":
                     try:
-                        return json.loads(request.body)
+                        request_params = json.loads(request.body)
                     except json.JSONDecodeError:
-                        return {}  # Return empty dict if JSON parsing fails
+                        request_params = {}  # Return empty dict if JSON parsing fails
                 elif request.content_type == "application/x-www-form-urlencoded":
-                    return request.POST  # Handles form-encoded data
+                    request_params = request.POST  # Handles form-encoded data
 
             elif request.method == 'GET':
                 request_params = request.GET
