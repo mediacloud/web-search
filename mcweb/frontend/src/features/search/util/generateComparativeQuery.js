@@ -4,8 +4,8 @@ export const REGIONAL = 'regional';
 
 const partisanCollections = [231013063, 231013089, 231013108, 231013109, 231013110];
 const partisanCollectionsNames = ['left', 'center left', 'center', 'center right', 'right'];
-const globalCollections = [34412234, 34412476, 38376341, 34412356, 34412409, 34412146, 34412257, 34412118];
-const globalCollectionsNames = ['united states', 'united kingdom', 'nigeria', 'spain', 'germany', 'france', 'brazil', 'india'];
+const globalCollections = [34412234, 34412476, 34412118, 34412282, 34412126, 34412313, 34412238];
+const globalCollectionsNames = ['united states', 'united kingdom', 'india', 'australia', 'kenya', 'philippines', 'south africa'];
 const regionalCollections = [];
 const regionalCollectionsNames = [];
 
