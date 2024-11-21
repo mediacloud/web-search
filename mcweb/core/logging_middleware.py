@@ -3,7 +3,7 @@ from django.utils.timezone import now
 from django.core.cache import cache
 from django.db import models
 import time
-
+import datetime as dt
 from backend.search.utils import parse_query
 from .utils import get_property_value
 
@@ -26,6 +26,7 @@ class RequestLoggingMiddleware:
         if(request_logging_enabled):
             # Check if user is authenticated and add user data
             log_msg = {}
+            log_msg["timestamp"] = dt.datetime.utcnow().isoformat() 
             log_msg['user'] = str(request.user)if request.user.is_authenticated else "Anonymous"
             log_msg['ip'] = request.META.get('REMOTE_ADDR')
 
@@ -45,7 +46,6 @@ class RequestLoggingMiddleware:
 
                 request_params = {}
 
-            log_msg["timestamp"] = time.utcnow.isoformat() 
             log_msg["method"] = request.method
             log_msg["path"] = request.path
             log_msg["params"] = request_params

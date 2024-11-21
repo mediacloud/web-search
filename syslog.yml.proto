@@ -33,6 +33,10 @@ version: 1
 # messages are logged (providing the logger in the originator was ALSO
 # so configured!).
 
+formatters:
+  brief:
+    format: '%(message)s'
+
 loggers:
   facility_0:
     level: DEBUG
@@ -57,3 +61,4 @@ handlers:
     when: h             # rotate hourly
     utc: true           # name files after UTC hours
     backupCount: 72     # 3 days
+    formatter: brief
