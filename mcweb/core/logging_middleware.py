@@ -29,13 +29,20 @@ class RequestLoggingMiddleware:
             log_msg['user'] = str(request.user)if request.user.is_authenticated else "Anonymous"
             log_msg['ip'] = request.META.get('REMOTE_ADDR')
 
-            #General incantation for request params-- maybe more dedicated parsing would eventually be 
-            #preferable for grabbing query terms, but this will do for now.
+            #Just using direct request parameters to grab this now. 
             if request.method == 'POST':
-                request_params = json.loads(request.body)
+                if request.content_type == "application/json":
+                    try:
+                        return json.loads(request.body)
+                    except json.JSONDecodeError:
+                        return {}  # Return empty dict if JSON parsing fails
+                elif request.content_type == "application/x-www-form-urlencoded":
+                    return request.POST  # Handles form-encoded data
+
             elif request.method == 'GET':
                 request_params = request.GET
             else:
+
                 request_params = {}
 
             log_msg["method"] = request.method
