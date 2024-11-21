@@ -5,7 +5,7 @@ from util.cache import cache_by_kwargs
 def get_property_value(section_name, property_name):
     return uncached_get_property_value(section_name, property_name)
 
-
+#Raw property_value call- the default is cached for convenience
 def uncached_get_property_value(section_name, property_name):
     try:
         return ConfigProperty.objects.get(
