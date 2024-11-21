@@ -45,12 +45,14 @@ class RequestLoggingMiddleware:
 
                 request_params = {}
 
+            log_msg["timestamp"] = time.utcnow.isoformat() 
             log_msg["method"] = request.method
+            log_msg["path"] = request.path
             log_msg["params"] = request_params
             log_msg["duration"] = duration
-            log_msg["request_time"] = start_time
             
-            exclude_headers = ["Cookie", "X-Csrftoken", "Referer"]
+            
+            exclude_headers = ["Cookie", "X-Csrftoken"]
             log_msg["headers"] = {key: value for key, value in request.headers.items() if key not in exclude_headers}
 
 
