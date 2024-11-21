@@ -49,7 +49,12 @@ class RequestLoggingMiddleware:
             log_msg["params"] = request_params
             log_msg["duration"] = duration
             log_msg["request_time"] = start_time
-            log_msg["headers"] = {key: value for key, value in request.headers.items()}
+            
+            exclude_headers = ["Cookie", "X-Csrftoken", "Referer"]
+            log_msg["headers"] = {key: value for key, value in request.headers.items() if key not in exclude_headers}
+
+
+
             # Log the request details
             request_logger.info(json.dumps(log_msg))
         return response
