@@ -400,7 +400,7 @@ DISABLE_SERVER_SIDE_CURSORS = True
 CONSTANCE_BACKEND = 'constance.backends.redisd.CachingRedisBackend'
 # optionally set a value ttl
 CONSTANCE_REDIS_CACHE_TIMEOUT = 60
-CONSTANCE_REDIS_CONNECTION = 'django_redis.get_redis_connection'
+CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
 
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
