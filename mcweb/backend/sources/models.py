@@ -1,7 +1,6 @@
 import logging
 from typing import Dict
-from django.utils import timezone
-
+from datetime import datetime, timezone
 
 # PyPI:
 import feed_seeker
@@ -18,7 +17,6 @@ from mc_sitemap_tools.discover import NewsDiscoverer
 
 # mcweb
 from settings import SCRAPE_TIMEOUT_SECONDS # time to scrape an entire source
-from .serializer import SourceSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -323,9 +321,7 @@ class Source(models.Model):
         # after many tries to give a summary in english:
         add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
         # add last time this source was rescraped
-        source = Source.objects.get(id=source_id)
-        serializer = SourceSerializer(source, data={"last_rescraped": timezone.now()})
-        serializer.save()
+        Source.update_last_rescraped(source_id=source_id)
         indent = "  "           # not applied to header line
         return indent.join(lines)
 
@@ -336,7 +332,16 @@ class Source(models.Model):
             source.stories_per_week = weekly_story_count
             source.save()
         except:
-            logger.warn(f"source {source_id} not found")
+            logger.warning(f"source {source_id} not found")
+
+    @classmethod
+    def update_last_rescraped(cls, source_id: int):
+        try:
+            source=Source.objects.get(pk=source_id) 
+            source.last_rescraped = datetime.now(timezone.utc).isoformat()
+            source.save()
+        except:
+            logger.warning(f"source {source_id} not found")
 
     
 class Feed(models.Model):
