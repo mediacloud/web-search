@@ -165,11 +165,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
+    "constance",
     "frontend",
     "backend.sources",
     "backend.search",
     "backend.users",
-    "core",
     "background_task",
 ]
 
@@ -396,12 +396,18 @@ CACHES = {
 
 DISABLE_SERVER_SIDE_CURSORS = True
 
-#Section: {Key: {Value, Type}} sets for runtime-configurable app properties. 
-#These are editable within the admin console 
-PROPERTY_DEFINITIONS = {
-    "observability":{ #Observability settings
-        "request_logging_enabled": {"value": False, "type": bool},
-    }
+### Constance runtime-configurable settings setup
+CONSTANCE_BACKEND = 'constance.backends.redisd.CachingRedisBackend'
+# optionally set a value ttl
+CONSTANCE_REDIS_CACHE_TIMEOUT = 60
+CONSANCE_REDIS_CONNECTION = CACHES['default']['LOCATION']
+
+CONSTANCE_CONFIG = {
+    "REQUEST_LOGGING_ENABLED": {False, 'Toggle request logging', bool},
+}
+
+CONSTANCE_CONFIG_FIELDSETS = {
+    "Monitoring Options": ('request_logging_enabled')
 }
 
 

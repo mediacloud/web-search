@@ -5,7 +5,7 @@ from django.db import models
 import time
 import datetime as dt
 from backend.search.utils import parse_query
-from .utils import get_property_value
+from constance import config
 
 import json
 request_logger = logging.getLogger("request_logger")
@@ -21,7 +21,7 @@ class RequestLoggingMiddleware:
         duration = time.time() - start_time
 
         #Check if logging is enabled (with caching to reduce database hits)
-        request_logging_enabled = get_property_value('observability','request_logging_enabled')
+        request_logging_enabled = config.REQUEST_LOGGING_ENABLED
 
         if(request_logging_enabled):
             # Check if user is authenticated and add user data
