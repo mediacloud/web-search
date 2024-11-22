@@ -403,7 +403,7 @@ CONSTANCE_REDIS_CACHE_TIMEOUT = 60
 CONSANCE_REDIS_CONNECTION = CACHES['default']['LOCATION']
 
 CONSTANCE_CONFIG = {
-    "REQUEST_LOGGING_ENABLED": {False, 'Toggle request logging', bool},
+    "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
