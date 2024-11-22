@@ -407,7 +407,7 @@ CONSTANCE_CONFIG = {
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
-    "Monitoring Options": ("REQUEST_LOGGING_ENABLED")
+    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",)
 }
 
 
