@@ -400,14 +400,14 @@ DISABLE_SERVER_SIDE_CURSORS = True
 CONSTANCE_BACKEND = 'constance.backends.redisd.CachingRedisBackend'
 # optionally set a value ttl
 CONSTANCE_REDIS_CACHE_TIMEOUT = 60
-CONSANCE_REDIS_CONNECTION = CACHES['default']['LOCATION']
+CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
 
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
-    "Monitoring Options": ('request_logging_enabled')
+    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",)
 }
 
 
