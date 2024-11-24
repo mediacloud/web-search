@@ -1,7 +1,4 @@
 import logging
-from django.utils.timezone import now
-from django.core.cache import cache
-from django.db import models
 import time
 import datetime as dt
 from constance import config
