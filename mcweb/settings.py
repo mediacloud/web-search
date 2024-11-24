@@ -302,7 +302,6 @@ APPEND_SLASH = False
 
 MAX_ATTEMPTS = 1
 
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -396,11 +395,15 @@ CACHES = {
 
 DISABLE_SERVER_SIDE_CURSORS = True
 
-### Constance runtime-configurable settings setup
+################
+# Constance runtime-configurable settings setup
+
 CONSTANCE_BACKEND = 'constance.backends.redisd.CachingRedisBackend'
 # optionally set a value ttl
 CONSTANCE_REDIS_CACHE_TIMEOUT = 60
 CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
+
+# Constance config values
 
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
@@ -409,7 +412,6 @@ CONSTANCE_CONFIG = {
 CONSTANCE_CONFIG_FIELDSETS = {
     "Monitoring Options": ("REQUEST_LOGGING_ENABLED",)
 }
-
 
 ################
 # since this file is read before logging is configured,

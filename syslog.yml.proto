@@ -33,7 +33,6 @@ version: 1
 # messages are logged (providing the logger in the originator was ALSO
 # so configured!).
 
-
 loggers:
   facility_0:
     level: DEBUG
