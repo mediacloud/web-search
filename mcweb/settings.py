@@ -341,8 +341,8 @@ if __DOKKU:
         },
     }
 
-    _BREIF_FORMATTER = 'breif'
-    LOGGING['formatters'][_BREIF_FORMATTER] = {
+    _BRIEF_FORMATTER = 'brief'
+    LOGGING['formatters'][_BRIEF_FORMATTER] = {
         'format':'%(message)s'
     }
 
@@ -373,7 +373,7 @@ if __DOKKU:
     # When adding an entry here, add an entries to syslog.yml.proto
     # for routing the new facility code to a file!!!
     add_syslog_handler(0, ['root'], _SYSLOG_FORMATTER)
-    add_syslog_handler(1, ['request_logger'], _BREIF_FORMATTER)
+    add_syslog_handler(1, ['request_logger'], _BRIEF_FORMATTER)
 else:
     # not under Dokku: log to stderr:
     LOGGING['handlers']['console'] = {
