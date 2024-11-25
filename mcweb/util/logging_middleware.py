@@ -46,6 +46,7 @@ class RequestLoggingMiddleware:
             
             exclude_headers = ["Cookie", "X-Csrftoken"]
             log_msg["headers"] = {key: value for key, value in request.headers.items() if key not in exclude_headers}
+            log_msg["has_session"] = "sessionid" in request.headers.get("Cookie", {})
 
             # Log the request details
             request_logger.info(json.dumps(log_msg))
