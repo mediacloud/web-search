@@ -5,7 +5,6 @@ const statPanelValues = [
   { label: 'Pub State', value: 'pub_state' },
   { label: 'Language', value: 'primary_language' },
   { label: 'Media Type', value: 'media_type' },
-  { label: 'Last Rescraped', value: 'last_rescraped' },
 ];
 
 const buildStatArray = (sourceObject) => {

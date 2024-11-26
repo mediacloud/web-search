@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import dayjs from 'dayjs';
 import Pagination from '@mui/material/Pagination';
 import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -10,7 +11,10 @@ import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { sourceFavIcon, asNumber } from '../ui/uiUtil';
 
+const utc = require('dayjs/plugin/utc');
+
 export default function SourceList(props) {
+  dayjs.extend(utc);
   const { collectionId, edit, staticCollection } = props;
   const [page, setPage] = useState(0);
   const {
@@ -46,6 +50,7 @@ export default function SourceList(props) {
             <tr>
               <th>Name</th>
               <th>Content per Week</th>
+              <th>Last Rescraped</th>
               {edit && (<th>Admin</th>)}
             </tr>
           </thead>
@@ -64,6 +69,7 @@ export default function SourceList(props) {
                   </Link>
                 </td>
                 <td>{asNumber(source.stories_per_week)}</td>
+                <td>{source.last_rescraped ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY') : '?'}</td>
                 {edit && (
                   <td>
                     <IconButton
