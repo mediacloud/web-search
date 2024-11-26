@@ -51,7 +51,6 @@ logger = logging.getLogger(__name__)
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
-
 def error_response(msg: str, response_type: HttpResponse | None) -> HttpResponse:
     ResponseClass = response_type or HttpResponseBadRequest
     return ResponseClass(json.dumps(dict(
