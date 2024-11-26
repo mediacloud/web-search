@@ -51,6 +51,7 @@ logger = logging.getLogger(__name__)
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
+
 def error_response(msg: str, response_type: HttpResponse | None) -> HttpResponse:
     ResponseClass = response_type or HttpResponseBadRequest
     return ResponseClass(json.dumps(dict(
@@ -245,7 +246,7 @@ def download_languages_csv(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
-@ratelimit(key="user", rate='2/m')
+@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 def story_list(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
