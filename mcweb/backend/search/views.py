@@ -8,6 +8,7 @@ import mc_providers
 import requests
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
+from django_ratelimit.decorators import ratelimit
 from django.views.decorators.http import require_http_methods
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
 from mc_providers.exceptions import ProviderException
@@ -244,6 +245,7 @@ def download_languages_csv(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
+@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 def story_list(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
