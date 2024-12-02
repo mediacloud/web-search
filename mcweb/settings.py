@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.1.1"
+VERSION = "2.1.2"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -165,6 +165,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
+    "constance",
     "frontend",
     "backend.sources",
     "backend.search",
@@ -183,6 +184,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "util.logging_middleware.RequestLoggingMiddleware"
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -339,7 +341,12 @@ if __DOKKU:
         },
     }
 
-    def add_syslog_handler(facility: int, add_to_loggers: list[str]):
+    _BRIEF_FORMATTER = 'brief'
+    LOGGING['formatters'][_BRIEF_FORMATTER] = {
+        'format':'%(message)s'
+    }
+
+    def add_syslog_handler(facility: int, add_to_loggers: list[str], formatter:str):
         """
         add a handler that sends messages to syslog-sink process
         """
@@ -348,7 +355,7 @@ if __DOKKU:
             'class': 'mcweb.backend.util.handlers.SysLogHandler',
             'facility': facility,      # see syslog.yml.proto for routing
             'address': SYSLOG_SOCKET,
-            'formatter': _SYSLOG_FORMATTER,
+            'formatter': formatter,
         }
         for logger_name in add_to_loggers:
             if logger_name == 'root':
@@ -365,8 +372,8 @@ if __DOKKU:
 
     # When adding an entry here, add an entries to syslog.yml.proto
     # for routing the new facility code to a file!!!
-    add_syslog_handler(0, ['root'])
-    add_syslog_handler(1, ['request_logger'])
+    add_syslog_handler(0, ['root'], _SYSLOG_FORMATTER)
+    add_syslog_handler(1, ['request_logger'], _BRIEF_FORMATTER)
 else:
     # not under Dokku: log to stderr:
     LOGGING['handlers']['console'] = {
@@ -387,6 +394,24 @@ CACHES = {
 }
 
 DISABLE_SERVER_SIDE_CURSORS = True
+
+################
+# Constance runtime-configurable settings setup
+
+CONSTANCE_BACKEND = 'constance.backends.redisd.CachingRedisBackend'
+# optionally set a value ttl
+CONSTANCE_REDIS_CACHE_TIMEOUT = 60
+CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
+
+# Constance config values
+
+CONSTANCE_CONFIG = {
+    "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
+}
+
+CONSTANCE_CONFIG_FIELDSETS = {
+    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",)
+}
 
 ################
 # since this file is read before logging is configured,
