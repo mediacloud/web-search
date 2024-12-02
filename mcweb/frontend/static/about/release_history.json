@@ -1,4 +1,16 @@
-[{"version": "v2.1.0",
+[{"version": "v2.1.2",
+"date": "2024-12-02",
+"notes": ["update system logging",
+"add rate limiting for certain api calls"
+]},{"version": "v2.1.1",
+"date": "2024-11-21",
+"notes": ["update system logging",
+"fix story show page",
+"update compare across the globe countries",
+"improve notes display for collections and sources",
+"update weekly search quota to 4k",
+"update quota checks"
+]},{"version": "v2.1.0",
 "date": "2024-10-25",
 "notes": ["fix bug where bar chart doesn't show for one result",
 "fix bug with contributor permissions",
