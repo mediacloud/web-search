@@ -108,6 +108,8 @@ class Source(models.Model):
     media_type = models.CharField(max_length=100, choices=SourceMediaTypes.choices, blank=True, null=True)
     alerted = models.BooleanField(default=False)
     last_rescraped = models.DateTimeField(null=True)
+    last_rescraped_msg = models.CharField(max_length=500, null=True, blank=True)
+
 
     class Meta:
         indexes = [
@@ -319,9 +321,11 @@ class Source(models.Model):
             process_urls(sitemaps, gnews_urls)
 
         # after many tries to give a summary in english:
-        add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
+        summary = f"{added}/{total} added, {confirmed}/{old} confirmed"
+        add_line(summary)
+        logger.info("%s", summary)
         # add last time this source was rescraped
-        Source.update_last_rescraped(source_id=source_id)
+        Source.update_last_rescraped(source_id=source_id, summary=summary)
         indent = "  "           # not applied to header line
         return indent.join(lines)
 
@@ -335,10 +339,11 @@ class Source(models.Model):
             logger.warning(f"source {source_id} not found")
 
     @classmethod
-    def update_last_rescraped(cls, source_id: int):
+    def update_last_rescraped(cls, source_id: int, summary: str):
         try:
             source=Source.objects.get(pk=source_id) 
             source.last_rescraped = datetime.now(timezone.utc).isoformat()
+            source.last_rescraped_msg = summary
             source.save()
         except:
             logger.warning(f"source {source_id} not found")
