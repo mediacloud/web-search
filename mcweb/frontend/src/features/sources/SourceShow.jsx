@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -20,10 +21,12 @@ function a11yProps(index) {
   };
 }
 
+const utc = require('dayjs/plugin/utc');
+
 export default function SourceShow() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
-
+  dayjs.extend(utc);
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
@@ -67,6 +70,20 @@ export default function SourceShow() {
               <b>Notes:</b> {source.notes && renderNotes(source.notes)}
             </p>
           )}
+
+          <p>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            <b>Last Rescraped:</b> {source.last_rescraped
+              ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY HH:mm:ss')
+              : 'Source has not been rescraped recently' }
+          </p>
+          <p>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            <b>Last Rescraped Details:</b> {source.last_rescraped_msg
+              ? source.last_rescraped_msg
+              : 'Source has not been rescraped recently' }
+          </p>
+
         </div>
       </div>
 
