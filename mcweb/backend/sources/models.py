@@ -261,7 +261,7 @@ class Source(models.Model):
 
         # per-source header line
         add_line(f"Scraped source {source_id} ({name}), {homepage}")
-    
+
         if not homepage:
             add_line("MISSING HOMEPAGE")
             return "".join(lines) # error not indented
