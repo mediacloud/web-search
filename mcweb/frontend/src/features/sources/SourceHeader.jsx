@@ -57,7 +57,7 @@ export default function SourceHeader() {
           </Link>
         </h1>
         {source.url_search_string && (
-          <Tooltip title="This is a child source">
+          <Tooltip title="This is a child source and should have no feeds attached">
             <Chip label="Child Source" color="warning" />
           </Tooltip>
         )}

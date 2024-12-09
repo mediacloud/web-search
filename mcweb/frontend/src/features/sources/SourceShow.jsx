@@ -60,7 +60,8 @@ export default function SourceShow() {
       {(source.platform === 'online_news') && (
         <StatPanel items={buildStatArray(source)} />
       )}
-
+      <br />
+      <br />
       <div className="source-show-container">
         <div className="row">
           <p>
