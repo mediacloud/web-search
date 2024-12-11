@@ -340,7 +340,6 @@ if __DOKKU:
             'hostname': hostname
         },
     }
-
     _BRIEF_FORMATTER = 'brief'
     LOGGING['formatters'][_BRIEF_FORMATTER] = {
         'format':'%(message)s'
