@@ -50,7 +50,7 @@ export default function SourceList(props) {
             <tr>
               <th>Name</th>
               <th>Content per Week</th>
-              <th>Last Checked For Feeds</th>
+              <th>Last Checked For New Feeds</th>
               {edit && (<th>Admin</th>)}
             </tr>
           </thead>
