@@ -105,13 +105,13 @@ export default function SourceShow() {
         )}
         <p>
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          <b>Last Rescraped:</b> {source.last_rescraped
+          <b>Checked for new feeds on:</b> {source.last_rescraped
             ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY HH:mm:ss')
             : 'Source has not been rescraped recently' }
         </p>
         <p>
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          <b>Last Rescraped Details:</b> {source.last_rescraped_msg
+          <b>Message from last check for feeds:</b> {source.last_rescraped_msg
             ? source.last_rescraped_msg
             : 'Source has not been rescraped recently' }
         </p>
