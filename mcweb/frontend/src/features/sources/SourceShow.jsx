@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import dayjs from 'dayjs';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -8,10 +9,11 @@ import TabPanelHelper from '../ui/TabPanelHelper';
 import StoriesOverTime from '../stories/StoriesOverTime';
 import buildStatArray from './util/buildStatArray';
 import CollectionList from '../collections/CollectionList';
-import { useGetSourceQuery } from '../../app/services/sourceApi';
+import { useGetSourceQuery, useListSourcesQuery } from '../../app/services/sourceApi';
 import StatPanel from '../ui/StatPanel';
 import FeedStories from '../feeds/FeedStories';
 import { renderNotes } from '../collections/util/formatNotesToHTML';
+import getParentSource from './util/getParentSource';
 
 function a11yProps(index) {
   return {
@@ -20,10 +22,12 @@ function a11yProps(index) {
   };
 }
 
+const utc = require('dayjs/plugin/utc');
+
 export default function SourceShow() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
-
+  dayjs.extend(utc);
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
@@ -35,11 +39,22 @@ export default function SourceShow() {
     isLoading,
   } = useGetSourceQuery(sourceId);
 
+  const {
+    data: sourceList,
+    isLoading: sourceListLoading,
+  } = useListSourcesQuery({ name: source.name });
+
   useEffect(() => {
-    document.title = `${source.name} | Media Cloud`;
+    document.title = source.label ? `${source.label} | Media Cloud` : `${source.name} | Media Cloud`;
   });
 
-  if (isLoading) {
+  let parentSource = getParentSource(source.name, sourceList);
+
+  useEffect(() => {
+    parentSource = getParentSource(source.name, sourceList);
+  }, [sourceList]);
+
+  if (isLoading || sourceListLoading) {
     return <CircularProgress size="75px" />;
   }
 
@@ -48,26 +63,59 @@ export default function SourceShow() {
       {(source.platform === 'online_news') && (
         <StatPanel items={buildStatArray(source)} />
       )}
-
-      <div className="row">
-        <div className="col-6">
+      <br />
+      <br />
+      <div className="source-show-container">
+        <div className="row">
           <p>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
             <b>Homepage</b>: <a href={source.homepage} target="_blank" rel="noreferrer">{source.homepage}</a>
           </p>
-          {source.url_search_string && (
-          <p>
-            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            <b>URL Search String</b>: {source.url_search_string}
-          </p>
-          )}
-          {source.notes && (
-            <p>
-              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-              <b>Notes:</b> {source.notes && renderNotes(source.notes)}
-            </p>
-          )}
         </div>
+        {source.url_search_string && (
+          <div>
+            <div className="row">
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              <p><b>URL Search String</b>: {source.url_search_string}</p>
+            </div>
+            <div className="row">
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              <p><b>Parent Source</b>:
+                {' '}
+                <Link
+                  target="_blank"
+                  to={parentSource ? `/sources/${parentSource.id}` : null}
+                  style={{
+                    whiteSpace: 'normal',
+                    width: '100%',
+                  }}
+                >
+                  {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                  {parentSource ? parentSource.name : null}
+                </Link>
+              </p>
+            </div>
+          </div>
+        )}
+        {source.notes && (
+        <p>
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <b>Notes:</b> {source.notes && renderNotes(source.notes)}
+        </p>
+        )}
+        <p>
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <b>Checked for new feeds on:</b> {source.last_rescraped
+            ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY HH:mm:ss')
+            : 'Source has not been rescraped recently' }
+        </p>
+        <p>
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <b>Message from last check for feeds:</b> {source.last_rescraped_msg
+            ? source.last_rescraped_msg
+            : 'Source has not been rescraped recently' }
+        </p>
+
       </div>
 
       <div className="container">
@@ -105,18 +153,6 @@ export default function SourceShow() {
           </TabPanelHelper>
         </Box>
       </div>
-
-      {/* <div className="row">
-        <div className="col-6">
-          <CollectionList sourceId={sourceId} />
-        </div>
-        {source.platform === 'online_news' && (
-          <div className="col-6">
-            <FeedStories feed={false} sourceId={sourceId} />
-          </div>
-        )}
-      </div> */}
-
     </div>
   );
 }
