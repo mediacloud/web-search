@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django_ratelimit.decorators import ratelimit
 from django.views.decorators.http import require_http_methods
+from rest_framework.exceptions import APIException
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
 from mc_providers.exceptions import ProviderException
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -91,6 +92,8 @@ def total_count(request):
         total_content_count = provider.count(provider.everything_query(), pq.start_date, pq.end_date, **pq.provider_props)
     except QueryingEverythingUnsupportedQuery as e:
         total_content_count = None
+    except requests.exceptions.ConnectionError:
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
@@ -111,6 +114,8 @@ def count_over_time(request):
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
         results = provider.count_over_time(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+    except requests.exceptions.ConnectionError:
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
     response = results
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, pq.provider_name)

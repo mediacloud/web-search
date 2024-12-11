@@ -85,6 +85,7 @@ export default function CountOverTimeResults() {
   if (error) {
     content = (
       <Alert severity="warning">
+        {console.log(error)}
         Sorry, but something went wrong.
         (
         {error.note}
