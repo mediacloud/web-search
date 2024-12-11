@@ -145,23 +145,24 @@ const querySlice = createSlice({
     },
     addQuery: (state, { payload }) => {
       const freezeState = state;
+      const lastQuery = freezeState[freezeState.length - 1] || {};
       freezeState.push(
         {
           queryString: '',
           queryList: [[], [], []],
           negatedQueryList: [[], [], []],
-          platform: payload.platform,
-          startDate,
-          endDate: dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
-          collections: [],
-          previewCollections: [],
-          sources: [],
-          previewSources: [],
+          platform: payload.platform || lastQuery.platform || DEFAULT_PROVIDER,
+          startDate: lastQuery.startDate || startDate,
+          endDate: lastQuery.endDate || dayjs(latestAllowedEndDate(DEFAULT_PROVIDER)).format('MM/DD/YYYY'),
+          collections: [...(lastQuery.collections || [])],
+          previewCollections: [...(lastQuery.previewCollections || [])],
+          sources: [...(lastQuery.sources || [])],
+          previewSources: [...(lastQuery.previewSources || [])],
           lastSearchTime: dayjs().unix(),
           isFromDateValid: true,
           isToDateValid: true,
           anyAll: 'any',
-          advanced: payload.advanced,
+          advanced: payload.advanced || false,
           name: 'Query',
           edited: false,
         },

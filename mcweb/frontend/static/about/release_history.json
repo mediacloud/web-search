@@ -1,4 +1,8 @@
-[{"version": "v2.1.1",
+[{"version": "v2.1.2",
+"date": "2024-12-02",
+"notes": ["update system logging",
+"add rate limiting for certain api calls"
+]},{"version": "v2.1.1",
 "date": "2024-11-21",
 "notes": ["update system logging",
 "fix story show page",
