@@ -11,12 +11,21 @@ import Button from '@mui/material/Button';
 import { useCreateSourceMutation } from '../../app/services/sourceApi';
 import { platformDisplayName, mediaTypeDisplayName } from '../ui/uiUtil';
 import Header from '../ui/Header';
+import validateURLSearchString from './util/validateURLSearchString';
 
 export default function CreateCollection() {
   const navigate = useNavigate();
 
   const [formState, setFormState] = useState({
-    name: '', notes: '', homepage: '', label: '', platform: '', url_search_string: '', media_type: '', collections: [],
+    name: '',
+    notes: '',
+    homepage: '',
+    label: '',
+    platform: '',
+    url_search_string: '',
+    media_type: '',
+    collections: [],
+    url_search_stringErrors: null,
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -80,7 +89,7 @@ export default function CreateCollection() {
             <TextField
               fullWidth
               name="name"
-              label="name"
+              label="Domain"
               helperText="This is the unique identified for this source within our system. Don't change this unless you
               know what you're doing. For news sources this should be the unique domain name."
               value={formState.name}
@@ -139,6 +148,11 @@ export default function CreateCollection() {
             </FormControl>
             <br />
             <br />
+            {formState.url_search_stringErrors && (
+              <p style={{ color: 'red', marginLeft: '5px' }}>
+                {formState.url_search_stringErrors}
+              </p>
+            )}
             <TextField
               fullWidth
               name="url_search_string"
@@ -147,7 +161,7 @@ export default function CreateCollection() {
               onChange={handleChange}
               helperText="For a very small number of news sources, we want to search within a subdomain
               (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string
-              here, such as '*news.bbc.co.uk/nigeria/*'."
+              here, such as 'news.bbc.co.uk/nigeria/*'. This source should not have feeds."
             />
             <br />
             <br />
@@ -155,18 +169,24 @@ export default function CreateCollection() {
             <Button
               variant="contained"
               onClick={async () => {
-                createSource(formState)
-                  .then((payload) => {
-                    if (payload.error) {
-                      setErrorMessage(payload.error.data.detail);
-                      setOpen(true);
-                    } else {
-                      const sourceId = payload.data.source.id;
-                      navigate(`/sources/${sourceId}`);
-                    }
-                  });
-                // const newSource = await createSource(formState).unwrap();
-                // navigate(`/sources/${newSource.id}`);
+                const validSearchString = !validateURLSearchString(formState.url_search_string);
+                if (validSearchString) {
+                  setFormState({ url_search_stringErrors: null });
+                  createSource(formState)
+                    .then((payload) => {
+                      if (payload.error) {
+                        setErrorMessage(payload.error.data.detail);
+                        setOpen(true);
+                      } else {
+                        const sourceId = payload.data.source.id;
+                        navigate(`/sources/${sourceId}`);
+                      }
+                    });
+                } else {
+                  setErrorMessage('Please check url search string');
+                  setOpen(true);
+                  setFormState({ url_search_stringErrors: validSearchString });
+                }
               }}
             >
               Create

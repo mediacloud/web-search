@@ -6,6 +6,10 @@ from constance import config
 import json
 request_logger = logging.getLogger("request_logger")
 
+# prevent request messages from "bleeding"
+# (in the color/audio sense) into root logger
+request_logger.propagate = False
+
 class RequestLoggingMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -48,6 +52,14 @@ class RequestLoggingMiddleware:
             log_msg["headers"] = {key: value for key, value in request.headers.items() if key not in exclude_headers}
             log_msg["has_session"] = "sessionid" in request.headers.get("Cookie", {})
 
+<<<<<<< HEAD
+=======
+            log_msg["response"] = {
+                "code": response.status_code,
+                "reason": response.reason_phrase,
+            }
+
+>>>>>>> 78f0f897c8dbd0593004edf28b7e8caca3c5c0f7
             # Log the request details
             request_logger.info(json.dumps(log_msg))
         return response

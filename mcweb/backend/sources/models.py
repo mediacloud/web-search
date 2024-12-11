@@ -1,5 +1,6 @@
 import logging
 from typing import Dict
+from datetime import datetime, timezone
 
 # PyPI:
 import feed_seeker
@@ -106,6 +107,9 @@ class Source(models.Model):
     primary_language = models.CharField(max_length=5, null=True, blank=True)
     media_type = models.CharField(max_length=100, choices=SourceMediaTypes.choices, blank=True, null=True)
     alerted = models.BooleanField(default=False)
+    last_rescraped = models.DateTimeField(null=True)
+    last_rescraped_msg = models.CharField(max_length=500, null=True, blank=True)
+
 
     class Meta:
         indexes = [
@@ -139,6 +143,9 @@ class Source(models.Model):
         platform = source.get("platform", None)
         if platform is not None and len(platform) > 0:
             obj.platform = platform
+        # last_rescraped = source.get("last_rescraped", None)
+        # if last_rescraped is not None and len(last_rescraped) > 0:
+        #     obj.last_rescraped = last_rescraped
         url_search_string = source.get("url_search_string", None)
         if url_search_string is not None and len(url_search_string) > 0:
             obj.url_search_string = url_search_string
@@ -180,6 +187,10 @@ class Source(models.Model):
         homepage = source.get("homepage", None)
         if homepage:
             obj["homepage"] = homepage.strip()
+
+        # last_rescraped = source.get("last_rescraped", None)
+        # if last_rescraped:
+        #     obj["last_rescraped"] = last_rescraped.strip()
         
         name = source.get("name", None)
         if name:
@@ -310,8 +321,11 @@ class Source(models.Model):
             process_urls(sitemaps, gnews_urls)
 
         # after many tries to give a summary in english:
-        add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
-
+        summary = f"{added}/{total} added, {confirmed}/{old} confirmed"
+        add_line(summary)
+        logger.info("%s", summary)
+        # add last time this source was rescraped
+        Source.update_last_rescraped(source_id=source_id, summary=summary)
         indent = "  "           # not applied to header line
         return indent.join(lines)
 
@@ -322,7 +336,17 @@ class Source(models.Model):
             source.stories_per_week = weekly_story_count
             source.save()
         except:
-            logger.warn(f"source {source_id} not found")
+            logger.warning(f"source {source_id} not found")
+
+    @classmethod
+    def update_last_rescraped(cls, source_id: int, summary: str):
+        try:
+            source=Source.objects.get(pk=source_id) 
+            source.last_rescraped = datetime.now(timezone.utc).isoformat()
+            source.last_rescraped_msg = summary
+            source.save()
+        except:
+            logger.warning(f"source {source_id} not found")
 
     
 class Feed(models.Model):

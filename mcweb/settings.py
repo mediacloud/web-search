@@ -345,6 +345,11 @@ if __DOKKU:
         'format':'%(message)s'
     }
 
+    _BRIEF_FORMATTER = 'brief'
+    LOGGING['formatters'][_BRIEF_FORMATTER] = {
+        'format':'%(message)s'
+    }
+
     def add_syslog_handler(facility: int, add_to_loggers: list[str], formatter:str):
         """
         add a handler that sends messages to syslog-sink process
