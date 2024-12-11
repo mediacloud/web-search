@@ -1,4 +1,9 @@
-[{"version": "v2.1.2",
+[{"version": "v2.1.3",
+"date": "2024-12-11",
+"notes": ["update system logging",
+"add source feature last rescraped",
+"add more features for url search string sources in directory"
+]},{"version": "v2.1.2",
 "date": "2024-12-02",
 "notes": ["update system logging",
 "add rate limiting for certain api calls"
