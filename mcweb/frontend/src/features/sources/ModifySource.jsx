@@ -15,6 +15,7 @@ import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery, useUpdateSourceMutation } from '../../app/services/sourceApi';
 import DirectorySearch from '../directory/DirectorySearch';
+import validateURLSearchString from './util/validateURLSearchString';
 
 export default function ModifySource() {
   const params = useParams();
@@ -34,6 +35,7 @@ export default function ModifySource() {
     primary_language: '',
     pub_country: '',
     pub_state: '',
+    url_search_stringErrors: null,
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -181,6 +183,11 @@ export default function ModifySource() {
           />
           <br />
           <br />
+          {formState.url_search_stringErrors && (
+          <p style={{ color: 'red', marginLeft: '5px' }}>
+            {formState.url_search_stringErrors}
+          </p>
+          )}
           <TextField
             fullWidth
             name="url_search_string"
@@ -246,16 +253,23 @@ export default function ModifySource() {
             variant="contained"
             onClick={() => {
               const preparedSource = prepareSource(formState);
-              updateSource(preparedSource)
-                .then((payload) => {
-                  if (payload.error) {
-                    setErrorMessage(payload.error.data.detail);
-                    setOpen(true);
-                  } else {
-                    enqueueSnackbar('Saved changes', { variant: 'success' });
-                    navigate(`/sources/${sourceId}`);
-                  }
-                });
+              const validSearchString = !validateURLSearchString(formState.url_search_string);
+              if (validSearchString) {
+                updateSource(preparedSource)
+                  .then((payload) => {
+                    if (payload.error) {
+                      setErrorMessage(payload.error.data.detail);
+                      setOpen(true);
+                    } else {
+                      enqueueSnackbar('Saved changes', { variant: 'success' });
+                      navigate(`/sources/${sourceId}`);
+                    }
+                  });
+              } else {
+                setErrorMessage('Please check url search string');
+                setOpen(true);
+                setFormState({ url_search_stringErrors: validSearchString });
+              }
             }}
           >
             Save

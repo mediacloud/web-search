@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import { CircularProgress } from '@mui/material';
@@ -54,6 +56,11 @@ export default function SourceHeader() {
             {source.label || source.name}
           </Link>
         </h1>
+        {source.url_search_string && (
+          <Tooltip title="This is a child source and should have no feeds attached">
+            <Chip label="Child Source" color="warning" />
+          </Tooltip>
+        )}
       </Header>
       <ControlBar>
         <Button variant="outlined" startIcon={<SearchIcon titleAccess="search our directory" />}>
