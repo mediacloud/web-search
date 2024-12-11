@@ -94,6 +94,10 @@ def total_count(request):
         total_content_count = None
     except requests.exceptions.ConnectionError:
         raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except RuntimeError: # catches the RuntimeError 500 a bad query string could have triggered this ...
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except Exception:
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
                         content_type="application/json", status=200)
@@ -116,6 +120,10 @@ def count_over_time(request):
         results = provider.count_over_time(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
         raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except RuntimeError: # catches the RuntimeError 500 a bad query string could have triggered this ...
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except Exception:
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
     response = results
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, pq.provider_name)
@@ -134,7 +142,11 @@ def sample(request):
     try:
         response = provider.sample(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
-        response = {'error': 'Max Retries Exceeded'}
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except RuntimeError: # catches the RuntimeError 500 a bad query string could have triggered this ...
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except Exception:
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
                         status=200)
@@ -169,7 +181,11 @@ def sources(request):
     try:
         response = provider.sources(f"({pq.query_str})", pq.start_date, pq.end_date, 10, **pq.provider_props)
     except requests.exceptions.ConnectionError:
-        response = {'error': 'Max Retries Exceeded'}
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except RuntimeError: # catches the RuntimeError 500 a bad query string could have triggered this ...
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except Exception:
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return HttpResponse(json.dumps({"sources": response}, default=str), content_type="application/json",
                         status=200)
@@ -214,7 +230,11 @@ def languages(request):
     try:
         response = provider.languages(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
-        response = {'error': 'Max Retries Exceeded'}
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except RuntimeError: # catches the RuntimeError 500 a bad query string could have triggered this ...
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except Exception:
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
                         status=200)
@@ -280,7 +300,11 @@ def words(request):
     try:
         words = provider.words(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
     except requests.exceptions.ConnectionError:
-        response = {'error': 'Max Retries Exceeded'}
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except RuntimeError: # catches the RuntimeError 500 a bad query string could have triggered this ...
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
+    except Exception:
+        raise APIException("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.", 504)
     response = add_ratios(words)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
