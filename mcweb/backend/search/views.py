@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django_ratelimit.decorators import ratelimit
 from django.views.decorators.http import require_http_methods
-from rest_framework.exceptions import APIException
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
 from mc_providers.exceptions import ProviderException
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
