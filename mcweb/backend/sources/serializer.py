@@ -80,19 +80,19 @@ class SourceSerializer(serializers.ModelSerializer):
         Check that name is normalized version of homepage, ensure name is unique in db
         """
         
-        # self_id = self.initial_data.get('id', None) 
-        # homepage = self.initial_data["homepage"]
-        # canonical_domain = urls.canonical_domain(homepage)
-        # platform = self.initial_data["platform"]
-        # url_search_string = self.initial_data.get("url_search_string", None)
-        # existing_sources = Source.objects.filter(name__exact=value)
-        # if url_search_string is None or len(url_search_string) == 0:
-        #     if existing_sources.exists():
-        #         if existing_sources[0].id != self_id and self_id is not None:
-        #             raise serializers.ValidationError(f"name: {value} already exists")
-        #     if platform == "online_news":
-        #         if canonical_domain != value:
-        #             raise serializers.ValidationError(f"name: {value} does not match the canonicalized version of homepage: {homepage}")
+        self_id = self.initial_data.get('id', None) 
+        homepage = self.initial_data["homepage"]
+        canonical_domain = urls.canonical_domain(homepage)
+        platform = self.initial_data["platform"]
+        url_search_string = self.initial_data.get("url_search_string", None)
+        existing_sources = Source.objects.filter(name__exact=value)
+        if url_search_string is None or len(url_search_string) == 0:
+            if existing_sources.exists():
+                if existing_sources[0].id != self_id and self_id is not None:
+                    raise serializers.ValidationError(f"name: {value} already exists")
+            if platform == "online_news":
+                if canonical_domain != value:
+                    raise serializers.ValidationError(f"name: {value} does not match the canonicalized version of homepage: {homepage}")
         return value
     
     def validate_pub_country(self, value):

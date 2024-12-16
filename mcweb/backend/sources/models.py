@@ -187,10 +187,8 @@ class Source(models.Model):
         homepage = source.get("homepage", None)
         if homepage:
             obj["homepage"] = homepage.strip()
-
-        # last_rescraped = source.get("last_rescraped", None)
-        # if last_rescraped:
-        #     obj["last_rescraped"] = last_rescraped.strip()
+        else:
+            return None
         
         name = source.get("name", None)
         if name:

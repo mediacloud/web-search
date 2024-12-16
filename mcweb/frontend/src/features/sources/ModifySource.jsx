@@ -266,9 +266,9 @@ export default function ModifySource() {
                     }
                   });
               } else {
+                setFormState({ url_search_stringErrors: validSearchString });
                 setErrorMessage('Please check url search string');
                 setOpen(true);
-                setFormState({ url_search_stringErrors: validSearchString });
               }
             }}
           >

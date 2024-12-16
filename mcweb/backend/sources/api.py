@@ -307,14 +307,17 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         cleaned_data = Source._clean_source(request.data)
-        serializer = SourceSerializer(
-            data=cleaned_data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"source": serializer.data})
+        if cleaned_data:
+            serializer = SourceSerializer(
+                data=cleaned_data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"source": serializer.data})
+            else:
+                error_string = str(serializer.errors)
+                raise APIException(f"{error_string}")
         else:
-            error_string = str(serializer.errors)
-            raise APIException(f"{error_string}")
+            raise APIException("No homepage, homepage required")
 
     def partial_update(self, request, pk=None):
         instance = self.get_object()
