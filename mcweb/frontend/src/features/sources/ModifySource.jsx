@@ -35,7 +35,7 @@ export default function ModifySource() {
     primary_language: '',
     pub_country: '',
     pub_state: '',
-    url_search_stringErrors: null,
+    url_search_stringErrors: '',
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -89,7 +89,6 @@ export default function ModifySource() {
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
-
   return (
     <div className="container">
       <Modal
@@ -143,7 +142,7 @@ export default function ModifySource() {
           <TextField
             fullWidth
             name="name"
-            label="name"
+            label="Domain"
             helperText="This is the unique identified for this source within our system.
             Don't change this unless you know what you're doing.
             For news sources this should be the unique domain name."
@@ -253,8 +252,8 @@ export default function ModifySource() {
             variant="contained"
             onClick={() => {
               const preparedSource = prepareSource(formState);
-              const validSearchString = !validateURLSearchString(formState.url_search_string);
-              if (validSearchString) {
+              const validSearchString = validateURLSearchString(formState.url_search_string);
+              if (!validSearchString) {
                 updateSource(preparedSource)
                   .then((payload) => {
                     if (payload.error) {

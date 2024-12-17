@@ -169,8 +169,8 @@ export default function CreateCollection() {
             <Button
               variant="contained"
               onClick={async () => {
-                const validSearchString = !validateURLSearchString(formState.url_search_string);
-                if (validSearchString) {
+                const validSearchString = validateURLSearchString(formState.url_search_string);
+                if (!validSearchString) {
                   setFormState({ url_search_stringErrors: null });
                   createSource(formState)
                     .then((payload) => {

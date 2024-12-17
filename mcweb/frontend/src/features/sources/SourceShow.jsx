@@ -12,7 +12,7 @@ import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery, useListSourcesQuery } from '../../app/services/sourceApi';
 import StatPanel from '../ui/StatPanel';
 import FeedStories from '../feeds/FeedStories';
-import { renderNotes } from '../collections/util/formatNotesToHTML';
+import renderNotes from '../collections/util/formatNotesToHTML';
 import getParentSource from './util/getParentSource';
 
 function a11yProps(index) {
@@ -100,7 +100,7 @@ export default function SourceShow() {
         {source.notes && (
         <p>
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          <b>Notes:</b> {source.notes && renderNotes(source.notes)}
+          <b>Notes:</b> {source.notes && renderNotes(source.notes, false)}
         </p>
         )}
         <p>

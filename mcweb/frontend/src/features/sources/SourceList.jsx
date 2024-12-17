@@ -49,6 +49,9 @@ export default function SourceList(props) {
           <thead>
             <tr>
               <th>Name</th>
+              <th>Publication Country</th>
+              <th>Publication State</th>
+              <th>Primary Language</th>
               <th>Content per Week</th>
               <th>Last Checked For New Feeds</th>
               {edit && (<th>Admin</th>)}
@@ -68,6 +71,9 @@ export default function SourceList(props) {
                     {source.label || source.name}
                   </Link>
                 </td>
+                <td>{source.pub_country}</td>
+                <td>{source.pub_state}</td>
+                <td>{source.primary_language}</td>
                 <td>{asNumber(source.stories_per_week)}</td>
                 <td>{source.last_rescraped ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY') : '?'}</td>
                 {edit && (
