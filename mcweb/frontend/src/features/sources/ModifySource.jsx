@@ -142,7 +142,7 @@ export default function ModifySource() {
           <TextField
             fullWidth
             name="name"
-            label="name"
+            label="Domain"
             helperText="This is the unique identified for this source within our system.
             Don't change this unless you know what you're doing.
             For news sources this should be the unique domain name."
