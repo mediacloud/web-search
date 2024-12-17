@@ -66,7 +66,7 @@ export default function CollectionShow() {
         <TabPanelHelper value={value} index={0}>
           <div className="container">
             <div className="row">
-              <div className="col-6">
+              <div className="col-12">
                 <SourceList collectionId={collectionId} />
               </div>
             </div>

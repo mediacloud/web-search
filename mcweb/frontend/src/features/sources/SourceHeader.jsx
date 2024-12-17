@@ -57,7 +57,9 @@ export default function SourceHeader() {
           </Link>
         </h1>
         {source.url_search_string && (
-          <Tooltip title="This is a child source and should have no feeds attached">
+          <Tooltip title="A Child Source is a subdomain of a parent source, but queries target only this subdomain.
+          It should have no feeds of its own, only a URL search string, while all feeds remain attached to the parent source."
+          >
             <Chip label="Child Source" color="warning" />
           </Tooltip>
         )}
