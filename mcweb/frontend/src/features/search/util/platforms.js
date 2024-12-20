@@ -25,7 +25,7 @@ export const latestAllowedEndDate = (provider) => {
   const today = dayjs();
   if (provider === PROVIDER_NEWS_WAYBACK_MACHINE) return today.subtract('4', 'day');
   // allowing today for PROVIDER_NEWS_MEDIA_CLOUD
-  return today;
+  return today.subtract('1', 'day');
 };
 
 // the earliest starting date for the type of platform as dayjs

@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import CircleIcon from '@mui/icons-material/Circle';
 import PropTypes from 'prop-types';
-import ArrowRight from '@mui/icons-material/ArrowRight';
-import CloseIcon from '@mui/icons-material/Close';
 import { PARTISAN, GLOBAL } from '../search/util/generateComparativeQuery';
 import { PROVIDER_NEWS_MEDIA_CLOUD } from '../search/util/platforms';
 
@@ -16,34 +13,34 @@ export default function TabDropDownMenuItems({
   anchorEl, open, handleClose, handleMenuOpen, handleComparative,
 }) {
   const platform = useSelector((state) => state.query[0].platform);
-  const [colorSubMenuOpen, setColorSubMenuOpen] = useState(false);
+  // const [colorSubMenuOpen, setColorSubMenuOpen] = useState(false);
 
-  const handleMouseEnter = () => {
-    setColorSubMenuOpen(true);
-  };
+  // const handleMouseEnter = () => {
+  //   setColorSubMenuOpen(true);
+  // };
 
-  const closeColorSubMenu = (event, color) => {
-    handleClose(color);
-    setColorSubMenuOpen(false);
-  };
+  // const closeColorSubMenu = (event, color) => {
+  //   handleClose(color);
+  //   setColorSubMenuOpen(false);
+  // };
 
-  const colorMenuSizing = () => {
-    if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
-      return {
-        vertical: -15,
-        horizontal: -232,
-      };
-    }
-    return {
-      vertical: -15,
-      horizontal: -122.5,
-    };
-  };
+  // const colorMenuSizing = () => {
+  //   if (platform === PROVIDER_NEWS_MEDIA_CLOUD) {
+  //     return {
+  //       vertical: -15,
+  //       horizontal: -232,
+  //     };
+  //   }
+  //   return {
+  //     vertical: -15,
+  //     horizontal: -122.5,
+  //   };
+  // };
 
   // mouse leaves main menu
-  const handleMouseLeave = () => {
-    setColorSubMenuOpen(false);
-  };
+  // const handleMouseLeave = () => {
+  //   setColorSubMenuOpen(false);
+  // };
   return (
     <div>
       <MoreVertIcon
@@ -62,7 +59,7 @@ export default function TabDropDownMenuItems({
         {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
         <MenuItem onClick={() => {
           handleComparative(PARTISAN);
-          setColorSubMenuOpen(false);
+          // setColorSubMenuOpen(false);
         }}
         >
           Compare Across Partisanship
@@ -72,7 +69,7 @@ export default function TabDropDownMenuItems({
         {/* compare across the globe, temp disabled until 504 solution */}
         <MenuItem onClick={() => {
           handleComparative(GLOBAL);
-          setColorSubMenuOpen(false);
+          // setColorSubMenuOpen(false);
         }}
         >
           Compare Across the Globe (EN)
@@ -90,7 +87,7 @@ export default function TabDropDownMenuItems({
         {/* Edit Tab Name Option */}
         <MenuItem onClick={() => {
           handleClose('edit');
-          setColorSubMenuOpen(false);
+          // setColorSubMenuOpen(false);
         }}
         >
           Edit Tab Name
@@ -98,10 +95,10 @@ export default function TabDropDownMenuItems({
       </Menu>
 
       {/* Color Submenu */}
-      <Menu
+      {/* <Menu
         hideBackdrop
         style={{ pointerEvents: 'none' }}
-        open={colorSubMenuOpen && open && Boolean(anchorEl)}
+        open={open && Boolean(anchorEl)}
         anchorEl={anchorEl}
         onMouseEnter={() => {
           if (colorSubMenuOpen && open && Boolean(anchorEl)) {
@@ -139,16 +136,20 @@ export default function TabDropDownMenuItems({
             <CloseIcon />
           </MenuItem>
         </div>
-      </Menu>
+      </Menu> */}
     </div>
   );
 }
 
 TabDropDownMenuItems.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
-  anchorEl: PropTypes.any.isRequired, // either null or svg
+  anchorEl: PropTypes.any, // either null or svg
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   handleMenuOpen: PropTypes.func.isRequired,
   handleComparative: PropTypes.func.isRequired,
+};
+
+TabDropDownMenuItems.defaultProps = {
+  anchorEl: null,
 };
