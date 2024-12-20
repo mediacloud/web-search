@@ -90,6 +90,8 @@ class SourceSerializer(serializers.ModelSerializer):
             if existing_sources.exists():
                 if existing_sources[0].id != self_id and self_id is not None:
                     raise serializers.ValidationError(f"name: {value} already exists")
+                if self_id is None:
+                    raise serializers.ValidationError(f"name: {value} already exists")
             if platform == "online_news":
                 if canonical_domain != value:
                     raise serializers.ValidationError(f"name: {value} does not match the canonicalized version of homepage: {homepage}")

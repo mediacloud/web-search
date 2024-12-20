@@ -176,6 +176,7 @@ export default function CreateCollection() {
                     setFormState({ url_search_stringErrors: null });
                     createSource(formState)
                       .then((payload) => {
+                        console.log('BEFORE PAYLOAD IFS', payload);
                         if (payload.error) {
                           console.log(payload, 'Payload');
                           setErrorMessage(payload.error.data.detail);
