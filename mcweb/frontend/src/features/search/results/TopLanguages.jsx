@@ -61,7 +61,7 @@ export default function TopLanguages() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error ? error.note : 'No results please try a different query'}
+        {error ? error.detail : 'No results please try a different query'}
         )
       </Alert>
     );
