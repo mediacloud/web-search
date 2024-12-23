@@ -86,7 +86,7 @@ function TotalAttentionResults() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error.note}
+        {error.detail}
         )
       </Alert>
     );

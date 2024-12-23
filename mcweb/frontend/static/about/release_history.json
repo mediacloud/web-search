@@ -1,4 +1,11 @@
-[{"version": "v2.1.3",
+[{"version": "v2.1.4",
+"date": "2024-12-23",
+"notes": ["shorter search error messages for timeouts",
+"change format of notes for featured collections",
+"most recent end date changed to yesterday for MC",
+"further improvement to url search string source creation editing",
+"imporve source list on collection page"
+]},{"version": "v2.1.3",
 "date": "2024-12-11",
 "notes": ["update system logging",
 "add source feature last rescraped",
