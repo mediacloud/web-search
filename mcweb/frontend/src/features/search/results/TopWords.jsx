@@ -64,7 +64,7 @@ export default function TopWords() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error ? error.note : 'No results please try a different query'}
+        {error ? error.detail : 'No results please try a different query'}
         )
       </Alert>
     );
@@ -89,6 +89,7 @@ export default function TopWords() {
               </Tabs>
             </Box>
             {data.map((results, i) => (
+              // eslint-disable-next-line react/no-array-index-key
               <TabPanelHelper value={value} index={i} key={`words-key-${i}`}>
                 <OrderedWordCloud width={600} color="#000" data={results.words} />
               </TabPanelHelper>
