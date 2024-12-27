@@ -97,8 +97,19 @@ def parse_query_params(request) -> (ParsedQuery, dict):
     api_key = _get_api_key(provider_name)
     base_url = _BASE_URL.get(provider_name)
 
-    # caching is enabled unless cache is passed ONCE with "f" or "0" as value
-    caching = request.GET.get("cache", "1") not in ["f", "0"]
+    # caching is enabled unless cache is passed ONCE with:
+    # "f" or "0" (disable local cache)
+    # negative number (disable local and remote caches)
+    cache_str = request.GET.get("cache", "1")
+    if cache_str == "t":
+        caching = 1
+    elif cache_str == "f":
+        caching = 0
+    else:
+        try:
+            caching = int(cache_str)
+        except ValueError:
+            caching = 1
 
     pq = ParsedQuery(start_date=start_date, end_date=end_date,
                      query_str=query_str, provider_props=provider_props,
