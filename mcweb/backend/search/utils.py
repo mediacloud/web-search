@@ -27,6 +27,7 @@ class ParsedQuery(NamedTuple):
     api_key: str | None
     base_url: str | None
     caching: bool = True
+    session_id: str | None
 
 # not used?
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -53,7 +54,8 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
     take parsed query, return mc_providers ContentProvider.
     (one place to pass new things to mc_providers)
     """
-    return provider_by_name(platform or pq.provider_name, pq.api_key, pq.base_url, caching=pq.caching)
+    return provider_by_name(platform or pq.provider_name, pq.api_key, pq.base_url, caching=pq.caching,
+                            client_id="web-search", session_id=pq.session_id)
 
 def parse_date_str(date_str: str) -> dt.datetime:
     """
@@ -112,10 +114,18 @@ def parse_query_params(request) -> (ParsedQuery, dict):
         except ValueError:
             caching = 1
 
+    if request.user.is_authenticated:
+        user = str(request.user)
+        # XXX include a session hash from request.session?
+        session_id = user
+    else:
+        session_id = None
+
     pq = ParsedQuery(start_date=start_date, end_date=end_date,
                      query_str=query_str, provider_props=provider_props,
                      provider_name=provider_name, api_key=api_key,
-                     base_url=base_url, caching=caching)
+                     base_url=base_url, caching=caching,
+                     session_id=session_id)
     return (pq, request.GET)
 
 def parse_query(request) -> ParsedQuery:
