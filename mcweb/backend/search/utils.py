@@ -2,7 +2,8 @@
 import datetime as dt
 import json
 import time
-from typing import Callable, Dict, Generator, List, NamedTuple, Optional, Tuple
+from collections import defaultdict
+from typing import Any, Callable, Dict, Generator, Iterable, List, NamedTuple, Optional, Tuple
 
 # PyPI
 from django.apps import apps
@@ -226,7 +227,7 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
     # domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
     return dict(domains=domains)
 
-def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict:
+def _for_media_cloud_OLD(collections: List, sources: List, all_params: Dict) -> Dict:
     # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
     Source = apps.get_model('sources', 'Source')
     # 1. pull out all unique domains that don't have url_search_strs
@@ -257,6 +258,49 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
         if prop_name in all_params:
             extra_props[prop_name] = all_params.get(prop_name)
     return extra_props
+
+def _for_media_cloud(collections: list[int], sources: list[int], all_params: dict) -> dict:
+    # 1. collect unique sources with and without url_search_string (uss)
+    domains: set[str] = set()   # unique domains w/o url_search_string
+
+    # unique srcid to domain and url_search_string
+    domain_and_uss_by_sid: dict[int, tuple[str, str]] = {}
+
+    def save_source(srcs: Iterable[Source]):
+        for src in srcs:
+            if src.url_search_string:
+                domain_and_uss_by_sid[src.id] = (src.name, src.url_search_string)
+            elif src.name:
+                domains.add(src.name)
+            # else log "source without name"!??
+
+    save_sources(Source.objects.filter(id__in=sources))
+    save_sources(Source.objects.filter(collections__id__in=collections))
+
+    # 2. second pass: create dict indexed by domain
+    #    with sets of url_search_strings for domains
+    #    that are not in the "domains" set
+    url_search_strings = defaultdict(set)
+    for domain, uss in domain_and_uss_by_sid.values():
+        if domain not in domains:
+            # add to the set of search strings for the domain
+            url_search_strings[domain].add(uss)
+
+    # 3. assemble dict of search properties
+    props = {
+        "domains": domains,
+        "url_search_strings": url_search_strings
+    }
+
+    # 4. add in other supported params
+    supported_extra_props = ['expanded',
+                             'page_size', 'pagination_token',
+                             'sort_field', 'sort_order']
+    for prop_name in supported_extra_props:
+        if prop_name in all_params:
+            props[prop_name] = all_params[prop_name]
+
+    return props
 
 def filename_timestamp() -> str:
     """
