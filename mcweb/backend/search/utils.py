@@ -282,7 +282,7 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
     # unique srcid to domain and url_search_string
     domain_and_uss_by_sid: dict[int, tuple[str, str]] = {}
 
-    def save_source(srcs):
+    def save_sources(srcs):     # Iterable[Source]
         for src in srcs:
             if src.url_search_string:
                 domain_and_uss_by_sid[src.id] = (src.name, src.url_search_string)
