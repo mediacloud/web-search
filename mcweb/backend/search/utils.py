@@ -27,7 +27,7 @@ class ParsedQuery(NamedTuple):
     api_key: str | None
     base_url: str | None
     caching: bool = True
-    session_id: str | None
+    session_id: str | None = None
 
 # not used?
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -78,13 +78,21 @@ _BASE_URL = {
     'onlinenews-mediacloud': NEWS_SEARCH_API_URL,
 }
 
+def _get_session_id(request) -> str | None:
+    if request.user.is_authenticated:
+        user = str(request.user)
+        # XXX include a session hash from request.session?
+        return user
+    else:
+        return None
+
 def parse_query_params(request) -> (ParsedQuery, dict):
     """
     return ParsedQuery plus dict for other params
     """
     if request.method == 'POST':
         payload = json.loads(request.body)
-        return (parsed_query_from_dict(payload.get("queryObject")), payload)
+        return (parsed_query_from_dict(payload.get("queryObject"), request), payload)
 
     provider_name = request.GET.get("p", 'onlinenews-mediacloud')
     query_str = request.GET.get("q", "*")
@@ -115,25 +123,18 @@ def parse_query_params(request) -> (ParsedQuery, dict):
         except ValueError:
             caching = 1
 
-    if request.user.is_authenticated:
-        user = str(request.user)
-        # XXX include a session hash from request.session?
-        session_id = user
-    else:
-        session_id = None
-
     pq = ParsedQuery(start_date=start_date, end_date=end_date,
                      query_str=query_str, provider_props=provider_props,
                      provider_name=provider_name, api_key=api_key,
                      base_url=base_url, caching=caching,
-                     session_id=session_id)
+                     session_id=_get_session_id(request))
     return (pq, request.GET)
 
 def parse_query(request) -> ParsedQuery:
     pq, payload = parse_query_params(request)
     return pq
 
-def parsed_query_from_dict(payload) -> ParsedQuery:
+def parsed_query_from_dict(payload, request) -> ParsedQuery:
     """
     Takes a queryObject dict, returns ParsedQuery
     """
@@ -150,7 +151,8 @@ def parsed_query_from_dict(payload) -> ParsedQuery:
     return ParsedQuery(start_date=start_date, end_date=end_date,
                        query_str=query_str, provider_props=provider_props,
                        provider_name=provider_name, api_key=api_key,
-                       base_url=base_url, caching=caching)
+                       base_url=base_url, caching=caching,
+                       session_id=_get_session_id(request))
 
 def parsed_query_state(request) -> list[ParsedQuery]:
     """
@@ -164,7 +166,7 @@ def parsed_query_state(request) -> list[ParsedQuery]:
     else:
         queries = json.loads(request.GET.get("qS"))
 
-    pqs = [parsed_query_from_dict(q) for q in queries]
+    pqs = [parsed_query_from_dict(q, request) for q in queries]
     return pqs
 
 def _get_api_key(provider: str) -> str | None:

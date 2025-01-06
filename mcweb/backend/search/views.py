@@ -349,7 +349,7 @@ def send_email_large_download_csv(request):
     # applying range check to sum of all queries!
     total = 0
     for query in queryState:
-        pq = parsed_query_from_dict(query)
+        pq = parsed_query_from_dict(query, request)
         provider = pq_provider(pq)
         try:
             total += provider.count(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
