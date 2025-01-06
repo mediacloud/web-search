@@ -56,7 +56,7 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
     """
     return provider_by_name(platform or pq.provider_name,
                             api_key=pq.api_key, base_url=pq.base_url, caching=pq.caching,
-                            client_id="web-search", session_id=pq.session_id)
+                            software_id="web-search", session_id=pq.session_id)
 
 def parse_date_str(date_str: str) -> dt.datetime:
     """
