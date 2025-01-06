@@ -273,6 +273,9 @@ def _for_media_cloud_OLD(collections: List, sources: List, all_params: Dict) -> 
     return extra_props
 
 def _for_media_cloud(collections: list[int], sources: list[int], all_params: dict) -> dict:
+    # pull in at runtime, rather than outside class, so we can make sure the models are loaded
+    Source = apps.get_model('sources', 'Source')
+
     # 1. collect unique sources with and without url_search_string (uss)
     domains: set[str] = set()   # unique domains w/o url_search_string
 
