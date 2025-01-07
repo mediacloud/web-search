@@ -366,12 +366,13 @@ if [ -n "$PRIVATE_CONF_REPO" -a -d "$PRIVATE_CONF_REPO" ]; then
 fi
 
 # process scaling
-WEB_PROCS=5
-case $BRANCH in
-prod)
-    WEB_PROCS=16 # times 64 (WEB_CONCURRENCY) threads seems... excessive!
-    ;;
-esac
+# number of  w/ WEB_CONCURRENCY processes:
+WEB_PROCS=1
+#case $BRANCH in
+#prod)
+#    WEB_PROCS=16 # times 64 (WEB_CONCURRENCY) procs seems... excessive!
+#    ;;
+#esac
 
 # add new Procfile entries to next line!!
 GOALS="web=$WEB_PROCS supervisord=1"
