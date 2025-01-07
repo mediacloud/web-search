@@ -287,8 +287,15 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
             if src.url_search_string:
                 domain_and_uss_by_sid[src.id] = (src.name, src.url_search_string)
             elif src.name:
+                if src.name not in domains and (
+                        src.name.endswith("/") or
+                        src.name.startswith("http:") or
+                        src.name.startswith("https:")):
+                    # may cause significant noise, but it means searches will fail!
+                    logger.warning("Source %d name %s", src.id, src.name)
                 domains.add(src.name)
-            # else log "source without name"!??
+            else:
+                logger.warning("Source %d has no name!", src.id)
 
     save_sources(Source.objects.filter(id__in=sources))
     save_sources(Source.objects.filter(collections__id__in=collections))
