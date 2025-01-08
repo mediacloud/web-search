@@ -75,7 +75,7 @@ def listify(input: str) -> list[str]:
     return []
 
 _BASE_URL = {
-    'onlinenews-mediacloud': NEWS_SEARCH_API_URL,
+    'onlinenews-mediacloud-old': NEWS_SEARCH_API_URL,
 }
 
 def _get_session_id(request) -> str | None:
