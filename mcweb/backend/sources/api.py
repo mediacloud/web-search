@@ -341,13 +341,22 @@ class SourcesViewSet(viewsets.ModelViewSet):
             # skip empty rows
             if len(row.keys()) < 1:
                 continue
+            homepage = row.get('homepage', None)
+            if not homepage:
+                email_text += "\n Homepage is required"
+                counts['skipped'] += 1
+                continue
+            platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
             # check if this is an update
             if row.get('id', None) and (int(row['id']) > 0) and (row['id'] != 'null'):
                 existing_source = queryset.filter(pk=row['id'])
             else:
+                #check if url_search_string_source
+                if row.get('url_search_string', None):
+                    existing_source = queryset.filter(url_search_string=row['url_search_string'])
                 # if online news, need to make check if canonical domain exists
-                if row['platform'] == Source.SourcePlatforms.ONLINE_NEWS:
-                    canonical_domain = urls.canonical_domain(row['homepage'])
+                elif platform == Source.SourcePlatforms.ONLINE_NEWS:
+                    canonical_domain = urls.canonical_domain(homepage)
                     # call filter here, not get, so we can check for multiple matches (url_query_string case)
                     existing_source = queryset.filter(
                         name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
@@ -375,18 +384,23 @@ class SourcesViewSet(viewsets.ModelViewSet):
             # Updating unique match
             elif len(existing_source) == 1:
                 existing_source = existing_source[0]
-                cleaned_source_input = Source._clean_source(row)
-                serializer = SourceSerializer(
-                    existing_source, data=cleaned_source_input)
-                if serializer.is_valid():
-                    existing_source = serializer.save()
+                if len(row.keys()) == 1 and row['id'] != 'null':
                     email_text += "\n {}: updated existing {} source".format(
                         existing_source.name, existing_source.platform)
                     counts['updated'] += 1
                 else:
-                    email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
-                    counts['skipped'] += 1
-                    continue
+                    cleaned_source_input = Source._clean_source(row)
+                    serializer = SourceSerializer(
+                        existing_source, data=cleaned_source_input)
+                    if serializer.is_valid():
+                        existing_source = serializer.save()
+                        email_text += "\n {}: updated existing {} source".format(
+                            existing_source.name, existing_source.platform)
+                        counts['updated'] += 1
+                    else:
+                        email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
+                        counts['skipped'] += 1
+                        continue
                 # existing_source.update_from_dict(row)
             # Request to update non-unique match, so skip and force them to do it by hand
             else:

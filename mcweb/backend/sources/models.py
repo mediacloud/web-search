@@ -140,7 +140,7 @@ class Source(models.Model):
         name = source.get("name", None)
         if name is not None and len(name) > 0:
             obj.name = name
-        platform = source.get("platform", None)
+        platform = source.get("platform", Source.SourcePlatforms.ONLINE_NEWS)
         if platform is not None and len(platform) > 0:
             obj.platform = platform
         # last_rescraped = source.get("last_rescraped", None)
@@ -180,7 +180,7 @@ class Source(models.Model):
     @classmethod
     def _clean_source(cls, source: Dict):
         obj={}
-        platform = source.get("platform", None)
+        platform = source.get("platform", Source.SourcePlatforms.ONLINE_NEWS)
         if platform:
             obj["platform"] = platform.strip()
         
@@ -194,8 +194,7 @@ class Source(models.Model):
         if name:
             obj["name"] = name.strip()
         if not name:
-            if platform == 'online_news':
-                    obj["name"] = urls.canonical_domain(homepage)
+            obj["name"] = urls.canonical_domain(homepage)
         
         url_search_string = source.get("url_search_string", None)
         if url_search_string:

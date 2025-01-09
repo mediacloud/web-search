@@ -79,24 +79,27 @@ class SourceSerializer(serializers.ModelSerializer):
         """
         Check that name is normalized version of homepage, ensure name is unique in db
         """
-        
-        self_id = self.initial_data.get('id', None) 
+        if value.endswith('/'):
+            raise serializers.ValidationError("name cannot end with '/'")
         homepage = self.initial_data["homepage"]
         canonical_domain = urls.canonical_domain(homepage)
-        platform = self.initial_data["platform"]
-        url_search_string = self.initial_data.get("url_search_string", None)
-        existing_sources = Source.objects.filter(name__exact=value)
-        if url_search_string is None or len(url_search_string) == 0:
-            if existing_sources.exists():
-                if existing_sources[0].id != self_id and self_id is not None:
-                    raise serializers.ValidationError(f"name: {value} already exists")
-                if self_id is None:
-                    raise serializers.ValidationError(f"name: {value} already exists")
-            if platform == "online_news":
-                if canonical_domain != value:
-                    raise serializers.ValidationError(f"name: {value} does not match the canonicalized version of homepage: {homepage}")
+        if canonical_domain != value:
+            raise serializers.ValidationError(f"name: {value} does not match the canonicalized version of homepage: {homepage}")
         return value
     
+    
+    def validate_url_search_string(self, value):
+        """
+        Check that url_search_string does not begin with http or https and ensure it ends with wildcard
+        """
+        if not value:
+            return value
+        if value.startswith('http://') or value.startswith('https://'):
+            raise serializers.ValidationError("url_search_string may not begin with http:// or https://")
+        if not value.endswith('/*'):
+            raise serializers.ValidationError("urls_search_string must end with '/*' wildcard")
+        return value
+
     def validate_pub_country(self, value):
         """
         Check that publication country code is valid ISO 3166-1 alpha-3
@@ -125,6 +128,16 @@ class SourceSerializer(serializers.ModelSerializer):
         return value
     
     def create(self, validated_data):
+        url_search_string = validated_data.get("url_search_string", None)
+        if not url_search_string:
+            existing_sources = Source.objects.filter(name__exact=validated_data["name"])
+            if existing_sources.exists():
+                raise serializers.ValidationError(f"name: {validated_data['name']} already exists")
+        if url_search_string:
+            url_search_string_sources = Source.objects.filter(url_search_string__exact=url_search_string)
+            if url_search_string_sources.exists():
+                raise serializers.ValidationError(f"url_search_string: {url_search_string} already exists")
+
         new_source = Source.objects.create(**validated_data)
         # user = None
         # request = self.context.get("request")
