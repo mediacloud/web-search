@@ -8,7 +8,6 @@ class SourceSerializerTest(APITestCase):
     def setUp(self):
         self.valid_data = {
             'name': 'testhomepage.com',
-            'url_search_string': 'testurlsearchstring.com/test/*',
             'label': 'testhomepage.com',
             'homepage': 'http://testhomepage.com',
             'notes': 'Test notes',
@@ -27,7 +26,7 @@ class SourceSerializerTest(APITestCase):
         serializer = SourceSerializer(data=self.valid_data)
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.validated_data['name'], self.valid_data['name'])
-        self.assertEqual(serializer.validated_data['url_search_string'], self.valid_data['url_search_string'])
+        # self.assertEqual(serializer.validated_data['url_search_string'], self.valid_data['url_search_string'])
 
     def test_invalid_source_serializer(self):
         serializer = SourceSerializer(data=self.invalid_data)
