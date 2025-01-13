@@ -142,11 +142,10 @@ export default function ModifySource() {
           <TextField
             fullWidth
             name="name"
-            label="Domain"
-            helperText="This is the unique identified for this source within our system.
-            Don't change this unless you know what you're doing.
-            For news sources this should be the unique domain name."
-            value={formState.name ? formState.name : 'enter name'}
+            label="Canonical Domain"
+            helperText="This is the identified and normalized domain for this source within our system.
+                Don't change this unless you know what you're doing. For news sources this should be the canonical domain name."
+            value={formState.name ? formState.name : 'enter canonical domain'}
             onChange={handleChange}
           />
           <br />
@@ -178,7 +177,8 @@ export default function ModifySource() {
             label="Label"
             value={formState.label}
             onChange={handleChange}
-            helperText="The human-readable name shown to people for this source. Leave empty to have the domain be the name."
+            helperText="The human-readable name shown to people for this source.
+            Leave empty to have the canonical domain be the label."
           />
           <br />
           <br />
@@ -265,9 +265,9 @@ export default function ModifySource() {
                     }
                   });
               } else {
+                setFormState({ url_search_stringErrors: validSearchString });
                 setErrorMessage('Please check url search string');
                 setOpen(true);
-                setFormState({ url_search_stringErrors: validSearchString });
               }
             }}
           >
