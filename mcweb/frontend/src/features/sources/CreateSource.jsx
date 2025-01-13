@@ -178,8 +178,13 @@ export default function CreateCollection() {
                     createSource(formState)
                       .then((payload) => {
                         if (payload.error) {
-                          setErrorMessage(payload.error.data.detail);
-                          setOpen(true);
+                          if (payload.error.data.detail) {
+                            setErrorMessage(payload.error.data.detail);
+                            setOpen(true);
+                          } else {
+                            setErrorMessage(payload.error.data[0]);
+                            setOpen(true);
+                          }
                         } else {
                           const sourceId = payload.data.source.id;
                           navigate(`/sources/${sourceId}`);
