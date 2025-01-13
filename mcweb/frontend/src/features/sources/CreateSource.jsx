@@ -178,7 +178,6 @@ export default function CreateCollection() {
                     createSource(formState)
                       .then((payload) => {
                         if (payload.error) {
-                          console.log(payload, 'Payload');
                           setErrorMessage(payload.error.data.detail);
                           setOpen(true);
                         } else {

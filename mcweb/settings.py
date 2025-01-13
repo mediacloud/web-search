@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.1.3"
+VERSION = "2.1.4"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -339,6 +339,10 @@ if __DOKKU:
         'defaults': {    # used in Python >= 3.12
             'hostname': hostname
         },
+    }
+    _BRIEF_FORMATTER = 'brief'
+    LOGGING['formatters'][_BRIEF_FORMATTER] = {
+        'format':'%(message)s'
     }
 
     _BRIEF_FORMATTER = 'brief'
