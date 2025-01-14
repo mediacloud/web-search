@@ -174,8 +174,9 @@ def download_sources_csv(request):
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     
     try:
+        # PB: was passing sample_size=5000
         data = provider.sources(f"({pq.query_str})", pq.start_date,
-                    pq.end_date, **pq.provider_props, sample_size=5000, limit=100)
+                    pq.end_date, **pq.provider_props, limit=100)
     except Exception as e:
         logger.exception(e)
         return error_response(str(e), HttpResponseBadRequest)
@@ -214,8 +215,9 @@ def download_languages_csv(request):
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
+        # PB: was passing sample_size=5000
         data = provider.languages(f"({pq.query_str})", pq.start_date,
-                    pq.end_date, **pq.provider_props, sample_size=5000, limit=100)
+                    pq.end_date, **pq.provider_props, limit=100)
     except Exception as e: 
         logger.exception(e)
         return error_response(str(e), HttpResponseBadRequest)
@@ -277,8 +279,9 @@ def download_words_csv(request):
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
+        # PB: was passing sample_size=5000
         words = provider.words(f"({pq.query_str})", pq.start_date,
-                                pq.end_date, **pq.provider_props, sample_size=5000)
+                                pq.end_date, **pq.provider_props)
         words = add_ratios(words)
     except Exception as e:
         logger.exception(e)
