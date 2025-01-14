@@ -34,8 +34,7 @@ from .utils import (
     parse_query_params,
     parsed_query_from_dict,
     parsed_query_state,
-    pq_provider,
-    search_props_for_provider
+    pq_provider
 )
 from .tasks import download_all_large_content_csv, download_all_queries_csv_task
 
@@ -248,6 +247,11 @@ def story_list(request):
         pq.provider_props['expanded'] = pq.provider_props['expanded'] == '1'
         if not request.user.is_staff:
             raise error_response("You are not permitted to fetch `expanded` stories.", HttpResponseForbidden)
+
+    # NOTE! indexed_date is default sort key in MC ES provider, so no longer
+    # strictly necessary, *BUT* it's presense here means users cannot pass it in
+    # as an parameter.  This MAY be a feature, as it's possible to imagine that
+    # some untested value(s) of sort_field might cause pathological behavior!
     page, pagination_token = provider.paged_items(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 1)
     return HttpResponse(json.dumps({"stories": page, "pagination_token": pagination_token}, default=str),
