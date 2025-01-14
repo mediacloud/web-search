@@ -365,7 +365,7 @@ if [ -n "$PRIVATE_CONF_REPO" -a -d "$PRIVATE_CONF_REPO" ]; then
     tag_conf_repo
 fi
 
-# number of containers (was 16 for stahing/prod), each with
+# number of containers (was 16 for staging/prod), each with
 # WEB_CONCURRENCY gunicorn workers (64 in staging/prod)
 WEB_PROCS=1
 
