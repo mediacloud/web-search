@@ -411,7 +411,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
             # Request to update non-unique match, so skip and force them to do it by hand
             else:
                 email_text += "\n ⚠️ Row {}: {}, multiple matches - cowardly skipping so you can do it by hand existing source".\
-                    format(row_num, existing_source[0].name)
+                    format(row_num, row["homepage"])
                 counts['skipped'] += 1
                 continue
             collection.source_set.add(existing_source)
