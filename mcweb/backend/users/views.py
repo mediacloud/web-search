@@ -105,7 +105,6 @@ def profile(request):
         data = json.dumps({'isActive': False})
     return HttpResponse(data, content_type='application/json')
 
-
 @require_http_methods(["POST"])
 def password_strength(request):
     # get the passwords from SignUp.jsx formState

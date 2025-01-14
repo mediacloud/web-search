@@ -181,6 +181,8 @@ class Source(models.Model):
     def _clean_source(cls, source: Dict):
         obj={}
         platform = source.get("platform", Source.SourcePlatforms.ONLINE_NEWS)
+        if not platform:
+            platform = None
         if platform:
             obj["platform"] = platform.strip()
         
@@ -190,49 +192,61 @@ class Source(models.Model):
         else:
             return None
         
-        name = source.get("name", None)
+        name = source.get("domain", None)
+        if not name:
+            name = None
         if name:
             obj["name"] = name.strip()
         if not name:
             obj["name"] = urls.canonical_domain(homepage)
         
         url_search_string = source.get("url_search_string", None)
+        if not url_search_string:
+            url_search_string = None
         if url_search_string:
             obj["url_search_string"] = url_search_string.strip()
 
         label = source.get("label", None)
+        if not label:
+            label = None
         if label:
             obj["label"] = label.strip()
         if not label:
             obj["label"] = obj["name"]
 
         notes = source.get("notes", None)
+        if not notes:
+            notes = None
         if notes:
             obj["notes"] = notes.strip()
 
-        service = source.get("service", None)
-        if service:
-            obj["service"] = service.strip()
+        # service = source.get("service", None)
+        # if service:
+        #     obj["service"] = service.strip()
 
-        stories_per_week = source.get("stories_per_week", None)
-        if stories_per_week:
-            obj["stories_per_week"] = stories_per_week
+        # stories_per_week = source.get("stories_per_week", None)
+        # if stories_per_week:
+        #     obj["stories_per_week"] = stories_per_week
 
         pub_country = source.get("pub_country", None)
+        if not pub_country:
+            pub_country = None
         if pub_country:
             obj["pub_country"] = pub_country.strip()
 
         pub_state = source.get("pub_state", None)
+        if not pub_state:
+            pub_state = None
         if pub_state:
             obj["pub_state"] = pub_state.strip()
 
-        primary_language = source.get("primary_language", None)
-        if primary_language:
-            obj["primary_language"] = primary_language.strip()
+        # primary_language = source.get("primary_language", None)
+        # if primary_language:
+        #     obj["primary_language"] = primary_language.strip()
 
-        media_type = source.get("media_type", None)
-        if media_type:
-            obj["media_type"] = media_type.strip()
+        # media_type = source.get("media_type", None)
+        # if media_type:
+        #     obj["media_type"] = media_type.strip()
 
         return obj
     

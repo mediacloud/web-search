@@ -1,4 +1,7 @@
-[{"version": "v2.1.5",
+[{"version": "v2.1.6",
+"date": "2024-01-14",
+"notes": ["fix bug with csv upload"
+]},{"version": "v2.1.5",
 "date": "2024-01-13",
 "notes": ["fix error message in source creation and editing",
 "improve upload source csv method",
