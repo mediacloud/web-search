@@ -95,26 +95,15 @@ def reset_password(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
+# @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
-    # Extract the token from the Authorization header
-    auth = request.GET.get('Authorization', None)
-    if auth and auth.split()[0].lower() == 'token':
-        token = auth.split()[1]
-        
     if request.user.id is not None:
         data = _serialized_current_user(request)
     else:
         data = json.dumps({'isActive': False})
-    
-    response_data = {
-        'user_data': data,
-        'token': token
-    }
-    
-    return HttpResponse(json.dumps(response_data), content_type='application/json')
-
+    return HttpResponse(data, content_type='application/json')
 
 @require_http_methods(["POST"])
 def password_strength(request):

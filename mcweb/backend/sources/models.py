@@ -230,9 +230,9 @@ class Source(models.Model):
         # if primary_language:
         #     obj["primary_language"] = primary_language.strip()
 
-        media_type = source.get("media_type", None)
-        if media_type:
-            obj["media_type"] = media_type.strip()
+        # media_type = source.get("media_type", None)
+        # if media_type:
+        #     obj["media_type"] = media_type.strip()
 
         return obj
     
