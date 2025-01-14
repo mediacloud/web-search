@@ -14,11 +14,6 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
   const [uploadSources, { isLoading: isUpdating }] = useUploadSourcesMutation();
 
   const { CSVReader } = useCSVReader();
-  // const handleOnDrop = (data) => {
-  //   const cleanedData = data.map((row) => row.map((cell) => (cell === '' ? null : cell)));
-  //   setCsvData(cleanedData);
-  //   console.log(csvData);
-  // };
 
   return (
     <div>
@@ -27,7 +22,6 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
           header: true,
           delimiter: ',',
         }}
-        // onDrop={handleOnDrop}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
           console.log(uploadInfo);
