@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.password_validation import validate_password
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication, get_authorization_header
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, authentication_classes, permission_classes
 from rest_framework.decorators import api_view
