@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.password_validation import validate_password
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication, get_authorization_header
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action, authentication_classes, permission_classes
 from rest_framework.decorators import api_view
@@ -95,15 +95,25 @@ def reset_password(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
-# @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
+    # Extract the token from the Authorization header
+    auth = request.GET.get('Authorization', None)
+    if auth and auth.split()[0].lower() == 'token':
+        token = auth.split()[1]
+        
     if request.user.id is not None:
         data = _serialized_current_user(request)
     else:
         data = json.dumps({'isActive': False})
-    return HttpResponse(data, content_type='application/json')
+    
+    response_data = {
+        'user_data': data,
+        'token': token
+    }
+    
+    return HttpResponse(json.dumps(response_data), content_type='application/json')
 
 
 @require_http_methods(["POST"])
