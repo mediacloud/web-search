@@ -192,7 +192,7 @@ class Source(models.Model):
         else:
             return None
         
-        name = source.get("name", None)
+        name = source.get("domain", None)
         if not name:
             name = None
         if name:
