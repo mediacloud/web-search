@@ -24,7 +24,7 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
         }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
-          console.log(uploadInfo, 'Upload Info');
+          // console.log(uploadInfo, 'Upload Info');
           const results = await uploadSources({ sources: uploadInfo.data, collection_id: collectionId, rescrape });
           setUpdating(false);
           enqueueSnackbar(
