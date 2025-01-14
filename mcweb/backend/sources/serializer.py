@@ -84,7 +84,7 @@ class SourceSerializer(serializers.ModelSerializer):
         homepage = self.initial_data["homepage"]
         canonical_domain = urls.canonical_domain(homepage)
         if canonical_domain != value:
-            raise serializers.ValidationError(f"name: {value} does not match the canonicalized version of homepage: {homepage}")
+            raise serializers.ValidationError(f"name {value} does not match the canonicalized version of homepage: {homepage}")
         return value
     
     

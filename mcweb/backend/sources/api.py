@@ -337,7 +337,9 @@ class SourcesViewSet(viewsets.ModelViewSet):
         email_text = ""
         queryset = Source.objects
         counts = dict(updated=0, skipped=0, created=0)
+        row_num = 0
         for row in request.data['sources']:
+            row_num += 1
             # skip empty rows
             if len(row.keys()) < 1:
                 continue
@@ -347,6 +349,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 counts['skipped'] += 1
                 continue
             platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
+            if not platform:
+                platform = Source.SourcePlatforms.ONLINE_NEWS
             # check if this is an update
             if row.get('id', None) and (int(row['id']) > 0) and (row['id'] != 'null'):
                 existing_source = queryset.filter(pk=row['id'])
@@ -377,7 +381,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
                         existing_source.name, existing_source.platform)
                     counts['created'] += 1
                 else:
-                    email_text += f"\n ⚠️ {row['name']}: {serializer.errors}"
+                    serializer_errors = format_serializer_errors(serializer.errors)
+                    email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
                     counts['skipped'] += 1
                     continue
                 # existing_source = Source.create_from_dict(row)
@@ -394,18 +399,19 @@ class SourcesViewSet(viewsets.ModelViewSet):
                         existing_source, data=cleaned_source_input)
                     if serializer.is_valid():
                         existing_source = serializer.save()
-                        email_text += "\n {}: updated existing {} source".format(
-                            existing_source.name, existing_source.platform)
+                        email_text += "\n Row {}: {}, updated existing {} source".format(
+                            row_num, existing_source.name, existing_source.platform)
                         counts['updated'] += 1
                     else:
-                        email_text += f"\n ⚠️ {existing_source.name}: {serializer.errors}"
+                        serializer_errors = format_serializer_errors(serializer.errors)
+                        email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
                         counts['skipped'] += 1
                         continue
                 # existing_source.update_from_dict(row)
             # Request to update non-unique match, so skip and force them to do it by hand
             else:
-                email_text += "\n ⚠️ {}: multiple matches - cowardly skipping so you can do it by hand existing source".\
-                    format(existing_source[0].name)
+                email_text += "\n ⚠️ Row {}: {}, multiple matches - cowardly skipping so you can do it by hand existing source".\
+                    format(row_num, existing_source[0].name)
                 counts['skipped'] += 1
                 continue
             collection.source_set.add(existing_source)
@@ -532,3 +538,9 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
 
+def format_serializer_errors(errors):
+    error_messages = []
+    for field, error_list in errors.items():
+        for error in error_list:
+            error_messages.append(f"{field}: {error}")
+    return "\n".join(error_messages)
