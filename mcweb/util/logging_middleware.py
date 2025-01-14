@@ -32,13 +32,15 @@ class RequestLoggingMiddleware:
                     try:
                         log_msg['request_params'] = json.loads(request.body)
                     except json.JSONDecodeError:
-                        pass
+                        log_msg["request_params"] = "Invalid JSON"
                 elif request.content_type == "application/x-www-form-urlencoded":
                     log_msg["request_params"] = request.POST  # Handles form-encoded data
 
             elif request.method == 'GET':
                 log_msg["request_params"] = request.GET
 
+            #For resetting the request body... just a theory
+            request._stream = BytesIO(request._body)
 
             log_msg["method"] = request.method
             log_msg["path"] = request.path
@@ -49,7 +51,12 @@ class RequestLoggingMiddleware:
             log_msg["has_session"] = "sessionid" in request.headers.get("Cookie", {})
 
             # Log the request details
-            request_logger.info(json.dumps(log_msg))
+            try:
+                log_dump = json.dumps(log_msg)
+                request_logger.info(json.dumps(log_msg))
+            except TypeError:
+                pass
+
         return response
 
 
