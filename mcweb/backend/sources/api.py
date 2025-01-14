@@ -347,6 +347,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 counts['skipped'] += 1
                 continue
             platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
+            if not platform:
+                platform = Source.SourcePlatforms.ONLINE_NEWS
             # check if this is an update
             if row.get('id', None) and (int(row['id']) > 0) and (row['id'] != 'null'):
                 existing_source = queryset.filter(pk=row['id'])
