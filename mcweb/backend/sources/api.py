@@ -352,12 +352,16 @@ class SourcesViewSet(viewsets.ModelViewSet):
             if not platform:
                 platform = Source.SourcePlatforms.ONLINE_NEWS
             # check if this is an update
-            if row.get('id', None) and (int(row['id']) > 0) and (row['id'] != 'null'):
+            id = row.get('id', None)
+            if id and (int(id) > 0):
                 existing_source = queryset.filter(pk=row['id'])
             else:
                 #check if url_search_string_source
-                if row.get('url_search_string', None):
-                    existing_source = queryset.filter(url_search_string=row['url_search_string'])
+                url_search_string = row.get('url_search_string', None)
+                if not url_search_string:
+                    url_search_string = None
+                if url_search_string:
+                    existing_source = queryset.filter(url_search_string=url_search_string)
                 # if online news, need to make check if canonical domain exists
                 elif platform == Source.SourcePlatforms.ONLINE_NEWS:
                     canonical_domain = urls.canonical_domain(homepage)
@@ -367,7 +371,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 else:
                     # a diff platform, so just check for unique name (ie. twitter handle, subreddit name, YT channel)
                     existing_source = queryset.filter(
-                        name=row['name'], platform=row['platform'])
+                        homepage=row['homepage'], platform=platform)
             # Making a new one
             if len(existing_source) == 0:
                 cleaned_source_input = Source._clean_source(row)
@@ -389,24 +393,19 @@ class SourcesViewSet(viewsets.ModelViewSet):
             # Updating unique match
             elif len(existing_source) == 1:
                 existing_source = existing_source[0]
-                if len(row.keys()) == 1 and row['id'] != 'null':
-                    email_text += "\n {}: updated existing {} source".format(
-                        existing_source.name, existing_source.platform)
+                cleaned_source_input = Source._clean_source(row)
+                serializer = SourceSerializer(
+                    existing_source, data=cleaned_source_input)
+                if serializer.is_valid():
+                    existing_source = serializer.save()
+                    email_text += "\n Row {}: {}, updated existing {} source".format(
+                        row_num, existing_source.name, existing_source.platform)
                     counts['updated'] += 1
                 else:
-                    cleaned_source_input = Source._clean_source(row)
-                    serializer = SourceSerializer(
-                        existing_source, data=cleaned_source_input)
-                    if serializer.is_valid():
-                        existing_source = serializer.save()
-                        email_text += "\n Row {}: {}, updated existing {} source".format(
-                            row_num, existing_source.name, existing_source.platform)
-                        counts['updated'] += 1
-                    else:
-                        serializer_errors = format_serializer_errors(serializer.errors)
-                        email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
-                        counts['skipped'] += 1
-                        continue
+                    serializer_errors = format_serializer_errors(serializer.errors)
+                    email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+                    counts['skipped'] += 1
+                    continue
                 # existing_source.update_from_dict(row)
             # Request to update non-unique match, so skip and force them to do it by hand
             else:
@@ -429,13 +428,12 @@ class SourcesViewSet(viewsets.ModelViewSet):
             first_page = True
             for source in source_associations:
                 if first_page:  # send back columun names, which differ by platform
-                    yield (['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform',
-                            'stories_per_week', 'first_story', 'pub_country', 'pub_state',
-                            'primary_language', 'media_type'])
-                yield ([source.id, source.name, source.url_search_string, source.label,
-                        source.homepage, source.notes, source.platform, source.stories_per_week,
-                        source.first_story, source.pub_country, source.pub_state, source.primary_language,
-                        source.media_type])
+                    yield (['id', 'homepage', 'domain', 'url_search_string', 'label', 'notes', 'platform',
+                            'pub_country','pub_state','media_type','stories_per_week', 'first_story',  
+                            'primary_language' ])
+                yield ([source.id, source.homepage, source.name, source.url_search_string, source.label,
+                         source.notes, source.platform, source.pub_country, source.pub_state, source.media_type, 
+                        source.stories_per_week, source.first_story,  source.primary_language])
                 first_page = False
 
         filename = "Collection-{}-{}-sources-{}".format(

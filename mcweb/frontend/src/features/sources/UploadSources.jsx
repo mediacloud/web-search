@@ -16,7 +16,10 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
   return (
     <div>
       <CSVReader
-        config={{ header: true }}
+        config={{
+          header: true,
+          transform: (value) => (value === '' ? null : value),
+        }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
           const results = await uploadSources({ sources: uploadInfo.data, collection_id: collectionId, rescrape });
