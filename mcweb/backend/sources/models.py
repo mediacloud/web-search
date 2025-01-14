@@ -210,13 +210,13 @@ class Source(models.Model):
         if notes:
             obj["notes"] = notes.strip()
 
-        service = source.get("service", None)
-        if service:
-            obj["service"] = service.strip()
+        # service = source.get("service", None)
+        # if service:
+        #     obj["service"] = service.strip()
 
-        stories_per_week = source.get("stories_per_week", None)
-        if stories_per_week:
-            obj["stories_per_week"] = stories_per_week
+        # stories_per_week = source.get("stories_per_week", None)
+        # if stories_per_week:
+        #     obj["stories_per_week"] = stories_per_week
 
         pub_country = source.get("pub_country", None)
         if pub_country:
@@ -226,13 +226,13 @@ class Source(models.Model):
         if pub_state:
             obj["pub_state"] = pub_state.strip()
 
-        primary_language = source.get("primary_language", None)
-        if primary_language:
-            obj["primary_language"] = primary_language.strip()
+        # primary_language = source.get("primary_language", None)
+        # if primary_language:
+        #     obj["primary_language"] = primary_language.strip()
 
-        media_type = source.get("media_type", None)
-        if media_type:
-            obj["media_type"] = media_type.strip()
+        # media_type = source.get("media_type", None)
+        # if media_type:
+        #     obj["media_type"] = media_type.strip()
 
         return obj
     
