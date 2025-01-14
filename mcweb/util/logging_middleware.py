@@ -30,17 +30,16 @@ class RequestLoggingMiddleware:
             if request.method == 'POST':
                 if request.content_type == "application/json":
                     try:
-                        log_msg['request_params'] = json.loads(request.body)
+                        log_msg['request_params'] = json.loads(request.data)
                     except json.JSONDecodeError:
                         log_msg["request_params"] = "Invalid JSON"
+                        
                 elif request.content_type == "application/x-www-form-urlencoded":
                     log_msg["request_params"] = request.POST  # Handles form-encoded data
 
             elif request.method == 'GET':
                 log_msg["request_params"] = request.GET
 
-            #For resetting the request body... just a theory
-            request._stream = BytesIO(request._body)
 
             log_msg["method"] = request.method
             log_msg["path"] = request.path
