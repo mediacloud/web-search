@@ -13,12 +13,18 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
   const [uploadSources, { isLoading: isUpdating }] = useUploadSourcesMutation();
 
   const { CSVReader } = useCSVReader();
+
   return (
     <div>
       <CSVReader
-        config={{ header: true }}
+        config={{
+          header: true,
+          delimiter: ',',
+          transform: (value) => (value === '' ? null : value),
+        }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
+          // console.log(uploadInfo, 'Upload Info');
           const results = await uploadSources({ sources: uploadInfo.data, collection_id: collectionId, rescrape });
           setUpdating(false);
           enqueueSnackbar(

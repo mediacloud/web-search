@@ -1,5 +1,6 @@
 import logging
 from typing import Dict
+from datetime import datetime, timezone
 
 # PyPI:
 import feed_seeker
@@ -106,6 +107,9 @@ class Source(models.Model):
     primary_language = models.CharField(max_length=5, null=True, blank=True)
     media_type = models.CharField(max_length=100, choices=SourceMediaTypes.choices, blank=True, null=True)
     alerted = models.BooleanField(default=False)
+    last_rescraped = models.DateTimeField(null=True)
+    last_rescraped_msg = models.CharField(max_length=500, null=True, blank=True)
+
 
     class Meta:
         indexes = [
@@ -136,9 +140,12 @@ class Source(models.Model):
         name = source.get("name", None)
         if name is not None and len(name) > 0:
             obj.name = name
-        platform = source.get("platform", None)
+        platform = source.get("platform", Source.SourcePlatforms.ONLINE_NEWS)
         if platform is not None and len(platform) > 0:
             obj.platform = platform
+        # last_rescraped = source.get("last_rescraped", None)
+        # if last_rescraped is not None and len(last_rescraped) > 0:
+        #     obj.last_rescraped = last_rescraped
         url_search_string = source.get("url_search_string", None)
         if url_search_string is not None and len(url_search_string) > 0:
             obj.url_search_string = url_search_string
@@ -173,58 +180,73 @@ class Source(models.Model):
     @classmethod
     def _clean_source(cls, source: Dict):
         obj={}
-        platform = source.get("platform", None)
+        platform = source.get("platform", Source.SourcePlatforms.ONLINE_NEWS)
+        if not platform:
+            platform = None
         if platform:
             obj["platform"] = platform.strip()
         
         homepage = source.get("homepage", None)
         if homepage:
             obj["homepage"] = homepage.strip()
+        else:
+            return None
         
-        name = source.get("name", None)
+        name = source.get("domain", None)
+        if not name:
+            name = None
         if name:
             obj["name"] = name.strip()
         if not name:
-            if platform == 'online_news':
-                    obj["name"] = urls.canonical_domain(homepage)
+            obj["name"] = urls.canonical_domain(homepage)
         
         url_search_string = source.get("url_search_string", None)
+        if not url_search_string:
+            url_search_string = None
         if url_search_string:
             obj["url_search_string"] = url_search_string.strip()
 
         label = source.get("label", None)
+        if not label:
+            label = None
         if label:
             obj["label"] = label.strip()
         if not label:
             obj["label"] = obj["name"]
 
         notes = source.get("notes", None)
+        if not notes:
+            notes = None
         if notes:
             obj["notes"] = notes.strip()
 
-        service = source.get("service", None)
-        if service:
-            obj["service"] = service.strip()
+        # service = source.get("service", None)
+        # if service:
+        #     obj["service"] = service.strip()
 
-        stories_per_week = source.get("stories_per_week", None)
-        if stories_per_week:
-            obj["stories_per_week"] = stories_per_week
+        # stories_per_week = source.get("stories_per_week", None)
+        # if stories_per_week:
+        #     obj["stories_per_week"] = stories_per_week
 
         pub_country = source.get("pub_country", None)
+        if not pub_country:
+            pub_country = None
         if pub_country:
             obj["pub_country"] = pub_country.strip()
 
         pub_state = source.get("pub_state", None)
+        if not pub_state:
+            pub_state = None
         if pub_state:
             obj["pub_state"] = pub_state.strip()
 
-        primary_language = source.get("primary_language", None)
-        if primary_language:
-            obj["primary_language"] = primary_language.strip()
+        # primary_language = source.get("primary_language", None)
+        # if primary_language:
+        #     obj["primary_language"] = primary_language.strip()
 
-        media_type = source.get("media_type", None)
-        if media_type:
-            obj["media_type"] = media_type.strip()
+        # media_type = source.get("media_type", None)
+        # if media_type:
+        #     obj["media_type"] = media_type.strip()
 
         return obj
     
@@ -310,8 +332,11 @@ class Source(models.Model):
             process_urls(sitemaps, gnews_urls)
 
         # after many tries to give a summary in english:
-        add_line(f"{added}/{total} added, {confirmed}/{old} confirmed")
-
+        summary = f"{added}/{total} added, {confirmed}/{old} confirmed"
+        add_line(summary)
+        logger.info("%s", summary)
+        # add last time this source was rescraped
+        Source.update_last_rescraped(source_id=source_id, summary=summary)
         indent = "  "           # not applied to header line
         return indent.join(lines)
 
@@ -322,7 +347,17 @@ class Source(models.Model):
             source.stories_per_week = weekly_story_count
             source.save()
         except:
-            logger.warn(f"source {source_id} not found")
+            logger.warning(f"source {source_id} not found")
+
+    @classmethod
+    def update_last_rescraped(cls, source_id: int, summary: str):
+        try:
+            source=Source.objects.get(pk=source_id) 
+            source.last_rescraped = datetime.now(timezone.utc).isoformat()
+            source.last_rescraped_msg = summary
+            source.save()
+        except:
+            logger.warning(f"source {source_id} not found")
 
     
 class Feed(models.Model):

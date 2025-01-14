@@ -8,7 +8,7 @@ import TabPanelHelper from '../ui/TabPanelHelper';
 import SourceList from '../sources/SourceList';
 import StoriesOverTime from '../stories/StoriesOverTime';
 import { useGetCollectionQuery } from '../../app/services/collectionsApi';
-import { renderNotes } from './util/formatNotesToHTML';
+import renderNotes from './util/formatNotesToHTML';
 
 function a11yProps(index) {
   return {
@@ -44,7 +44,7 @@ export default function CollectionShow() {
     <div className="container">
       <div>
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        <b>Notes:</b> {collection.notes && renderNotes(collection.notes)}
+        <b>Notes:</b> {collection.notes && renderNotes(collection.notes, false)}
       </div>
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -66,7 +66,7 @@ export default function CollectionShow() {
         <TabPanelHelper value={value} index={0}>
           <div className="container">
             <div className="row">
-              <div className="col-6">
+              <div className="col-12">
                 <SourceList collectionId={collectionId} />
               </div>
             </div>
