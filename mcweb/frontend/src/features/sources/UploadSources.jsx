@@ -20,6 +20,7 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
         config={{
           header: true,
           delimiter: ',',
+          transform: (value) => (value === '' ? null : value),
         }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
