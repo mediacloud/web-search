@@ -10,7 +10,6 @@ import { useUploadSourcesMutation } from '../../app/services/sourceApi';
 export default function UploadSources({ collectionId, rescrape, managedCollection }) {
   const { enqueueSnackbar } = useSnackbar();
   const [updating, setUpdating] = useState(false);
-  // const [csvData, setCsvData] = useState([]);
   const [uploadSources, { isLoading: isUpdating }] = useUploadSourcesMutation();
 
   const { CSVReader } = useCSVReader();
