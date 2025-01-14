@@ -13,12 +13,13 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
   const [uploadSources, { isLoading: isUpdating }] = useUploadSourcesMutation();
 
   const { CSVReader } = useCSVReader();
+
   return (
     <div>
       <CSVReader
         config={{
           header: true,
-          transform: (value) => (value === '' ? null : value),
+          delimiter: ',',
         }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
