@@ -181,6 +181,8 @@ class Source(models.Model):
     def _clean_source(cls, source: Dict):
         obj={}
         platform = source.get("platform", Source.SourcePlatforms.ONLINE_NEWS)
+        if not platform:
+            platform = None
         if platform:
             obj["platform"] = platform.strip()
         
@@ -191,22 +193,30 @@ class Source(models.Model):
             return None
         
         name = source.get("name", None)
+        if not name:
+            name = None
         if name:
             obj["name"] = name.strip()
         if not name:
             obj["name"] = urls.canonical_domain(homepage)
         
         url_search_string = source.get("url_search_string", None)
+        if not url_search_string:
+            url_search_string = None
         if url_search_string:
             obj["url_search_string"] = url_search_string.strip()
 
         label = source.get("label", None)
+        if not label:
+            label = None
         if label:
             obj["label"] = label.strip()
         if not label:
             obj["label"] = obj["name"]
 
         notes = source.get("notes", None)
+        if not notes:
+            notes = None
         if notes:
             obj["notes"] = notes.strip()
 
@@ -219,10 +229,14 @@ class Source(models.Model):
         #     obj["stories_per_week"] = stories_per_week
 
         pub_country = source.get("pub_country", None)
+        if not pub_country:
+            pub_country = None
         if pub_country:
             obj["pub_country"] = pub_country.strip()
 
         pub_state = source.get("pub_state", None)
+        if not pub_state:
+            pub_state = None
         if pub_state:
             obj["pub_state"] = pub_state.strip()
 
