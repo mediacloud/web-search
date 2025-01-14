@@ -17,9 +17,8 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
     <div>
       <CSVReader
         config={{
-          header:
-          ['id', 'homepage', 'domain', 'url_search_string',
-            'label', 'notes', 'platform', 'pub_country', 'pub_state', 'media_type'],
+          header: true,
+          transform: (value) => (value === '' ? null : value),
         }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
