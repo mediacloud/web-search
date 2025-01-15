@@ -18,6 +18,10 @@ class RequestLoggingMiddleware:
     def __call__(self, request):
 
         log_msg = {}
+
+        #Check if logging is enabled (with caching to reduce database hits)
+        request_logging_enabled = config.REQUEST_LOGGING_ENABLED
+        
         #get the request.body before the view executes and reset it
         if(request_logging_enabled):
             if request.method == 'POST':
@@ -41,9 +45,6 @@ class RequestLoggingMiddleware:
         start_time = time.time()
         response = self.get_response(request)
         duration = time.time() - start_time
-
-        #Check if logging is enabled (with caching to reduce database hits)
-        request_logging_enabled = config.REQUEST_LOGGING_ENABLED
 
         if(request_logging_enabled):
             # Check if user is authenticated and add user data
