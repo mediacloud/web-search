@@ -3,7 +3,7 @@ import datetime as dt
 import json
 import time
 from collections import defaultdict
-from typing import Any, Callable, Dict, Generator, Iterable, List, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
 
 # PyPI
 from django.apps import apps
