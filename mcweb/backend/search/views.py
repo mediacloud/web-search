@@ -251,8 +251,8 @@ def story_list(request):
     # NOTE! indexed_date is default sort key in MC ES provider, so no longer
     # strictly necessary, *BUT* it's presense here means users cannot pass it in
     # as an parameter.  This MAY be a feature, as it's possible to imagine that
-    # some untested value(s) of sort_field might cause pathological behavior!
-    page, pagination_token = provider.paged_items(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
+    # some untested value(s) of page_sort_field might cause pathological behavior!
+    page, pagination_token = provider.paged_items(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props, page_sort_field="indexed_date")
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 1)
     return HttpResponse(json.dumps({"stories": page, "pagination_token": pagination_token}, default=str),
                         content_type="application/json",
