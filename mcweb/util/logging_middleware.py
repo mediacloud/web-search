@@ -2,7 +2,7 @@ import logging
 import time
 import datetime as dt
 from constance import config
-import BytesIO
+from io import BytesIO
 
 import json
 request_logger = logging.getLogger("request_logger")
