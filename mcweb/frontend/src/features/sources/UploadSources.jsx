@@ -20,7 +20,10 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
         config={{
           header: true,
           delimiter: ',',
-          skipEmptyLines: true,
+          transform: (value) => {
+            const validStrings = Array.from({ length: 20 }, (_, i) => `_${i + 1}`);
+            return validStrings.includes(value) ? '' : value;
+          },
         }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
