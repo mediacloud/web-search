@@ -61,7 +61,7 @@ export default function TopLanguages() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error ? error.note : 'No results please try a different query'}
+        {error ? error.detail : 'No results please try a different query'}
         )
       </Alert>
     );
@@ -123,10 +123,7 @@ export default function TopLanguages() {
             Top Languages
           </h2>
           <p>
-            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            This is an<i> experimental </i>
-            sample-based list of the top languages of content matching your query.
-            We have not strongly validated the results as representative. Use at your own risk.
+            This is a sample-based list of the top languages of content matching your query.
           </p>
           {(platform === PROVIDER_NEWS_WAYBACK_MACHINE) && (
             <p>

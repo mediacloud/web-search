@@ -1,4 +1,28 @@
-[{"version": "v2.1.1",
+[{"version": "v2.1.6",
+"date": "2024-01-14",
+"notes": ["fix bug with csv upload"
+]},{"version": "v2.1.5",
+"date": "2024-01-13",
+"notes": ["fix error message in source creation and editing",
+"improve upload source csv method",
+"add stronger validation in source creation"
+]},{"version": "v2.1.4",
+"date": "2024-12-23",
+"notes": ["shorter search error messages for timeouts",
+"change format of notes for featured collections",
+"most recent end date changed to yesterday for MC",
+"further improvement to url search string source creation editing",
+"imporve source list on collection page"
+]},{"version": "v2.1.3",
+"date": "2024-12-11",
+"notes": ["update system logging",
+"add source feature last rescraped",
+"add more features for url search string sources in directory"
+]},{"version": "v2.1.2",
+"date": "2024-12-02",
+"notes": ["update system logging",
+"add rate limiting for certain api calls"
+]},{"version": "v2.1.1",
 "date": "2024-11-21",
 "notes": ["update system logging",
 "fix story show page",

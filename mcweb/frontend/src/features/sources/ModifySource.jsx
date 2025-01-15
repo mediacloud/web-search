@@ -15,6 +15,7 @@ import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery, useUpdateSourceMutation } from '../../app/services/sourceApi';
 import DirectorySearch from '../directory/DirectorySearch';
+import validateURLSearchString from './util/validateURLSearchString';
 
 export default function ModifySource() {
   const params = useParams();
@@ -34,6 +35,7 @@ export default function ModifySource() {
     primary_language: '',
     pub_country: '',
     pub_state: '',
+    url_search_stringErrors: '',
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -87,7 +89,6 @@ export default function ModifySource() {
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
-
   return (
     <div className="container">
       <Modal
@@ -141,11 +142,10 @@ export default function ModifySource() {
           <TextField
             fullWidth
             name="name"
-            label="name"
-            helperText="This is the unique identified for this source within our system.
-            Don't change this unless you know what you're doing.
-            For news sources this should be the unique domain name."
-            value={formState.name ? formState.name : 'enter name'}
+            label="Canonical Domain"
+            helperText="This is the identified and normalized domain for this source within our system.
+                Don't change this unless you know what you're doing. For news sources this should be the canonical domain name."
+            value={formState.name ? formState.name : 'enter canonical domain'}
             onChange={handleChange}
           />
           <br />
@@ -177,10 +177,16 @@ export default function ModifySource() {
             label="Label"
             value={formState.label}
             onChange={handleChange}
-            helperText="The human-readable name shown to people for this source. Leave empty to have the domain be the name."
+            helperText="The human-readable name shown to people for this source.
+            Leave empty to have the canonical domain be the label."
           />
           <br />
           <br />
+          {formState.url_search_stringErrors && (
+          <p style={{ color: 'red', marginLeft: '5px' }}>
+            {formState.url_search_stringErrors}
+          </p>
+          )}
           <TextField
             fullWidth
             name="url_search_string"
@@ -246,16 +252,23 @@ export default function ModifySource() {
             variant="contained"
             onClick={() => {
               const preparedSource = prepareSource(formState);
-              updateSource(preparedSource)
-                .then((payload) => {
-                  if (payload.error) {
-                    setErrorMessage(payload.error.data.detail);
-                    setOpen(true);
-                  } else {
-                    enqueueSnackbar('Saved changes', { variant: 'success' });
-                    navigate(`/sources/${sourceId}`);
-                  }
-                });
+              const validSearchString = validateURLSearchString(formState.url_search_string);
+              if (!validSearchString) {
+                updateSource(preparedSource)
+                  .then((payload) => {
+                    if (payload.error) {
+                      setErrorMessage(payload.error.data.detail);
+                      setOpen(true);
+                    } else {
+                      enqueueSnackbar('Saved changes', { variant: 'success' });
+                      navigate(`/sources/${sourceId}`);
+                    }
+                  });
+              } else {
+                setFormState({ url_search_stringErrors: validSearchString });
+                setErrorMessage('Please check url search string');
+                setOpen(true);
+              }
             }}
           >
             Save
