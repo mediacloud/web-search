@@ -240,6 +240,26 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
     # domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
     return dict(domains=domains)
 
+# additional query properties to pass to MediaCloud Providers
+# sort_field could possibly be used nefariously (be used in a DoS
+# attack, or to leak full text in pagination key), so omitting it
+# until/unless it's needed and proven safe.
+_MEDIA_CLOUD_EXTRA_PROPS = [
+    'expanded',    # NOTE! view MUST check user has permission!
+    'page_size',
+    'sort_order',  # NOTE: built into news-search-api?
+    'pagination_token'
+]
+
+def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
+    """
+    copy selected API parameters to output (provider kwargs),
+    filtering to make sure nothing nefarious gets through
+    """
+    for prop_name in _MEDIA_CLOUD_EXTRA_PROPS:
+        if prop_name in input:
+            output[prop_name] = input[prop_name]
+
 def _for_media_cloud_OLD(collections: List, sources: List, all_params: Dict) -> Dict:
     # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
     Source = apps.get_model('sources', 'Source')
@@ -264,12 +284,8 @@ def _for_media_cloud_OLD(collections: List, sources: List, all_params: Dict) -> 
     domain_url_filters = [f"(canonical_domain:{s.name} AND (url:http\://{s.url_search_string} OR url:https\://{s.url_search_string}))"
                           for s in sources_with_url_search_strs]
     # 3. assemble and add in other supported params
-    supported_extra_props = ['pagination_token', 'page_size', 'sort_field', 'sort_order',
-                             'expanded']  # make sure nothing nefarious gets through
     extra_props = dict(domains=domains, filters=domain_url_filters, chunk=True) 
-    for prop_name in supported_extra_props:
-        if prop_name in all_params:
-            extra_props[prop_name] = all_params.get(prop_name)
+    _copy_media_cloud_extra_props(extra_props, all_params)
     return extra_props
 
 def _for_media_cloud(collections: list[int], sources: list[int], all_params: dict) -> dict:
@@ -310,18 +326,20 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
             url_search_strings[domain].add(uss)
 
     # 3. assemble dict of search properties
-    props = {
-        "domains": domains,
-        "url_search_strings": url_search_strings
-    }
+    props = {}
+    if domains:
+        # repr used to generate cache key;
+        # consider conversion to list if ordering proves to be an issue
+        props["domains"] = domains
+    if url_search_strings:
+        # repr used to generate cache key
+        # defaultdict repr is uglier than plain dict:
+        # "defaultdict(<class 'set'>, {....})"
+        # but is ordered, and digested before use
+        props["url_search_strings"] = url_search_strings
 
     # 4. add in other supported params
-    supported_extra_props = ['expanded',
-                             'page_size', 'pagination_token',
-                             'sort_field', 'sort_order']
-    for prop_name in supported_extra_props:
-        if prop_name in all_params:
-            props[prop_name] = all_params[prop_name]
+    _copy_media_cloud_extra_props(props, all_params)
 
     return props
 
