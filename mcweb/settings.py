@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.1.6"
+VERSION = "2.1.7"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -411,10 +411,12 @@ CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
 
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
+    "OLD_MC_PROVIDER": (False, 'Use old (NSA) mc-provider', bool),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
-    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",)
+    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",),
+    "Temporary": ("OLD_MC_PROVIDER",)
 }
 
 ################
