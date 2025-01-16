@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
 
 # PyPI
+import constance                # TEMPORARY!
 from django.apps import apps
 from mc_providers import provider_by_name, provider_name, ContentProvider, \
     PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
@@ -54,8 +55,13 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
     take parsed query, return mc_providers ContentProvider.
     (one place to pass new things to mc_providers)
     """
-    return provider_by_name(platform or pq.provider_name,
-                            api_key=pq.api_key, base_url=pq.base_url, caching=pq.caching,
+    name = platform or pq.provider_name
+    # BEGIN TEMPORARY CROCKERY!
+    # if mediacloud, and emergency ripcord pulled, revert to (new) NSA-based provider
+    if name == 'onlinenews-mediacloud' and constance.config.OLD_MC_PROVIDER:
+        name = 'onlinenews-mediacloud-old'
+    # END TEMPORARY CROCKERY
+    return provider_by_name(name, api_key=pq.api_key, base_url=pq.base_url, caching=pq.caching,
                             software_id="web-search", session_id=pq.session_id)
 
 def parse_date_str(date_str: str) -> dt.datetime:

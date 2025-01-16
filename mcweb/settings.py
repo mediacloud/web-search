@@ -411,10 +411,12 @@ CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
 
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
+    "OLD_MC_PROVIDER": (False, 'Use old (NSA) mc-provider', bool),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
-    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",)
+    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",),
+    "Temporary": ("OLD_MC_PROVIDER",)
 }
 
 ################
