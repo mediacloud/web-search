@@ -20,11 +20,13 @@ export default function UploadSources({ collectionId, rescrape, managedCollectio
         config={{
           header: true,
           delimiter: ',',
-          transform: (value) => (value === '' ? null : value),
+          transform: (value) => {
+            const validStrings = Array.from({ length: 20 }, (_, i) => `_${i + 1}`);
+            return validStrings.includes(value) ? '' : value;
+          },
         }}
         onUploadAccepted={async (uploadInfo) => {
           setUpdating(true);
-          // console.log(uploadInfo, 'Upload Info');
           const results = await uploadSources({ sources: uploadInfo.data, collection_id: collectionId, rescrape });
           setUpdating(false);
           enqueueSnackbar(
