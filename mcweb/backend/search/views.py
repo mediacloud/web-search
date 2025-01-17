@@ -68,27 +68,28 @@ def handle_provider_errors(func):
         try:
             return func(request)
         except PermanentProviderException as e:
+            logger.debug("%s", str(e), exc_info=True)
             s = str(e)
             if s.startswith("parse_exception: "):
-                logger.debug("%r", e)
                 # for now, massage here rather than in mc-providers
                 # until we figure out what to show
                 _, s = s.split(": ", 1) # remove prefix
                 s = s.split("\n")[0]    # just first line
-                logger.debug("final: %s", s)
-            return error_response(f"Permanent search service error: {s}", HttpResponseBadRequest)
+            s = f"Search service error: {s}"
+            logger.debug("final: %s", s) # TEMP
+            return error_response(s, HttpResponseBadRequest)
         except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
             # handles the RuntimeError 500 a bad query string could have triggered this ...
-            logger.exception(e)
+            logger.debug("%s", str(e), exc_info=True)
             return error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.",
                                   HttpResponseBadRequest)
         except (ProviderException, OverQuotaException) as e:
             # these are expected errors, so just report the details msg to the user
-            logger.exception(e)
+            logger.debug("%s", str(e), exc_info=True)
             return error_response(str(e), HttpResponseBadRequest)
         except Exception as e:
             # these are internal errors we care about, so handle them as true errors
-            logger.exception(e)
+            logger.exception("%s", str(e))
             return error_response(str(e), HttpResponseBadRequest)
     return _handler
 
@@ -187,7 +188,7 @@ def download_sources_csv(request):
         data = provider.sources(f"({pq.query_str})", pq.start_date,
                     pq.end_date, **pq.provider_props, limit=100)
     except Exception as e:
-        logger.exception(e)
+        logger.exception("%s", str(e))
         return error_response(str(e), HttpResponseBadRequest)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     filename = "mc-{}-{}-top-sources".format(pq.provider_name, filename_timestamp())
@@ -228,7 +229,7 @@ def download_languages_csv(request):
         data = provider.languages(f"({pq.query_str})", pq.start_date,
                     pq.end_date, **pq.provider_props, limit=100)
     except Exception as e: 
-        logger.exception(e)
+        logger.exception("%s", str(e))
         return error_response(str(e), HttpResponseBadRequest)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     filename = "mc-{}-{}-top-languages".format(pq.provider_name, filename_timestamp())
@@ -298,7 +299,7 @@ def download_words_csv(request):
                                 pq.end_date, **pq.provider_props)
         words = add_ratios(words)
     except Exception as e:
-        logger.exception(e)
+        logger.exception("%s", str(e))
         return error_response(str(e), HttpResponseBadRequest)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     filename = "mc-{}-{}-top-words".format(pq.provider_name, filename_timestamp())
