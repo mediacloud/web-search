@@ -11,7 +11,7 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpRespo
 from django_ratelimit.decorators import ratelimit
 from django.views.decorators.http import require_http_methods
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
-from mc_providers.exceptions import ProviderException
+from mc_providers.exceptions import PermanentProviderException, ProviderException, TemporaryProviderException
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, action, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -67,15 +67,23 @@ def handle_provider_errors(func):
     def _handler(request):
         try:
             return func(request)
-        except (ProviderException, OverQuotaException) as e:
-            # these are expected errors, so just report the details msg to the user
-            logger.exception(e)
-            return error_response(str(e), HttpResponseBadRequest)
-        except (requests.exceptions.ConnectionError, RuntimeError) as e:
+        except PermanentProviderException as e:
+            s = str(e)
+            if s.startswith("parse_exception: "):
+                # for now, massage here rather than in mc-providers
+                # until we figure out what to show
+                _, s = s.split(": ", 1) # remove prefix
+                s = s.split("\n")[0]    # just first line
+            return error_response(f"Permanent search service error: {s}", HttpResponseBadRequest)
+        except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
             # handles the RuntimeError 500 a bad query string could have triggered this ...
             logger.exception(e)
             return error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.",
                                   HttpResponseBadRequest)
+        except (ProviderException, OverQuotaException) as e:
+            # these are expected errors, so just report the details msg to the user
+            logger.exception(e)
+            return error_response(str(e), HttpResponseBadRequest)
         except Exception as e:
             # these are internal errors we care about, so handle them as true errors
             logger.exception(e)
