@@ -24,7 +24,6 @@ from urllib3.util.retry import Retry
 from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
 
 # mcweb/util
-import util.stats
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 
@@ -48,9 +47,10 @@ from backend.users.exceptions import OverQuotaException
 
 # mcweb/backend/util
 import backend.util.csv_stream as csv_stream
+import backend.util.stats
 
 logger = logging.getLogger(__name__)
-stats = util.stats.Stats("search") # counters for search app
+stats = backend.util.stats.Stats("search") # counters for search app
 
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
