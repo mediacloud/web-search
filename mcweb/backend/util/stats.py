@@ -17,7 +17,7 @@ Label: TypeAlias = tuple[str, str | int]
 
 def _fix(name: str) -> str:
     # underscores only used to separate label and value
-    return name.replace("_", "-").strip("-")]
+    return name.replace("_", "-").strip("-")
 
 class Stats:
     def __init__(self, app: str):
