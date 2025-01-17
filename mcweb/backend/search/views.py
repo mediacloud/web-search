@@ -1,7 +1,9 @@
 import csv
 import datetime as dt
+import functools
 import json
 import logging
+import time
 from typing import Type
 
 # PyPI
@@ -22,6 +24,7 @@ from urllib3.util.retry import Retry
 from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
 
 # mcweb/util
+import util.stats
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 
@@ -47,32 +50,54 @@ from backend.users.exceptions import OverQuotaException
 import backend.util.csv_stream as csv_stream
 
 logger = logging.getLogger(__name__)
+stats = util.stats.Stats("search") # counters for search app
 
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
-def json_response(value: dict | str | None, _response_type: Type[HttpResponse] = HttpResponse) -> HttpResponse:
+def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = HttpResponse) -> HttpResponse:
     """
-    passing status should not be needed: HttpResponse subclasses only differ by the default status!
-    It's not expected that _response_type will be used by individual view functions, hence the underscore.
+    Send a generic JSON response.
+    It's not intended that _class will be used by individual view
+    functions, hence the leading underscore.
     """
+    # NOTE! always passing default=str
     j = json.dumps(value, default=str)
-    logger.debug("json_response %d %s", response_type.status_code, j)
-    return response_type(j, content_type="application/json")
+    logger.debug("json_response %d %s", _class.status_code, j)
+    return _class(j, content_type="application/json")
 
-# phil: made response_type keyword required, since I have at least one
-# idea that requires a required/positional argument (a short error
-# description for a "stats" counter), and MOST errors are reported as
-# "bad request", and can use the default value.
 def error_response(msg: str, *, response_type: Type[HttpResponse] = HttpResponseBadRequest) -> HttpResponse:
+    """
+    Response_type now keyword required, since it's rarely needed, and
+    additional required/positional fields could be added (two
+    thoughts: error details hidden unless the user clicks something,
+    the name of a counter to increment)
+
+    Passing status code should not be needed: declarations of
+    HttpResponse subclasses used here only differ by the status_code!
+    If you need to report an error with a status code other than those
+    available in django.http (ie; to indicate a temporary error),
+    subclass HttpResponse with just "status_code = nnn" in the body of
+    the class.
+    """
     return json_response(
         dict(
             status="error",
-            note=msg,
-            count="foobar"
+            note=msg
         ),
-        _response_type=response_type
+        _class=response_type
     )
+
+def massage_permanent_error_string(s: str) -> str:
+    # for now, massage some errors here rather than in mc-providers
+    # until we know exactly what we need/want to show.
+    if s.startswith("parse_exception: "): # ES parse error
+        _, s = s.split(": ", 1) # remove prefix
+        # Note first line should have
+        # "at line LINENO, column COLNO", so it might be possible to
+        # show the user how far the parse got!
+        s = s.split("\n")[0]    # just first line
+    return s
 
 def handle_provider_errors(func):
     """
@@ -80,48 +105,69 @@ def handle_provider_errors(func):
 
     If a provider-related method returns a JSON error we want to send it back to the client with information
     that can be used to show the user some kind of error.
+
+    Now with stats keeping (but not all endpoints are wrapped with this decorator...)
     """
+    @functools.wraps(func)      # propogates __name__
     def _handler(request):
         try:
-            return func(request)
+            t0 = time.monotonic()
+            ret = func(request)
+            if ret.status_code == 200:
+                stats.timing("success", func.__name__, time.monotonic() - t0)
         except PermanentProviderException as e:
-            logger.debug("perm: %r", str(e), exc_info=True)
-            s = str(e)
-            if s.startswith("parse_exception: "):
-                # for now, massage ES parse errors here rather than in mc-providers
-                # until we figure out what to show!  Note first line should have
-                # "at line LINENO, column COLNO", so it might be possible to
-                # show how far the parse got!
-                _, s = s.split(": ", 1) # remove prefix
-                s = s.split("\n")[0]    # just first line
-            s = f"Search service error: {s}"
+            logger.debug("perm: %r", e, exc_info=True)
+            s = massage_permanent_error_string(str(e))
             logger.debug("perm2: %s", s) # TEMP
-            return error_response(s)
-        except (requests.exceptions.ConnectionError, TemporaryProviderException) as e:
+            ret = error_response(s)
+        except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
             # handles the RuntimeError 500 a bad query string could have triggered this ...
             logger.debug("temp: %r", e, exc_info=True)
-            return error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.")
+            # could conceivably send as a "503 Service Unavailable" error to indicate retryable
+            ret = error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.")
         except (ProviderException, OverQuotaException) as e:
             # these are expected errors, so just report the details msg to the user
-            logger.debug("prov/quota: %r", e, exc_info=True)
-            return error_response(str(e))
-        except (RuntimeError, Exception) as e:
+            logger.debug("misc/quota: %r", e, exc_info=True)
+            ret = error_response(str(e))
+        except Exception as e:
             # these are internal errors we care about, so handle them as true errors
-            logger.exception("other exception: %r", e)
-            return error_response(str(e))
+            logger.exception("unhandled exception: %r", e) # logs as error
+            ret = error_response(str(e))
+
+        stats.count("calls", func.__name__, labels=[("status", ret.status_code)])
+        return ret
+
     return _handler
 
 
 def _qs(pq: ParsedQuery) -> str:
     """
+    removed paren wrapping (should not be needed with providers 3.0)
+    because it confusifies parser error messages!
+
     function used to access query_str,
     in case reverting to paren wrapping needed in a hurry.
     _qs(pq) is shorter than _p(pq.query_str)
-
-    removed paren wrapping (should not be needed with providers 3.0)
-    because it confusifies parser error messages!
     """
     return pq.query_str
+
+# TEMP FOR TEST/DEBUG
+@handle_provider_errors
+@api_view(['GET'])
+def temporary_error(request):
+    raise TemporaryProviderException("kilroy was here")
+
+# TEMP FOR TEST/DEBUG
+@handle_provider_errors
+@api_view(['GET'])
+def permanent_error(request):
+    raise PermanentProviderException("hello world")
+
+# TEMP FOR TEST/DEBUG
+@handle_provider_errors
+@api_view(['GET'])
+def success(request):
+    return json_response({"thing1": "thing2"})
 
 @handle_provider_errors
 @api_view(['GET', 'POST'])
