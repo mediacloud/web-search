@@ -52,7 +52,10 @@ logger = logging.getLogger(__name__)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
 def json_response(value: dict | str | None, response_type: Type[HttpResponse] = HttpResponse) -> HttpResponse:
-    return response_type(json.dumps(value, default=str), content_type="application/json", status=200)
+    # status should not be needed: HttpResponse subclasses only differ by the default status!
+    j = json.dumps(value, default=str)
+    logger.debug("json_response %d %s", response_type.status_code, j)
+    return response_type(j, content_type="application/json")
 
 # PB: made response_type keyword required, since I have at least one
 # idea that requires a required/positional argument (a short error
@@ -61,7 +64,7 @@ def error_response(msg: str, *, response_type: Type[HttpResponse] = HttpResponse
     return json_response(
         dict(
             status="error",
-            detail="foobar", # XXX TEMP/TESTING
+#           detail="foobar", # XXX TEMP/TESTING
             note=msg),
         response_type=response_type
     )
@@ -77,27 +80,29 @@ def handle_provider_errors(func):
         try:
             return func(request)
         except PermanentProviderException as e:
-            logger.debug("%s", str(e), exc_info=True)
+            logger.debug("perm: %r", str(e), exc_info=True)
             s = str(e)
             if s.startswith("parse_exception: "):
                 # for now, massage ES parse errors here rather than in mc-providers
-                # until we figure out what to show
+                # until we figure out what to show!  Note first line should have
+                # "at line LINENO, column COLNO", so it might be possible to
+                # show how far the parse got!
                 _, s = s.split(": ", 1) # remove prefix
                 s = s.split("\n")[0]    # just first line
             s = f"Search service error: {s}"
-            logger.debug("final: %s", s) # TEMP
+            logger.debug("perm2: %s", s) # TEMP
             return error_response(s)
-        except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
+        except (requests.exceptions.ConnectionError, TemporaryProviderException) as e:
             # handles the RuntimeError 500 a bad query string could have triggered this ...
-            logger.debug("%s", e, exc_info=True)
+            logger.debug("temp: %r", e, exc_info=True)
             return error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.")
         except (ProviderException, OverQuotaException) as e:
             # these are expected errors, so just report the details msg to the user
-            logger.debug("%s", e, exc_info=True)
+            logger.debug("prov/quota: %r", e, exc_info=True)
             return error_response(str(e))
-        except Exception as e:
+        except (RuntimeError, Exception) as e:
             # these are internal errors we care about, so handle them as true errors
-            logger.exception("%s", e)
+            logger.exception("other exception: %r", e)
             return error_response(str(e))
     return _handler
 
