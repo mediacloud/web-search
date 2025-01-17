@@ -70,10 +70,12 @@ def handle_provider_errors(func):
         except PermanentProviderException as e:
             s = str(e)
             if s.startswith("parse_exception: "):
+                logger.debug("%r", e)
                 # for now, massage here rather than in mc-providers
                 # until we figure out what to show
                 _, s = s.split(": ", 1) # remove prefix
                 s = s.split("\n")[0]    # just first line
+                logger.debug("final: %s", s)
             return error_response(f"Permanent search service error: {s}", HttpResponseBadRequest)
         except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
             # handles the RuntimeError 500 a bad query string could have triggered this ...
