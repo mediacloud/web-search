@@ -51,22 +51,27 @@ logger = logging.getLogger(__name__)
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
-def json_response(value: dict | str | None, response_type: Type[HttpResponse] = HttpResponse) -> HttpResponse:
-    # status should not be needed: HttpResponse subclasses only differ by the default status!
+def json_response(value: dict | str | None, _response_type: Type[HttpResponse] = HttpResponse) -> HttpResponse:
+    """
+    passing status should not be needed: HttpResponse subclasses only differ by the default status!
+    It's not expected that _response_type will be used by individual view functions, hence the underscore.
+    """
     j = json.dumps(value, default=str)
     logger.debug("json_response %d %s", response_type.status_code, j)
     return response_type(j, content_type="application/json")
 
-# PB: made response_type keyword required, since I have at least one
+# phil: made response_type keyword required, since I have at least one
 # idea that requires a required/positional argument (a short error
-# description for stats reporting)
+# description for a "stats" counter), and MOST errors are reported as
+# "bad request", and can use the default value.
 def error_response(msg: str, *, response_type: Type[HttpResponse] = HttpResponseBadRequest) -> HttpResponse:
     return json_response(
         dict(
             status="error",
-#           detail="foobar", # XXX TEMP/TESTING
-            note=msg),
-        response_type=response_type
+            note=msg,
+            count="foobar"
+        ),
+        _response_type=response_type
     )
 
 def handle_provider_errors(func):
