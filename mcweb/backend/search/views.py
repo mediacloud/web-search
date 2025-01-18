@@ -61,7 +61,7 @@ def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = Http
     """
     # NOTE! always passing default=str
     j = json.dumps(value, default=str)
-    logger.debug("json_response %d %s", _class.status_code, j)
+    #logger.debug("json_response %d %s", _class.status_code, j)
     return _class(j, content_type="application/json")
 
 def error_response(msg: str, *, response_type: Type[HttpResponse] = HttpResponseBadRequest) -> HttpResponse:
@@ -110,7 +110,6 @@ def handle_provider_errors(func):
         except PermanentProviderException as e:
             logger.debug("perm: %r", e, exc_info=True)
             s = massage_permanent_error_string(str(e))
-            logger.debug("perm2: %s", s) # TEMP
             return error_response(s)
         except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
             # handles the RuntimeError 500 a bad query string could have triggered this ...
