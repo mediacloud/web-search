@@ -1,9 +1,9 @@
 import csv
 import datetime as dt
-import functools
 import json
 import logging
 import time
+import traceback
 from typing import Type
 
 # PyPI
@@ -13,8 +13,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django_ratelimit.decorators import ratelimit
 from django.views.decorators.http import require_http_methods
-from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
-from mc_providers.exceptions import PermanentProviderException, ProviderException, TemporaryProviderException
+from mc_providers.exceptions import (
+    PermanentProviderException, ProviderException, QueryingEverythingUnsupportedQuery,
+    TemporaryProviderException, UnsupportedOperationException)
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, action, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -53,6 +54,11 @@ logger = logging.getLogger(__name__)
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
+
+class HttpResponseServiceUnavailable(HttpResponse):
+    status_code = 503
+
+
 def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = HttpResponse) -> HttpResponse:
     """
     Send a generic JSON response.
@@ -61,30 +67,38 @@ def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = Http
     """
     # NOTE! always passing default=str
     j = json.dumps(value, default=str)
-    #logger.debug("json_response %d %s", _class.status_code, j)
+    logger.debug("json_response %d %s", _class.status_code, j) # put under an if?
     return _class(j, content_type="application/json")
 
-def error_response(msg: str, *, response_type: Type[HttpResponse] = HttpResponseBadRequest) -> HttpResponse:
+def error_response(msg: str, *, exc: Exception | None = None,
+                   response_type: Type[HttpResponse] = HttpResponseBadRequest) -> HttpResponse:
     """
-    Response_type now keyword required, since it's rarely needed, and
-    additional required/positional fields could be added (two
-    thoughts: error details hidden unless the user clicks something,
-    the name of a counter to increment)
+    NOTE! Optional args all keyword required.
 
     Passing status code should not be needed: declarations of
-    HttpResponse subclasses used here only differ by the status_code!
-    If you need to report an error with a status code other than those
-    available in django.http (ie; to indicate a temporary error),
-    subclass HttpResponse with just "status_code = nnn" in the body of
-    the class.
+    HttpResponse only differ by the status_code class member!  See
+    HttpResponseServiceUnavailable above for an example of a custom
+    response class.
     """
-    return json_response(
-        dict(
-            status="error",
-            note=msg
-        ),
-        _class=response_type
-    )
+    response = dict(status="error", note=msg)
+    if exc:
+        # create detailed info (for optional display) from an
+        # exception for users to pass to support (via screenshot if
+        # needed, or maybe a button to pass the info (back) to an API
+        # endpoint to log or email it) to help diagnose problems.
+
+        # NOTE! {Mystery,Temporary,Permanent}ProviderExceptions
+        # all return user-friendly string with __str__
+        # and both friendly and detailed info with __repr__
+        response["exception"] = repr(exc)
+
+        # show the file, line number, and the line of code (trying to
+        # limit payload and info leakage, if neither is a problem, or
+        # this turns out to be flakey, could pass back the entire list):
+        response["traceback"] = traceback.format_exception(exc)[-2]
+
+    return json_response(response, _class=response_type)
+
 
 def massage_permanent_error_string(s: str) -> str:
     # for now, massage some errors here rather than in mc-providers
@@ -97,12 +111,19 @@ def massage_permanent_error_string(s: str) -> str:
         s = s.split("\n")[0]    # just first line
     return s
 
+
+# User-friendly text for a temporary (transient) error.  added to
+# quash the "RuntimeError 500 a bad query string could have triggered
+# this ..."  message from news-search-api.  It might be temporary
+# solution, and can be replaced (for the most part) by more specific
+# responses by having providers raise TemporaryProviderExceptions
+# which are contain user-friendly messages.
+TEMPORARY_ERROR_MESSAGE = "Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments."
+
 def handle_provider_errors(func):
     """
-    Decorator for view functions.
-
-    If a provider-related method returns a JSON error we want to send it back to the client with information
-    that can be used to show the user some kind of error.
+    Decorator for view functions calling mc-providers.
+    Handle exceptions and translate to HttpResponse with JSON payload
     """
     def _handler(request):
         try:
@@ -110,20 +131,21 @@ def handle_provider_errors(func):
         except PermanentProviderException as e:
             logger.debug("perm: %r", e, exc_info=True)
             s = massage_permanent_error_string(str(e))
-            return error_response(s)
+            return error_response(s, exc=e)
         except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
-            # handles the RuntimeError 500 a bad query string could have triggered this ...
             logger.debug("temp: %r", e, exc_info=True)
-            # could conceivably send as a "503 Service Unavailable" error to indicate retryable
-            return error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.")
+            return error_response(TEMPORARY_ERROR_MESSAGE, exc=e,
+                                  response_type=HttpResponseServiceUnavailable) # HTTP 503
         except (ProviderException, OverQuotaException) as e:
-            # these are expected errors, so just report the details msg to the user
+            # these are expected errors, so just report the details msg to the user.
+            # includes {Permanent,Temporary}ProviderExceptions, which return a friendly
+            # string to str(e), and more detail to repr(e).
             logger.debug("misc/quota: %r", e, exc_info=True)
-            return error_response(str(e))
+            return error_response(str(e), exc=e)
         except Exception as e:
             # these are internal errors we care about, so handle them as true errors
             logger.exception("unhandled exception: %r", e) # logs as error
-            return error_response(str(e))
+            return error_response(str(e), exc=e)
 
     return _handler
 
