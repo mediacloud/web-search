@@ -78,7 +78,6 @@ class Stats:
             error responses.
             """
             t0 = time.monotonic()
-            breakpoint()
             response = func(request)
             if response.status_code == 200:
                 self.timing("calls", func.__name__, time.monotonic() - t0)

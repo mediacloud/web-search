@@ -108,7 +108,6 @@ def handle_provider_errors(func):
 
     Now with stats keeping (but not all endpoints are wrapped with this decorator...)
     """
-    @functools.wraps(func)      # propogates __name__
     def _handler(request):
         try:
             return func(request)
@@ -144,27 +143,6 @@ def _qs(pq: ParsedQuery) -> str:
     _qs(pq) is shorter than _p(pq.query_str)
     """
     return pq.query_str
-
-# TEMP FOR TEST/DEBUG
-@handle_provider_errors
-@api_view(['GET'])
-@stats.wrap
-def temporary_error(request):
-    raise TemporaryProviderException("kilroy was here")
-
-# TEMP FOR TEST/DEBUG
-@handle_provider_errors
-@api_view(['GET'])
-@stats.wrap
-def permanent_error(request):
-    raise PermanentProviderException("hello world")
-
-# TEMP FOR TEST/DEBUG
-@handle_provider_errors
-@api_view(['GET'])
-@stats.wrap
-def success(request):
-    return json_response({"thing1": "thing2"})
 
 @handle_provider_errors
 @api_view(['GET', 'POST'])
