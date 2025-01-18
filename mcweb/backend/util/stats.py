@@ -19,6 +19,7 @@ def _fix(name: str) -> str:
     # underscores only used to separate label and value
     return name.replace("_", "-").strip("-")
 
+# XXX add a method for decorating web endpoints!!!
 class Stats:
     def __init__(self, app: str):
         self.app = app
@@ -35,7 +36,7 @@ class Stats:
         """
         if not STATSD_PREFIX:   # XXX and server
             return
-        name = _make_name(group, item, labels)
+        name = self._make_name(group, item, labels)
         logger.debug("increment %s", name)
         # XXX actual increment call here
 
@@ -45,7 +46,7 @@ class Stats:
         """
         if not STATSD_PREFIX:   # XXX and server
             return
-        name = _make_name(group, item, labels)
+        name = self._make_name(group, item, labels)
         ms = sec * 1000
         logger.debug("timing %s %.3f", name, ms)
         # XXX actual timing call here
