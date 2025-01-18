@@ -24,6 +24,7 @@ from urllib3.util.retry import Retry
 from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
 
 # mcweb/util
+import util.stats
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 
@@ -47,10 +48,9 @@ from backend.users.exceptions import OverQuotaException
 
 # mcweb/backend/util
 import backend.util.csv_stream as csv_stream
-import backend.util.stats
 
 logger = logging.getLogger(__name__)
-stats = backend.util.stats.Stats("search") # counters for search app
+stats = util.stats.Stats("search") # counters for search app
 
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
@@ -111,31 +111,25 @@ def handle_provider_errors(func):
     @functools.wraps(func)      # propogates __name__
     def _handler(request):
         try:
-            t0 = time.monotonic()
-            ret = func(request)
-            if ret.status_code == 200:
-                stats.timing("success", func.__name__, time.monotonic() - t0)
+            return func(request)
         except PermanentProviderException as e:
             logger.debug("perm: %r", e, exc_info=True)
             s = massage_permanent_error_string(str(e))
             logger.debug("perm2: %s", s) # TEMP
-            ret = error_response(s)
+            return error_response(s)
         except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
             # handles the RuntimeError 500 a bad query string could have triggered this ...
             logger.debug("temp: %r", e, exc_info=True)
             # could conceivably send as a "503 Service Unavailable" error to indicate retryable
-            ret = error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.")
+            return error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.")
         except (ProviderException, OverQuotaException) as e:
             # these are expected errors, so just report the details msg to the user
             logger.debug("misc/quota: %r", e, exc_info=True)
-            ret = error_response(str(e))
+            return error_response(str(e))
         except Exception as e:
             # these are internal errors we care about, so handle them as true errors
             logger.exception("unhandled exception: %r", e) # logs as error
-            ret = error_response(str(e))
-
-        stats.count("calls", func.__name__, labels=[("status", ret.status_code)])
-        return ret
+            return error_response(str(e))
 
     return _handler
 
@@ -154,18 +148,21 @@ def _qs(pq: ParsedQuery) -> str:
 # TEMP FOR TEST/DEBUG
 @handle_provider_errors
 @api_view(['GET'])
+@stats.wrap
 def temporary_error(request):
     raise TemporaryProviderException("kilroy was here")
 
 # TEMP FOR TEST/DEBUG
 @handle_provider_errors
 @api_view(['GET'])
+@stats.wrap
 def permanent_error(request):
     raise PermanentProviderException("hello world")
 
 # TEMP FOR TEST/DEBUG
 @handle_provider_errors
 @api_view(['GET'])
+@stats.wrap
 def success(request):
     return json_response({"thing1": "thing2"})
 
@@ -173,6 +170,7 @@ def success(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@stats.wrap
 def total_count(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -191,6 +189,7 @@ def total_count(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@stats.wrap
 def count_over_time(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -209,6 +208,7 @@ def count_over_time(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@stats.wrap
 def sample(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -221,6 +221,7 @@ def sample(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@stats.wrap
 def story_detail(request):
     pq, params = parse_query_params(request) # unlikely to handle POST!
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
@@ -237,6 +238,7 @@ def story_detail(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@stats.wrap
 def sources(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -247,6 +249,7 @@ def sources(request):
 
 @require_http_methods(["GET"])
 @action(detail=False)
+@stats.wrap
 def download_sources_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
@@ -273,6 +276,7 @@ def download_sources_csv(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@stats.wrap
 def languages(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -284,6 +288,7 @@ def languages(request):
 
 @require_http_methods(["GET"])
 @action(detail=False)
+@stats.wrap
 def download_languages_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
@@ -308,6 +313,7 @@ def download_languages_csv(request):
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
 @ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
+@stats.wrap
 def story_list(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -332,6 +338,7 @@ def story_list(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@stats.wrap
 def words(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -345,6 +352,7 @@ def words(request):
 
 @require_http_methods(["GET"])
 @action(detail=False)
+@stats.wrap
 def download_words_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
@@ -367,6 +375,7 @@ def download_words_csv(request):
 
 @require_http_methods(["GET"])
 @action(detail=False)
+@stats.wrap
 def download_counts_over_time_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
@@ -396,6 +405,7 @@ def download_counts_over_time_csv(request):
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["GET"])
 @action(detail=False)
+@stats.wrap
 def download_all_content_csv(request):
     parsed_queries = parsed_query_state(request) # handles POST!
     data_generator = all_content_csv_generator(parsed_queries, request.user.id, request.user.is_staff)
@@ -408,6 +418,7 @@ def download_all_content_csv(request):
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
+@stats.wrap
 def send_email_large_download_csv(request):
     # get queryState and email
     payload = json.loads(request.body)
@@ -440,6 +451,7 @@ def send_email_large_download_csv(request):
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["POST"])
 @action(detail=False)
+@stats.wrap
 def download_all_queries_csv(request):
     queries = parsed_query_state(request) # handles GET with qS=JSON
 
