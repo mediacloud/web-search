@@ -1,8 +1,4 @@
-[{"version": "v2.1.7",
-"date": "2024-01-15",
-"notes": ["fix bug with csv upload",
-"update middleware for collection creation bug"
-]},{"version": "v2.1.6",
+[{"version": "v2.1.6",
 "date": "2024-01-14",
 "notes": ["fix bug with csv upload"
 ]},{"version": "v2.1.5",

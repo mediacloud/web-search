@@ -54,9 +54,6 @@ class Stats:
         # XXX actual timing call here
 
     def wrap(self, func):
-        return func
-
-    def wrap2(self, func):
         """
         decorator for timing/stats
         needs to be after any decorators
@@ -81,9 +78,10 @@ class Stats:
             error responses.
             """
             t0 = time.monotonic()
-            ret = func(request)
-            if ret.status_code == 200:
-                self.timing("success", func.__name__, time.monotonic() - t0)
-                self.count("success", func.__name__) # gives rate
-            return ret
+            breakpoint()
+            response = func(request)
+            if response.status_code == 200:
+                self.timing("calls", func.__name__, time.monotonic() - t0)
+                self.count("calls", func.__name__) # gives rate
+            return response
         return decorator
