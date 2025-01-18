@@ -67,6 +67,7 @@ class Stats:
         function nesting here, and for no immediate benefit.
         """
         # if this fires, a decorator after this one didn't preserve __name__
+        """
         assert func.__name__ not in ["view", "decorator", "_handler"]
 
         @wraps(func)
@@ -82,6 +83,7 @@ class Stats:
             if ret.status_code == 200:
                 self.timing("success", func.__name__, time.monotonic() - t0)
                 self.count("success", func.__name__) # gives rate
-
             return ret
         return decorator
+        """
+        return func
