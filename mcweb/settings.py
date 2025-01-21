@@ -91,6 +91,8 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     SENTRY_JS_TRACES_RATE=(float, 0.2), # fraction 0 to 1.0
     SENTRY_PY_PROFILES_RATE=(float, 1.0), # fraction 0 to 1.0
     SENTRY_PY_TRACES_RATE=(float, 1.0),  # fraction 0 to 1.0
+    STATSD_HOST=(str, ""),
+    STATSD_REALM=(str, ""),
     SYSTEM_ALERT=(str,None),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -148,6 +150,8 @@ SENTRY_JS_TRACES_RATE = env('SENTRY_JS_TRACES_RATE')
 SENTRY_JS_REPLAY_RATE = env('SENTRY_JS_REPLAY_RATE')
 SENTRY_PY_PROFILES_RATE = env('SENTRY_PY_PROFILES_RATE')
 SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
+STATSD_HOST = env('STATSD_HOST')
+STATSD_REALM = env('STATSD_REALM')
 SYSTEM_ALERT = env('SYSTEM_ALERT')
 
 # end config

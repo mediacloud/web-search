@@ -27,3 +27,4 @@ numpy
 #pandas
 sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v2.0.0
 supervisor==4.2.*
+statsd_client==1.0.*
