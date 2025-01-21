@@ -2,6 +2,7 @@ import csv
 import datetime as dt
 import json
 import logging
+from typing import Type
 
 # PyPI
 import mc_providers
@@ -11,7 +12,7 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpRespo
 from django_ratelimit.decorators import ratelimit
 from django.views.decorators.http import require_http_methods
 from mc_providers.exceptions import UnsupportedOperationException, QueryingEverythingUnsupportedQuery
-from mc_providers.exceptions import ProviderException
+from mc_providers.exceptions import PermanentProviderException, ProviderException, TemporaryProviderException
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, action, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -34,8 +35,7 @@ from .utils import (
     parse_query_params,
     parsed_query_from_dict,
     parsed_query_state,
-    pq_provider,
-    search_props_for_provider
+    pq_provider
 )
 from .tasks import download_all_large_content_csv, download_all_queries_csv_task
 
@@ -51,12 +51,23 @@ logger = logging.getLogger(__name__)
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
-def error_response(msg: str, response_type: HttpResponse | None) -> HttpResponse:
-    ResponseClass = response_type or HttpResponseBadRequest
-    return ResponseClass(json.dumps(dict(
-        status="error",
-        note=msg,
-    )))
+def json_response(value: dict | str | None, response_type: Type[HttpResponse] = HttpResponse) -> HttpResponse:
+    # status should not be needed: HttpResponse subclasses only differ by the default status!
+    j = json.dumps(value, default=str)
+    logger.debug("json_response %d %s", response_type.status_code, j)
+    return response_type(j, content_type="application/json")
+
+# PB: made response_type keyword required, since I have at least one
+# idea that requires a required/positional argument (a short error
+# description for stats reporting)
+def error_response(msg: str, *, response_type: Type[HttpResponse] = HttpResponseBadRequest) -> HttpResponse:
+    return json_response(
+        dict(
+            status="error",
+#           detail="foobar", # XXX TEMP/TESTING
+            note=msg),
+        response_type=response_type
+    )
 
 def handle_provider_errors(func):
     """
@@ -68,21 +79,44 @@ def handle_provider_errors(func):
     def _handler(request):
         try:
             return func(request)
+        except PermanentProviderException as e:
+            logger.debug("perm: %r", str(e), exc_info=True)
+            s = str(e)
+            if s.startswith("parse_exception: "):
+                # for now, massage ES parse errors here rather than in mc-providers
+                # until we figure out what to show!  Note first line should have
+                # "at line LINENO, column COLNO", so it might be possible to
+                # show how far the parse got!
+                _, s = s.split(": ", 1) # remove prefix
+                s = s.split("\n")[0]    # just first line
+            s = f"Search service error: {s}"
+            logger.debug("perm2: %s", s) # TEMP
+            return error_response(s)
+        except (requests.exceptions.ConnectionError, TemporaryProviderException) as e:
+            # handles the RuntimeError 500 a bad query string could have triggered this ...
+            logger.debug("temp: %r", e, exc_info=True)
+            return error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.")
         except (ProviderException, OverQuotaException) as e:
             # these are expected errors, so just report the details msg to the user
-            logger.exception(e)
-            return error_response(str(e), HttpResponseBadRequest)
-        except (requests.exceptions.ConnectionError, RuntimeError) as e:
-            # handles the RuntimeError 500 a bad query string could have triggered this ...
-            logger.exception(e)
-            return error_response("Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments.",
-                                  HttpResponseBadRequest)
-        except Exception as e:
+            logger.debug("prov/quota: %r", e, exc_info=True)
+            return error_response(str(e))
+        except (RuntimeError, Exception) as e:
             # these are internal errors we care about, so handle them as true errors
-            logger.exception(e)
-            return error_response(str(e), HttpResponseBadRequest)
+            logger.exception("other exception: %r", e)
+            return error_response(str(e))
     return _handler
 
+
+def _qs(pq: ParsedQuery) -> str:
+    """
+    function used to access query_str,
+    in case reverting to paren wrapping needed in a hurry.
+    _qs(pq) is shorter than _p(pq.query_str)
+
+    removed paren wrapping (should not be needed with providers 3.0)
+    because it confusifies parser error messages!
+    """
+    return pq.query_str
 
 @handle_provider_errors
 @api_view(['GET', 'POST'])
@@ -92,14 +126,13 @@ def total_count(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    relevant_count = provider.count(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+    relevant_count = provider.count(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     try:
         total_content_count = provider.count(provider.everything_query(), pq.start_date, pq.end_date, **pq.provider_props)
     except QueryingEverythingUnsupportedQuery as e:
         total_content_count = None
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
-    return HttpResponse(json.dumps({"count": {"relevant": relevant_count, "total": total_content_count}}),
-                        content_type="application/json", status=200)
+    return json_response({"count": {"relevant": relevant_count, "total": total_content_count}})
 
 
 
@@ -112,15 +145,14 @@ def count_over_time(request):
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
-        results = provider.normalized_count_over_time(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+        results = provider.normalized_count_over_time(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
-        results = provider.count_over_time(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+        results = provider.count_over_time(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     response = results
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, pq.provider_name)
-    return HttpResponse(json.dumps({"count_over_time": response}, default=str), content_type="application/json",
-                        status=200)
+    return json_response({"count_over_time": response})
 
 @handle_provider_errors
 @api_view(['GET', 'POST'])
@@ -130,10 +162,9 @@ def sample(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.sample(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+    response = provider.sample(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
-    return HttpResponse(json.dumps({"sample": response}, default=str), content_type="application/json",
-                        status=200)
+    return json_response({"sample": response})
 
 @handle_provider_errors
 @api_view(['GET'])
@@ -149,8 +180,7 @@ def story_detail(request):
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     if not request.user.is_staff: # maybe some group membership?
         del story_details['text']
-    return HttpResponse(json.dumps({"story": story_details}, default=str), content_type="application/json",
-                        status=200)
+    return json_response({"story": story_details})
 
 @handle_provider_errors
 @api_view(['GET', 'POST'])
@@ -160,10 +190,9 @@ def sources(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.sources(f"({pq.query_str})", pq.start_date, pq.end_date, 10, **pq.provider_props)
+    response = provider.sources(_qs(pq), pq.start_date, pq.end_date, 10, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
-    return HttpResponse(json.dumps({"sources": response}, default=str), content_type="application/json",
-                        status=200)
+    return json_response({"sources": response})
 
 @require_http_methods(["GET"])
 @action(detail=False)
@@ -173,12 +202,9 @@ def download_sources_csv(request):
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     
-    try:
-        data = provider.sources(f"({pq.query_str})", pq.start_date,
-                    pq.end_date, **pq.provider_props, sample_size=5000, limit=100)
-    except Exception as e:
-        logger.exception(e)
-        return error_response(str(e), HttpResponseBadRequest)
+    # PB: was passing sample_size=5000
+    data = provider.sources(_qs(pq), pq.start_date,
+                            pq.end_date, **pq.provider_props, limit=100)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     filename = "mc-{}-{}-top-sources".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
@@ -200,10 +226,9 @@ def languages(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.languages(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+    response = provider.languages(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
-    return HttpResponse(json.dumps({"languages": response}, default=str), content_type="application/json",
-                        status=200)
+    return json_response({"languages": response})
 
 
 @require_http_methods(["GET"])
@@ -213,12 +238,8 @@ def download_languages_csv(request):
     pq = queries[0]
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    try:
-        data = provider.languages(f"({pq.query_str})", pq.start_date,
-                    pq.end_date, **pq.provider_props, sample_size=5000, limit=100)
-    except Exception as e: 
-        logger.exception(e)
-        return error_response(str(e), HttpResponseBadRequest)
+    # PB: was passing sample_size=5000
+    data = provider.languages(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props, limit=100)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     filename = "mc-{}-{}-top-languages".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
@@ -245,12 +266,15 @@ def story_list(request):
     if pq.provider_props.get('expanded') is not None:
         pq.provider_props['expanded'] = pq.provider_props['expanded'] == '1'
         if not request.user.is_staff:
-            raise error_response("You are not permitted to fetch `expanded` stories.", HttpResponseForbidden)
-    page, pagination_token = provider.paged_items(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
+            raise error_response("You are not permitted to fetch `expanded` stories.", response_type=HttpResponseForbidden)
+
+    # NOTE! indexed_date is default sort key in MC ES provider, so no longer
+    # strictly necessary, *BUT* it's presense here means users cannot pass it in
+    # as an parameter.  This MAY be a feature, as it's possible to imagine that
+    # some untested value(s) of sort_field might cause pathological behavior!
+    page, pagination_token = provider.paged_items(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 1)
-    return HttpResponse(json.dumps({"stories": page, "pagination_token": pagination_token}, default=str),
-                        content_type="application/json",
-                        status=200)
+    return json_response({"stories": page, "pagination_token": pagination_token})
 
 
 @handle_provider_errors
@@ -261,11 +285,10 @@ def words(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    words = provider.words(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+    words = provider.words(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     response = add_ratios(words)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
-    return HttpResponse(json.dumps({"words": response}, default=str), content_type="application/json",
-                        status=200)
+    return json_response({"words": response})
                         
 
 
@@ -276,13 +299,9 @@ def download_words_csv(request):
     pq = queries[0]
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    try:
-        words = provider.words(f"({pq.query_str})", pq.start_date,
-                                pq.end_date, **pq.provider_props, sample_size=5000)
-        words = add_ratios(words)
-    except Exception as e:
-        logger.exception(e)
-        return error_response(str(e), HttpResponseBadRequest)
+    # PB: was passing sample_size=5000
+    words = provider.words(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    words = add_ratios(words)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     filename = "mc-{}-{}-top-words".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
@@ -304,7 +323,7 @@ def download_counts_over_time_csv(request):
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
         data = provider.normalized_count_over_time(
-            f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+            _qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
         normalized = True
     except UnsupportedOperationException:
         data = provider.count_over_time(pq.query_str, pq.start_date, pq.end_date, **pq.provider_props)
@@ -349,10 +368,10 @@ def send_email_large_download_csv(request):
     # applying range check to sum of all queries!
     total = 0
     for query in queryState:
-        pq = parsed_query_from_dict(query)
+        pq = parsed_query_from_dict(query, request)
         provider = pq_provider(pq)
         try:
-            total += provider.count(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+            total += provider.count(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
         except UnsupportedOperationException:
             # said "continuing anyway", but didn't!
             return error_response("Can't count results for download in {}".format(pq.provider_name))
@@ -362,8 +381,7 @@ def send_email_large_download_csv(request):
     if total >= ALL_URLS_CSV_EMAIL_MIN and total <= ALL_URLS_CSV_EMAIL_MAX:
         # task arguments must be JSONifiable, so must pass queryState instead of pqs
         response = download_all_large_content_csv(queryState, request.user.id, request.user.is_staff, email)
-        return HttpResponse(json.dumps(response, default=str),
-                            content_type="application/json", status=200)
+        return json_response(response)
     else:
         return error_response("Total {} not between {} and {}".format(
             total, ALL_URLS_CSV_EMAIL_MIN, ALL_URLS_CSV_EMAIL_MAX))
@@ -376,8 +394,8 @@ def download_all_queries_csv(request):
 
     # make background task to fetch each query and zip into file then send email
     download_all_queries_csv_task(queries, request)
-    return HttpResponse(content_type="application/json", status=200)
-
+    # was: return HttpResponse(content_type="application/json", status=200)
+    return json_response("")
 
 def add_ratios(words_data):
     for word in words_data:

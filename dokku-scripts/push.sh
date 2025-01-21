@@ -365,19 +365,12 @@ if [ -n "$PRIVATE_CONF_REPO" -a -d "$PRIVATE_CONF_REPO" ]; then
     tag_conf_repo
 fi
 
-# process scaling
-WEB_PROCS=5
-case $BRANCH in
-prod)
-    WEB_PROCS=16 # times 64 (WEB_CONCURRENCY) threads seems... excessive!
-    ;;
-esac
+# number of containers (was 16 for staging/prod), each with
+# WEB_CONCURRENCY gunicorn workers (64 in staging/prod)
+WEB_PROCS=1
 
-# add new Procfile entries to next line!!
+# add most new things to supervisord.conf!
 GOALS="web=$WEB_PROCS supervisord=1"
-#
-# TEMP scale down old workers:
-#GOALS="$GOALS worker=0 system-fast-worker=0 admin-slow-worker=0 admin-fast-worker=0 user-slow-worker=0 user-fast-worker=0"
 #
 # avoid unnecessary redeploys
 SCALE=$(dokku ps:scale $APP | awk -v "goals=$GOALS" -f $SCRIPT_DIR/scale.awk)
@@ -385,7 +378,5 @@ if [ "x$SCALE" != x ]; then
     echo scaling $SCALE
     dokku ps:scale $APP $SCALE
 fi
-
-#dokku ps:start $APP
 
 echo "$(date '+%F %T') $APP $REMOTE $TAG" >> push.log
