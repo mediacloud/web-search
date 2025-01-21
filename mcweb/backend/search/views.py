@@ -14,7 +14,7 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpRespo
 from django_ratelimit.decorators import ratelimit
 from django.views.decorators.http import require_http_methods
 from mc_providers.exceptions import (
-    PermanentProviderException, ProviderException, QueryingEverythingUnsupportedQuery,
+    PermanentProviderException, ProviderException, ProviderParseException, QueryingEverythingUnsupportedQuery,
     TemporaryProviderException, UnsupportedOperationException)
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, action, authentication_classes, permission_classes
@@ -55,10 +55,6 @@ logger = logging.getLogger(__name__)
 mc_providers.cache.CachingManager.cache_function = mc_providers_cacher
 
 
-class HttpResponseServiceUnavailable(HttpResponse):
-    status_code = 503
-
-
 def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = HttpResponse) -> HttpResponse:
     """
     Send a generic JSON response.
@@ -71,53 +67,43 @@ def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = Http
     return _class(j, content_type="application/json")
 
 def error_response(msg: str, *, exc: Exception | None = None,
-                   response_type: Type[HttpResponse] = HttpResponseBadRequest) -> HttpResponse:
+                   response_type: Type[HttpResponse] = HttpResponseBadRequest,
+                   temporary: bool = False,
+                   traceback: bool = False,
+                   ) -> HttpResponse:
     """
     NOTE! Optional args all keyword required.
 
-    Passing status code should not be needed: declarations of
-    HttpResponse only differ by the status_code class member!  See
-    HttpResponseServiceUnavailable above for an example of a custom
-    response class.
+    Passing status code should not be needed: declarations of HttpResponse only differ by
+    the status_code class member.  If a different status_code is needed, subclass
+    HttpResponse.
+
+    "temporary" means a transient condition.  would like to return a different HTTP
+    response code (ie; 503 Service Unavailable) to indicate to API clients the temporary
+    nature of the error, but django regards returning anything >= 500 as an internal error
+    (logs at ERROR level, which can generate admin emails), so added to JSON response.
     """
     response = dict(status="error", note=msg)
     if exc:
-        # create detailed info (for optional display) from an
-        # exception for users to pass to support (via screenshot if
-        # needed, or maybe a button to pass the info (back) to an API
-        # endpoint to log or email it) to help diagnose problems.
-
-        # NOTE! {Mystery,Temporary,Permanent}ProviderExceptions
-        # all return user-friendly string with __str__
-        # and both friendly and detailed info with __repr__
+        # detailed info (for optional display)
         response["exception"] = repr(exc)
 
-        # show the file, line number, and the line of code (trying to
-        # limit payload and info leakage, if neither is a problem, or
-        # this turns out to be flakey, could pass back the entire list):
-        response["traceback"] = traceback.format_exception(exc)[-2]
-
+        if traceback:
+            # show the file, line number, and the line of code (trying to
+            # limit payload and info leakage, if neither is a problem, or
+            # this turns out to be flakey, could pass back the entire list):
+            response["traceback"] = traceback.format_exception(exc)[-2]
+    if temporary:
+        response["temporary"] = True
     return json_response(response, _class=response_type)
 
 
-def massage_permanent_error_string(s: str) -> str:
-    # for now, massage some errors here rather than in mc-providers
-    # until we know exactly what we need/want to show.
-    if s.startswith("parse_exception: "): # ES parse error
-        _, s = s.split(": ", 1) # remove prefix
-        # Note first line should have
-        # "at line LINENO, column COLNO", so it might be possible to
-        # show the user how far the parse got!
-        s = s.split("\n")[0]    # just first line
-    return s
-
-
-# User-friendly text for a temporary (transient) error.  added to
-# quash the "RuntimeError 500 a bad query string could have triggered
-# this ..."  message from news-search-api.  It might be temporary
-# solution, and can be replaced (for the most part) by more specific
-# responses by having providers raise TemporaryProviderExceptions
-# which are contain user-friendly messages.
+# User-friendly text for a temporary (transient) error.  Added to replace the
+# "RuntimeError 500 a bad query string could have triggered this ..."  message from
+# news-search-api.  It might be temporary solution, and can be replaced (for the most
+# part) by more specific responses by having providers raise
+# {Temporary,Permanent,Myster}ProviderExceptions which contain user-friendly messages.
+# Moved outside function when it looked like it would be used in multiple cases.
 TEMPORARY_ERROR_MESSAGE = "Search service is currently unavailable. This may be due to a temporary timeout or server issue. Please try again in a few moments."
 
 def handle_provider_errors(func):
@@ -126,26 +112,48 @@ def handle_provider_errors(func):
     Handle exceptions and translate to HttpResponse with JSON payload
     """
     def _handler(request):
+        def _get_user():
+            if request.user.is_authenticated:
+                return str(request.user)
+            else:
+                return "Anonymous"
+
+        # PB: I've fallen into a rabbit hole; there are numerous variables in play:
+        # 1. what string(s) are returned in response (from the exception, or a replacement),
+        # 2. whether to log, at what level, include user, log traceback
+        # 3. whether to indicate in response condition is temporary and can be retried.
+        # Code is likely to change over time, and be hard to fully test,
+        # so I'm tempted to say it could be done as a JSON or YAML file
+        # that maps exception class names to a list of actions/conditions!
         try:
             return func(request)
-        except PermanentProviderException as e:
-            logger.debug("perm: %r", e, exc_info=True)
-            s = massage_permanent_error_string(str(e))
-            return error_response(s, exc=e)
-        except (requests.exceptions.ConnectionError, RuntimeError, TemporaryProviderException) as e:
-            logger.debug("temp: %r", e, exc_info=True)
-            return error_response(TEMPORARY_ERROR_MESSAGE, exc=e,
-                                  response_type=HttpResponseServiceUnavailable) # HTTP 503
-        except (ProviderException, OverQuotaException) as e:
-            # these are expected errors, so just report the details msg to the user.
-            # includes {Permanent,Temporary}ProviderExceptions, which return a friendly
-            # string to str(e), and more detail to repr(e).
-            logger.debug("misc/quota: %r", e, exc_info=True)
+        except (requests.exceptions.ConnectionError, TemporaryProviderException) as e:
+            # Temporary conditions
+            return error_response(TEMPORARY_ERROR_MESSAGE, exc=e, temporary=True)
+        except (OverQuotaException, ProviderParseException) as e:
+            # expected, self-explanatory errors (str(e) should be user friendly)
+            # no traceback logged.  Passing exc for detail from repr(e)
             return error_response(str(e), exc=e)
+        except RuntimeError as e:
+            # RuntimeError is very broad (Python internal errors, Django errors,
+            # and mc-providers errors), often without subclassing.  Logging traceback
+            # at debug level so they're visible in development to see if any need
+            # better handling.
+            logger.debug("RuntimeError %r", e, exc_info=True)
+            return error_response(str(e), exc=e)
+        except ProviderException as e:
+            # ProviderException includes Provider{Permanent,Mystery}Exceptions.
+            # Log exception/trace as warning to identify cases that
+            # can be subclassed into more specific classes (or marked
+            # that no traceback is needed).  Send traceback detail to client,
+            # log traceback with user name to aid locating reported problems.
+            logger.warning("%r for user %s", e, _get_user(), exc_info=True)
+            return error_response(str(e), exc=e, traceback=True)
         except Exception as e:
             # these are internal errors we care about, so handle them as true errors
-            logger.exception("unhandled exception: %r", e) # logs as error
-            return error_response(str(e), exc=e)
+            # log traceback with user name to aid locating reported problems.
+            logger.exception("unhandled exception: %r for user %s", e, _get_user())
+            return error_response(str(e), exc=e, traceback=True)
 
     return _handler
 
