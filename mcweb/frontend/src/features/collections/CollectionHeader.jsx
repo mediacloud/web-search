@@ -12,7 +12,9 @@ import {
   useGetCollectionQuery,
   useDeleteCollectionMutation,
   useRescrapeCollectionMutation,
+  useCreateCollectionMutation,
 } from '../../app/services/collectionsApi';
+import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -34,6 +36,8 @@ export default function CollectionHeader() {
 
   const [deleteCollection] = useDeleteCollectionMutation();
   const [rescrapeCollection] = useRescrapeCollectionMutation();
+  const [createAssociation] = useCreateSourceCollectionAssociationMutation();
+  const [createCollection] = useCreateCollectionMutation();
 
   const [open, setOpen] = useState(false);
   const [openRescrape, setOpenRescrape] = useState(false);
