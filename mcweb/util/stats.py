@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 Label: TypeAlias = tuple[str, str | int]
 
 if STATSD_HOST and STATSD_REALM:
+    # NOTE: same order used by rss-fetcher & story-indexer
     prefix = f"mc.{STATSD_REALM}.web-search"
     statsd_client = statsd.StatsdClient(STATSD_HOST, None, prefix)
 else:
