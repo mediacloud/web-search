@@ -5,6 +5,9 @@ from constance import config
 from io import BytesIO
 
 import json
+
+import util.stats
+
 request_logger = logging.getLogger("request_logger")
 
 # prevent request messages from "bleeding"
@@ -72,6 +75,8 @@ class RequestLoggingMiddleware:
                 request_logger.info(json.dumps(log_msg))
             except TypeError:
                 pass
+
+        util.stats.path_stats(request.path, duration, response.status_code)
 
         return response
 
