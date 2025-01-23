@@ -63,10 +63,11 @@ add_extras() {
 add_extras "AIRTABLE_HARDWARE=$HOST" \
 	   "AIRTABLE_ENV=$INSTANCE" \
 	   "AIRTABLE_NAME=$INSTANCE" \
-	   "SENTRY_ENV=$INSTANCE"
+	   "SENTRY_ENV=$INSTANCE" \
+	   "STATSD_REALM=$INSTANCE"
 
 # NOTE! vars.py output is shell-safe; it contains only VAR=BASE64ENCODEDVALUE ...
-# Want config:import! Whcih would avoid need for b64 (--encoded) values
+# Want config:import! Which would avoid need for b64 (--encoded) values
 CONFIG_OPTIONS='--encoded'
 
 # NO_CODE_CHANGES exported by push.sh:
