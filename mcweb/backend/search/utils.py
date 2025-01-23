@@ -1,6 +1,7 @@
 # Python
 import datetime as dt
 import json
+import logging
 import time
 from collections import defaultdict
 from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
@@ -18,6 +19,8 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, NEWS_SEARCH
 
 # mcweb/backend/users
 from ..users.models import QuotaHistory
+
+logger = logging.getLogger(__name__)
 
 class ParsedQuery(NamedTuple):
     start_date: dt.datetime
