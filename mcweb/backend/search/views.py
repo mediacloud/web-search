@@ -3,7 +3,7 @@ import datetime as dt
 import json
 import logging
 import time
-import traceback
+import traceback as tb
 from typing import Type
 
 # PyPI
@@ -92,7 +92,7 @@ def error_response(msg: str, *, exc: Exception | None = None,
             # show the file, line number, and the line of code (trying to
             # limit payload and info leakage, if neither is a problem, or
             # this turns out to be flakey, could pass back the entire list):
-            response["traceback"] = traceback.format_exception(exc)[-2]
+            response["traceback"] = tb.format_exception(exc)[-2]
     if temporary:
         response["temporary"] = True
     return json_response(response, _class=response_type)
