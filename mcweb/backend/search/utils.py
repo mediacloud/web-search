@@ -255,9 +255,14 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
 # until/unless it's needed and proven safe.
 _MEDIA_CLOUD_EXTRA_PROPS = [
     'expanded',    # NOTE! view MUST check user has permission!
-    'page_size',
     'sort_order',  # NOTE: built into news-search-api?
     'pagination_token'
+]
+
+# add integer valued parameters here!
+# that might have been converted to string in GET requests
+_MEDIA_CLOUD_INT_PROPS = [
+    'page_size'
 ]
 
 def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
@@ -268,6 +273,10 @@ def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
     for prop_name in _MEDIA_CLOUD_EXTRA_PROPS:
         if prop_name in input:
             output[prop_name] = input[prop_name]
+
+    for prop_name in _MEDIA_CLOUD_INT_PROPS:
+        if prop_name in input:
+            output[prop_name] = int(input[prop_name])
 
 def _for_media_cloud_OLD(collections: List, sources: List, all_params: Dict) -> Dict:
     # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
