@@ -30,6 +30,18 @@ def cached_function_call(fn: Callable, cache_prefix: str, seconds: int | None = 
     for arg in args:
         elements.append(str(arg))
     for key, val in kwargs.items():
+        # turn set kwargs (domains/url_search_strings) into sorted lists
+        if isinstance(val, set):
+            val = sorted(val)
+        elif isinstance(val, dict):
+            # url_search_strings is (default)dict of sets
+            nval = {}
+            for k2, v2 in sorted(val.items()):
+                if isinstance(v2, set):
+                    nval[k2] = sorted(v2)
+                else:
+                    nval[k2] = v2
+            val = nval
         elements.append(f"{key}\x02{val}")
     readable_key = "\x01".join(elements)
     key = hashlib.md5(readable_key.encode("UTF8")).hexdigest()
