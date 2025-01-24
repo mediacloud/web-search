@@ -14,7 +14,8 @@ import {
   useRescrapeCollectionMutation,
   useCreateCollectionMutation,
 } from '../../app/services/collectionsApi';
-import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
+import { useListSourcesQuery } from '../../app/services/sourceApi';
+import { useCreateManySCAssociationsMutation } from '../../app/services/sourcesCollectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -34,13 +35,27 @@ export default function CollectionHeader() {
     isFetching,
   } = useGetCollectionQuery(collectionId);
 
+  const {
+    data: sources,
+  } = useListSourcesQuery({ collection_id: collectionId });
+
   const [deleteCollection] = useDeleteCollectionMutation();
   const [rescrapeCollection] = useRescrapeCollectionMutation();
-  const [createAssociation] = useCreateSourceCollectionAssociationMutation();
+  const [createAssociations] = useCreateManySCAssociationsMutation();
   const [createCollection] = useCreateCollectionMutation();
 
   const [open, setOpen] = useState(false);
   const [openRescrape, setOpenRescrape] = useState(false);
+
+  const handleCopyCollection = () => {
+    console.log(collection, 'COllection');
+    console.log(sources, 'SSSS');
+    // change name to collection.name + (copy)
+    // createCollection(...collection);
+    // get associations for source ids
+    // createAssociations({ collectionId: collection.id, sourceIds: sources });
+  };
+
   if (isFetching) {
     return (<CircularProgress size={75} />);
   }
@@ -115,11 +130,19 @@ export default function CollectionHeader() {
               openDialog={openRescrape}
               variant="outlined"
               navigateNeeded={false}
-              startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+              startIcon={<LockOpenIcon titleAccess="admin-rescrape" />}
               secondAction={false}
               confirmButtonText="Rescrape"
             />
           )}
+          <Button
+            variant="outlined"
+            label="Copy Collection"
+            startIcon={<LockOpenIcon titleAccess="admin-copy" />}
+            onClick={handleCopyCollection}
+          >
+            Copy Collection
+          </Button>
         </PermissionedContributor>
         <PermissionedStaff role={ROLE_STAFF}>
           <AlertDialog
