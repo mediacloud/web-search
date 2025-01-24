@@ -35,9 +35,13 @@ def cached_function_call(fn: Callable, cache_prefix: str, seconds: int | None = 
             val = sorted(val)
         elif isinstance(val, dict):
             # url_search_strings is (default)dict of sets
-            for k2, v2 in val.items():
+            nval = {}
+            for k2, v2 in sorted(val.items()):
                 if isinstance(v2, set):
-                    val[k2] = sorted(v2)
+                    nval[k2] = sorted(v2)
+                else:
+                    nval[k2] = v2
+            val = nval
         elements.append(f"{key}\x02{val}")
     readable_key = "\x01".join(elements)
     key = hashlib.md5(readable_key.encode("UTF8")).hexdigest()
