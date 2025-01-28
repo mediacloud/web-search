@@ -55,16 +55,22 @@ add_extras() {
 	EXTRAS="$EXTRAS -S $x"
     done
 }
+
+# NOTE: same order used by rss-fetcher & story-indexer.
+# used by both run-server.sh (for gunicorn) and mcweb/settings.py
+STATSD_PREFIX=mc.$INSTANCE.web-search
+
 # added for all instances:
 # _could_ supply ..._ENV via private conf files, but supplying here makes
 # values consistant, and one place to change for apps that use this script
 # (if moved to devops repo).  Supplying "..._ENV" values separately per
 # facility is to avoid temptation to transmogrify values in code.
+
 add_extras "AIRTABLE_HARDWARE=$HOST" \
 	   "AIRTABLE_ENV=$INSTANCE" \
 	   "AIRTABLE_NAME=$INSTANCE" \
 	   "SENTRY_ENV=$INSTANCE" \
-	   "STATSD_REALM=$INSTANCE"
+	   "STATSD_PREFIX=$STATSD_PREFIX"
 
 # NOTE! vars.py output is shell-safe; it contains only VAR=BASE64ENCODEDVALUE ...
 # Want config:import! Which would avoid need for b64 (--encoded) values

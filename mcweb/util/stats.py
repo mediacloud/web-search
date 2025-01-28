@@ -10,15 +10,13 @@ from typing import TypeAlias
 # PyPI
 import statsd
 
-from settings import STATSD_HOST, STATSD_REALM
+from settings import STATSD_HOST, STATSD_PREFIX
 logger = logging.getLogger(__name__)
 
 Label: TypeAlias = tuple[str, str | int]
 
-if STATSD_HOST and STATSD_REALM:
-    # NOTE: same order used by rss-fetcher & story-indexer
-    prefix = f"mc.{STATSD_REALM}.web-search"
-    statsd_client = statsd.StatsdClient(STATSD_HOST, None, prefix)
+if STATSD_HOST and STATSD_PREFIX:
+    statsd_client = statsd.StatsdClient(STATSD_HOST, None, STATSD_PREFIX)
 else:
     statsd_client = None
 
