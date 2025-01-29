@@ -21,6 +21,7 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile
+from .utils import _clean_user
 from ..sources.permissions import get_groups
 
 
@@ -95,15 +96,36 @@ def reset_password(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
-# @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
+    # Extract the token from the Authorization header
+    # auth_header = get_authorization_header(request).split()
+    # if auth_header and auth_header[0].lower() == b'token':
+    #     token = auth_header[1].decode('utf-8')
+    # else:
+    #     token = None
+    # payload = json.loads(request.body)
+    token = request.GET.get('Authorization', None)
+    if token:
+        token = token.split()[1]
+        Token = apps.get_model('authtoken', 'Token')
+        # delete current_user token
+        token = Token.objects.filter(key=token)
+        try:
+            token = token[0]
+            user = User.objects.filter(pk=token.user_id)
+        except:
+            logger.debug("Username not found")
+            data = json.dumps({'message': "API Token Not Found"})
+            return HttpResponse(data, content_type='application/json', status=403)
     if request.user.id is not None:
         data = _serialized_current_user(request)
     else:
-        data = json.dumps({'isActive': False})
-    return HttpResponse(data, content_type='application/json')
+        data = _serialized_api_user(user[0])
+    # else:
+    #     data = json.dumps({'isActive': False})
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 @require_http_methods(["POST"])
 def password_strength(request):
@@ -302,3 +324,11 @@ def _serialized_current_user(request) -> str:
     data['group_names'] = get_groups(request)
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
+
+def _serialized_api_user(user) -> str:
+    cleaned_user = _clean_user(user)
+    # serialized_data = serializers.serialize('json', [cleaned_user, ])
+    return cleaned_user
+
+
+
