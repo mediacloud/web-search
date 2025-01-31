@@ -48,22 +48,32 @@ def path_stats(path: str, elapsed: float, status: int) -> None:
     """
     called from logging_middleware
     """
-    if path.startswith("/api/"):
-        # handle double and trailing slashes
-        elements = [elt for elt in path[5:].split("/") if elt and not elt.isdigit()]
-        if len(elements) < 2:
+    # handle double and trailing slashes, numeric arguments
+    elements = [elt for elt in path.split("/")
+                if elt and not elt.isdigit()]
+
+    if not elements:
+        app = "home"
+        elements = ["home"]     # want timing
+    elif elements[0] == "api":
+        elements.pop(0)
+        if not elements:
             logger.info("path_stats %s", path)
             return
-    elif path == "/":
-        elements = ["home"]
+        app = elements[0]
+    elif elements[0].startswith("admin"):
+        elements = ["admin"]    # too many variations
     else:
+        # not home page, not api, not admin
+        logger.info("path_stats2 %s", path)
         return
 
     # counters are cheap (two files per name)
-    count(["api", "calls"] + elements, labels=[("status", status)])
+    if elements:
+        count(["api", "calls"] + elements, labels=[("status", status)])
 
     # timers are expensive (MANY disk files per name),
-    # so only report by app, for succcesses for now
+    # so only report by app, for successes for now
     if status == 200:
         app = elements[0]
         timing(["api", "success"], elapsed*1000, labels=[("app", app)])

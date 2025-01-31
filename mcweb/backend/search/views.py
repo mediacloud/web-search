@@ -49,6 +49,8 @@ from backend.users.exceptions import OverQuotaException
 # mcweb/backend/util
 import backend.util.csv_stream as csv_stream
 
+TRACE_JSON_RESPONSE = False
+
 logger = logging.getLogger(__name__)
 
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
@@ -63,7 +65,8 @@ def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = Http
     """
     # NOTE! always passing default=str
     j = json.dumps(value, default=str)
-    logger.debug("json_response %d %s", _class.status_code, j) # put under an if?
+    if TRACE_JSON_RESPONSE:
+        logger.debug("json_response %d %s", _class.status_code, j)
     return _class(j, content_type="application/json")
 
 def error_response(msg: str, *, exc: Exception | None = None,
