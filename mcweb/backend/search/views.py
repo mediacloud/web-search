@@ -448,6 +448,14 @@ def download_all_queries_csv(request):
     # was: return HttpResponse(content_type="application/json", status=200)
     return json_response("")
 
+@handle_provider_errors
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication]) #API only method for now
+@permission_classes([IsAuthenticated])
+def providers(request):
+    providers = mc_providers._PROVIDER_MAP
+    return json_response({"providers": providers})
+
 def add_ratios(words_data):
     for word in words_data:
         word["ratio"] = word['count'] / 1000
