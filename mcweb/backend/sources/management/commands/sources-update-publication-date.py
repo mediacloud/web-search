@@ -15,11 +15,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         batch_size = kwargs.get("batch_size", 100)
-        self.stdout.write(f"Starting publication date analysis with a batch size of {batch_size}...")
+        self.stdout.write(f"Starting first story publication date analysis with a batch size of {batch_size}...")
         updated_sources = update_publication_date(batch_size=batch_size)
         if updated_sources:
             self.stdout.write(self.style.SUCCESS(f"Updated {len(updated_sources)} sources:"))
             for source in updated_sources:
-                self.stdout.write(f"Source ID {source['source_id']}: {source['first_publication_date']}")
+                self.stdout.write(f"Source ID {source['source_id']}: {source['first_story']}")
         else:
             self.stdout.write(self.style.WARNING("No sources were updated."))

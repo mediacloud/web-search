@@ -368,17 +368,17 @@ def analyze_sources(batch_size: int, analysis_type: str, start_date: dt.datetime
 
                 elif analysis_type == "publication_date":
                     publication_dates = [dt.datetime.fromisoformat(match["publication_date"]) for match in results["matches"]]
-                    first_pub_date = min(publication_dates, default=None)
-                    if first_pub_date:
-                        source.first_publication_date = first_pub_date
-                        updated_sources.append({"source_id": source.id, "first_publication_date": first_pub_date})
-                        logger.info(f"Analyzed source {source.id}. First publication date: {first_pub_date}")
+                    first_story = min(publication_dates, default=None)
+                    if first_story:
+                        source.first_story = first_story
+                        updated_sources.append({"source_id": source.id, "first_story": first_story})
+                        logger.info(f"Analyzed source {source.id}. First story publication date: {first_story}")
 
             except Exception as e:
                 logger.error(f"Failed to analyze source {source.id}: {e}")
 
         if batch:
-            field_name = 'primary_language' if analysis_type == "language" else 'first_publication_date'
+            field_name = 'primary_language' if analysis_type == "language" else 'first_story'
             Source.objects.bulk_update(batch, [field_name])
 
     logger.info(f"Completed {analysis_type} extraction. Updated {len(updated_sources)} sources.")
