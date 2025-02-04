@@ -268,8 +268,6 @@ def _update_stories_counts():
                 print(source_id, stories_per_day, weekly_count)
                 Source.update_stories_per_week(int(source_id), weekly_count)
 
-
-
 def _calculate_stories_last_week(stories_fetched):
     """
     helper to calculate update stories per week count by fetching last 7 days count from stories_fetched
@@ -352,7 +350,7 @@ def analyze_sources(batch_size: int, analysis_type: str, start_date: dt.datetime
                     provider_props={},
                     provider_name="onlinenews-mediacloud",
                     api_key=None,
-                    base_url=None,
+                    base_url=None
                 )
                 provider = pq_provider(pq)
                 results = provider._overview_query(pq.query_str, start_date, END_DATE)
