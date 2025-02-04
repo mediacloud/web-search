@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from mcweb.backend.sources.tasks import update_publication_date
+from ...tasks import update_publication_date
 
 
 class Command(BaseCommand):

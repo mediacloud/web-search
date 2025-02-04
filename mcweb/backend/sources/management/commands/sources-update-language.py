@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from mcweb.backend.sources.tasks import update_source_language
+from ...tasks import update_source_language
 
 class Command(BaseCommand):
     help = "Analyze the primary language of all sources in the database and update the Source table."
