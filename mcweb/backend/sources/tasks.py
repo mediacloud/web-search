@@ -384,12 +384,27 @@ def analyze_sources(batch_size: int, analysis_type: str, start_date: dt.datetime
     logger.info(f"Completed {analysis_type} extraction. Updated {len(updated_sources)} sources.")
     return updated_sources
 
-def update_source_language(batch_size: int = 100) -> List[Dict[str, str]]:
-    start_date = END_DATE - dt.timedelta(days=DAYS_BACK)
-    return analyze_sources(batch_size, "language", start_date)
 
-def update_publication_date(batch_size: int = 100) -> List[Dict[str, str]]:
-    start_date = START_DATE
-    return analyze_sources(batch_size, "publication_date", start_date)
+@background(queue=SYSTEM_SLOW)
+def update_source_language(batch_size: int = 100) -> None:
+    start_date = END_DATE - dt.timedelta(days=DAYS_BACK)
+    updated_sources = analyze_sources(batch_size, "language", start_date)
+    if updated_sources:
+        logger.info(f"Updated {len(updated_sources)} sources.")
+        for source in updated_sources:
+            logger.info(f"Source ID {source['source_id']}: {source['primary_language']}")
+    else:
+        logger.warning("No sources were updated.")
+
+@background(queue=SYSTEM_SLOW)
+def update_publication_date(batch_size: int = 100) -> None:
+    updated_sources = analyze_sources(batch_size, "publication_date", START_DATE)
+    if updated_sources:
+        logger.info(f"Updated {len(updated_sources)} sources.")
+        for source in updated_sources:
+            logger.info(f"Source ID {source['source_id']}: {source['first_story']}")
+    else:
+        logger.warning("No sources were updated.")
+
 
 
