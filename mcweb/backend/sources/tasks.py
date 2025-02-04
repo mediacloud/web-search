@@ -10,12 +10,15 @@ import json
 import logging
 import time
 import traceback
+from typing import List
 
 # PyPI:
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
 from django.contrib.auth.models import User
 from django.utils import timezone
+from backend.search.utils import ParsedQuery, pq_provider
+
 import numpy as np
 
 # mcweb/backend/sources
@@ -90,7 +93,7 @@ def _add_scrape_error_rcpts(users: list[str]) -> None:
     for u in SCRAPE_ERROR_RECIPIENTS:
         if u not in users:
             users.append(u)
-    
+
 @background(queue=ADMIN_SLOW)   # admin user initiated
 def _scrape_collection(collection_id: int, user_email: str) -> None:
     t0 = time.monotonic()
@@ -174,7 +177,7 @@ def _alert_system(collection_ids):
 
         with _rss_fetcher_api() as rss:
         # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
-          
+
             email="test"
             alert_dict = {
                 "high": [],
@@ -186,7 +189,7 @@ def _alert_system(collection_ids):
             high_stories_alert = 0
             fixed_source = 0
             for source in sources:
-                stories_fetched = rss.source_stories_fetched_by_day(source.id) 
+                stories_fetched = rss.source_stories_fetched_by_day(source.id)
                 # print(stories_fetched)
                 counts = [d['stories'] for d in stories_fetched]  # extract the count values
                 if not counts:
@@ -194,14 +197,14 @@ def _alert_system(collection_ids):
                     no_stories_alert += 1
                     source.alerted = True
                     continue
-                mean = np.mean(counts) 
+                mean = np.mean(counts)
                 std_dev = np.std(counts)
-                
+
                 last_7_days_data = stories_fetched[-7:]
                 seven_day_counts = [d['stories'] for d in last_7_days_data]
                 mean_last_week = np.mean(seven_day_counts)
                 sum_count_week = _calculate_stories_last_week(stories_fetched)  #calculate the last seven days of stories
-                Source.update_stories_per_week(source.id, sum_count_week) 
+                Source.update_stories_per_week(source.id, sum_count_week)
 
                 alert_status = _classify_alert(mean, mean_last_week, std_dev)
 
@@ -222,10 +225,10 @@ def _alert_system(collection_ids):
                          source.alerted = False
                     logger.info(f"=====Source {source.name} is ingesting at regular levels")
                 # stories_published = rss.source_stories_published_by_day(source.id)
-                # counts_published = [d['count'] for d in stories_published] 
-                # mean_published = np.mean(counts_published)  
+                # counts_published = [d['count'] for d in stories_published]
+                # mean_published = np.mean(counts_published)
                 # std_dev_published = np.std(counts_published)
-                source.save()  
+                source.save()
             print(alert_dict)
             if(email):
                 # email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
@@ -238,7 +241,7 @@ def _classify_alert(month_mean, week_mean, std_dev):
     lower_range = std_dev * 1.5
     upper_range = std_dev * 2
     lower = month_mean - lower_range
-    upper = month_mean + upper_range 
+    upper = month_mean + upper_range
     if week_mean < lower:
         return ALERT_LOW
     elif week_mean > upper:
@@ -265,7 +268,7 @@ def _update_stories_counts():
                 print(source_id, stories_per_day, weekly_count)
                 Source.update_stories_per_week(int(source_id), weekly_count)
 
-            
+
 
 def _calculate_stories_last_week(stories_fetched):
     """
@@ -314,4 +317,65 @@ def schedule_scrape_source(source_id, user):
                           verbose_name=f"rescrape source {name_or_home}",
                           remove_existing_tasks=True)
     return return_task(task)
+
+
+DAYS_BACK = 365  # Number of days to look back for story analysis
+MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
+
+def update_source_language(batch_size: int = 100) -> List[dict]:
+    """
+    Task function to analyze the primary language of all sources in the database.
+    Args:
+        batch_size (int): Number of sources to process in a batch.
+    Returns:
+        List[dict]: A list of dictionaries containing source IDs and their analyzed primary languages.
+    """
+    sources = Source.objects.filter(homepage__isnull=False).exclude(homepage="")
+    total_sources = sources.count()
+    logger.info(f"Starting language analysis for {total_sources} sources.")
+
+    updated_sources = []
+    start_date = dt.datetime.now() - dt.timedelta(days=DAYS_BACK)
+    end_date = dt.datetime.now()
+
+    for i in range(0, total_sources, batch_size):
+        batch = sources[i:i + batch_size]
+
+        for source in batch:
+            try:
+                pq = ParsedQuery(
+                    start_date=start_date,
+                    end_date=end_date,
+                    query_str=f"canonical_domain:{source.homepage}",
+                    provider_props={},
+                    provider_name='onlinenews-mediacloud',
+                    api_key=None,
+                    base_url=None,
+                    caching=True
+                )
+                provider = pq_provider(pq)
+                results = provider._overview_query(pq.query_str, start_date, end_date)
+                if results["total"] <= MIN_STORY_COUNT or provider._is_no_results(results):
+                    logger.warning(f"Not enough stories for source {source.id} to analyze language.")
+                    continue
+
+                languages = [match["language"] for match in results["matches"]]
+                primary_language = max(set(languages), key=languages.count)
+
+                source.primary_language = primary_language
+                updated_sources.append({"source_id": source.id, "primary_language": primary_language})
+                logger.info(f"Analyzed source {source.id}. Primary language: {primary_language}")
+
+            except Exception as e:
+                logger.error(f"Failed to analyze source {source.id}: {e}")
+
+        if batch:
+            Source.objects.bulk_update(batch, ['primary_language'])
+
+    logger.info(f"Completed language extraction. Updated {len(updated_sources)} sources.")
+    return updated_sources
+
+
+def update_source_publications():
+    pass
 
