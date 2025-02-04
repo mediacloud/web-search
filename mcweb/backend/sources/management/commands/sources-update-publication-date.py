@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
-from mcweb.backend.sources.tasks import update_source_language
+from mcweb.backend.sources.tasks import update_publication_date
 
-class Command(BaseCommand):
-    help = "Analyze the primary language of all sources in the database and update the Source table."
+
+class PubDateCommand(BaseCommand):
+    help = "Get the first publication date of a source and update the Source table."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -14,11 +15,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         batch_size = kwargs.get("batch_size", 100)
-        self.stdout.write(f"Starting language analysis with a batch size of {batch_size}...")
-        updated_sources = update_source_language(batch_size=batch_size)
+        self.stdout.write(f"Starting publication date analysis with a batch size of {batch_size}...")
+        updated_sources = update_publication_date(batch_size=batch_size)
         if updated_sources:
             self.stdout.write(self.style.SUCCESS(f"Updated {len(updated_sources)} sources:"))
             for source in updated_sources:
-                self.stdout.write(f"Source ID {source['source_id']}: {source['primary_language']}")
+                self.stdout.write(f"Source ID {source['source_id']}: {source['first_publication_date']}")
         else:
             self.stdout.write(self.style.WARNING("No sources were updated."))

@@ -10,7 +10,7 @@ import json
 import logging
 import time
 import traceback
-from typing import List
+from typing import Dict, List
 
 # PyPI:
 from mcmetadata.feeds import normalize_url
@@ -320,62 +320,76 @@ def schedule_scrape_source(source_id, user):
 
 
 DAYS_BACK = 365  # Number of days to look back for story analysis
-MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
+MIN_STORY_COUNT = 100  # Minimum number of stories required for a valid source
+START_DATE = dt.datetime(2000, 1, 1) # Possible earliest source publication date
+END_DATE = dt.datetime.now()
 
-def update_source_language(batch_size: int = 100) -> List[dict]:
+def analyze_sources(batch_size: int, analysis_type: str, start_date: dt.datetime) -> List[Dict[str, str]]:
     """
-    Task function to analyze the primary language of all sources in the database.
+    Generalized function to analyze sources.
     Args:
-        batch_size (int): Number of sources to process in a batch.
+        batch_size (int): Number of sources to process in each batch.
+        analysis_type (str): Type of analysis to perform ("language" or "publication_date").
     Returns:
-        List[dict]: A list of dictionaries containing source IDs and their analyzed primary languages.
+        List[Dict[str, str]]: A list of dictionaries containing source IDs and their analyzed data.
     """
-    sources = Source.objects.filter(homepage__isnull=False).exclude(homepage="")
+    # TO DO:xavier About 1693 sources have name__isnull=True but have homepage
+    # getting canonical domain from urls.canonical_domain(homepage) makes a HTTP request, NOT IDEAL !!!
+    sources = Source.objects.filter(name__isnull=False)
     total_sources = sources.count()
-    logger.info(f"Starting language analysis for {total_sources} sources.")
+    logger.info(f"Starting {analysis_type} analysis for {total_sources} sources.")
 
     updated_sources = []
-    start_date = dt.datetime.now() - dt.timedelta(days=DAYS_BACK)
-    end_date = dt.datetime.now()
 
     for i in range(0, total_sources, batch_size):
         batch = sources[i:i + batch_size]
-
         for source in batch:
             try:
                 pq = ParsedQuery(
                     start_date=start_date,
-                    end_date=end_date,
-                    query_str=f"canonical_domain:{source.homepage}",
+                    end_date=END_DATE,
+                    query_str=f"canonical_domain:{source.name}",
                     provider_props={},
-                    provider_name='onlinenews-mediacloud',
-                    api_key=None,
-                    base_url=None,
-                    caching=True
+                    provider_name='onlinenews-mediacloud'
                 )
                 provider = pq_provider(pq)
-                results = provider._overview_query(pq.query_str, start_date, end_date)
+                results = provider._overview_query(pq.query_str, start_date, END_DATE)
+
                 if results["total"] <= MIN_STORY_COUNT or provider._is_no_results(results):
-                    logger.warning(f"Not enough stories for source {source.id} to analyze language.")
+                    logger.warning(f"Not enough stories for source {source.id} to analyze {analysis_type}.")
                     continue
 
-                languages = [match["language"] for match in results["matches"]]
-                primary_language = max(set(languages), key=languages.count)
+                if analysis_type == "language":
+                    languages = [match["language"] for match in results["matches"]]
+                    primary_language = max(set(languages), key=languages.count)
+                    source.primary_language = primary_language
+                    updated_sources.append({"source_id": source.id, "primary_language": primary_language})
+                    logger.info(f"Analyzed source {source.id}. Primary language: {primary_language}")
 
-                source.primary_language = primary_language
-                updated_sources.append({"source_id": source.id, "primary_language": primary_language})
-                logger.info(f"Analyzed source {source.id}. Primary language: {primary_language}")
+                elif analysis_type == "publication_date":
+                    publication_dates = [dt.datetime.fromisoformat(match["publication_date"]) for match in results["matches"]]
+                    first_pub_date = min(publication_dates, default=None)
+                    if first_pub_date:
+                        source.first_publication_date = first_pub_date
+                        updated_sources.append({"source_id": source.id, "first_publication_date": first_pub_date})
+                        logger.info(f"Analyzed source {source.id}. First publication date: {first_pub_date}")
 
             except Exception as e:
                 logger.error(f"Failed to analyze source {source.id}: {e}")
 
         if batch:
-            Source.objects.bulk_update(batch, ['primary_language'])
+            field_name = 'primary_language' if analysis_type == "language" else 'first_publication_date'
+            Source.objects.bulk_update(batch, [field_name])
 
-    logger.info(f"Completed language extraction. Updated {len(updated_sources)} sources.")
+    logger.info(f"Completed {analysis_type} extraction. Updated {len(updated_sources)} sources.")
     return updated_sources
 
+def update_source_language(batch_size: int = 100) -> List[Dict[str, str]]:
+    start_date = END_DATE - dt.timedelta(days=DAYS_BACK)
+    return analyze_sources(batch_size, "language", start_date)
 
-def update_source_publications():
-    pass
+def update_publication_date(batch_size: int = 100) -> List[Dict[str, str]]:
+    start_date = START_DATE
+    return analyze_sources(batch_size, "publication_date", start_date)
+
 
