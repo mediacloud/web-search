@@ -91,6 +91,8 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     SENTRY_JS_TRACES_RATE=(float, 0.2), # fraction 0 to 1.0
     SENTRY_PY_PROFILES_RATE=(float, 1.0), # fraction 0 to 1.0
     SENTRY_PY_TRACES_RATE=(float, 1.0),  # fraction 0 to 1.0
+    STATSD_HOST=(str, ""),
+    STATSD_PREFIX=(str, ""),
     SYSTEM_ALERT=(str,None),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
@@ -148,6 +150,8 @@ SENTRY_JS_TRACES_RATE = env('SENTRY_JS_TRACES_RATE')
 SENTRY_JS_REPLAY_RATE = env('SENTRY_JS_REPLAY_RATE')
 SENTRY_PY_PROFILES_RATE = env('SENTRY_PY_PROFILES_RATE')
 SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
+STATSD_HOST = env('STATSD_HOST')
+STATSD_PREFIX = env('STATSD_PREFIX')
 SYSTEM_ALERT = env('SYSTEM_ALERT')
 
 # end config
@@ -411,10 +415,13 @@ CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
 
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
+    "OLD_MC_PROVIDER": (False, 'Use old (NSA) mc-provider', bool),
+    "ES_PARTIAL_RESULTS": (False, 'ES provider: return partial results', bool),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
-    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",)
+    "Monitoring Options": ("REQUEST_LOGGING_ENABLED",),
+    "Temporary": ("OLD_MC_PROVIDER", "ES_PARTIAL_RESULTS",)
 }
 
 ################
