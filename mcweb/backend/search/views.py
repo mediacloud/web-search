@@ -44,6 +44,7 @@ from .tasks import download_all_large_content_csv, download_all_queries_csv_task
 
 # mcweb/backend/users
 from ..users.models import QuotaHistory
+from ..users.views import _user_from_token
 from backend.users.exceptions import OverQuotaException
 
 # mcweb/backend/util
@@ -453,7 +454,13 @@ def download_all_queries_csv(request):
 @authentication_classes([TokenAuthentication]) #API only method for now
 @permission_classes([IsAuthenticated])
 def providers(request):
-    providers = mc_providers._PROVIDER_MAP
+    token = request.GET.get('Authorization', None)
+    if token:
+        user = _user_from_token(token)
+        providers = {
+            mc_providers.provider_name(mc_providers.PLATFORM_ONLINE_NEWS, mc_providers.PLATFORM_SOURCE_MEDIA_CLOUD): user.profile.quota_mediacloud,
+            mc_providers.provider_name(mc_providers.PLATFORM_ONLINE_NEWS, mc_providers.PLATFORM_SOURCE_WAYBACK_MACHINE): user.profile.quota_wayback_machine,
+        }
     return json_response({"providers": providers})
 
 def add_ratios(words_data):

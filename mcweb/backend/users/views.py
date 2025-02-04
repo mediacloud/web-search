@@ -101,13 +101,8 @@ def reset_password(request):
 def profile(request):
     token = request.GET.get('Authorization', None)
     if token:
-        token = token.split()[1]
-        Token = apps.get_model('authtoken', 'Token')
-        # delete current_user token
-        token = Token.objects.filter(key=token)
         try:
-            token = token[0]
-            user = User.objects.filter(pk=token.user_id)
+            user = _user_from_token(token)
         except:
             logger.debug("Token not found")
             data = json.dumps({'message': "API Token Not Found"})
@@ -115,7 +110,7 @@ def profile(request):
     if request.user.id is not None:
         data = _serialized_current_user(request)
     else:
-        data = _serialized_api_user(user[0])
+        data = _serialized_api_user(user)
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 @require_http_methods(["POST"])
@@ -320,6 +315,17 @@ def _serialized_api_user(user) -> str:
     cleaned_user = _clean_user(user)
     # serialized_data = serializers.serialize('json', [cleaned_user, ])
     return cleaned_user
+
+def _user_from_token(token):
+    token = token.split()[1]
+    Token = apps.get_model('authtoken', 'Token')
+    token = Token.objects.filter(key=token)
+    try:
+        token = token[0]
+        user = User.objects.filter(pk=token.user_id)
+        return user[0]
+    except:
+        return None
 
 
 
