@@ -350,7 +350,9 @@ def analyze_sources(batch_size: int, analysis_type: str, start_date: dt.datetime
                     end_date=END_DATE,
                     query_str=f"canonical_domain:{source.name}",
                     provider_props={},
-                    provider_name='onlinenews-mediacloud'
+                    provider_name="onlinenews-mediacloud",
+                    api_key=None,
+                    base_url=None,
                 )
                 provider = pq_provider(pq)
                 results = provider._overview_query(pq.query_str, start_date, END_DATE)
