@@ -60,12 +60,19 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
     """
     name = platform or pq.provider_name
     # BEGIN TEMPORARY CROCKERY!
-    # if mediacloud, and emergency ripcord pulled, revert to (new) NSA-based provider
-    if name == 'onlinenews-mediacloud' and constance.config.OLD_MC_PROVIDER:
-        name = 'onlinenews-mediacloud-old'
+    extras = {}
+    if name == 'onlinenews-mediacloud':
+        # if mediacloud, and emergency ripcord pulled, revert to (new) NSA-based provider
+        if constance.config.OLD_MC_PROVIDER:
+            name = 'onlinenews-mediacloud-old'
+        elif constance.config.ES_PARTIAL_RESULTS:
+            # new provider: return results even if some shards failed
+            # with circuit breaker tripping:
+            extras["partial_responses"] = True
+    logger.debug("pq_provider %s %r", name, extras)
     # END TEMPORARY CROCKERY
     return provider_by_name(name, api_key=pq.api_key, base_url=pq.base_url, caching=pq.caching,
-                            software_id="web-search", session_id=pq.session_id)
+                            software_id="web-search", session_id=pq.session_id, **extras)
 
 def parse_date_str(date_str: str) -> dt.datetime:
     """
