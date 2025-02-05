@@ -5,6 +5,7 @@ def _clean_user(user):
         'id': user.id,
         'username': user.username,
         'is_staff': user.is_staff,
+        'is_superuser': user.is_superuser,
         'groups': [group.name for group in user.groups.all()],
         'quota': {
             'provider': most_recent_quota.provider,
