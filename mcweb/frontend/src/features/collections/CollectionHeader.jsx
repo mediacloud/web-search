@@ -7,15 +7,15 @@ import SearchIcon from '@mui/icons-material/Search';
 import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { Outlet, Link, useParams } from 'react-router-dom';
+import {
+  Outlet, Link, useParams, useNavigate,
+} from 'react-router-dom';
 import {
   useGetCollectionQuery,
   useDeleteCollectionMutation,
   useRescrapeCollectionMutation,
-  useCreateCollectionMutation,
+  useCopyCollectionMutation,
 } from '../../app/services/collectionsApi';
-import { useListSourcesQuery } from '../../app/services/sourceApi';
-import { useCreateManySCAssociationsMutation } from '../../app/services/sourcesCollectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -27,6 +27,7 @@ import AlertDialog from '../ui/AlertDialog';
 
 export default function CollectionHeader() {
   const params = useParams();
+  const navigate = useNavigate();
   if (!params.collectionId) return null;
   const collectionId = Number(params.collectionId);
 
@@ -35,26 +36,12 @@ export default function CollectionHeader() {
     isFetching,
   } = useGetCollectionQuery(collectionId);
 
-  const {
-    data: sources,
-  } = useListSourcesQuery({ collection_id: collectionId });
-
   const [deleteCollection] = useDeleteCollectionMutation();
   const [rescrapeCollection] = useRescrapeCollectionMutation();
-  const [createAssociations] = useCreateManySCAssociationsMutation();
-  const [createCollection] = useCreateCollectionMutation();
+  const [copyCollection] = useCopyCollectionMutation();
 
   const [open, setOpen] = useState(false);
   const [openRescrape, setOpenRescrape] = useState(false);
-
-  const handleCopyCollection = () => {
-    console.log(collection, 'COllection');
-    console.log(sources, 'SSSS');
-    // change name to collection.name + (copy)
-    // createCollection(...collection);
-    // get associations for source ids
-    // createAssociations({ collectionId: collection.id, sourceIds: sources });
-  };
 
   if (isFetching) {
     return (<CircularProgress size={75} />);
@@ -139,7 +126,12 @@ export default function CollectionHeader() {
             variant="outlined"
             label="Copy Collection"
             startIcon={<LockOpenIcon titleAccess="admin-copy" />}
-            onClick={handleCopyCollection}
+            onClick={async () => {
+              await copyCollection({
+                collection,
+              }).unwrap()
+                .then((copiedCollection) => navigate(`/collections/${copiedCollection.id}`));
+            }}
           >
             Copy Collection
           </Button>
