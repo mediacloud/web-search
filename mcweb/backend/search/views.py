@@ -461,7 +461,9 @@ def providers(request):
             mc_providers.provider_name(mc_providers.PLATFORM_ONLINE_NEWS, mc_providers.PLATFORM_SOURCE_MEDIA_CLOUD): user.profile.quota_mediacloud,
             mc_providers.provider_name(mc_providers.PLATFORM_ONLINE_NEWS, mc_providers.PLATFORM_SOURCE_WAYBACK_MACHINE): user.profile.quota_wayback_machine,
         }
-    return json_response({"providers": providers})
+        return json_response({"providers": providers})
+    else:
+        return error_response("No token provided", response_type=HttpResponseBadRequest)
 
 def add_ratios(words_data):
     for word in words_data:

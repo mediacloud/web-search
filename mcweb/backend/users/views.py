@@ -296,6 +296,30 @@ def reset_token(request):
     except Exception as e:
         data = json.dumps({'error': e})
         return HttpResponse(data, content_type='application/json', status=400)
+    
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def email_from_token(request):
+    token = request.GET.get('Authorization', None)
+    user_token = request.GET.get('user', None)
+    if token:
+        try:
+            user = _user_from_token(token)
+        except:
+            logger.debug("Token not found")
+            data = json.dumps({'message': "API Token Not Found"})
+            return HttpResponse(data, content_type='application/json', status=403)
+    else:
+        data = json.dumps({'message': "No token provided"})
+        return HttpResponse(data, content_type='application/json', status=403)
+    if user.is_superuser and user_token:
+        user = _user_from_token(user_token)
+        return HttpResponse(json.dumps({"email": user.email}), content_type='application/json')
+    elif not user.is_superuser:
+        return HttpResponse(json.dumps({"error": "Must be super user"}), content_type='application/json', status=403)
+    elif not user_token:
+        return HttpResponse(json.dumps({"error": "No user token provided"}), content_type='application/json', status=403)
+
 
 
 
