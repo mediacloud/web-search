@@ -559,25 +559,6 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collection = get_object_or_404(collections_queryset, pk=collection_id)
         source.collections.add(collection)
         return Response({'source_id': source_id, 'collection_id': collection_id})
-    
-    @action(methods=['post'], detail=False, url_path='many-assoc')
-    def create_multiple_associations(self, request):
-        collection_id = request.data.get('collection_id')
-        source_ids = request.data.get('source_ids', [])
-
-        if not collection_id or not source_ids:
-            return Response({'error': 'collection_id and source_ids are required'}, status=status.HTTP_400_BAD_REQUEST)
-
-        collections_queryset = Collection.objects.all()
-        collection = get_object_or_404(collections_queryset, pk=collection_id)
-
-        sources_queryset = Source.objects.all()
-        for source_id in source_ids:
-            source = get_object_or_404(sources_queryset, pk=source_id)
-            source.collections.add(collection)
-
-        return Response({'collection_id': collection_id, 'source_ids': source_ids}, status=status.HTTP_200_OK)
-
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
