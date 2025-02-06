@@ -53,10 +53,10 @@ def fill_in_dates(start_date, end_date, existing_counts):
             filled_counts.append({'count': date_count_dict[day_string], 'date': day_string})
     return filled_counts
 
-def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvider:
+
+def get_provider(name: str, api_key: str, base_url: str, caching: bool, session_id: str):
     """
-    take parsed query, return mc_providers ContentProvider.
-    (one place to pass new things to mc_providers)
+    One place to get a provider configured for web use.
     """
     name = platform or pq.provider_name
     # BEGIN TEMPORARY CROCKERY!
@@ -70,9 +70,18 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
             # with circuit breaker tripping:
             extras["partial_responses"] = True
     logger.debug("pq_provider %s %r", name, extras)
-    # END TEMPORARY CROCKERY
-    return provider_by_name(name, api_key=pq.api_key, base_url=pq.base_url, caching=pq.caching,
-                            software_id="web-search", session_id=pq.session_id, **extras)
+
+    return provider_by_name(name, api_key=api_key, base_url = base_url, caching = caching, 
+                software_id="web-search", session_id = session_id)
+
+def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvider:
+    """
+    take parsed query, return mc_providers ContentProvider.
+    """
+    name = platform or pq.provider_name
+
+    return get_provider(name, api_key=pq.api_key, base_url=pq.base_url, 
+                        caching=pq.caching, session_id=pq.session_id)
 
 def parse_date_str(date_str: str) -> dt.datetime:
     """
