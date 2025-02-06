@@ -73,7 +73,7 @@ export const collectionsApi = managerApi.injectEndpoints({
       query: (collection) => ({
         url: 'collections/copy-collection/',
         method: 'POST',
-        body: { ...collection },
+        body: { collection_id: collection.id, name: collection.name },
       }),
       invalidatesTags: ['Collection'],
     }),

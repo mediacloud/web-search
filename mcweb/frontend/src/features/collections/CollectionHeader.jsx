@@ -8,13 +8,12 @@ import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import {
-  Outlet, Link, useParams, useNavigate,
+  Outlet, Link, useParams,
 } from 'react-router-dom';
 import {
   useGetCollectionQuery,
   useDeleteCollectionMutation,
   useRescrapeCollectionMutation,
-  useCopyCollectionMutation,
 } from '../../app/services/collectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
 import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
@@ -24,10 +23,10 @@ import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
+import CopyCollectionDialog from './util/CopyCollectionDialog';
 
 export default function CollectionHeader() {
   const params = useParams();
-  const navigate = useNavigate();
   if (!params.collectionId) return null;
   const collectionId = Number(params.collectionId);
 
@@ -38,10 +37,10 @@ export default function CollectionHeader() {
 
   const [deleteCollection] = useDeleteCollectionMutation();
   const [rescrapeCollection] = useRescrapeCollectionMutation();
-  const [copyCollection] = useCopyCollectionMutation();
 
   const [open, setOpen] = useState(false);
   const [openRescrape, setOpenRescrape] = useState(false);
+  const [openCopy, setOpenCopy] = useState(false);
 
   if (isFetching) {
     return (<CircularProgress size={75} />);
@@ -76,6 +75,7 @@ export default function CollectionHeader() {
           </Tooltip>
         )}
       </Header>
+
       <ControlBar>
         <Button variant="outlined" startIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
@@ -94,16 +94,16 @@ export default function CollectionHeader() {
             rel="noreferrer"
           >
             Search Content
-
           </a>
         </Button>
+
         <DownloadSourcesCsv collectionId={collectionId} />
+
         <PermissionedContributor>
           <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
             <Link to={`${collectionId}/edit`}>Edit</Link>
           </Button>
           {collection.platform === 'online_news' && (
-
             <AlertDialog
               outsideTitle="Rescrape Collection For Feeds"
               title={`Rescrape Collection #${collectionId}: ${collection.name} for new feeds?`}
@@ -122,20 +122,18 @@ export default function CollectionHeader() {
               confirmButtonText="Rescrape"
             />
           )}
-          <Button
+          <CopyCollectionDialog
+            outsideTitle="Copy Collection"
+            title={`Copy ${platformDisplayName(collection.platform)} Collection #${collectionId}: ${collection.name}`}
+            collectionId={collectionId}
+            onClick={() => setOpenCopy(true)}
+            openDialog={openCopy}
             variant="outlined"
-            label="Copy Collection"
-            startIcon={<LockOpenIcon titleAccess="admin-copy" />}
-            onClick={async () => {
-              await copyCollection({
-                collection,
-              }).unwrap()
-                .then((copiedCollection) => navigate(`/collections/${copiedCollection.id}`));
-            }}
-          >
-            Copy Collection
-          </Button>
+            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            confirmButtonText="Copy"
+          />
         </PermissionedContributor>
+
         <PermissionedStaff role={ROLE_STAFF}>
           <AlertDialog
             outsideTitle="Delete Collection"
