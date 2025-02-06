@@ -22,7 +22,7 @@ from rest_framework.permissions import IsAuthenticated
 from urllib3.util.retry import Retry
 
 # mcweb
-from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
+from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_PROVIDERS
 
 # mcweb/util
 from util.cache import cache_by_kwargs, mc_providers_cacher
@@ -458,8 +458,8 @@ def providers(request):
     if token:
         user = _user_from_token(token)
         providers = {
-            mc_providers.provider_name(mc_providers.PLATFORM_ONLINE_NEWS, mc_providers.PLATFORM_SOURCE_MEDIA_CLOUD): user.profile.quota_mediacloud,
-            mc_providers.provider_name(mc_providers.PLATFORM_ONLINE_NEWS, mc_providers.PLATFORM_SOURCE_WAYBACK_MACHINE): user.profile.quota_wayback_machine,
+            AVAILABLE_PROVIDERS[0]: user.profile.quota_mediacloud,
+            AVAILABLE_PROVIDERS[1]: user.profile.quota_wayback_machine,
         }
         return json_response({"providers": providers})
     else:
