@@ -150,7 +150,7 @@ export default function CollectionHeader() {
             variant="outlined"
             navigateNeeded
             navigateTo="/directory"
-            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            startIcon={<LockOpenIcon titleAccess="admin-copy" />}
             secondAction={false}
             confirmButtonText="Delete"
           />
