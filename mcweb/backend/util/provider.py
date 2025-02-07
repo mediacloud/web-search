@@ -6,7 +6,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def get_provider(name: str, api_key: str, base_url: str, caching: int = 0, session_id: str):
+
+def get_provider(name: str, api_key: str, base_url: str|None, caching: int, session_id: str):
     """
     One place to get a provider configured for web use.
     """
@@ -31,3 +32,8 @@ def get_provider(name: str, api_key: str, base_url: str, caching: int = 0, sessi
 
 def provider_session(task_name:str):
     return 'f{task_name}@{SENTRY_ENV}'
+
+
+def get_task_provider(provider_name: str, api_key: str, base_url: str|None, task_name:str):
+    session = provider_session(task_name)
+    return get_provider(provider_name, api_key=api_key, base_url=base_url, caching=0, session_id = session)
