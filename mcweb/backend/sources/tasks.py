@@ -338,7 +338,6 @@ def analyze_sources(batch_size: int, analysis_type: str, start_date: dt.datetime
     logger.info(f"Starting {analysis_type} analysis for {total_sources} sources.")
 
     updated_sources = []
-
     for i in range(0, total_sources, batch_size):
         batch = sources[i:i + batch_size]
         for source in batch:
