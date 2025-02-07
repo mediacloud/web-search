@@ -21,7 +21,7 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, NEWS_SEARCH
 from ..users.models import QuotaHistory
 
 # mcweb/backend/utils/provider
-from ..utils.provider import get_provider
+from ..util.provider import get_provider
 
 logger = logging.getLogger(__name__)
 
