@@ -38,7 +38,8 @@ from .utils import (
     parse_query_params,
     parsed_query_from_dict,
     parsed_query_state,
-    pq_provider
+    pq_provider,
+    request_session_id
 )
 from .tasks import download_all_large_content_csv, download_all_queries_csv_task
 
@@ -421,8 +422,9 @@ def send_email_large_download_csv(request):
     # NOTE: download_all_content_csv doesn't check count!
     # applying range check to sum of all queries!
     total = 0
+    session_id = request_session_id(request)
     for query in queryState:
-        pq = parsed_query_from_dict(query, request)
+        pq = parsed_query_from_dict(query, session_id)
         provider = pq_provider(pq)
         try:
             total += provider.count(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
