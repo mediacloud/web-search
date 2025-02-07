@@ -4,7 +4,7 @@ from settings import SENTRY_ENV
 
 import logging
 
-logger = logging.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def get_provider(name: str, api_key: str, base_url: str, caching: int, session_id: str | None):
     """
