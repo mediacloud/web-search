@@ -6,14 +6,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def get_provider(name: str, api_key: str, base_url: str, caching: int, session_id: str | None):
+def get_provider(name: str, api_key: str, base_url: str, caching: int = 0, session_id: str):
     """
     One place to get a provider configured for web use.
     """
 
     #A default sessionid that's attached to the sentry environment. 
-    if session_id == None:
-        session_id = provider_session("default")
 
     # BEGIN TEMPORARY CROCKERY!
     extras = {}
