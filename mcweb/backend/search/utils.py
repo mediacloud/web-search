@@ -20,6 +20,9 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, NEWS_SEARCH
 # mcweb/backend/users
 from ..users.models import QuotaHistory
 
+# mcweb/backend/utils/provider
+from ..utils.provider import get_provider
+
 logger = logging.getLogger(__name__)
 
 class ParsedQuery(NamedTuple):
@@ -52,27 +55,6 @@ def fill_in_dates(start_date, end_date, existing_counts):
         else:
             filled_counts.append({'count': date_count_dict[day_string], 'date': day_string})
     return filled_counts
-
-
-def get_provider(name: str, api_key: str, base_url: str, caching: bool, session_id: str):
-    """
-    One place to get a provider configured for web use.
-    """
-    name = platform or pq.provider_name
-    # BEGIN TEMPORARY CROCKERY!
-    extras = {}
-    if name == 'onlinenews-mediacloud':
-        # if mediacloud, and emergency ripcord pulled, revert to (new) NSA-based provider
-        if constance.config.OLD_MC_PROVIDER:
-            name = 'onlinenews-mediacloud-old'
-        elif constance.config.ES_PARTIAL_RESULTS:
-            # new provider: return results even if some shards failed
-            # with circuit breaker tripping:
-            extras["partial_responses"] = True
-    logger.debug("pq_provider %s %r", name, extras)
-
-    return provider_by_name(name, api_key=api_key, base_url = base_url, caching = caching, 
-                software_id="web-search", session_id = session_id)
 
 def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvider:
     """
