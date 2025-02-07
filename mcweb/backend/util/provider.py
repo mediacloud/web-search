@@ -2,6 +2,10 @@ import constance
 from mc_providers import provider_by_name
 from settings import SENTRY_ENV
 
+import logging
+
+logger = logging.get_logger(__name__)
+
 def get_provider(name: str, api_key: str, base_url: str, caching: int, session_id: str | None):
     """
     One place to get a provider configured for web use.
