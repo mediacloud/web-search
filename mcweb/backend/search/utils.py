@@ -61,7 +61,6 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
     take parsed query, return mc_providers ContentProvider.
     """
     name = platform or pq.provider_name
-
     return get_provider(name, api_key=pq.api_key, base_url=pq.base_url, 
                         caching=pq.caching, session_id=pq.session_id)
 
