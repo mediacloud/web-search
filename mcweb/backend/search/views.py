@@ -22,7 +22,7 @@ from rest_framework.permissions import IsAuthenticated
 from urllib3.util.retry import Retry
 
 # mcweb
-from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
+from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_PROVIDERS
 
 # mcweb/util
 from util.cache import cache_by_kwargs, mc_providers_cacher
@@ -44,6 +44,7 @@ from .tasks import download_all_large_content_csv, download_all_queries_csv_task
 
 # mcweb/backend/users
 from ..users.models import QuotaHistory
+from ..users.views import _user_from_token
 from backend.users.exceptions import OverQuotaException
 
 # mcweb/backend/util
@@ -450,6 +451,22 @@ def download_all_queries_csv(request):
     download_all_queries_csv_task(queries, request)
     # was: return HttpResponse(content_type="application/json", status=200)
     return json_response("")
+
+@handle_provider_errors
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication]) #API only method for now
+@permission_classes([IsAuthenticated])
+def providers(request):
+    token = request.GET.get('Authorization', None)
+    if token:
+        user = _user_from_token(token)
+        providers = {
+            AVAILABLE_PROVIDERS[0]: user.profile.quota_mediacloud,
+            AVAILABLE_PROVIDERS[1]: user.profile.quota_wayback_machine,
+        }
+        return json_response({"providers": providers})
+    else:
+        return error_response("No token provided", response_type=HttpResponseBadRequest)
 
 def add_ratios(words_data):
     for word in words_data:

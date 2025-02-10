@@ -14,4 +14,5 @@ urlpatterns = [
     path('password-strength', views.password_strength),
     path('delete-user', views.delete_user),
     path('reset-token', views.reset_token),
+    path('email-from-token', views.email_from_token),
 ]
