@@ -165,21 +165,15 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def copy_collection(self, request):
         collection_id = request.data.get("collection_id")
         new_name = request.data.get("name")
-
         original_collection = get_object_or_404(Collection, pk=collection_id)
-
         if not new_name:
             new_name = f"{original_collection.name} (Copy)"
-
         new_collection = {
             "name": new_name,
             "platform": original_collection.platform,
         }
-
         associations = original_collection.source_set.all()
-
         serializer = CollectionWriteSerializer(data=new_collection)
-
         try:
             serializer.is_valid(raise_exception=True)
             new_collection = serializer.save()
