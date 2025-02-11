@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.1.7"
+VERSION = "2.2.0"
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -113,6 +113,7 @@ ALLOWED_HOSTS = env("ALLOWED_HOSTS") # list
 ANALYTICS_MATOMO_DOMAIN = env('ANALYTICS_MATOMO_DOMAIN')
 ANALYTICS_MATOMO_SITE_ID = env('ANALYTICS_MATOMO_SITE_ID')
 
+AVAILABLE_PROVIDERS = ["onlinenews-mediacloud", "onlinenews-waybackmachine"]
 CACHE_SECONDS = env("CACHE_SECONDS")
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS") # defined as list
 
@@ -416,11 +417,12 @@ CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
     "OLD_MC_PROVIDER": (False, 'Use old (NSA) mc-provider', bool),
+    "ES_PARTIAL_RESULTS": (False, 'ES provider: return partial results', bool),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
     "Monitoring Options": ("REQUEST_LOGGING_ENABLED",),
-    "Temporary": ("OLD_MC_PROVIDER",)
+    "Temporary": ("OLD_MC_PROVIDER", "ES_PARTIAL_RESULTS",)
 }
 
 ################

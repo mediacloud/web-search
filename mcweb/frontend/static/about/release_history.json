@@ -1,4 +1,10 @@
-[{"version": "v2.1.7",
+[{"version": "v2.2.0",
+"date": "2025-02-04",
+"notes": ["add new provider for mediacloud, now default provider",
+"updates to cacheing, logging and metrics",
+"update pycountry library",
+"add poweruser group"
+]},{"version": "v2.1.7",
 "date": "2024-01-15",
 "notes": ["fix bug with csv upload",
 "update middleware for collection creation bug"

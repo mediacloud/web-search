@@ -20,7 +20,8 @@ from django.contrib.auth.decorators import login_required
 from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
-from .models import Profile
+from .models import Profile, QuotaHistory
+from .utils import _clean_user
 from ..sources.permissions import get_groups
 
 
@@ -95,15 +96,22 @@ def reset_password(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
-# @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
+    token = request.GET.get('Authorization', None)
+    if token:
+        try:
+            user = _user_from_token(token)
+        except:
+            logger.debug("Token not found")
+            data = json.dumps({'message': "API Token Not Found"})
+            return HttpResponse(data, content_type='application/json', status=403)
     if request.user.id is not None:
         data = _serialized_current_user(request)
     else:
-        data = json.dumps({'isActive': False})
-    return HttpResponse(data, content_type='application/json')
+        data = _serialized_api_user(user)
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 @require_http_methods(["POST"])
 def password_strength(request):
@@ -288,6 +296,30 @@ def reset_token(request):
     except Exception as e:
         data = json.dumps({'error': e})
         return HttpResponse(data, content_type='application/json', status=400)
+    
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def email_from_token(request):
+    token = request.GET.get('Authorization', None)
+    user_token = request.GET.get('user', None)
+    if token:
+        try:
+            user = _user_from_token(token)
+        except:
+            logger.debug("Token not found")
+            data = json.dumps({'message': "API Token Not Found"})
+            return HttpResponse(data, content_type='application/json', status=403)
+    else:
+        data = json.dumps({'message': "No token provided"})
+        return HttpResponse(data, content_type='application/json', status=403)
+    if user.is_superuser and user_token:
+        user = _user_from_token(user_token)
+        return HttpResponse(json.dumps({"email": user.email}), content_type='application/json')
+    elif not user.is_superuser:
+        return HttpResponse(json.dumps({"error": "Must be super user"}), content_type='application/json', status=403)
+    elif not user_token:
+        return HttpResponse(json.dumps({"error": "No user token provided"}), content_type='application/json', status=403)
+
 
 
 
@@ -302,3 +334,22 @@ def _serialized_current_user(request) -> str:
     data['group_names'] = get_groups(request)
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
+
+def _serialized_api_user(user) -> str:
+    cleaned_user = _clean_user(user)
+    # serialized_data = serializers.serialize('json', [cleaned_user, ])
+    return cleaned_user
+
+def _user_from_token(token):
+    token = token.split()[1]
+    Token = apps.get_model('authtoken', 'Token')
+    token = Token.objects.filter(key=token)
+    try:
+        token = token[0]
+        user = User.objects.filter(pk=token.user_id)
+        return user[0]
+    except:
+        return None
+
+
+
