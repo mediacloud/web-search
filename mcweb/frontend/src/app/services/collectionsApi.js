@@ -69,6 +69,14 @@ export const collectionsApi = managerApi.injectEndpoints({
       }),
       invalidatesTags: ['Collection'],
     }),
+    copyCollection: builder.mutation({
+      query: (collection) => ({
+        url: 'collections/copy-collection/',
+        method: 'POST',
+        body: { collection_id: collection.id, name: collection.name },
+      }),
+      invalidatesTags: ['Collection'],
+    }),
     rescrapeCollection: builder.mutation({
       query: (collectionId) => ({
         url: 'collections/rescrape-collection/',
@@ -87,6 +95,7 @@ export const {
   useGetCollectionQuery,
   useCreateCollectionMutation,
   useUpdateCollectionMutation,
+  useCopyCollectionMutation,
   useDeleteCollectionMutation,
   useLazyGetCollectionQuery,
   useGetGlobalCollectionsQuery,

@@ -44,7 +44,7 @@ def download_all_large_content_csv(queryState: list[dict], user_id: int, user_is
 
 @background(queue=USER_SLOW, remove_existing_tasks=True)
 def _download_all_large_content_csv(queryState: list[dict], user_id: int, user_isStaff: bool, email: str):
-    parsed_queries = [parsed_query_from_dict(q) for q in queryState]
+    parsed_queries = [parsed_query_from_dict(q, session_id=email) for q in queryState]
     # code from: https://stackoverflow.com/questions/17584550/attach-generated-csv-file-to-email-and-send-with-django
 
     # Phil: maybe catch exception, and send email?

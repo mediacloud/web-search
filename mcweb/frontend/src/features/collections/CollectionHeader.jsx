@@ -7,7 +7,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { Outlet, Link, useParams } from 'react-router-dom';
+import {
+  Outlet, Link, useParams,
+} from 'react-router-dom';
 import {
   useGetCollectionQuery,
   useDeleteCollectionMutation,
@@ -21,6 +23,7 @@ import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
+import CopyCollectionDialog from './util/CopyCollectionDialog';
 
 export default function CollectionHeader() {
   const params = useParams();
@@ -37,6 +40,8 @@ export default function CollectionHeader() {
 
   const [open, setOpen] = useState(false);
   const [openRescrape, setOpenRescrape] = useState(false);
+  const [openCopy, setOpenCopy] = useState(false);
+
   if (isFetching) {
     return (<CircularProgress size={75} />);
   }
@@ -70,6 +75,7 @@ export default function CollectionHeader() {
           </Tooltip>
         )}
       </Header>
+
       <ControlBar>
         <Button variant="outlined" startIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
@@ -88,16 +94,16 @@ export default function CollectionHeader() {
             rel="noreferrer"
           >
             Search Content
-
           </a>
         </Button>
+
         <DownloadSourcesCsv collectionId={collectionId} />
+
         <PermissionedContributor>
           <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
             <Link to={`${collectionId}/edit`}>Edit</Link>
           </Button>
           {collection.platform === 'online_news' && (
-
             <AlertDialog
               outsideTitle="Rescrape Collection For Feeds"
               title={`Rescrape Collection #${collectionId}: ${collection.name} for new feeds?`}
@@ -111,12 +117,23 @@ export default function CollectionHeader() {
               openDialog={openRescrape}
               variant="outlined"
               navigateNeeded={false}
-              startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+              startIcon={<LockOpenIcon titleAccess="admin-rescrape" />}
               secondAction={false}
               confirmButtonText="Rescrape"
             />
           )}
+          <CopyCollectionDialog
+            outsideTitle="Copy Collection"
+            title={`Copy ${platformDisplayName(collection.platform)} Collection #${collectionId}: ${collection.name}`}
+            collectionId={collectionId}
+            onClick={() => setOpenCopy(true)}
+            openDialog={openCopy}
+            variant="outlined"
+            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            confirmButtonText="Copy"
+          />
         </PermissionedContributor>
+
         <PermissionedStaff role={ROLE_STAFF}>
           <AlertDialog
             outsideTitle="Delete Collection"
@@ -133,7 +150,7 @@ export default function CollectionHeader() {
             variant="outlined"
             navigateNeeded
             navigateTo="/directory"
-            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            startIcon={<LockOpenIcon titleAccess="admin-copy" />}
             secondAction={false}
             confirmButtonText="Delete"
           />

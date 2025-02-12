@@ -56,6 +56,13 @@ add_extras() {
     done
 }
 
+# mcmetadata uses pylangid3 which uses numpy which uses libopenblas
+# for vector math, creating by default one worker thread per virtual
+# CPU, which sit and spin looking for work.  Use just one thread.  The
+# same setting is used in story-indexer (which actually does language
+# identification, with less CPU time used!
+add_extras "OPENBLAS_NUM_THREADS=1"
+
 # NOTE: same order used by rss-fetcher & story-indexer.
 # used by both run-server.sh (for gunicorn) and mcweb/settings.py
 STATSD_PREFIX=mc.$INSTANCE.web-search

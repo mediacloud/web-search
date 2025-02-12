@@ -13,7 +13,7 @@ import requests.auth
 from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticated
@@ -160,6 +160,28 @@ class CollectionViewSet(viewsets.ModelViewSet):
         # break down the collection's serializer.data and just get the name (could be refactored in future by removing names)
         names = [[item['name'] for item in sublist] for sublist in names]
         return Response({"collection": names})
+    
+    @action(methods=['post'], detail=False, url_path='copy-collection')
+    def copy_collection(self, request):
+        collection_id = request.data.get("collection_id")
+        new_name = request.data.get("name")
+        original_collection = get_object_or_404(Collection, pk=collection_id)
+        if not new_name:
+            new_name = f"{original_collection.name} (Copy)"
+        new_collection = {
+            "name": new_name,
+            "platform": original_collection.platform,
+        }
+        associations = original_collection.source_set.all()
+        serializer = CollectionWriteSerializer(data=new_collection)
+        try:
+            serializer.is_valid(raise_exception=True)
+            new_collection = serializer.save()
+            for source in associations:
+                new_collection.source_set.add(source)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
     @action(methods=['post'], detail=False, url_path='rescrape-collection')
@@ -531,7 +553,6 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collection = get_object_or_404(collections_queryset, pk=collection_id)
         source.collections.add(collection)
         return Response({'source_id': source_id, 'collection_id': collection_id})
-
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
