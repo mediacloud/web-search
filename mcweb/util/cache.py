@@ -17,7 +17,7 @@ from django.core.cache import cache
 from settings import CACHE_SECONDS
 
 # mcweb.util (local dir)
-from mcweb.util import stats
+import util.stats as stats
 
 logger = logging.getLogger(__name__)
 
