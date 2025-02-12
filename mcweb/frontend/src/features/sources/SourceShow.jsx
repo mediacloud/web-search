@@ -14,6 +14,7 @@ import StatPanel from '../ui/StatPanel';
 import FeedStories from '../feeds/FeedStories';
 import renderNotes from '../collections/util/formatNotesToHTML';
 import getParentSource from './util/getParentSource';
+import getChildSources from './util/getChildSources';
 
 function a11yProps(index) {
   return {
@@ -48,15 +49,17 @@ export default function SourceShow() {
     document.title = source.label ? `${source.label} | Media Cloud` : `${source.name} | Media Cloud`;
   });
 
-  let parentSource = getParentSource(source.name, sourceList);
-
-  useEffect(() => {
-    parentSource = getParentSource(source.name, sourceList);
-  }, [sourceList]);
+  // useEffect(() => {
+  //   parentSource = getParentSource(source.name, sourceList);
+  // }, [sourceList]);
 
   if (isLoading || sourceListLoading) {
     return <CircularProgress size="75px" />;
   }
+
+  const parentSource = getParentSource(source.name, sourceList);
+
+  const childSources = getChildSources(source.name, sourceList);
 
   return (
     <div className="container">
@@ -96,6 +99,32 @@ export default function SourceShow() {
               </p>
             </div>
           </div>
+        )}
+        {(childSources && !source.url_search_string) && (
+        <div>
+          <div className="row">
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            <p><b>Child Sources</b>:
+              <ul>
+                {childSources.map((childSource) => (
+                  <li>
+                    <Link
+                      target="_blank"
+                      to={childSource ? `/sources/${childSource.id}` : null}
+                      style={{
+                        whiteSpace: 'normal',
+                        width: '100%',
+                      }}
+                    >
+                      {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                      {childSource ? childSource.url_search_string : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </p>
+          </div>
+        </div>
         )}
         {source.notes && (
         <p>

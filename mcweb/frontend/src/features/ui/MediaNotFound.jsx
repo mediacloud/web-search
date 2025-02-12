@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { assetUrl } from './uiUtil';
 
 function MediaNotFound({ source }) {
@@ -20,5 +21,8 @@ function MediaNotFound({ source }) {
     </div>
   );
 }
+MediaNotFound.propTypes = {
+  source: PropTypes.bool.isRequired,
+};
 
 export default MediaNotFound;
