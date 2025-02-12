@@ -79,10 +79,9 @@ def mc_providers_cacher(fn: Callable, cache_prefix: str, *args, **kwargs) -> tup
     """
     callable passed to mc_providers caching interface.
     this is the one place that needs to return the was_cached bool
-    (changing the cacheing function API would require an mc_providers major version change)
-    always gets default cache time (could have a separate setting)
     """
-    return cached_function_call(fn, cache_prefix, None, *args, **kwargs)
+    seconds = kwargs.pop("_cache_seconds", None)
+    return cached_function_call(fn, cache_prefix, seconds, *args, **kwargs)
 
 # decorator for caching functions/methods in backend code
 def cache_by_kwargs(seconds: int | None = None):
