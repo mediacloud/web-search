@@ -18,12 +18,7 @@ class Command(BaseCommand):
 
         if options["queue"]:
             update_source_language(batch_size=batch_size)
-            self.stdout.write(f"Queued language analysis with a batch size of {batch_size}...")
+            self.stdout.write("Queued language analysis with a batch size of %d..." % batch_size)
         else:
-            updated_sources = update_source_language.now(batch_size=batch_size)
-            if updated_sources:
-                self.stdout.write(self.style.SUCCESS(f"Updated {len(updated_sources)} sources:"))
-                for source in updated_sources:
-                    self.stdout.write(f"Source ID {source['source_id']}: {source['primary_language']}")
-            else:
-                self.stdout.write(self.style.WARNING("No sources were updated."))
+            update_source_language.now(batch_size=batch_size)
+            self.stdout.write(self.style.SUCCESS("Language analysis task completed with a batch size of %d." %batch_size))

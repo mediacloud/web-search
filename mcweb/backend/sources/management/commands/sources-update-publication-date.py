@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 from ...tasks import update_publication_date
 
-
 class Command(BaseCommand):
     help = "Get the first publication date of a source and update the Source table."
 
@@ -19,12 +18,7 @@ class Command(BaseCommand):
 
         if options["queue"]:
             update_publication_date(batch_size=batch_size)
-            self.stdout.write(f"Queued first story publication date analysis with a batch size of {batch_size}...")
+            self.stdout.write("Queued first story publication date analysis with a batch size of %d..." % batch_size)
         else:
-            updated_sources = update_publication_date.now(batch_size=batch_size)
-            if updated_sources:
-                self.stdout.write(self.style.SUCCESS(f"Updated {len(updated_sources)} sources:"))
-                for source in updated_sources:
-                    self.stdout.write(f"Source ID {source['source_id']}: {source['first_story']}")
-            else:
-                self.stdout.write(self.style.WARNING("No sources were updated."))
+            update_publication_date.now(batch_size=batch_size)
+            self.stdout.write(self.style.SUCCESS("Publication date analysis task completed with a batch size of %d." %batch_size))

@@ -10,14 +10,16 @@ import json
 import logging
 import time
 import traceback
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 # PyPI:
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils import timezone
-from backend.search.utils import ParsedQuery, pq_provider
+from ..util.provider import get_task_provider
+
 
 import numpy as np
 
@@ -316,94 +318,97 @@ def schedule_scrape_source(source_id, user):
                           remove_existing_tasks=True)
     return return_task(task)
 
+SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
+SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
+SOURCE_UPDATE_START_DATE = dt.datetime(2000, 1, 1) # Possible earliest source publication date
 
-DAYS_BACK = 365  # Number of days to look back for story analysis
-MIN_STORY_COUNT = 100  # Minimum number of stories required for a valid source
-START_DATE = dt.datetime(2000, 1, 1) # Possible earliest source publication date
-END_DATE = dt.datetime.now()
-
-def analyze_sources(batch_size: int, analysis_type: str, start_date: dt.datetime) -> List[Dict[str, str]]:
+def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
     """
     Generalized function to analyze sources.
     Args:
         batch_size (int): Number of sources to process in each batch.
-        analysis_type (str): Type of analysis to perform ("language" or "publication_date").
+        task_name (str): Task name based on param to update ("language" or "publication_date"). Used to create provider session
     Returns:
         List[Dict[str, str]]: A list of dictionaries containing source IDs and their analyzed data.
     """
+    END_DATE = dt.datetime.now()
+    updated_sources = []
+    request_count = 0
+
     # TO DO:xavier About 1693 sources have name__isnull=True but have homepage
     # getting canonical domain from urls.canonical_domain(homepage) makes a HTTP request, NOT IDEAL !!!
-    sources = Source.objects.filter(name__isnull=False)
-    total_sources = sources.count()
-    logger.info(f"Starting {analysis_type} analysis for {total_sources} sources.")
+    six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
+    sources = Source.objects.filter(
+        (Q(primary_language__isnull=True) | Q(first_story__isnull=True)),
+        name__isnull=False,
+        modified_at__lt=six_months_ago
+    ).order_by("modified_at")[:batch_size]
 
-    updated_sources = []
-    for i in range(0, total_sources, batch_size):
-        batch = sources[i:i + batch_size]
-        for source in batch:
-            try:
-                pq = ParsedQuery(
-                    start_date=start_date,
-                    end_date=END_DATE,
-                    query_str=f"canonical_domain:{source.name}",
-                    provider_props={},
-                    provider_name="onlinenews-mediacloud",
-                    api_key=None,
-                    base_url=None
-                )
-                provider = pq_provider(pq)
-                results = provider._overview_query(pq.query_str, start_date, END_DATE)
+    if not sources:
+        logger.info("No new sources to process.")
+        return updated_sources
 
-                if results["total"] <= MIN_STORY_COUNT or provider._is_no_results(results):
-                    logger.warning(f"Not enough stories for source {source.id} to analyze {analysis_type}.")
-                    continue
+    for source in sources.iterator():
+        if request_count >= 100:
+            logger.info("Rate limit reached, sleeping for 60 seconds.")
+            time.sleep(60)
+            request_count = 0
 
-                if analysis_type == "language":
-                    languages = [match["language"] for match in results["matches"]]
-                    primary_language = max(set(languages), key=languages.count)
-                    source.primary_language = primary_language
-                    updated_sources.append({"source_id": source.id, "primary_language": primary_language})
-                    logger.info(f"Analyzed source {source.id}. Primary language: {primary_language}")
+        try:
+            query_str = "canonical_domain:%s" % source.name
+            provider = get_task_provider(provider_name="onlinenews-mediacloud", api_key=None,base_url="http://localhost:9200", task_name=task_name)
+            results, _ = provider.paged_items(query_str, start_date, END_DATE)
 
-                elif analysis_type == "publication_date":
-                    publication_dates = [dt.datetime.fromisoformat(match["publication_date"]) for match in results["matches"]]
-                    first_story = min(publication_dates, default=None)
-                    if first_story:
-                        source.first_story = first_story
-                        updated_sources.append({"source_id": source.id, "first_story": first_story})
-                        logger.info(f"Analyzed source {source.id}. First story publication date: {first_story}")
+            if len(results) <= SOURCE_UPDATE_MIN_STORY_COUNT:
+                logger.warning("Not enough stories for source %s to analyze %s." % (source.name, task_name))
+                continue
 
-            except Exception as e:
-                logger.error(f"Failed to analyze source {source.id}: {e}")
+            logger.info(f"Task name:{task_name}")
+            if task_name == "update_source_language":
+                languages = [match["language"] for match in results]
+                primary_language = max(set(languages), key=languages.count)
+                source.primary_language = primary_language
+                logger.info("Analyzed source %s. Primary language: %s" % (source.name, primary_language))
 
-        if batch:
-            field_name = 'primary_language' if analysis_type == "language" else 'first_story'
-            Source.objects.bulk_update(batch, [field_name])
+            elif task_name == "update_publication_date":
+                publication_dates = [dt.datetime.combine(match["publish_date"], dt.datetime.min.time()) for match in results]
+                first_story = min(publication_dates, default=None)
+                if first_story:
+                    first_story = timezone.make_aware(first_story)
+                    source.first_story = first_story
+                    logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
 
-    logger.info(f"Completed {analysis_type} extraction. Updated {len(updated_sources)} sources.")
+            source.modified_at = timezone.now()
+            updated_sources.append(source)
+            request_count += 1
+        except Exception as e:
+            logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
+
+    if updated_sources:
+        field_name = 'primary_language' if task_name == "update_source_language" else 'first_story'
+        Source.objects.bulk_update(updated_sources, [field_name, "modified_at"])
+        logger.info("Completed %s extraction. Updated %d sources." % (task_name, len(updated_sources)))
+
     return updated_sources
 
 
 @background(queue=SYSTEM_SLOW)
 def update_source_language(batch_size: int = 100) -> None:
-    start_date = END_DATE - dt.timedelta(days=DAYS_BACK)
-    updated_sources = analyze_sources(batch_size, "language", start_date)
+    start_date = dt.datetime.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
+    updated_sources = analyze_sources(batch_size, start_date, "update_source_language")
     if updated_sources:
-        logger.info(f"Updated {len(updated_sources)} sources.")
-        for source in updated_sources:
-            logger.info(f"Source ID {source['source_id']}: {source['primary_language']}")
+        logger.info("Successfully updated %d sources for language analysis.", len(updated_sources))
     else:
-        logger.warning("No sources were updated.")
+        logger.info("No sources were updated during language analysis.")
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(batch_size: int = 100) -> None:
-    updated_sources = analyze_sources(batch_size, "publication_date", START_DATE)
+    updated_sources = analyze_sources(batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
     if updated_sources:
-        logger.info(f"Updated {len(updated_sources)} sources.")
-        for source in updated_sources:
-            logger.info(f"Source ID {source['source_id']}: {source['first_story']}")
+        logger.info("Successfully updated first story for %d sources.", len(updated_sources))
     else:
-        logger.warning("No sources were updated.")
+        logger.info("No sources were updated for first story publication date.")
+
 
 
 
