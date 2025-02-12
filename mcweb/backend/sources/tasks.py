@@ -408,7 +408,3 @@ def update_publication_date(batch_size: int = 100) -> None:
         logger.info("Successfully updated first story for %d sources.", len(updated_sources))
     else:
         logger.info("No sources were updated for first story publication date.")
-
-
-
-
