@@ -34,6 +34,8 @@ class RequestLoggingMiddleware:
                         # this resets the stream after reading it so that downstream views are unaffected
                         request_data = request.body 
                         log_msg['request_params'] = json.loads(request_data)
+                        if "password" in log_msg["request_params"]:
+                            log_msg["request_params"]["password"] = "*****"
                         request._stream = BytesIO(request_data)
                     except json.JSONDecodeError:
                         log_msg["request_params"] = "Invalid JSON"
