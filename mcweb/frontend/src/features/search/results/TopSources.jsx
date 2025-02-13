@@ -82,7 +82,13 @@ export default function TopSources() {
       <div className="container">
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant="scrollable"
+              scrollButtons="auto"
+              aria-label="top sources tabs"
+            >
               {prepareSourceData(data, normalized).map((result, i) => (
                 <Tab
                   key={queryTitleArrays[i]}
