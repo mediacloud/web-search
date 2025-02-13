@@ -472,7 +472,8 @@ def providers(request):
 
 def add_ratios(words_data):
     for word in words_data:
-        word["ratio"] = word['count'] / 1000
+        if "ratio" not in word:
+            word["ratio"] = word['count'] / 1000
     return words_data
 
 
