@@ -80,7 +80,13 @@ export default function SampleStories() {
       <div className="container">
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant="scrollable"
+              scrollButtons="auto"
+              aria-label="sample stories tab"
+            >
               {data.map((result, i) => (
                 <Tab
                   key={queryTitleArrays[i]}
