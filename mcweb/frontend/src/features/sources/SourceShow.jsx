@@ -121,7 +121,7 @@ export default function SourceShow() {
       <div className="container">
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+            <Tabs value={value} onChange={handleChange} aria-label="source show tabs">
 
               <Tab
                 label="Collection List"

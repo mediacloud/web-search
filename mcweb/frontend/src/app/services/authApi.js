@@ -13,9 +13,6 @@ export const api = createApi({
   }),
 
   endpoints: (builder) => ({
-    profile: builder.query({
-      query: () => 'profile',
-    }),
     logout: builder.mutation({
       query: () => ({
         url: 'logout',
@@ -78,7 +75,6 @@ export const api = createApi({
 });
 
 export const {
-  useProfileQuery,
   useLogoutMutation,
   useLoginMutation,
   useRegisterMutation,
