@@ -110,10 +110,10 @@ def profile(request):
     if request.user.id is not None and not user:
         data = _serialized_current_user(request)
     elif user:
-        data = _serialized_api_user(user)
+        data = json.dumps(_serialized_api_user(user))
     else:
         data = json.dumps({'message': "User Not Found"})
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    return HttpResponse(data, content_type='application/json')
 
 @require_http_methods(["POST"])
 def password_strength(request):
