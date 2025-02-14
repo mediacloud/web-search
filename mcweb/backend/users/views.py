@@ -21,7 +21,6 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile, QuotaHistory
-from .utils import _clean_user
 from ..sources.permissions import get_groups
 
 
@@ -339,8 +338,20 @@ def _serialized_current_user(request) -> str:
     return json.dumps(camelcase_data)
 
 def _serialized_api_user(user) -> str:
-    cleaned_user = _clean_user(user)
-    # serialized_data = serializers.serialize('json', [cleaned_user, ])
+    most_recent_quota = user.quotahistory_set.order_by('-week').first()
+    cleaned_user = {
+        'id': user.id,
+        'username': user.username,
+        'is_staff': user.is_staff,
+        'is_superuser': user.is_superuser,
+        'groups': [group.name for group in user.groups.all()],
+        'quota': {
+            'provider': most_recent_quota.provider,
+            'hits': most_recent_quota.hits,
+            'week': most_recent_quota.week.strftime('%Y-%m-%d'),
+            'limit': user.profile.quota_mediacloud, 
+        } if most_recent_quota else None
+    }
     return cleaned_user
 
 def _user_from_token(token):

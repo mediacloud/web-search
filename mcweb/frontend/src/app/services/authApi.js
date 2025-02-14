@@ -11,8 +11,10 @@ export const api = createApi({
       return headers;
     },
   }),
-
   endpoints: (builder) => ({
+    profile: builder.query({
+      query: () => 'profile',
+    }),
     logout: builder.mutation({
       query: () => ({
         url: 'logout',
