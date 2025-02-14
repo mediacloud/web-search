@@ -21,6 +21,7 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile, QuotaHistory
+from .utils import _clean_user
 from ..sources.permissions import get_groups
 
 
@@ -110,10 +111,10 @@ def profile(request):
     if request.user.id is not None and not user:
         data = _serialized_current_user(request)
     elif user:
-        data = json.dumps(_serialized_api_user(user))
+        data = _serialized_api_user(user)
     else:
         data = json.dumps({'message': "User Not Found"})
-    return HttpResponse(data, content_type='application/json')
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 @require_http_methods(["POST"])
 def password_strength(request):
@@ -338,20 +339,8 @@ def _serialized_current_user(request) -> str:
     return json.dumps(camelcase_data)
 
 def _serialized_api_user(user) -> str:
-    most_recent_quota = user.quotahistory_set.order_by('-week').first()
-    cleaned_user = {
-        'id': user.id,
-        'username': user.username,
-        'is_staff': user.is_staff,
-        'is_superuser': user.is_superuser,
-        'groups': [group.name for group in user.groups.all()],
-        'quota': {
-            'provider': most_recent_quota.provider,
-            'hits': most_recent_quota.hits,
-            'week': most_recent_quota.week.strftime('%Y-%m-%d'),
-            'limit': user.profile.quota_mediacloud, 
-        } if most_recent_quota else None
-    }
+    cleaned_user = _clean_user(user)
+    # serialized_data = serializers.serialize('json', [cleaned_user, ])
     return cleaned_user
 
 def _user_from_token(token):

@@ -11,6 +11,7 @@ export const api = createApi({
       return headers;
     },
   }),
+
   endpoints: (builder) => ({
     logout: builder.mutation({
       query: () => ({
