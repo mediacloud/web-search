@@ -1,4 +1,12 @@
-[{"version": "v2.2.0",
+[{"version": "v2.2.1",
+"date": "2025-02-14",
+"notes": ["add provider api endpoint",
+"update profile endpoint to return more information from api",
+"copy collection feature",
+"fix top words ratio",
+"fix csv download email",
+"fix for unscrollable results tabs"
+]},{"version": "v2.2.0",
 "date": "2025-02-04",
 "notes": ["add new provider for mediacloud, now default provider",
 "updates to cacheing, logging and metrics",

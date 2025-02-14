@@ -4,7 +4,7 @@
 # if SCALE is non-empty, run dokku ps:scale $APP $SCALE
 # NOTE! The ONLY thing that should go to stdout is proc=N ...
 
-# extrace current counts
+# extract current counts
 /[a-z][a-z_-]*:  *[0-9][0-9]*/ {
     service = substr($1, 1, length($1)-1)
     val = $2

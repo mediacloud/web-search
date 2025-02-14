@@ -61,7 +61,7 @@ export default function TopLanguages() {
       <Alert severity="warning">
         Sorry, but something went wrong.
         (
-        {error ? error.detail : 'No results please try a different query'}
+        {error ? error.note : 'No results please try a different query'}
         )
       </Alert>
     );
@@ -72,7 +72,13 @@ export default function TopLanguages() {
         <div className="container">
           <Box sx={{ width: '100%' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+              <Tabs
+                value={value}
+                onChange={handleChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                aria-label="languages tabs"
+              >
                 {prepareLanguageData(data).map((result, i) => (
                   <Tab
                     key={queryTitleArrays[i]}

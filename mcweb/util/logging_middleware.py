@@ -5,6 +5,9 @@ from constance import config
 from io import BytesIO
 
 import json
+
+import util.stats
+
 request_logger = logging.getLogger("request_logger")
 
 # prevent request messages from "bleeding"
@@ -31,6 +34,8 @@ class RequestLoggingMiddleware:
                         # this resets the stream after reading it so that downstream views are unaffected
                         request_data = request.body 
                         log_msg['request_params'] = json.loads(request_data)
+                        if "password" in log_msg["request_params"]:
+                            log_msg["request_params"]["password"] = "*****"
                         request._stream = BytesIO(request_data)
                     except json.JSONDecodeError:
                         log_msg["request_params"] = "Invalid JSON"
@@ -72,6 +77,8 @@ class RequestLoggingMiddleware:
                 request_logger.info(json.dumps(log_msg))
             except TypeError:
                 pass
+
+        util.stats.path_stats(request.path, duration, response.status_code)
 
         return response
 

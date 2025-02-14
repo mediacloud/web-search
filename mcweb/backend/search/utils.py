@@ -1,10 +1,13 @@
 # Python
 import datetime as dt
 import json
+import logging
 import time
-from typing import Callable, Dict, Generator, List, NamedTuple, Optional, Tuple
+from collections import defaultdict
+from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
 
 # PyPI
+import constance                # TEMPORARY!
 from django.apps import apps
 from mc_providers import provider_by_name, provider_name, ContentProvider, \
     PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
@@ -17,6 +20,11 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, NEWS_SEARCH
 # mcweb/backend/users
 from ..users.models import QuotaHistory
 
+# mcweb/backend/utils/provider
+from ..util.provider import get_provider
+
+logger = logging.getLogger(__name__)
+
 class ParsedQuery(NamedTuple):
     start_date: dt.datetime
     end_date: dt.datetime
@@ -26,6 +34,7 @@ class ParsedQuery(NamedTuple):
     api_key: str | None
     base_url: str | None
     caching: bool = True
+    session_id: str | None = None
 
 # not used?
 def fill_in_dates(start_date, end_date, existing_counts):
@@ -50,9 +59,10 @@ def fill_in_dates(start_date, end_date, existing_counts):
 def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvider:
     """
     take parsed query, return mc_providers ContentProvider.
-    (one place to pass new things to mc_providers)
     """
-    return provider_by_name(platform or pq.provider_name, pq.api_key, pq.base_url, caching=pq.caching)
+    name = platform or pq.provider_name
+    return get_provider(name, api_key=pq.api_key, base_url=pq.base_url, 
+                        caching=pq.caching, session_id=pq.session_id)
 
 def parse_date_str(date_str: str) -> dt.datetime:
     """
@@ -71,16 +81,25 @@ def listify(input: str) -> list[str]:
     return []
 
 _BASE_URL = {
-    'onlinenews-mediacloud': NEWS_SEARCH_API_URL,
+    'onlinenews-mediacloud-old': NEWS_SEARCH_API_URL,
 }
+
+def request_session_id(request) -> str | None:
+    if request.user.is_authenticated:
+        user = request.user.email
+        # XXX include a session hash from request.session?
+        return user
+    else:
+        return None
 
 def parse_query_params(request) -> (ParsedQuery, dict):
     """
     return ParsedQuery plus dict for other params
     """
+    session_id = request_session_id(request)
     if request.method == 'POST':
         payload = json.loads(request.body)
-        return (parsed_query_from_dict(payload.get("queryObject")), payload)
+        return (parsed_query_from_dict(payload.get("queryObject"), session_id), payload)
 
     provider_name = request.GET.get("p", 'onlinenews-mediacloud')
     query_str = request.GET.get("q", "*")
@@ -97,20 +116,32 @@ def parse_query_params(request) -> (ParsedQuery, dict):
     api_key = _get_api_key(provider_name)
     base_url = _BASE_URL.get(provider_name)
 
-    # caching is enabled unless cache is passed ONCE with "f" or "0" as value
-    caching = request.GET.get("cache", "1") not in ["f", "0"]
+    # caching is enabled unless cache is passed ONCE with:
+    # "f" or "0" (disable local cache)
+    # negative number (disable local and remote caches)
+    cache_str = request.GET.get("cache", "1")
+    if cache_str == "t":
+        caching = 1
+    elif cache_str == "f":
+        caching = 0
+    else:
+        try:
+            caching = int(cache_str)
+        except ValueError:
+            caching = 1
 
     pq = ParsedQuery(start_date=start_date, end_date=end_date,
                      query_str=query_str, provider_props=provider_props,
                      provider_name=provider_name, api_key=api_key,
-                     base_url=base_url, caching=caching)
+                     base_url=base_url, caching=caching,
+                     session_id=session_id)
     return (pq, request.GET)
 
 def parse_query(request) -> ParsedQuery:
     pq, payload = parse_query_params(request)
     return pq
 
-def parsed_query_from_dict(payload) -> ParsedQuery:
+def parsed_query_from_dict(payload: dict, session_id: str) -> ParsedQuery:
     """
     Takes a queryObject dict, returns ParsedQuery
     """
@@ -127,7 +158,8 @@ def parsed_query_from_dict(payload) -> ParsedQuery:
     return ParsedQuery(start_date=start_date, end_date=end_date,
                        query_str=query_str, provider_props=provider_props,
                        provider_name=provider_name, api_key=api_key,
-                       base_url=base_url, caching=caching)
+                       base_url=base_url, caching=caching,
+                       session_id=session_id)
 
 def parsed_query_state(request) -> list[ParsedQuery]:
     """
@@ -141,7 +173,8 @@ def parsed_query_state(request) -> list[ParsedQuery]:
     else:
         queries = json.loads(request.GET.get("qS"))
 
-    pqs = [parsed_query_from_dict(q) for q in queries]
+    session_id = request_session_id(request)
+    pqs = [parsed_query_from_dict(q, session_id) for q in queries]
     return pqs
 
 def _get_api_key(provider: str) -> str | None:
@@ -215,7 +248,36 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
     # domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
     return dict(domains=domains)
 
-def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict:
+# additional query properties to pass to MediaCloud Providers
+# sort_field could possibly be used nefariously (be used in a DoS
+# attack, or to leak full text in pagination key), so omitting it
+# until/unless it's needed and proven safe.
+_MEDIA_CLOUD_EXTRA_PROPS = [
+    'expanded',    # NOTE! view MUST check user has permission!
+    'sort_order',  # NOTE: built into news-search-api?
+    'pagination_token'
+]
+
+# add integer valued parameters here!
+# that might have been converted to string in GET requests
+_MEDIA_CLOUD_INT_PROPS = [
+    'page_size'
+]
+
+def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
+    """
+    copy selected API parameters to output (provider kwargs),
+    filtering to make sure nothing nefarious gets through
+    """
+    for prop_name in _MEDIA_CLOUD_EXTRA_PROPS:
+        if prop_name in input:
+            output[prop_name] = input[prop_name]
+
+    for prop_name in _MEDIA_CLOUD_INT_PROPS:
+        if prop_name in input:
+            output[prop_name] = int(input[prop_name])
+
+def _for_media_cloud_OLD(collections: List, sources: List, all_params: Dict) -> Dict:
     # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
     Source = apps.get_model('sources', 'Source')
     # 1. pull out all unique domains that don't have url_search_strs
@@ -239,13 +301,64 @@ def _for_media_cloud(collections: List, sources: List, all_params: Dict) -> Dict
     domain_url_filters = [f"(canonical_domain:{s.name} AND (url:http\://{s.url_search_string} OR url:https\://{s.url_search_string}))"
                           for s in sources_with_url_search_strs]
     # 3. assemble and add in other supported params
-    supported_extra_props = ['pagination_token', 'page_size', 'sort_field', 'sort_order',
-                             'expanded']  # make sure nothing nefarious gets through
     extra_props = dict(domains=domains, filters=domain_url_filters, chunk=True) 
-    for prop_name in supported_extra_props:
-        if prop_name in all_params:
-            extra_props[prop_name] = all_params.get(prop_name)
+    _copy_media_cloud_extra_props(extra_props, all_params)
     return extra_props
+
+def _for_media_cloud(collections: list[int], sources: list[int], all_params: dict) -> dict:
+    # pull in at runtime, rather than outside class, so we can make sure the models are loaded
+    Source = apps.get_model('sources', 'Source')
+
+    # 1. collect unique sources with and without url_search_string (uss)
+    domains: set[str] = set()   # unique domains w/o url_search_string
+
+    # unique srcid to domain and url_search_string
+    domain_and_uss_by_sid: dict[int, tuple[str, str]] = {}
+
+    def save_sources(srcs):     # Iterable[Source]
+        for src in srcs:
+            if src.url_search_string:
+                domain_and_uss_by_sid[src.id] = (src.name, src.url_search_string)
+            elif src.name:
+                if src.name not in domains and (
+                        src.name.endswith("/") or
+                        src.name.startswith("http:") or
+                        src.name.startswith("https:")):
+                    # may cause significant noise, but it means searches will fail!
+                    logger.warning("Source %d name %s", src.id, src.name)
+                domains.add(src.name)
+            else:
+                logger.warning("Source %d has no name!", src.id)
+
+    save_sources(Source.objects.filter(id__in=sources))
+    save_sources(Source.objects.filter(collections__id__in=collections))
+
+    # 2. second pass: create dict indexed by domain
+    #    with sets of url_search_strings for domains
+    #    that are not in the "domains" set
+    url_search_strings = defaultdict(set)
+    for domain, uss in domain_and_uss_by_sid.values():
+        if domain not in domains:
+            # add to the set of search strings for the domain
+            url_search_strings[domain].add(uss)
+
+    # 3. assemble dict of search properties
+    props = {}
+    if domains:
+        # repr used to generate cache key;
+        # consider conversion to list if ordering proves to be an issue
+        props["domains"] = domains
+    if url_search_strings:
+        # repr used to generate cache key
+        # defaultdict repr is uglier than plain dict:
+        # "defaultdict(<class 'set'>, {....})"
+        # but is ordered, and digested before use
+        props["url_search_strings"] = url_search_strings
+
+    # 4. add in other supported params
+    _copy_media_cloud_extra_props(props, all_params)
+
+    return props
 
 def filename_timestamp() -> str:
     """

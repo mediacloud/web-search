@@ -284,6 +284,17 @@ prod|staging)
 	echo 'ADMIN_EMAIL= # gets alerts, scrape errors' >> $USER_CONF
 	echo "SYSTEM_ALERT=\"🚧 ${UNAME}'s dev instance 🚧\"" >> $USER_CONF
     fi
+    case $(hostname) in
+    *.angwin)
+	# make sure dev deployments report stats now that mc-providers reports
+	# counters (to help find instances that are blasting a provider)
+	# NOTE! accepts commented out entry!
+	if ! grep -q 'STATSD_HOST=' $USER_CONF; then
+	    echo "# you can comment out next line if it gives you trouble:" >> $USER_CONF
+	    echo "STATSD_HOST=tarbell.angwin" >> $USER_CONF
+	fi
+	;;
+    esac
     # unset DATABASE/REDIS URLs from .env-template, read user override file
     CONFIG_EXTRAS="$CONFIG_EXTRAS -U DATABASE_URL -U REDIS_URL -F $USER_CONF"
     ;;
@@ -365,19 +376,12 @@ if [ -n "$PRIVATE_CONF_REPO" -a -d "$PRIVATE_CONF_REPO" ]; then
     tag_conf_repo
 fi
 
-# process scaling
-WEB_PROCS=5
-case $BRANCH in
-prod)
-    WEB_PROCS=16 # times 64 (WEB_CONCURRENCY) threads seems... excessive!
-    ;;
-esac
+# number of containers (was 16 for staging/prod), each with
+# WEB_CONCURRENCY gunicorn workers (64 in staging/prod)
+WEB_PROCS=1
 
-# add new Procfile entries to next line!!
+# add most new things to supervisord.conf!
 GOALS="web=$WEB_PROCS supervisord=1"
-#
-# TEMP scale down old workers:
-#GOALS="$GOALS worker=0 system-fast-worker=0 admin-slow-worker=0 admin-fast-worker=0 user-slow-worker=0 user-fast-worker=0"
 #
 # avoid unnecessary redeploys
 SCALE=$(dokku ps:scale $APP | awk -v "goals=$GOALS" -f $SCRIPT_DIR/scale.awk)
@@ -385,7 +389,5 @@ if [ "x$SCALE" != x ]; then
     echo scaling $SCALE
     dokku ps:scale $APP $SCALE
 fi
-
-#dokku ps:start $APP
 
 echo "$(date '+%F %T') $APP $REMOTE $TAG" >> push.log

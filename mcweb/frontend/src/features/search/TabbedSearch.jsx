@@ -162,7 +162,13 @@ export default function TabbedSearch() {
       <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', marginLeft: 6 }}>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            variant="scrollable"
+            scrollButtons="auto"
+            aria-label="query tabs"
+          >
             {queryState.map((query, i) => (
               <Tab
                 disableRipple

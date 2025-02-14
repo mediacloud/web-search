@@ -20,7 +20,7 @@ from django.contrib.auth.decorators import login_required
 from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
-from .models import Profile
+from .models import Profile, QuotaHistory
 from ..sources.permissions import get_groups
 
 
@@ -95,14 +95,24 @@ def reset_password(request):
     data = json.dumps({'message': "Passwords match and password is saved"})
     return HttpResponse(data, content_type='application/json', status=200)
 
-# @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
-    if request.user.id is not None:
+    token = request.GET.get('Authorization', None)
+    user = None
+    if token:
+        try:
+            user = _user_from_token(token)
+        except:
+            logger.debug("Token not found")
+            data = json.dumps({'message': "API Token Not Found"})
+            return HttpResponse(data, content_type='application/json', status=403)
+    if request.user.id is not None and not user:
         data = _serialized_current_user(request)
+    elif user:
+        data = json.dumps(_serialized_api_user(user))
     else:
-        data = json.dumps({'isActive': False})
+        data = json.dumps({'message': "User Not Found"})
     return HttpResponse(data, content_type='application/json')
 
 @require_http_methods(["POST"])
@@ -288,6 +298,30 @@ def reset_token(request):
     except Exception as e:
         data = json.dumps({'error': e})
         return HttpResponse(data, content_type='application/json', status=400)
+    
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def email_from_token(request):
+    token = request.GET.get('Authorization', None)
+    user_token = request.GET.get('user', None)
+    if token:
+        try:
+            user = _user_from_token(token)
+        except:
+            logger.debug("Token not found")
+            data = json.dumps({'message': "API Token Not Found"})
+            return HttpResponse(data, content_type='application/json', status=403)
+    else:
+        data = json.dumps({'message': "No token provided"})
+        return HttpResponse(data, content_type='application/json', status=403)
+    if user.is_superuser and user_token:
+        user = _user_from_token(user_token)
+        return HttpResponse(json.dumps({"email": user.email}), content_type='application/json')
+    elif not user.is_superuser:
+        return HttpResponse(json.dumps({"error": "Must be super user"}), content_type='application/json', status=403)
+    elif not user_token:
+        return HttpResponse(json.dumps({"error": "No user token provided"}), content_type='application/json', status=403)
+
 
 
 
@@ -302,3 +336,34 @@ def _serialized_current_user(request) -> str:
     data['group_names'] = get_groups(request)
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
+
+def _serialized_api_user(user) -> str:
+    most_recent_quota = user.quotahistory_set.order_by('-week').first()
+    cleaned_user = {
+        'id': user.id,
+        'username': user.username,
+        'is_staff': user.is_staff,
+        'is_superuser': user.is_superuser,
+        'groups': [group.name for group in user.groups.all()],
+        'quota': {
+            'provider': most_recent_quota.provider,
+            'hits': most_recent_quota.hits,
+            'week': most_recent_quota.week.strftime('%Y-%m-%d'),
+            'limit': user.profile.quota_mediacloud, 
+        } if most_recent_quota else None
+    }
+    return cleaned_user
+
+def _user_from_token(token):
+    token = token.split()[1]
+    Token = apps.get_model('authtoken', 'Token')
+    token = Token.objects.filter(key=token)
+    try:
+        token = token[0]
+        user = User.objects.filter(pk=token.user_id)
+        return user[0]
+    except:
+        return None
+
+
+
