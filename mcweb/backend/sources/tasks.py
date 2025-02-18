@@ -4,6 +4,7 @@ Background tasks for "sources" app
 """
 
 # standard:
+from collections import Counter
 import datetime as dt
 import logging
 import json
@@ -322,7 +323,7 @@ SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
 SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
 SOURCE_UPDATE_START_DATE = dt.datetime(2000, 1, 1) # Possible earliest source publication date
 
-def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
+def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str, provider_name: str, base_url: str) -> List[Dict[str, str]]:
     """
     Generalized function to analyze sources.
     Args:
@@ -333,7 +334,7 @@ def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str) ->
     """
     END_DATE = dt.datetime.now()
     updated_sources = []
-    request_count = 0
+    sleep_interval = 60 / 100
 
     # TO DO:xavier About 1693 sources have name__isnull=True but have homepage
     # getting canonical domain from urls.canonical_domain(homepage) makes a HTTP request, NOT IDEAL !!!
@@ -349,30 +350,27 @@ def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str) ->
         return updated_sources
 
     for source in sources.iterator():
-        if request_count >= 100:
-            logger.info("Rate limit reached, sleeping for 60 seconds.")
-            time.sleep(60)
-            request_count = 0
-
+        time.sleep(sleep_interval)  # Sleep for 0.6 seconds between requests
         try:
-            query_str = "canonical_domain:%s" % source.name
-            provider = get_task_provider(provider_name="onlinenews-mediacloud", api_key=None,base_url="http://localhost:9200", task_name=task_name)
-            results, _ = provider.paged_items(query_str, start_date, END_DATE)
+            query_str = f"canonical_domain:{source.name}"
+            provider = get_task_provider(provider_name=provider_name, api_key=None, base_url=base_url, task_name=task_name)
 
-            if len(results) <= SOURCE_UPDATE_MIN_STORY_COUNT:
-                logger.warning("Not enough stories for source %s to analyze %s." % (source.name, task_name))
-                continue
-
-            logger.info(f"Task name:{task_name}")
             if task_name == "update_source_language":
-                languages = [match["language"] for match in results]
-                primary_language = max(set(languages), key=languages.count)
+                language_samples = provider.random_sample(query_str, start_date, END_DATE, page_size=1000, fields=['media_url', 'publish_date', 'language'])
+                language_counts = Counter(record['language'] for sample in language_samples for record in sample)
+                if not language_counts:
+                    logger.warning("No languages found for source %s to analyze." % (source.name))
+                    continue
+                primary_language = language_counts.most_common(1)[0][0]
                 source.primary_language = primary_language
                 logger.info("Analyzed source %s. Primary language: %s" % (source.name, primary_language))
 
             elif task_name == "update_publication_date":
-                publication_dates = [dt.datetime.combine(match["publish_date"], dt.datetime.min.time()) for match in results]
-                first_story = min(publication_dates, default=None)
+                results, _ = provider.paged_items(query_str, start_date, END_DATE, sort_field="publication_date", sort_order="asc", page_size=1)
+                if not results:
+                    logger.warning("No publication dates found for source %s to analyze %s." % (source.name, task_name))
+                    continue
+                first_story = dt.datetime.combine(results[0]["publish_date"], dt.datetime.min.time())
                 if first_story:
                     first_story = timezone.make_aware(first_story)
                     source.first_story = first_story
@@ -380,7 +378,6 @@ def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str) ->
 
             source.modified_at = timezone.now()
             updated_sources.append(source)
-            request_count += 1
         except Exception as e:
             logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
 
