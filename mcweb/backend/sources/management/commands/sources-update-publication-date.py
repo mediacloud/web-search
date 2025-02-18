@@ -12,13 +12,27 @@ class Command(BaseCommand):
             default=100,
             help="Number of sources to process in each batch (default: 100)",
         )
+        parser.add_argument(
+            "--provider-name",
+            type=str,
+            default="onlinenews-mediacloud",
+            help="Name of the provider to use (default: onlinenews-mediacloud)",
+        )
+        parser.add_argument(
+            "--base-url",
+            type=str,
+            default="http://ramos.angwin:9200",
+            help="Base URL for the provider (default: http://ramos.angwin:9200)",
+        )
 
     def handle(self, *args, **options):
         batch_size = options["batch_size"]
+        provider_name = options["provider_name"]
+        base_url = options["base_url"]
 
         if options["queue"]:
-            update_publication_date(batch_size=batch_size)
-            self.stdout.write("Queued first story publication date analysis with a batch size of %d..." % batch_size)
+            update_publication_date(batch_size=batch_size, provider_name=provider_name, base_url=base_url)
+            self.stdout.write("Queued first story publication date analysis with a batch size of %d.." % batch_size)
         else:
-            update_publication_date.now(batch_size=batch_size)
-            self.stdout.write(self.style.SUCCESS("Publication date analysis task completed with a batch size of %d." %batch_size))
+            update_publication_date.now(batch_size=batch_size, provider_name=provider_name, base_url=base_url)
+            self.stdout.write("Publication date analysis task completed with a batch size of %d.." %batch_size)
