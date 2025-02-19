@@ -321,7 +321,7 @@ def schedule_scrape_source(source_id, user):
 
 SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
 SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
-SOURCE_UPDATE_START_DATE = dt.datetime(2000, 1, 1) # Possible earliest source publication date
+SOURCE_UPDATE_START_DATE = dt.datetime(1950, 1, 1) # Possible earliest source publication date, some sources report 1990s
 
 def analyze_sources(provider_name: str, batch_size: int, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
     """
