@@ -353,7 +353,7 @@ def analyze_sources(provider_name: str, batch_size: int, start_date: dt.datetime
         time.sleep(sleep_interval)  # Sleep for 0.6 seconds between requests
         try:
             query_str = f"canonical_domain:{source.name}"
-            provider = get_task_provider(provider_name=provider_name, api_key=None, task_name=task_name)
+            provider = get_task_provider(provider_name=provider_name, api_key=None, base_url=None, task_name=task_name)
 
             if task_name == "update_source_language":
                 languages = provider.languages(query_str, start_date, END_DATE, limit=10)
