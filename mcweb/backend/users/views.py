@@ -334,6 +334,7 @@ def _serialized_current_user(request) -> str:
     token = Token.objects.get(user=current_user)
     data['token'] = token.key
     data['group_names'] = get_groups(request)
+    data['quota'] = get_quota(request)
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
 
@@ -364,6 +365,18 @@ def _user_from_token(token):
         return user[0]
     except:
         return None
+    
+def get_quota(request):
+    quotas = request.user.quotahistory_set.order_by('-week')[:2]
+    quota_list = []
+    for quota in quotas:
+        quota_list.append({
+            'provider': quota.provider,
+            'week': quota.week.strftime('%Y-%m-%d'),  # Convert week to string
+            'hits': quota.hits
+        })
+
+    return quota_list
 
 
 

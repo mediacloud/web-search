@@ -100,6 +100,29 @@ function Account() {
             confirmButtonText="Delete"
           />
         </Alert>
+        <dt>Quota:</dt>
+        <p>Current quota is 4 thousand requests per week</p>
+        <dd>
+          <table className="col-12">
+
+            <thead>
+              <tr className="row">
+                <th className="col-4">Week</th>
+                <th className="col-4">Platform</th>
+                <th className="col-4"># of hits</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentUser.quota.map((quota) => (
+                <tr key={`${quota.week}+${quota.provider}`} className="row">
+                  <td className="col-4">{quota.week}</td>
+                  <td className="col-4">{quota.provider}</td>
+                  <td className="col-4">{quota.hits}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </dd>
         <PermissionedContributor>
           <div className="row">
             <div className="col-6">
