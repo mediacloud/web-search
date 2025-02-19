@@ -11,7 +11,6 @@ export const api = createApi({
       return headers;
     },
   }),
-
   endpoints: (builder) => ({
     profile: builder.query({
       query: () => 'profile',
@@ -78,7 +77,6 @@ export const api = createApi({
 });
 
 export const {
-  useProfileQuery,
   useLogoutMutation,
   useLoginMutation,
   useRegisterMutation,

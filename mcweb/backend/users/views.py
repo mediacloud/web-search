@@ -21,7 +21,6 @@ from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile, QuotaHistory
-from .utils import _clean_user
 from ..sources.permissions import get_groups
 
 
@@ -100,6 +99,7 @@ def reset_password(request):
 @permission_classes([IsAuthenticated])
 def profile(request):
     token = request.GET.get('Authorization', None)
+    user = None
     if token:
         try:
             user = _user_from_token(token)
@@ -107,11 +107,13 @@ def profile(request):
             logger.debug("Token not found")
             data = json.dumps({'message': "API Token Not Found"})
             return HttpResponse(data, content_type='application/json', status=403)
-    if request.user.id is not None:
+    if request.user.id is not None and not user:
         data = _serialized_current_user(request)
+    elif user:
+        data = json.dumps(_serialized_api_user(user))
     else:
-        data = _serialized_api_user(user)
-    return HttpResponse(json.dumps(data), content_type='application/json')
+        data = json.dumps({'message': "User Not Found"})
+    return HttpResponse(data, content_type='application/json')
 
 @require_http_methods(["POST"])
 def password_strength(request):
@@ -336,8 +338,20 @@ def _serialized_current_user(request) -> str:
     return json.dumps(camelcase_data)
 
 def _serialized_api_user(user) -> str:
-    cleaned_user = _clean_user(user)
-    # serialized_data = serializers.serialize('json', [cleaned_user, ])
+    most_recent_quota = user.quotahistory_set.order_by('-week').first()
+    cleaned_user = {
+        'id': user.id,
+        'username': user.username,
+        'is_staff': user.is_staff,
+        'is_superuser': user.is_superuser,
+        'groups': [group.name for group in user.groups.all()],
+        'quota': {
+            'provider': most_recent_quota.provider,
+            'hits': most_recent_quota.hits,
+            'week': most_recent_quota.week.strftime('%Y-%m-%d'),
+            'limit': user.profile.quota_mediacloud, 
+        } if most_recent_quota else None
+    }
     return cleaned_user
 
 def _user_from_token(token):

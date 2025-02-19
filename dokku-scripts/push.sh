@@ -284,6 +284,17 @@ prod|staging)
 	echo 'ADMIN_EMAIL= # gets alerts, scrape errors' >> $USER_CONF
 	echo "SYSTEM_ALERT=\"🚧 ${UNAME}'s dev instance 🚧\"" >> $USER_CONF
     fi
+    case $(hostname) in
+    *.angwin)
+	# make sure dev deployments report stats now that mc-providers reports
+	# counters (to help find instances that are blasting a provider)
+	# NOTE! accepts commented out entry!
+	if ! grep -q 'STATSD_HOST=' $USER_CONF; then
+	    echo "# you can comment out next line if it gives you trouble:" >> $USER_CONF
+	    echo "STATSD_HOST=tarbell.angwin" >> $USER_CONF
+	fi
+	;;
+    esac
     # unset DATABASE/REDIS URLs from .env-template, read user override file
     CONFIG_EXTRAS="$CONFIG_EXTRAS -U DATABASE_URL -U REDIS_URL -F $USER_CONF"
     ;;
