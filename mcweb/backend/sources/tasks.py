@@ -323,7 +323,7 @@ SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
 SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
 SOURCE_UPDATE_START_DATE = dt.datetime(2000, 1, 1) # Possible earliest source publication date
 
-def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str, provider_name: str, base_url: str) -> List[Dict[str, str]]:
+def analyze_sources(provider_name: str, batch_size: int, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
     """
     Generalized function to analyze sources.
     Args:
@@ -353,24 +353,30 @@ def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str, pr
         time.sleep(sleep_interval)  # Sleep for 0.6 seconds between requests
         try:
             query_str = f"canonical_domain:{source.name}"
-            provider = get_task_provider(provider_name=provider_name, api_key=None, base_url=base_url, task_name=task_name)
+            provider = get_task_provider(provider_name=provider_name, api_key=None, task_name=task_name)
 
             if task_name == "update_source_language":
-                language_samples = provider.random_sample(query_str, start_date, END_DATE, page_size=1000, fields=['media_url', 'publish_date', 'language'])
-                language_counts = Counter(record['language'] for sample in language_samples for record in sample)
-                if not language_counts:
+                languages = provider.languages(query_str, start_date, END_DATE, limit=10)
+                if not languages:
                     logger.warning("No languages found for source %s to analyze." % (source.name))
                     continue
-                primary_language = language_counts.most_common(1)[0][0]
+                primary_language = max(languages, key=lambda x: x["value"])["language"]
                 source.primary_language = primary_language
                 logger.info("Analyzed source %s. Primary language: %s" % (source.name, primary_language))
 
             elif task_name == "update_publication_date":
-                results, _ = provider.paged_items(query_str, start_date, END_DATE, sort_field="publication_date", sort_order="asc", page_size=1)
-                if not results:
+                results = provider.count_over_time(query_str, start_date, END_DATE)
+                counts_by_month = Counter()
+                for item in results["counts"]:
+                    month_start = item["date"].replace(day=1)
+                    counts_by_month[month_start] += item["count"]
+
+                if not counts_by_month:
                     logger.warning("No publication dates found for source %s to analyze %s." % (source.name, task_name))
                     continue
-                first_story = dt.datetime.combine(results[0]["publish_date"], dt.datetime.min.time())
+
+                earliest_month = min(counts_by_month)
+                first_story = dt.datetime.combine(earliest_month, dt.datetime.min.time())
                 if first_story:
                     first_story = timezone.make_aware(first_story)
                     source.first_story = first_story
@@ -390,17 +396,17 @@ def analyze_sources(batch_size: int, start_date: dt.datetime, task_name: str, pr
 
 
 @background(queue=SYSTEM_SLOW)
-def update_source_language(batch_size: int = 100) -> None:
+def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
     start_date = dt.datetime.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
-    updated_sources = analyze_sources(batch_size, start_date, "update_source_language")
+    updated_sources = analyze_sources(provider_name, batch_size, start_date, "update_source_language")
     if updated_sources:
         logger.info("Successfully updated %d sources for language analysis.", len(updated_sources))
     else:
         logger.info("No sources were updated during language analysis.")
 
 @background(queue=SYSTEM_SLOW)
-def update_publication_date(batch_size: int = 100) -> None:
-    updated_sources = analyze_sources(batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
+def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
+    updated_sources = analyze_sources(provider_name, batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
     if updated_sources:
         logger.info("Successfully updated first story for %d sources.", len(updated_sources))
     else:
