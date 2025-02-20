@@ -18,6 +18,7 @@ import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/pl
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
+import MediaNotFound from '../ui/MediaNotFound';
 
 export default function SourceHeader() {
   const params = useParams();
@@ -28,6 +29,7 @@ export default function SourceHeader() {
   const {
     data: source,
     isLoading,
+    error,
   } = useGetSourceQuery(sourceId);
 
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
@@ -37,6 +39,8 @@ export default function SourceHeader() {
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
+
+  if (error) { return <MediaNotFound source />; }
 
   const PlatformIcon = platformIcon(source.platform);
 
