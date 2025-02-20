@@ -17,7 +17,7 @@ from typing import Dict, List, Tuple
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.utils import timezone
 from ..util.provider import get_task_provider
 
@@ -323,12 +323,14 @@ SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
 SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
 SOURCE_UPDATE_START_DATE = dt.datetime(1950, 1, 1) # Possible earliest source publication date, some sources report 1990s
 
-def analyze_sources(provider_name: str, batch_size: int, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
+def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
     """
     Generalized function to analyze sources.
     Args:
-        batch_size (int): Number of sources to process in each batch.
-        task_name (str): Task name based on param to update ("language" or "publication_date"). Used to create provider session
+        provider_name (str): The provider name.
+        sources (QuerySet): The sources to process.
+        start_date (dt.datetime): The start date for analysis.
+        task_name (str): Task name based on param to update ("language" or "publication_date"). Used to create provider session.
     Returns:
         List[Dict[str, str]]: A list of dictionaries containing source IDs and their analyzed data.
     """
@@ -338,13 +340,6 @@ def analyze_sources(provider_name: str, batch_size: int, start_date: dt.datetime
 
     # TO DO:xavier About 1693 sources have name__isnull=True but have homepage
     # getting canonical domain from urls.canonical_domain(homepage) makes a HTTP request, NOT IDEAL !!!
-    six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
-    sources = Source.objects.filter(
-        (Q(primary_language__isnull=True) | Q(first_story__isnull=True)),
-        name__isnull=False,
-        modified_at__lt=six_months_ago
-    ).order_by("modified_at")[:batch_size]
-
     if not sources:
         logger.info("No new sources to process.")
         return updated_sources
@@ -353,7 +348,7 @@ def analyze_sources(provider_name: str, batch_size: int, start_date: dt.datetime
         time.sleep(sleep_interval)  # Sleep for 0.6 seconds between requests
         try:
             query_str = f"canonical_domain:{source.name}"
-            provider = get_task_provider(provider_name=provider_name, api_key=None, base_url=None, task_name=task_name)
+            provider = get_task_provider(provider_name=provider_name, api_key=None, base_url="http://localhost:9200", task_name=task_name)
 
             if task_name == "update_source_language":
                 languages = provider.languages(query_str, start_date, END_DATE, limit=10)
@@ -397,8 +392,14 @@ def analyze_sources(provider_name: str, batch_size: int, start_date: dt.datetime
 
 @background(queue=SYSTEM_SLOW)
 def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
+    six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
+    sources_for_language = Source.objects.filter(
+        Q(primary_language__isnull=True),
+        name__isnull=False,
+        modified_at__lt=six_months_ago
+    ).order_by("modified_at")[:batch_size]
     start_date = dt.datetime.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
-    updated_sources = analyze_sources(provider_name, batch_size, start_date, "update_source_language")
+    updated_sources = analyze_sources(provider_name, sources_for_language, batch_size, start_date, "update_source_language")
     if updated_sources:
         logger.info("Successfully updated %d sources for language analysis.", len(updated_sources))
     else:
@@ -406,7 +407,13 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
-    updated_sources = analyze_sources(provider_name, batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
+    six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
+    sources_for_publication_date = Source.objects.filter(
+        Q(first_story__isnull=True),
+        name__isnull=False,
+        modified_at__lt=six_months_ago
+    ).order_by("modified_at")[:batch_size]
+    updated_sources = analyze_sources(provider_name, sources_for_publication_date, batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
     if updated_sources:
         logger.info("Successfully updated first story for %d sources.", len(updated_sources))
     else:
