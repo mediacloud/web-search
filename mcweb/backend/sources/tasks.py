@@ -321,7 +321,7 @@ def schedule_scrape_source(source_id, user):
 
 SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
 SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
-SOURCE_UPDATE_START_DATE = dt.datetime(1950, 1, 1) # Possible earliest source publication date, some sources report 1990s
+SOURCE_UPDATE_START_DATE = timezone.make_aware(dt.datetime(1950, 1, 1)) # Possible earliest source publication date, some sources report 1990s
 
 def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
     """
@@ -334,7 +334,7 @@ def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start
     Returns:
         List[Dict[str, str]]: A list of dictionaries containing source IDs and their analyzed data.
     """
-    END_DATE = dt.datetime.now()
+    END_DATE = timezone.now()
     updated_sources = []
     sleep_interval = 60 / 100
 
@@ -393,28 +393,39 @@ def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start
 @background(queue=SYSTEM_SLOW)
 def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
     six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
-    sources_for_language = Source.objects.filter(
-        Q(primary_language__isnull=True),
-        name__isnull=False,
-        modified_at__lt=six_months_ago
-    ).order_by("modified_at")[:batch_size]
-    start_date = dt.datetime.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
-    updated_sources = analyze_sources(provider_name, sources_for_language, batch_size, start_date, "update_source_language")
-    if updated_sources:
-        logger.info("Successfully updated %d sources for language analysis.", len(updated_sources))
-    else:
-        logger.info("No sources were updated during language analysis.")
+    while True:
+        sources_for_language = Source.objects.filter(
+            Q(primary_language__isnull=True),
+            name__isnull=False,
+            modified_at__lt=six_months_ago
+        ).order_by("modified_at")[:batch_size]
+
+        if not sources_for_language:
+            logger.info("No new sources to process for language analysis.")
+            break
+
+        updated_sources = analyze_sources(provider_name, sources_for_language, batch_size, six_months_ago, "update_source_language")
+        if updated_sources:
+            logger.info("Successfully updated %d sources for language analysis.", len(updated_sources))
+        else:
+            logger.info("No sources were updated during language analysis.")
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
     six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
-    sources_for_publication_date = Source.objects.filter(
-        Q(first_story__isnull=True),
-        name__isnull=False,
-        modified_at__lt=six_months_ago
-    ).order_by("modified_at")[:batch_size]
-    updated_sources = analyze_sources(provider_name, sources_for_publication_date, batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
-    if updated_sources:
-        logger.info("Successfully updated first story for %d sources.", len(updated_sources))
-    else:
-        logger.info("No sources were updated for first story publication date.")
+    while True:
+        sources_for_publication_date = Source.objects.filter(
+            Q(first_story__isnull=True),
+            name__isnull=False,
+            modified_at__lt=six_months_ago
+        ).order_by("modified_at")[:batch_size]
+
+        if not sources_for_publication_date:
+            logger.info("No new sources to process for publication date analysis.")
+            break
+
+        updated_sources = analyze_sources(provider_name, sources_for_publication_date, batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
+        if updated_sources:
+            logger.info("Successfully updated first story for %d sources.", len(updated_sources))
+        else:
+            logger.info("No sources were updated for first story publication date.")
