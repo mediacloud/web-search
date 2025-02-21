@@ -31,6 +31,7 @@ import FeedHeader from './features/feeds/FeedHeader';
 import FeedShow from './features/feeds/FeedShow';
 import SourceHeader from './features/sources/SourceHeader';
 import ReleaseNotes from './features/about/ReleaseNotes';
+import UsersQuotas from './features/quotas/UsersQuotas';
 import AboutSearch from './features/about/AboutSearch';
 import TabbedSearch from './features/search/TabbedSearch';
 import StoryShow from './features/stories/StoryShow';
@@ -74,6 +75,15 @@ function App() {
             element={(
               <RequireAuth>
                 <ReleaseNotes />
+              </RequireAuth>
+            )}
+          />
+
+          <Route
+            path="user-quotas"
+            element={(
+              <RequireAuth>
+                <UsersQuotas />
               </RequireAuth>
             )}
           />
