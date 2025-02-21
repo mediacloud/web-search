@@ -18,9 +18,9 @@ function UsersQuotas() {
   if (error) {
     return <div>{error}</div>;
   }
-  console.log(data);
+
   return (
-    <div>
+    <div className="container">
       <h1>Users Quotas</h1>
       <table>
         <thead>

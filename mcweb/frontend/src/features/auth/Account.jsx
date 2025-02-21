@@ -15,6 +15,7 @@ import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
 import TaskList from '../tasks/TaskList';
+import UserQuotaTable from '../quotas/UserQuotaTable';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
@@ -100,40 +101,27 @@ function Account() {
             confirmButtonText="Delete"
           />
         </Alert>
-        <dt>Quota:</dt>
-        <p>Current quota is 4 thousand requests per week</p>
-        <dd>
-          <table className="col-12">
-
-            <thead>
-              <tr className="row">
-                <th className="col-4">Week</th>
-                <th className="col-4">Platform</th>
-                <th className="col-4"># of hits</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentUser.quota.map((quota) => (
-                <tr key={`${quota.week}+${quota.provider}`} className="row">
-                  <td className="col-4">{quota.week}</td>
-                  <td className="col-4">{quota.provider}</td>
-                  <td className="col-4">{quota.hits}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </dd>
-        <PermissionedContributor>
-          <div className="row">
-            <div className="col-6">
+        <div className="row" style={{ marginTop: '20px' }}>
+          <div className="col-4">
+            <Alert severity="info">
+              Quota is 4000 hits per week.
+            </Alert>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-4">
+            <UserQuotaTable currentUser={currentUser} />
+          </div>
+          <PermissionedContributor>
+            <div className="col-4">
               <TaskList completed={false} />
             </div>
 
-            <div className="col-6">
+            <div className="col-4">
               <TaskList completed />
             </div>
-          </div>
-        </PermissionedContributor>
+          </PermissionedContributor>
+        </div>
       </div>
     </>
   );
