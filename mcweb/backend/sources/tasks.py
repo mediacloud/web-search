@@ -353,7 +353,7 @@ def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start
             if task_name == "update_source_language":
                 languages = provider.languages(query_str, start_date, END_DATE, limit=10)
                 if not languages:
-                    logger.warning("No languages found for source %s to analyze." % (source.name))
+                    logger.warning("No languages found for source %s to analyze.",  source.name)
                     continue
                 primary_language = max(languages, key=lambda x: x["value"])["language"]
                 source.primary_language = primary_language
