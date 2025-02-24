@@ -22,24 +22,24 @@ function UsersQuotas() {
   return (
     <div className="container">
       <h1>Users Quotas</h1>
-      <table>
+      <table className="col-12">
         <thead>
-          <tr>
-            <th>User</th>
-            <th>Email</th>
-            <th>Provider</th>
-            <th>Hits</th>
-            <th>Week</th>
+          <tr className="row">
+            <th className="col-2">User</th>
+            <th className="col-3">Email</th>
+            <th className="col-3">Provider</th>
+            <th className="col-2">Hits</th>
+            <th className="col-2">Week</th>
           </tr>
         </thead>
         <tbody>
           {data.map((quota) => (
-            <tr key={quota.email}>
-              <td>{quota.user}</td>
-              <td>{quota.email}</td>
-              <td>{quota.provider}</td>
-              <td>{quota.hits}</td>
-              <td>{quota.week}</td>
+            <tr className="row" key={`${quota.week}+${quota.provider}`}>
+              <td className="col-2">{quota.user}</td>
+              <td className="col-3">{quota.email}</td>
+              <td className="col-3">{quota.provider}</td>
+              <td className="col-2">{quota.hits}</td>
+              <td className="col-2">{quota.week}</td>
             </tr>
           ))}
         </tbody>

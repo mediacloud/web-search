@@ -37,7 +37,7 @@ import TabbedSearch from './features/search/TabbedSearch';
 import StoryShow from './features/stories/StoryShow';
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
-import { selectIsLoggedIn } from './features/auth/authSlice';
+import { selectIsLoggedIn, selectCurrentUser } from './features/auth/authSlice';
 import { setSearchQuery } from './features/search/util/setSearchQuery';
 
 function App() {
@@ -82,9 +82,9 @@ function App() {
           <Route
             path="user-quotas"
             element={(
-              <RequireAuth>
+              <RequireStaff>
                 <UsersQuotas />
-              </RequireAuth>
+              </RequireStaff>
             )}
           />
 
@@ -272,6 +272,24 @@ function RequireAuth({ children }) {
 }
 
 RequireAuth.propTypes = {
+  children: PropTypes.element.isRequired,
+};
+
+function RequireStaff({ children }) {
+  const auth = useSelector(selectIsLoggedIn);
+  const location = useLocation();
+  const currentUser = useSelector(selectCurrentUser);
+
+  if (!auth) {
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+  }
+  if (currentUser.isStaff) {
+    return children;
+  }
+  return <Navigate to="/" state={{ from: location }} replace />;
+}
+
+RequireStaff.propTypes = {
   children: PropTypes.element.isRequired,
 };
 
