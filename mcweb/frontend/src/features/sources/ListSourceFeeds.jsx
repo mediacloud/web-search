@@ -128,7 +128,7 @@ function ListSourceFeeds() {
                   <AlertDialog
                     outsideTitle="Delete"
                     title={`Delete ${feed.name}? `}
-                    content={`Are you sure you would like to delete RSS Feed #${feed.id}: ${feed.name}?
+                    content={`Are you sure you would like to delete Feed #${feed.id}: ${feed.name}?
                       After confirming, this feed will be permanently deleted.`}
                     dispatchNeeded={false}
                     action={deleteFeed}

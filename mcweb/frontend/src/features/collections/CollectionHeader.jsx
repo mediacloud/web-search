@@ -24,6 +24,7 @@ import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
 import CopyCollectionDialog from './util/CopyCollectionDialog';
+import MediaNotFound from '../ui/MediaNotFound';
 
 export default function CollectionHeader() {
   const params = useParams();
@@ -33,6 +34,7 @@ export default function CollectionHeader() {
   const {
     data: collection,
     isFetching,
+    error,
   } = useGetCollectionQuery(collectionId);
 
   const [deleteCollection] = useDeleteCollectionMutation();
@@ -44,6 +46,10 @@ export default function CollectionHeader() {
 
   if (isFetching) {
     return (<CircularProgress size={75} />);
+  }
+
+  if (error) {
+    return <MediaNotFound source={false} />;
   }
 
   const PlatformIcon = platformIcon(collection.platform);
