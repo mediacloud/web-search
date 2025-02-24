@@ -332,7 +332,7 @@ export default function ModifyCollection() {
                 disabled={managedCollection}
               />
               )}
-            label="Automatically discover RSS feeds in new sources?"
+            label="Automatically discover feeds in new sources?"
           />
           )}
 

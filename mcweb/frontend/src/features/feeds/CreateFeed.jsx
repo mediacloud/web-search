@@ -50,7 +50,7 @@ export default function CreateFeed() {
             label="URL"
             value={formState.url}
             onChange={handleChange}
-            helperText="RSS feed url to be scraped"
+            helperText="Feed url to be scraped"
           />
           <br />
           <br />

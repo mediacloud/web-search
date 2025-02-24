@@ -42,7 +42,7 @@ export default function FeedHeader() {
     <>
       <Header>
         <span className="small-label">
-          Online News RSS Feed #
+          Online News Feed #
           {feed.id}
         </span>
         <h1>
@@ -76,7 +76,7 @@ export default function FeedHeader() {
           <AlertDialog
             outsideTitle="Delete"
             title={`Delete ${feed.name}? `}
-            content={`Are you sure you would like to delete RSS Feed #${feed.id}: ${feed.name}?
+            content={`Are you sure you would like to delete Feed #${feed.id}: ${feed.name}?
                       After confirming, this feed will be permanently deleted.`}
             dispatchNeeded={false}
             action={deleteFeed}
