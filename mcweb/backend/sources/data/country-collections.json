@@ -7336,19 +7336,6 @@
         "tag_set_name": "geographic_collection",
         "tag_sets_id": 15765102,
         "tags_id": 38379885
-      },
-      {
-        "description": "Media is largely about Papua New Guinea",
-        "is_static": false,
-        "label": "Papua New Guinea - National",
-        "show_on_media": true,
-        "show_on_stories": false,
-        "tag": "Papua_New_Guinea___National",
-        "tag_set_description": "Tags in this set indicate that the media source covers a certain geographic area",
-        "tag_set_label": "Geographic Collections",
-        "tag_set_name": "geographic_collection",
-        "tag_sets_id": 15765102,
-        "tags_id": 34412399
       }
     ],
     "country": {
@@ -16838,32 +16825,6 @@
   {
     "collections": [
       {
-        "description": "Media is largely about Central Equatoria, South Sudan - State & Local",
-        "is_static": false,
-        "label": "Central Equatoria, South Sudan - State & Local",
-        "show_on_media": true,
-        "show_on_stories": false,
-        "tag": "geo_SS-EC",
-        "tag_set_description": "Tags in this set indicate that the media source covers a certain geographic area",
-        "tag_set_label": "Geographic Collections",
-        "tag_set_name": "geographic_collection",
-        "tag_sets_id": 15765102,
-        "tags_id": 38380902
-      },
-      {
-        "description": "Media is largely about South Sudan",
-        "is_static": false,
-        "label": "South Sudan - National",
-        "show_on_media": true,
-        "show_on_stories": false,
-        "tag": "South_Sudan___National",
-        "tag_set_description": "Tags in this set indicate that the media source covers a certain geographic area",
-        "tag_set_label": "Geographic Collections",
-        "tag_set_name": "geographic_collection",
-        "tag_sets_id": 15765102,
-        "tags_id": 34412439
-      },
-      {
         "description": "Media is largely about Sudan",
         "is_static": false,
         "label": "Sudan - National",
@@ -16962,9 +16923,9 @@
   {
     "collections": [
       {
-        "description": "Media is largely about Hhohho, Swaziland - State & Local",
+        "description": "Media is largely about Hhohho, eSwatini - State & Local",
         "is_static": false,
-        "label": "Hhohho, Swaziland - State & Local",
+        "label": "Hhohho, eSwatini - State & Local",
         "show_on_media": true,
         "show_on_stories": false,
         "tag": "geo_SZ-HH",
@@ -16975,9 +16936,9 @@
         "tags_id": 38380908
       },
       {
-        "description": "Media is largely about Swaziland",
+        "description": "Media is largely about eSwatini",
         "is_static": false,
-        "label": "Swaziland - National",
+        "label": "eSwatini - National",
         "show_on_media": true,
         "show_on_stories": null,
         "tag": "geo_SWZ",
@@ -16988,9 +16949,9 @@
         "tags_id": 34412038
       },
       {
-        "description": "Media is largely about Swaziland - State & Local",
+        "description": "Media is largely about eSwatini - State & Local",
         "is_static": false,
-        "label": "Swaziland - State & Local",
+        "label": "eSwatini - State & Local",
         "show_on_media": true,
         "show_on_stories": false,
         "tag": "geo_SWZ_state",
@@ -17005,7 +16966,7 @@
       "alpha2": "SZ",
       "alpha3": "SWZ",
       "id": "748",
-      "name": "Swaziland",
+      "name": "eSwatini",
       "national_tags_id": 34412038
     }
   },

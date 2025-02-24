@@ -400,7 +400,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 serializer = SourceSerializer(data=cleaned_source_input)
                 if serializer.is_valid():
                     existing_source = serializer.save()
-                    if rescrape:
+                    if rescrape and not existing_source.url_search_string:
                         schedule_scrape_source(
                             existing_source.id, request.user)
                     email_text += "\n {}: created new {} source".format(
