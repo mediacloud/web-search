@@ -18,14 +18,20 @@ class Command(BaseCommand):
             default="onlinenews-mediacloud",
             help="Name of the provider to use (default: onlinenews-mediacloud)",
         )
-        parser.add_argument("task", choices=["language_analysis", "publication_date"], help="The task to perform.")
+        parser.add_argument(
+            "--task",
+            type=str,
+            choices=["language", "publication_date"],
+            required=True,
+            help="Task to perform: 'language' or 'publication_date'.",
+        )
 
     def handle(self, *args, **options):
         batch_size = options["batch_size"]
         provider_name = options["provider_name"]
         task = options["task"]
 
-        if task == "language_analysis":
+        if task == "language":
             if options["queue"]:
                 update_source_language(provider_name=provider_name, batch_size=batch_size)
                 self.stdout.write("Queued language analysis with a batch size of %d..." % batch_size)
