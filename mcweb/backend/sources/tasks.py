@@ -338,7 +338,6 @@ def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start
     updated_sources = []
     sleep_interval = 60 / 100
 
-    # TO DO:xavier About 1693 sources have name__isnull=True but have homepage
     # getting canonical domain from urls.canonical_domain(homepage) makes a HTTP request, NOT IDEAL !!!
     if not sources:
         logger.info("No new sources to process.")
@@ -400,15 +399,11 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
             modified_at__lt=six_months_ago
         ).order_by("modified_at")[:batch_size]
 
-        if not sources_for_language:
+        if not sources_for_language.exists():
             logger.info("No new sources to process for language analysis.")
             break
 
-        updated_sources = analyze_sources(provider_name, sources_for_language, batch_size, six_months_ago, "update_source_language")
-        if updated_sources:
-            logger.info("Successfully updated %d sources for language analysis.", len(updated_sources))
-        else:
-            logger.info("No sources were updated during language analysis.")
+        analyze_sources(provider_name, sources_for_language, batch_size, six_months_ago, "update_source_language")
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
@@ -420,12 +415,9 @@ def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
             modified_at__lt=six_months_ago
         ).order_by("modified_at")[:batch_size]
 
-        if not sources_for_publication_date:
+        if not sources_for_publication_date.exists():
             logger.info("No new sources to process for publication date analysis.")
             break
 
-        updated_sources = analyze_sources(provider_name, sources_for_publication_date, batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
-        if updated_sources:
-            logger.info("Successfully updated first story for %d sources.", len(updated_sources))
-        else:
-            logger.info("No sources were updated for first story publication date.")
+        analyze_sources(provider_name, sources_for_publication_date, batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
+
