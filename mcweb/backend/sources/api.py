@@ -10,6 +10,7 @@ from urllib.parse import urlparse, parse_qs
 import mcmetadata.urls as urls
 import requests
 import requests.auth
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
@@ -92,7 +93,15 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            queryset = queryset.filter(name__icontains=name)
+            if self.request.query_params.get("kwsearch"):
+                # EXPERIMENTAL! PG specific!!
+                v = SearchVector("name")
+                q = SearchQuery(name, search_type="websearch")
+                queryset = queryset.annotate(rank=SearchRank(v, q))\
+                                   .filter(rank__gte=0.01)\
+                                   .order_by("-source_count", "-rank")
+            else:
+                queryset = queryset.filter(name__icontains=name)
         return queryset
 
     def get_serializer_class(self):
@@ -323,8 +332,18 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            queryset = queryset.filter(
-                Q(name__icontains=name) | Q(label__icontains=name))
+            if self.request.query_params.get("kwsearch"):
+                # EXPERIMENTAL! PG specific!!
+                # Reasonable performance may require adding a GinIndex or GistIndex:
+                # https://docs.djangoproject.com/en/5.1/ref/contrib/postgres/search/#performance
+                v = SearchVector("name", "label") # equal weight
+                q = SearchQuery(name, search_type="websearch")
+                queryset = queryset.annotate(rank=SearchRank(v, q))\
+                                   .filter(rank__gte=0.01)\
+                                   .order_by("-collection_count", "-rank")
+            else:
+                queryset = queryset.filter(
+                    Q(name__icontains=name) | Q(label__icontains=name))
         return queryset
 
     def create(self, request):
