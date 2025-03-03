@@ -365,7 +365,7 @@ def download_words_csv(request):
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    cols = ['term', 'count', 'ratio']
+    cols = ['term', 'term_count', 'term_ratio']
     CSVWriterHelper.write_top_words(writer, words, cols)
     return response
 
@@ -472,8 +472,8 @@ def providers(request):
 
 def add_ratios(words_data):
     for word in words_data:
-        if "ratio" not in word:
-            word["ratio"] = word['count'] / 1000
+        if "term_ratio" not in word:
+            word["term_ratio"] = word['count'] / 1000
     return words_data
 
 
