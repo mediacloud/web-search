@@ -1,4 +1,9 @@
-[{"version": "v2.2.1",
+[{"version": "v2.2.2",
+"date": "2025-02-24",
+"notes": ["add list of child sources to parent source",
+"add catch page for not found sources or collections",
+"update geographic collections"
+]},{"version": "v2.2.1",
 "date": "2025-02-14",
 "notes": ["add provider api endpoint",
 "update profile endpoint to return more information from api",
