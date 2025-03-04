@@ -17,6 +17,7 @@ from typing import Dict, List, Tuple
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from ..util.provider import get_task_provider
@@ -412,11 +413,12 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
             break
 
         analyzed_sources = analyze_sources(provider_name, sources_for_language, six_months_ago, "update_source_language")
-        if analyzed_sources:
-            Source.objects.bulk_update(analyzed_sources, ["primary_language"])
-            logger.info("Bulk updated primary_language for %d sources." % len(analyzed_sources))
+        with transaction.atomic():
+            if analyzed_sources:
+                Source.objects.bulk_update(analyzed_sources, ["primary_language"])
+                logger.info("Bulk updated primary_language for %d sources." % len(analyzed_sources))
 
-        Source.objects.filter(id__in=[s.id for s in sources_for_language]).update(modified_at=timezone.now())
+            Source.objects.filter(id__in=[s.id for s in sources_for_language]).update(modified_at=timezone.now())
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
@@ -432,9 +434,9 @@ def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
             break
 
         analyzed_sources = analyze_sources(provider_name, sources_for_publication_date, SOURCE_UPDATE_START_DATE, "update_publication_date")
+        with transaction.atomic():
+            if analyzed_sources:
+                Source.objects.bulk_update(analyzed_sources, ["first_story"])
+                logger.info("Bulk updated first_story for %d sources." % len(analyzed_sources))
 
-        if analyzed_sources:
-            Source.objects.bulk_update(analyzed_sources, ["first_story"])
-            logger.info("Bulk updated first_story for %d sources." % len(analyzed_sources))
-
-        Source.objects.filter(id__in=[s.id for s in sources_for_publication_date]).update(modified_at=timezone.now())
+            Source.objects.filter(id__in=[s.id for s in sources_for_publication_date]).update(modified_at=timezone.now())
