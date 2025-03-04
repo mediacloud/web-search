@@ -416,10 +416,7 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
             Source.objects.bulk_update(analyzed_sources, ["primary_language"])
             logger.info("Bulk updated primary_language for %d sources." % len(analyzed_sources))
 
-        now = timezone.now()
-        for source in sources_for_language:
-            source.modified_at = now
-        Source.objects.bulk_update(sources_for_language, ["modified_at"])
+        Source.objects.filter(id__in=[s.id for s in sources_for_language]).update(modified_at=timezone.now())
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
@@ -440,8 +437,4 @@ def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
             Source.objects.bulk_update(analyzed_sources, ["first_story"])
             logger.info("Bulk updated first_story for %d sources." % len(analyzed_sources))
 
-        # Update modified_at field for all sources in the batch
-        now = timezone.now()
-        for source in sources_for_publication_date:
-            source.modified_at = now
-        Source.objects.bulk_update(sources_for_publication_date, ["modified_at"])
+        Source.objects.filter(id__in=[s.id for s in sources_for_publication_date]).update(modified_at=timezone.now())
