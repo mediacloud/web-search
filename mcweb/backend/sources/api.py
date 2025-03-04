@@ -39,6 +39,7 @@ from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
 
+KWSEARCH_DEFAULT = True         # for testing keyword search
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -93,7 +94,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            if self.request.query_params.get("kwsearch"):
+            if self.request.query_params.get("kwsearch", KWSEARCH_DEFAULT):
                 # EXPERIMENTAL! PG specific!!
                 v = SearchVector("name")
                 q = SearchQuery(name, search_type="websearch")
@@ -332,13 +333,15 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            if self.request.query_params.get("kwsearch"):
+            if self.request.query_params.get("kwsearch", KWSEARCH_DEFAULT):
                 # EXPERIMENTAL! PG specific!!
                 # Reasonable performance may require adding a GinIndex or GistIndex:
                 # https://docs.djangoproject.com/en/5.1/ref/contrib/postgres/search/#performance
                 v = SearchVector("name", "label") # equal weight
                 q = SearchQuery(name, search_type="websearch")
-                queryset = queryset.annotate(rank=SearchRank(v, q))\
+                # NOTE! uses precomputed search_vector column!!
+                queryset = queryset.filter(search_vector=q)\
+                                   .annotate(rank=SearchRank(v, q))\
                                    .filter(rank__gte=0.01)\
                                    .order_by("-collection_count", "-rank")
             else:
