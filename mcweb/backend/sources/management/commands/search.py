@@ -27,7 +27,6 @@ class Command(BaseCommand):
         t0 = time.monotonic()
         queryset = Source.objects
         if not options.get("no_index"):
-            print("HERE")
             queryset = queryset.filter(search_vector=q)
         queryset = queryset.annotate(rank=r).filter(rank__gte=0.01).order_by("-rank")
         if options.get("show_query"):
