@@ -323,7 +323,7 @@ SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
 SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
 SOURCE_UPDATE_START_DATE = timezone.make_aware(dt.datetime(1950, 1, 1)) # Possible earliest source publication date, some sources report 1990s
 
-def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
+def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
     """
     Generalized function to analyze sources.
     Args:
@@ -343,12 +343,26 @@ def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start
         logger.info("No new sources to process.")
         return updated_sources
 
+    # Pre-filter sources: Only keep those with records in Elasticsearch
+    provider = get_task_provider(provider_name=provider_name, base_url="http://localhost:9200", api_key=None, task_name=task_name)
+    sources_with_records = []
+    sources_with_no_records = []
+
     for source in sources.iterator():
+        query_str = f"canonical_domain:{source.name}"
+        record_count = provider.count(query_str, start_date, END_DATE)
+        if record_count > 0:
+            sources_with_records.append(source)
+        else:
+            sources_with_no_records.append(source.name)
+
+    if sources_with_no_records:
+        logger.info("No records found for the following sources in Elasticsearch: %s", sources_with_no_records)
+
+    for source in sources_with_records:
         time.sleep(sleep_interval)  # Sleep for 0.6 seconds between requests
         try:
             query_str = f"canonical_domain:{source.name}"
-            provider = get_task_provider(provider_name=provider_name, api_key=None, task_name=task_name)
-
             if task_name == "update_source_language":
                 languages = provider.languages(query_str, start_date, END_DATE, limit=10)
                 if not languages:
@@ -376,16 +390,11 @@ def analyze_sources(provider_name: str, sources:QuerySet, batch_size: int, start
                     source.first_story = first_story
                     logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
 
-            source.modified_at = timezone.now()
             updated_sources.append(source)
         except Exception as e:
             logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
 
-    if updated_sources:
-        field_name = 'primary_language' if task_name == "update_source_language" else 'first_story'
-        Source.objects.bulk_update(updated_sources, [field_name, "modified_at"])
-        logger.info("Completed %s extraction. Updated %d sources." % (task_name, len(updated_sources)))
-
+    logger.info("Completed analysis for %d sources." % len(updated_sources))
     return updated_sources
 
 
@@ -394,30 +403,45 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
     six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
     while True:
         sources_for_language = Source.objects.filter(
-            Q(primary_language__isnull=True),
-            name__isnull=False,
-            modified_at__lt=six_months_ago
+            Q(primary_language__isnull=True) | Q(modified_at__lt=six_months_ago),
+            name__isnull=False
         ).order_by("modified_at")[:batch_size]
 
         if not sources_for_language.exists():
             logger.info("No new sources to process for language analysis.")
             break
 
-        analyze_sources(provider_name, sources_for_language, batch_size, six_months_ago, "update_source_language")
+        analyzed_sources = analyze_sources(provider_name, sources_for_language, six_months_ago, "update_source_language")
+        if analyzed_sources:
+            Source.objects.bulk_update(analyzed_sources, ["primary_language"])
+            logger.info("Bulk updated primary_language for %d sources." % len(analyzed_sources))
+
+        now = timezone.now()
+        for source in sources_for_language:
+            source.modified_at = now
+        Source.objects.bulk_update(sources_for_language, ["modified_at"])
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
     six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
     while True:
         sources_for_publication_date = Source.objects.filter(
-            Q(first_story__isnull=True),
-            name__isnull=False,
-            modified_at__lt=six_months_ago
+            Q(first_story__isnull=True) | Q(modified_at__lt=six_months_ago),
+            name__isnull=False
         ).order_by("modified_at")[:batch_size]
 
         if not sources_for_publication_date.exists():
             logger.info("No new sources to process for publication date analysis.")
             break
 
-        analyze_sources(provider_name, sources_for_publication_date, batch_size, SOURCE_UPDATE_START_DATE, "update_publication_date")
+        analyzed_sources = analyze_sources(provider_name, sources_for_publication_date, SOURCE_UPDATE_START_DATE, "update_publication_date")
 
+        if analyzed_sources:
+            Source.objects.bulk_update(analyzed_sources, ["first_story"])
+            logger.info("Bulk updated first_story for %d sources." % len(analyzed_sources))
+
+        # Update modified_at field for all sources in the batch
+        now = timezone.now()
+        for source in sources_for_publication_date:
+            source.modified_at = now
+        Source.objects.bulk_update(sources_for_publication_date, ["modified_at"])
