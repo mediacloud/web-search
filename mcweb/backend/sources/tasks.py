@@ -344,7 +344,7 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
         return updated_sources
 
     # Pre-filter sources: Only keep those with records in Elasticsearch
-    provider = get_task_provider(provider_name=provider_name, base_url="http://localhost:9200", api_key=None, task_name=task_name)
+    provider = get_task_provider(provider_name=provider_name, base_url=None, api_key=None, task_name=task_name)
     sources_with_records = []
     sources_with_no_records = []
 
