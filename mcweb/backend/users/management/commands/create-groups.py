@@ -54,6 +54,7 @@ class Command(BaseCommand):
                     users = User.objects.all()
                     for u in users:
                         new_group.user_set.add(u)
+                        print("Adding {} to {}".format(u,new_group))
                 else:
                     u = User.objects.get(email=user_email)
                     new_group.user_set.add(u)

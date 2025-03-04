@@ -9,7 +9,7 @@ import AlertTitle from '@mui/material/AlertTitle';
 import { useSnackbar } from 'notistack';
 import { useResetTokenMutation, useDeleteUserMutation } from '../../app/services/authApi';
 import {
-  PermissionedStaff, PermissionedContributor, ROLE_STAFF, isContributor,
+  PermissionedStaff, PermissionedContributor, ROLE_STAFF, isContributor, isApiAccess,
 } from './Permissioned';
 import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
@@ -43,29 +43,33 @@ function Account() {
           <dd>{currentUser.username}</dd>
           <dt>Email:</dt>
           <dd>{currentUser.email}</dd>
-          <dt>API Token:</dt>
-          <div className="reset-token">
-            <dd>{currentUser.token}</dd>
-            <Tooltip
-              title="Generate a new token"
-              sx={{
-                color: 'black',
-              }}
-            >
-              <IconButton
-                onClick={async () => {
-                  try {
-                    await resetToken(currentUser.id).unwrap();
-                    logAndRefresh(1250);
-                  } catch (err) {
-                    enqueueSnackbar(`Token reset failed - ${err}`, { variant: 'error' });
-                  }
+          {isApiAccess(currentUser.groupNames) && (
+          <div>
+            <dt>API Token:</dt>
+            <div className="reset-token">
+              <dd>{currentUser.token}</dd>
+              <Tooltip
+                title="Generate a new token"
+                sx={{
+                  color: 'black',
                 }}
               >
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
+                <IconButton
+                  onClick={async () => {
+                    try {
+                      await resetToken(currentUser.id).unwrap();
+                      logAndRefresh(1250);
+                    } catch (err) {
+                      enqueueSnackbar(`Token reset failed - ${err}`, { variant: 'error' });
+                    }
+                  }}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+            </div>
           </div>
+          )}
 
           <PermissionedContributor>
             <dt>Contributor?</dt>
