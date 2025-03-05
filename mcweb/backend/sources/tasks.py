@@ -375,16 +375,11 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
 
             elif task_name == "update_publication_date":
                 results = provider.count_over_time(query_str, start_date, END_DATE)
-                counts_by_month = Counter()
-                for item in results["counts"]:
-                    month_start = item["date"].replace(day=1)
-                    counts_by_month[month_start] += item["count"]
-
-                if not counts_by_month:
+                if not results:
                     logger.warning("No publication dates found for source %s to analyze %s." % (source.name, task_name))
                     continue
 
-                earliest_month = min(counts_by_month)
+                earliest_month = results["counts"][0]["date"]
                 first_story = dt.datetime.combine(earliest_month, dt.datetime.min.time())
                 if first_story:
                     first_story = timezone.make_aware(first_story)
@@ -398,10 +393,14 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
     logger.info("Completed analysis for %d sources." % len(updated_sources))
     return updated_sources
 
+def _get_min_update_date():
+    min_date = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
+    min_date.replace(hour=23,minute=59,second=59)
+    return min_date
 
 @background(queue=SYSTEM_SLOW)
 def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
-    six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
+    six_months_ago = _get_min_update_date()
     while True:
         sources_for_language = Source.objects.filter(
             Q(primary_language__isnull=True) | Q(modified_at__lt=six_months_ago),
@@ -422,7 +421,7 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
-    six_months_ago = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
+    six_months_ago = _get_min_update_date()
     while True:
         sources_for_publication_date = Source.objects.filter(
             Q(first_story__isnull=True) | Q(modified_at__lt=six_months_ago),
