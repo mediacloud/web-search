@@ -16,4 +16,5 @@ urlpatterns = [
     path('reset-token', views.reset_token),
     path('email-from-token', views.email_from_token),
     path('users-quotas', views.users_quotas),
+    path('get-api-access-token', views.get_api_access),
 ]

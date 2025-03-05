@@ -70,7 +70,9 @@ function Account() {
             </div>
           </div>
           )}
-
+          {!isApiAccess(currentUser.groupNames) && (
+          <div> Insert Captcha here </div>
+          )}
           <PermissionedContributor>
             <dt>Contributor?</dt>
             <dd>{isContributor(currentUser.groupNames) ? 'yes' : 'no'}</dd>

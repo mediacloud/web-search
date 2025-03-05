@@ -78,6 +78,16 @@ export const api = createApi({
         url: 'users-quotas',
       }),
     }),
+    getAPIAccessToken: builder.query({
+      query: () => ({
+        url: 'get-api-access-token',
+      }),
+    }),
+    giveAPIAccess: builder.query({
+      query: () => ({
+        url: 'give-api-access',
+      }),
+    }),
   }),
 });
 
@@ -92,4 +102,5 @@ export const {
   usePasswordStrengthMutation,
   useResetTokenMutation,
   useGetUserQuotasQuery,
+  useGetAPIAccessQuery,
 } = api;

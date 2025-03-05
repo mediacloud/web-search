@@ -66,6 +66,26 @@ def reset_password_request(request):
     return HttpResponse(data, content_type='application/json')
 
 
+@require_http_methods(['GET'])
+def get_api_access_token(request):
+    email = request.GET['email']
+
+    key = _random_key()
+
+    message = "Hello, please use this verification code to get API access! Thank you! \n\n" + key
+
+    send_mail(
+        subject='Media Cloud API Access',
+        message=message,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email]
+    )
+
+    data = json.dumps({'Key': key})
+
+    return HttpResponse(data, content_type='application/json')
+
+
 @require_http_methods(['POST'])
 def reset_password(request):
     payload = json.loads(request.body)
