@@ -81,7 +81,6 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
     GIT_REV=(str, ""),
     LOG_LEVEL=(str, "DEBUG"),
-    NEWS_SEARCH_API_URL=(str, "http://ramos.angwin:8000/v1/"),
     PROVIDERS_TIMEOUT=(int, 60*10),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
@@ -135,7 +134,6 @@ EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
 
 GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
 LOG_LEVEL = env('LOG_LEVEL').upper()
-NEWS_SEARCH_API_URL = env('NEWS_SEARCH_API_URL')
 PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
 RSS_FETCHER_URL = env('RSS_FETCHER_URL')
@@ -416,13 +414,12 @@ CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
 
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
-    "OLD_MC_PROVIDER": (False, 'Use old (NSA) mc-provider', bool),
     "ES_PARTIAL_RESULTS": (False, 'ES provider: return partial results', bool),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
     "Monitoring Options": ("REQUEST_LOGGING_ENABLED",),
-    "Temporary": ("OLD_MC_PROVIDER", "ES_PARTIAL_RESULTS",)
+    "Temporary": ("ES_PARTIAL_RESULTS",)
 }
 
 ################

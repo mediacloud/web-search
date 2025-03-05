@@ -7,7 +7,6 @@ from collections import defaultdict
 from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
 
 # PyPI
-import constance                # TEMPORARY!
 from django.apps import apps
 from mc_providers import provider_by_name, provider_name, ContentProvider, \
     PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
@@ -15,7 +14,7 @@ from mc_providers import provider_by_name, provider_name, ContentProvider, \
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
 
 # mcweb
-from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, NEWS_SEARCH_API_URL
+from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
 
 # mcweb/backend/users
 from ..users.models import QuotaHistory
@@ -80,9 +79,6 @@ def listify(input: str) -> list[str]:
         return input.split(',')
     return []
 
-_BASE_URL = {
-    'onlinenews-mediacloud-old': NEWS_SEARCH_API_URL,
-}
 
 def request_session_id(request) -> str | None:
     if request.user.is_authenticated:
@@ -114,7 +110,7 @@ def parse_query_params(request) -> (ParsedQuery, dict):
     start_date = parse_date_str(request.GET.get("start", "2010-01-01"))
     end_date = parse_date_str(request.GET.get("end", "2030-01-01"))
     api_key = _get_api_key(provider_name)
-    base_url = _BASE_URL.get(provider_name)
+    base_url = None  # only needed by old news-search-api provider
 
     # caching is enabled unless cache is passed ONCE with:
     # "f" or "0" (disable local cache)
@@ -153,7 +149,7 @@ def parsed_query_from_dict(payload: dict, session_id: str) -> ParsedQuery:
     start_date = parse_date_str(payload["startDate"])
     end_date = parse_date_str(payload["endDate"])
     api_key = _get_api_key(provider_name)
-    base_url = _BASE_URL.get(provider_name)
+    base_url = None  # only needed by old news-search-api provider
     caching = payload.get("caching", True)
     return ParsedQuery(start_date=start_date, end_date=end_date,
                        query_str=query_str, provider_props=provider_props,
@@ -276,34 +272,6 @@ def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
     for prop_name in _MEDIA_CLOUD_INT_PROPS:
         if prop_name in input:
             output[prop_name] = int(input[prop_name])
-
-def _for_media_cloud_OLD(collections: List, sources: List, all_params: Dict) -> Dict:
-    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
-    Source = apps.get_model('sources', 'Source')
-    # 1. pull out all unique domains that don't have url_search_strs
-    domains = []
-    # turn media ids into list of domains
-    selected_sources = Source.objects.filter(id__in=sources)
-    domains += [s.name for s in selected_sources if not s.url_search_string]
-    # turn collections ids into list of domains
-    selected_sources_in_collections = Source.objects.filter(collections__id__in=collections)
-    selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
-    domains += [s.name for s in selected_sources_in_collections if bool(s.url_search_string) is False]
-    # 2. pull out all the domains that have url_search_strings and turn those into search clauses
-    #    note: ignore sources whose domain is in the list of domains that don't have a url_search_string (e.g. if
-    #    parent bizjournals.com is in domain list then ignore town-specific bizjournals.com to reduce query length)
-    sources_with_url_search_strs = []
-    sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False
-                                     and s.name not in domains]
-    sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False
-                                     and s.name not in domains]
-   
-    domain_url_filters = [f"(canonical_domain:{s.name} AND (url:http\://{s.url_search_string} OR url:https\://{s.url_search_string}))"
-                          for s in sources_with_url_search_strs]
-    # 3. assemble and add in other supported params
-    extra_props = dict(domains=domains, filters=domain_url_filters, chunk=True) 
-    _copy_media_cloud_extra_props(extra_props, all_params)
-    return extra_props
 
 def _for_media_cloud(collections: list[int], sources: list[int], all_params: dict) -> dict:
     # pull in at runtime, rather than outside class, so we can make sure the models are loaded
