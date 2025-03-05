@@ -8,8 +8,8 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
 
-from mc_providers import provider_name,
-    PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD
+from mc_providers import provider_name, PLATFORM_ONLINE_NEWS, \
+    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD
 from mc_providers import UnknownProviderException
 
 from .exceptions import OverQuotaException
