@@ -17,7 +17,7 @@ def get_provider(name: str, api_key: str, base_url: str|None, caching: int, sess
     # BEGIN TEMPORARY CROCKERY!
     extras = {}
     if name == 'onlinenews-mediacloud':
-        elif constance.config.ES_PARTIAL_RESULTS:
+        if constance.config.ES_PARTIAL_RESULTS:
             # new provider: return results even if some shards failed
             # with circuit breaker tripping:
             extras["partial_responses"] = True
