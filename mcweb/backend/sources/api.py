@@ -12,7 +12,6 @@ import requests
 import requests.auth
 from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
-from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.exceptions import APIException
@@ -53,7 +52,7 @@ def _featured_collection_ids(platform: Optional[str]) -> List:
 
 
 def _all_platforms() -> List:
-    return [PLATFORM_YOUTUBE, PLATFORM_REDDIT, PLATFORM_TWITTER, 'onlinenews']
+    return ['onlinenews']
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
