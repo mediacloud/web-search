@@ -1,5 +1,3 @@
-from mc_providers import PLATFORM_TWITTER
-
 
 class OverQuotaException(Exception):
     def __init__(self, provider: str, limit: int):
