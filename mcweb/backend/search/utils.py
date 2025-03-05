@@ -7,7 +7,6 @@ from collections import defaultdict
 from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
 
 # PyPI
-import constance                # TEMPORARY!
 from django.apps import apps
 from mc_providers import provider_by_name, provider_name, ContentProvider, \
     PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\

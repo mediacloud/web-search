@@ -1,4 +1,4 @@
-import constance  
+import constance
 from mc_providers import provider_by_name
 from settings import SENTRY_ENV
 
@@ -17,9 +17,6 @@ def get_provider(name: str, api_key: str, base_url: str|None, caching: int, sess
     # BEGIN TEMPORARY CROCKERY!
     extras = {}
     if name == 'onlinenews-mediacloud':
-        # if mediacloud, and emergency ripcord pulled, revert to (new) NSA-based provider
-        if constance.config.OLD_MC_PROVIDER:
-            name = 'onlinenews-mediacloud-old'
         elif constance.config.ES_PARTIAL_RESULTS:
             # new provider: return results even if some shards failed
             # with circuit breaker tripping:
