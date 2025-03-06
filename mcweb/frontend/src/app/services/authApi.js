@@ -73,6 +73,11 @@ export const api = createApi({
         method: 'POST',
       }),
     }),
+    getUserQuotas: builder.query({
+      query: () => ({
+        url: 'users-quotas',
+      }),
+    }),
   }),
 });
 
@@ -86,4 +91,5 @@ export const {
   useDeleteUserMutation,
   usePasswordStrengthMutation,
   useResetTokenMutation,
+  useGetUserQuotasQuery,
 } = api;

@@ -33,7 +33,7 @@ export default function TaskList({ completed }) {
     );
   }
   return (
-    <div className="results-item-wrapper results-sample-stories">
+    <div className="container">
       <div className="row">
         <div className="col-12">
           <h1 id="feed-story-title">{title}</h1>

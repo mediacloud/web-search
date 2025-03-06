@@ -15,6 +15,7 @@ import { selectCurrentUser, setCredentials } from './authSlice';
 import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
 import TaskList from '../tasks/TaskList';
+import UserQuotaTable from '../quotas/UserQuotaTable';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
@@ -100,17 +101,27 @@ function Account() {
             confirmButtonText="Delete"
           />
         </Alert>
-        <PermissionedContributor>
-          <div className="row">
-            <div className="col-6">
+        <div className="row" style={{ marginTop: '20px' }}>
+          <div className="col-4">
+            <Alert severity="info">
+              Quota is 4000 hits per week.
+            </Alert>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col-4">
+            <UserQuotaTable currentUser={currentUser} />
+          </div>
+          <PermissionedContributor>
+            <div className="col-4">
               <TaskList completed={false} />
             </div>
 
-            <div className="col-6">
+            <div className="col-4">
               <TaskList completed />
             </div>
-          </div>
-        </PermissionedContributor>
+          </PermissionedContributor>
+        </div>
       </div>
     </>
   );

@@ -15,4 +15,5 @@ urlpatterns = [
     path('delete-user', views.delete_user),
     path('reset-token', views.reset_token),
     path('email-from-token', views.email_from_token),
+    path('users-quotas', views.users_quotas),
 ]

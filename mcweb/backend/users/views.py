@@ -321,8 +321,35 @@ def email_from_token(request):
         return HttpResponse(json.dumps({"error": "Must be super user"}), content_type='application/json', status=403)
     elif not user_token:
         return HttpResponse(json.dumps({"error": "No user token provided"}), content_type='application/json', status=403)
+    
 
-
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def users_quotas(request):
+    """
+    Returns a list of users with the highest quota hits for the week 
+    """
+    token = request.GET.get('Authorization', None)
+    user = None
+    if token:
+        try:
+            user = _user_from_token(token)
+        except:
+            logger.debug("Token not found")
+            data = json.dumps({'message': "API Token Not Found"})
+            return HttpResponse(data, content_type='application/json', status=403)
+    else:
+        user = request.user
+    if user.is_staff or user.is_superuser:
+        quotas = QuotaHistory.objects.filter(week__gte=QuotaHistory.objects.latest('week').week).order_by('-hits')[:40]
+        data = json.dumps([{
+            'user': quota.user.id,
+            'email': quota.user.email,
+            'provider': quota.provider,
+            'hits': quota.hits,
+            'week': quota.week.strftime('%Y-%m-%d'),
+        } for quota in quotas])
+    return HttpResponse(data, content_type='application/json')
 
 
 def _serialized_current_user(request) -> str:
@@ -334,6 +361,7 @@ def _serialized_current_user(request) -> str:
     token = Token.objects.get(user=current_user)
     data['token'] = token.key
     data['group_names'] = get_groups(request)
+    data['quota'] = get_quota(request)
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
 
@@ -364,6 +392,18 @@ def _user_from_token(token):
         return user[0]
     except:
         return None
+    
+def get_quota(request):
+    quotas = request.user.quotahistory_set.order_by('-week')[:2]
+    quota_list = []
+    for quota in quotas:
+        quota_list.append({
+            'provider': quota.provider,
+            'week': quota.week.strftime('%Y-%m-%d'),  # Convert week to string
+            'hits': quota.hits
+        })
+
+    return quota_list
 
 
 
