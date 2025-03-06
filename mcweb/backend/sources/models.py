@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 import feed_seeker
 import mcmetadata.urls as urls
 import requests
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 from django.db.utils import IntegrityError
 from mcmetadata.feeds import normalize_url
@@ -109,12 +111,14 @@ class Source(models.Model):
     alerted = models.BooleanField(default=False)
     last_rescraped = models.DateTimeField(null=True)
     last_rescraped_msg = models.CharField(max_length=500, null=True, blank=True)
-
+    search_vector = SearchVectorField(null=True) # for keyword search
 
     class Meta:
         indexes = [
             # useful for search filtering
             models.Index(fields=['platform'], name='source platform'),
+            # for keyword search
+            GinIndex(fields=['search_vector'], name='search_vector_gin_index')
         ]
         constraints = [
             models.UniqueConstraint(fields=('name', 'platform', 'url_search_string'),

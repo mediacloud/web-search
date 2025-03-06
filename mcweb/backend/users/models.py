@@ -8,9 +8,8 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
 
-from mc_providers import provider_name, PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER,\
-    PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, \
-    PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD
+from mc_providers import provider_name, PLATFORM_ONLINE_NEWS, \
+    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD
 from mc_providers import UnknownProviderException
 
 from .exceptions import OverQuotaException
@@ -24,22 +23,12 @@ class Profile(models.Model):
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
     # fields that store user-specific weekly quota for each provider, to block system abuse
-    quota_mediacloud_legacy = models.IntegerField(default=4000, null=False)
     quota_mediacloud = models.IntegerField(default=4000, null=False)
     quota_wayback_machine = models.IntegerField(default=4000, null=False)
-    quota_reddit_pushshift = models.IntegerField(default=4000, null=False)
-    quota_twitter = models.IntegerField(default=10, null=False)
-    quota_youtube = models.IntegerField(default=4000, null=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
     def quota_for(self, provider: str) -> int:
-        if provider == provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER):
-            return self.quota_twitter
-        if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
-            return self.quota_youtube
-        if provider == provider_name(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT):
-            return self.quota_reddit_pushshift
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
             return self.quota_wayback_machine
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):

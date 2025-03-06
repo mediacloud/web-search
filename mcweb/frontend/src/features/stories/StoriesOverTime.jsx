@@ -57,8 +57,8 @@ export default function StoriesOverTime({ collectionId, sourceId }) {
 }
 
 StoriesOverTime.propTypes = {
-  collectionId: PropTypes.number,
-  sourceId: PropTypes.number,
+  collectionId: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
+  sourceId: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
 };
 
 StoriesOverTime.defaultProps = {

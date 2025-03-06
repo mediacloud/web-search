@@ -29,7 +29,7 @@ const OrderedWordCloudRenderer = {
     const wordWrapper = svg.append('g')
       .attr('transform', `translate(${2 * config.padding},0)`);
     const sizeRange = { min: config.minFontSize, max: config.maxFontSize };
-    const fullExtent = exent || d3.extent(data, (d) => d.ratio);
+    const fullExtent = exent || d3.extent(data, (d) => d.term_ratio);
 
     // start layout loop
     while ((y >= wordListHeight) && (sizeRange.max > sizeRange.min)) {
@@ -94,7 +94,7 @@ const OrderedWordCloudRenderer = {
 
   fontSizeComputer: (term, extent, sizeRange) => {
     const size = sizeRange.min + (((sizeRange.max - sizeRange.min)
-            * (Math.log(term.ratio) - Math.log(extent[0]))) / (Math.log(extent[1]) - Math.log(extent[0])));
+            * (Math.log(term.term_ratio) - Math.log(extent[0]))) / (Math.log(extent[1]) - Math.log(extent[0])));
     return size;
   },
 
@@ -127,7 +127,6 @@ export default function OrderedWordCloud({ width, color, data }) {
     },
     [data, d3WrapperRef.current, canvasRef.current],
   );
-
   // the canvas item is required to compute font metrics for the terms in the word cloud
   return (
     <>
@@ -142,7 +141,10 @@ OrderedWordCloud.propTypes = {
   color: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     term: PropTypes.string.isRequired,
-    count: PropTypes.number.isRequired,
-    ratio: PropTypes.number.isRequired,
+    doc_count: PropTypes.number.isRequired,
+    doc_ratio: PropTypes.number.isRequired,
+    term_ratio: PropTypes.number.isRequired,
+    term_count: PropTypes.number.isRequired,
+    sample_size: PropTypes.number.isRequired,
   })).isRequired,
 };

@@ -97,7 +97,7 @@ export default function TopWords() {
             {data.map((results, i) => (
               // eslint-disable-next-line react/no-array-index-key
               <TabPanelHelper value={value} index={i} key={`words-key-${i}`}>
-                <OrderedWordCloud width={600} color="#000" data={results.words} />
+                <OrderedWordCloud width={700} color="#000" data={results.words} />
               </TabPanelHelper>
             ))}
           </Box>
