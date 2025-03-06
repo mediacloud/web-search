@@ -7,9 +7,11 @@ from typing import List, Optional
 from urllib.parse import urlparse, parse_qs
 
 # PyPI
+import constance                # TEMP
 import mcmetadata.urls as urls
 import requests
 import requests.auth
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
 from mc_providers import PLATFORM_REDDIT, PLATFORM_TWITTER, PLATFORM_YOUTUBE
@@ -37,7 +39,6 @@ from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
-
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -92,7 +93,15 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            queryset = queryset.filter(name__icontains=name)
+            if constance.config.SRCS_KW_SEARCH:
+                # EXPERIMENTAL! PG specific!!
+                v = SearchVector("name")
+                q = SearchQuery(name, search_type="websearch")
+                queryset = queryset.annotate(rank=SearchRank(v, q))\
+                                   .filter(rank__gte=0.01)\
+                                   .order_by("-source_count", "-rank")
+            else:
+                queryset = queryset.filter(name__icontains=name)
         return queryset
 
     def get_serializer_class(self):
@@ -323,8 +332,17 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            queryset = queryset.filter(
-                Q(name__icontains=name) | Q(label__icontains=name))
+            if constance.config.SRCS_KW_SEARCH:
+                v = SearchVector("name", "label") # equal weight
+                q = SearchQuery(name, search_type="websearch")
+                # NOTE! uses precomputed search_vector column!!
+                queryset = queryset.filter(search_vector=q)\
+                                   .annotate(rank=SearchRank(v, q))\
+                                   .filter(rank__gte=0.01)\
+                                   .order_by("-collection_count", "-rank")
+            else:
+                queryset = queryset.filter(
+                    Q(name__icontains=name) | Q(label__icontains=name))
         return queryset
 
     def create(self, request):
