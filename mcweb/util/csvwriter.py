@@ -26,7 +26,7 @@ class CSVWriterHelper:
     def write_top_words(writer, data, columns):
         writer.writerow(columns)
         for top_terms in data:
-            writer.writerow([top_terms["term"], top_terms["term_count"], top_terms['term_ratio'], top_terms["doc_count"], top_terms['doc_ratio']])
+            writer.writerow([top_terms["term"], top_terms["term_count"], top_terms['term_ratio'], top_terms["doc_count"], top_terms['doc_ratio'], top_terms['sample_size']])
 
     @staticmethod
     def write_top_sources(writer, data, columns):
