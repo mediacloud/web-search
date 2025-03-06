@@ -417,11 +417,12 @@ CONSTANCE_REDIS_CONNECTION = env('REDIS_URL')
 CONSTANCE_CONFIG = {
     "REQUEST_LOGGING_ENABLED": (False, 'Request logging enabled', bool),
     "ES_PARTIAL_RESULTS": (False, 'ES provider: return partial results', bool),
+    "SRCS_KW_SEARCH": (True, 'Sources: use keyword search', bool),
 }
 
 CONSTANCE_CONFIG_FIELDSETS = {
     "Monitoring Options": ("REQUEST_LOGGING_ENABLED",),
-    "Temporary": ("ES_PARTIAL_RESULTS",)
+    "Temporary": ("ES_PARTIAL_RESULTS", "SRCS_KW_SEARCH")
 }
 
 ################
