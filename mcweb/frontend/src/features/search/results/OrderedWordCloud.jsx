@@ -82,7 +82,7 @@ const OrderedWordCloudRenderer = {
     wordNodes.attr('y', (d, index, data) => { // need closure here for d3.select to work right on the element
       const xPosition = d3.select(data[index]).attr('x');
       if (xPosition === '0') { // WTF does this come out as a string???!?!?!?!
-        const height = OrderedWordCloudRenderer.fontSizeComputer(d, extent, sizeRange);
+        const height = 1.2 * OrderedWordCloudRenderer.fontSizeComputer(d, extent, sizeRange);
         y += height;
         y = Math.max(y, height);
         lastAdded = height;
