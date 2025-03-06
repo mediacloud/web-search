@@ -363,7 +363,7 @@ def download_words_csv(request):
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    cols = ['term', 'term_count', 'term_ratio', 'doc_count', 'doc_ratio']
+    cols = ['term', 'term_count', 'term_ratio', 'doc_count', 'doc_ratio', 'sample_size']
     CSVWriterHelper.write_top_words(writer, words, cols)
     return response
 
