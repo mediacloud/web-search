@@ -85,6 +85,17 @@ def get_api_access_token(request):
 
     return HttpResponse(data, content_type='application/json')
 
+@require_http_methods(['GET'])
+def give_api_access(request):
+    user = request.user
+    try:
+        user.groups.add(Group.objects.get(name='api_access'))
+        data = json.dumps({'message': "API Access Granted"})
+    except:
+        data = json.dumps({'message': "API Access Error, please try again"})
+
+    return HttpResponse(data, content_type='application/json')
+
 
 @require_http_methods(['POST'])
 def reset_password(request):

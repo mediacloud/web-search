@@ -102,5 +102,6 @@ export const {
   usePasswordStrengthMutation,
   useResetTokenMutation,
   useGetUserQuotasQuery,
-  useGetAPIAccessQuery,
+  useGetAPIAccessTokenQuery,
+  useGiveAPIAccessQuery,
 } = api;

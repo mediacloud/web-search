@@ -12,7 +12,7 @@ import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import { useResetPasswordSendEmailQuery, useEmailExistsQuery } from '../../app/services/authApi';
+import { useGetAPIAccessTokenQuery, useGiveAPIAccessQuery } from '../../app/services/authApi';
 
 export default function GetApiAccess() {
   const navigate = useNavigate();
@@ -20,8 +20,14 @@ export default function GetApiAccess() {
 
   const [skip, setSkip] = useState(false);
 
-  // change below to trigger email to send api access token
-  const key = useResetPasswordSendEmailQuery(formState.email, { skip });
+  const [formState, setFormState] = useState({ verification: '' });
+
+  const key = useGetAPIAccessTokenQuery();
+
+  const { data } = useGiveAPIAccessQuery({ skip });
+
+  console.log(data);
+  console.log(key);
 
   return (
     <div style={{ paddingTop: '100px' }}>
@@ -65,7 +71,7 @@ export default function GetApiAccess() {
               label="Verification Code"
               name="verification"
               autoFocus
-              onChange={handleChange}
+              onChange={(e) => setFormState({ verification: e.target.value })}
             />
 
             {/* Is the users key the real key? */}
@@ -76,8 +82,8 @@ export default function GetApiAccess() {
               onClick={async () => {
                 // comparing the textFeild with the returned key from sendEmail
                 if (formState.verification === key.data.Key) {
-                  enqueueSnackbar('Verified', { variant: 'success' });
-                  navigate('confirmed');
+                  setSkip(true);
+                  navigate('/account');
                 } else {
                   enqueueSnackbar('Incorrect Verification', { variant: 'error' });
                 }
