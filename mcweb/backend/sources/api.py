@@ -7,6 +7,7 @@ from typing import List, Optional
 from urllib.parse import urlparse, parse_qs
 
 # PyPI
+import constance                # TEMP
 import mcmetadata.urls as urls
 import requests
 import requests.auth
@@ -38,8 +39,6 @@ from .models import Collection, Feed, Source
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
-
-KWSEARCH_DEFAULT = True         # for testing keyword search
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -94,7 +93,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            if self.request.query_params.get("kwsearch", KWSEARCH_DEFAULT):
+            if constance.config.SRCS_KW_SEARCH:
                 # EXPERIMENTAL! PG specific!!
                 v = SearchVector("name")
                 q = SearchQuery(name, search_type="websearch")
@@ -333,10 +332,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
         if name is not None:
-            if self.request.query_params.get("kwsearch", KWSEARCH_DEFAULT):
-                # EXPERIMENTAL! PG specific!!
-                # Reasonable performance may require adding a GinIndex or GistIndex:
-                # https://docs.djangoproject.com/en/5.1/ref/contrib/postgres/search/#performance
+            if constance.config.SRCS_KW_SEARCH:
                 v = SearchVector("name", "label") # equal weight
                 q = SearchQuery(name, search_type="websearch")
                 # NOTE! uses precomputed search_vector column!!
