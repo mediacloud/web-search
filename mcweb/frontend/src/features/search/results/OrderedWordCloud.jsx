@@ -127,7 +127,6 @@ export default function OrderedWordCloud({ width, color, data }) {
     },
     [data, d3WrapperRef.current, canvasRef.current],
   );
-  console.log(data);
   // the canvas item is required to compute font metrics for the terms in the word cloud
   return (
     <>
