@@ -4,18 +4,25 @@ Background tasks for "sources" app
 """
 
 # standard:
+from collections import Counter
 import datetime as dt
 import logging
 import json
 import logging
 import time
 import traceback
+from typing import Dict, List, Tuple
 
 # PyPI:
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
 from django.contrib.auth.models import User
+from django.db import transaction
+from django.db.models import Q, QuerySet
 from django.utils import timezone
+from ..util.provider import get_task_provider
+
+
 import numpy as np
 
 # mcweb/backend/sources
@@ -90,7 +97,7 @@ def _add_scrape_error_rcpts(users: list[str]) -> None:
     for u in SCRAPE_ERROR_RECIPIENTS:
         if u not in users:
             users.append(u)
-    
+
 @background(queue=ADMIN_SLOW)   # admin user initiated
 def _scrape_collection(collection_id: int, user_email: str) -> None:
     t0 = time.monotonic()
@@ -174,7 +181,7 @@ def _alert_system(collection_ids):
 
         with _rss_fetcher_api() as rss:
         # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
-          
+
             email="test"
             alert_dict = {
                 "high": [],
@@ -186,7 +193,7 @@ def _alert_system(collection_ids):
             high_stories_alert = 0
             fixed_source = 0
             for source in sources:
-                stories_fetched = rss.source_stories_fetched_by_day(source.id) 
+                stories_fetched = rss.source_stories_fetched_by_day(source.id)
                 # print(stories_fetched)
                 counts = [d['stories'] for d in stories_fetched]  # extract the count values
                 if not counts:
@@ -194,14 +201,14 @@ def _alert_system(collection_ids):
                     no_stories_alert += 1
                     source.alerted = True
                     continue
-                mean = np.mean(counts) 
+                mean = np.mean(counts)
                 std_dev = np.std(counts)
-                
+
                 last_7_days_data = stories_fetched[-7:]
                 seven_day_counts = [d['stories'] for d in last_7_days_data]
                 mean_last_week = np.mean(seven_day_counts)
                 sum_count_week = _calculate_stories_last_week(stories_fetched)  #calculate the last seven days of stories
-                Source.update_stories_per_week(source.id, sum_count_week) 
+                Source.update_stories_per_week(source.id, sum_count_week)
 
                 alert_status = _classify_alert(mean, mean_last_week, std_dev)
 
@@ -222,10 +229,10 @@ def _alert_system(collection_ids):
                          source.alerted = False
                     logger.info(f"=====Source {source.name} is ingesting at regular levels")
                 # stories_published = rss.source_stories_published_by_day(source.id)
-                # counts_published = [d['count'] for d in stories_published] 
-                # mean_published = np.mean(counts_published)  
+                # counts_published = [d['count'] for d in stories_published]
+                # mean_published = np.mean(counts_published)
                 # std_dev_published = np.std(counts_published)
-                source.save()  
+                source.save()
             print(alert_dict)
             if(email):
                 # email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
@@ -238,7 +245,7 @@ def _classify_alert(month_mean, week_mean, std_dev):
     lower_range = std_dev * 1.5
     upper_range = std_dev * 2
     lower = month_mean - lower_range
-    upper = month_mean + upper_range 
+    upper = month_mean + upper_range
     if week_mean < lower:
         return ALERT_LOW
     elif week_mean > upper:
@@ -264,8 +271,6 @@ def _update_stories_counts():
                 weekly_count = int(stories_per_day * 7)
                 print(source_id, stories_per_day, weekly_count)
                 Source.update_stories_per_week(int(source_id), weekly_count)
-
-            
 
 def _calculate_stories_last_week(stories_fetched):
     """
@@ -315,3 +320,122 @@ def schedule_scrape_source(source_id, user):
                           remove_existing_tasks=True)
     return return_task(task)
 
+SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
+SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
+SOURCE_UPDATE_START_DATE = timezone.make_aware(dt.datetime(1950, 1, 1)) # Possible earliest source publication date, some sources report 1990s
+
+def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
+    """
+    Generalized function to analyze sources.
+    Args:
+        provider_name (str): The provider name.
+        sources (QuerySet): The sources to process.
+        start_date (dt.datetime): The start date for analysis.
+        task_name (str): Task name based on param to update ("language" or "publication_date"). Used to create provider session.
+    Returns:
+        List[Dict[str, str]]: A list of dictionaries containing source IDs and their analyzed data.
+    """
+    END_DATE = timezone.now()
+    updated_sources = []
+    sleep_interval = 60 / 100
+
+    # getting canonical domain from urls.canonical_domain(homepage) makes a HTTP request, NOT IDEAL !!!
+    if not sources:
+        logger.info("No new sources to process.")
+        return updated_sources
+
+    # Pre-filter sources: Only keep those with records in Elasticsearch
+    provider = get_task_provider(provider_name=provider_name, base_url=None, api_key=None, task_name=task_name)
+    sources_with_records = []
+    sources_with_no_records = []
+
+    for source in sources.iterator():
+        query_str = f"canonical_domain:{source.name}"
+        record_count = provider.count(query_str, start_date, END_DATE)
+        if record_count > 0:
+            sources_with_records.append(source)
+        else:
+            sources_with_no_records.append(source.name)
+
+    if sources_with_no_records:
+        logger.info("No records found for the following sources in Elasticsearch: %s", sources_with_no_records)
+
+    for source in sources_with_records:
+        time.sleep(sleep_interval)  # Sleep for 0.6 seconds between requests
+        try:
+            query_str = f"canonical_domain:{source.name}"
+            if task_name == "update_source_language":
+                languages = provider.languages(query_str, start_date, END_DATE, limit=10)
+                if not languages:
+                    logger.warning("No languages found for source %s to analyze.",  source.name)
+                    continue
+                primary_language = max(languages, key=lambda x: x["value"])["language"]
+                source.primary_language = primary_language
+                logger.info("Analyzed source %s. Primary language: %s" % (source.name, primary_language))
+
+            elif task_name == "update_publication_date":
+                results = provider.count_over_time(query_str, start_date, END_DATE)
+                if not results:
+                    logger.warning("No publication dates found for source %s to analyze %s." % (source.name, task_name))
+                    continue
+
+                earliest_month = results["counts"][0]["date"]
+                first_story = dt.datetime.combine(earliest_month, dt.datetime.min.time())
+                if first_story:
+                    first_story = timezone.make_aware(first_story)
+                    source.first_story = first_story
+                    logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
+
+            updated_sources.append(source)
+        except Exception as e:
+            logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
+
+    logger.info("Completed analysis for %d sources." % len(updated_sources))
+    return updated_sources
+
+def _get_min_update_date():
+    min_date = timezone.now() - dt.timedelta(days=SOURCE_UPDATE_DAYS_BACK)
+    min_date.replace(hour=23,minute=59,second=59)
+    return min_date
+
+@background(queue=SYSTEM_SLOW)
+def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
+    six_months_ago = _get_min_update_date()
+    while True:
+        sources_for_language = Source.objects.filter(
+            Q(primary_language__isnull=True) | Q(modified_at__lt=six_months_ago),
+            name__isnull=False
+        ).order_by("modified_at")[:batch_size]
+
+        if not sources_for_language.exists():
+            logger.info("No new sources to process for language analysis.")
+            break
+
+        analyzed_sources = analyze_sources(provider_name, sources_for_language, six_months_ago, "update_source_language")
+        with transaction.atomic():
+            if analyzed_sources:
+                Source.objects.bulk_update(analyzed_sources, ["primary_language"])
+                logger.info("Bulk updated primary_language for %d sources." % len(analyzed_sources))
+
+            Source.objects.filter(id__in=[s.id for s in sources_for_language]).update(modified_at=timezone.now())
+
+@background(queue=SYSTEM_SLOW)
+def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
+    six_months_ago = _get_min_update_date()
+    while True:
+        sources_for_publication_date = Source.objects.filter(
+            Q(first_story__isnull=True) | Q(modified_at__lt=six_months_ago),
+            name__isnull=False
+        ).order_by("modified_at")[:batch_size]
+
+        if not sources_for_publication_date.exists():
+            logger.info("No new sources to process for publication date analysis.")
+            break
+
+        analyzed_sources = analyze_sources(provider_name, sources_for_publication_date, SOURCE_UPDATE_START_DATE, "update_publication_date")
+        with transaction.atomic():
+            if analyzed_sources:
+                Source.objects.bulk_update(analyzed_sources, ["first_story"])
+                logger.info("Bulk updated first_story for %d sources." % len(analyzed_sources))
+
+            Source.objects.filter(id__in=[s.id for s in sources_for_publication_date]).update(modified_at=timezone.now())

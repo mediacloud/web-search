@@ -341,8 +341,7 @@ def words(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    words = provider.words(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
-    response = add_ratios(words)
+    response = provider.words(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"words": response})
                         
@@ -357,7 +356,6 @@ def download_words_csv(request):
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     # PB: was passing sample_size=5000
     words = provider.words(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
-    words = add_ratios(words)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     filename = "mc-{}-{}-top-words".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
@@ -365,7 +363,7 @@ def download_words_csv(request):
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
     )
     writer = csv.writer(response)
-    cols = ['term', 'count', 'ratio']
+    cols = ['term', 'term_count', 'term_ratio', 'doc_count', 'doc_ratio', 'sample_size']
     CSVWriterHelper.write_top_words(writer, words, cols)
     return response
 
@@ -469,11 +467,3 @@ def providers(request):
         return json_response({"providers": providers})
     else:
         return error_response("No token provided", response_type=HttpResponseBadRequest)
-
-def add_ratios(words_data):
-    for word in words_data:
-        if "ratio" not in word:
-            word["ratio"] = word['count'] / 1000
-    return words_data
-
-

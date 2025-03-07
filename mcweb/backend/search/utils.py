@@ -7,11 +7,8 @@ from collections import defaultdict
 from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
 
 # PyPI
-import constance                # TEMPORARY!
 from django.apps import apps
-from mc_providers import provider_by_name, provider_name, ContentProvider, \
-    PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER, PLATFORM_YOUTUBE,\
-    PLATFORM_SOURCE_YOUTUBE, PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT, PLATFORM_SOURCE_MEDIA_CLOUD,\
+from mc_providers import provider_by_name, provider_name, ContentProvider, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
 
 # mcweb
@@ -182,50 +179,11 @@ def _get_api_key(provider: str) -> str | None:
     return None
 
 def search_props_for_provider(provider, collections: List, sources: List, all_params: Dict) -> Dict:
-    if provider == provider_name(PLATFORM_TWITTER, PLATFORM_SOURCE_TWITTER):
-        return _for_twitter_api(collections, sources)
-    if provider == provider_name(PLATFORM_YOUTUBE, PLATFORM_SOURCE_YOUTUBE):
-        return _for_youtube_api(collections, sources)
-    if provider == provider_name(PLATFORM_REDDIT, PLATFORM_SOURCE_PUSHSHIFT):
-        return _for_reddit_pushshift(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
         return _for_wayback_machine(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
         return _for_media_cloud(collections, sources, all_params)
     return {}
-
-
-def _for_youtube_api(collections: List, sources: List) -> Dict:
-    # TODO: filter by a list of channels
-    return dict()
-
-
-def _for_twitter_api(collections: List, sources: List) -> Dict:
-    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
-    Source = apps.get_model('sources', 'Source')
-    usernames = []
-    # turn media ids into list of usernames
-    selected_sources = Source.objects.filter(id__in=sources)
-    usernames += [s.name for s in selected_sources]
-    # turn collections ids into list of usernames
-    selected_sources = Source.objects.filter(collections__id__in=collections)
-    usernames += [s.name for s in selected_sources]
-    return dict(usernames=usernames)
-
-
-def _for_reddit_pushshift(collections: List, sources: List) -> Dict:
-    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
-    Source = apps.get_model('sources', 'Source')
-    subreddits = []
-    # turn media ids into list of subreddits
-    selected_sources = Source.objects.filter(id__in=sources)
-    subreddits += [s.name for s in selected_sources]
-    # turn collections ids into list of subreddits
-    selected_sources = Source.objects.filter(collections__id__in=collections)
-    subreddits += [s.name for s in selected_sources]
-    # clean up names
-    subreddits = [s.replace('/r/', '') for s in subreddits]
-    return dict(subreddits=subreddits)
 
 
 def _for_wayback_machine(collections: List, sources: List) -> Dict:
@@ -277,33 +235,6 @@ def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
         if prop_name in input:
             output[prop_name] = int(input[prop_name])
 
-def _for_media_cloud_OLD(collections: List, sources: List, all_params: Dict) -> Dict:
-    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
-    Source = apps.get_model('sources', 'Source')
-    # 1. pull out all unique domains that don't have url_search_strs
-    domains = []
-    # turn media ids into list of domains
-    selected_sources = Source.objects.filter(id__in=sources)
-    domains += [s.name for s in selected_sources if not s.url_search_string]
-    # turn collections ids into list of domains
-    selected_sources_in_collections = Source.objects.filter(collections__id__in=collections)
-    selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
-    domains += [s.name for s in selected_sources_in_collections if bool(s.url_search_string) is False]
-    # 2. pull out all the domains that have url_search_strings and turn those into search clauses
-    #    note: ignore sources whose domain is in the list of domains that don't have a url_search_string (e.g. if
-    #    parent bizjournals.com is in domain list then ignore town-specific bizjournals.com to reduce query length)
-    sources_with_url_search_strs = []
-    sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False
-                                     and s.name not in domains]
-    sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False
-                                     and s.name not in domains]
-   
-    domain_url_filters = [f"(canonical_domain:{s.name} AND (url:http\://{s.url_search_string} OR url:https\://{s.url_search_string}))"
-                          for s in sources_with_url_search_strs]
-    # 3. assemble and add in other supported params
-    extra_props = dict(domains=domains, filters=domain_url_filters, chunk=True) 
-    _copy_media_cloud_extra_props(extra_props, all_params)
-    return extra_props
 
 def _for_media_cloud(collections: list[int], sources: list[int], all_params: dict) -> dict:
     # pull in at runtime, rather than outside class, so we can make sure the models are loaded
