@@ -3,7 +3,8 @@
 "notes": ["add quota to profile page",
 "update version of mc providers",
 "change name of top words columns",
-"remove top words from internet archive platform"
+"remove top words from internet archive platform",
+"can now search for source or collection names in any order"
 ]},{"version": "v2.2.2",
 "date": "2025-02-24",
 "notes": ["add list of child sources to parent source",

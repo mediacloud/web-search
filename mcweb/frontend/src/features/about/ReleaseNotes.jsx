@@ -1,5 +1,5 @@
 import React from 'react';
-import releases from '../../../static/about/release_history.json';
+import releases from './release_history.json';
 
 export default function ReleaseNotes() {
   return (
