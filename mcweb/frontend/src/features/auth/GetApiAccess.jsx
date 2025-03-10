@@ -6,28 +6,42 @@ import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
-import { useGetAPIAccessTokenQuery, useGiveAPIAccessQuery } from '../../app/services/authApi';
+import { useGetAPIAccessTokenQuery, useLazyGiveAPIAccessQuery } from '../../app/services/authApi';
 
 export default function GetApiAccess() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [skip, setSkip] = useState(false);
-
   const [formState, setFormState] = useState({ verification: '' });
 
-  const key = useGetAPIAccessTokenQuery();
+  const { isLoading, data } = useGetAPIAccessTokenQuery();
 
-  const { data } = useGiveAPIAccessQuery({ skip });
+  const [
+    apiAccessTrigger,
+    { isFetching, data: apiAccessData },
+  ] = useLazyGiveAPIAccessQuery();
 
-  console.log(data);
-  console.log(key);
+  console.log('DATA', data);
+  console.log('KEYY', apiAccessData);
+
+  if (isLoading) {
+    return (
+      <div>
+        <Alert severity="warning">
+          Please wait while an email is sent to you with a verification code,
+          this may take a moment, please do not refresh the page.
+        </Alert>
+        <CircularProgress size="75px" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ paddingTop: '100px' }}>
@@ -81,8 +95,8 @@ export default function GetApiAccess() {
               sx={{ mt: 3, mb: 2 }}
               onClick={async () => {
                 // comparing the textFeild with the returned key from sendEmail
-                if (formState.verification === key.data.Key) {
-                  setSkip(true);
+                if (formState.verification === data.Key) {
+                  await apiAccessTrigger();
                   navigate('/account');
                 } else {
                   enqueueSnackbar('Incorrect Verification', { variant: 'error' });

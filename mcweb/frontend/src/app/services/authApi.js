@@ -103,5 +103,5 @@ export const {
   useResetTokenMutation,
   useGetUserQuotasQuery,
   useGetAPIAccessTokenQuery,
-  useGiveAPIAccessQuery,
+  useLazyGiveAPIAccessQuery,
 } = api;

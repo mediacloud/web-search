@@ -68,8 +68,6 @@ def reset_password_request(request):
 
 @require_http_methods(['GET'])
 def get_api_access_token(request):
-    email = request.GET['email']
-
     key = _random_key()
 
     message = "Hello, please use this verification code to get API access! Thank you! \n\n" + key
@@ -78,7 +76,7 @@ def get_api_access_token(request):
         subject='Media Cloud API Access',
         message=message,
         from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[email]
+        recipient_list=[request.user.email]
     )
 
     data = json.dumps({'Key': key})
