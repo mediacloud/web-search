@@ -29,10 +29,5 @@ def get_provider(name: str, *, session_id: str, caching: int, api_key: str | Non
             software_id="web-search", session_id = session_id)
 
 
-def provider_session(task_name:str):
-    return 'f{task_name}@{SENTRY_ENV}'
-
-
-def get_task_provider(provider_name: str, task_name: str):
-    session = provider_session(task_name)
-    return get_provider(provider_name, session_id=session, caching=0)
+def get_task_provider(provider_name: str, task_name: str, caching: int = 0):
+    return get_provider(provider_name, session_id=f'{task_name}@{SENTRY_ENV}', caching=caching)
