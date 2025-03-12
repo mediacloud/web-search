@@ -517,11 +517,13 @@ class SourcesViewSet(viewsets.ModelViewSet):
         # lists all tasks for user (None lists all tasks)
         return Response(get_pending_tasks(request.user))
 
-    @action(detail=False, url_path='all-source-ids')
-    def all_source_ids(self, request):
+    @action(detail=False, url_path='all-sources')
+    def all_sources(self, request):
         """
-        return CSV of all Sources for rss-fetcher
-        (limit by group membership??)
+        Return streaming CSV of ids all Sources.
+        For rss-fetcher to detect deletes.
+        Maybe take optional parameter with list of fields to return?
+        Maybe support "feed_count" column?
         """
         sources = Source.objects.values_list('id')
         return csv_stream.streaming_csv_response(sources.all)
