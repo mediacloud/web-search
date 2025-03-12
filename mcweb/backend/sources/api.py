@@ -477,8 +477,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
 
         filename = "Collection-{}-{}-sources-{}".format(
             collection_id, collection.name, _filename_timestamp())
-        streamer = csv_stream.CSVStream(filename, data_generator)
-        return streamer.stream()
+        return csv_stream.streaming_csv_response(data_generator, filename)
 
     @action(methods=['GET'], detail=False, url_path='sources-from-list')
     def sources_from_list(self, request):
@@ -517,6 +516,15 @@ class SourcesViewSet(viewsets.ModelViewSet):
         """
         # lists all tasks for user (None lists all tasks)
         return Response(get_pending_tasks(request.user))
+
+    @action(detail=False, url_path='all-source-ids')
+    def all_source_ids(self, request):
+        """
+        return CSV of all Sources for rss-fetcher
+        (limit by group membership??)
+        """
+        sources = Source.objects.values_list('id')
+        return csv_stream.streaming_csv_response(sources.all)
 
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
