@@ -21,15 +21,11 @@ export default function GetApiAccess() {
 
   const [formState, setFormState] = useState({ verification: '' });
 
-  const { isLoading, data } = useGetAPIAccessTokenQuery();
+  const { isLoading, data, error } = useGetAPIAccessTokenQuery();
 
   const [
     apiAccessTrigger,
-    { isFetching, data: apiAccessData },
   ] = useLazyGiveAPIAccessQuery();
-
-  console.log('DATA', data);
-  console.log('KEYY', apiAccessData);
 
   if (isLoading) {
     return (
@@ -39,6 +35,16 @@ export default function GetApiAccess() {
           this may take a moment, please do not refresh the page.
         </Alert>
         <CircularProgress size="75px" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <Alert severity="error">
+          There was an error sending the email, please return to your profile and try again.
+        </Alert>
       </div>
     );
   }
@@ -98,6 +104,7 @@ export default function GetApiAccess() {
                 if (formState.verification === data.Key) {
                   await apiAccessTrigger();
                   navigate('/account');
+                  navigate(0);
                 } else {
                   enqueueSnackbar('Incorrect Verification', { variant: 'error' });
                 }

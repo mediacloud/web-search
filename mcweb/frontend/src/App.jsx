@@ -99,7 +99,7 @@ function App() {
           />
 
           <Route
-            path="request-api-access"
+            path="verify-user"
             element={(
               <RequireAuth>
                 <GetApiAccess />
