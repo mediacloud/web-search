@@ -7,12 +7,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_provider(name: str, api_key: str, base_url: str|None, caching: int, session_id: str):
+def get_provider(name: str, *, session_id: str, caching: int, api_key: str | None = None):
     """
-    One place to get a provider configured for web use.
+    The one place to call into mc-providers to get a Provider object.
+    This routine is NOT for general use!!!!
+    Search calls should use pq_provider
+    Background tasks should use get_task_provider
     """
-
-    #A default sessionid that's attached to the sentry environment. 
 
     # BEGIN TEMPORARY CROCKERY!
     extras = {}
@@ -22,8 +23,9 @@ def get_provider(name: str, api_key: str, base_url: str|None, caching: int, sess
             # with circuit breaker tripping:
             extras["partial_responses"] = True
     logger.debug("pq_provider %s %r", name, extras)
+    # END TEMPORARY CROCKERY
 
-    return provider_by_name(name, api_key=api_key, base_url = base_url, caching = caching, 
+    return provider_by_name(name, api_key=api_key, caching = caching,
             software_id="web-search", session_id = session_id)
 
 
@@ -31,6 +33,6 @@ def provider_session(task_name:str):
     return 'f{task_name}@{SENTRY_ENV}'
 
 
-def get_task_provider(provider_name: str, api_key: str, base_url: str|None, task_name:str):
+def get_task_provider(provider_name: str, task_name: str):
     session = provider_session(task_name)
-    return get_provider(provider_name, api_key=api_key, base_url=base_url, caching=0, session_id = session)
+    return get_provider(provider_name, session_id=session, caching=0)

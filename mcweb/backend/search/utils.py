@@ -12,7 +12,7 @@ from mc_providers import provider_by_name, provider_name, ContentProvider, PLATF
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
 
 # mcweb
-from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, NEWS_SEARCH_API_URL
+from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
 
 # mcweb/backend/users
 from ..users.models import QuotaHistory
@@ -29,7 +29,6 @@ class ParsedQuery(NamedTuple):
     provider_props: dict
     provider_name: str
     api_key: str | None
-    base_url: str | None
     caching: bool = True
     session_id: str | None = None
 
@@ -58,7 +57,7 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
     take parsed query, return mc_providers ContentProvider.
     """
     name = platform or pq.provider_name
-    return get_provider(name, api_key=pq.api_key, base_url=pq.base_url, 
+    return get_provider(name, api_key=pq.api_key,
                         caching=pq.caching, session_id=pq.session_id)
 
 def parse_date_str(date_str: str) -> dt.datetime:
@@ -76,10 +75,6 @@ def listify(input: str) -> list[str]:
     if input:
         return input.split(',')
     return []
-
-_BASE_URL = {
-    'onlinenews-mediacloud-old': NEWS_SEARCH_API_URL,
-}
 
 def request_session_id(request) -> str | None:
     if request.user.is_authenticated:
@@ -111,7 +106,6 @@ def parse_query_params(request) -> (ParsedQuery, dict):
     start_date = parse_date_str(request.GET.get("start", "2010-01-01"))
     end_date = parse_date_str(request.GET.get("end", "2030-01-01"))
     api_key = _get_api_key(provider_name)
-    base_url = _BASE_URL.get(provider_name)
 
     # caching is enabled unless cache is passed ONCE with:
     # "f" or "0" (disable local cache)
@@ -130,8 +124,7 @@ def parse_query_params(request) -> (ParsedQuery, dict):
     pq = ParsedQuery(start_date=start_date, end_date=end_date,
                      query_str=query_str, provider_props=provider_props,
                      provider_name=provider_name, api_key=api_key,
-                     base_url=base_url, caching=caching,
-                     session_id=session_id)
+                     caching=caching, session_id=session_id)
     return (pq, request.GET)
 
 def parse_query(request) -> ParsedQuery:
@@ -150,12 +143,11 @@ def parsed_query_from_dict(payload: dict, session_id: str) -> ParsedQuery:
     start_date = parse_date_str(payload["startDate"])
     end_date = parse_date_str(payload["endDate"])
     api_key = _get_api_key(provider_name)
-    base_url = _BASE_URL.get(provider_name)
     caching = payload.get("caching", True)
     return ParsedQuery(start_date=start_date, end_date=end_date,
                        query_str=query_str, provider_props=provider_props,
                        provider_name=provider_name, api_key=api_key,
-                       base_url=base_url, caching=caching,
+                       caching=caching,
                        session_id=session_id)
 
 def parsed_query_state(request) -> list[ParsedQuery]:
@@ -176,6 +168,7 @@ def parsed_query_state(request) -> list[ParsedQuery]:
 
 def _get_api_key(provider: str) -> str | None:
     # no system-level API keys right now
+    # (take "request" param to get user for BYO keys?)
     return None
 
 def search_props_for_provider(provider, collections: List, sources: List, all_params: Dict) -> Dict:
