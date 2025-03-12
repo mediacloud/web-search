@@ -3,7 +3,6 @@ import csv
 from typing import Callable
 
 
-
 # solution pulled from https://gist.github.com/niuware/ba19bbc0169039e89326e1599dba3a87
 
 class CSVBuffer:
