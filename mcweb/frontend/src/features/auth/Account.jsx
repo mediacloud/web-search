@@ -100,7 +100,7 @@ function Account() {
                 <DialogContentText id="alert-dialog-description">
                   {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
                   In order to request API Access please first verify you are a human by clicking confirm,
-                  completing the captcha, and then please wait while an email is sent with a verification code.
+                  completing the captcha, then please wait while an email is sent with a verification code.
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
