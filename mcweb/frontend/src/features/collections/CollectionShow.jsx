@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
@@ -32,13 +32,12 @@ export default function CollectionShow() {
     isLoading,
   } = useGetCollectionQuery(collectionId);
 
-  useEffect(() => {
-    document.title = `${collection.name} | Media Cloud`;
-  });
-
   if (isLoading) {
     return (<CircularProgress size={75} />);
   }
+
+  document.title = `${collection.name} | Media Cloud`;
+
   return (
 
     <div className="container">
