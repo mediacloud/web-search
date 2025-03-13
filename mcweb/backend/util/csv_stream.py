@@ -21,10 +21,6 @@ def streaming_csv_response(iterator_func: Callable, filename: str | None = None,
     buf = io.StringIO()
     writer = csv.writer(buf)
 
-    # This replaces sending single line HTTP chunks (lots of system calls and network packets)
-    # so it doesn't matter a HUGE amount if this is a little slower than it could be...
-    # writer.writerows() didn't seem to be better than multiple writerow calls.
-
     iterator = iter(iterator_func())
     def _chunk():
         """
