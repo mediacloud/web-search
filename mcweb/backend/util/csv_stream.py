@@ -9,10 +9,9 @@ from django.http import StreamingHttpResponse
 def streaming_csv_response(iterator_func: Callable, filename: str | None = None, chunk_rows: int = 1000):
     """
     return StreamingHttpResponse with containing CSV encoded rows,
-    with chunk_rows per HTTP chunk (old solution returned one line per chunk,
-    which meant a socket write system call, and possibily a single packet per row!
-
-    paginates without knowing length of sequence, and without reading ahead.
+    with chunk_rows per HTTP chunk; previously streamed HTTP chunks
+    of a single row, which meant a socket write system call, and possibily a
+    single packet per row!
 
     "all-sources" manage command
     mcweb/backend/sources/management/commands/all-sources.py
@@ -25,7 +24,6 @@ def streaming_csv_response(iterator_func: Callable, filename: str | None = None,
     def _chunk():
         """
         returns string chunks with chunk_rows each
-        without reading ahead.
         """
         while True:
             rows = []
