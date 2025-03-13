@@ -526,7 +526,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         Maybe support "feed_count" column?
         """
         sources = Source.objects.values_list('id')
-        return csv_stream.streaming_csv_response(sources.all)
+        return csv_stream.streaming_csv_response(sources.iterator)
 
 
 class SourcesCollectionsViewSet(viewsets.ViewSet):
