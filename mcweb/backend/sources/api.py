@@ -87,7 +87,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
         if platform is not None and _all_platforms().count(platform) > 0:
             # TODO: validate this is a valid platform type
             if platform == "onlinenews":
-                queryset = queryset.filter(platform="online_news")
+                queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
             else:
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
@@ -112,7 +112,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     @cache_by_kwargs()
     def _cached_serialized_featured_collections(self, platform) -> str:
         if platform == 'onlinenews':
-            featured_collection_ids = _featured_collection_ids('online_news')
+            featured_collection_ids = _featured_collection_ids(Source.SourcePlatforms.ONLINE_NEWS)
             ordered_cases = Case(*[When(pk=pk, then=pos)
                                  for pos, pk in enumerate(featured_collection_ids)])
             featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
@@ -326,7 +326,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
         if platform is not None:
             # TODO: check if the platform is a valid option
             if platform == 'onlinenews':
-                queryset = queryset.filter(platform='online_news')
+                queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
             else:
                 queryset = queryset.filter(platform=platform)
         name = self.request.query_params.get("name")
@@ -517,15 +517,18 @@ class SourcesViewSet(viewsets.ModelViewSet):
         # lists all tasks for user (None lists all tasks)
         return Response(get_pending_tasks(request.user))
 
-    @action(detail=False, url_path='all-sources')
-    def all_sources(self, request):
+    @action(methods=['post'], detail=False, url_path='with-feeds')
+    def with_feeds(self, request):
         """
-        Return streaming CSV of ids all Sources.
-        For rss-fetcher to detect deletes.
-        Maybe take optional parameter with list of fields to return?
-        Maybe support "feed_count" column?
+        Return streaming CSV of ids of all news Sources & their feed counts.
+        For rss-fetcher to detect deleted sources (and missing feeds!)
         """
-        sources = Source.objects.values_list('id')
+        # When you update this query, test it by updating the one
+        # in mcweb/backend/sources/management/commands/all-sources.py!!
+        sources = Source.objects.values_list('id')\
+                                .filter(platform=Source.SourcePlatforms.ONLINE_NEWS)\
+                                .annotate(feeds=Count('feed'))\
+                                .filter(feeds__gt=0)
         return csv_stream.streaming_csv_response(sources.iterator)
 
 
