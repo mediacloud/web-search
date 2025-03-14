@@ -17,7 +17,7 @@ class CollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Collection
-        fields = ['id', 'name', 'notes', 'platform', 'source_count', 'public', 'featured', 'managed']
+        fields = ['id', 'name', 'notes', 'platform', 'source_count', 'public', 'featured', 'managed', 'modified_at']
 
 
 class CollectionWriteSerializer(serializers.ModelSerializer):
