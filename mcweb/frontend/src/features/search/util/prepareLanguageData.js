@@ -1,7 +1,9 @@
-const colorArray = ['#2f2d2b', '#d24527', '#2f2d2b', '#d23716', '#f7a44e'];
+import getColors from './getColors';
 
-export default function prepareLanguageData(languageData) {
+export default function prepareLanguageData(languageData, queryState) {
+  if (!languageData || languageData.length === 0) return null;
   const series = [];
+  const colors = getColors(queryState);
   languageData.forEach((queryData, i) => {
     const tempSeries = [];
     queryData.languages.forEach((l) => {
@@ -14,7 +16,7 @@ export default function prepareLanguageData(languageData) {
     series.push({
       data: tempSeries,
       name: 'Language',
-      color: colorArray[i],
+      color: colors[i],
     });
   });
   return series;

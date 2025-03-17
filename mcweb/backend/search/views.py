@@ -403,8 +403,7 @@ def download_all_content_csv(request):
     parsed_queries = parsed_query_state(request) # handles POST!
     data_generator = all_content_csv_generator(parsed_queries, request.user.id, request.user.is_staff)
     filename = all_content_csv_basename(parsed_queries)
-    streamer = csv_stream.CSVStream(filename, data_generator)
-    return streamer.stream()
+    return csv_stream.streaming_csv_response(data_generator, filename)
 
 
 # called by frontend sendTotalAttentionDataEmail
