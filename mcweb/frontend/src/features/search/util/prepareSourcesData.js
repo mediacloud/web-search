@@ -1,4 +1,4 @@
-const colorArray = ['#2f2d2b', '#d24527', '#2f2d2b', '#d23716', '#f7a44e'];
+import getColors from './getColors';
 
 const getTotalDomainCount = (queryData) => {
   let totalCount = 0;
@@ -8,9 +8,10 @@ const getTotalDomainCount = (queryData) => {
   return totalCount;
 };
 
-export default function prepareSourceData(domainData, normalized) {
+export default function prepareSourceData(domainData, normalized, queryState) {
+  if (!domainData || domainData.length === 0) return null;
   const series = [];
-
+  const colors = getColors(queryState);
   domainData.forEach((queryData, i) => {
     const totalCount = getTotalDomainCount(queryData);
     series.push(
@@ -21,7 +22,7 @@ export default function prepareSourceData(domainData, normalized) {
           value: normalized ? (s.count / totalCount) * 100 : s.count,
         })),
         name: 'Source',
-        color: colorArray[i],
+        color: colors[i],
       },
     );
   });

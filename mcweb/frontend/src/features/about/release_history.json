@@ -1,4 +1,8 @@
-[{"version": "v2.2.3",
+[{"version": "v2.2.4",
+"date": "2025-03-17",
+"notes": ["bug fix in search occasionally crashing app",
+"updates to csv streaming"
+]},{"version": "v2.2.3",
 "date": "2025-03-06",
 "notes": ["add quota to profile page",
 "update version of mc providers",

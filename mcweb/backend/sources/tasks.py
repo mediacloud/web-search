@@ -20,10 +20,10 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
-from ..util.provider import get_task_provider
-
-
 import numpy as np
+
+
+from ..util.provider import get_task_provider
 
 # mcweb/backend/sources
 from .models import Feed, Source, Collection
@@ -345,12 +345,13 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
         return updated_sources
 
     # Pre-filter sources: Only keep those with records in Elasticsearch
-    provider = get_task_provider(provider_name=provider_name, base_url=None, api_key=None, task_name=task_name)
+    provider = get_task_provider(provider_name=provider_name, task_name=task_name)
     sources_with_records = []
     sources_with_no_records = []
 
+    domain_search_string = provider.domain_search_string()
     for source in sources.iterator():
-        query_str = f"canonical_domain:{source.name}"
+        query_str = f"{domain_search_string}:{source.name}"
         record_count = provider.count(query_str, start_date, END_DATE)
         if record_count > 0:
             sources_with_records.append(source)
@@ -363,7 +364,7 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
     for source in sources_with_records:
         time.sleep(sleep_interval)  # Sleep for 0.6 seconds between requests
         try:
-            query_str = f"canonical_domain:{source.name}"
+            query_str = f"{domain_search_string}:{source.name}"
             if task_name == "update_source_language":
                 languages = provider.languages(query_str, start_date, END_DATE, limit=10)
                 if not languages:
