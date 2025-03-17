@@ -93,6 +93,7 @@ export default function CountOverTimeResults() {
     );
   } else {
     const preparedData = prepareCountOverTimeData(data, normalized, chartBy, queryState);
+    if (!preparedData) return null;
     if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
       (originalDataObj, index) => {

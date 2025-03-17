@@ -67,6 +67,8 @@ export default function TopLanguages() {
     );
   } else {
     const queryTitleArrays = queryState.map((query, index) => queryState[index].name);
+    const languageData = prepareLanguageData(data, queryState);
+    if (!languageData) return null;
     content = (
       <>
         <div className="container">
@@ -79,7 +81,7 @@ export default function TopLanguages() {
                 scrollButtons="auto"
                 aria-label="languages tabs"
               >
-                {prepareLanguageData(data).map((result, i) => (
+                {languageData.map((result, i) => (
                   <Tab
                     key={queryTitleArrays[i]}
                     label={queryTitleArrays[i]}
@@ -90,7 +92,7 @@ export default function TopLanguages() {
               </Tabs>
             </Box>
 
-            {prepareLanguageData(data).map((results, i) => (
+            {languageData.map((results, i) => (
               // eslint-disable-next-line react/no-array-index-key
               <TabPanelHelper value={value} index={i} key={`top-language-${i}`}>
                 <BarChart

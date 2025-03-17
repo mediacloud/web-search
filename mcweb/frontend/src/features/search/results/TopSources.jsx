@@ -78,6 +78,8 @@ export default function TopSources() {
     );
   } else {
     const queryTitleArrays = queryState.map((query, index) => queryState[index].name);
+    const sourceData = prepareSourceData(data, normalized, queryState);
+    if (!sourceData) return null;
     content = (
       <div className="container">
         <Box sx={{ width: '100%' }}>
@@ -89,7 +91,7 @@ export default function TopSources() {
               scrollButtons="auto"
               aria-label="top sources tabs"
             >
-              {prepareSourceData(data, normalized).map((result, i) => (
+              {sourceData.map((result, i) => (
                 <Tab
                   key={queryTitleArrays[i]}
                   label={queryTitleArrays[i]}
@@ -100,7 +102,7 @@ export default function TopSources() {
             </Tabs>
           </Box>
 
-          {prepareSourceData(data, normalized).map((results, i) => (
+          {sourceData.map((results, i) => (
             // eslint-disable-next-line react/no-array-index-key
             <TabPanelHelper value={value} index={i} key={`top-sources-${i}`}>
               <BarChart

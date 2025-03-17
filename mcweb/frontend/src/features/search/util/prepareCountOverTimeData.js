@@ -39,6 +39,7 @@ function groupValues(elements, duration, normalized) {
 }
 
 export const prepareCountOverTimeData = (results, normalized, chartBy, queryState) => {
+  if (!results || results.length === 0) return null;
   const series = [];
   const colors = getColors(queryState);
   if (chartBy === DAY) {
