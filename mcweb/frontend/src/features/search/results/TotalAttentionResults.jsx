@@ -92,7 +92,7 @@ function TotalAttentionResults() {
     );
   } else {
     const preparedTAdata = prepareTotalAttentionData(data, normalized, queryState);
-
+    if (!preparedTAdata) return null;
     if (preparedTAdata.length !== queryState.length) return null;
     const updatedTotalAttentionData = preparedTAdata.map(
       (originalDataObj, index) => {
