@@ -96,6 +96,12 @@ class QuotaHistory(models.Model):
         if (quota <= matching.hits) and not is_staff:
             raise OverQuotaException(provider, quota)
         return matching.hits
+    
+
+class ResetCodes(models.Model):
+    email = models.EmailField()
+    token = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 # make sure every user gets an automatically generated API Token

@@ -4,10 +4,13 @@ import json
 import logging
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import generics, status
+from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import action, authentication_classes, permission_classes
 from rest_framework.decorators import api_view
 from django.core.exceptions import ValidationError
@@ -20,7 +23,8 @@ from django.contrib.auth.decorators import login_required
 from util.send_emails import send_signup_email
 import backend.users.legacy as legacy
 from django.core import serializers
-from .models import Profile, QuotaHistory
+from .models import Profile, QuotaHistory, ResetCodes
+from .serializer import ResetRequestSerializer, ResetPasswordSerializer
 from ..sources.permissions import get_groups
 
 
@@ -30,9 +34,6 @@ logger = logging.getLogger(__name__)
 # random key generator
 def _random_key():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for i in range(8))
-
-# does the email exist?
-
 
 @require_http_methods(['GET'])
 def email_exists(request):
@@ -48,6 +49,7 @@ def email_exists(request):
 
 @require_http_methods(['GET'])
 def reset_password_request(request):
+
     email = request.GET['email']
 
     key = _random_key()
