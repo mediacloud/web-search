@@ -7,14 +7,6 @@
 
 SCRIPT_DIR=$(dirname $0)
 
-# works when su'ed to another user or invoked via ssh
-UNAME=$(whoami)
-
-if [ "x$UNAME" = xroot ]; then
-    echo "run as normal user" 1>&2
-    exit 1
-fi
-
 usage() {
 cat 1>&2 <<-EOF
 $0: push current branch to dokku instance (depending on branch)
@@ -40,6 +32,9 @@ for ARG in $*; do
     esac
 done
 
+# works when su'ed to another user or invoked via ssh
+UNAME=$(whoami)
+
 BRANCH=$(git branch --show-current)
 
 # Update instance.sh if you change how instances are named!
@@ -52,6 +47,8 @@ esac
 
 # after INSTANCE set, sets APP, DOKKU_GIT_REMOTE, ..._SVC, ALLOWED_HOSTS
 . $SCRIPT_DIR/common.sh
+
+check_not_root
 
 # tmp files to clean up on exit
 REMOTES=/var/tmp/mcweb-remotes$$
@@ -391,3 +388,9 @@ if [ "x$SCALE" != x ]; then
 fi
 
 echo "$(date '+%F %T') $APP $REMOTE $TAG" >> push.log
+
+case $BRANCH in
+prod|staging)
+    check_crontab_sh_file_git_hash
+    ;;
+esac

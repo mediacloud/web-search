@@ -80,16 +80,36 @@ esac
 # git remote for app; created by instance.sh, used by push.sh
 DOKKU_GIT_REMOTE=${BASE_APP}_$INSTANCE
 
-# using localhost on multiple servers with NFS home directory
-# causes ssh known host pain, so use FQDN
-dokku() {
-    ssh dokku@$FQDN "$*"
-}
-
-# check ssh access working:
-if ! dokku version | grep -q '^dokku version'; then
-    echo "ssh dokku@$FQDN failed; need to run 'dokku ssh-keys' first" 1>&2
-    exit 1
+if [ "x$(whoami)" = xroot ]; then
+    # for crontab.sh
+    # no dokku function needed
+    alias check_root=true
+    check_not_root() {
+	echo "$0 must not be run as root" 1>&2
+	exit 1
+    }
+else
+    dokku() {
+	local _OK_FILE
+	_OK_FILE=$(SCRIPT_DIR)/.dokku-ssh-ok
+	if [ ! -f $_OK_FILE ]; then
+	    # check ssh access working
+	    if ! ssh -n dokku@$FQDN version | grep -q '^dokku version'; then
+		echo "'ssh dokku@$FQDN' failed; need to run 'dokku ssh-keys' as root first" 1>&2
+		exit 1
+	    fi
+	    touch $_OK_FILE
+	fi
+	# NOTE! can't use localhost for ssh if user home directories NFS
+	# shared across servers (or else it will look like the host
+	# identity keeps changing)
+	ssh dokku@$FQDN "$@"
+    }
+    alias check_not_root=true
+    check_root() {
+	echo "$0 must be run as root" 1>&2
+	exit 1
+    }
 fi
 
 # service names: NOTE! need not have suffix!
@@ -119,3 +139,23 @@ instance_sh_file_git_hash() {
 
 # host server location of storage dirs
 STORAGE_HOME=/var/lib/dokku/data/storage
+
+################ crontab
+
+# filename must use letters and dashes only!!!:
+CRONTAB=/etc/cron.d/$APP
+
+# used by crontab.sh to add marker to generated crontab file:
+CRONTAB_SH=$SCRIPT_DIR/crontab.sh
+CRONTAB_HASH_MARKER=CRONTAB_SH_GIT_HASH
+crontab_sh_file_git_hash() {
+    git log -n1 --oneline --no-abbrev-commit --format='%h' $CRONTAB_SH
+}
+
+# used by push.sh to check hash in crontab file:
+check_crontab_sh_file_git_hash() {
+    test -f $CRONTAB -a \
+	$(grep $CRONTAB_HASH_MARKER $CRONTAB | sed 's/^.*$CRONTAB_HASH_MARKER//') \
+	= \
+	$(crontab_sh_file_git_hash)
+}
