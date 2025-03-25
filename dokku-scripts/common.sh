@@ -154,8 +154,16 @@ crontab_sh_file_git_hash() {
 
 # used by push.sh to check hash in crontab file:
 check_crontab_sh_file_git_hash() {
-    test -f $CRONTAB -a \
-	$(grep $CRONTAB_HASH_MARKER $CRONTAB | sed 's/^.*$CRONTAB_HASH_MARKER//') \
-	= \
-	$(crontab_sh_file_git_hash)
+    if [ -f ${CRONTAB} ]; then
+	CH=$(grep -s $CRONTAB_HASH_MARKER $CRONTAB | sed "s/^.*$CRONTAB_HASH_MARKER *//")
+	if [ "$CH" = $(crontab_sh_file_git_hash) ]; then
+	    echo $CRONTAB up to date 1>&2
+	    return 0
+	fi
+	echo git hash of crontab.sh and value in $CRONTAB do not match 1>&2
+    else
+	echo $CRONTAB not found 1>&2
+    fi
+    echo "run $SCRIPT_DIR/crontab.sh" 1>&2
+    return 1
 }
