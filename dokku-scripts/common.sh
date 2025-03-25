@@ -161,11 +161,13 @@ crontab_sh_file_git_hashes() {
 check_crontab_sh_file_git_hashes() {
     if [ -f ${CRONTAB} ]; then
 	CH=$(grep -s $CRONTAB_HASH_MARKER $CRONTAB | sed "s/^.*$CRONTAB_HASH_MARKER *//")
-	if [ "$CH" = $(crontab_sh_file_git_hashes) ]; then
+	NH=$(crontab_sh_file_git_hashes)
+	if [ x$CH = x$NH ]; then
 	    echo "$CRONTAB up to date" 1>&2
 	    return 0
 	fi
-	echo "current git hashes do not match $CRONTAB" 1>&2
+	echo "$CRONTAB $CRONTAB_HASH_MARKER $CH" 1>&2
+	echo "does not match current repo hash $NH" 1>&2
     else
 	echo $CRONTAB not found 1>&2
     fi
