@@ -169,6 +169,6 @@ check_crontab_sh_file_git_hashes() {
     else
 	echo $CRONTAB not found 1>&2
     fi
-    echo "run $SCRIPT_DIR/crontab.sh as root" 1>&2
+    echo "run '$SCRIPT_DIR/crontab.sh $INSTANCE' as root" 1>&2
     return 1
 }
