@@ -121,6 +121,15 @@ CONFIG_STATUS_CHANGED=0
 CONFIG_STATUS_ERROR=1
 CONFIG_STATUS_NOCHANGE=2
 
+git_file_hashes() {
+    AHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $1)
+    CHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $COMMON_SH)
+    if [ -f $LOCAL_SH ]; then
+	LHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $LOCAL_SH 2>/dev/null)
+    fi
+    echo $AHASH$CHASH$LHASH
+}
+
 INSTANCE_SH=$SCRIPT_DIR/instance.sh
 # name of dokku config var set by instance.sh, checked by push.sh:
 INSTANCE_HASH_VAR=INSTANCE_SH_GIT_HASH
@@ -129,12 +138,7 @@ INSTANCE_HASH_VAR=INSTANCE_SH_GIT_HASH
 # return value is the concatenation of the short hashes of
 # instance.sh AND this file!!
 instance_sh_file_git_hash() {
-    IHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $INSTANCE_SH)
-    CHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $COMMON_SH)
-    if [ -f $LOCAL_SH ]; then
-	LHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $LOCAL_SH 2>/dev/null)
-    fi
-    echo $IHASH$CHASH$LHASH
+    git_file_hashes $INSTANCE_SH
 }
 
 # host server location of storage dirs
@@ -145,25 +149,26 @@ STORAGE_HOME=/var/lib/dokku/data/storage
 # filename must use letters and dashes only!!!:
 CRONTAB=/etc/cron.d/$APP
 
-# used by crontab.sh to add marker to generated crontab file:
+# used by crontab.sh to add marker to generated crontab file,
+# and by check_crontab_sh_file_git_hashes (below) to check it:
 CRONTAB_SH=$SCRIPT_DIR/crontab.sh
-CRONTAB_HASH_MARKER=CRONTAB_SH_GIT_HASH
-crontab_sh_file_git_hash() {
-    git log -n1 --oneline --no-abbrev-commit --format='%h' $CRONTAB_SH
+CRONTAB_HASH_MARKER=CRONTAB_SH_GIT_HASHES
+crontab_sh_file_git_hashes() {
+    git_file_hashes $CRONTAB_SH
 }
 
 # used by push.sh to check hash in crontab file:
-check_crontab_sh_file_git_hash() {
+check_crontab_sh_file_git_hashes() {
     if [ -f ${CRONTAB} ]; then
 	CH=$(grep -s $CRONTAB_HASH_MARKER $CRONTAB | sed "s/^.*$CRONTAB_HASH_MARKER *//")
-	if [ "$CH" = $(crontab_sh_file_git_hash) ]; then
-	    echo $CRONTAB up to date 1>&2
+	if [ "$CH" = $(crontab_sh_file_git_hashes) ]; then
+	    echo "$CRONTAB up to date" 1>&2
 	    return 0
 	fi
-	echo git hash of crontab.sh and value in $CRONTAB do not match 1>&2
+	echo "current git hashes do not match $CRONTAB" 1>&2
     else
 	echo $CRONTAB not found 1>&2
     fi
-    echo "run $SCRIPT_DIR/crontab.sh" 1>&2
+    echo "run $SCRIPT_DIR/crontab.sh as root" 1>&2
     return 1
 }

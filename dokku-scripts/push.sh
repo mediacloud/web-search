@@ -392,6 +392,6 @@ echo "$(date '+%F %T') $APP $REMOTE $TAG" >> push.log
 case $BRANCH in
 prod|staging)
     # outputs message if update needed:
-    check_crontab_sh_file_git_hash
+    check_crontab_sh_file_git_hashes
     ;;
 esac

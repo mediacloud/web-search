@@ -4,10 +4,6 @@
 # from rss-fetcher/dokku-scripts/crontab.sh
 # must be run as root
 
-# MAYBE should embed git hash of THIS FILE in the generated crontab
-# file, and have push.sh check if the crontab file is out of date,
-# the way it does with instance.sh?! 
-
 INSTANCE=$1
 
 if [ -z "$INSTANCE" ]; then
@@ -90,7 +86,7 @@ cat >$CRONTEMP <<EOF
 #42 $HOUR * * 6 root $DOKKU_RUN_PERIODIC ./weekly-maint.sh > $LOGDIR/$APP-weekly-maint.log 2>&1
 
 # Don't remove this: web-search/dokku-scripts/push.sh checks for it!!
-# $CRONTAB_HASH_MARKER $(crontab_sh_file_git_hash)
+# $CRONTAB_HASH_MARKER $(crontab_sh_file_git_hashes)
 EOF
 
 if [ -f $CRONTAB ]; then
