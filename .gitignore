@@ -33,7 +33,7 @@ tmp/*.csv
 # dokku scripts files
 vars.*
 dokku-scripts/.configlib
-dokku-scripts/.dokku-ssh-ok
+dokku-scripts/.dokku-ssh-ok.*
 push.log
 
 .vscode
