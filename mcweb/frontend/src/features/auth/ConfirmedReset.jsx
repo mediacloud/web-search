@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useSnackbar } from 'notistack';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
@@ -13,22 +15,31 @@ import { useResetPasswordMutation } from '../../app/services/authApi';
 
 export default function ConfirmedPassword() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { enqueueSnackbar } = useSnackbar();
-  const [errorState, setErrorState] = React.useState();
 
   const [formState, setFormState] = React.useState({
-    username: '', password1: '', password2: '',
+    new_password: '', confirm_password: '', token: searchParams.get('token'),
   });
 
   const handleChange = ({ target: { name, value } }) => (
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
 
-  const [reset] = useResetPasswordMutation();
+  const [reset, { isLoading, isError }] = useResetPasswordMutation();
 
+  if (isLoading) {
+    <CircularProgress size="75px" />;
+  }
   return (
-
     <div style={{ paddingTop: '100px' }}>
+      {isError && (
+        <div>
+          <Alert severity="error">
+            There was an error sending the email, please try again.
+          </Alert>
+        </div>
+      )}
       <CssBaseline />
 
       <Box
@@ -41,7 +52,7 @@ export default function ConfirmedPassword() {
       >
 
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon titleAccess="admin only"/>
+          <LockOutlinedIcon titleAccess="admin only" />
         </Avatar>
 
         <Typography component="h1" variant="h5">
@@ -55,23 +66,12 @@ export default function ConfirmedPassword() {
           sx={{ mt: 1 }}
         >
 
-          {/* Username */}
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="text"
-            label="Username"
-            name="username"
-            autoFocus
-            onChange={handleChange}
-          />
           {/* Password */}
           <TextField
             margin="normal"
             required
             fullWidth
-            name="password1"
+            name="new_password"
             label="Password"
             type="password"
             autoComplete="new-password"
@@ -83,7 +83,7 @@ export default function ConfirmedPassword() {
             margin="normal"
             required
             fullWidth
-            name="password2"
+            name="confirm_password"
             label="Confirm Password"
             type="password"
             autoComplete="new-password"
@@ -96,13 +96,11 @@ export default function ConfirmedPassword() {
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
               try {
-                setErrorState(null);
-                const response = await reset(formState).unwrap();
+                reset(formState);
                 enqueueSnackbar('Password Reset!', { variant: 'success' });
                 navigate('/sign-in');
               } catch (err) {
                 const errorMsg = `Failed - ${err.data.message}`;
-                setErrorState(errorMsg);
                 enqueueSnackbar(errorMsg, { variant: 'error' });
               }
             }}

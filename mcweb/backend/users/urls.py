@@ -13,7 +13,6 @@ urlpatterns = [
     path('logout', views.logout),
     path('register', views.register),
     path('profile', views.profile),
-    path('send-email', views.reset_password_request),
     path('email-exists', views.email_exists),
     path('reset-password', ResetPassword.as_view()),
     path('request-reset', RequestReset.as_view()),

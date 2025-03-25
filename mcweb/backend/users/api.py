@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.core.mail import send_mail
 import settings
 from django.contrib.auth.decorators import login_required
-from .models import ResetCodes
+from .models import ResetCodes, create_auth_token
 from .serializer import ResetRequestSerializer, ResetPasswordSerializer
 
 class RequestReset(generics.GenericAPIView):
@@ -25,8 +25,8 @@ class RequestReset(generics.GenericAPIView):
         reset_type = data['reset_type']
         if reset_type == 'api_token':
             reset_text = 'verify-user'
-        else:
-            reset_text = 'reset-password'
+        elif reset_type == 'password':
+            reset_text = 'reset-password/confirmed'
 
         if user:
             token_generator = PasswordResetTokenGenerator()
@@ -34,12 +34,12 @@ class RequestReset(generics.GenericAPIView):
             reset = ResetCodes(email=email, token=token)
             reset.save()
 
-            reset_url = f"http://localhost:8000/{reset_text}/{token}"
+            reset_url = f"http://localhost:8000/{reset_text}?token={token}"
 
             message = f"Hello, please use this link to reset your password: {reset_url} \n\n Thank you!"
             if reset_type == 'api_token':
                 subject = 'Reset API Token'
-            else:
+            elif reset_type == 'password':
                 subject = 'Reset Password'
 
             
@@ -57,9 +57,9 @@ class RequestReset(generics.GenericAPIView):
 
 class ResetPassword(generics.GenericAPIView):
     serializer_class = ResetPasswordSerializer
-    permission_classes = []
+    permission_classes = [AllowAny]
 
-    def post(self, request, token):
+    def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -70,7 +70,7 @@ class ResetPassword(generics.GenericAPIView):
         if new_password != confirm_password:
             return Response({"error": "Passwords do not match"}, status=400)
         
-        reset_obj = ResetCodes.objects.filter(token=token).first()
+        reset_obj = ResetCodes.objects.filter(token=data['token']).first()
         
         if not reset_obj:
             return Response({'error':'Invalid token'}, status=400)
@@ -80,9 +80,7 @@ class ResetPassword(generics.GenericAPIView):
         if user:
             user.set_password(request.data['new_password'])
             user.save()
-            
             reset_obj.delete()
-            
             return Response({'success':'Password updated'})
         else: 
             return Response({'error':'No user found'}, status=404)

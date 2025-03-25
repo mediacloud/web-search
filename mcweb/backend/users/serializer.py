@@ -11,3 +11,4 @@ class ResetPasswordSerializer(serializers.Serializer):
         write_only=True,
         error_messages={'invalid': ('Password must be at least 8 characters long with at least one capital letter and symbol')})
     confirm_password = serializers.CharField(write_only=True, required=True)
+    token = serializers.CharField(write_only=True, required=True)
