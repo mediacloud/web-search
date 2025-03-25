@@ -91,7 +91,7 @@ if [ "x$(whoami)" = xroot ]; then
 else
     dokku() {
 	local _OK_FILE
-	_OK_FILE=$(SCRIPT_DIR)/.dokku-ssh-ok
+	_OK_FILE=$SCRIPT_DIR/.dokku-ssh-ok
 	if [ ! -f $_OK_FILE ]; then
 	    # check ssh access working
 	    if ! ssh -n dokku@$FQDN version | grep -q '^dokku version'; then
