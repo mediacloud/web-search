@@ -69,42 +69,50 @@ export default function ResetPassword() {
             Reset Password
           </Typography>
 
-          <Alert severity="warning">
-            Please enter your email to receive a link to reset your password.
-          </Alert>
+          {isSuccess && (
+            <Alert severity="success">
+              A verification link has been sent to your email address.
+            </Alert>
+          )}
 
-          <Box
-            component="form"
-            method="post"
-            noValidate
-            sx={{ mt: 1 }}
-          >
-            {/* Email  */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="text"
-              label="Email"
-              name="email"
-              autoComplete="Email"
-              autoFocus
-              onChange={handleChange}
-            />
+          {!isSuccess && (
+            <div>
+              <Alert severity="warning">
+                Please enter your email to receive a link to reset your password.
+              </Alert>
+              <Box
+                component="form"
+                method="post"
+                noValidate
+                sx={{ mt: 1 }}
+              >
+                {/* Email  */}
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="text"
+                  label="Email"
+                  name="email"
+                  autoComplete="Email"
+                  autoFocus
+                  onChange={handleChange}
+                />
 
-            {/* Does the email exist in the DB */}
-            <Button
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              onClick={async () => {
-                requestResetEmail({ email: formState.email, reset_type: 'password' });
-              }}
-            >
-              Email Reset Code
-            </Button>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  onClick={async () => {
+                    requestResetEmail({ email: formState.email, reset_type: 'password' });
+                  }}
+                >
+                  Email Reset Code
+                </Button>
 
-          </Box>
+              </Box>
+            </div>
+          )}
         </Box>
       </Container>
     </div>

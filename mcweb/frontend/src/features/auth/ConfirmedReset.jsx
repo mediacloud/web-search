@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -18,7 +18,7 @@ export default function ConfirmedPassword() {
   const [searchParams] = useSearchParams();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [formState, setFormState] = React.useState({
+  const [formState, setFormState] = useState({
     new_password: '', confirm_password: '', token: searchParams.get('token'),
   });
 
@@ -26,17 +26,28 @@ export default function ConfirmedPassword() {
     setFormState((prev) => ({ ...prev, [name]: value }))
   );
 
-  const [reset, { isLoading, isError }] = useResetPasswordMutation();
+  const [reset, {
+    isLoading, isError, error, isSuccess,
+  }] = useResetPasswordMutation();
+
+  useEffect(() => {
+    if (isSuccess) {
+      enqueueSnackbar('Password Reset!', { variant: 'success' });
+      navigate('/sign-in');
+    }
+  }, [isSuccess]);
 
   if (isLoading) {
     <CircularProgress size="75px" />;
   }
+
   return (
-    <div style={{ paddingTop: '100px' }}>
+    <div style={isError ? { paddingTop: '0px' } : { paddingTop: '100px' }}>
       {isError && (
         <div>
           <Alert severity="error">
-            There was an error sending the email, please try again.
+            {error.data.error ? error.data.error
+              : 'There was an error resetting your password, please try again.'}
           </Alert>
         </div>
       )}
@@ -95,14 +106,7 @@ export default function ConfirmedPassword() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             onClick={async () => {
-              try {
-                reset(formState);
-                enqueueSnackbar('Password Reset!', { variant: 'success' });
-                navigate('/sign-in');
-              } catch (err) {
-                const errorMsg = `Failed - ${err.data.message}`;
-                enqueueSnackbar(errorMsg, { variant: 'error' });
-              }
+              await reset(formState);
             }}
           >
             Reset Password
