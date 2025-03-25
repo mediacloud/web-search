@@ -13,7 +13,7 @@ fi
 
 case $INSTANCE in
 prod|staging) ;;
-*) echo "Not supported for user instances" 1>&2; exit 1;;
+*) echo "$0: Not supported for user instances" 1>&2; exit 1;;
 esac
 
 SCRIPT_DIR=$(dirname $0)
