@@ -47,6 +47,84 @@ def email_exists(request):
     return HttpResponse(data, content_type='application/json')
 
 
+@require_http_methods(['GET'])
+def reset_password_request(request):
+    email = request.GET['email']
+
+    key = _random_key()
+
+    message = "Hello, please use this verification code to reset your password! Thank you! \n\n" + key
+
+    send_mail(
+        subject='Reset Password',
+        message=message,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email]
+    )
+
+    data = json.dumps({'Key': key})
+
+    return HttpResponse(data, content_type='application/json')
+
+
+@require_http_methods(['GET'])
+def get_api_access_token(request):
+    key = _random_key()
+
+    message = "Hello, please use this verification code to get API access! Thank you! \n\n" + key
+
+    send_mail(
+        subject='Media Cloud API Access',
+        message=message,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[request.user.email]
+    )
+
+    data = json.dumps({'Key': key})
+
+    return HttpResponse(data, content_type='application/json')
+
+@require_http_methods(['GET'])
+def give_api_access(request):
+    user = request.user
+    try:
+        user.groups.add(Group.objects.get(name='api_access'))
+        data = json.dumps({'message': "API Access Granted"})
+    except:
+        data = json.dumps({'message': "API Access Error, please try again"})
+
+    return HttpResponse(data, content_type='application/json')
+
+
+@require_http_methods(['POST'])
+def reset_password(request):
+    payload = json.loads(request.body)
+
+    username = payload.get('username', None)
+    password1 = payload.get('password1', None)
+    password2 = payload.get('password2', None)
+
+    try:
+        User.objects.get(username=username)
+        logger.debug("Username found")
+    except User.DoesNotExist:
+        logger.debug("Username not found")
+        data = json.dumps({'message': "Username Not Found"})
+        return HttpResponse(data, content_type='application/json', status=403)
+
+    if password1 != password2:
+        logging.debug('password not matching')
+        data = json.dumps({'message': "Passwords don't match"})
+        return HttpResponse(data, content_type='application/json', status=403)
+
+    else:
+        user = User.objects.get(username=username)
+        user.set_password(password1)
+        user.save()
+
+    data = json.dumps({'message': "Passwords match and password is saved"})
+    return HttpResponse(data, content_type='application/json', status=200)
+
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):

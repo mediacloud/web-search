@@ -10,11 +10,14 @@ GROUPS = {
         "collection" : ["add","change","view"],
         "feed" : ["add","change","view"],     
     },
+    "api_access": {
+    },
 }
 
 
 USERS = {
     "contributor" : ["e.leon@northeastern.edu"],
+    "api_access" : ["all"],
 }
 
 class Command(BaseCommand):
@@ -47,7 +50,13 @@ class Command(BaseCommand):
 
 
             for user_email in USERS[group_name]:
-                u = User.objects.get(email=user_email)
-                new_group.user_set.add(u)
+                if user_email == "all":
+                    users = User.objects.all()
+                    for u in users:
+                        new_group.user_set.add(u)
+                        print("Adding {} to {}".format(u,new_group))
+                else:
+                    u = User.objects.get(email=user_email)
+                    new_group.user_set.add(u)
 
                 print("Adding {} to {}".format(u,new_group))
