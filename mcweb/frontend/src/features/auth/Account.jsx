@@ -100,6 +100,13 @@ function Account() {
           {!isApiAccess(currentUser.groupNames) && (
           <div style={{ marginBottom: '20px' }}>
             <dt>API Access:</dt>
+            {error && (
+              <Alert severity="error">
+                {error.data.error
+                  ? error.data.error
+                  : 'There was an error sending api access email, please refresh and try again.'}
+              </Alert>
+            )}
             <Button
               onClick={() => setOpenDialog(true)}
               variant="outlined"

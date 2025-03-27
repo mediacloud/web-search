@@ -36,11 +36,13 @@ class RequestReset(generics.GenericAPIView):
 
             reset_url = f"http://localhost:8000/{reset_text}?token={token}"
 
-            message = f"Hello, please use this link to reset your password: {reset_url} \n\n Thank you!"
             if reset_type == 'api_token':
-                subject = 'Reset API Token'
+                subject = 'Get API Access'
+                message = f"Hello, please use this link to get API Access: {reset_url} \n\n Thank you!"
+
             elif reset_type == 'password':
                 subject = 'Reset Password'
+                message = f"Hello, please use this link to reset your password: {reset_url} \n\n Thank you!"
 
             
             send_mail(
