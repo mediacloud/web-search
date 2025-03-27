@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Alert from '@mui/material/Alert';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -14,7 +13,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import Button from '@mui/material/Button';
 import { useSnackbar } from 'notistack';
-import { useResetTokenMutation, useDeleteUserMutation } from '../../app/services/authApi';
+import { useResetTokenMutation, useDeleteUserMutation, useRequestResetCodeEmailMutation } from '../../app/services/authApi';
 import {
   PermissionedStaff, PermissionedContributor, ROLE_STAFF, isContributor, isApiAccess,
 } from './Permissioned';
@@ -25,13 +24,14 @@ import TaskList from '../tasks/TaskList';
 import UserQuotaTable from '../quotas/UserQuotaTable';
 
 function Account() {
-  const navigate = useNavigate();
   const currentUser = useSelector(selectCurrentUser);
   const [deleteUser] = useDeleteUserMutation();
   const [resetToken] = useResetTokenMutation();
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+
+  const [requestResetEmail, { isLoading, error, isSuccess }] = useRequestResetCodeEmailMutation();
 
   // show the snackbar for 1.25 second and then reload the screen
   const logAndRefresh = (delay) => {
@@ -40,6 +40,24 @@ function Account() {
       window.location.reload();
     }, delay);
   };
+
+  const handleApiAccessRequestEmail = async () => {
+    setOpenDialog(false);
+    await requestResetEmail({ email: currentUser.email, reset_type: 'api_token' });
+  };
+
+  if (isLoading) {
+    enqueueSnackbar(
+      'Please wait while an email is sent to you, this may take a moment, please do not refresh the page.',
+      { variant: 'info' },
+    );
+  }
+  if (isSuccess) {
+    enqueueSnackbar('API Access Email Sent', { variant: 'success' });
+  }
+  if (error) {
+    enqueueSnackbar('There was an error sending the email, please try again.', { variant: 'error' });
+  }
 
   return (
     <>
@@ -105,7 +123,7 @@ function Account() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                <Button onClick={() => navigate('/verify-user')}>Confirm</Button>
+                <Button onClick={handleApiAccessRequestEmail}>Confirm</Button>
               </DialogActions>
             </Dialog>
           </div>

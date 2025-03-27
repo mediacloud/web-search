@@ -79,14 +79,11 @@ export const api = createApi({
         body: { ...credentials },
       }),
     }),
-    getAPIAccessToken: builder.query({
-      query: () => ({
-        url: 'get-api-access-token',
-      }),
-    }),
-    giveAPIAccess: builder.query({
-      query: () => ({
+    giveAPIAccess: builder.mutation({
+      query: (token) => ({
         url: 'give-api-access',
+        method: 'POST',
+        body: { ...token },
       }),
     }),
   }),
@@ -102,10 +99,6 @@ export const {
   usePasswordStrengthMutation,
   useResetTokenMutation,
   useGetUserQuotasQuery,
-<<<<<<< HEAD
   useRequestResetCodeEmailMutation,
-=======
-  useGetAPIAccessTokenQuery,
-  useLazyGiveAPIAccessQuery,
->>>>>>> 9e4796e4426fa727cfc186560831d641fff5a1c6
+  useGiveAPIAccessMutation,
 } = api;

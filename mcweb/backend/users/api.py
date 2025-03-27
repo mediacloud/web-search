@@ -1,5 +1,5 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.contrib.auth.models import auth, User
+from django.contrib.auth.models import auth, User, Group
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 import settings
 from django.contrib.auth.decorators import login_required
 from .models import ResetCodes, create_auth_token
-from .serializer import ResetRequestSerializer, ResetPasswordSerializer
+from .serializer import ResetRequestSerializer, ResetPasswordSerializer, GiveAPIAccessSerializer
 
 class RequestReset(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -84,3 +84,26 @@ class ResetPassword(generics.GenericAPIView):
             return Response({'success':'Password updated'})
         else: 
             return Response({'error':'No user found'}, status=404)
+        
+
+class GiveAPIAccess(generics.GenericAPIView):
+    serializer_class = GiveAPIAccessSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        
+        reset_obj = ResetCodes.objects.filter(token=data['token']).first()
+        
+        if not reset_obj:
+            return Response({'error':'Invalid token'}, status=400)
+        
+        user = User.objects.filter(email=reset_obj.email).first()
+
+        if user:
+            user.groups.add(Group.objects.get(name='api_access'))
+            user.save()
+            reset_obj.delete()
+            return Response({'success':'API Access Granted'})
