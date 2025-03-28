@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import Box from '@mui/material/Box';
@@ -45,17 +45,11 @@ export default function SourceShow() {
     isLoading: sourceListLoading,
   } = useListSourcesQuery({ name: source.name });
 
-  useEffect(() => {
-    document.title = source.label ? `${source.label} | Media Cloud` : `${source.name} | Media Cloud`;
-  });
-
-  // useEffect(() => {
-  //   parentSource = getParentSource(source.name, sourceList);
-  // }, [sourceList]);
-
   if (isLoading || sourceListLoading) {
     return <CircularProgress size="75px" />;
   }
+
+  document.title = source.label ? `${source.label} | Media Cloud` : `${source.name} | Media Cloud`;
 
   const parentSource = getParentSource(source.name, sourceList);
 
@@ -132,6 +126,10 @@ export default function SourceShow() {
           <b>Notes:</b> {source.notes && renderNotes(source.notes, false)}
         </p>
         )}
+        <p>
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <b>Last Modified:</b> {dayjs.utc(source.modified_at).local().format('MM/DD/YYYY HH:mm:ss')}
+        </p>
         <p>
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
           <b>Checked for new feeds on:</b> {source.last_rescraped

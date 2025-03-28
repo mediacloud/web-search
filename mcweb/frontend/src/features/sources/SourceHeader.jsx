@@ -10,7 +10,7 @@ import { CircularProgress } from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useGetSourceQuery, useDeleteSourceMutation, useRescrapeForFeedsMutation } from '../../app/services/sourceApi';
-import { useLazyFetchFeedQuery } from '../../app/services/feedsApi';
+import { useLazyFetchFeedQuery, useListFeedsQuery } from '../../app/services/feedsApi';
 import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
@@ -32,17 +32,23 @@ export default function SourceHeader() {
     error,
   } = useGetSourceQuery(sourceId);
 
+  const {
+    data: feeds,
+    isLoading: feedsAreLoading,
+  } = useListFeedsQuery({ source_id: sourceId });
+
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
   const [deleteSource] = useDeleteSourceMutation();
   const [scrapeForFeeds] = useRescrapeForFeedsMutation();
 
-  if (isLoading) {
+  if (isLoading || feedsAreLoading) {
     return <CircularProgress size="75px" />;
   }
 
   if (error) { return <MediaNotFound source />; }
 
   const PlatformIcon = platformIcon(source.platform);
+  const feedCount = feeds ? feeds.count : 0;
 
   return (
     <>
@@ -94,7 +100,7 @@ export default function SourceHeader() {
         </Button>
 
         <Button variant="outlined" startIcon={<ListAltIcon titleAccess="source's feeds page" />}>
-          <Link to={`/sources/${sourceId}/feeds`}>List Feeds</Link>
+          <Link to={`/sources/${sourceId}/feeds`}>{feedCount === 0 ? 'Add Feeds' : `List Feeds (${feedCount}) `}</Link>
         </Button>
 
         <PermissionedContributor>
