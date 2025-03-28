@@ -7,8 +7,10 @@ export const ROLE_USER = 'USER'; // this is kind of implicit
 export const ROLE_STAFF = 'STAFF';
 export const ROLE_ADMIN = 'ADMIN';
 export const ROLE_CONTRIBUTOR = 'CONTRIBUTOR';
+export const ROLE_API_ACCESS = 'API_ACCESS';
 
 export const isContributor = (userGroups) => userGroups.includes(ROLE_CONTRIBUTOR.toLocaleLowerCase());
+export const isApiAccess = (userGroups) => userGroups.includes(ROLE_API_ACCESS.toLocaleLowerCase());
 
 export function PermissionedStaff({ children, role }) {
   const isLoggedIn = useSelector(selectIsLoggedIn); // will be undefined if not logged in
