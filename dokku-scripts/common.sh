@@ -80,16 +80,36 @@ esac
 # git remote for app; created by instance.sh, used by push.sh
 DOKKU_GIT_REMOTE=${BASE_APP}_$INSTANCE
 
-# using localhost on multiple servers with NFS home directory
-# causes ssh known host pain, so use FQDN
-dokku() {
-    ssh dokku@$FQDN "$*"
-}
-
-# check ssh access working:
-if ! dokku version | grep -q '^dokku version'; then
-    echo "ssh dokku@$FQDN failed; need to run 'dokku ssh-keys' first" 1>&2
-    exit 1
+if [ "x$(whoami)" = xroot ]; then
+    # for crontab.sh
+    # no dokku function needed
+    alias check_root=true
+    check_not_root() {
+	echo "$0 must not be run as root" 1>&2
+	exit 1
+    }
+else
+    dokku() {
+	local _OK_FILE
+	_OK_FILE=$SCRIPT_DIR/.dokku-ssh-ok.$HOST
+	if [ ! -f $_OK_FILE ]; then
+	    # check ssh access working
+	    if ! ssh -n dokku@$FQDN version | grep -q '^dokku version'; then
+		echo "'ssh dokku@$FQDN' failed; need to run 'dokku ssh-keys' as root first" 1>&2
+		exit 1
+	    fi
+	    touch $_OK_FILE
+	fi
+	# NOTE! can't use localhost for ssh if user home directories NFS
+	# shared across servers (or else it will look like the host
+	# identity keeps changing)
+	ssh dokku@$FQDN "$@"
+    }
+    alias check_not_root=true
+    check_root() {
+	echo "$0 must be run as root" 1>&2
+	exit 1
+    }
 fi
 
 # service names: NOTE! need not have suffix!
@@ -101,6 +121,15 @@ CONFIG_STATUS_CHANGED=0
 CONFIG_STATUS_ERROR=1
 CONFIG_STATUS_NOCHANGE=2
 
+git_file_hashes() {
+    AHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $1)
+    CHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $COMMON_SH)
+    if [ -f $LOCAL_SH ]; then
+	LHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $LOCAL_SH 2>/dev/null)
+    fi
+    echo $AHASH$CHASH$LHASH
+}
+
 INSTANCE_SH=$SCRIPT_DIR/instance.sh
 # name of dokku config var set by instance.sh, checked by push.sh:
 INSTANCE_HASH_VAR=INSTANCE_SH_GIT_HASH
@@ -109,13 +138,39 @@ INSTANCE_HASH_VAR=INSTANCE_SH_GIT_HASH
 # return value is the concatenation of the short hashes of
 # instance.sh AND this file!!
 instance_sh_file_git_hash() {
-    IHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $INSTANCE_SH)
-    CHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $COMMON_SH)
-    if [ -f $LOCAL_SH ]; then
-	LHASH=$(git log -n1 --oneline --no-abbrev-commit --format='%h' $LOCAL_SH 2>/dev/null)
-    fi
-    echo $IHASH$CHASH$LHASH
+    git_file_hashes $INSTANCE_SH
 }
 
 # host server location of storage dirs
 STORAGE_HOME=/var/lib/dokku/data/storage
+
+################ crontab
+
+# filename must use letters and dashes only!!!:
+CRONTAB=/etc/cron.d/$APP
+
+# used by crontab.sh to add marker to generated crontab file,
+# and by check_crontab_sh_file_git_hashes (below) to check it:
+CRONTAB_SH=$SCRIPT_DIR/crontab.sh
+CRONTAB_HASH_MARKER=CRONTAB_SH_GIT_HASHES
+crontab_sh_file_git_hashes() {
+    git_file_hashes $CRONTAB_SH
+}
+
+# used by push.sh to check hash in crontab file:
+check_crontab_sh_file_git_hashes() {
+    if [ -f ${CRONTAB} ]; then
+	CH=$(grep -s $CRONTAB_HASH_MARKER $CRONTAB | sed "s/^.*$CRONTAB_HASH_MARKER *//")
+	NH=$(crontab_sh_file_git_hashes)
+	if [ x$CH = x$NH ]; then
+	    echo "$CRONTAB up to date" 1>&2
+	    return 0
+	fi
+	echo "$CRONTAB $CRONTAB_HASH_MARKER $CH" 1>&2
+	echo "does not match current repo hash $NH" 1>&2
+    else
+	echo $CRONTAB not found 1>&2
+    fi
+    echo "run '$SCRIPT_DIR/crontab.sh $INSTANCE' as root" 1>&2
+    return 1
+}

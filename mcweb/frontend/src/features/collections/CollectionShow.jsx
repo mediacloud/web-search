@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -12,15 +13,16 @@ import renderNotes from './util/formatNotesToHTML';
 
 function a11yProps(index) {
   return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
+    id: `collection-tab-${index}`,
+    'aria-controls': `collection-tabpanel-${index}`,
   };
 }
+const utc = require('dayjs/plugin/utc');
 
 export default function CollectionShow() {
   const params = useParams();
   const collectionId = Number(params.collectionId);
-
+  dayjs.extend(utc);
   const [value, setValue] = useState(0);
 
   const handleChange = (event, newValue) => {
@@ -32,19 +34,22 @@ export default function CollectionShow() {
     isLoading,
   } = useGetCollectionQuery(collectionId);
 
-  useEffect(() => {
-    document.title = `${collection.name} | Media Cloud`;
-  });
-
   if (isLoading) {
     return (<CircularProgress size={75} />);
   }
+
+  document.title = `${collection.name} | Media Cloud`;
+
   return (
 
     <div className="container">
       <div>
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
         <b>Notes:</b> {collection.notes && renderNotes(collection.notes, false)}
+        <p>
+          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+          <b>Last Modified:</b> {dayjs.utc(collection.modified_at).local().format('MM/DD/YYYY HH:mm:ss')}
+        </p>
       </div>
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

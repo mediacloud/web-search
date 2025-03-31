@@ -17,7 +17,7 @@ class CollectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Collection
-        fields = ['id', 'name', 'notes', 'platform', 'source_count', 'public', 'featured', 'managed']
+        fields = ['id', 'name', 'notes', 'platform', 'source_count', 'public', 'featured', 'managed', 'modified_at']
 
 
 class CollectionWriteSerializer(serializers.ModelSerializer):
@@ -94,6 +94,10 @@ class SourceSerializer(serializers.ModelSerializer):
         """
         if not value:
             return value
+        homepage = self.initial_data["homepage"]
+        canonical_domain = urls.canonical_domain(homepage)
+        if urls.canonical_domain(value) != canonical_domain:
+            raise serializers.ValidationError(f"url_search_string {value} does not match the canonicalized version of homepage: {canonical_domain}")
         if value.startswith('http://') or value.startswith('https://'):
             raise serializers.ValidationError("url_search_string may not begin with http:// or https://")
         if not value.endswith('/*'):

@@ -35,12 +35,6 @@ export const api = createApi({
         body: { ...credentials },
       }),
     }),
-    resetPasswordSendEmail: builder.query({
-      query: (email) => ({
-        url: `send-email?email=${email}`,
-        method: 'GET',
-      }),
-    }),
     emailExists: builder.query({
       query: (email) => ({
         url: `email-exists?email=${email}`,
@@ -78,6 +72,20 @@ export const api = createApi({
         url: 'users-quotas',
       }),
     }),
+    requestResetCodeEmail: builder.mutation({
+      query: (credentials) => ({
+        url: 'request-reset',
+        method: 'POST',
+        body: { ...credentials },
+      }),
+    }),
+    giveAPIAccess: builder.mutation({
+      query: (token) => ({
+        url: 'give-api-access',
+        method: 'POST',
+        body: { ...token },
+      }),
+    }),
   }),
 });
 
@@ -85,11 +93,12 @@ export const {
   useLogoutMutation,
   useLoginMutation,
   useRegisterMutation,
-  useResetPasswordSendEmailQuery,
   useEmailExistsQuery,
   useResetPasswordMutation,
   useDeleteUserMutation,
   usePasswordStrengthMutation,
   useResetTokenMutation,
   useGetUserQuotasQuery,
+  useRequestResetCodeEmailMutation,
+  useGiveAPIAccessMutation,
 } = api;

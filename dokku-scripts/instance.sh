@@ -12,11 +12,6 @@ INSTANCE=$2
 VHOSTS=/var/tmp/mcweb-vhosts$$
 trap "rm -f $VHOSTS" 0
 
-if [ "x$(whoami)" = xroot ]; then
-    echo "run as normal user with dokku ssh access (via dokku ssh-keys:add)" 1>&2
-    exit 1
-fi
-
 case "$OP" in
 create|destroy)
     # Update push.sh if you change how instances are named
@@ -43,6 +38,8 @@ fi
 
 # after INSTANCE set, sets APP:
 . $SCRIPT_DIR/common.sh
+
+check_not_root
 
 # non-volatile storage mount for generated RSS files, db CSV files, logs
 STORAGE=${APP}
