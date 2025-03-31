@@ -33,8 +33,8 @@ class RequestReset(generics.GenericAPIView):
             token = token_generator.make_token(user) 
             reset = ResetCodes(email=email, token=token)
             reset.save()
-
-            reset_url = f"http://localhost:8000/{reset_text}?token={token}"
+            domain = request.get_host()
+            reset_url = f"http://{domain}/{reset_text}?token={token}"
 
             if reset_type == 'api_token':
                 subject = 'Get API Access'
