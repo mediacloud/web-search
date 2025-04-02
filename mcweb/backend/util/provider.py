@@ -28,7 +28,7 @@ def get_provider(name: str, *, session_id: str, caching: int, api_key: str | Non
 
     provider = provider_by_name(name, api_key=api_key, caching = caching,
             software_id="web-search", session_id = session_id)
-    if const.config.LOG_RAW_QUERY_ENABLED:
+    if constance.config.LOG_RAW_QUERY_ENABLED:
         provider.set_trace(Trace.RAW_QUERY)
     return provider
 
