@@ -1,4 +1,11 @@
-[{"version": "v2.2.4",
+[{"version": "v2.2.5",
+"date": "2025-04-02",
+"notes": ["update reset password process",
+"add api access role and grant to all users",
+"update how to get api access",
+"update featured collections",
+"update source page",
+]},{"version": "v2.2.4",
 "date": "2025-03-17",
 "notes": ["bug fix in search occasionally crashing app",
 "updates to csv streaming"
