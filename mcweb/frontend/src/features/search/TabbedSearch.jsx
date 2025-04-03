@@ -35,8 +35,8 @@ import { useLazyListCollectionsFromNestedArrayQuery } from '../../app/services/c
 
 function a11yProps(index) {
   return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
+    id: `search-tab-${index}`,
+    'aria-controls': `search-tabpanel-${index}`,
   };
 }
 
@@ -59,9 +59,7 @@ export default function TabbedSearch() {
     setTextFieldValues(queryState.map((query) => query.name));
   }, [queryState, edit]);
 
-  useEffect(() => {
-    document.title = 'Media Cloud Search';
-  });
+  document.title = 'Media Cloud Search';
 
   const handleShare = () => {
     const ahref = `search.mediacloud.org/search?${urlSerializer(queryState)}`;

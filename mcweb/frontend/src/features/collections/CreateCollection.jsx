@@ -14,7 +14,7 @@ export default function CreateCollection() {
   const navigate = useNavigate();
 
   const [formState, setFormState] = useState({
-    name: '', notes: '', platform: '', managed: false,
+    name: '', notes: '', platform: 'online_news', managed: false,
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -63,23 +63,6 @@ export default function CreateCollection() {
 
               <br />
               <br />
-
-              <FormControl fullWidth>
-                <InputLabel id="type-select-label">Platform</InputLabel>
-                <Select
-                  labelId="type-select-label"
-                  id="type-select"
-                  value={formState.platform}
-                  name="platform"
-                  label="Platform"
-                  onChange={handleChange}
-                >
-                  <MenuItem value="online_news">{platformDisplayName('online_news')}</MenuItem>
-                  <MenuItem value="reddit">{platformDisplayName('reddit')}</MenuItem>
-                  <MenuItem value="twitter">{platformDisplayName('twitter')}</MenuItem>
-                  <MenuItem value="youtube">{platformDisplayName('youtube')}</MenuItem>
-                </Select>
-              </FormControl>
 
               <Button
                 fullWidth
