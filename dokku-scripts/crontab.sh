@@ -85,6 +85,10 @@ cat >$CRONTEMP <<EOF
 # 42 is the ultimate answer to life, the universe and everything
 #42 $HOUR * * 6 root $DOKKU_RUN_PERIODIC ./weekly-maint.sh > $LOGDIR/$APP-weekly-maint.log 2>&1
 
+0 $HOUR * * 6 root $DOKKU_RUN_PERIODIC ./cron-scripts/update-language.sh > $LOGDIR/$APP-update-language.log 2>&1
+
+0 $HOUR * * 7 root $DOKKU_RUN_PERIODIC ./cron-scripts/update-pub-date.sh > $LOGDIR/$APP-update-pub-date.log 2>&1
+
 # Don't remove this: web-search/dokku-scripts/push.sh checks for it!!
 # $CRONTAB_HASH_MARKER $(crontab_sh_file_git_hashes)
 EOF
