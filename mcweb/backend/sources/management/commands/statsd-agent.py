@@ -55,9 +55,9 @@ class Command(BaseCommand):
                 return 0
             qlen = defaultdict(zero)
             for q in queues:
-                name = qname(q.name)
+                name = qname(q["queue"])
                 known_queues.add(name)
-                qlen[name] = q.len
+                qlen[name] = q["len"]
 
             # get count of completed tasks since last check, grouped by queue and success
             query = (CompletedTask
@@ -74,8 +74,9 @@ class Command(BaseCommand):
                 return [0, 0]
             completed = defaultdict(pair)
             for q in query:
-                name = qname(q.name)
-                completed[name][q.succ] = q.count
+                name = qname(q["queue"])
+                succ = q["succ"]
+                completed[name][succ] = q["count"]
                 known_queues.add(name)
 
             for name in known_queues:
