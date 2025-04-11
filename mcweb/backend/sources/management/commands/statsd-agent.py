@@ -46,20 +46,26 @@ class Command(BaseCommand):
         prev = timezone.now() - dt.timedelta(seconds=queue_interval)
         while True:
             # get instantaneous queue lengths
-            # (unlikely to be illuminating unless backed up)
-            queues = (Task.objects
-                      .values("queue")
-                      .annotate(len=Count("id")))
-
             def zero():
                 return 0
             qlen = defaultdict(zero)
+
+            queues = (Task.objects
+                      .values("queue")
+                      .annotate(len=Count("id")))
             for q in queues:
+                logger.debug("queued %r", q)
                 name = qname(q["queue"])
                 known_queues.add(name)
                 qlen[name] = q["len"]
 
             # get count of completed tasks since last check, grouped by queue and success
+
+            # "completed" is dict indexed by queue name,
+            # of list of counts indexed by bool "succ" (0/1)
+            def pair():
+                return [0, 0]
+            completed = defaultdict(pair)
             query = (CompletedTask
                      .objects.filter(run_at__gte=prev)
                      .values("queue") # before annotate!
@@ -67,13 +73,8 @@ class Command(BaseCommand):
                                                       output_field=BooleanField()),
                                count=Count("id")))
             prev = timezone.now()
-
-            # "completed" is dict indexed by queue name,
-            # of list of counts indexed by bool "succ" (0/1)
-            def pair():
-                return [0, 0]
-            completed = defaultdict(pair)
             for q in query:
+                logger.debug("completed %r", q)
                 name = qname(q["queue"])
                 succ = q["succ"]
                 completed[name][succ] = q["count"]
