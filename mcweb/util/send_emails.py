@@ -27,18 +27,23 @@ class EmailThread(threading.Thread):
     def run(self):
         self.email.send()
 
-# change to use Email{Message,Thread}??
-def send_rescrape_email(subject: str, body: str, from_email: str, recipients: list[str]) -> None:
-    logger.info(f"send_rescrape_email '{subject}' to {recipients}")
+def send_rescrape_email(subject: str, body: str, from_email: str, recipients: list[str]) -> int:
+    """
+    returns count of messages sent
+    """
+    logger.info(f"send_rescrape_email '%s' to %s", subject, ", ".join(recipients))
+    logger.debug("body: %s", body)
     if not EMAIL_HOST:
         logger.info("no EMAIL_HOST")
-        print("body:", body)    # TEMP for testing
-        return
+        return 0
+
     try:
-        send_mail(subject, body, from_email, recipients, fail_silently=False)
+        n = send_mail(subject, body, from_email, recipients, fail_silently=False)
+        logger.info("send_rescrape_email sent %d messages to %r", n, recipients)
+        return n
     except Exception as e:
         logger.exception("send_rescrape_email")
-
+    return -1
 
 def send_signup_email(user, request):
     if not EMAIL_HOST:
