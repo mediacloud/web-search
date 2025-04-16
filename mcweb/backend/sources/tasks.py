@@ -105,7 +105,7 @@ class ScrapeContext:
 
             # add handler to root logger
             logging.getLogger('').addHandler(self.handler)
-            logging.info("logging rescrape to %s", path) # path includes user, what, id
+            logger.info("logging rescrape to %s", path) # path includes user, what, id
 
         self.body_chunks: list[str] = []
         return self
@@ -154,9 +154,9 @@ class ScrapeContext:
                             self.body(), SCRAPE_FROM_EMAIL, self.recipients)
 
         if value:
-            logging.error("ending rescrape log %s, Exception: %r", self.fname, value)
+            logger.error("ending rescrape log %s, Exception: %r", self.fname, value)
         else:
-            logging.info("ending rescrape log %s (%.3f sec)", self.fname, sec)
+            logger.info("ending rescrape log %s (%.3f sec)", self.fname, sec)
 
         if self.handler:
             logging.getLogger('').removeHandler(self.handler)
