@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [ -d data/logs/rescrape ]; then
+	# cleanup (re)scrape logs older than 30 days
+    find data/logs/rescrape -type f -mtime +30 -delete
+fi
