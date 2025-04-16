@@ -82,14 +82,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
             # validation: should throw a ValueError back up the chain
             source_id = int(source_id)
             queryset = queryset.filter(source__id=source_id)
-        platform = self.request.query_params.get("platform")
-        # test validation? _all_platforms().count(platform) > 0
-        if platform is not None and _all_platforms().count(platform) > 0:
-            # TODO: validate this is a valid platform type
-            if platform == "onlinenews":
-                queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
-            else:
-                queryset = queryset.filter(platform=platform)
+        queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
         name = self.request.query_params.get("name")
         if name is not None:
             if constance.config.SRCS_KW_SEARCH:
@@ -322,13 +315,7 @@ class SourcesViewSet(viewsets.ModelViewSet):
             # validation: should throw a ValueError back up the chain
             collection_id = int(collection_id)
             queryset = queryset.filter(collections__id=collection_id)
-        platform = self.request.query_params.get("platform")
-        if platform is not None:
-            # TODO: check if the platform is a valid option
-            if platform == 'onlinenews':
-                queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
-            else:
-                queryset = queryset.filter(platform=platform)
+        queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
         name = self.request.query_params.get("name")
         if name is not None:
             if constance.config.SRCS_KW_SEARCH:

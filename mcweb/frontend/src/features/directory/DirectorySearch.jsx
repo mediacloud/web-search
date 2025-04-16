@@ -10,8 +10,6 @@ import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
 import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
 
 const MIN_QUERY_LEN = 2; // don't query for super short things
-const MAX_RESULTS = 10000; // per endpoint
-const MIN_POLL_MILLISECS = 500; // throttle requests
 const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 // @see https://mui.com/material-ui/react-autocomplete/#load-on-open
@@ -20,7 +18,6 @@ export default function DirectorySearch({ onSelected }) {
   const [open, setOpen] = React.useState(false);
   const [collectionOptions, setCollectionOptions] = React.useState([]);
   const [sourceOptions, setSourceOptions] = React.useState([]);
-  const [searchStr, setSearchStr] = React.useState('');
   const navigate = useNavigate();
   const [collectionTrigger, {
     isFetching: isCollectonSearchFetching, data: collectionSearchResults,
@@ -39,7 +36,7 @@ export default function DirectorySearch({ onSelected }) {
         type: 'collection',
         id: c.id,
         value: c.id,
-        label: `${trimStringForDisplay(c.name, MAX_MATCH_DISPLAY_LEN)} (${platformDisplayName(c.platform)})`,
+        label: `${trimStringForDisplay(c.name, MAX_MATCH_DISPLAY_LEN)}`,
       })));
     }
   }, [collectionSearchResults]);
@@ -54,7 +51,7 @@ export default function DirectorySearch({ onSelected }) {
         type: 'source',
         id: s.id,
         value: s.id,
-        label: `${trimStringForDisplay(s.label || s.name, MAX_MATCH_DISPLAY_LEN)} (${platformDisplayName(s.platform)})`,
+        label: `${trimStringForDisplay(s.label || s.name, MAX_MATCH_DISPLAY_LEN)}`,
       })));
     }
   }, [sourceSearchResults]);
