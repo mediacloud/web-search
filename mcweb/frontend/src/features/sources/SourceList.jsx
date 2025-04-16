@@ -68,14 +68,22 @@ export default function SourceList(props) {
                     width="32px"
                   />
                   <Link to={`/sources/${source.id}`}>
-                    {source.label || source.name}
+                    {source.url_search_string ? (`${source.label} (child source)` || `${source.name} (child source)`)
+                      : (source.label || source.name)}
                   </Link>
                 </td>
                 <td>{source.pub_country}</td>
                 <td>{source.pub_state}</td>
                 <td>{source.primary_language}</td>
                 <td>{asNumber(source.stories_per_week)}</td>
-                <td>{source.last_rescraped ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY') : '?'}</td>
+                {source.url_search_string && (
+                  <td>
+                    N/A (child source)
+                  </td>
+                )}
+                {!source.url_search_string && (
+                  <td>{source.last_rescraped ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY') : '?'}</td>
+                )}
                 {edit && (
                   <td>
                     <IconButton
