@@ -7,14 +7,13 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLazyListCollectionsQuery } from '../../app/services/collectionsApi';
 import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
-import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
+import { trimStringForDisplay } from '../ui/uiUtil';
 
 const MIN_QUERY_LEN = 2; // don't query for super short things
 const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 // @see https://mui.com/material-ui/react-autocomplete/#load-on-open
-export default function DirectorySearch({ onSelected }) {
-  const [lastRequestTime, setLastRequestTime] = React.useState(0);
+export default function DirectorySearch({ onSelected, searchSources }) {
   const [open, setOpen] = React.useState(false);
   const [collectionOptions, setCollectionOptions] = React.useState([]);
   const [sourceOptions, setSourceOptions] = React.useState([]);
@@ -95,7 +94,7 @@ export default function DirectorySearch({ onSelected }) {
       renderInput={(params) => (
         <TextField
           {...params}
-          label="Search for Collections or Sources"
+          label={searchSources ? 'Search for Collections or Sources' : 'Search for Collections'}
           disabled={somethingIsFetching}
           InputProps={{
             ...params.InputProps,
@@ -114,8 +113,9 @@ export default function DirectorySearch({ onSelected }) {
               setCollectionOptions([]);
               // only search if str is long enough
               if (value.length > MIN_QUERY_LEN) {
-                setLastRequestTime(Date.now());
-                sourceTrigger({ name: value });
+                if (searchSources) {
+                  sourceTrigger({ name: value });
+                }
                 collectionTrigger({ name: value });
               }
             }
@@ -130,6 +130,7 @@ DirectorySearch.propTypes = {
   searchCollections: PropTypes.bool,
   searchSources: PropTypes.bool,
   onSelected: PropTypes.func,
+
 };
 
 DirectorySearch.defaultProps = {

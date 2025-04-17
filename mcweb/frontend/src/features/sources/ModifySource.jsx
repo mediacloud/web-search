@@ -10,7 +10,6 @@ import Select from '@mui/material/Select';
 import Modal from '@mui/material/Modal';
 import Alert from '@mui/material/Alert';
 import { useSnackbar } from 'notistack';
-import { platformDisplayName } from '../ui/uiUtil';
 import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery, useUpdateSourceMutation } from '../../app/services/sourceApi';
@@ -29,7 +28,7 @@ export default function ModifySource() {
     homepage: '',
     label: '',
     service: '',
-    platform: '',
+    platform: 'online_news',
     url_search_string: '',
     media_type: '',
     primary_language: '',
@@ -61,10 +60,9 @@ export default function ModifySource() {
         notes: data.notes,
         homepage: data.homepage,
         label: data.label,
-        platform: data.platform,
+        platform: 'online_news',
         url_search_string: data.url_search_string ? data.url_search_string : '',
         media_type: data.media_type ? data.media_type : '',
-        primary_language: data.primary_language,
         pub_country: data.pub_country,
         pub_state: data.pub_state,
       };
@@ -89,6 +87,9 @@ export default function ModifySource() {
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
+
+  document.title = formState.label ? `Edit ${formState.label} | Media Cloud` : `Edit ${formState.name} | Media Cloud`;
+
   return (
     <div className="container">
       <Modal
@@ -118,27 +119,6 @@ export default function ModifySource() {
       </div>
       <div className="row">
         <div className="col-8">
-
-          <FormControl fullWidth>
-            <InputLabel id="type-select-label">Platform</InputLabel>
-            <Select
-              labelId="type-select-label"
-              id="type-select"
-              value={formState.platform}
-              name="platform"
-              label="Platform"
-              onChange={handleChange}
-            >
-              <MenuItem value="online_news">{platformDisplayName('online_news')}</MenuItem>
-              <MenuItem value="reddit">{platformDisplayName('reddit')}</MenuItem>
-              <MenuItem value="twitter">{platformDisplayName('twitter')}</MenuItem>
-              <MenuItem value="youtube">{platformDisplayName('youtube')}</MenuItem>
-            </Select>
-          </FormControl>
-
-          <br />
-          <br />
-
           <TextField
             fullWidth
             name="name"
@@ -196,16 +176,6 @@ export default function ModifySource() {
             helperText="For a very small number of news sources, we want to search within a subdomain
             (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string here,
             such as '*news.bbc.co.uk/nigeria/*'."
-          />
-          <br />
-          <br />
-          <TextField
-            fullWidth
-            name="primary_language"
-            label="Primary Language"
-            value={formState.primary_language}
-            onChange={handleChange}
-            helperText="Primary language, code should be valid ISO 639-1"
           />
           <br />
           <br />
