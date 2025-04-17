@@ -94,6 +94,8 @@ class SourceSerializer(serializers.ModelSerializer):
         """
         Check that url_search_string does not begin with http or https and ensure it ends with wildcard
         """
+        if value is '':
+            return None
         if not value:
             return value
         homepage = self.initial_data["homepage"]
