@@ -72,6 +72,8 @@ class SourceSerializer(serializers.ModelSerializer):
        
         if value is None:
             raise serializers.ValidationError(f"homepage is required")
+        if not value.startswith('http://') or not value.startswith('https://'):
+            raise serializers.ValidationError("homepage must begin with http:// or https://")
         return value
         
 
