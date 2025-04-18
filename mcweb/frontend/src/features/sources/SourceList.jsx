@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import dayjs from 'dayjs';
+import Tooltip from '@mui/material/Tooltip';
 import Pagination from '@mui/material/Pagination';
 import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -48,12 +49,43 @@ export default function SourceList(props) {
         <table width="100%">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Publication Country</th>
-              <th>Publication State</th>
-              <th>Primary Language</th>
-              <th>Content per Week</th>
-              <th>Last Checked For New Feeds</th>
+              <Tooltip
+                title="The domain that uniquely identifies the Source within our system for
+                searching against the Online News Archive."
+              >
+                <th>Domain</th>
+              </Tooltip>
+              <Tooltip
+                title="The primary country this Source is publishing from or
+                where their headquarters are located. This is the 3-letter ISO 3166-1 alpha-3 standard format"
+              >
+                <th>Publication Country</th>
+              </Tooltip>
+              <Tooltip
+                title="The primary state or province this Source is publishing from or
+                where their headquarters are located. This is the ISO 3166-2 standard format"
+              >
+                <th>Publication State</th>
+              </Tooltip>
+              <Tooltip
+                title="Our system guesses the primary language of each article it ingests.
+                For each Source we indicate the language the majority of its articles are in
+                (if we have enough to measure)."
+              >
+                <th>Primary Language</th>
+              </Tooltip>
+              <Tooltip
+                title="The average number of stories published by this Source per week,
+                 based on our ingestion."
+              >
+                <th>Content per Week</th>
+              </Tooltip>
+              <Tooltip
+                title="The last time our system tried to automatically check the website for more feeds
+                we can use to ingest stories every day. “?” means it hasn't tried since fall 2023."
+              >
+                <th>Last Checked For New Feeds</th>
+              </Tooltip>
               {edit && (<th>Admin</th>)}
             </tr>
           </thead>
@@ -68,14 +100,22 @@ export default function SourceList(props) {
                     width="32px"
                   />
                   <Link to={`/sources/${source.id}`}>
-                    {source.label || source.name}
+                    {source.url_search_string ? (`${source.label} (child source)` || `${source.name} (child source)`)
+                      : (source.label || source.name)}
                   </Link>
                 </td>
                 <td>{source.pub_country}</td>
                 <td>{source.pub_state}</td>
                 <td>{source.primary_language}</td>
                 <td>{asNumber(source.stories_per_week)}</td>
-                <td>{source.last_rescraped ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY') : '?'}</td>
+                {source.url_search_string && (
+                  <td>
+                    N/A (child source)
+                  </td>
+                )}
+                {!source.url_search_string && (
+                  <td>{source.last_rescraped ? dayjs.utc(source.last_rescraped).local().format('MM/DD/YYYY') : '?'}</td>
+                )}
                 {edit && (
                   <td>
                     <IconButton

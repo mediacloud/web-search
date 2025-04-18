@@ -111,7 +111,7 @@ export default function SourceShow() {
                       }}
                     >
                       {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                      {childSource ? childSource.url_search_string : null}
+                      {childSource ? `${childSource.url_search_string} (child source)` : null}
                     </Link>
                   </li>
                 ))}
