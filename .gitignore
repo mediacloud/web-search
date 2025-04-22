@@ -35,6 +35,7 @@ vars.*
 dokku-scripts/.configlib
 dokku-scripts/.dokku-ssh-ok.*
 push.log
+data
 
 .vscode
 package-lock.json

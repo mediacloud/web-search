@@ -72,6 +72,8 @@ class SourceSerializer(serializers.ModelSerializer):
        
         if value is None:
             raise serializers.ValidationError(f"homepage is required")
+        if not value.startswith('http://') or not value.startswith('https://'):
+            raise serializers.ValidationError("homepage must begin with http:// or https://")
         return value
         
 
@@ -92,6 +94,8 @@ class SourceSerializer(serializers.ModelSerializer):
         """
         Check that url_search_string does not begin with http or https and ensure it ends with wildcard
         """
+        if value is '':
+            return None
         if not value:
             return value
         homepage = self.initial_data["homepage"]

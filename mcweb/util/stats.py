@@ -44,6 +44,12 @@ def timing(path: list[str], ms: float, labels: list[Label] = []) -> None:
     if statsd_client:
         statsd_client.timing(name, ms)
 
+def gauge(path: list[str], value: float, labels: list[Label] = []) -> None:
+    name = _make_name(path, labels)
+    logger.debug("gauge %s %.3f", name, value)
+    if statsd_client:
+        statsd_client.gauge(name, value)
+
 def path_stats(path: str, elapsed: float, status: int) -> None:
     """
     called from logging_middleware

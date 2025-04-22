@@ -1,5 +1,6 @@
 import constance
 from mc_providers import provider_by_name
+from mc_providers.provider import Trace
 from settings import SENTRY_ENV
 
 import logging
@@ -25,8 +26,11 @@ def get_provider(name: str, *, session_id: str, caching: int, api_key: str | Non
     logger.debug("pq_provider %s %r", name, extras)
     # END TEMPORARY CROCKERY
 
-    return provider_by_name(name, api_key=api_key, caching = caching,
+    provider = provider_by_name(name, api_key=api_key, caching = caching,
             software_id="web-search", session_id = session_id)
+    if constance.config.LOG_RAW_QUERY_ENABLED:
+        provider.set_trace(Trace.RAW_QUERY)
+    return provider
 
 
 def get_task_provider(provider_name: str, task_name: str, caching: int = 0):

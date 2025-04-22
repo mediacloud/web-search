@@ -4,24 +4,20 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
-import InputLabel from '@mui/material/InputLabel';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import MenuItem from '@mui/material/MenuItem';
 import Dialog from '@mui/material/Dialog';
 import Alert from '@mui/material/Alert';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import FormControl from '@mui/material/FormControl';
 import { useSnackbar } from 'notistack';
-import Select from '@mui/material/Select';
 import { useUpdateCollectionMutation, useGetCollectionQuery } from '../../app/services/collectionsApi';
 import SourceList from '../sources/SourceList';
 import UploadSources from '../sources/UploadSources';
-import { platformDisplayName, trimStringForDisplay } from '../ui/uiUtil';
+import { trimStringForDisplay } from '../ui/uiUtil';
 import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
@@ -111,7 +107,7 @@ export default function ModifyCollection() {
           label: `${trimStringForDisplay(
             s.label || s.name,
             MAX_MATCH_DISPLAY_LEN,
-          )} (${platformDisplayName(s.platform)})`,
+          )}`,
         })),
       );
     }
@@ -137,6 +133,7 @@ export default function ModifyCollection() {
   }
 
   const managedCollection = data.managed;
+  document.title = `Edit ${data.name} | Media Cloud`;
 
   return (
     <div className="container">
@@ -176,25 +173,6 @@ export default function ModifyCollection() {
             onChange={handleChange}
             disabled={managedCollection}
           />
-          <br />
-          <br />
-          <FormControl fullWidth>
-            <InputLabel id="type-select-label">Platform</InputLabel>
-            <Select
-              labelId="type-select-label"
-              id="type-select"
-              value={formState.platform}
-              name="platform"
-              label="Platform"
-              onChange={handleChange}
-              disabled={managedCollection}
-            >
-              <MenuItem value="online_news">{platformDisplayName('online_news')}</MenuItem>
-              <MenuItem value="reddit">{platformDisplayName('reddit')}</MenuItem>
-              <MenuItem value="twitter">{platformDisplayName('twitter')}</MenuItem>
-              <MenuItem value="youtube">{platformDisplayName('youtube')}</MenuItem>
-            </Select>
-          </FormControl>
           <br />
           <br />
           <FormGroup>
@@ -243,7 +221,7 @@ export default function ModifyCollection() {
                   id: formState.id,
                   name: formState.name,
                   notes: formState.notes,
-                  platform: formState.platform,
+                  platform: 'online_news',
                   public: formState.public,
                   featured: formState.featured,
                   managed: formState.managed,

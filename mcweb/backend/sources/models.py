@@ -329,13 +329,14 @@ class Source(models.Model):
             nd = NewsDiscoverer(MEDIA_CLOUD_USER_AGENT)
             gnews_urls = nd.find_gnews_fast(homepage, timeout=SCRAPE_HTTP_SECONDS)
         except requests.RequestException as e:
-            add_line(f"fatal error for {sitemaps}: {e!r}")
+            add_line(f"fatal error for {sitemaps} discovery: {e!r}")
             logger.exception("find_gnews_fast")
 
         if gnews_urls:
             process_urls(sitemaps, gnews_urls)
 
-        # after many tries to give a summary in english:
+        # after many tries to give a summary in english
+        # NOTE! duplicates can make the numbers seem incongruous!
         summary = f"{added}/{total} added, {confirmed}/{old} confirmed"
         add_line(summary)
         logger.info("%s", summary)

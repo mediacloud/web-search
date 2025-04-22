@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import { CircularProgress } from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import LockClosedIcon from '@mui/icons-material/Lock';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useGetSourceQuery, useDeleteSourceMutation, useRescrapeForFeedsMutation } from '../../app/services/sourceApi';
 import { useLazyFetchFeedQuery, useListFeedsQuery } from '../../app/services/feedsApi';
@@ -99,9 +100,40 @@ export default function SourceHeader() {
           <a href={source.homepage} target="_blank" rel="noreferrer">Visit Homepage</a>
         </Button>
 
-        <Button variant="outlined" startIcon={<ListAltIcon titleAccess="source's feeds page" />}>
-          <Link to={`/sources/${sourceId}/feeds`}>{feedCount === 0 ? 'Add Feeds' : `List Feeds (${feedCount}) `}</Link>
+        <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin-edit" />}>
+          <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>
         </Button>
+
+        {source.url_search_string && (
+          <Button
+            variant="outlined"
+            disabled
+            startIcon={(
+              <LockClosedIcon
+                titleAccess="child sources should not have feeds"
+              />
+                    )}
+          >
+            Child Sources should not have feeds
+          </Button>
+        )}
+
+        {!source.url_search_string && (
+          <Button
+            variant="outlined"
+            startIcon={(
+              <ListAltIcon
+                titleAccess="source's feeds page"
+              />
+            )}
+          >
+            <Link
+              to={`/sources/${sourceId}/feeds`}
+            >
+              {feedCount === 0 ? 'Add Feeds' : `List Feeds (${feedCount}) `}
+            </Link>
+          </Button>
+        )}
 
         <PermissionedContributor>
           <AlertDialog
@@ -121,15 +153,15 @@ export default function SourceHeader() {
             startIcon={<LockOpenIcon titleAccess="admin-edit" />}
             secondAction={false}
             confirmButtonText="refetch feeds"
+            disabled={!!source.url_search_string}
           />
 
-          <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin-edit" />}>
-            <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>
-          </Button>
+          {!source.url_search_string && (
+            <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin-create" />}>
+              <Link to={`/sources/${sourceId}/feeds/create`}>Create Feed</Link>
+            </Button>
+          )}
 
-          <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin-create" />}>
-            <Link to={`/sources/${sourceId}/feeds/create`}>Create Feed</Link>
-          </Button>
           {source.platform === 'online_news' && (
 
             <AlertDialog
@@ -149,6 +181,7 @@ export default function SourceHeader() {
               startIcon={<LockOpenIcon titleAccess="admin-delete" />}
               secondAction={false}
               confirmButtonText="Rescrape"
+              disabled={!!source.url_search_string}
             />
           )}
         </PermissionedContributor>

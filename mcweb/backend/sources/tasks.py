@@ -9,8 +9,10 @@ import datetime as dt
 import logging
 import json
 import logging
+import os
 import time
 import traceback
+import types                    # for TracebackType
 from typing import Dict, List, Tuple
 
 # PyPI:
@@ -41,6 +43,7 @@ from backend.util.tasks import (
 )
 
 # mcweb/
+from backend.util.syslog_config import LOG_DIR
 from util.send_emails import send_alert_email, send_rescrape_email
 from settings import (
     ADMIN_EMAIL,
@@ -63,94 +66,163 @@ SCRAPE_FROM_EMAIL = EMAIL_NOREPLY
 
 logger = logging.getLogger(__name__)
 
-@background(queue=ADMIN_FAST)   # admin user initiated
-def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) -> None:
-    t0 = time.monotonic()
-    logger.info(f"==== starting _scrape_source {source_id} ({name}) {homepage} for {user_email}")
-    errors = 0
-    try:
-        email_body = Source._scrape_source(source_id, homepage, name)
-    except KeyboardInterrupt:  # for debug (seeing where hung)
-        raise
-    except:
-        logger.exception("Source._scrape_source exception in _scrape_source")
-        email_body = f"FATAL ERROR:\n{traceback.format_exc()}"
-        errors += 1
+RESCRAPE_LOG_DIR = os.path.join(LOG_DIR, "rescrape")
 
-    recipients = [user_email]
-    subject = f"[{EMAIL_ORGANIZATION}] Source {source_id} ({name}) scrape complete"
-    if errors:
-        subject += " (WITH ERRORS)"
-        _add_scrape_error_rcpts(recipients)
-
-    send_rescrape_email(subject, email_body, SCRAPE_FROM_EMAIL, recipients)
-    sec = time.monotonic() - t0
-    logger.info(f"==== finished _scrape_source {source_id} ({name}) {homepage} for {user_email} in {sec:.3f}")
-
-def _add_scrape_error_rcpts(users: list[str]) -> None:
+class ScrapeContext:
     """
-    take recipents list
-    add ADMIN_EMAIL & users in SCRAPE_ERROR_RECIPIENTS in place
+    context for rescrape tasks:
+    Catch exceptions not otherwise handled.
+    log everything to a named file (make optional?)
+    send email!
     """
-    if ADMIN_EMAIL and ADMIN_EMAIL not in users:
-        users.append(ADMIN_EMAIL)
-    for u in SCRAPE_ERROR_RECIPIENTS:
-        if u not in users:
-            users.append(u)
+    # control logging with a constance setting?
+    LOG_FILE = True
 
-@background(queue=ADMIN_SLOW)   # admin user initiated
-def _scrape_collection(collection_id: int, user_email: str) -> None:
-    t0 = time.monotonic()
-    logger.info(f"==== starting _scrape_collection({collection_id}) for {user_email}")
+    def __init__(self, subject: str, email: str, what: str, id_: int):
+        self.subject = subject
+        self.email = email
+        self.what = what
+        self.id = id_
+        self.handler: logging.Handler | None = None # log file
+        self.recipients = [email]
+        self.t0 = 0.0
+        self.errors = False
 
-    collection = Collection.objects.get(id=collection_id)
-    if not collection:
-        # now checked in schedule_scrape_collection
-        logger.error(f"_scrape_collection collection {collection_id} not found")
-        # was return_error here, but could not be seen! check done in caller.
-        return
+    def __enter__(self) -> "ScrapeContext":
+        self.t0 = time.monotonic()
+        if self.LOG_FILE:
+            if not os.path.exists(RESCRAPE_LOG_DIR):
+                os.makedirs(RESCRAPE_LOG_DIR)
 
-    sources = collection.source_set.all()
-    email_body_chunks: list[str] = []  # chunks of output, one per source
-    errors = 0
+            date = time.strftime("%Y-%m-%d", time.gmtime())
+            pid = os.getpid()
+            email = self.email.replace(os.path.sep, "_")
+            self.fname = f"{date}.{email or 'noname'}.{self.what}_{self.id}.pid_{pid}.log"
+            path = os.path.join(RESCRAPE_LOG_DIR, self.fname)
+            self.handler = logging.FileHandler(path)
+            self.handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s"))
+            self.handler.setLevel(logging.DEBUG)
 
-    def add_body_chunk(chunk):
+            # add handler to root logger
+            logging.getLogger('').addHandler(self.handler)
+            logger.info("logging rescrape to %s", path) # path includes user, what, id
+
+        self.body_chunks: list[str] = []
+        return self
+
+    def add_body_chunk(self, chunk: str) -> None:
+        logger.debug("body_chunk: %s", chunk)
         if not chunk.endswith("\n"):
             chunk += "\n"
             # XXX complain?
-        email_body_chunks.append(chunk)
+        self.body_chunks.append(chunk)
 
-    for source in sources:
-        logger.info(f"== starting Source._scrape_source {source.id} ({source.name}) for collection {collection_id} for {user_email}")
-        if source.url_search_string:
-            add_body_chunk(f"Skippped source {source.id} ({source.name}) with URL search string {source.url_search_string}\n")
-            logger.info(f"  Source {source.id} ({source.name}) has url_search_string {source.url_search_string}")
-            continue
+    def body(self):
+        # separate source chunks with blank lines (each already has trailing newline)
+        return "\n".join(self.body_chunks)
 
-        try:
-            # remove verbosity=0 for more output!
-            add_body_chunk(Source._scrape_source(source.id, source.homepage, source.name, verbosity=0))
-        except KeyboardInterrupt:  # for debug (seeing where hung)
-            raise
-        except:
-            logger.exception(f"Source._scrape_source exception in _scrape_source {source.id}")
-            add_body_chunk(f"ERROR:\n{traceback.format_exc()}") # format_exc has final newline
-            errors += 1
-        logger.info(f"== finished Source._scrape_source {source.id} {source.name}")
+    def add_error(self, exception: bool = True):
+        """
+        add ADMIN_EMAIL & users in SCRAPE_ERROR_RECIPIENTS to recipients
+        """
+        if exception:
+            self.add_body_chunk(f"ERROR:\n{traceback.format_exc()}") # format_exc has final newline
+        if self.errors:
+            return
+        self.errors = True
+        if ADMIN_EMAIL and ADMIN_EMAIL not in self.recipients:
+            self.recipients.append(ADMIN_EMAIL)
+        for u in SCRAPE_ERROR_RECIPIENTS:
+            if u not in self.recipients:
+                self.recipients.append(u)
 
-    sec = time.monotonic() - t0
-    add_body_chunk(f"elapsed time: {sec:.3f} seconds\n")
+    def __exit__(self, type_: type[BaseException],
+                 value: BaseException,
+                 traceback_: types.TracebackType) -> bool:
+        sec = time.monotonic() - self.t0
+        self.add_body_chunk(f"elapsed time: {sec:.3f} seconds\n")
+        if type_:
+            # should only get here with unhandled exceptions
+            logger.exception("Exception for %s rescrape of %s %d (%.3f sec)",
+                             self.email, self.what, self.id, sec)
 
-    recipients = [user_email]
-    subject = f"[{EMAIL_ORGANIZATION}] Collection {collection.id} ({collection.name}) scrape complete"
-    if errors:
-        subject += " (WITH ERRORS)"
-        _add_scrape_error_rcpts(recipients)
+        if type_ or self.errors:
+            self.subject += " (WITH ERRORS)"
 
-    # separate source chunks with blank lines (each already has trailing newline)
-    send_rescrape_email(subject, "\n".join(email_body_chunks), SCRAPE_FROM_EMAIL, recipients)
+        # logs before and after:
+        send_rescrape_email(f"[{EMAIL_ORGANIZATION}] {self.subject}",
+                            self.body(), SCRAPE_FROM_EMAIL, self.recipients)
 
-    logger.info(f"==== finished _scrape_collection({collection.id}, {collection.name}) for {user_email} in {sec:.3f}")
+        if value:
+            logger.error("ending rescrape log %s, Exception: %r", self.fname, value)
+        else:
+            logger.info("ending rescrape log %s (%.3f sec)", self.fname, sec)
+
+        if self.handler:
+            logging.getLogger('').removeHandler(self.handler)
+            self.handler.close()
+            self.handler = None
+
+        return True             # suppress exception!!!!
+
+@background(queue=ADMIN_FAST)   # admin user initiated
+def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) -> None:
+    logger.info("== starting _scrape_source %d (%s) %s for %s",
+                source_id, name, homepage, user_email)
+
+    subject = f"Source {source_id} ({name}) scrape complete"
+
+    # ScrapeContext handles exceptions, sends mail!
+    with ScrapeContext(subject, user_email, "source", source_id) as sc:
+        sc.add_body_chunk(Source._scrape_source(source_id, homepage, name))
+
+    logger.info(f"== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
+
+@background(queue=ADMIN_SLOW)   # admin user initiated
+def _scrape_collection(collection_id: int, user_email: str) -> None:
+    logger.info(f"==== starting _scrape_collection(%d) for %s",
+                collection_id, user_email)
+
+    errors = 0
+    subject = f"Collection {collection_id} scrape complete"
+    with ScrapeContext(subject, user_email, "collection", collection_id) as sc:
+        collection = Collection.objects.get(id=collection_id)
+        if not collection:
+            # now checked in schedule_scrape_collection, so should not happen!
+            logger.info("collection id %d not found", collection_id)
+            sc.add_error(False)
+            sc.add_body_chunk(f"collection {collection_id} not found")
+            return
+
+        sources = collection.source_set.all()
+        for source in sources:
+            logger.info(f"== starting Source._scrape_source %d (%s) in collection %d for %s",
+                        source.id, source.name, collection_id, user_email)
+            if source.url_search_string:
+                sc.add_body_chunk(f"Skippped source {source.id} ({source.name}) with URL search string {source.url_search_string}\n")
+                logger.warning(f"  Source %d (%s) has url_search_string %s",
+                               source.id, source.name, source.url_search_string)
+                continue
+
+            try:
+                # remove verbosity=0 for more output!
+                sc.add_body_chunk(
+                    Source._scrape_source(source.id, source.homepage, source.name, verbosity=0))
+            except Exception as e:
+                logger.exception("Source._scrape_source exception in _scrape_source %d for %s",
+                                 source.id, user_email)
+                sc.add_error()  # keep going
+
+                # for debug (seeing where hung by ^C-ing under
+                # dokku-scripts/outside/run-manage-pdb.sh)
+                if isinstance(e, KeyboardInterrupt):
+                    raise
+            logger.info(f"== finished Source._scrape_source %d (%s) in collection %d %s for %s",
+                        source.id, source.name, collection_id, collection.name, user_email)
+
+        logger.info(f"==== finished _scrape_collection(%d, %s) for %s",
+                    collection.id, collection.name, user_email)
+    # end with ScrapeContext...
 
 
 def run_alert_system():

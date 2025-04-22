@@ -69,7 +69,7 @@ const OrderedWordCloudRenderer = {
       const fs = OrderedWordCloudRenderer.fontSizeComputer(d, extent, sizeRange);
       canvasContext2d.font = `bold ${fs}px Lato`; // crazy hack for IE compat, instead of simply this.getComputedTextLength()
       const metrics = canvasContext2d.measureText(d.term);
-      const textLength = metrics.width + 4; // give it a little horizontal spacing between words
+      const textLength = metrics.width + 10; // give it a little horizontal spacing between words
       let lastX = x;
       if (x + textLength + 10 > width) { // TODO: replace 10 with state property for padding
         lastX = 0;
@@ -82,7 +82,7 @@ const OrderedWordCloudRenderer = {
     wordNodes.attr('y', (d, index, data) => { // need closure here for d3.select to work right on the element
       const xPosition = d3.select(data[index]).attr('x');
       if (xPosition === '0') { // WTF does this come out as a string???!?!?!?!
-        const height = 1.2 * OrderedWordCloudRenderer.fontSizeComputer(d, extent, sizeRange);
+        const height = 1.4 * OrderedWordCloudRenderer.fontSizeComputer(d, extent, sizeRange);
         y += height;
         y = Math.max(y, height);
         lastAdded = height;
