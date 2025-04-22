@@ -1,4 +1,7 @@
-[{"version": "v2.2.6",
+[{"version": "v2.2.7",
+"date": "2025-04-22",
+"notes": ["bug fix"
+]},{"version": "v2.2.6",
 "date": "2025-04-18",
 "notes": ["add commands and scheduling for language detection and pub-date",
 "add stats related back end tech",
