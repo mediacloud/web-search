@@ -78,8 +78,6 @@ class RequestLoggingMiddleware:
             except TypeError:
                 pass
 
-        util.stats.path_stats(request.path, duration, response.status_code)
-
         return response
 
 
