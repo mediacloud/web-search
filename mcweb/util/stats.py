@@ -25,6 +25,11 @@ def _fix(name: str) -> str:
     return name.replace("_", "-").strip("-")
 
 def _make_name(elts: list[str], labels: list[Label] = []) -> str:
+    """
+    make a statsd metric string given path elements and labels
+    (if ever converted to another metric schema, this hopefully
+    localizes knowledge of how to structure data)
+    """
     ret = []
     for elt in elts:
         ret.append(_fix(elt))
@@ -83,3 +88,29 @@ def path_stats(path: str, elapsed: float, status: int) -> None:
     if status == 200:
         app = elements[0]
         timing(["api", "success"], elapsed*1000, labels=[("app", app)])
+
+def api_stats(api_func):
+    """
+    decorator for *ALL* API calls for stats reporting.
+    should be first decorator used!!!
+
+    Can be used to decorate a rest_api handler (request first arg)
+    or a class method (request second arg)
+
+    For now, just a wrapper around path_stats
+    (originally called from logging_middleware
+    but it saw EVERY random path requested!!!)
+    """
+    @wraps(api_func)
+    def decorator(*args, **kwargs):
+        t0 = time.monotonic()
+        response = api_func(*args, **kwargs)
+        elapsed = time.monotonic() - t0
+        # crockery to work for ViewSet methods (first arg is ViewSet)
+        if ((path := getattr(args[0], "path", None)) or
+            (path := getattr(args[1], "path", None))):
+            logger.debug("api_stats decorator %s %.6f %d",
+                         path, elapsed, response.status_code)
+            path_stats(path, elapsed, response.status_code)
+        return response
+    return decorator
