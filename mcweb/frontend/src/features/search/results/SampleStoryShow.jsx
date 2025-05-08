@@ -1,16 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
 import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
 import { googleFaviconUrl } from '../../ui/uiUtil';
 import InfoMenu from '../../ui/InfoMenu';
 import { selectCurrentUser } from '../../auth/authSlice';
+import { useLazyListSourcesQuery } from '../../../app/services/sourceApi';
 
 export default function SampleStoryShow({
   data, lSTP, platform,
 }) {
   const currentUser = useSelector(selectCurrentUser);
+  const navigate = useNavigate();
+  const [sourceTrigger, {
+    data: sourceSearchResults, isLoading,
+  }] = useLazyListSourcesQuery();
+
+  const handleSourceClick = (mediaUrl) => {
+    sourceTrigger({ name: mediaUrl });
+  };
+
+  useEffect(
+    () => {
+      if (sourceSearchResults && sourceSearchResults.results.length > 0) {
+        navigate(`/sources/${sourceSearchResults.results[0].id}`);
+      }
+    },
+    [sourceSearchResults],
+  );
 
   return (
 
@@ -36,7 +56,13 @@ export default function SampleStoryShow({
                   : googleFaviconUrl(`${sampleStory.media_url}`)}
                 alt={`${sampleStory.media_name}`}
               />
-              <a href={sampleStory.media_url} target="_blank" rel="noreferrer">{sampleStory.media_name}</a>
+              <div
+                onClick={() => handleSourceClick(sampleStory.media_url)}
+                style={{ cursor: 'pointer', color: '#d24527', textDecoration: 'underline' }}
+              >
+                {sampleStory.media_name}
+              </div>
+              {isLoading && <CircularProgress size={20} />}
             </td>
 
             <td>{dayjs(sampleStory.publish_date).format('MM-DD-YY')}</td>
