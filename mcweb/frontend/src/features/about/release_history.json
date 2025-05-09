@@ -1,4 +1,10 @@
-[{"version": "v2.2.7",
+[{"version": "v2.2.8",
+"date": "2025-05-09",
+"notes": ["add ability to gather more stats for stats api",
+  "fix syntax warning in serializer",
+  "fix task scheduling",
+  "fix broken links in Sample Stories"
+]},{"version": "v2.2.7",
 "date": "2025-04-22",
 "notes": ["bug fix"
 ]},{"version": "v2.2.6",
