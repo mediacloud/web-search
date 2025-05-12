@@ -81,6 +81,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
     GIT_REV=(str, ""),
     LOG_LEVEL=(str, "DEBUG"),
+    MONITOR_API_URL=(str, ""), # manage.py monitor-api command
     PROVIDERS_TIMEOUT=(int, 60*10),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
@@ -134,6 +135,7 @@ EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
 
 GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
 LOG_LEVEL = env('LOG_LEVEL').upper()
+MONITOR_API_URL = env('MONITOR_API_URL')
 PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
 RSS_FETCHER_URL = env('RSS_FETCHER_URL')
@@ -324,8 +326,8 @@ LOGGING = {
 }
 
 # set up handlers based on environment
-__DOKKU = os.environ.get("DYNO") is not None
-if __DOKKU:
+_DOKKU = os.environ.get("DYNO") is not None
+if _DOKKU:
     from mcweb.backend.util.syslog_config import SYSLOG_SOCKET
     import socket
 
@@ -435,7 +437,7 @@ try:
     assert EMAIL_HOST, "EMAIL_HOST is empty"
     assert EMAIL_HOST_PASSWORD, "EMAIL_HOST_PASSWORD is empty"
     assert EMAIL_HOST_USER, "EMAIL_HOST_USER is empty"
-    if not __DOKKU:
+    if not _DOKKU:
         logger.info("Email host %s", EMAIL_HOST)
 except AssertionError as exc:
     # don't require email settings (for development)
