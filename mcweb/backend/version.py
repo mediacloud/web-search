@@ -9,10 +9,14 @@ import time
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 
+# web-search/mcweb/util
+from util.stats import api_stats
+
 # web-search/mcweb:
 from settings import VERSION, GIT_REV
 
 
+@api_stats
 @require_http_methods(["GET"])
 def version(request):
     """
