@@ -82,6 +82,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     GIT_REV=(str, ""),
     LOG_LEVEL=(str, "DEBUG"),
     MONITOR_API_URL=(str, ""), # manage.py monitor-api command
+    MONITOR_API_USER=(str, "monitor-api@mediacloud.org"), # manage.py monitor-api command
     PROVIDERS_TIMEOUT=(int, 60*10),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
@@ -136,6 +137,7 @@ EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
 GIT_REV = env("GIT_REV")      # supplied by Dokku, returned by /api/version
 LOG_LEVEL = env('LOG_LEVEL').upper()
 MONITOR_API_URL = env('MONITOR_API_URL')
+MONITOR_API_USER = env('MONITOR_API_USER')
 PROVIDERS_TIMEOUT = env('PROVIDERS_TIMEOUT')
 
 RSS_FETCHER_URL = env('RSS_FETCHER_URL')

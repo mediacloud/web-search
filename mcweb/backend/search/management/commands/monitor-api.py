@@ -24,7 +24,7 @@ from django.utils import timezone
 from rest_framework.authtoken.models import Token
 
 # mcweb/
-from settings import _DOKKU, MONITOR_API_URL, VERSION
+from settings import _DOKKU, MONITOR_API_URL, MONITOR_API_USER, VERSION
 
 # mcweb/util:
 import util.stats as stats
@@ -77,7 +77,6 @@ QUICK_QUERIES = [
 ]
 
 MINUTE = 60
-EMAIL = "phil.budne@gmail.com"   # XXX TEMP want monitor@mediacloud.org!!
 
 def listify(x):
     return ",".join(str(s) for s in x)
@@ -89,12 +88,11 @@ class Command(BaseCommand):
         parser.add_argument("--interval", type=int, default=5,
                             help="interval in minutes")
 
-        parser.add_argument("--email", type=str, default=EMAIL,
-                            help="email of user to run queries as")
-
-    def _get_token(self, email):
-        k = Token.objects.filter(user__email=email).values("key").first()
-        return k["key"]
+    def _get_token(self, user):
+        k = Token.objects.filter(user__username=user).values("key").first()
+        if k:
+            return k["key"]
+        return None
 
     def query(self, q: QueryTuple, dates: DateTuple,
               ep: str = "count-over-time"):
@@ -156,11 +154,11 @@ class Command(BaseCommand):
         self.slow_index = (self.slow_index + 1) % len(SLOW_QUERIES)
 
     def handle(self, *args, **options):
-        email = options["email"]
         interval = options["interval"] * 60
         self.slow_index = 0
 
-        if not (stats.statsd_client and MONITOR_API_URL):
+        token = self._get_token(MONITOR_API_USER)
+        if not (stats.statsd_client and MONITOR_API_URL and token):
             if _DOKKU:
                 # under supervisord: just go catatonic
                 print("unconfigured; sleeping")
@@ -170,7 +168,6 @@ class Command(BaseCommand):
                 print("unconfigured; exiting")
                 return
 
-        token = self._get_token(email)
         self.headers = {
             "Accept": "application/json",
             f"Authorization": f"Token {token}",
