@@ -177,6 +177,11 @@ class Command(BaseCommand):
             f"User-Agent": USER_AGENT,
         }
         while True:
+            # NOTE! Using monotonic time (currently system uptime)
+            # means that checks will not be done at the top of minutes
+            # that are multiples of of "interval" and that instances
+            # running on different servers will check at different
+            # times.  This is a feature!
             now = time.monotonic()
             # calculate next time now, in case queries run long:
             next = now + interval - (now % interval)
