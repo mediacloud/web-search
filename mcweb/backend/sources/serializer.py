@@ -94,7 +94,7 @@ class SourceSerializer(serializers.ModelSerializer):
         """
         Check that url_search_string does not begin with http or https and ensure it ends with wildcard
         """
-        if value is '':
+        if value == '':
             return None
         if not value:
             return value

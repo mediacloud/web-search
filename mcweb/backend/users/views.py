@@ -21,6 +21,7 @@ from django.apps import apps
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from util.send_emails import send_signup_email
+from util.stats import api_stats
 import backend.users.legacy as legacy
 from django.core import serializers
 from .models import Profile, QuotaHistory, ResetCodes, Token
@@ -31,6 +32,7 @@ from ..sources.permissions import get_groups
 logger = logging.getLogger(__name__)
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
@@ -51,6 +53,7 @@ def profile(request):
         data = json.dumps({'message': "User Not Found"})
     return HttpResponse(data, content_type='application/json')
 
+@api_stats  # PLEASE KEEP FIRST!
 @require_http_methods(["POST"])
 def password_strength(request):
     # get the passwords from SignUp.jsx formState
@@ -88,6 +91,7 @@ def password_strength(request):
     return HttpResponse(data, content_type='application/json')
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @require_http_methods(["POST"])
 def login(request):
     payload = json.loads(request.body)
@@ -132,6 +136,7 @@ def login(request):
         return HttpResponse(data, content_type='application/json', status=403)
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @require_http_methods(["POST"])
 def register(request):
     try:
@@ -194,6 +199,7 @@ def register(request):
         return HttpResponse(data, content_type='application/json', status=400)
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["POST"])
 def logout(request):
@@ -203,6 +209,7 @@ def logout(request):
     return HttpResponse(data, content_type='application/json')
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["DELETE"])
 def delete_user(request):
@@ -218,6 +225,7 @@ def delete_user(request):
     return HttpResponse(data, content_type='application/json')
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(redirect_field_name='/auth/login')
 @require_http_methods(["POST"])
 def reset_token(request):
@@ -235,6 +243,7 @@ def reset_token(request):
         data = json.dumps({'error': e})
         return HttpResponse(data, content_type='application/json', status=400)
     
+@api_stats  # PLEASE KEEP FIRST!
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def email_from_token(request):
@@ -259,6 +268,7 @@ def email_from_token(request):
         return HttpResponse(json.dumps({"error": "No user token provided"}), content_type='application/json', status=403)
     
 
+@api_stats  # PLEASE KEEP FIRST!
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def users_quotas(request):

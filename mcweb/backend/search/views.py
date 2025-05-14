@@ -27,6 +27,7 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_P
 # mcweb/util
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
+from util.stats import api_stats
 
 # mcweb/backend/search (local dir)
 from .utils import (
@@ -174,6 +175,7 @@ def _qs(pq: ParsedQuery) -> str:
     """
     return pq.query_str
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -192,6 +194,7 @@ def total_count(request):
 
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -210,6 +213,7 @@ def count_over_time(request):
         request.user.id, request.user.is_staff, pq.provider_name)
     return json_response({"count_over_time": response})
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -222,6 +226,7 @@ def sample(request):
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     return json_response({"sample": response})
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -238,6 +243,7 @@ def story_detail(request):
         del story_details['text']
     return json_response({"story": story_details})
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -274,6 +280,7 @@ def download_sources_csv(request):
     return response
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -308,6 +315,7 @@ def download_languages_csv(request):
     return response
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
@@ -333,6 +341,7 @@ def story_list(request):
     return json_response({"stories": page, "pagination_token": pagination_token})
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -407,6 +416,7 @@ def download_all_content_csv(request):
 
 
 # called by frontend sendTotalAttentionDataEmail
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(redirect_field_name='/auth/login')
 @handle_provider_errors
 @require_http_methods(["POST"])
@@ -451,6 +461,7 @@ def download_all_queries_csv(request):
     # was: return HttpResponse(content_type="application/json", status=200)
     return json_response("")
 
+@api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication]) #API only method for now
