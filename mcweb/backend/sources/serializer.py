@@ -3,7 +3,7 @@ import pycountry
 import json
 from rest_framework import serializers
 import mcmetadata.urls as urls
-from .models import Collection, Feed, Source
+from .models import Collection, Feed, Source, AlternativeDomain
 from .tasks import schedule_scrape_source
 
 # Serializers in Django REST Framework are responsible for converting objects
@@ -153,9 +153,6 @@ class SourceSerializer(serializers.ModelSerializer):
         #     user = request.user
         return new_source
 
-  
-        
-
     
 class SourcesViewSerializer(serializers.ModelSerializer):
     collection_count = serializers.IntegerField()
@@ -164,10 +161,26 @@ class SourcesViewSerializer(serializers.ModelSerializer):
         many=True, write_only=True, queryset=Collection.objects.all()
     )
 
+    alternative_domains = serializers.PrimaryKeyRelatedField(
+        many=True, write_only=True, queryset=AlternativeDomain.objects.all()
+    )
+    
+
     class Meta:
         model = Source
         fields = ['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform', 'stories_per_week',
                   'first_story', 'created_at', 'modified_at', 'pub_country', 'pub_state', 'primary_language',
                   'media_type', 'last_rescraped', 'last_rescraped_msg',
-                  'collection_count',
-                  'collections']
+                  'collection_count', 'collections', 'alternative_domains']
+
+class AlternativeDomainSerializer(serializers.ModelSerializer):
+    source = serializers.PrimaryKeyRelatedField(
+        many=False, queryset=Source.objects.all()
+    )
+
+    class Meta:
+        model = AlternativeDomain
+        fields = ['id', 'source', 'domain', 'created_at', 'modified_at']
+
+    def create(self, validated_data):
+        return AlternativeDomain.objects.create(**validated_data)

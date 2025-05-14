@@ -371,5 +371,20 @@ class Feed(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
     name = models.TextField(null=True, blank=True)
-
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
+
+
+class AlternativeDomain(models.Model):
+    """
+    Alternative domain names for a source
+    """
+    source = models.ForeignKey(Source, on_delete=models.CASCADE)
+    domain = models.CharField(max_length=255, null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    modified_at = models.DateTimeField(auto_now=True, null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['domain'], name='domain'),
+        ]
+

@@ -34,8 +34,8 @@ from backend.util import csv_stream
 from backend.util.tasks import get_completed_tasks, get_pending_tasks
 
 # local directory (mcweb/backend/sources)
-from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
-from .models import Collection, Feed, Source
+from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
+from .models import Collection, Feed, Source, AlternativeDomain
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
@@ -588,6 +588,29 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collection = get_object_or_404(collections_queryset, pk=collection_id)
         source.collections.add(collection)
         return Response({'source_id': source_id, 'collection_id': collection_id})
+    
+
+class AlternativeDomainViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        IsGetOrIsStaffOrContributor
+    ]
+
+    queryset = AlternativeDomain.objects.all()
+
+    serializer_class = AlternativeDomainSerializer
+
+    def create(self, request):
+        serializer = AlternativeDomainSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"alternative_domain": serializer.data})
+        else:
+            error_string = str(serializer.errors)
+            raise APIException(f"{error_string}")
+        
+        
+        
+
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
