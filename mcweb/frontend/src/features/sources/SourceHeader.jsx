@@ -12,6 +12,7 @@ import LockClosedIcon from '@mui/icons-material/Lock';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useGetSourceQuery, useDeleteSourceMutation, useRescrapeForFeedsMutation } from '../../app/services/sourceApi';
 import { useLazyFetchFeedQuery, useListFeedsQuery } from '../../app/services/feedsApi';
+import { useCreateAlternativeDomainMutation } from '../../app/services/alternativeDomainsApi';
 import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
@@ -41,6 +42,15 @@ export default function SourceHeader() {
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
   const [deleteSource] = useDeleteSourceMutation();
   const [scrapeForFeeds] = useRescrapeForFeedsMutation();
+  const [createAlternativeDomain] = useCreateAlternativeDomainMutation();
+
+  const handleCreateAlternativeDomain = async (alternativeDomain) => {
+    try {
+      await createAlternativeDomain({ source_id: sourceId, alternative_domain: alternativeDomain });
+    } catch (e) {
+      console.error('Error creating alternative domain:', e);
+    }
+  };
 
   if (isLoading || feedsAreLoading) {
     return <CircularProgress size="75px" />;
@@ -50,7 +60,7 @@ export default function SourceHeader() {
 
   const PlatformIcon = platformIcon(source.platform);
   const feedCount = feeds ? feeds.count : 0;
-
+  console.log('sourceHEader', source);
   return (
     <>
       <Header>
@@ -205,6 +215,38 @@ export default function SourceHeader() {
             startIcon={<LockOpenIcon titleAccess="admin-delete" />}
             secondAction={false}
             confirmButtonText="delete"
+          />
+
+        </PermissionedStaff>
+
+        <PermissionedStaff role={ROLE_STAFF}>
+          {/* <AlertDialog
+            outsideTitle="Delete Source"
+            title={`Delete ${platformDisplayName(source.platform)} Source #${sourceId}: ${source.name}`}
+            content={`Are you sure you want to delete ${platformDisplayName(source.platform)}
+                Source #${sourceId}: ${source.name} permanently?`}
+            dispatchNeeded={false}
+            action={deleteSource}
+            actionTarget={sourceId}
+            snackbar
+            snackbarText="Source Deleted!"
+            onClick={() => setOpenDelete(true)}
+            openDialog={openDelete}
+            variant="outlined"
+            navigateNeeded
+            navigateTo="/directory"
+            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            secondAction={false}
+            confirmButtonText="delete"
+          /> */}
+          <Button
+            onClick={() => handleCreateAlternativeDomain('alternativeDomain1.com')}
+            variant="outlined"
+            startIcon={(
+              <LockOpenIcon
+                titleAccess="admin-delete"
+              />
+)}
           />
 
         </PermissionedStaff>

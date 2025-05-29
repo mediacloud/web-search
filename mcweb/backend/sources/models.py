@@ -388,3 +388,4 @@ class AlternativeDomain(models.Model):
             models.Index(fields=['domain'], name='domain'),
         ]
 
+

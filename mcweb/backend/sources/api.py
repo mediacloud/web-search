@@ -12,7 +12,7 @@ import mcmetadata.urls as urls
 import requests
 import requests.auth
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.db.models import Case, Count, When, Q
+from django.db.models import Case, Count, When, Q, Subquery, OuterRef
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, permission_classes
@@ -300,10 +300,10 @@ class FeedsViewSet(viewsets.ModelViewSet):
 
 
 class SourcesViewSet(viewsets.ModelViewSet):
-    queryset = Source.objects.\
-        annotate(collection_count=Count('collections')).\
-        order_by('-collection_count').\
-        all()
+    queryset = Source.objects.annotate(
+        collection_count=Count('collections')
+    ).order_by('-collection_count').all()
+        
     permission_classes = [
         IsGetOrIsStaffOrContributor
     ]
@@ -600,7 +600,9 @@ class AlternativeDomainViewSet(viewsets.ModelViewSet):
     serializer_class = AlternativeDomainSerializer
 
     def create(self, request):
-        serializer = AlternativeDomainSerializer(data=request.data)
+        alternative_domain = request.data.get("alternative_domain", None)
+        source_id = request.data.get("source_id", None)
+        serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain})
         if serializer.is_valid():
             serializer.save()
             return Response({"alternative_domain": serializer.data})
@@ -608,7 +610,7 @@ class AlternativeDomainViewSet(viewsets.ModelViewSet):
             error_string = str(serializer.errors)
             raise APIException(f"{error_string}")
         
-        
+
         
 
 

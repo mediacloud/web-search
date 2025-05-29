@@ -161,9 +161,11 @@ class SourcesViewSerializer(serializers.ModelSerializer):
         many=True, write_only=True, queryset=Collection.objects.all()
     )
 
-    alternative_domains = serializers.PrimaryKeyRelatedField(
-        many=True, write_only=True, queryset=AlternativeDomain.objects.all()
-    )
+    # alternative_domains = serializers.PrimaryKeyRelatedField(
+    #     many=True, write_only=True, queryset=AlternativeDomain.objects.all()
+    # )
+
+    alternative_domains = serializers.SerializerMethodField()
     
 
     class Meta:
@@ -173,6 +175,10 @@ class SourcesViewSerializer(serializers.ModelSerializer):
                   'media_type', 'last_rescraped', 'last_rescraped_msg',
                   'collection_count', 'collections', 'alternative_domains']
 
+    def get_alternative_domains(self, obj):
+        # Fetch all related AlternativeDomain objects and return their domains as a list
+        return list(AlternativeDomain.objects.filter(source=obj).values_list('domain', flat=True))
+
 class AlternativeDomainSerializer(serializers.ModelSerializer):
     source = serializers.PrimaryKeyRelatedField(
         many=False, queryset=Source.objects.all()
@@ -180,7 +186,8 @@ class AlternativeDomainSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AlternativeDomain
-        fields = ['id', 'source', 'domain', 'created_at', 'modified_at']
+        fields = ['id', 'source', 'domain']
 
     def create(self, validated_data):
+        
         return AlternativeDomain.objects.create(**validated_data)
