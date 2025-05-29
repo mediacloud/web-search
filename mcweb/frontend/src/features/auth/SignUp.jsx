@@ -44,7 +44,7 @@ export default function SignUp() {
   });
 
   const handleChange = ({ target: { name, value } }) => (
-    setFormState((prev) => ({ ...prev, [name]: value }))
+    setFormState((prev) => ({ ...prev, [name]: value.trim() }))
   );
 
   // list of password validators (ex: password is too short, no numbers, no special characters ...)

@@ -24,7 +24,7 @@ export default function ResetPassword() {
   const [requestResetEmail, { isLoading, error, isSuccess }] = useRequestResetCodeEmailMutation();
 
   const handleChange = ({ target: { name, value } }) => (
-    setFormState((prev) => ({ ...prev, [name]: value }))
+    setFormState((prev) => ({ ...prev, [name]: value.trim() }))
   );
 
   if (isLoading) {

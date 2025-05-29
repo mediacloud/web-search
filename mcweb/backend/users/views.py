@@ -96,9 +96,11 @@ def password_strength(request):
 def login(request):
     payload = json.loads(request.body)
     entered_username = payload.get('username', None)
+    trimmed_username = entered_username.strip() if entered_username else None
+    trimmed_password = payload.get('password', None).strip() if payload.get('password', None) else None
     entered_password = payload.get('password', None)
-    user = auth.authenticate(username=entered_username,
-                             password=entered_password)
+    user = auth.authenticate(username=trimmed_username,
+                             password=trimmed_password)
 
     # password and username correct
     if user is not None:
@@ -143,12 +145,19 @@ def register(request):
         payload = json.loads(request.body)
 
         first_name = payload.get('first_name', None)
+        first_name = first_name.strip() if first_name else None
         last_name = payload.get('last_name', None)
+        last_name = last_name.strip() if last_name else None
         email = payload.get('email', None)
+        email = email.strip() if email else None
         username = payload.get('username', None)
+        username = username.strip() if username else None
         password1 = payload.get('password1', None)
+        password1 = password1.strip() if password1 else None
         password2 = payload.get('password2', None)
+        password2 = password2.strip() if password2 else None
         notes = payload.get('notes', None)
+        notes = notes.strip() if notes else None
 
         # first verify passwords match
         if password1 != password2:
