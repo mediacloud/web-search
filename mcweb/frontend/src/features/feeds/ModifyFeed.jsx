@@ -197,6 +197,7 @@ function ModifyFeed() {
             onChange={defaultSelectionHandler}
             renderInput={(inputParams) => (
               <TextField
+                // eslint-disable-next-line react/jsx-props-no-spreading
                 {...inputParams}
                 label="Parent Source"
                 value={formState.source}
@@ -221,7 +222,7 @@ function ModifyFeed() {
                     // only search if str is long enough
                     if (value.length > MIN_QUERY_LEN) {
                       // setLastRequestTime(Date.now());
-                      sourceTrigger({ name: value });
+                      sourceTrigger({ name: value.trim() });
                     }
                   }
                 }}
@@ -246,7 +247,13 @@ function ModifyFeed() {
             onClick={async () => {
               try {
                 await updateFeed({
-                  feed: formState,
+                  feed: {
+                    id: formState.id,
+                    name: formState.name.trim(),
+                    url: formState.url.trim(),
+                    admin_rss_enabled: formState.admin_rss_enabled,
+                    source: formState.source,
+                  },
                 });
                 enqueueSnackbar('Saved changes', { variant: 'success' });
                 navigate(`/feeds/${feedId}`);

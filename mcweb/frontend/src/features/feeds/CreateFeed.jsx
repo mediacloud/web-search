@@ -65,7 +65,12 @@ export default function CreateFeed() {
           <Button
             variant="contained"
             onClick={async () => {
-              await createFeed(formState).unwrap();
+              await createFeed({
+                name: formState.name.trim(),
+                url: formState.url.trim(),
+                admin_rss_enabled: formState.admin_rss_enabled,
+                source: formState.source,
+              }).unwrap();
               navigate(`/sources/${sourceId}/feeds`);
             }}
           >
