@@ -36,7 +36,10 @@ export default function ResetPassword() {
     return (
       <div>
         <Alert severity="error">
-          There was an error sending the email, please try again.
+          There was an error sending the email:
+          {' '}
+          {error.data.error ? error.data.error : error.status}
+          , please try again.
         </Alert>
       </div>
     );
