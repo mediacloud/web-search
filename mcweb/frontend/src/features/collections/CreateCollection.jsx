@@ -2,12 +2,7 @@ import { TextField, Button } from '@mui/material';
 import * as React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 import { useCreateCollectionMutation } from '../../app/services/collectionsApi';
-import { platformDisplayName } from '../ui/uiUtil';
 import Header from '../ui/Header';
 
 export default function CreateCollection() {
@@ -70,8 +65,8 @@ export default function CreateCollection() {
                 sx={{ mt: 3, mb: 2 }}
                 onClick={async () => {
                   await createCollection({
-                    name: formState.name,
-                    notes: formState.notes,
+                    name: formState.name.trim(),
+                    notes: formState.notes.trim(),
                     platform: formState.platform,
                     managed: formState.managed,
                   }).unwrap()

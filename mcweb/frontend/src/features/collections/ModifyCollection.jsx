@@ -219,8 +219,8 @@ export default function ModifyCollection() {
               try {
                 await updateCollection({
                   id: formState.id,
-                  name: formState.name,
-                  notes: formState.notes,
+                  name: formState.name.trim(),
+                  notes: formState.notes.trim(),
                   platform: 'online_news',
                   public: formState.public,
                   featured: formState.featured,

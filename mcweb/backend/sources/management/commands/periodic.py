@@ -61,10 +61,10 @@ def run_periodic_scripts(interval: str) -> None:
                     # try to get an exclusive lock, without blocking
                     fcntl.lockf(f.fileno(), fcntl.LOCK_NB|fcntl.LOCK_EX)
                 except BlockingIOError:
-                    logger.info("%s locked: skipping", script)
+                    logger.info("%s locked: skipping", script_path)
                     continue
                 # here with lockfile locked
-                logger.info("%s starting", script)
+                logger.info("%s starting", script_path)
 
                 # Run the script, via a shell, without redirection or
                 # piping (for that, use the subprocess module).  The
@@ -72,7 +72,7 @@ def run_periodic_scripts(interval: str) -> None:
                 # argument is not a string (can't happen here).
                 status = os.system(script_path)
                 if status == 0:
-                    logger.info("%s done", script)
+                    logger.info("%s done", script_path)
                 else:
                     logger.error("%s failed, status %#x", script_path, status)
 

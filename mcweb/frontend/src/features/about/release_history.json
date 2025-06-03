@@ -1,4 +1,8 @@
-[{"version": "v2.2.8",
+[{"version": "v2.2.9",
+"date": "2025-06-03",
+"notes": ["bug fix for reset password",
+  "fix for scheduled tasks"
+]},{"version": "v2.2.8",
 "date": "2025-05-09",
 "notes": ["add ability to gather more stats for stats api",
   "fix syntax warning in serializer",
