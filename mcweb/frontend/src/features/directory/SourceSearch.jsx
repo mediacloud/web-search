@@ -27,13 +27,13 @@ export default function SourceSearch() {
               onChange={(e) => setQuery(e.target.value)}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
-                  trigger({ name: query });
+                  trigger({ name: query.trim() });
                 }
               }}
             />
           </div>
           <div className="col-6">
-            <Button size="large" variant="contained" onClick={() => trigger({ name: query })}>
+            <Button size="large" variant="contained" onClick={() => trigger({ name: query.trim() })}>
               Search
             </Button>
           </div>

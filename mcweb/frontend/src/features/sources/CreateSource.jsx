@@ -58,7 +58,6 @@ export default function CreateCollection() {
             >
               <h3>Error While Creating Source</h3>
               <p>
-                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
                 {errorMessage}
               </p>
             </div>
@@ -66,27 +65,7 @@ export default function CreateCollection() {
         </Modal>
         <div className="row">
           <div className="col-12">
-            <form action="">
-
-              {/* <FormControl fullWidth>
-                <InputLabel id="type-select-label">Platform</InputLabel>
-                <Select
-                  labelId="type-select-label"
-                  id="type-select"
-                  value={formState.platform}
-                  name="platform"
-                  label="Platform"
-                  onChange={handleChange}
-                >
-                  <MenuItem value="online_news">{platformDisplayName('online_news')}</MenuItem>
-                  <MenuItem value="reddit">{platformDisplayName('reddit')}</MenuItem>
-                  <MenuItem value="twitter">{platformDisplayName('twitter')}</MenuItem>
-                  <MenuItem value="youtube">{platformDisplayName('youtube')}</MenuItem>
-                </Select>
-              </FormControl>
-              <br />
-              <br /> */}
-
+            <form>
               <TextField
                 fullWidth
                 name="name"
@@ -175,7 +154,16 @@ export default function CreateCollection() {
                   const validSearchString = validateURLSearchString(formState.url_search_string);
                   if (!validSearchString) {
                     setFormState({ url_search_stringErrors: null });
-                    createSource(formState)
+                    createSource({
+                      name: formState.name.trim(),
+                      notes: formState.notes.trim(),
+                      homepage: formState.homepage.trim(),
+                      label: formState.label.trim(),
+                      media_type: formState.media_type,
+                      url_search_string: formState.url_search_string.trim(),
+                      platform: formState.platform,
+                      collections: formState.collections,
+                    })
                       .then((payload) => {
                         if (payload.error) {
                           if (payload.error.data.detail) {

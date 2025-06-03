@@ -25,7 +25,7 @@ export default function SignIn() {
   });
 
   const handleChange = ({ target: { name, value } }) => (
-    setFormState((prev) => ({ ...prev, [name]: value }))
+    setFormState((prev) => ({ ...prev, [name]: value.trim() }))
   );
 
   return (
@@ -33,7 +33,6 @@ export default function SignIn() {
       <div className="row">
         <div className="col-4 offset-4">
           <h1>Login</h1>
-
           <Box
             component="form"
             method="post"

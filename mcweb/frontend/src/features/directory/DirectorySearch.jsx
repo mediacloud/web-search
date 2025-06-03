@@ -28,7 +28,7 @@ export default function DirectorySearch({ onSelected, searchSources }) {
   // handle collection search results
   useEffect(() => {
     if (collectionSearchResults) {
-      const existingOptionIds = collectionOptions.filter((o) => o.type == 'collection').map((o) => o.id);
+      const existingOptionIds = collectionOptions.filter((o) => o.type === 'collection').map((o) => o.id);
       const newOptions = collectionSearchResults.results.filter((c) => !existingOptionIds.includes(c.id));
       setCollectionOptions(newOptions.slice(0, collectionSearchResults.length).map((c) => ({
         displayGroup: 'Collections',
@@ -43,7 +43,7 @@ export default function DirectorySearch({ onSelected, searchSources }) {
   // handle source search results
   useEffect(() => {
     if (sourceSearchResults) {
-      const existingOptionIds = sourceOptions.filter((o) => o.type == 'source').map((o) => o.id);
+      const existingOptionIds = sourceOptions.filter((o) => o.type === 'source').map((o) => o.id);
       const newOptions = sourceSearchResults.results.filter((s) => !existingOptionIds.includes(s.id));
       setSourceOptions(newOptions.slice(0, sourceSearchResults.length).map((s) => ({
         displayGroup: 'Sources',
@@ -65,10 +65,10 @@ export default function DirectorySearch({ onSelected, searchSources }) {
   }, [open]);
 
   const defaultSelectionHandler = (e, value) => {
-    if (value.type == 'collection') {
+    if (value.type === 'collection') {
       navigate(`/collections/${value.id}`);
     }
-    if (value.type == 'source') {
+    if (value.type === 'source') {
       navigate(`/sources/${value.id}`);
     }
   };
@@ -93,6 +93,7 @@ export default function DirectorySearch({ onSelected, searchSources }) {
       onChange={onSelected || defaultSelectionHandler}
       renderInput={(params) => (
         <TextField
+          // eslint-disable-next-line react/jsx-props-no-spreading
           {...params}
           label={searchSources ? 'Search for Collections or Sources' : 'Search for Collections'}
           disabled={somethingIsFetching}
@@ -106,7 +107,7 @@ export default function DirectorySearch({ onSelected, searchSources }) {
             ),
           }}
           onKeyUp={(event) => {
-            if (event.key == 'Enter') {
+            if (event.key === 'Enter') {
               const { value } = event.target;
               setOpen(true);
               setSourceOptions([]);
@@ -114,9 +115,9 @@ export default function DirectorySearch({ onSelected, searchSources }) {
               // only search if str is long enough
               if (value.length > MIN_QUERY_LEN) {
                 if (searchSources) {
-                  sourceTrigger({ name: value });
+                  sourceTrigger({ name: value.trim() });
                 }
-                collectionTrigger({ name: value });
+                collectionTrigger({ name: value.trim() });
               }
             }
           }}
