@@ -24,7 +24,7 @@ export default function ResetPassword() {
   const [requestResetEmail, { isLoading, error, isSuccess }] = useRequestResetCodeEmailMutation();
 
   const handleChange = ({ target: { name, value } }) => (
-    setFormState((prev) => ({ ...prev, [name]: value }))
+    setFormState((prev) => ({ ...prev, [name]: value.trim() }))
   );
 
   if (isLoading) {
@@ -36,7 +36,10 @@ export default function ResetPassword() {
     return (
       <div>
         <Alert severity="error">
-          There was an error sending the email, please try again.
+          There was an error sending the email:
+          {' '}
+          {error.data.error ? error.data.error : error.status}
+          , please try again.
         </Alert>
       </div>
     );

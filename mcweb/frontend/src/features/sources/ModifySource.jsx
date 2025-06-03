@@ -78,7 +78,11 @@ export default function ModifySource() {
     const preparedSource = {};
     Object.keys(formData).forEach((column) => {
       if ((formData[column] && formData[column] !== '') || column === 'url_search_string') {
-        preparedSource[column] = formData[column];
+        if (typeof formData[column] === 'string') {
+          preparedSource[column] = formData[column].trim();
+        } else {
+          preparedSource[column] = formData[column];
+        }
       }
     });
     return preparedSource;

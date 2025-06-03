@@ -19,6 +19,7 @@ class RequestReset(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         email = data['email']
+        email = email.strip()
         user = User.objects.filter(email__iexact=email).first()
 
         # check to see in data if reset for password or api_token
@@ -67,7 +68,9 @@ class ResetPassword(generics.GenericAPIView):
         data = serializer.validated_data
         
         new_password = data['new_password']
+        new_password = new_password.strip()
         confirm_password = data['confirm_password']
+        confirm_password = confirm_password.strip()
         
         if new_password != confirm_password:
             return Response({"error": "Passwords do not match"}, status=400)

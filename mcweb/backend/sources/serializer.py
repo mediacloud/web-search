@@ -54,10 +54,6 @@ class FeedSerializer(serializers.ModelSerializer):
 
 
 class SourceSerializer(serializers.ModelSerializer):
-    # collections = serializers.PrimaryKeyRelatedField(
-    #     many=True, write_only=True, queryset=Collection.objects.all()
-    # )
-
     class Meta:
         model = Source
         fields = ['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform', 'stories_per_week',
