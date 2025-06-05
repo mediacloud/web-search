@@ -1,4 +1,7 @@
-[{"version": "v2.2.9",
+[{"version": "v2.3.0",
+"date": "2025-06-05",
+"notes": ["bug fix for limit prop for search api"
+]},{"version": "v2.2.9",
 "date": "2025-06-03",
 "notes": ["bug fix for reset password",
   "fix for scheduled tasks"
