@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, Link, Outlet } from 'react-router-dom';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
@@ -6,28 +6,52 @@ import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
-import { CircularProgress } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import CircularProgress from '@mui/material/CircularProgress';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockClosedIcon from '@mui/icons-material/Lock';
 import ListAltIcon from '@mui/icons-material/ListAlt';
-import { useGetSourceQuery, useDeleteSourceMutation, useRescrapeForFeedsMutation } from '../../app/services/sourceApi';
+import {
+  useGetSourceQuery, useDeleteSourceMutation, useRescrapeForFeedsMutation, useLazyListSourcesQuery,
+} from '../../app/services/sourceApi';
 import { useLazyFetchFeedQuery, useListFeedsQuery } from '../../app/services/feedsApi';
 import { useCreateAlternativeDomainMutation } from '../../app/services/alternativeDomainsApi';
 import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
-import { platformDisplayName, platformIcon } from '../ui/uiUtil';
+import { platformDisplayName, platformIcon, trimStringForDisplay } from '../ui/uiUtil';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
 import MediaNotFound from '../ui/MediaNotFound';
 
+const MIN_QUERY_LEN = 1; // don't query for super short things
+const MAX_RESULTS = 10; // per endpoint
+const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
+
 export default function SourceHeader() {
   const params = useParams();
   const sourceId = Number(params.sourceId);
+
   const [openRefetch, setOpenRefetch] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openRescrape, setOpenRescrape] = useState(false);
+  const [openCreateAlternativeDomain, setOpenCreateAlternativeDomain] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
+  const [alternativeDomain, setAlternativeDomain] = useState('');
+  const [sourceOptions, setSourceOptions] = useState([]);
+  const [selectedSource, setSelectedSource] = useState({
+    id: '',
+    label: '',
+  });
+
+  const autocompleteRef = useRef(null);
+
   const {
     data: source,
     isLoading,
@@ -39,18 +63,54 @@ export default function SourceHeader() {
     isLoading: feedsAreLoading,
   } = useListFeedsQuery({ source_id: sourceId });
 
+  const [
+    sourceTrigger,
+    { isFetching: isSourceSearchFetching, data: sourceSearchResults },
+  ] = useLazyListSourcesQuery();
+
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
   const [deleteSource] = useDeleteSourceMutation();
   const [scrapeForFeeds] = useRescrapeForFeedsMutation();
   const [createAlternativeDomain] = useCreateAlternativeDomainMutation();
 
-  const handleCreateAlternativeDomain = async (alternativeDomain) => {
+  const handleCreateAlternativeDomain = async () => {
     try {
-      await createAlternativeDomain({ source_id: sourceId, alternative_domain: alternativeDomain });
+      await createAlternativeDomain({ source_id: selectedSource.id, alternative_domain: sourceId });
     } catch (e) {
       console.error('Error creating alternative domain:', e);
     }
   };
+
+  const defaultSelectionHandler = (e, value) => {
+    console.log('defaultSelectionHandler', value);
+    if (value.id) {
+      setSelectedSource({ id: value.id, label: value.label });
+      setOpenCreateAlternativeDomain(true);
+    }
+  };
+
+  useEffect(() => {
+    if (sourceSearchResults) {
+      const existingOptionIds = sourceOptions
+        .filter((o) => o.type === 'source')
+        .map((o) => o.id);
+      const newOptions = sourceSearchResults.results.filter(
+        (s) => !existingOptionIds.includes(s.id),
+      );
+      setSourceOptions(
+        newOptions.slice(0, MAX_RESULTS).map((s) => ({
+          displayGroup: 'Sources',
+          type: 'source',
+          id: s.id,
+          value: s.id,
+          label: `${trimStringForDisplay(
+            s.label || s.name,
+            MAX_MATCH_DISPLAY_LEN,
+          )}`,
+        })),
+      );
+    }
+  }, [sourceSearchResults]);
 
   if (isLoading || feedsAreLoading) {
     return <CircularProgress size="75px" />;
@@ -220,35 +280,83 @@ export default function SourceHeader() {
         </PermissionedStaff>
 
         <PermissionedStaff role={ROLE_STAFF}>
-          {/* <AlertDialog
-            outsideTitle="Delete Source"
-            title={`Delete ${platformDisplayName(source.platform)} Source #${sourceId}: ${source.name}`}
-            content={`Are you sure you want to delete ${platformDisplayName(source.platform)}
-                Source #${sourceId}: ${source.name} permanently?`}
-            dispatchNeeded={false}
-            action={deleteSource}
-            actionTarget={sourceId}
-            snackbar
-            snackbarText="Source Deleted!"
-            onClick={() => setOpenDelete(true)}
-            openDialog={openDelete}
-            variant="outlined"
-            navigateNeeded
-            navigateTo="/directory"
-            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
-            secondAction={false}
-            confirmButtonText="delete"
-          /> */}
           <Button
-            onClick={() => handleCreateAlternativeDomain('alternativeDomain1.com')}
+            onClick={() => setOpenCreateAlternativeDomain(true)}
             variant="outlined"
             startIcon={(
               <LockOpenIcon
                 titleAccess="admin-delete"
               />
 )}
-          />
+          >
+            Make Alternative Domain
+          </Button>
+          <Dialog
+            open={openCreateAlternativeDomain}
+            onClose={() => setOpenCreateAlternativeDomain(false)}
+          >
+            <DialogTitle id="alert-dialog-title">
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              Choose a Source to Create Alternative Domain for {source.name}
+            </DialogTitle>
+            <DialogContent>
+              <Autocomplete
+                ref={autocompleteRef}
+                id="quick-source-search"
+                open={openSearch}
+                filterOptions={(x) => x} /* let the server filter optons */
+                onOpen={() => {}}
+                onClose={() => {
+                  setOpenSearch(false);
+                }}
+                blurOnSelect
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                getOptionLabel={(option) => option.label}
+                noOptionsText="No matches"
+                groupBy={(option) => option.displayGroup}
+                options={[...sourceOptions]}
+                loading={isSourceSearchFetching}
+                onChange={defaultSelectionHandler}
+                renderInput={(renderParams) => (
+                  <TextField
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...renderParams}
+                    label="Find a source to create an alternative domain for"
+                    value={source}
+                    disabled={isSourceSearchFetching}
+                    InputProps={{
+                      ...renderParams.InputProps,
+                      endAdornment: (
+                        <>
+                          {isSourceSearchFetching ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {renderParams.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
+                    onKeyUp={(event) => {
+                      if (event.key === 'Enter') {
+                        const { value } = event.target;
+                        setOpenSearch(true);
+                        setSourceOptions([]);
 
+                        // only search if str is long enough
+                        if (value.length > MIN_QUERY_LEN) {
+                          // setLastRequestTime(Date.now());
+                          sourceTrigger({ name: value });
+                        }
+                      }
+                    }}
+                  />
+                )}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenCreateAlternativeDomain(false)}>Cancel</Button>
+              <Button onClick={() => handleCreateAlternativeDomain()}>Submit</Button>
+            </DialogActions>
+          </Dialog>
         </PermissionedStaff>
       </ControlBar>
       <Outlet />
