@@ -212,7 +212,8 @@ _MEDIA_CLOUD_EXTRA_PROPS = [
 # add integer valued parameters here!
 # that might have been converted to string in GET requests
 _MEDIA_CLOUD_INT_PROPS = [
-    'page_size'
+    'page_size',
+    'limit'
 ]
 
 def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
