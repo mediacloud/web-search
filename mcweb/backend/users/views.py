@@ -37,21 +37,20 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def profile(request):
     token = request.GET.get('Authorization', None)
-    user = None
-    if token:
-        try:
-            user = _user_from_token(token)
-        except:
-            logger.debug("Token not found")
-            data = json.dumps({'message': "API Token Not Found"})
-            return HttpResponse(data, content_type='application/json', status=403)
-    if request.user.id is not None and not user:
-        data = _serialized_current_user(request)
-    elif user:
-        data = json.dumps(_serialized_api_user(user))
+    user = request.user
+
+    if user and user.is_authenticated:
+        if hasattr(user, "auth_token"):
+            data = json.dumps(_serialized_api_user(user))
+        else:
+            data = _serialized_current_user(request)
+
     else:
         data = json.dumps({'message': "User Not Found"})
-    return HttpResponse(data, content_type='application/json')
+        return HttpResponse(data, content_type="application/json", status=403)
+    
+    return HttpResponse(data, content_type="application/json")
+    
 
 @api_stats  # PLEASE KEEP FIRST!
 @require_http_methods(["POST"])
