@@ -45,12 +45,15 @@ def profile(request):
             logger.debug("Token not found")
             data = json.dumps({'message': "API Token Not Found"})
             return HttpResponse(data, content_type='application/json', status=403)
+            
     if request.user.id is not None and not user:
         data = _serialized_current_user(request)
     elif user:
         data = json.dumps(_serialized_api_user(user))
     else:
         data = json.dumps({'message': "User Not Found"})
+        return HttpResponse(data, content_type='application/json', status = 403)
+
     return HttpResponse(data, content_type='application/json')
 
 @api_stats  # PLEASE KEEP FIRST!
