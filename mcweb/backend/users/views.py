@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
-    token = request.GET.get('Authorization', None)
+    token = request.headers.get('Authorization', None)
     user = None
     if token:
         try:

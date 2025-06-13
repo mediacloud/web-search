@@ -1,4 +1,8 @@
-[{"version": "v2.3.0",
+[{"version": "v2.3.1",
+"date": "2025-06-11",
+"notes": ["bug fix profile api method",
+"add link to cite media cloud in footer"
+]},{"version": "v2.3.0",
 "date": "2025-06-05",
 "notes": ["bug fix for limit prop for search api"
 ]},{"version": "v2.2.9",
