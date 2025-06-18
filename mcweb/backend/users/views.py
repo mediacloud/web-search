@@ -51,6 +51,7 @@ def profile(request):
         data = json.dumps(_serialized_api_user(user))
     else:
         data = json.dumps({'message': "User Not Found"})
+        return HttpResponse(data, content_type='application/json', status=403)
     return HttpResponse(data, content_type='application/json')
 
 @api_stats  # PLEASE KEEP FIRST!
