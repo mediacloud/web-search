@@ -85,8 +85,11 @@ class SourceSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("name cannot end with '/'")
         homepage = self.initial_data["homepage"]
         canonical_domain = urls.canonical_domain(homepage)
+        domain_exists = Source.domain_exists(canonical_domain)
+        if domain_exists:
+            raise serializers.ValidationError(f"domain {value} already exists for domain {canonical_domain}")
         if canonical_domain != value:
-            raise serializers.ValidationError(f"name {value} does not match the canonicalized version of homepage: {homepage}")
+            raise serializers.ValidationError(f"domain {value} does not match the canonicalized version of homepage: {homepage}")
         return value
     
     
@@ -189,5 +192,15 @@ class AlternativeDomainSerializer(serializers.ModelSerializer):
         fields = ['id', 'source', 'domain']
 
     def create(self, validated_data):
-        
         return AlternativeDomain.objects.create(**validated_data)
+    
+    def validate_domain(self, value):
+        """
+        Check that domain is unique in db, ensure it is a valid domain and does not start with http or https
+        """
+        if value.startswith('http://') or value.startswith('https://'):
+            raise serializers.ValidationError("domain may not begin with http:// or https://")
+        domain_exists = Source.domain_exists(value)
+        if domain_exists:
+            raise serializers.ValidationError(f"domain {value} already exists")
+        return value

@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, Link, Outlet } from 'react-router-dom';
+import {
+  useParams, Link, Outlet, useNavigate,
+} from 'react-router-dom';
 import dayjs from 'dayjs';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
@@ -12,6 +14,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import CircularProgress from '@mui/material/CircularProgress';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockClosedIcon from '@mui/icons-material/Lock';
@@ -36,13 +39,16 @@ const MAX_MATCH_DISPLAY_LEN = 50; // make sure labels are too long
 
 export default function SourceHeader() {
   const params = useParams();
+  const navigate = useNavigate();
   const sourceId = Number(params.sourceId);
 
   const [openRefetch, setOpenRefetch] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openRescrape, setOpenRescrape] = useState(false);
   const [openCreateAlternativeDomain, setOpenCreateAlternativeDomain] = useState(false);
+  const [openNewAlternativeDomain, setOpenNewAlternativeDomain] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
+  const [openAdConfirm, setOpenAdConfirm] = useState(false);
   const [alternativeDomain, setAlternativeDomain] = useState('');
   const [sourceOptions, setSourceOptions] = useState([]);
   const [selectedSource, setSelectedSource] = useState({
@@ -71,20 +77,36 @@ export default function SourceHeader() {
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
   const [deleteSource] = useDeleteSourceMutation();
   const [scrapeForFeeds] = useRescrapeForFeedsMutation();
-  const [createAlternativeDomain] = useCreateAlternativeDomainMutation();
+  const [createAlternativeDomain,
+    { error: alternativeDomainError }] = useCreateAlternativeDomainMutation();
 
+  // Handle when user wants to turn this source into an alternative domain, this will delete the source and move
+  // the sources feeds and collection to the alternative domain source
   const handleCreateAlternativeDomain = async () => {
+    console.log('handleCreateAlternativeDomain', selectedSource);
     try {
-      await createAlternativeDomain({ source_id: selectedSource.id, alternative_domain: sourceId });
+      await createAlternativeDomain({ source_id: selectedSource.id, alternative_domain_id: sourceId });
+      navigate(`/sources/${selectedSource.id}`);
+      setOpenAdConfirm(false);
+      setOpenCreateAlternativeDomain(false);
     } catch (e) {
       console.error('Error creating alternative domain:', e);
+      console.log(alternativeDomainError);
     }
   };
 
+  const handleAddAlternativeDomain = async () => {
+    try {
+      await createAlternativeDomain({ source_id: sourceId, alternative_domain: alternativeDomain });
+    } catch (e) {
+      console.error('Error creating alternative domain:', e);
+    }
+    setOpenNewAlternativeDomain(false);
+  };
+
   const defaultSelectionHandler = (e, value) => {
-    console.log('defaultSelectionHandler', value);
     if (value.id) {
-      setSelectedSource({ id: value.id, label: value.label });
+      setSelectedSource({ id: value.id, label: value.label, name: value.name });
       setOpenCreateAlternativeDomain(true);
     }
   };
@@ -103,6 +125,7 @@ export default function SourceHeader() {
           type: 'source',
           id: s.id,
           value: s.id,
+          name: s.name,
           label: `${trimStringForDisplay(
             s.label || s.name,
             MAX_MATCH_DISPLAY_LEN,
@@ -120,7 +143,7 @@ export default function SourceHeader() {
 
   const PlatformIcon = platformIcon(source.platform);
   const feedCount = feeds ? feeds.count : 0;
-  console.log('sourceHEader', source);
+  console.log('source', source);
   return (
     <>
       <Header>
@@ -289,7 +312,7 @@ export default function SourceHeader() {
               />
 )}
           >
-            Make Alternative Domain
+            Turn Source Into Alternative Domain
           </Button>
           <Dialog
             open={openCreateAlternativeDomain}
@@ -354,10 +377,83 @@ export default function SourceHeader() {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenCreateAlternativeDomain(false)}>Cancel</Button>
-              <Button onClick={() => handleCreateAlternativeDomain()}>Submit</Button>
+              <Button onClick={() => setOpenAdConfirm(true)}>Submit</Button>
+            </DialogActions>
+          </Dialog>
+          {/* Turn source into alternative domain confirmation modal */}
+          <Dialog
+            open={openAdConfirm}
+            onClose={() => setOpenAdConfirm(false)}
+          >
+            <DialogTitle>
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              Are you sure you want to turn this source into an alternative domain for another source?
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                Are you sure you want to turn {source.label || source.name} into an alternative domain for
+                {' '}
+                {selectedSource.label || selectedSource.name}
+                ? This will delete
+                {' '}
+                {source.label || source.name}
+                {' '}
+                and will transfer all collections and feeds to
+                {' '}
+                {selectedSource.label || selectedSource.name}
+                .
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenAdConfirm(false)}>Cancel</Button>
+              <Button onClick={() => handleCreateAlternativeDomain()}>Confirm</Button>
             </DialogActions>
           </Dialog>
         </PermissionedStaff>
+        <PermissionedContributor>
+          <Button
+            onClick={() => setOpenNewAlternativeDomain(true)}
+            variant="outlined"
+            startIcon={(
+              <LockOpenIcon
+                titleAccess="admin-delete"
+              />
+            )}
+          >
+            Create New Alternative Domain
+          </Button>
+          <Dialog
+            open={openNewAlternativeDomain}
+            onClose={() => setOpenNewAlternativeDomain(false)}
+          >
+            <DialogTitle>
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              Add an Alternative Domain for {source.name}, this should be the canonical domain and should not be a source already.
+              {' '}
+
+            </DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="ad-name"
+                label="Alternative Domain"
+                type="text"
+                fullWidth
+                variant="standard"
+                onChange={(e) => setAlternativeDomain(e.target.value)}
+                value={alternativeDomain || ''}
+                placeholder="eg...huffpost.com"
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenNewAlternativeDomain(false)}>Cancel</Button>
+              <Button onClick={() => handleAddAlternativeDomain()}>Confirm</Button>
+            </DialogActions>
+          </Dialog>
+
+        </PermissionedContributor>
       </ControlBar>
       <Outlet />
     </>

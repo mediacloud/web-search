@@ -364,6 +364,18 @@ class Source(models.Model):
         except:
             logger.warning(f"source {source_id} not found")
 
+    @classmethod
+    def domain_exists(cls, domain: str) -> bool:
+        """
+        Check if a source with the given domain exists.
+        """
+        try:
+            Source.objects.get(name=domain)
+            AlternativeDomain.objects.get(domain=domain)
+            return True
+        except Source.DoesNotExist or AlternativeDomain.DoesNotExist:
+            return False
+
     
 class Feed(models.Model):
     url = models.TextField(null=False, blank=False, unique=True)

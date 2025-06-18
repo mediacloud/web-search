@@ -6,7 +6,7 @@ export const alternativeDomainsApi = managerApi.injectEndpoints({
       query: (payload) => ({
         url: 'alternative-domains/',
         method: 'POST',
-        body: { source_id: payload.source_id, alternative_domain: payload.alternative_domain },
+        body: { ...payload },
       }),
       invalidatesTags: ['Source'],
     }),

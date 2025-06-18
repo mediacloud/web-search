@@ -602,13 +602,35 @@ class AlternativeDomainViewSet(viewsets.ModelViewSet):
     def create(self, request):
         alternative_domain = request.data.get("alternative_domain", None)
         source_id = request.data.get("source_id", None)
-        serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"alternative_domain": serializer.data})
-        else:
-            error_string = str(serializer.errors)
-            raise APIException(f"{error_string}")
+        alternative_domain_id = request.data.get("alternative_domain_id", None)
+        if alternative_domain_id is not None:
+            alternative_domain_source = get_object_or_404(
+                Source, pk=alternative_domain_id)
+            source = get_object_or_404(Source, pk=source_id)
+            serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain_source.name})
+            if serializer.is_valid():
+                serializer.save()
+                for collection in alternative_domain_source.collections.all():
+                    source.collections.add(collection)
+            # then add all source feeds to the alternative domain source
+                for feed in alternative_domain_source.feed_set.all():
+                    source.feed_set.add(feed)
+            # now delete alternative domain source
+                alternative_domain_source.delete()
+                return Response({"alternative_domain": serializer.data})
+            else:
+                error_string = str(serializer.errors)
+                raise APIException(f"{error_string}")
+        if alternative_domain is not None:
+            source = get_object_or_404(Source, pk=source_id)
+            serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"alternative_domain": serializer.data})
+            else:
+                error_string = str(serializer.errors)
+                raise APIException(f"{error_string}")
+
         
 
         
