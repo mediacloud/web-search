@@ -1,4 +1,7 @@
-[{"version": "v2.3.1",
+[{"version": "v2.3.2",
+"date": "2025-06-18",
+"notes": ["update providers to now use new servers"
+]},{"version": "v2.3.1",
 "date": "2025-06-11",
 "notes": ["bug fix profile api method",
 "add link to cite media cloud in footer"
