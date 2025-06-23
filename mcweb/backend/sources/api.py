@@ -16,7 +16,7 @@ from django.db.models import Case, Count, When, Q, Subquery, OuterRef
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, permission_classes
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -623,6 +623,9 @@ class AlternativeDomainViewSet(viewsets.ModelViewSet):
                 raise APIException(f"{error_string}")
         if alternative_domain is not None:
             source = get_object_or_404(Source, pk=source_id)
+            domain_exists = Source.domain_exists(alternative_domain)
+            if domain_exists:
+                raise ValidationError(f"domain {alternative_domain} already exists as a source or an alternative domain")
             serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain})
             if serializer.is_valid():
                 serializer.save()

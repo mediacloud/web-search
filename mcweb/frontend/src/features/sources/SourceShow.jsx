@@ -54,7 +54,6 @@ export default function SourceShow() {
   const parentSource = getParentSource(source.name, sourceList);
 
   const childSources = getChildSources(source.name, sourceList);
-
   return (
     <div className="container">
       {(source.platform === 'online_news') && (
@@ -125,6 +124,22 @@ export default function SourceShow() {
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
           <b>Notes:</b> {source.notes && renderNotes(source.notes, false)}
         </p>
+        )}
+        {(source.alternative_domains[0]) && (
+        <div>
+          <div className="row">
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            <p><b>Alternative Domains</b>:
+              <ul>
+                {source.alternative_domains.map((aD) => (
+                  <li>
+                    {aD}
+                  </li>
+                ))}
+              </ul>
+            </p>
+          </div>
+        </div>
         )}
         <p>
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}

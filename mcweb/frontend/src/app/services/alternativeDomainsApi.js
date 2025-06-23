@@ -11,8 +11,8 @@ export const alternativeDomainsApi = managerApi.injectEndpoints({
       invalidatesTags: ['Source'],
     }),
     deleteAlternativeDomain: builder.mutation({
-      query: (ids) => ({
-        url: `alternative-domains/${ids}/`,
+      query: (id) => ({
+        url: `alternative-domains/${id}/`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Source'],

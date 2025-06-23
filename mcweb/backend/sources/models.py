@@ -369,12 +369,8 @@ class Source(models.Model):
         """
         Check if a source with the given domain exists.
         """
-        try:
-            Source.objects.get(name=domain)
-            AlternativeDomain.objects.get(domain=domain)
-            return True
-        except Source.DoesNotExist or AlternativeDomain.DoesNotExist:
-            return False
+        return (Source.objects.filter(name=domain).exists() or 
+            AlternativeDomain.objects.filter(domain=domain).exists())
 
     
 class Feed(models.Model):

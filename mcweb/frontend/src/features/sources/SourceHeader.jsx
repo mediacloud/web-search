@@ -10,6 +10,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import Alert from '@mui/material/Alert';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
@@ -83,15 +84,14 @@ export default function SourceHeader() {
   // Handle when user wants to turn this source into an alternative domain, this will delete the source and move
   // the sources feeds and collection to the alternative domain source
   const handleCreateAlternativeDomain = async () => {
-    console.log('handleCreateAlternativeDomain', selectedSource);
     try {
       await createAlternativeDomain({ source_id: selectedSource.id, alternative_domain_id: sourceId });
       navigate(`/sources/${selectedSource.id}`);
       setOpenAdConfirm(false);
       setOpenCreateAlternativeDomain(false);
     } catch (e) {
-      console.error('Error creating alternative domain:', e);
-      console.log(alternativeDomainError);
+      setOpenAdConfirm(false);
+      setOpenCreateAlternativeDomain(false);
     }
   };
 
@@ -99,7 +99,8 @@ export default function SourceHeader() {
     try {
       await createAlternativeDomain({ source_id: sourceId, alternative_domain: alternativeDomain });
     } catch (e) {
-      console.error('Error creating alternative domain:', e);
+      setOpenNewAlternativeDomain(false);
+      return;
     }
     setOpenNewAlternativeDomain(false);
   };
@@ -143,7 +144,7 @@ export default function SourceHeader() {
 
   const PlatformIcon = platformIcon(source.platform);
   const feedCount = feeds ? feeds.count : 0;
-  console.log('source', source);
+
   return (
     <>
       <Header>
@@ -169,6 +170,11 @@ export default function SourceHeader() {
         )}
       </Header>
       <ControlBar>
+        {alternativeDomainError && (
+        <Alert sx={{ marginBottom: '10px' }} severity="error">
+          {alternativeDomainError.data || 'An error occurred while creating the alternative domain.'}
+        </Alert>
+        )}
         <Button variant="outlined" startIcon={<SearchIcon titleAccess="search our directory" />}>
           <a
             href={`/search?${urlSerializer([{

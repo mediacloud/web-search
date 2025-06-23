@@ -200,7 +200,4 @@ class AlternativeDomainSerializer(serializers.ModelSerializer):
         """
         if value.startswith('http://') or value.startswith('https://'):
             raise serializers.ValidationError("domain may not begin with http:// or https://")
-        domain_exists = Source.domain_exists(value)
-        if domain_exists:
-            raise serializers.ValidationError(f"domain {value} already exists")
         return value
