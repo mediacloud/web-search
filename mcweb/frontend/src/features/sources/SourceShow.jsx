@@ -133,7 +133,7 @@ export default function SourceShow() {
               <ul>
                 {source.alternative_domains.map((aD) => (
                   <li>
-                    {aD}
+                    {aD.domain}
                   </li>
                 ))}
               </ul>

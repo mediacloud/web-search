@@ -92,8 +92,8 @@ export default function ModifySource() {
   };
 
   const handleDeleteAlternativeDomain = (aD) => {
-    console.log('Deleting alternative domain', aD);
-    deleteAlternativeDomain(aD);
+    deleteAlternativeDomain(aD.id);
+    enqueueSnackbar('Deleted Alternative Domain', { variant: 'success' });
   };
 
   if (isLoading) {
@@ -280,10 +280,10 @@ export default function ModifySource() {
             </tr>
           </thead>
           <tbody>
-            {formState.alternative_domains.map((aD) => (
-              <tr key={aD}>
+            {formState.alternative_domains.map((aD, i) => (
+              <tr key={aD ? aD.id : i}>
                 <td>
-                  {aD}
+                  {aD.domain}
                 </td>
                 <td>
                   <IconButton

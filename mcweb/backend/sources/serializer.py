@@ -180,7 +180,7 @@ class SourcesViewSerializer(serializers.ModelSerializer):
 
     def get_alternative_domains(self, obj):
         # Fetch all related AlternativeDomain objects and return their domains as a list
-        return list(AlternativeDomain.objects.filter(source=obj).values_list('domain', flat=True))
+        return list(AlternativeDomain.objects.filter(source=obj).values('id','domain'))
 
 class AlternativeDomainSerializer(serializers.ModelSerializer):
     source = serializers.PrimaryKeyRelatedField(
