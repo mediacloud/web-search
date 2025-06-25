@@ -394,6 +394,11 @@ class AlternativeDomain(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['domain'], name='domain'),
+            models.Index(fields=['source'], name='source'),
+        ]
+
+        constraints = [
+            models.UniqueConstraint(fields=['source', 'domain'], name='unique_source_domain')
         ]
 
 

@@ -203,6 +203,28 @@ export default function SourceHeader() {
           <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>
         </Button>
 
+        <PermissionedStaff role={ROLE_STAFF}>
+          <AlertDialog
+            outsideTitle="Delete Source"
+            title={`Delete ${platformDisplayName(source.platform)} Source #${sourceId}: ${source.name}`}
+            content={`Are you sure you want to delete ${platformDisplayName(source.platform)}
+                Source #${sourceId}: ${source.name} permanently?`}
+            dispatchNeeded={false}
+            action={deleteSource}
+            actionTarget={sourceId}
+            snackbar
+            snackbarText="Source Deleted!"
+            onClick={() => setOpenDelete(true)}
+            openDialog={openDelete}
+            variant="outlined"
+            navigateNeeded
+            navigateTo="/directory"
+            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
+            secondAction={false}
+            confirmButtonText="delete"
+          />
+        </PermissionedStaff>
+
         {source.url_search_string && (
           <Button
             variant="outlined"
@@ -286,29 +308,6 @@ export default function SourceHeader() {
         </PermissionedContributor>
 
         <PermissionedStaff role={ROLE_STAFF}>
-          <AlertDialog
-            outsideTitle="Delete Source"
-            title={`Delete ${platformDisplayName(source.platform)} Source #${sourceId}: ${source.name}`}
-            content={`Are you sure you want to delete ${platformDisplayName(source.platform)}
-                Source #${sourceId}: ${source.name} permanently?`}
-            dispatchNeeded={false}
-            action={deleteSource}
-            actionTarget={sourceId}
-            snackbar
-            snackbarText="Source Deleted!"
-            onClick={() => setOpenDelete(true)}
-            openDialog={openDelete}
-            variant="outlined"
-            navigateNeeded
-            navigateTo="/directory"
-            startIcon={<LockOpenIcon titleAccess="admin-delete" />}
-            secondAction={false}
-            confirmButtonText="delete"
-          />
-
-        </PermissionedStaff>
-
-        <PermissionedStaff role={ROLE_STAFF}>
           <Button
             onClick={() => setOpenCreateAlternativeDomain(true)}
             variant="outlined"
@@ -316,7 +315,8 @@ export default function SourceHeader() {
               <LockOpenIcon
                 titleAccess="admin-delete"
               />
-)}
+            )}
+            disabled={!!source.url_search_string}
           >
             Turn Source Into Alternative Domain
           </Button>
@@ -326,9 +326,14 @@ export default function SourceHeader() {
           >
             <DialogTitle id="alert-dialog-title">
               {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-              Choose a Source to Create Alternative Domain for {source.name}
+              Choose a Source to Create Alternative Domain for {source.name}.
+              {' '}
             </DialogTitle>
             <DialogContent>
+              <DialogContentText sx={{ marginBottom: '10px' }}>
+                First search for a source in the searchbar and hit &quot;Enter&quot; to search.
+                Then click a source and &quot;Submit&quot; when the correct source is selected.
+              </DialogContentText>
               <Autocomplete
                 ref={autocompleteRef}
                 id="quick-source-search"
@@ -383,7 +388,12 @@ export default function SourceHeader() {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenCreateAlternativeDomain(false)}>Cancel</Button>
-              <Button onClick={() => setOpenAdConfirm(true)}>Submit</Button>
+              <Button
+                onClick={() => setOpenAdConfirm(true)}
+                disabled={!selectedSource.id}
+              >
+                Submit
+              </Button>
             </DialogActions>
           </Dialog>
           {/* Turn source into alternative domain confirmation modal */}
@@ -426,6 +436,7 @@ export default function SourceHeader() {
                 titleAccess="admin-delete"
               />
             )}
+            disabled={!!source.url_search_string}
           >
             Create New Alternative Domain
           </Button>
