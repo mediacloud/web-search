@@ -15,7 +15,6 @@ import traceback
 import types                    # for TracebackType
 from typing import Dict, List, Tuple
 
-from django.utils.timezone import make_aware
 from mc_providers.exceptions import ProviderParseException
 # PyPI:
 from mcmetadata.feeds import normalize_url
@@ -25,7 +24,6 @@ from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 import numpy as np
-from more_itertools.more import first
 
 from ..util.provider import get_task_provider
 
