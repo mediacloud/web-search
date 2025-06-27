@@ -474,11 +474,10 @@ def _get_min_update_date():
 @background(queue=SYSTEM_SLOW)
 def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
     six_months_ago = _get_min_update_date()
+    processed_source_ids = set()
     while True:
-        sources_for_language = Source.objects.filter(
-            Q(primary_language__isnull=True) | Q(modified_at__lt=six_months_ago),
-            name__isnull=False
-        ).order_by("modified_at")[:batch_size]
+        sources_for_language = Source.objects.filter(primary_language__isnull=True, name__isnull=False)\
+                                   .exclude(id__in=processed_source_ids).order_by("modified_at")[:batch_size]
 
         if not sources_for_language.exists():
             logger.info("No new sources to process for language analysis.")
@@ -491,15 +490,15 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
                 logger.info("Bulk updated primary_language for %d sources." % len(analyzed_sources))
 
             Source.objects.filter(id__in=[s.id for s in sources_for_language]).update(modified_at=timezone.now())
+        processed_source_ids.update(s.id for s in sources_for_language)
+
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
-    six_months_ago = _get_min_update_date()
+    processed_source_ids = set()
     while True:
-        sources_for_publication_date = Source.objects.filter(
-            Q(first_story__isnull=True) | Q(modified_at__lt=six_months_ago),
-            name__isnull=False
-        ).order_by("modified_at")[:batch_size]
+        sources_for_publication_date = Source.objects.filter(name__isnull=False)\
+                                           .exclude(id__in=processed_source_ids).order_by("modified_at")[:batch_size]
 
         if not sources_for_publication_date.exists():
             logger.info("No new sources to process for publication date analysis.")
@@ -512,3 +511,5 @@ def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
                 logger.info("Bulk updated first_story for %d sources." % len(analyzed_sources))
 
             Source.objects.filter(id__in=[s.id for s in sources_for_publication_date]).update(modified_at=timezone.now())
+        processed_source_ids.update(s.id for s in sources_for_publication_date)
+
