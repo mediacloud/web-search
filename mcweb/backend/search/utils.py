@@ -258,6 +258,11 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
     save_sources(Source.objects.filter(id__in=sources))
     save_sources(Source.objects.filter(collections__id__in=collections))
 
+
+    # 1B. collect alternative domains
+    AlternativeDomain = apps.get_model('sources', 'AlternativeDomain')
+    domains.update(AlternativeDomain.objects.filter(source__id__in=sources).values_list('domain', flat=True))
+
     # 2. second pass: create dict indexed by domain
     #    with sets of url_search_strings for domains
     #    that are not in the "domains" set

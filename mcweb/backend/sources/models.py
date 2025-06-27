@@ -364,6 +364,14 @@ class Source(models.Model):
         except:
             logger.warning(f"source {source_id} not found")
 
+    @classmethod
+    def domain_exists(cls, domain: str) -> bool:
+        """
+        Check if a source with the given domain exists.
+        """
+        return (Source.objects.filter(name=domain).exists() or 
+            AlternativeDomain.objects.filter(domain=domain).exists())
+
     
 class Feed(models.Model):
     url = models.TextField(null=False, blank=False, unique=True)
@@ -371,5 +379,26 @@ class Feed(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
     name = models.TextField(null=True, blank=True)
-
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
+
+
+class AlternativeDomain(models.Model):
+    """
+    Alternative domain names for a source
+    """
+    source = models.ForeignKey(Source, on_delete=models.CASCADE)
+    domain = models.CharField(max_length=255, null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    modified_at = models.DateTimeField(auto_now=True, null=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['domain'], name='domain'),
+            models.Index(fields=['source'], name='source'),
+        ]
+
+        constraints = [
+            models.UniqueConstraint(fields=['source', 'domain'], name='unique_source_domain')
+        ]
+
+
