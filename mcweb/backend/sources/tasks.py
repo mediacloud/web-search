@@ -15,6 +15,7 @@ import traceback
 import types                    # for TracebackType
 from typing import Dict, List, Tuple
 
+from mc_providers.exceptions import ProviderParseException
 # PyPI:
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
@@ -23,7 +24,6 @@ from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 import numpy as np
-
 
 from ..util.provider import get_task_provider
 
@@ -396,12 +396,12 @@ SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
 SOURCE_UPDATE_MIN_STORY_COUNT = 100 # Minimum number of stories required for a valid source
 SOURCE_UPDATE_START_DATE = timezone.make_aware(dt.datetime(1950, 1, 1)) # Possible earliest source publication date, some sources report 1990s
 
-def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
+def analyze_sources(provider_name: str, sources:List, start_date: dt.datetime, task_name: str) -> List[Dict[str, str]]:
     """
     Generalized function to analyze sources.
     Args:
         provider_name (str): The provider name.
-        sources (QuerySet): The sources to process.
+        sources (List): The sources to process.
         start_date (dt.datetime): The start date for analysis.
         task_name (str): Task name based on param to update ("language" or "publication_date"). Used to create provider session.
     Returns:
@@ -422,9 +422,14 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
     sources_with_no_records = []
 
     domain_search_string = provider.domain_search_string()
-    for source in sources.iterator():
+    for source in sources:
         query_str = f"{domain_search_string}:{source.name}"
-        record_count = provider.count(query_str, start_date, END_DATE)
+        record_count = 0
+        try:
+            record_count = provider.count(query_str, start_date, END_DATE)
+        except ProviderParseException:
+            logger.warning("Failed to fetch record count from Elasticsearch")
+
         if record_count > 0:
             sources_with_records.append(source)
         else:
@@ -445,6 +450,7 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
                 primary_language = max(languages, key=lambda x: x["value"])["language"]
                 source.primary_language = primary_language
                 logger.info("Analyzed source %s. Primary language: %s" % (source.name, primary_language))
+                updated_sources.append(source)
 
             elif task_name == "update_publication_date":
                 results = provider.count_over_time(query_str, start_date, END_DATE)
@@ -456,10 +462,11 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
                 first_story = dt.datetime.combine(earliest_month, dt.datetime.min.time())
                 if first_story:
                     first_story = timezone.make_aware(first_story)
-                    source.first_story = first_story
-                    logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
+                    if source.first_story is None or first_story < source.first_story:
+                        source.first_story = first_story
+                        logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
+                        updated_sources.append(source)
 
-            updated_sources.append(source)
         except Exception as e:
             logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
 
@@ -474,13 +481,12 @@ def _get_min_update_date():
 @background(queue=SYSTEM_SLOW)
 def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
     six_months_ago = _get_min_update_date()
+    last_seen_id = 0
     while True:
-        sources_for_language = Source.objects.filter(
-            Q(primary_language__isnull=True) | Q(modified_at__lt=six_months_ago),
-            name__isnull=False
-        ).order_by("modified_at")[:batch_size]
+        sources_for_language = list(Source.objects.filter(primary_language__isnull=True, name__isnull=False, id__gt=last_seen_id)\
+                                   .order_by("id")[:batch_size])
 
-        if not sources_for_language.exists():
+        if not sources_for_language:
             logger.info("No new sources to process for language analysis.")
             break
 
@@ -491,17 +497,17 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
                 logger.info("Bulk updated primary_language for %d sources." % len(analyzed_sources))
 
             Source.objects.filter(id__in=[s.id for s in sources_for_language]).update(modified_at=timezone.now())
+        last_seen_id = sources_for_language[-1].id
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
-    six_months_ago = _get_min_update_date()
+    last_seen_id = 0
     while True:
-        sources_for_publication_date = Source.objects.filter(
-            Q(first_story__isnull=True) | Q(modified_at__lt=six_months_ago),
-            name__isnull=False
-        ).order_by("modified_at")[:batch_size]
+        # Fetch all sources with a name. first_publication_date may change as older stories are ingested.
+        sources_for_publication_date = list(Source.objects.filter(name__isnull=False, id__gt=last_seen_id)\
+                                           .order_by("id")[:batch_size])
 
-        if not sources_for_publication_date.exists():
+        if not sources_for_publication_date:
             logger.info("No new sources to process for publication date analysis.")
             break
 
@@ -512,3 +518,4 @@ def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
                 logger.info("Bulk updated first_story for %d sources." % len(analyzed_sources))
 
             Source.objects.filter(id__in=[s.id for s in sources_for_publication_date]).update(modified_at=timezone.now())
+        last_seen_id = sources_for_publication_date[-1].id
