@@ -15,6 +15,7 @@ import traceback
 import types                    # for TracebackType
 from typing import Dict, List, Tuple
 
+from django.utils.timezone import make_aware
 # PyPI:
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
@@ -23,7 +24,7 @@ from django.db import transaction
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 import numpy as np
-
+from more_itertools.more import first
 
 from ..util.provider import get_task_provider
 
@@ -445,6 +446,7 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
                 primary_language = max(languages, key=lambda x: x["value"])["language"]
                 source.primary_language = primary_language
                 logger.info("Analyzed source %s. Primary language: %s" % (source.name, primary_language))
+                updated_sources.append(source)
 
             elif task_name == "update_publication_date":
                 results = provider.count_over_time(query_str, start_date, END_DATE)
@@ -456,10 +458,11 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
                 first_story = dt.datetime.combine(earliest_month, dt.datetime.min.time())
                 if first_story:
                     first_story = timezone.make_aware(first_story)
-                    source.first_story = first_story
-                    logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
+                    if source.first_story is None or first_story < source.first_story:
+                        source.first_story = first_story
+                        logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
+                        updated_sources.append(source)
 
-            updated_sources.append(source)
         except Exception as e:
             logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
 
@@ -497,6 +500,7 @@ def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
     processed_source_ids = set()
     while True:
+        # Fetch all sources with a name. first_publication_date may change as older stories are ingested.
         sources_for_publication_date = Source.objects.filter(name__isnull=False)\
                                            .exclude(id__in=processed_source_ids).order_by("modified_at")[:batch_size]
 
@@ -512,4 +516,3 @@ def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
 
             Source.objects.filter(id__in=[s.id for s in sources_for_publication_date]).update(modified_at=timezone.now())
         processed_source_ids.update(s.id for s in sources_for_publication_date)
-
