@@ -505,7 +505,7 @@ def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
     while True:
         # Fetch all sources with a name. first_publication_date may change as older stories are ingested.
         sources_for_publication_date = list(Source.objects.filter(name__isnull=False, id__gt=last_seen_id)\
-                                           .order_by("modified_at")[:batch_size])
+                                           .order_by("id")[:batch_size])
 
         if not sources_for_publication_date:
             logger.info("No new sources to process for publication date analysis.")
