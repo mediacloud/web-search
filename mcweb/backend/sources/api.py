@@ -340,6 +340,9 @@ class SourcesViewSet(viewsets.ModelViewSet):
             else:
                 queryset = queryset.filter(
                     Q(name__icontains=name) | Q(label__icontains=name))
+            alternative_domains = AlternativeDomain.objects.filter(domain__icontains=name)
+            alternative_sources = Source.objects.filter(id__in=alternative_domains.values_list('source_id', flat=True))
+            queryset = queryset | alternative_sources
         return queryset
 
     def create(self, request):
