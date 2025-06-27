@@ -16,6 +16,7 @@ import types                    # for TracebackType
 from typing import Dict, List, Tuple
 
 from django.utils.timezone import make_aware
+from mc_providers.exceptions import ProviderParseException
 # PyPI:
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
@@ -425,7 +426,12 @@ def analyze_sources(provider_name: str, sources:QuerySet, start_date: dt.datetim
     domain_search_string = provider.domain_search_string()
     for source in sources.iterator():
         query_str = f"{domain_search_string}:{source.name}"
-        record_count = provider.count(query_str, start_date, END_DATE)
+        record_count = 0
+        try:
+            record_count = provider.count(query_str, start_date, END_DATE)
+        except ProviderParseException:
+            logger.warning("Failed to fetch record count from Elasticsearch")
+
         if record_count > 0:
             sources_with_records.append(source)
         else:
