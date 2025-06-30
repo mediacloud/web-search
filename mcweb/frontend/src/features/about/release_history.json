@@ -1,4 +1,8 @@
-[{"version": "v2.3.2",
+[{"version": "v2.3.3",
+"date": "2025-06-30",
+"notes": ["add ability to create alternative domains for sources",
+"fix for updating langauge and publication date for sources"
+]},{"version": "v2.3.2",
 "date": "2025-06-18",
 "notes": ["update providers to now use new servers"
 ]},{"version": "v2.3.1",
