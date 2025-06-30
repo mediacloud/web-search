@@ -4,7 +4,6 @@ import json
 import os
 import time
 from typing import List, Optional
-from urllib.parse import urlparse, parse_qs
 
 # PyPI
 import constance                # TEMP
@@ -12,12 +11,11 @@ import mcmetadata.urls as urls
 import requests
 import requests.auth
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.db.models import Case, Count, When, Q, Subquery, OuterRef
+from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, permission_classes
 from rest_framework.exceptions import APIException, ValidationError
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
