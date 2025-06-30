@@ -4,7 +4,6 @@ import json
 import os
 import time
 from typing import List, Optional
-from urllib.parse import urlparse, parse_qs
 
 # PyPI
 import constance                # TEMP
@@ -16,8 +15,7 @@ from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, permission_classes
-from rest_framework.exceptions import APIException
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
@@ -34,8 +32,8 @@ from backend.util import csv_stream
 from backend.util.tasks import get_completed_tasks, get_pending_tasks
 
 # local directory (mcweb/backend/sources)
-from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer
-from .models import Collection, Feed, Source
+from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
+from .models import Collection, Feed, Source, AlternativeDomain
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
@@ -300,10 +298,10 @@ class FeedsViewSet(viewsets.ModelViewSet):
 
 
 class SourcesViewSet(viewsets.ModelViewSet):
-    queryset = Source.objects.\
-        annotate(collection_count=Count('collections')).\
-        order_by('-collection_count').\
-        all()
+    queryset = Source.objects.annotate(
+        collection_count=Count('collections')
+    ).order_by('-collection_count').all()
+        
     permission_classes = [
         IsGetOrIsStaffOrContributor
     ]
@@ -340,6 +338,9 @@ class SourcesViewSet(viewsets.ModelViewSet):
             else:
                 queryset = queryset.filter(
                     Q(name__icontains=name) | Q(label__icontains=name))
+            alternative_domains = AlternativeDomain.objects.filter(domain__icontains=name)
+            alternative_sources = Source.objects.filter(id__in=alternative_domains.values_list('source_id', flat=True))
+            queryset = queryset | alternative_sources
         return queryset
 
     def create(self, request):
@@ -588,6 +589,56 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collection = get_object_or_404(collections_queryset, pk=collection_id)
         source.collections.add(collection)
         return Response({'source_id': source_id, 'collection_id': collection_id})
+    
+
+class AlternativeDomainViewSet(viewsets.ModelViewSet):
+    permission_classes = [
+        IsGetOrIsStaffOrContributor
+    ]
+
+    queryset = AlternativeDomain.objects.all()
+
+    serializer_class = AlternativeDomainSerializer
+
+    def create(self, request):
+        alternative_domain = request.data.get("alternative_domain", None)
+        source_id = request.data.get("source_id", None)
+        alternative_domain_id = request.data.get("alternative_domain_id", None)
+        if alternative_domain_id is not None:
+            alternative_domain_source = get_object_or_404(
+                Source, pk=alternative_domain_id)
+            source = get_object_or_404(Source, pk=source_id)
+            serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain_source.name})
+            if serializer.is_valid():
+                serializer.save()
+                for collection in alternative_domain_source.collections.all():
+                    source.collections.add(collection)
+            # then add all source feeds to the alternative domain source
+                for feed in alternative_domain_source.feed_set.all():
+                    source.feed_set.add(feed)
+            # now delete alternative domain source
+                alternative_domain_source.delete()
+                return Response({"alternative_domain": serializer.data})
+            else:
+                error_string = str(serializer.errors)
+                raise APIException(f"{error_string}")
+        if alternative_domain is not None:
+            source = get_object_or_404(Source, pk=source_id)
+            domain_exists = Source.domain_exists(alternative_domain)
+            if domain_exists:
+                raise ValidationError(f"domain {alternative_domain} already exists as a source or an alternative domain")
+            serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain})
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"alternative_domain": serializer.data})
+            else:
+                error_string = str(serializer.errors)
+                raise APIException(f"{error_string}")
+
+        
+
+        
+
 
 def _filename_timestamp() -> str:
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
