@@ -94,16 +94,6 @@ export default function FeedMenu({ source, disabled }) {
             {`List Feeds (${feedCount})`}
           </Button>
 
-          {/* CREATE FEED */}
-          <Button
-            variant="outlined"
-            startIcon={<LockOpenIcon titleAccess="admin-create" />}
-            onClick={handleCreateFeed}
-            sx={{ marginLeft: '5px', marginRight: '5px' }}
-          >
-            Create Feed
-          </Button>
-
           {/* REFETCH FEEDS */}
           <AlertDialog
             outsideTitle="Refetch Feeds"
@@ -124,6 +114,16 @@ export default function FeedMenu({ source, disabled }) {
             confirmButtonText="refetch feeds"
             disabled={!!source.url_search_string}
           />
+
+          {/* CREATE FEED */}
+          <Button
+            variant="outlined"
+            startIcon={<LockOpenIcon titleAccess="admin-create" />}
+            onClick={handleCreateFeed}
+            sx={{ marginLeft: '5px', marginRight: '5px' }}
+          >
+            Create Feed
+          </Button>
 
           {/* RESCRAPE SOURCE FOR FEEDS */}
           <AlertDialog
