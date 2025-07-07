@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -26,6 +27,7 @@ export default function AdvancedMenu({
   source,
 }) {
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
 
   const autocompleteRef = useRef(null);
 
@@ -60,6 +62,19 @@ export default function AdvancedMenu({
     }
   };
 
+  const handleConvertIntoAlternativeDomain = () => {
+    createAlternativeDomain({ source_id: selectedSource.id, alternative_domain_id: source.id });
+    setOpenAdvanced(false);
+    setOpenCreateAlternativeDomain(false);
+    setOpenAdConfirm(false);
+    navigate(`/sources/${selectedSource.id}`);
+    enqueueSnackbar(
+      `Source #${source.id} (${source.name}) converted into an alternative domain  
+      for Source #${selectedSource.id} (${selectedSource.name})`,
+      { variant: 'success' },
+    );
+  };
+
   useEffect(() => {
     if (sourceSearchResults) {
       const existingOptionIds = sourceOptions
@@ -85,19 +100,9 @@ export default function AdvancedMenu({
   }, [sourceSearchResults]);
 
   useEffect(() => {
-    setOpenAdConfirm(false);
-  }, [alternativeDomainError]);
-
-  useEffect(() => {
     if (altDomain) {
       setOpenNewAlternativeDomain(false);
       setOpenAdvanced(false);
-      setAlternativeDomain('');
-      setOpenCreateAlternativeDomain(false);
-      setOpenAdConfirm(false);
-      if (altDomain.source) {
-        navigate(`/sources/${altDomain.source}`);
-      }
     }
   }, [altDomain]);
 
@@ -129,10 +134,11 @@ export default function AdvancedMenu({
               variant="outlined"
               startIcon={(
                 <LockOpenIcon
-                  titleAccess="admin-delete"
+                  titleAccess="convert-source-to-ad"
                 />
             )}
               disabled={!!source.url_search_string}
+              sx={{ marginRight: '5px' }}
             >
               Convert Source Into Alternative Domain
             </Button>
@@ -142,18 +148,21 @@ export default function AdvancedMenu({
             >
               {alternativeDomainError && (
               <Alert severity="error" sx={{ marginBottom: '10px' }}>
-                {console.log(alternativeDomainError)}
                 Error creating alternative domain:
                 {' '}
-                {alternativeDomainError?.data}
+                {/*  eslint-disable-next-line no-console */}
+                {alternativeDomainError?.data || console.error(alternativeDomainError)}
               </Alert>
               )}
               <DialogTitle id="alert-dialog-title">
                 {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                Choose a Source to Create Alternative Domain for {source.name}.
-                {' '}
+                Choose a Source for {source.name} to be converted into to an Alternative Domain.
               </DialogTitle>
               <DialogContent>
+                <Alert severity="error" sx={{ marginBottom: '10px' }}>
+                  Converting a source into an alternative domain will delete the source,
+                  this change can not be undone.
+                </Alert>
                 <DialogContentText sx={{ marginBottom: '10px' }}>
                   First search for a source in the searchbar and hit &quot;Enter&quot; to search.
                   Then click a source and &quot;Submit&quot; when the correct source is selected.
@@ -245,11 +254,15 @@ export default function AdvancedMenu({
                   {selectedSource.label || selectedSource.name}
                   .
                 </DialogContentText>
+                <Alert severity="error" sx={{ marginTop: '10px' }}>
+                  Converting a source into an alternative domain will delete the source,
+                  this change can not be undone.
+                </Alert>
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => setOpenAdConfirm(false)}>Cancel</Button>
                 <Button
-                  onClick={() => createAlternativeDomain({ source_id: selectedSource.id, alternative_domain_id: source.id })}
+                  onClick={handleConvertIntoAlternativeDomain}
                 >
                   Confirm
                 </Button>
@@ -262,9 +275,10 @@ export default function AdvancedMenu({
               variant="outlined"
               startIcon={(
                 <LockOpenIcon
-                  titleAccess="admin-delete"
+                  titleAccess="create-alternative-domain"
                 />
             )}
+              sx={{ marginRight: '5px' }}
               disabled={!!source.url_search_string}
             >
               Create Alternative Domain
@@ -275,10 +289,10 @@ export default function AdvancedMenu({
             >
               {alternativeDomainError && (
               <Alert severity="error" sx={{ marginBottom: '10px' }}>
-                {console.log(alternativeDomainError)}
                 Error creating alternative domain:
                 {' '}
-                {alternativeDomainError?.data || 'Unknown error'}
+                {/*  eslint-disable-next-line no-console */}
+                {alternativeDomainError?.data || console.error(alternativeDomainError)}
               </Alert>
               )}
               <DialogTitle>

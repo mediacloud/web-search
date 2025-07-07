@@ -128,8 +128,11 @@ export default function SourceShow() {
         {(source.alternative_domains[0]) && (
           <div className="row">
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            <b>Alternative Domains:</b>
+            <b>Domains:</b>
             <ul>
+              <li key={source.domain}>
+                {source.name}
+              </li>
               {source.alternative_domains.map((aD) => (
                 <li key={aD.domain}>
                   {aD.domain}
