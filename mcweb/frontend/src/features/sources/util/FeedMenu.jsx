@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockClosedIcon from '@mui/icons-material/Lock';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import AlertDialog from '../../ui/AlertDialog';
 import { useListFeedsQuery, useLazyFetchFeedQuery } from '../../../app/services/feedsApi';
 import { useRescrapeForFeedsMutation } from '../../../app/services/sourceApi';
@@ -16,12 +17,18 @@ export default function FeedMenu({ source, disabled }) {
   const [open, setOpen] = useState(false);
   const [openRefetch, setOpenRefetch] = useState(false);
   const [openRescrape, setOpenRescrape] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const {
     data: feeds,
   } = useListFeedsQuery({ source_id: source.id });
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
   const [scrapeForFeeds] = useRescrapeForFeedsMutation();
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+    setOpen(true);
+  };
 
   const handleRescrape = () => {
     setOpenRescrape(true);
@@ -63,37 +70,37 @@ export default function FeedMenu({ source, disabled }) {
 
       <Button
         variant="outlined"
-        onClick={() => setOpen(true)}
+        onClick={handleMenuOpen}
         startIcon={(
           <ListAltIcon
             titleAccess="feeds options"
           />
         )}
+        endIcon={<KeyboardArrowDown />}
       >
         {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-        Feeds Options ({feedCount})...
+        Feeds Options ({feedCount})
       </Button>
-      <Dialog
+      <Menu
         open={open}
         onClose={() => setOpen(false)}
         maxWidth="md"
+        anchorEl={anchorEl}
       >
-        <DialogContent>
+        <MenuItem>
           {/* LIST FEEDS */}
           <Button
-            variant="outlined"
             startIcon={(
               <ListAltIcon
                 titleAccess="source's feeds page"
               />
             )}
             onClick={handleListFeeds}
-            sx={{ marginRight: '5px' }}
-
           >
             {`List Feeds (${feedCount})`}
           </Button>
-
+        </MenuItem>
+        <MenuItem>
           {/* REFETCH FEEDS */}
           <AlertDialog
             outsideTitle="Refetch Feeds"
@@ -108,23 +115,24 @@ export default function FeedMenu({ source, disabled }) {
             snackbarText="Feeds Queued!"
             onClick={handleRefetch}
             openDialog={openRefetch}
-            variant="outlined"
+            variant="text"
             startIcon={<LockOpenIcon titleAccess="admin-edit" />}
             secondAction={false}
             confirmButtonText="refetch feeds"
             disabled={!!source.url_search_string}
           />
-
+        </MenuItem>
+        <MenuItem>
           {/* CREATE FEED */}
           <Button
-            variant="outlined"
+            variant="text"
             startIcon={<LockOpenIcon titleAccess="admin-create" />}
             onClick={handleCreateFeed}
-            sx={{ marginLeft: '5px', marginRight: '5px' }}
           >
             Create Feed
           </Button>
-
+        </MenuItem>
+        <MenuItem>
           {/* RESCRAPE SOURCE FOR FEEDS */}
           <AlertDialog
             outsideTitle="Rescrape Source"
@@ -138,15 +146,15 @@ export default function FeedMenu({ source, disabled }) {
             snackbarText="Source Queued for Rescraping"
             onClick={handleRescrape}
             openDialog={openRescrape}
-            variant="outlined"
+            variant="text"
             navigateNeeded={false}
             startIcon={<LockOpenIcon titleAccess="admin-delete" />}
             secondAction={false}
             confirmButtonText="Rescrape"
             disabled={!!source.url_search_string}
           />
-        </DialogContent>
-      </Dialog>
+        </MenuItem>
+      </Menu>
     </>
   );
 }

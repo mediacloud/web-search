@@ -91,7 +91,10 @@ export default function SourceHeader() {
             <Link to={`/sources/${sourceId}/edit`}>Edit Source</Link>
           </Button>
 
-          <FeedMenu source={source} disabled={!!source.url_search_string} />
+          <FeedMenu
+            source={source}
+            disabled={!!source.url_search_string}
+          />
           <AdvancedMenu source={source} />
         </PermissionedContributor>
       </ControlBar>

@@ -6,12 +6,15 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContentText from '@mui/material/DialogContentText';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import PropTypes from 'prop-types';
 import AlertDialog from '../../ui/AlertDialog';
 import { trimStringForDisplay, platformDisplayName } from '../../ui/uiUtil';
@@ -39,6 +42,7 @@ export default function AdvancedMenu({
   const [openAdConfirm, setOpenAdConfirm] = useState(false);
   const [openSearch, setOpenSearch] = useState(false);
   const [openAdvanced, setOpenAdvanced] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const [selectedSource, setSelectedSource] = useState({
     id: '',
@@ -54,6 +58,11 @@ export default function AdvancedMenu({
   ] = useLazyListSourcesQuery();
 
   const [deleteSource] = useDeleteSourceMutation();
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+    setOpenAdvanced(true);
+  };
 
   const defaultSelectionHandler = (e, value) => {
     if (value.id) {
@@ -109,38 +118,38 @@ export default function AdvancedMenu({
   return (
     <>
       <Button
-        onClick={() => setOpenAdvanced(true)}
+        onClick={handleMenuOpen}
         variant="outlined"
         startIcon={(
           <LockOpenIcon
             titleAccess="admin-advanced"
           />
         )}
+        endIcon={<KeyboardArrowDown />}
         disabled={!!source.url_search_string}
       >
-        Advanced Options...
+        Advanced Options
       </Button>
-      <Dialog
+      <Menu
         open={openAdvanced}
         onClose={() => setOpenAdvanced(false)}
         maxWidth="md"
         fullWidth
+        anchorEl={anchorEl}
       >
-        <DialogContent>
+        <MenuItem>
           {/* CONVERT SOURCE TO AD SEARCH MODAL  */}
           <PermissionedStaff role={ROLE_STAFF}>
             <Button
               onClick={() => setOpenCreateAlternativeDomain(true)}
-              variant="outlined"
               startIcon={(
                 <LockOpenIcon
                   titleAccess="convert-source-to-ad"
                 />
             )}
               disabled={!!source.url_search_string}
-              sx={{ marginRight: '5px' }}
             >
-              Convert Source Into Alternative Domain
+              Convert Source Into Alternative Domain...
             </Button>
             <Dialog
               open={openCreateAlternativeDomain}
@@ -268,32 +277,34 @@ export default function AdvancedMenu({
                 </Button>
               </DialogActions>
             </Dialog>
+
           </PermissionedStaff>
+        </MenuItem>
+        <MenuItem>
           <PermissionedContributor>
             <Button
               onClick={() => setOpenNewAlternativeDomain(true)}
-              variant="outlined"
               startIcon={(
                 <LockOpenIcon
                   titleAccess="create-alternative-domain"
                 />
             )}
-              sx={{ marginRight: '5px' }}
               disabled={!!source.url_search_string}
             >
-              Create Alternative Domain
+              Create Alternative Domain...
             </Button>
+
             <Dialog
               open={openNewAlternativeDomain}
               onClose={() => setOpenNewAlternativeDomain(false)}
             >
               {alternativeDomainError && (
-              <Alert severity="error" sx={{ marginBottom: '10px' }}>
-                Error creating alternative domain:
-                {' '}
-                {/*  eslint-disable-next-line no-console */}
-                {alternativeDomainError?.data || console.error(alternativeDomainError)}
-              </Alert>
+                <Alert severity="error" sx={{ marginBottom: '10px' }}>
+                  Error creating alternative domain:
+                  {' '}
+                  {/*  eslint-disable-next-line no-console */}
+                  {alternativeDomainError?.data || console.error(alternativeDomainError)}
+                </Alert>
               )}
               <DialogTitle>
                 {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
@@ -323,7 +334,9 @@ export default function AdvancedMenu({
             </Dialog>
 
           </PermissionedContributor>
-          {/* DELETE SOURCE */}
+        </MenuItem>
+        {/* DELETE SOURCE */}
+        <MenuItem>
           <PermissionedStaff role={ROLE_STAFF}>
             <AlertDialog
               outsideTitle="Delete Source"
@@ -337,7 +350,7 @@ export default function AdvancedMenu({
               snackbarText="Source Deleted!"
               onClick={() => setOpenDelete(true)}
               openDialog={openDelete}
-              variant="outlined"
+              variant="text"
               navigateNeeded
               navigateTo="/directory"
               startIcon={<LockOpenIcon titleAccess="admin-delete" />}
@@ -345,8 +358,9 @@ export default function AdvancedMenu({
               confirmButtonText="delete"
             />
           </PermissionedStaff>
-        </DialogContent>
-      </Dialog>
+        </MenuItem>
+
+      </Menu>
     </>
   );
 }
