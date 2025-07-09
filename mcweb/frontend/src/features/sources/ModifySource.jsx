@@ -278,12 +278,17 @@ export default function ModifySource() {
                 title="The domain that uniquely identifies the Source within our system for
                 searching against the Online News Archive."
               >
-                <th>Alternative Domain</th>
+                <th>Domains</th>
               </Tooltip>
               <th>Delete</th>
             </tr>
           </thead>
           <tbody>
+            <tr>
+              <td>
+                {formState.name}
+              </td>
+            </tr>
             {formState.alternative_domains.map((aD, i) => (
               <tr key={aD ? aD.id : i}>
                 <td>

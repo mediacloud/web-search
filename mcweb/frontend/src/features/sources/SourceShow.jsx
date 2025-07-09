@@ -120,26 +120,26 @@ export default function SourceShow() {
         </div>
         )}
         {source.notes && (
-        <p>
+        <div>
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
           <b>Notes:</b> {source.notes && renderNotes(source.notes, false)}
-        </p>
+        </div>
         )}
         {(source.alternative_domains[0]) && (
-        <div>
           <div className="row">
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-            <p><b>Alternative Domains</b>:
-              <ul>
-                {source.alternative_domains.map((aD) => (
-                  <li>
-                    {aD.domain}
-                  </li>
-                ))}
-              </ul>
-            </p>
+            <b>Domains:</b>
+            <ul>
+              <li key={source.domain}>
+                {source.name}
+              </li>
+              {source.alternative_domains.map((aD) => (
+                <li key={aD.domain}>
+                  {aD.domain}
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
         )}
         <p>
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
