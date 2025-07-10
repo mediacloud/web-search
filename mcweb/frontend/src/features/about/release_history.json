@@ -1,7 +1,8 @@
 [{"version": "v2.3.3",
-"date": "2025-06-30",
+"date": "2025-07-10",
 "notes": ["add ability to create alternative domains for sources",
-"fix for updating langauge and publication date for sources"
+"fix for updating langauge and publication date for sources",
+"revamp source header menus"
 ]},{"version": "v2.3.2",
 "date": "2025-06-18",
 "notes": ["update providers to now use new servers"
