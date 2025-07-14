@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import InputLabel from '@mui/material/InputLabel';
@@ -13,6 +16,7 @@ import { useSnackbar } from 'notistack';
 import CollectionList from '../collections/CollectionList';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { useGetSourceQuery, useUpdateSourceMutation } from '../../app/services/sourceApi';
+import { useDeleteAlternativeDomainMutation } from '../../app/services/alternativeDomainsApi';
 import DirectorySearch from '../directory/DirectorySearch';
 import validateURLSearchString from './util/validateURLSearchString';
 
@@ -35,6 +39,7 @@ export default function ModifySource() {
     pub_country: '',
     pub_state: '',
     url_search_stringErrors: '',
+    alternative_domains: [],
   });
 
   const handleChange = ({ target: { name, value } }) => (
@@ -43,6 +48,7 @@ export default function ModifySource() {
 
   // update
   const [updateSource] = useUpdateSourceMutation();
+  const [deleteAlternativeDomain] = useDeleteAlternativeDomainMutation();
 
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -65,6 +71,7 @@ export default function ModifySource() {
         media_type: data.media_type ? data.media_type : '',
         pub_country: data.pub_country,
         pub_state: data.pub_state,
+        alternative_domains: data.alternative_domains || [],
       };
       setFormState(formData);
     }
@@ -86,6 +93,11 @@ export default function ModifySource() {
       }
     });
     return preparedSource;
+  };
+
+  const handleDeleteAlternativeDomain = (aD) => {
+    deleteAlternativeDomain(aD.id);
+    enqueueSnackbar('Deleted Alternative Domain', { variant: 'success' });
   };
 
   if (isLoading) {
@@ -251,6 +263,53 @@ export default function ModifySource() {
       </div>
 
       {/* Assocation Content */}
+
+      <div className="row">
+        <div className="col-12">
+          <hr />
+        </div>
+      </div>
+
+      <div className="row">
+        <table width="100%">
+          <thead>
+            <tr>
+              <Tooltip
+                title="The domain that uniquely identifies the Source within our system for
+                searching against the Online News Archive."
+              >
+                <th>Domains</th>
+              </Tooltip>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                {formState.name}
+              </td>
+            </tr>
+            {formState.alternative_domains.map((aD, i) => (
+              <tr key={aD ? aD.id : i}>
+                <td>
+                  {aD.domain}
+                </td>
+                <td>
+                  <IconButton
+                    aria-label="remove"
+                    onClick={() => handleDeleteAlternativeDomain(aD)}
+                    title="Delete Alternative Domain"
+                  >
+                    <HighlightOffIcon />
+                  </IconButton>
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+      </div>
 
       <div className="row">
         <div className="col-12">
