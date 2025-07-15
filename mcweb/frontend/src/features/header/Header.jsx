@@ -11,7 +11,7 @@ import UserMenu from './UserMenu';
 import { assetUrl } from '../ui/uiUtil';
 import { PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import SystemAlert from './SystemAlert';
-import releases from '../../../static/about/release_history.json';
+import releases from '../about/release_history.json';
 
 const relativeTime = require('dayjs/plugin/relativeTime');
 
@@ -101,7 +101,23 @@ function Header() {
                         About Search API
                       </MenuItem>
                     </a>
+                    {/* <a
+                      href="https://www.vitals.mediacloud.org"
+                      target="_blank"
+                      onClick={handleClose}
+                      style={{ textDecoration: 'none', color: 'black' }}
+                      rel="noreferrer"
+                    >
+                      <MenuItem>
+                        Vitals
+                      </MenuItem>
+                    </a> */}
                   </Menu>
+                  {/* <Button>
+                    <a href="https://www.vitals.mediacloud.org" target="_blank" rel="noreferrer">
+                      Vitals
+                    </a>
+                  </Button> */}
                 </li>
               </ul>
 
