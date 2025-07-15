@@ -8,13 +8,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
-    help = 'Delete reset codes older than one week'
+    help = 'Delete reset codes older than one day'
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--days',
             type=int,
-            default=7,
+            default=1,
             help='Number of days to keep reset codes (default: 7)',
         )
 
