@@ -49,6 +49,11 @@ function Header() {
                   </li>
                 ))}
                 <li>
+                  <Button>
+                    <a href="https://vitals.mediacloud.org" target="_blank" rel="noreferrer">
+                      Vitals
+                    </a>
+                  </Button>
                   <Button onClick={handleClick}>About</Button>
                   <Menu
                     id="about-menu"
@@ -101,23 +106,7 @@ function Header() {
                         About Search API
                       </MenuItem>
                     </a>
-                    {/* <a
-                      href="https://www.vitals.mediacloud.org"
-                      target="_blank"
-                      onClick={handleClose}
-                      style={{ textDecoration: 'none', color: 'black' }}
-                      rel="noreferrer"
-                    >
-                      <MenuItem>
-                        Vitals
-                      </MenuItem>
-                    </a> */}
                   </Menu>
-                  {/* <Button>
-                    <a href="https://www.vitals.mediacloud.org" target="_blank" rel="noreferrer">
-                      Vitals
-                    </a>
-                  </Button> */}
                 </li>
               </ul>
 
