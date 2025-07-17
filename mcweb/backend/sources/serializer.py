@@ -83,6 +83,12 @@ class SourceSerializer(serializers.ModelSerializer):
         canonical_domain = urls.canonical_domain(homepage)
         if canonical_domain != value:
             raise serializers.ValidationError(f"domain {value} does not match the canonicalized version of homepage: {homepage}")
+        queryset = Source.objects.filter(name=value)
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+    
+        if queryset.exists():
+            raise serializers.ValidationError(f"The name '{value}' is already taken.")
         return value
     
     
