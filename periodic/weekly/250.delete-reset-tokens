@@ -1,0 +1,3 @@
+#!/bin/sh
+
+python mcweb/manage.py delete-reset-tokens
