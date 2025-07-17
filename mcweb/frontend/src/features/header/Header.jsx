@@ -11,7 +11,7 @@ import UserMenu from './UserMenu';
 import { assetUrl } from '../ui/uiUtil';
 import { PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 import SystemAlert from './SystemAlert';
-import releases from '../../../static/about/release_history.json';
+import releases from '../about/release_history.json';
 
 const relativeTime = require('dayjs/plugin/relativeTime');
 
@@ -49,6 +49,11 @@ function Header() {
                   </li>
                 ))}
                 <li>
+                  <Button>
+                    <a href="https://vitals.mediacloud.org" target="_blank" rel="noreferrer">
+                      Vitals
+                    </a>
+                  </Button>
                   <Button onClick={handleClick}>About</Button>
                   <Menu
                     id="about-menu"
