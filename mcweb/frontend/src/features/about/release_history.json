@@ -1,4 +1,10 @@
-[{"version": "v2.3.3",
+[{"version": "v2.3.4",
+"date": "2025-07-17",
+"notes": ["add link to vitals in header",
+"fix release notes in header",
+"edit search date warning",
+"fix error in modifying sources"
+]},{"version": "v2.3.3",
 "date": "2025-07-10",
 "notes": ["add ability to create alternative domains for sources",
 "fix for updating langauge and publication date for sources",
