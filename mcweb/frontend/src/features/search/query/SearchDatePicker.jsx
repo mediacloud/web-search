@@ -30,7 +30,7 @@ export default function SearchDatePicker({ queryIndex }) {
   // the minimum/maximum dates based on platform for both From and To dates
   // XXX does this get reexcuted when platform changes???
   const minDJS = earliestAllowedStartDate(platform); // dayjs
-  const maxDJS = latestAllowedEndDate(platform);     // dayjs
+  const maxDJS = latestAllowedEndDate(platform); // dayjs
 
   // handler for the fromDate MUI DatePicker
   const handleChangeFromDate = (newValue) => {
@@ -87,7 +87,7 @@ export default function SearchDatePicker({ queryIndex }) {
       {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
         <Alert severity="warning">
           {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          Reingest of historical data in progress. Search results available from present back to {minDJS.format(dateFormat)}
+          Reingest of historical data in progress. Search results since {minDJS.format('YYYY')} now available.
         </Alert>
       )}
       <div className="date-picker-wrapper local-provider">
