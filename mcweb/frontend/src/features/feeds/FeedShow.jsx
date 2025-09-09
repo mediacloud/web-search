@@ -100,7 +100,7 @@ function FeedShow() {
               {' '}
               {details.last_fetch_failures}
               {' '}
-              (too many of these and the system will disable this feed)
+              (Feed poll frequency is reduced when fetch failures occurs, the upper limit is 1 fetch attempt / 30 days)
             </li>
           </ul>
         </div>
