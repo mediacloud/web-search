@@ -29,7 +29,7 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_P
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 from util.stats import api_stats
-from util.ratelimit_callables import HTTPResponseRatelimited
+from util.ratelimit_callables import HttpResponseRatelimited
 
 # mcweb/backend/search (local dir)
 from .utils import (
@@ -103,7 +103,7 @@ def error_response(msg: str, *, exc: Exception | None = None,
             response["traceback"] = tb.format_exception(exc)[-2]
 
         if isinstance(exc, Ratelimited):
-            json_response({"error": "ratelimited"}, HTTPResponseRatelimited)
+            json_response({"error": "ratelimited"}, HttpResponseRatelimited)
     if temporary:
         response["temporary"] = True
     return json_response(response, _class=response_type)
