@@ -1,4 +1,6 @@
 from django.contrib.auth.models import Group
+from http import HTTPStatus
+from django.http import HttpResponse
 
 HIGH_RATE_LIMIT_GROUP = "api-high-rate-limit"
 
@@ -8,3 +10,6 @@ def story_list_rate(group, request):
         return "100/m"
     else:
         return "2/m"
+
+class HttpResponseRatelimited(HttpResponse):
+    status_code = HTTPStatus.TOO_MANY_REQUESTS

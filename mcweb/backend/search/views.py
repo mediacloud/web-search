@@ -12,6 +12,7 @@ import requests
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django_ratelimit.decorators import ratelimit
+from django_ratelimit.exceptions import Ratelimited
 from django.views.decorators.http import require_http_methods
 from mc_providers.exceptions import (
     PermanentProviderException, ProviderException, ProviderParseException, QueryingEverythingUnsupportedQuery,
@@ -28,6 +29,7 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_P
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 from util.stats import api_stats
+from util.ratelimit_callables import HTTPResponseRatelimited
 
 # mcweb/backend/search (local dir)
 from .utils import (
@@ -99,6 +101,9 @@ def error_response(msg: str, *, exc: Exception | None = None,
             # limit payload and info leakage, if neither is a problem, or
             # this turns out to be flakey, could pass back the entire list):
             response["traceback"] = tb.format_exception(exc)[-2]
+
+        if isinstance(exc, Ratelimited):
+            json_response({"error": "ratelimited"}, HTTPResponseRatelimited)
     if temporary:
         response["temporary"] = True
     return json_response(response, _class=response_type)
