@@ -90,6 +90,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     RSS_FETCHER_PASS=(str, ""),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
+    SECRET_KEY=(str, ""),
     SENTRY_DSN=(str, ""),
     SENTRY_ENV=(str, ""),
     SENTRY_JS_REPLAY_RATE=(float, 0.1), # fraction 0 to 1.0
