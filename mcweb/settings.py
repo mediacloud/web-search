@@ -105,7 +105,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # suppress environ package debug messages:
 _env_logger = logging.getLogger('environ.environ')
-#_env_log_level = _env_logger.getEffectiveLevel()
+_env_log_level = _env_logger.getEffectiveLevel()
 #_env_logger.setLevel(logging.INFO)
 
 ################ @@CONFIGURATION@@ variables
