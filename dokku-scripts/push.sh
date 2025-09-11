@@ -307,6 +307,9 @@ echo configuring app ${APP}...
 export NO_CODE_CHANGES
 $SCRIPT_DIR/config.sh $INSTANCE $PRIVATE_CONF_FILE $CONFIG_EXTRAS
 
+echo "=== Dokku Environment Variables ==="
+dokku config:export $APP | grep -E "(RSS_FETCHER|SECRET_KEY|EARLIEST_AVAILABLE_DATE)" || echo "No matching variables found"
+
 CONFIG_STATUS=$?
 case $CONFIG_STATUS in
 $CONFIG_STATUS_CHANGED)
