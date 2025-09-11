@@ -54,7 +54,7 @@ from backend.users.exceptions import OverQuotaException
 # mcweb/backend/util
 import backend.util.csv_stream as csv_stream
 
-TRACE_JSON_RESPONSE = False
+TRACE_JSON_RESPONSE = True
 
 logger = logging.getLogger(__name__)
 
