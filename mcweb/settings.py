@@ -71,6 +71,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     CACHE_SECONDS=(int, 24*60*60),
     CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
     DEBUG=(bool, False),
+    EARLIEST_AVAILABLE_DATE=(str, "2020-01-01"),
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     EMAIL_HOST=(str, ""),
     EMAIL_HOST_PASSWORD=(str, ""),
@@ -191,8 +192,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "ratelimit.middleware.RatelimitMiddleware",
     "util.logging_middleware.RequestLoggingMiddleware"
 ]
+
+RATELIMIT_VIEW="backend.search.views"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
