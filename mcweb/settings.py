@@ -196,11 +196,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "django_ratelimit.middleware.RatelimitMiddleware",
+    #"django_ratelimit.middleware.RatelimitMiddleware",
     "util.logging_middleware.RequestLoggingMiddleware"
 ]
 
-RATELIMIT_VIEW="backend.search.views.ratelimit_errorrr"
+#RATELIMIT_VIEW="backend.search.views.ratelimit_error"
+RATELIMIT_EXCEPTION_CLASS="util.ratelimit_callables.HttpResponseRatelimited"
 
 # Debug logging for ratelimit configuration
 logger.debug("RatelimitMiddleware configured with view: %s", RATELIMIT_VIEW)
