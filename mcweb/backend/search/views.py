@@ -332,8 +332,8 @@ def download_languages_csv(request):
 
 
 @api_stats  # PLEASE KEEP FIRST!
-@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 @handle_provider_errors
+@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
