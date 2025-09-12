@@ -10,7 +10,7 @@ def story_list_rate(group, request):
     logger = logging.getLogger(__name__)
     
     rate = "100/m" if (request.user.groups.filter(name=HIGH_RATE_LIMIT_GROUP).exists() or request.user.is_staff) else "2/m"
-    logger.debug("story_list_rate: user %s, rate: %s", request.user, rate)
+    logger.debug("story_list_rate: user %s, rate: %s, path: %s", request.user, rate, request.path)
     return rate
 
 class HttpResponseRatelimited(HttpResponse):

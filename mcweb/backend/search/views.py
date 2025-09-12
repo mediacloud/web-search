@@ -108,6 +108,17 @@ def error_response(msg: str, *, exc: Exception | None = None,
 
 def ratelimit_error(request, exception):
     logger.debug("ratelimit_error called with exception: %s", exception)
+    logger.debug("ratelimit_error request path: %s", request.path)
+    logger.debug("ratelimit_error request method: %s", request.method)
+    logger.debug("ratelimit_error request user: %s", request.user)
+    
+    # Check if this is actually a Ratelimited exception
+    from django_ratelimit.exceptions import Ratelimited
+    if isinstance(exception, Ratelimited):
+        logger.debug("ratelimit_error: Confirmed Ratelimited exception")
+    else:
+        logger.debug("ratelimit_error: Exception is NOT Ratelimited, type: %s", type(exception).__name__)
+    
     return json_response({"error": "ratelimited"}, HttpResponseRatelimited)
 
 
@@ -337,6 +348,8 @@ def download_languages_csv(request):
 @ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 def story_list(request):
     logger.debug("story_list called for user: %s", request.user)
+    logger.debug("story_list request path: %s", request.path)
+    logger.debug("story_list request method: %s", request.method)
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
