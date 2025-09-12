@@ -201,10 +201,8 @@ MIDDLEWARE = [
 ]
 
 #RATELIMIT_VIEW="backend.search.views.ratelimit_error"
-RATELIMIT_EXCEPTION_CLASS="util.ratelimit_callables.HttpResponseRatelimited"
+#RATELIMIT_EXCEPTION_CLASS="util.ratelimit_callables.HttpResponseRatelimited"
 
-# Debug logging for ratelimit configuration
-logger.debug("RatelimitMiddleware configured with view: %s", RATELIMIT_VIEW)
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
