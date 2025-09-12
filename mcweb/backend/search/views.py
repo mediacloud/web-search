@@ -102,7 +102,7 @@ def error_response(msg: str, *, exc: Exception | None = None,
             # this turns out to be flakey, could pass back the entire list):
             response["traceback"] = tb.format_exception(exc)[-2]
 
-        if isinstance(exception, Ratelimited):
+        if isinstance(exc, Ratelimited):
             json_response(response, _class=HttpResponseRatelimited)
 
     if temporary:
