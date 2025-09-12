@@ -196,12 +196,10 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    #"django_ratelimit.middleware.RatelimitMiddleware",
     "util.logging_middleware.RequestLoggingMiddleware"
 ]
 
-#RATELIMIT_VIEW="backend.search.views.ratelimit_error"
-#RATELIMIT_EXCEPTION_CLASS="util.ratelimit_callables.HttpResponseRatelimited"
+
 
 
 CORS_ALLOWED_ORIGINS = [

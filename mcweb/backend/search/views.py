@@ -102,24 +102,13 @@ def error_response(msg: str, *, exc: Exception | None = None,
             # this turns out to be flakey, could pass back the entire list):
             response["traceback"] = tb.format_exception(exc)[-2]
 
+        if isinstance(exception, Ratelimited):
+            logger.debug("ratelimit_error: Confirmed Ratelimited exception")
+            json_response(response, _class=HttpResponseRatelimited)
+
     if temporary:
         response["temporary"] = True
     return json_response(response, _class=response_type)
-
-def ratelimit_error(request, exception):
-    logger.debug("ratelimit_error called with exception: %s", exception)
-    logger.debug("ratelimit_error request path: %s", request.path)
-    logger.debug("ratelimit_error request method: %s", request.method)
-    logger.debug("ratelimit_error request user: %s", request.user)
-    
-    # Check if this is actually a Ratelimited exception
-    from django_ratelimit.exceptions import Ratelimited
-    if isinstance(exception, Ratelimited):
-        logger.debug("ratelimit_error: Confirmed Ratelimited exception")
-    else:
-        logger.debug("ratelimit_error: Exception is NOT Ratelimited, type: %s", type(exception).__name__)
-    
-    return json_response({"error": "ratelimited"}, HttpResponseRatelimited)
 
 
 # User-friendly text for a temporary (transient) error.  Added to replace the
@@ -178,6 +167,9 @@ def handle_provider_errors(func):
             # log traceback with user name to aid locating reported problems.
             logger.warning("%r for user %s", e, _get_user(), exc_info=True)
             return error_response(str(e), exc=e, traceback=True)
+        except Ratelimited as e:
+            logger.debug("handle ratelimited error")
+            return error_response(str("Ratelimited"), e)
         except Exception as e:
             logger.debug("handle_provider_errors: caught generic Exception: %s", type(e).__name__)
             # these are internal errors we care about, so handle them as true errors
