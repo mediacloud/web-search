@@ -107,6 +107,7 @@ def error_response(msg: str, *, exc: Exception | None = None,
     return json_response(response, _class=response_type)
 
 def ratelimit_error(request, exception):
+    logger.debug("ratelimit_error called with exception: %s", exception)
     return json_response({"error": "ratelimited"}, HttpResponseRatelimited)
 
 
@@ -138,15 +139,19 @@ def handle_provider_errors(func):
         # so I'm tempted to say it could be done as a JSON or YAML file
         # that maps exception class names to a list of actions/conditions!
         try:
+            logger.debug("handle_provider_errors: calling function %s", func.__name__)
             return func(request)
         except (requests.exceptions.ConnectionError, TemporaryProviderException) as e:
+            logger.debug("handle_provider_errors: caught ConnectionError/TemporaryProviderException")
             # Temporary conditions
             return error_response(TEMPORARY_ERROR_MESSAGE, exc=e, temporary=True)
         except (OverQuotaException, ProviderParseException) as e:
+            logger.debug("handle_provider_errors: caught OverQuotaException/ProviderParseException")
             # expected, self-explanatory errors (str(e) should be user friendly)
             # no traceback logged.  Passing exc for detail from repr(e)
             return error_response(str(e), exc=e)
         except RuntimeError as e:
+            logger.debug("handle_provider_errors: caught RuntimeError")
             # RuntimeError is very broad (Python internal errors, Django errors,
             # and mc-providers errors), often without subclassing.  Logging traceback
             # at debug level so they're visible in development to see if any need
@@ -154,6 +159,7 @@ def handle_provider_errors(func):
             logger.debug("RuntimeError %r", e, exc_info=True)
             return error_response(str(e), exc=e)
         except ProviderException as e:
+            logger.debug("handle_provider_errors: caught ProviderException")
             # ProviderException includes Provider{Permanent,Mystery}Exceptions.
             # Log exception/trace as warning to identify cases that
             # can be subclassed into more specific classes (or marked
@@ -162,6 +168,7 @@ def handle_provider_errors(func):
             logger.warning("%r for user %s", e, _get_user(), exc_info=True)
             return error_response(str(e), exc=e, traceback=True)
         except Exception as e:
+            logger.debug("handle_provider_errors: caught generic Exception: %s", type(e).__name__)
             # these are internal errors we care about, so handle them as true errors
             # log traceback with user name to aid locating reported problems.
             logger.exception("unhandled exception: %r for user %s", e, _get_user())
@@ -328,6 +335,7 @@ def download_languages_csv(request):
 @permission_classes([IsAuthenticated])
 @ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 def story_list(request):
+    logger.debug("story_list called for user: %s", request.user)
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
