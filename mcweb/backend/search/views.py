@@ -102,11 +102,12 @@ def error_response(msg: str, *, exc: Exception | None = None,
             # this turns out to be flakey, could pass back the entire list):
             response["traceback"] = tb.format_exception(exc)[-2]
 
-        if isinstance(exc, Ratelimited):
-            json_response({"error": "ratelimited"}, HttpResponseRatelimited)
     if temporary:
         response["temporary"] = True
     return json_response(response, _class=response_type)
+
+def ratelimit_error(request, exception):
+    return json_response({"error": "ratelimited"}, HttpResponseRatelimited)
 
 
 # User-friendly text for a temporary (transient) error.  Added to replace the

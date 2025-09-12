@@ -197,10 +197,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "django_ratelimit.middleware.RatelimitMiddleware",
     "util.logging_middleware.RequestLoggingMiddleware"
 ]
 
-RATELIMIT_VIEW="backend.search.views"
+RATELIMIT_VIEW="backend.search.views.ratelimit_error"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
