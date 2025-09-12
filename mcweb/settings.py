@@ -71,7 +71,6 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     CACHE_SECONDS=(int, 24*60*60),
     CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
     DEBUG=(bool, False),
-    #EARLIEST_AVAILABLE_DATE=(str, "2020-01-01"), # Excluded from defaults intentionally
     EMAIL_BACKEND=(str, 'django.core.mail.backends.smtp.EmailBackend'),
     EMAIL_HOST=(str, ""),
     EMAIL_HOST_PASSWORD=(str, ""),
@@ -85,12 +84,8 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     MONITOR_API_URL=(str, ""), # manage.py monitor-api command
     MONITOR_API_USER=(str, "monitor-api@mediacloud.org"), # manage.py monitor-api command
     PROVIDERS_TIMEOUT=(int, 60*10),
-    #RSS_FETCHER_URL=(str, ""), # Excluded from defaults intentionally
-    #RSS_FETCHER_USER=(str, ""), # Excluded from defaults intentionally
-    #RSS_FETCHER_PASS=(str, ""), # Excluded from defaults intentionally
     SCRAPE_ERROR_RECIPIENTS=(list, []),
     SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
-    #SECRET_KEY=(str, ""), # Excluded from defaults intentionally
     SENTRY_DSN=(str, ""),
     SENTRY_ENV=(str, ""),
     SENTRY_JS_REPLAY_RATE=(float, 0.1), # fraction 0 to 1.0
@@ -107,7 +102,6 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 _env_logger = logging.getLogger('environ.environ')
 _env_log_level = _env_logger.getEffectiveLevel()
 _env_logger.setLevel(logging.INFO)
-
 ################ @@CONFIGURATION@@ variables
 # (casts and defaults declared above)
 
@@ -198,9 +192,6 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "util.logging_middleware.RequestLoggingMiddleware"
 ]
-
-
-
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
