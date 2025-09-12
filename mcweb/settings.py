@@ -200,7 +200,7 @@ MIDDLEWARE = [
     "util.logging_middleware.RequestLoggingMiddleware"
 ]
 
-RATELIMIT_VIEW="backend.search.views.ratelimit_error"
+RATELIMIT_VIEW="backend.search.views.ratelimit_errorrr"
 
 # Debug logging for ratelimit configuration
 logger.debug("RatelimitMiddleware configured with view: %s", RATELIMIT_VIEW)

@@ -140,6 +140,7 @@ def handle_provider_errors(func):
         # that maps exception class names to a list of actions/conditions!
         try:
             logger.debug("handle_provider_errors: calling function %s (type: %s)", func.__name__, type(func).__name__)
+            logger.debug(f"error handler request: {request}")
             return func(request)
         except (requests.exceptions.ConnectionError, TemporaryProviderException) as e:
             logger.debug("handle_provider_errors: caught ConnectionError/TemporaryProviderException")
