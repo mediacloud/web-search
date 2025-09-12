@@ -103,7 +103,7 @@ def error_response(msg: str, *, exc: Exception | None = None,
             response["traceback"] = tb.format_exception(exc)[-2]
 
         if isinstance(exc, Ratelimited):
-            json_response(response, _class=HttpResponseRatelimited)
+            return json_response(response, _class=HttpResponseRatelimited)
 
     if temporary:
         response["temporary"] = True
