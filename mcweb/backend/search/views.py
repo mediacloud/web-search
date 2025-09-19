@@ -175,17 +175,17 @@ def handle_provider_errors(func):
 def handle_429(func):
 
     def _handler(request):
-        logger.log("Handling possible 429")
+        print("Handling possible 429")
        
         try:
             return func(request)
 
         except Ratelimited as e:
-            logger.log("RATELIMITED")
-            return HttpResponseRatelimited
+            print("RATELIMITED")
+            return HttpResponseRatelimited()
 
         except Exception as e:
-            logger.log(f"Other exception: {e}")
+            print(f"Other exception: {e}")
             return e
 
     return _handler
