@@ -51,7 +51,7 @@ class Command(BaseCommand):
                             new_group.user_set.add(u)
                         
                     else:
-                        print(f"Skipping add-all operation for {new_group} (Manually call create-groups with --add-all to include operation)")
+                        print(f"Skipping add-all operation for {new_group} (Manually call create-groups with --add-all to run)")
                 else:
                     u = User.objects.get(email=user_email)
 

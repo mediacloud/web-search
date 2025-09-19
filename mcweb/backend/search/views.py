@@ -325,10 +325,10 @@ def download_languages_csv(request):
 
 @api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
-@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate') #Has to directly follow handle_provider_errors to get the 429 out
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
+@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate') #Has to directly follow handle_provider_errors to get the 429 out
 def story_list(request):
     print(f"story_list view found groups {request.user.groups} for user {request.user}, authed?: {request.user.is_authenticated}")
     pq = parse_query(request)
