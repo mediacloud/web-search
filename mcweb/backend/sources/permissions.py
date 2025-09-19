@@ -1,7 +1,6 @@
 from rest_framework import permissions
 from django.contrib.auth.models import Group
-
-CONTRIBUTOR = 'contributor'
+from django.conf import settings
 
 class IsGetOrIsStaffOrContributor(permissions.BasePermission):
 
@@ -11,7 +10,7 @@ class IsGetOrIsStaffOrContributor(permissions.BasePermission):
             return request.user and request.user.is_authenticated
         if request.method == 'DELETE':
             return request.user and request.user.is_authenticated and (request.user.is_staff or request.user.is_admin)
-        if (CONTRIBUTOR in get_groups(request) or (request.user.is_staff or request.user.is_admin)) :
+        if (settings.GROUPS.CONTRIBUTOR in get_groups(request) or (request.user.is_staff or request.user.is_admin)) :
             return request.user and request.user.is_authenticated
         else:
             return False
