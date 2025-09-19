@@ -33,15 +33,18 @@ class Command(BaseCommand):
 
                     new_group.permissions.add(model_add_perm)
 
-
+            #This behavior needs some additional thought- since we don't want actually to add /all/ users to any group ever...
+            #(as presumably we've removed users before...)
             for user_email in settings.GROUP_DEFAULT_USERS[group_name]:
                 if user_email == "all":
+                    print("Adding all users to {}".format(new_group))
                     users = User.objects.all()
                     for u in users:
                         new_group.user_set.add(u)
-                        print("Adding {} to {}".format(u,new_group))
+                        
                 else:
                     u = User.objects.get(email=user_email)
+
                     new_group.user_set.add(u)
 
-                print("Adding {} to {}".format(u,new_group))
+                    print("Adding {} to {}".format(u,new_group))
