@@ -324,12 +324,11 @@ def download_languages_csv(request):
 
 
 @api_stats  # PLEASE KEEP FIRST!
-@authentication_classes([TokenAuthentication])  # API-only method for now
-@permission_classes([IsAuthenticated])
 @handle_provider_errors
 @ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate') #Has to directly follow handle_provider_errors to get the 429 out
 @api_view(['GET'])
-
+@authentication_classes([TokenAuthentication])  # API-only method for now
+@permission_classes([IsAuthenticated])
 def story_list(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
