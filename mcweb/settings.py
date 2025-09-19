@@ -26,6 +26,33 @@ logger = logging.getLogger(__file__)
 # The static version of the app
 VERSION = "2.3.4"
 
+# User group constants
+CONTRIBUTOR_GROUP = "contributor"
+API_ACCESS_GROUP = "api_access"
+HIGH_RATE_LIMIT_GROUP = "api-high-rate-limit"
+
+# Group permissions configuration
+GROUP_PERMISSIONS = {
+    CONTRIBUTOR_GROUP: {
+        #django app model specific permissions
+        "source" : ["add","change","view"],
+        "collection" : ["add","change","view"],
+        "feed" : ["add","change","view"],     
+    },
+    API_ACCESS_GROUP: {
+    },
+    HIGH_RATE_LIMIT_GROUP:{
+
+    }
+}
+
+# Default user assignments for groups
+GROUP_DEFAULT_USERS = {
+    CONTRIBUTOR_GROUP : ["e.leon@northeastern.edu"],
+    API_ACCESS_GROUP : ["all"],
+    HIGH_RATE_LIMIT_GROUP: []
+}
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 

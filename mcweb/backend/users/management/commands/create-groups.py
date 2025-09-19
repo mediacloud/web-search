@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 from django.contrib.auth.models import User, Group , Permission
+from django.conf import settings
 import logging
-from ...groups import GROUPS, DEFAULT_USERS
 
 # credit to SO user VMMF for this function https://stackoverflow.com/questions/22250352/programmatically-create-a-django-group-with-permissions
 
@@ -11,15 +11,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        for group_name in GROUPS:
+        for group_name in settings.GROUPS:
 
             new_group, created = Group.objects.get_or_create(name=group_name)
 
             # Loop models in group
-            for app_model in GROUPS[group_name]:
+            for app_model in settings.GROUPS[group_name]:
 
                 # Loop permissions in group/model
-                for permission_name in GROUPS[group_name][app_model]:
+                for permission_name in settings.GROUP_PERMISSIONS[group_name][app_model]:
 
                     # Generate permission name as Django would generate it
                     name = "Can {} {}".format(permission_name, app_model)
@@ -34,7 +34,7 @@ class Command(BaseCommand):
                     new_group.permissions.add(model_add_perm)
 
 
-            for user_email in DEFAULT_USERS[group_name]:
+            for user_email in settings.GROUP_DEFAULT_USERS[group_name]:
                 if user_email == "all":
                     users = User.objects.all()
                     for u in users:
