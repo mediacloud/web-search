@@ -330,6 +330,7 @@ def download_languages_csv(request):
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
 def story_list(request):
+    print(f"story_list view found groups {request.user.groups} for user {request.user}, authed?: {request.user.is_authenticated}")
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
