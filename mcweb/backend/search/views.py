@@ -185,7 +185,7 @@ def handle_429(func):
             return HttpResponseRatelimited()
 
         except Exception as e:
-            print(f"Other exception: {e}")
+            print(f"Other exception: {e}, {tb.format_exception(exc)}")
             return e
 
     return _handler
