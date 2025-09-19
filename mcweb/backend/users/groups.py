@@ -1,3 +1,7 @@
+"""
+Constants that define available group names and associated permissions
+"""
+
 CONTRIBUTOR = "contributor"
 API_ACCESS = "api_access"
 HIGH_RATE_LIMIT_GROUP = "api-high-rate-limit"
@@ -11,7 +15,7 @@ GROUPS = {
     },
     API_ACCESS: {
     },
-    HIGH_RATE_LIMIT_GROUP{
+    HIGH_RATE_LIMIT_GROUP: {
     }
 }
 
