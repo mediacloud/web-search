@@ -10,7 +10,7 @@ class IsGetOrIsStaffOrContributor(permissions.BasePermission):
             return request.user and request.user.is_authenticated
         if request.method == 'DELETE':
             return request.user and request.user.is_authenticated and (request.user.is_staff or request.user.is_admin)
-        if (settings.Groups.CONTRIBUTOR in get_groups(request) or (request.user.is_staff or request.user.is_admin)) :
+        if (settings.GROUPS.CONTRIBUTOR in get_groups(request) or (request.user.is_staff or request.user.is_admin)) :
             return request.user and request.user.is_authenticated
         else:
             return False
