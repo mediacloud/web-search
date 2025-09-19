@@ -102,9 +102,6 @@ def error_response(msg: str, *, exc: Exception | None = None,
             # this turns out to be flakey, could pass back the entire list):
             response["traceback"] = tb.format_exception(exc)[-2]
 
-        if isinstance(exc, Ratelimited):
-            return json_response(response, _class=HttpResponseRatelimited)
-
     if temporary:
         response["temporary"] = True
     return json_response(response, _class=response_type)
@@ -161,8 +158,6 @@ def handle_provider_errors(func):
             # log traceback with user name to aid locating reported problems.
             logger.warning("%r for user %s", e, _get_user(), exc_info=True)
             return error_response(str(e), exc=e, traceback=True)
-        except Ratelimited as e:
-            return error_response(str("Ratelimited"), exc=e)
         except Exception as e:
             # these are internal errors we care about, so handle them as true errors
             # log traceback with user name to aid locating reported problems.
@@ -173,18 +168,16 @@ def handle_provider_errors(func):
 
 
 def handle_429(func):
-
+    """
+    Need this additional 429 error handler so that it can be caught in correct decorator order
+    """
     def _handler(request):
-        print("Handling possible 429")
        
         try:
             return func(request)
         except Ratelimited as e:
-            print("RATELIMITED")
             return HttpResponseRatelimited()
         except Exception as e:
-            print(f"Other exception: {e}")
-            # Return a proper HTTP response, not the exception object
             return error_response(str(e), exc=e)
 
     return _handler
@@ -348,7 +341,6 @@ def download_languages_csv(request):
 @handle_429
 @ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 def story_list(request):
-    print(f"story_list view found groups {request.user.groups} for user {request.user}, authed?: {request.user.is_authenticated}")
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
@@ -357,7 +349,7 @@ def story_list(request):
     if pq.provider_props.get('expanded') is not None:
         pq.provider_props['expanded'] = pq.provider_props['expanded'] == '1'
         if not request.user.is_staff:
-            raise error_response("You are not permitted to fetch `expanded` stories.", response_type=HttpResponseForbidden)
+            return error_response("You are not permitted to fetch `expanded` stories.", response_type=HttpResponseForbidden)
 
     # NOTE! indexed_date is default sort key in MC ES provider, so no longer
     # strictly necessary, *BUT* it's presense here means users cannot pass it in
