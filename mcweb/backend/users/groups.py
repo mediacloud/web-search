@@ -1,5 +1,5 @@
 CONTRIBUTOR = "contributor"
-API_ACCESS = "api-access"
+API_ACCESS = "api_access"
 HIGH_RATE_LIMIT_GROUP = "api-high-rate-limit"
 
 GROUPS = {
