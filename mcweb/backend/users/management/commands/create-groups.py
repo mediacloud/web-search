@@ -16,7 +16,7 @@ class Command(BaseCommand):
             new_group, created = Group.objects.get_or_create(name=group_name)
 
             # Loop models in group
-            for app_model in settings.GROUPS_GROUP_PERMISSIONS[group_name]:
+            for app_model in settings.GROUP_PERMISSIONS[group_name]:
 
                 # Loop permissions in group/model
                 for permission_name in settings.GROUP_PERMISSIONS[group_name][app_model]:
