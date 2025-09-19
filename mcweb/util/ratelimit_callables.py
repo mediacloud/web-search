@@ -1,8 +1,7 @@
 from django.contrib.auth.models import Group
 from http import HTTPStatus
 from django.http import HttpResponse
-
-HIGH_RATE_LIMIT_GROUP = "api-high-rate-limit"
+from ..backend.users.groups import HIGH_RATE_LIMIT_GROUP
 
 #A ratelimit callable which sets a higher ratelimit if the user is staff.
 def story_list_rate(group, request):

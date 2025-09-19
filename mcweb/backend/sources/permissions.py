@@ -1,7 +1,6 @@
 from rest_framework import permissions
 from django.contrib.auth.models import Group
-
-CONTRIBUTOR = 'contributor'
+from ..users.groups import CONTRIBUTOR
 
 class IsGetOrIsStaffOrContributor(permissions.BasePermission):
 

@@ -1,24 +1,9 @@
 from django.core.management import BaseCommand
 from django.contrib.auth.models import User, Group , Permission
 import logging
+from ...groups import GROUPS, DEFAULT_USERS
 
 # credit to SO user VMMF for this function https://stackoverflow.com/questions/22250352/programmatically-create-a-django-group-with-permissions
-GROUPS = {
-    "contributor": {
-        #django app model specific permissions
-        "source" : ["add","change","view"],
-        "collection" : ["add","change","view"],
-        "feed" : ["add","change","view"],     
-    },
-    "api_access": {
-    },
-}
-
-
-USERS = {
-    "contributor" : ["e.leon@northeastern.edu"],
-    "api_access" : ["all"],
-}
 
 class Command(BaseCommand):
 
@@ -49,7 +34,7 @@ class Command(BaseCommand):
                     new_group.permissions.add(model_add_perm)
 
 
-            for user_email in USERS[group_name]:
+            for user_email in DEFAULT_USERS[group_name]:
                 if user_email == "all":
                     users = User.objects.all()
                     for u in users:
