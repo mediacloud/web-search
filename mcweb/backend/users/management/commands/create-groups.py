@@ -9,6 +9,12 @@ class Command(BaseCommand):
 
     help = "Creates default permission groups for contributors"
 
+    def add_options(self, parser):
+        parser.add_argument("--add-all",
+                            action="store_true",
+                            help="Add all users to groups where configured (skipped by default)"
+            )
+
     def handle(self, *args, **options):
 
         for group_name in settings.GROUP_PERMISSIONS:
@@ -37,11 +43,15 @@ class Command(BaseCommand):
             #(as presumably we've removed users before...)
             for user_email in settings.GROUP_DEFAULT_USERS[group_name]:
                 if user_email == "all":
-                    print("Adding all users to {}".format(new_group))
-                    users = User.objects.all()
-                    for u in users:
-                        new_group.user_set.add(u)
+                    
+                    if options["add-all"]:
+                        print("Adding all users to {}".format(new_group))
+                        users = User.objects.all()
+                        for u in users:
+                            new_group.user_set.add(u)
                         
+                    else:
+                        print(f"Skipping add-all operation for {new_group} (Manually call create-groups with --add-all to include operation)")
                 else:
                     u = User.objects.get(email=user_email)
 
