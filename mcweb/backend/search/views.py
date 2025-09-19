@@ -179,15 +179,13 @@ def handle_429(func):
        
         try:
             return func(request)
-
         except Ratelimited as e:
             print("RATELIMITED")
             return HttpResponseRatelimited()
-
-        #Actually, don't catch so I can see the whole error
-        #except Exception as e:
-        #    print(f"Other exception: {e}, {tb.format_exception(exc)}")
-        #    return e
+        except Exception as e:
+            print(f"Other exception: {e}")
+            # Return a proper HTTP response, not the exception object
+            return error_response(str(e), exc=e)
 
     return _handler
 
