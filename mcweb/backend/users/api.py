@@ -108,7 +108,7 @@ class GiveAPIAccess(generics.GenericAPIView):
         user = User.objects.filter(email=reset_obj.email).first()
 
         if user:
-            user.groups.add(Group.objects.get(name=settings.API_ACCESS_GROUP))
+            user.groups.add(Group.objects.get(name=settings.Groups.API_ACCESS))
             user.save()
             reset_obj.delete()
             return Response({'success':'API Access Granted'})

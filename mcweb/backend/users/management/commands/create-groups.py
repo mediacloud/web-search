@@ -17,15 +17,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        for group_name in settings.GROUP_PERMISSIONS:
+        for group_name in settings.Groups.PERMISSIONS:
 
             new_group, created = Group.objects.get_or_create(name=group_name)
 
             # Loop models in group
-            for app_model in settings.GROUP_PERMISSIONS[group_name]:
+            for app_model in settings.Groups.PERMISSIONS[group_name]:
 
                 # Loop permissions in group/model
-                for permission_name in settings.GROUP_PERMISSIONS[group_name][app_model]:
+                for permission_name in settings.Groups.PERMISSIONS[group_name][app_model]:
 
                     # Generate permission name as Django would generate it
                     name = "Can {} {}".format(permission_name, app_model)
@@ -41,7 +41,7 @@ class Command(BaseCommand):
 
             #This behavior needs some additional thought- since we don't want actually to add /all/ users to any group ever...
             #(as presumably we've removed users before...)
-            for user_email in settings.GROUP_DEFAULT_USERS[group_name]:
+            for user_email in settings.Groups.DEFAULT_USERS[group_name]:
                 if user_email == "all":
                     
                     if options["add-all"]:
