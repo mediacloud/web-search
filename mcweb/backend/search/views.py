@@ -172,6 +172,18 @@ def handle_provider_errors(func):
     return _handler
 
 
+def handle_429(func):
+
+    def _handler(request):
+        try:
+            return func(request)
+
+        except Ratelimited as e:
+            print("RATELIMITED")
+            return HttpResponseRatelimited
+
+    return _handler
+
 def _qs(pq: ParsedQuery) -> str:
     """
     removed paren wrapping (should not be needed with providers 3.0)
@@ -324,11 +336,12 @@ def download_languages_csv(request):
 
 
 @api_stats  # PLEASE KEEP FIRST!
+@handle_provider_errors
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
-@handle_provider_errors
-@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate') #Has to directly follow handle_provider_errors to get the 429 out
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 def story_list(request):
     print(f"story_list view found groups {request.user.groups} for user {request.user}, authed?: {request.user.is_authenticated}")
     pq = parse_query(request)
