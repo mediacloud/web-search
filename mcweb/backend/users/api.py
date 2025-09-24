@@ -5,10 +5,10 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.core.mail import send_mail
-import settings
 from django.contrib.auth.decorators import login_required
 from .models import ResetCodes, create_auth_token
 from .serializer import ResetRequestSerializer, ResetPasswordSerializer, GiveAPIAccessSerializer
+from django.conf import settings
 
 class RequestReset(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -108,7 +108,7 @@ class GiveAPIAccess(generics.GenericAPIView):
         user = User.objects.filter(email=reset_obj.email).first()
 
         if user:
-            user.groups.add(Group.objects.get(name='api_access'))
+            user.groups.add(Group.objects.get(name=settings.GROUPS.API_ACCESS))
             user.save()
             reset_obj.delete()
             return Response({'success':'API Access Granted'})

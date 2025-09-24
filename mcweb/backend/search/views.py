@@ -12,6 +12,7 @@ import requests
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django_ratelimit.decorators import ratelimit
+from django_ratelimit.exceptions import Ratelimited
 from django.views.decorators.http import require_http_methods
 from mc_providers.exceptions import (
     PermanentProviderException, ProviderException, ProviderParseException, QueryingEverythingUnsupportedQuery,
@@ -28,6 +29,7 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_P
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 from util.stats import api_stats
+from util.ratelimit_callables import HttpResponseRatelimited
 
 # mcweb/backend/search (local dir)
 from .utils import (
@@ -99,6 +101,7 @@ def error_response(msg: str, *, exc: Exception | None = None,
             # limit payload and info leakage, if neither is a problem, or
             # this turns out to be flakey, could pass back the entire list):
             response["traceback"] = tb.format_exception(exc)[-2]
+
     if temporary:
         response["temporary"] = True
     return json_response(response, _class=response_type)
@@ -163,6 +166,19 @@ def handle_provider_errors(func):
 
     return _handler
 
+
+def handle_429(func):
+    """
+    Need this additional 429 error handler so that it can be caught in correct decorator order
+    """
+    def _handler(request):
+       
+        try:
+            return func(request)
+        except Ratelimited as e:
+            return HttpResponseRatelimited()
+
+    return _handler
 
 def _qs(pq: ParsedQuery) -> str:
     """
@@ -320,6 +336,7 @@ def download_languages_csv(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
+@handle_429
 @ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
 def story_list(request):
     pq = parse_query(request)
@@ -330,7 +347,7 @@ def story_list(request):
     if pq.provider_props.get('expanded') is not None:
         pq.provider_props['expanded'] = pq.provider_props['expanded'] == '1'
         if not request.user.is_staff:
-            raise error_response("You are not permitted to fetch `expanded` stories.", response_type=HttpResponseForbidden)
+            return error_response("You are not permitted to fetch `expanded` stories.", response_type=HttpResponseForbidden)
 
     # NOTE! indexed_date is default sort key in MC ES provider, so no longer
     # strictly necessary, *BUT* it's presense here means users cannot pass it in

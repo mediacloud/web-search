@@ -9,6 +9,7 @@ python mcweb/manage.py migrate
 npm run build
 python mcweb/manage.py collectstatic --noinput
 echo "  done with migrations and javascript build"
+python mcweb/manage.py create-groups
 
 # also set in settings.py
 LOGDIR=data/logs
