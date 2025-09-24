@@ -177,8 +177,6 @@ def handle_429(func):
             return func(request)
         except Ratelimited as e:
             return HttpResponseRatelimited()
-        except Exception as e:
-            return error_response(str(e), exc=e)
 
     return _handler
 

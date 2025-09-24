@@ -53,6 +53,7 @@ class Groups:
         HIGH_RATE_LIMIT: []
     }
 
+# This FULLCAPS reference is required to refer this value elsewhere in the app 
 GROUPS = Groups
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
