@@ -11,8 +11,6 @@ from django.apps import apps
 from mc_providers import provider_by_name, provider_name, ContentProvider, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
 
-from mc_providers.exceptions import ProviderParseException
-
 # mcweb
 from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
 
@@ -72,8 +70,8 @@ def parse_date_str(date_str: str) -> dt.datetime:
             return dt.datetime.strptime(date_str, '%Y-%m-%d')
         else:
             return dt.datetime.strptime(date_str, '%m/%d/%Y')
-    except ValueError:
-        raise ProviderParseException("Bad datestring (did you use datetime() instead of date()?)")
+    except ValueError as e:
+        raise ValueError("Bad datestring- must be date (without time)") from e
 
 
 def listify(input: str) -> list[str]:

@@ -150,6 +150,11 @@ def handle_provider_errors(func):
             # better handling.
             logger.debug("RuntimeError %r", e, exc_info=True)
             return error_response(str(e), exc=e)
+        except ValueError as e:
+            # ValueErrors will be thrown when the user provides bad input
+            # Should be the same handling flow as Runtime errors
+            logger.debug("ValueERror %r", e, exc_info=True)
+            return error_response(str(e), exc=e)
         except ProviderException as e:
             # ProviderException includes Provider{Permanent,Mystery}Exceptions.
             # Log exception/trace as warning to identify cases that
