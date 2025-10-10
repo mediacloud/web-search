@@ -65,10 +65,14 @@ def parse_date_str(date_str: str) -> dt.datetime:
     accept both YYYY-MM-DD and MM/DD/YYYY
     (was accepting former in JSON and latter in GET/query-str)
     """
-    if '-' in date_str:
-        return dt.datetime.strptime(date_str, '%Y-%m-%d')
-    else:
-        return dt.datetime.strptime(date_str, '%m/%d/%Y')
+    try: 
+        if '-' in date_str:
+            return dt.datetime.strptime(date_str, '%Y-%m-%d')
+        else:
+            return dt.datetime.strptime(date_str, '%m/%d/%Y')
+    except ValueError as e:
+
+        raise ValueError("Bad datestring- must be date (without time)")
 
 
 def listify(input: str) -> list[str]:
