@@ -71,7 +71,8 @@ def parse_date_str(date_str: str) -> dt.datetime:
         else:
             return dt.datetime.strptime(date_str, '%m/%d/%Y')
     except ValueError as e:
-        raise ValueError("Bad datestring- must be date (without time)") from e
+
+        raise ValueError("Bad datestring- must be date (without time)")
 
 
 def listify(input: str) -> list[str]:
