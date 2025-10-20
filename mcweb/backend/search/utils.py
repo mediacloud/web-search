@@ -19,6 +19,7 @@ from ..users.models import QuotaHistory
 
 # mcweb/backend/utils/provider
 from ..util.provider import get_provider
+from ..util.exceptions import UserValueError
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +73,7 @@ def parse_date_str(date_str: str) -> dt.datetime:
             return dt.datetime.strptime(date_str, '%m/%d/%Y')
     except ValueError as e:
 
-        raise ValueError("Bad datestring- must be date (without time)")
+        raise UserValueError("Bad datestring- must be date (without time)")
 
 
 def listify(input: str) -> list[str]:

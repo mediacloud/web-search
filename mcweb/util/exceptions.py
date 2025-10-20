@@ -8,3 +8,11 @@ class HttpResponseUnprocessableEntity(HttpResponse):
 
 class HttpResponseRatelimited(HttpResponse):
     status_code = HTTPStatus.TOO_MANY_REQUESTS #HTTP 429
+
+
+class UserValueError(ValueError):
+		
+	"""
+	Exception raised for bad input to the api, to trigger a 422 response from the server. 
+	Should occur in only very tightly scoped situations, so no need for additional code here. 
+	"""

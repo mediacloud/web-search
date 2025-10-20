@@ -29,7 +29,7 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_P
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 from util.stats import api_stats
-from util.exceptions import HttpResponseUnprocessableEntity, HttpResponseRatelimited
+from util.exceptions import HttpResponseUnprocessableEntity, HttpResponseRatelimited, UserValueError
 
 # mcweb/backend/search (local dir)
 from .utils import (
@@ -150,7 +150,7 @@ def handle_provider_errors(func):
             # better handling.
             logger.debug("RuntimeError %r", e, exc_info=True)
             return error_response(str(e), exc=e)
-        except ValueError as e:
+        except UserValueError as e:
             # ValueErrors will be thrown when the user provides bad input
             # Should be the same handling flow as Runtime errors
             logger.debug("ValueError %r", e, exc_info=True)
