@@ -19,7 +19,8 @@ from ..users.models import QuotaHistory
 
 # mcweb/backend/utils/provider
 from ..util.provider import get_provider
-from ..util.exceptions import UserValueError
+
+from util.exceptions import UserValueError
 
 logger = logging.getLogger(__name__)
 
