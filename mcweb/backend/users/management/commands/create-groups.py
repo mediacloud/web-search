@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Creates default permission groups for contributors"
 
     def add_options(self, parser):
-        parser.add_argument("--add-all",
+        parser.add_argument("--add_all",
                             action="store_true",
                             help="Add all users to groups where configured (skipped by default)"
             )
@@ -44,7 +44,7 @@ class Command(BaseCommand):
             for user_email in settings.GROUPS.DEFAULT_USERS[group_name]:
                 if user_email == "all":
                     
-                    if options["add-all"]:
+                    if options.get("add_all"):
                         print("Adding all users to {}".format(new_group))
                         users = User.objects.all()
                         for u in users:
