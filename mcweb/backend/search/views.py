@@ -29,7 +29,7 @@ from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_P
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 from util.stats import api_stats
-from utils.exceptions import HttpResponseUnprocessableEntity, HttpResponseRatelimited
+from util.exceptions import HttpResponseUnprocessableEntity, HttpResponseRatelimited
 
 # mcweb/backend/search (local dir)
 from .utils import (
