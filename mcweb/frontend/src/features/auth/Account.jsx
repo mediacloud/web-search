@@ -58,7 +58,7 @@ function Account() {
   if (error) {
     enqueueSnackbar('There was an error sending the email, please try again.', { variant: 'error' });
   }
-  console.log(currentUser);
+
   return (
     <>
       <Header>
