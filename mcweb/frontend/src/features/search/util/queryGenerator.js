@@ -4,25 +4,14 @@ const queryGenerator = (queryList, negatedQueryList, platform, anyAll) => {
   let fullQuery = '';
   if (!queryList && !negatedQueryList) return null;
 
+  const deQuoter = (w) => w.replaceAll('"', '').replaceAll('“', '').replaceAll('”', '');
+
   // const deQuoter = (w) => (w.replaceAll('"', ''));
   const quoter = (w) => {
     // add quotes if there is a space in string
-    const result = w.includes(' ') ? `"${w}"` : w;
+    const result = w.includes(' ') || w.includes('-') ? `"${w}"` : w;
     // replace special quotes
     return result.replaceAll('“', '"').replaceAll('”', '"');
-  };
-
-  const deQuoter = (w) => {
-    // dequote unless there is a hyphen
-    if (w.includes('-')) {
-      if (w.startsWith('"') && w.endsWith('"')) {
-        return w;
-      } if (w.startsWith('“') || w.endsWith('”')) {
-        return quoter(w);
-      }
-      return `"${w}"`;
-    }
-    return w.replaceAll('"', '').replaceAll('“', '').replaceAll('”', '');
   };
 
   const query = queryList ? queryList.filter((queryWord) => queryWord.length >= 1).map((term) => {
