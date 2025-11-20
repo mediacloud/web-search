@@ -7,8 +7,8 @@ import {
 } from './platforms';
 
 Prism.languages.news = {
-  keyword: /\b(or|and|OR|AND)\b/,
-  negation: /\b(not|NOT)\b/,
+  negation: /\b(NOT)\b/,
+  keyword: /\b(OR|AND)\b/,
   operator: /\*|\~/,
   punctuation: /"|\(|\)/,
 };
