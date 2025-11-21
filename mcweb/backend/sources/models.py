@@ -435,7 +435,7 @@ class ActionHistory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     changes = models.JSONField(null=True, blank=True)
-    note = models.CharField(null=True, blank=True)
+    note = models.CharField(max_length=5000,null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
