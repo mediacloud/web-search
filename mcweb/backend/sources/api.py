@@ -32,7 +32,7 @@ from backend.util.tasks import get_completed_tasks, get_pending_tasks
 
 # local directory (mcweb/backend/sources)
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
-from .models import Collection, Feed, Source, AlternativeDomain
+from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory, ActionHistoryMixin
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
@@ -54,7 +54,8 @@ def _all_platforms() -> List:
     return ['onlinenews']
 
 
-class CollectionViewSet(viewsets.ModelViewSet):
+class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
+    action_history_model_type = ActionHistory.ModelTypes.COLLECTION
     # use this queryset, so we ensure that every result has `source_count` included
     queryset = Collection.objects.\
         annotate(source_count=Count('source')).\
