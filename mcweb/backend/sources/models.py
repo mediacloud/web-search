@@ -454,6 +454,7 @@ def log_action(user, action_type, model_type, object_id=None, object_name=None,
     Helper function to create an ActionHistory record.
     Returns the created ActionHistory instance.
     """
+    logger.debug("logging action")
     return ActionHistory.objects.create(
         user=user if user.is_authenticated else None,
         action_type=action_type,
@@ -471,17 +472,20 @@ class ActionHistoryMixin:
     action_history_model_type = None  # Must be set by subclass
     
     def perform_create(self, serializer):
+        logger.debug(f"Mixin for {action_history_model_type} CREATE")
         instance = serializer.save()
         self._log_action(ActionHistory.ActionTypes.CREATE, instance)
         return instance
     
     def perform_update(self, serializer):
+        logger.debug(f"Mixin for {action_history_model_type} UPDATE")
         changed_fields = self._get_changed_fields(serializer)
         updated_instance = serializer.save()
         self._log_action(ActionHistory.ActionTypes.UPDATE, updated_instance, changed_fields)
         return updated_instance
     
     def perform_destroy(self, instance):
+        logger.debug(f"Mixin for {action_history_model_type} DESTROY")
         self._log_action(ActionHistory.ActionTypes.DELETE, instance)
         instance.delete()
     
@@ -539,7 +543,4 @@ class ActionHistoryMixin:
                 notes=notes,
             )
         except Exception as e:
-            # Don't break the request if logging fails
-            import logging
-            logger = logging.getLogger(__name__)
             logger.error(f"Failed to log action history: {e}", exc_info=True)
