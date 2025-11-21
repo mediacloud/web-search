@@ -21,14 +21,14 @@ class ActionHistoryAdmin(admin.ModelAdmin):
         'action_type',
         'model_type',
         'created_at',
-        'user',
+        # Removed 'user' - too many users to filter effectively
     ]
     
     search_fields = [
         'object_name',
         'object_id',
-        'user__username',
-        'user__email',
+        'user__user__username',  # Profile -> User -> username
+        'user__user__email',      # Profile -> User -> email
         'notes',
     ]
     

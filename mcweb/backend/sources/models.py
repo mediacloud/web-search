@@ -453,10 +453,29 @@ def log_action(user, action_type, model_type, object_id=None, object_name=None,
     """
     Helper function to create an ActionHistory record.
     Returns the created ActionHistory instance.
+    
+    Args:
+        user: Django User object. Will get_or_create the associated Profile.
     """
     logger.debug("logging action")
+    
+    # Convert User to Profile if needed
+    profile = None
+    if user and hasattr(user, 'is_authenticated') and user.is_authenticated:
+        from backend.users.models import Profile
+        try:
+            # Try to get the profile via the OneToOne relationship
+            profile = user.profile
+        except Profile.DoesNotExist:
+            # Profile doesn't exist, create it
+            profile, _ = Profile.objects.get_or_create(user=user)
+        except Exception as e:
+            # If something else goes wrong, log it but don't fail the action
+            logger.warning(f"Could not get or create Profile for user {getattr(user, 'id', 'unknown')}: {e}")
+            profile = None
+    
     return ActionHistory.objects.create(
-        user=user if user.is_authenticated else None,
+        user=profile,
         action_type=action_type,
         model_type=model_type,
         object_id=object_id,
