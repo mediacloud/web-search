@@ -56,7 +56,7 @@ def _all_platforms() -> List:
 
 
 class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
-    action_history_model_type = ActionHistory.ModelTypes.COLLECTION
+    action_history_model_type = ActionHistory.ModelType.COLLECTION
     # use this queryset, so we ensure that every result has `source_count` included
     queryset = Collection.objects.\
         annotate(source_count=Count('source')).\
@@ -200,7 +200,7 @@ def _rss_fetcher_api():
     return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
 class FeedsViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
-    action_history_model_type = ActionHistory.ModelTypes.FEED
+    action_history_model_type = ActionHistory.ModelType.FEED
     queryset = Feed.objects.all()
     permission_classes = [
         IsGetOrIsStaffOrContributor
@@ -300,7 +300,7 @@ class FeedsViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
 
 
 class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
-    action_history_model_type = ActionHistory.ModelTypes.SOURCE
+    action_history_model_type = ActionHistory.ModelType.SOURCE
     queryset = Source.objects.annotate(
         collection_count=Count('collections')
     ).order_by('-collection_count').all()
@@ -595,7 +595,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
     
 
 class AlternativeDomainViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
-    action_history_model_type = ActionHistory.ModelTypes.ALTERNATIVE_DOMAIN
+    action_history_model_type = ActionHistory.ModelType.ALTERNATIVE_DOMAIN
     permission_classes = [
         IsGetOrIsStaffOrContributor
     ]
