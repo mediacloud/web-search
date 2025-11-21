@@ -9,7 +9,7 @@ class ActionHistoryAdmin(admin.ModelAdmin):
     """
     list_display = [
         'created_at',
-        'user',
+        'user_name',
         'action_type',
         'model_type',
         'object_id',
@@ -27,13 +27,17 @@ class ActionHistoryAdmin(admin.ModelAdmin):
     search_fields = [
         'object_name',
         'object_id',
-        'user__user__username',  # Profile -> User -> username
-        'user__user__email',      # Profile -> User -> email
+        'user_name',      # Direct search on denormalized username
+        'user_email',     # Direct search on denormalized email
+        'user__username', # Also search via FK relationship
+        'user__email',    # Also search via FK relationship
         'notes',
     ]
     
     readonly_fields = [
         'user',
+        'user_name',
+        'user_email',
         'action_type',
         'model_type',
         'object_id',
@@ -60,7 +64,7 @@ class ActionHistoryAdmin(admin.ModelAdmin):
     # Optional: Customize the detail view
     fieldsets = (
         ('Action Details', {
-            'fields': ('created_at', 'user', 'action_type', 'model_type')
+            'fields': ('created_at', 'user', 'user_name', 'user_email', 'action_type', 'model_type')
         }),
         ('Object Information', {
             'fields': ('object_id', 'object_name')
