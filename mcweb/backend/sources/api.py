@@ -33,7 +33,7 @@ from backend.util.tasks import get_completed_tasks, get_pending_tasks
 
 # local directory (mcweb/backend/sources)
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
-from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory, ActionHistoryMixin
+from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory, ActionHistoryMixin, log_action
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
@@ -199,7 +199,8 @@ class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
 def _rss_fetcher_api():
     return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
-class FeedsViewSet(viewsets.ModelViewSet):
+class FeedsViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
+    action_history_model_type = ActionHistory.ModelTypes.FEED
     queryset = Feed.objects.all()
     permission_classes = [
         IsGetOrIsStaffOrContributor
@@ -298,7 +299,8 @@ class FeedsViewSet(viewsets.ModelViewSet):
         return Response({"fetch_response": total})
 
 
-class SourcesViewSet(viewsets.ModelViewSet):
+class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
+    action_history_model_type = ActionHistory.ModelTypes.SOURCE
     queryset = Source.objects.annotate(
         collection_count=Count('collections')
     ).order_by('-collection_count').all()
@@ -592,7 +594,8 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         return Response({'source_id': source_id, 'collection_id': collection_id})
     
 
-class AlternativeDomainViewSet(viewsets.ModelViewSet):
+class AlternativeDomainViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
+    action_history_model_type = ActionHistory.ModelTypes.ALTERNATIVE_DOMAIN
     permission_classes = [
         IsGetOrIsStaffOrContributor
     ]
