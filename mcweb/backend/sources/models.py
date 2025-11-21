@@ -407,6 +407,7 @@ class AlternativeDomain(models.Model):
 class ActionHistory(models.Model):
     """
     Simple event model for actions taken on Sources models above
+    A symbolic edit to push on a new instance
     """
 
     class ActionTypes(models.TextChoices):
