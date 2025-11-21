@@ -402,3 +402,144 @@ class AlternativeDomain(models.Model):
         ]
 
 
+class ActionHistory(models.Model):
+    """
+    Simple event model for actions taken on Sources models above
+    """
+
+    class ActionTypes(models.TextChoices):
+        CREATE = "create"
+        UPDATE = "update"
+        DELETE = "delete"
+
+        COPY_COLLECTION = "copy_collection"
+        UPLOAD_SOURCES = "upload_sources"
+        RESCRAPE = "rescrape"
+        ADD_TO_COLLECTION = "add_to_collection"
+        REMOVE_FROM_COLLECTION = "remove_from_collection"
+        #Others? 
+
+    class ModelType(models.TextChoices):
+        SOURCE = "Source"
+        COLLECTION = "Collection"
+        FEED = "Feed"
+        ALTERNATIVE_DOMAIN = "AlternativeDomain"
+
+    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True)
+    action_type = models.CharField(max_length=50, choices=ActionTypes.choices)
+    model_type = models.CharField(max_length=50, choices=ModelType.choices)
+    #Rather than a foreign key? Hard on several tables, but it would be nice to put a link to the changed record somewhere, I think this is sufficient
+    object_id = models.IntegerField(null=True, blank=True) 
+    object_name = models.CharField(max_length=500, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    changes = models.JSONField(null=True, blank=True)
+    note = models.CharField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['model_type', 'object_id']),
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['action_type', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user} {self.action_type} {self.model_type} {self.object_id} at {self.created_at}"
+
+
+def log_action(user, action_type, model_type, object_id=None, object_name=None, 
+               changes=None, notes=None):
+    """
+    Helper function to create an ActionHistory record.
+    Returns the created ActionHistory instance.
+    """
+    return ActionHistory.objects.create(
+        user=user if user.is_authenticated else None,
+        action_type=action_type,
+        model_type=model_type,
+        object_id=object_id,
+        object_name=object_name,
+        changes=changes,
+        notes=notes
+    )
+
+#Could be convinced this belongs elsewhere- a Mixin for the Django REST Framework Viewset that inserts overridden methods with logging utils
+class ActionHistoryMixin:
+    """Mixin that automatically tracks CRUD operations"""
+    
+    action_history_model_type = None  # Must be set by subclass
+    
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        self._log_action(ActionHistory.ActionTypes.CREATE, instance)
+        return instance
+    
+    def perform_update(self, serializer):
+        changed_fields = self._get_changed_fields(serializer)
+        updated_instance = serializer.save()
+        self._log_action(ActionHistory.ActionTypes.UPDATE, updated_instance, changed_fields)
+        return updated_instance
+    
+    def perform_destroy(self, instance):
+        self._log_action(ActionHistory.ActionTypes.DELETE, instance)
+        instance.delete()
+    
+    def _get_object_name(self, instance):
+        """
+        Extract a human-readable name from the instance.
+        Tries common field names like 'name', 'label', 'title', etc.
+        """
+        for attr in ['name', 'label', 'title', 'homepage']:
+            if hasattr(instance, attr):
+                value = getattr(instance, attr)
+                if value:
+                    return str(value)
+        # Fallback to ID if no name field found
+        return f"ID {instance.id}"
+
+    def _get_changed_fields(self, serializer):
+        """
+        Extract changed fields from serializer by comparing validated_data
+        with current instance values.
+        
+        Returns dict of {field_name: "old_value -> new_value"}
+        """
+        changed_fields = {}
+        instance = serializer.instance
+        
+        for field, new_value in serializer.validated_data.items():
+            old_value = getattr(instance, field, None)
+            
+            # Handle different value types
+            if old_value != new_value:
+                # Format the change nicely
+                old_str = str(old_value) if old_value is not None else "None"
+                new_str = str(new_value) if new_value is not None else "None"
+                changed_fields[field] = f"{old_str} -> {new_str}"
+        
+        return changed_fields
+
+    def _log_action(self, action_type, instance, changes=None, notes=None):
+        """
+        Helper method to create ActionHistory records.
+        Only logs if action_history_model_type is set.
+        """
+        if not self.action_history_model_type:
+            return
+        
+        try:
+            log_action(
+                user=self.request.user if self.request.user.is_authenticated else None,
+                action_type=action_type,
+                model_type=self.action_history_model_type,
+                object_id=instance.id,
+                object_name=self._get_object_name(instance),
+                changes=changes,
+                notes=notes,
+            )
+        except Exception as e:
+            # Don't break the request if logging fails
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to log action history: {e}", exc_info=True)
