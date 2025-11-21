@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import feed_seeker
 import mcmetadata.urls as urls
 import requests
+from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
@@ -426,7 +427,9 @@ class ActionHistory(models.Model):
         FEED = "Feed"
         ALTERNATIVE_DOMAIN = "AlternativeDomain"
 
-    user = models.ForeignKey('users.Profile', on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user_name = models.CharField(max_length=150, null=True, blank=True)  # Django User.username max_length
+    user_email = models.CharField(max_length=254, null=True, blank=True)  # Django User.email max_length
     action_type = models.CharField(max_length=50, choices=ActionTypes.choices)
     model_type = models.CharField(max_length=50, choices=ModelType.choices)
     #Rather than a foreign key? Hard on several tables, but it would be nice to put a link to the changed record somewhere, I think this is sufficient
@@ -446,7 +449,8 @@ class ActionHistory(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.user} {self.action_type} {self.model_type} {self.object_id} at {self.created_at}"
+        user_display = self.user_name or (self.user.username if self.user else "Anonymous")
+        return f"{user_display} {self.action_type} {self.model_type} {self.object_id} at {self.created_at}"
 
 
 def log_action(user, action_type, model_type, object_id=None, object_name=None, 
@@ -456,27 +460,24 @@ def log_action(user, action_type, model_type, object_id=None, object_name=None,
     Returns the created ActionHistory instance.
     
     Args:
-        user: Django User object. Will get_or_create the associated Profile.
+        user: Django User object (from django.contrib.auth.models.User)
     """
     logger.debug("logging action")
     
-    # Convert User to Profile if needed
-    profile = None
+    # Extract user info if authenticated
+    user_obj = None
+    username = None
+    email = None
+    
     if user and hasattr(user, 'is_authenticated') and user.is_authenticated:
-        from backend.users.models import Profile
-        try:
-            # Try to get the profile via the OneToOne relationship
-            profile = user.profile
-        except Profile.DoesNotExist:
-            # Profile doesn't exist, create it
-            profile, _ = Profile.objects.get_or_create(user=user)
-        except Exception as e:
-            # If something else goes wrong, log it but don't fail the action
-            logger.warning(f"Could not get or create Profile for user {getattr(user, 'id', 'unknown')}: {e}")
-            profile = None
+        user_obj = user
+        username = getattr(user, 'username', None)
+        email = getattr(user, 'email', None)
     
     return ActionHistory.objects.create(
-        user=profile,
+        user=user_obj,
+        user_name=username,
+        user_email=email,
         action_type=action_type,
         model_type=model_type,
         object_id=object_id,
