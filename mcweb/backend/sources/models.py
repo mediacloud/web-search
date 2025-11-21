@@ -425,7 +425,7 @@ class ActionHistory(models.Model):
         FEED = "Feed"
         ALTERNATIVE_DOMAIN = "AlternativeDomain"
 
-    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True, blank=True)
+    user = models.ForeignKey('users.Profile', on_delete=models.SET_NULL, null=True, blank=True)
     action_type = models.CharField(max_length=50, choices=ActionTypes.choices)
     model_type = models.CharField(max_length=50, choices=ModelType.choices)
     #Rather than a foreign key? Hard on several tables, but it would be nice to put a link to the changed record somewhere, I think this is sufficient
