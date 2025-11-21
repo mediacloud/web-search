@@ -431,7 +431,7 @@ class ActionHistory(models.Model):
     #Rather than a foreign key? Hard on several tables, but it would be nice to put a link to the changed record somewhere, I think this is sufficient
     object_id = models.IntegerField(null=True, blank=True) 
     object_name = models.CharField(max_length=500, null=True, blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     changes = models.JSONField(null=True, blank=True)
     note = models.CharField(null=True, blank=True)
