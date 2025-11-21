@@ -472,20 +472,20 @@ class ActionHistoryMixin:
     action_history_model_type = None  # Must be set by subclass
     
     def perform_create(self, serializer):
-        logger.debug(f"Mixin for {action_history_model_type} CREATE")
+        logger.debug(f"Mixin for {self.action_history_model_type} CREATE")
         instance = serializer.save()
         self._log_action(ActionHistory.ActionTypes.CREATE, instance)
         return instance
     
     def perform_update(self, serializer):
-        logger.debug(f"Mixin for {action_history_model_type} UPDATE")
+        logger.debug(f"Mixin for {self.action_history_model_type} UPDATE")
         changed_fields = self._get_changed_fields(serializer)
         updated_instance = serializer.save()
         self._log_action(ActionHistory.ActionTypes.UPDATE, updated_instance, changed_fields)
         return updated_instance
     
     def perform_destroy(self, instance):
-        logger.debug(f"Mixin for {action_history_model_type} DESTROY")
+        logger.debug(f"Mixin for {self.action_history_model_type} DESTROY")
         self._log_action(ActionHistory.ActionTypes.DELETE, instance)
         instance.delete()
     
