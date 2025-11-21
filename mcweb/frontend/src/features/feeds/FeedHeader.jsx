@@ -12,6 +12,7 @@ import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
+import MediaNotFound from '../ui/MediaNotFound';
 
 export default function FeedHeader() {
   const { enqueueSnackbar } = useSnackbar();
@@ -23,6 +24,7 @@ export default function FeedHeader() {
   const {
     data: feed,
     isLoading,
+    error,
   } = useGetFeedQuery(feedId);
 
   const [fetchFeedTrigger] = useLazyFetchFeedQuery();
@@ -38,6 +40,8 @@ export default function FeedHeader() {
     return <CircularProgress size="75px" />;
   }
 
+  if (error) { return <MediaNotFound type="feed" />; }
+  
   return (
     <>
       <Header>
