@@ -462,6 +462,12 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
     
     Args:
         user: Django User object (from django.contrib.auth.models.User)
+        action_type: str (name of action, for searching)
+        object_model: the model the action is associated with
+        object_id: the id of the model being acted on
+        object_name: the name of the model being acted on
+        changes: a simple json diff of changes made
+        notes: optional additional context
     """
     logger.debug("logging action")
     
@@ -486,5 +492,3 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
         changes=changes,
         notes=notes
     )
-
-# ActionHistoryMixin moved to action_history.py
