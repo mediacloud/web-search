@@ -187,6 +187,9 @@ class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
                 new_collection.source_set.add(source)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        self._log_action("copy-collection", original_collection, notes = f"Copied {original_collection.name} to new collection {new_name}")
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
@@ -194,6 +197,9 @@ class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
     @action(methods=['post'], detail=False, url_path='rescrape-collection')
     def rescrape_feeds(self, request):
         collection_id = int(request.data["collection_id"])
+        collection = get_object_or_404(self.queryset, pk=collection_id)
+
+        self._log_action("rescrape-feeds", collection, note=f"Scheduled rescrape for collection {collection.name}")
         return Response(schedule_scrape_collection(collection_id, request.user))
 
 
@@ -524,6 +530,10 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
     def rescrape_feeds(self, request):
         # maybe take multiple ids?  Or just add a method to rescrape a source
         source_id = int(request.data["source_id"])
+        source = get_object_or_404(self.queryset, pk=source_id)
+
+        self._log_action("rescrape-feeds", source, note=f"Scheduled rescrape for source {source.name}")
+
         return Response(schedule_scrape_source(source_id, request.user))
 
     # NOTE!!!! {completed,pending}-tasks are ***NOT***
@@ -596,6 +606,13 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             sources_queryset = Source.objects.all()
             source = get_object_or_404(sources_queryset, pk=source_id)
             collection.source_set.remove(source)
+            log_action(request.user, 
+                "remove_from_collection",
+                ActionHistory.ModelType.SOURCE, 
+                object_id = source.id,
+                object_name = source.name,
+                note=f"Removed source {source.name} from collection {collection.name}"
+                )
             return Response({'collection_id': pk, 'source_id': source_id})
         else:
             sources_queryset = Source.objects.all()
@@ -605,6 +622,13 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collection = get_object_or_404(
                 collections_queryset, pk=collection_id)
             source.collections.remove(collection)
+            log_action(request.user, 
+                "remove_from_collection",
+                ActionHistory.ModelType.SOURCE, 
+                object_id = source.id,
+                object_name = source.name,
+                note=f"Removed source {source.name} from collection {collection.name}"
+                )
             return Response({'collection_id': collection_id, 'source_id': pk})
 
     def create(self, request):
@@ -615,6 +639,13 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collections_queryset = Collection.objects.all()
         collection = get_object_or_404(collections_queryset, pk=collection_id)
         source.collections.add(collection)
+        log_action(request.user, 
+                "add_to_collection",
+                ActionHistory.ModelType.SOURCE, 
+                object_id = source.id,
+                object_name = source.name,
+                note=f"Added source {source.name} to collection {collection.name}"
+                )
         return Response({'source_id': source_id, 'collection_id': collection_id})
     
 
