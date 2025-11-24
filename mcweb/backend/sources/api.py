@@ -187,7 +187,7 @@ class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        self._log_action("copy-collection", original_collection, notes = f"Copied {original_collection.name} to new collection {new_name}")
+        self._log_action("copy-collection", new_collection, notes = f"Copied {original_collection.name} to new collection {new_name}")
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
@@ -198,7 +198,7 @@ class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
         collection_id = int(request.data["collection_id"])
         collection = get_object_or_404(self.queryset, pk=collection_id)
 
-        self._log_action("rescrape-feeds", collection, note=f"Scheduled rescrape for collection {collection.name}")
+        self._log_action("rescrape-feeds", collection, notes=f"Scheduled rescrape for collection {collection.name}")
         return Response(schedule_scrape_collection(collection_id, request.user))
 
 
@@ -358,7 +358,6 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
             serializer = SourceSerializer(
                 data=cleaned_data, context={'request': request})
             if serializer.is_valid():
-                instance = serializer.save()
                 # Manually call perform_create to trigger action history logging
                 self.perform_create(serializer)
                 return Response({"source": serializer.data})
@@ -372,7 +371,6 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = SourceSerializer(instance, data=request.data)
         if serializer.is_valid():
-            updated_instance = serializer.save()
             # Manually call perform_update to trigger action history logging
             self.perform_update(serializer)
             return Response({"source": serializer.data})
@@ -432,8 +430,8 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
                     cleaned_source_input = Source._clean_source(row)
                     serializer = SourceSerializer(data=cleaned_source_input)
                     if serializer.is_valid():
-                        #existing_source = serializer.save()
-                        existing_source = self.perform_create(serializer)
+                        existing_source = serializer.save()
+                        self.perform_create(serializer)
                         if rescrape and not existing_source.url_search_string:
                             schedule_scrape_source(
                                 existing_source.id, request.user)
@@ -531,7 +529,7 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
         source_id = int(request.data["source_id"])
         source = get_object_or_404(self.queryset, pk=source_id)
 
-        self._log_action("rescrape-feeds", source, note=f"Scheduled rescrape for source {source.name}")
+        self._log_action("rescrape-feeds", source, notes=f"Scheduled rescrape for source {source.name}")
 
         return Response(schedule_scrape_source(source_id, request.user))
 
@@ -610,7 +608,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
                 ActionHistory.ModelType.SOURCE, 
                 object_id = source.id,
                 object_name = source.name,
-                note=f"Removed source {source.name} from collection {collection.name}"
+                notes=f"Removed source {source.name} from collection {collection.name}"
                 )
             return Response({'collection_id': pk, 'source_id': source_id})
         else:
@@ -626,7 +624,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
                 ActionHistory.ModelType.SOURCE, 
                 object_id = source.id,
                 object_name = source.name,
-                note=f"Removed source {source.name} from collection {collection.name}"
+                notes=f"Removed source {source.name} from collection {collection.name}"
                 )
             return Response({'collection_id': collection_id, 'source_id': pk})
 
@@ -643,7 +641,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
                 ActionHistory.ModelType.SOURCE, 
                 object_id = source.id,
                 object_name = source.name,
-                note=f"Added source {source.name} to collection {collection.name}"
+                notes=f"Added source {source.name} to collection {collection.name}"
                 )
         return Response({'source_id': source_id, 'collection_id': collection_id})
     
@@ -669,6 +667,7 @@ class AlternativeDomainViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
             serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain_source.name})
             if serializer.is_valid():
                 serializer.save()
+                self.perform_create(serializer)
                 for collection in alternative_domain_source.collections.all():
                     source.collections.add(collection)
             # then add all source feeds to the alternative domain source
@@ -680,6 +679,7 @@ class AlternativeDomainViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
             else:
                 error_string = str(serializer.errors)
                 raise APIException(f"{error_string}")
+
         if alternative_domain is not None:
             source = get_object_or_404(Source, pk=source_id)
             domain_exists = Source.domain_exists(alternative_domain)
@@ -688,6 +688,7 @@ class AlternativeDomainViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
             serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain})
             if serializer.is_valid():
                 serializer.save()
+                self.perform_create(serializer)
                 return Response({"alternative_domain": serializer.data})
             else:
                 error_string = str(serializer.errors)
