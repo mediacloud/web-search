@@ -352,7 +352,9 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
             serializer = SourceSerializer(
                 data=cleaned_data, context={'request': request})
             if serializer.is_valid():
-                serializer.save()
+                instance = serializer.save()
+                # Manually call perform_create to trigger action history logging
+                self.perform_create(serializer)
                 return Response({"source": serializer.data})
             else:
                 error_string = str(serializer.errors)
@@ -364,7 +366,9 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = SourceSerializer(instance, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            updated_instance = serializer.save()
+            # Manually call perform_update to trigger action history logging
+            self.perform_update(serializer)
             return Response({"source": serializer.data})
         else:
             error_string = serializer.errors
