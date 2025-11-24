@@ -381,7 +381,10 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
         queryset = Source.objects
         counts = dict(updated=0, skipped=0, created=0)
         row_num = 0
-        for row in request.data['sources']:
+        
+        # Wrap bulk operations in context to accumulate actions
+        with ActionHistoryContext() as ctx:
+            for row in request.data['sources']:
             row_num += 1
             # skip empty rows
             if len(row.keys()) < 1:
@@ -457,6 +460,20 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
                 counts['skipped'] += 1
                 continue
             collection.source_set.add(existing_source)
+        
+        # Create summary log from accumulated actions
+        ctx.log_summary(
+            user=request.user,
+            action_type="bulk_upload_sources",
+            object_model=ActionHistory.ModelType.COLLECTION,
+            object_id=collection.id,
+            object_name=collection.name,
+            additional_changes={
+                "sources_skipped": counts['skipped'],
+            },
+            notes=f"Bulk upload: {counts['created']} created, {counts['updated']} updated, {counts['skipped']} skipped"
+        )
+        
         send_source_upload_email(email_title, email_text, request.user.email)
         return Response(counts)
 

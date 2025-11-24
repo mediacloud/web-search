@@ -86,6 +86,58 @@ class ActionHistoryContext:
                 summary['object_ids'].append(object_id)
         
         return summary
+    
+    def log_summary(self, user, action_type, object_model, object_id, object_name, 
+                    additional_changes=None, notes=None):
+        """
+        Create a summary ActionHistory record from accumulated actions.
+        
+        Args:
+            user: Django User object
+            action_type: Summary action type (e.g., "bulk_upload_sources")
+            object_model: ModelType enum value for the primary object
+            object_id: ID of the primary object
+            object_name: Name of the primary object
+            additional_changes: Optional dict of additional changes to include
+            notes: Optional notes string (will be auto-generated if not provided)
+        
+        Returns:
+            The created ActionHistory instance, or None if no actions were accumulated
+        """
+        if not self.actions:
+            # No actions accumulated, nothing to log
+            return None
+        
+        summary = self.get_summary()
+        
+        # Build changes dict
+        changes = {
+            'summary': summary['by_action_type'],
+            'total_actions': summary['total'],
+            'by_object_model': summary['by_object_model'],
+            'object_ids': summary['object_ids'][:100],  # Limit to avoid huge JSON
+        }
+        
+        # Merge in additional changes if provided
+        if additional_changes:
+            changes.update(additional_changes)
+        
+        # Auto-generate notes if not provided
+        if notes is None:
+            action_parts = []
+            for act_type, count in summary['by_action_type'].items():
+                action_parts.append(f"{count} {act_type}")
+            notes = f"Bulk operation: {', '.join(action_parts)}"
+        
+        return log_action(
+            user=user,
+            action_type=action_type,
+            object_model=object_model,
+            object_id=object_id,
+            object_name=object_name,
+            changes=changes,
+            notes=notes,
+        )
 
 
 class ActionHistoryMixin:
