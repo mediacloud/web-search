@@ -24,7 +24,7 @@ class ActionHistoryAdmin(admin.ModelAdmin):
         'created_at',
         'user_name',
         'action_type',
-        'model_type',
+        'object_model',
         'object_id',
         'object_name',
         'notes',
@@ -32,7 +32,7 @@ class ActionHistoryAdmin(admin.ModelAdmin):
     
     list_filter = [
         'action_type',
-        'model_type',
+        'object_model',
         'created_at',
         # Removed 'user' - too many users to filter effectively
     ]
@@ -52,7 +52,7 @@ class ActionHistoryAdmin(admin.ModelAdmin):
         'user_name',
         'user_email',
         'action_type',
-        'model_type',
+        'object_model',
         'object_id',
         'object_name',
         'created_at',
@@ -77,7 +77,7 @@ class ActionHistoryAdmin(admin.ModelAdmin):
     # Optional: Customize the detail view
     fieldsets = (
         ('Action Details', {
-            'fields': ('created_at', 'user', 'user_name', 'user_email', 'action_type', 'model_type')
+            'fields': ('created_at', 'user', 'user_name', 'user_email', 'action_type', 'object_model')
         }),
         ('Object Information', {
             'fields': ('object_id', 'object_name')

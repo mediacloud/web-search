@@ -32,7 +32,8 @@ from backend.util.tasks import get_completed_tasks, get_pending_tasks
 
 # local directory (mcweb/backend/sources)
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
-from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory, ActionHistoryMixin, log_action
+from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory, log_action
+from .action_history import ActionHistoryMixin, ActionHistoryContext
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
@@ -55,7 +56,7 @@ def _all_platforms() -> List:
 
 
 class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
-    action_history_model_type = ActionHistory.ModelType.COLLECTION
+    action_history_object_model = ActionHistory.ModelType.COLLECTION
     # use this queryset, so we ensure that every result has `source_count` included
     queryset = Collection.objects.\
         annotate(source_count=Count('source')).\
@@ -199,7 +200,7 @@ def _rss_fetcher_api():
     return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
 class FeedsViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
-    action_history_model_type = ActionHistory.ModelType.FEED
+    action_history_object_model = ActionHistory.ModelType.FEED
     queryset = Feed.objects.all()
     permission_classes = [
         IsGetOrIsStaffOrContributor
@@ -299,7 +300,7 @@ class FeedsViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
 
 
 class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
-    action_history_model_type = ActionHistory.ModelType.SOURCE
+    action_history_object_model = ActionHistory.ModelType.SOURCE
     queryset = Source.objects.annotate(
         collection_count=Count('collections')
     ).order_by('-collection_count').all()
@@ -594,7 +595,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
     
 
 class AlternativeDomainViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
-    action_history_model_type = ActionHistory.ModelType.ALTERNATIVE_DOMAIN
+    action_history_object_model = ActionHistory.ModelType.ALTERNATIVE_DOMAIN
     permission_classes = [
         IsGetOrIsStaffOrContributor
     ]
