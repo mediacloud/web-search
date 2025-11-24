@@ -11,32 +11,81 @@ from .models import ActionHistory, log_action
 
 logger = logging.getLogger(__name__)
 
-# Context variable to suppress action history logging during bulk operations
-# When set to True, the mixin will skip logging (delegated to bulk operation handler)
-_delegated_history = ContextVar('delegated_history', default=False)
+# Context variable to store the active ActionHistoryContext instance
+# When set, the mixin will accumulate actions instead of logging them
+_delegated_history = ContextVar('delegated_history', default=None)
 
 
 class ActionHistoryContext:
     """
-    Context manager to suppress action history logging during bulk operations.
+    Context manager to suppress action history logging during bulk operations
+    and accumulate the actions that would have been logged.
     
     Usage:
-        with ActionHistoryContext():
-            # All action history logging is suppressed
+        with ActionHistoryContext() as ctx:
+            # All action history logging is suppressed and accumulated
             # ... perform bulk operations ...
             pass
-        # Logging resumes normally after context exits
+        # After context exits, access accumulated actions:
+        actions = ctx.actions  # List of action dicts
+        summary = ctx.get_summary()  # Get summary statistics
     """
     
+    def __init__(self):
+        """Initialize with empty action accumulator"""
+        self.actions = []
+    
     def __enter__(self):
-        """Enter context - suppress action history logging"""
-        _delegated_history.set(True)
+        """Enter context - suppress action history logging and start accumulating"""
+        _delegated_history.set(self)
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit context - restore normal action history logging"""
-        _delegated_history.set(False)
+        _delegated_history.set(None)
         return False  # Don't suppress exceptions
+    
+    def add_action(self, action_data):
+        """
+        Add an action to the accumulator.
+        Called by the mixin when logging is delegated.
+        """
+        self.actions.append(action_data)
+    
+    def get_summary(self):
+        """
+        Get summary statistics of accumulated actions.
+        
+        Returns dict with counts by action_type and object_model:
+        {
+            'total': 10,
+            'by_action_type': {'create': 3, 'update': 7},
+            'by_object_model': {'Source': 10},
+            'object_ids': [1, 2, 3, ...]
+        }
+        """
+        summary = {
+            'total': len(self.actions),
+            'by_action_type': {},
+            'by_object_model': {},
+            'object_ids': [],
+        }
+        
+        for action in self.actions:
+            # Count by action type
+            action_type = action.get('action_type', 'unknown')
+            summary['by_action_type'][action_type] = summary['by_action_type'].get(action_type, 0) + 1
+            
+            # Count by object model
+            object_model = action.get('object_model', 'unknown')
+            summary['by_object_model'][object_model] = summary['by_object_model'].get(object_model, 0) + 1
+            
+            # Collect object IDs
+            object_id = action.get('object_id')
+            if object_id:
+                summary['object_ids'].append(object_id)
+        
+        return summary
 
 
 class ActionHistoryMixin:
@@ -111,16 +160,28 @@ class ActionHistoryMixin:
         """
         Helper method to create ActionHistory records.
         Only logs if action_history_object_model is set.
-        Skips logging if we're in a delegated_history context (bulk operations).
+        If in a delegated_history context, accumulates actions instead of logging.
         """
         if not self.action_history_object_model:
             return
         
-        # Check if logging is delegated (suppressed during bulk operations)
-        if _delegated_history.get():
-            logger.debug(f"Skipping action history log (delegated): {action_type} on {self.action_history_object_model} {instance.id}")
+        # Check if logging is delegated (accumulate during bulk operations)
+        context = _delegated_history.get()
+        if context:
+            # Accumulate the action instead of logging it
+            action_data = {
+                'action_type': action_type,
+                'object_model': self.action_history_object_model,
+                'object_id': instance.id,
+                'object_name': self._get_object_name(instance),
+                'changes': changes,
+                'notes': notes,
+            }
+            context.add_action(action_data)
+            logger.debug(f"Accumulated action history (delegated): {action_type} on {self.action_history_object_model} {instance.id}")
             return
         
+        # Normal logging
         try:
             log_action(
                 user=self.request.user if self.request.user.is_authenticated else None,
