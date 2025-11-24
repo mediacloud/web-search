@@ -409,16 +409,16 @@ class ActionHistory(models.Model):
     A symbolic edit to push on a new instance
     """
 
-    class ActionTypes(models.TextChoices):
-        CREATE = "create"
-        UPDATE = "update"
-        DELETE = "delete"
+    #class ActionTypes(models.TextChoices):
+    #    CREATE = "create"
+    #    UPDATE = "update"
+    #    DELETE = "delete"
 
-        COPY_COLLECTION = "copy_collection"
-        UPLOAD_SOURCES = "upload_sources"
-        RESCRAPE = "rescrape"
-        ADD_TO_COLLECTION = "add_to_collection"
-        REMOVE_FROM_COLLECTION = "remove_from_collection"
+    #    COPY_COLLECTION = "copy_collection"
+    #    UPLOAD_SOURCES = "upload_sources"
+    #    RESCRAPE = "rescrape"
+    #    ADD_TO_COLLECTION = "add_to_collection"
+    #    REMOVE_FROM_COLLECTION = "remove_from_collection"
         #Others? 
 
     class ModelType(models.TextChoices):
@@ -430,8 +430,8 @@ class ActionHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     user_name = models.CharField(max_length=150, null=True, blank=True)  # Django User.username max_length
     user_email = models.CharField(max_length=254, null=True, blank=True)  # Django User.email max_length
-    action_type = models.CharField(max_length=50, choices=ActionTypes.choices)
-    model_type = models.CharField(max_length=50, choices=ModelType.choices)
+    action_type = models.CharField(max_length=50) #choices=ActionTypes.choices)
+    object_model = models.CharField(max_length=50, choices=ModelType.choices)
     #Rather than a foreign key? Hard on several tables, but it would be nice to put a link to the changed record somewhere, I think this is sufficient
     object_id = models.IntegerField(null=True, blank=True) 
     object_name = models.CharField(max_length=500, null=True, blank=True)
@@ -443,17 +443,17 @@ class ActionHistory(models.Model):
     class Meta:
         ordering = ['-created_at']
         indexes = [
-            models.Index(fields=['model_type', 'object_id']),
+            models.Index(fields=['object_model', 'object_id']),
             models.Index(fields=['user', '-created_at']),
             models.Index(fields=['action_type', '-created_at']),
         ]
     
     def __str__(self):
         user_display = self.user_name or (self.user.username if self.user else "Anonymous")
-        return f"{user_display} {self.action_type} {self.model_type} {self.object_id} at {self.created_at}"
+        return f"{user_display} {self.action_type} {self.object_model} {self.object_id} at {self.created_at}"
 
 
-def log_action(user, action_type, model_type, object_id=None, object_name=None, 
+def log_action(user, action_type, object_model, object_id=None, object_name=None, 
                changes=None, notes=None):
     """
     Helper function to create an ActionHistory record.
@@ -479,89 +479,11 @@ def log_action(user, action_type, model_type, object_id=None, object_name=None,
         user_name=username,
         user_email=email,
         action_type=action_type,
-        model_type=model_type,
+        object_model=object_model,
         object_id=object_id,
         object_name=object_name,
         changes=changes,
         notes=notes
     )
 
-#Could be convinced this belongs elsewhere- a Mixin for the Django REST Framework Viewset that inserts overridden methods with logging utils
-class ActionHistoryMixin:
-    """Mixin that automatically tracks CRUD operations"""
-    
-    action_history_model_type = None  # Must be set by subclass
-    
-    def perform_create(self, serializer):
-        logger.debug(f"Mixin for {self.action_history_model_type} CREATE")
-        instance = serializer.save()
-        self._log_action(ActionHistory.ActionTypes.CREATE, instance)
-        return instance
-    
-    def perform_update(self, serializer):
-        logger.debug(f"Mixin for {self.action_history_model_type} UPDATE")
-        changed_fields = self._get_changed_fields(serializer)
-        updated_instance = serializer.save()
-        self._log_action(ActionHistory.ActionTypes.UPDATE, updated_instance, changed_fields)
-        return updated_instance
-    
-    def perform_destroy(self, instance):
-        logger.debug(f"Mixin for {self.action_history_model_type} DESTROY")
-        self._log_action(ActionHistory.ActionTypes.DELETE, instance)
-        instance.delete()
-    
-    def _get_object_name(self, instance):
-        """
-        Extract a human-readable name from the instance.
-        Tries common field names like 'name', 'label', 'title', etc.
-        """
-        for attr in ['name', 'label', 'title', 'homepage']:
-            if hasattr(instance, attr):
-                value = getattr(instance, attr)
-                if value:
-                    return str(value)
-        # Fallback to ID if no name field found
-        return f"ID {instance.id}"
-
-    def _get_changed_fields(self, serializer):
-        """
-        Extract changed fields from serializer by comparing validated_data
-        with current instance values.
-        
-        Returns dict of {field_name: "old_value -> new_value"}
-        """
-        changed_fields = {}
-        instance = serializer.instance
-        
-        for field, new_value in serializer.validated_data.items():
-            old_value = getattr(instance, field, None)
-            
-            # Handle different value types
-            if old_value != new_value:
-                # Format the change nicely
-                old_str = str(old_value) if old_value is not None else "None"
-                new_str = str(new_value) if new_value is not None else "None"
-                changed_fields[field] = f"{old_str} -> {new_str}"
-        
-        return changed_fields
-
-    def _log_action(self, action_type, instance, changes=None, notes=None):
-        """
-        Helper method to create ActionHistory records.
-        Only logs if action_history_model_type is set.
-        """
-        if not self.action_history_model_type:
-            return
-        
-        try:
-            log_action(
-                user=self.request.user if self.request.user.is_authenticated else None,
-                action_type=action_type,
-                model_type=self.action_history_model_type,
-                object_id=instance.id,
-                object_name=self._get_object_name(instance),
-                changes=changes,
-                notes=notes,
-            )
-        except Exception as e:
-            logger.error(f"Failed to log action history: {e}", exc_info=True)
+# ActionHistoryMixin moved to action_history.py
