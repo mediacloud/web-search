@@ -427,7 +427,8 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
                     cleaned_source_input = Source._clean_source(row)
                     serializer = SourceSerializer(data=cleaned_source_input)
                     if serializer.is_valid():
-                        existing_source = serializer.save()
+                        #existing_source = serializer.save()
+                        existing_source = self.perform_create(serializer)
                         if rescrape and not existing_source.url_search_string:
                             schedule_scrape_source(
                                 existing_source.id, request.user)
@@ -447,7 +448,8 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
                     serializer = SourceSerializer(
                         existing_source, data=cleaned_source_input)
                     if serializer.is_valid():
-                        existing_source = serializer.save()
+                        #existing_source = serializer.save()
+                        existing_source = self.perform_update(serializer)
                         email_text += "\n Row {}: {}, updated existing {} source".format(
                             row_num, existing_source.name, existing_source.platform)
                         counts['updated'] += 1
