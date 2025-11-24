@@ -384,81 +384,81 @@ class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
         # Wrap bulk operations in context to accumulate actions
         with ActionHistoryContext() as ctx:
             for row in request.data['sources']:
-            row_num += 1
-            # skip empty rows
-            if len(row.keys()) < 1:
-                continue
-            homepage = row.get('homepage', None)
-            if not homepage:
-                email_text += "\n Homepage is required"
-                counts['skipped'] += 1
-                continue
-            platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
-            if not platform:
-                platform = Source.SourcePlatforms.ONLINE_NEWS
-            # check if this is an update
-            id = row.get('id', None)
-            if id and (int(id) > 0):
-                existing_source = queryset.filter(pk=row['id'])
-            else:
-                #check if url_search_string_source
-                url_search_string = row.get('url_search_string', None)
-                if not url_search_string:
-                    url_search_string = None
-                if url_search_string:
-                    existing_source = queryset.filter(url_search_string=url_search_string)
-                # if online news, need to make check if canonical domain exists
-                elif platform == Source.SourcePlatforms.ONLINE_NEWS:
-                    canonical_domain = urls.canonical_domain(homepage)
-                    # call filter here, not get, so we can check for multiple matches (url_query_string case)
-                    existing_source = queryset.filter(
-                        name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
-                else:
-                    # a diff platform, so just check for unique name (ie. twitter handle, subreddit name, YT channel)
-                    existing_source = queryset.filter(
-                        homepage=row['homepage'], platform=platform)
-            # Making a new one
-            if len(existing_source) == 0:
-                cleaned_source_input = Source._clean_source(row)
-                serializer = SourceSerializer(data=cleaned_source_input)
-                if serializer.is_valid():
-                    existing_source = serializer.save()
-                    if rescrape and not existing_source.url_search_string:
-                        schedule_scrape_source(
-                            existing_source.id, request.user)
-                    email_text += "\n {}: created new {} source".format(
-                        existing_source.name, existing_source.platform)
-                    counts['created'] += 1
-                else:
-                    serializer_errors = format_serializer_errors(serializer.errors)
-                    email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+                row_num += 1
+                # skip empty rows
+                if len(row.keys()) < 1:
+                    continue
+                homepage = row.get('homepage', None)
+                if not homepage:
+                    email_text += "\n Homepage is required"
                     counts['skipped'] += 1
                     continue
-                # existing_source = Source.create_from_dict(row)
-            # Updating unique match
-            elif len(existing_source) == 1:
-                existing_source = existing_source[0]
-                cleaned_source_input = Source._clean_source(row)
-                serializer = SourceSerializer(
-                    existing_source, data=cleaned_source_input)
-                if serializer.is_valid():
-                    existing_source = serializer.save()
-                    email_text += "\n Row {}: {}, updated existing {} source".format(
-                        row_num, existing_source.name, existing_source.platform)
-                    counts['updated'] += 1
+                platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
+                if not platform:
+                    platform = Source.SourcePlatforms.ONLINE_NEWS
+                # check if this is an update
+                id = row.get('id', None)
+                if id and (int(id) > 0):
+                    existing_source = queryset.filter(pk=row['id'])
                 else:
-                    serializer_errors = format_serializer_errors(serializer.errors)
-                    email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+                    #check if url_search_string_source
+                    url_search_string = row.get('url_search_string', None)
+                    if not url_search_string:
+                        url_search_string = None
+                    if url_search_string:
+                        existing_source = queryset.filter(url_search_string=url_search_string)
+                    # if online news, need to make check if canonical domain exists
+                    elif platform == Source.SourcePlatforms.ONLINE_NEWS:
+                        canonical_domain = urls.canonical_domain(homepage)
+                        # call filter here, not get, so we can check for multiple matches (url_query_string case)
+                        existing_source = queryset.filter(
+                            name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
+                    else:
+                        # a diff platform, so just check for unique name (ie. twitter handle, subreddit name, YT channel)
+                        existing_source = queryset.filter(
+                            homepage=row['homepage'], platform=platform)
+                # Making a new one
+                if len(existing_source) == 0:
+                    cleaned_source_input = Source._clean_source(row)
+                    serializer = SourceSerializer(data=cleaned_source_input)
+                    if serializer.is_valid():
+                        existing_source = serializer.save()
+                        if rescrape and not existing_source.url_search_string:
+                            schedule_scrape_source(
+                                existing_source.id, request.user)
+                        email_text += "\n {}: created new {} source".format(
+                            existing_source.name, existing_source.platform)
+                        counts['created'] += 1
+                    else:
+                        serializer_errors = format_serializer_errors(serializer.errors)
+                        email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+                        counts['skipped'] += 1
+                        continue
+                    # existing_source = Source.create_from_dict(row)
+                # Updating unique match
+                elif len(existing_source) == 1:
+                    existing_source = existing_source[0]
+                    cleaned_source_input = Source._clean_source(row)
+                    serializer = SourceSerializer(
+                        existing_source, data=cleaned_source_input)
+                    if serializer.is_valid():
+                        existing_source = serializer.save()
+                        email_text += "\n Row {}: {}, updated existing {} source".format(
+                            row_num, existing_source.name, existing_source.platform)
+                        counts['updated'] += 1
+                    else:
+                        serializer_errors = format_serializer_errors(serializer.errors)
+                        email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+                        counts['skipped'] += 1
+                        continue
+                    # existing_source.update_from_dict(row)
+                # Request to update non-unique match, so skip and force them to do it by hand
+                else:
+                    email_text += "\n ⚠️ Row {}: {}, multiple matches - cowardly skipping so you can do it by hand existing source".\
+                        format(row_num, row["homepage"])
                     counts['skipped'] += 1
                     continue
-                # existing_source.update_from_dict(row)
-            # Request to update non-unique match, so skip and force them to do it by hand
-            else:
-                email_text += "\n ⚠️ Row {}: {}, multiple matches - cowardly skipping so you can do it by hand existing source".\
-                    format(row_num, row["homepage"])
-                counts['skipped'] += 1
-                continue
-            collection.source_set.add(existing_source)
+                collection.source_set.add(existing_source)
         
         # Create summary log from accumulated actions
         ctx.log_summary(
