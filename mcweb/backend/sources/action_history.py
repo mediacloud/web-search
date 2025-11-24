@@ -105,8 +105,26 @@ class ActionHistoryContext:
             The created ActionHistory instance, or None if no actions were accumulated
         """
         if not self.actions:
-            # No actions accumulated, nothing to log
-            return None
+            # No actions accumulated - log a warning and still create a summary record
+            # This helps debug why actions weren't accumulated
+            logger.warning(
+                f"log_summary called with no accumulated actions for {action_type} on {object_model} {object_id}. "
+                f"This might indicate the context wasn't active when perform_create/perform_update were called."
+            )
+            # Still create a summary record with zero actions for audit trail
+            changes = additional_changes or {}
+            changes['total_actions'] = 0
+            changes['warning'] = 'No actions were accumulated - check if context was active'
+            
+            return log_action(
+                user=user,
+                action_type=action_type,
+                object_model=object_model,
+                object_id=object_id,
+                object_name=object_name,
+                changes=changes,
+                notes=notes or f"Bulk operation with no accumulated actions",
+            )
         
         summary = self.get_summary()
         
@@ -232,6 +250,9 @@ class ActionHistoryMixin:
             context.add_action(action_data)
             logger.debug(f"Accumulated action history (delegated): {action_type} on {self.action_history_object_model} {instance.id}")
             return
+        else:
+            # Context not found - this is normal for non-bulk operations
+            logger.debug(f"No delegated context found for {action_type} on {self.action_history_object_model} {instance.id}, logging normally")
         
         # Normal logging
         try:
