@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import feed_seeker
 import mcmetadata.urls as urls
 import requests
+from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
@@ -402,3 +403,91 @@ class AlternativeDomain(models.Model):
         ]
 
 
+class ActionHistory(models.Model):
+    """
+    Simple event model for actions taken on Sources models above
+    A symbolic edit to push on a new instance
+    """
+
+    #class ActionTypes(models.TextChoices):
+    #    CREATE = "create"
+    #    UPDATE = "update"
+    #    DELETE = "delete"
+
+    #    COPY_COLLECTION = "copy_collection"
+    #    UPLOAD_SOURCES = "upload_sources"
+    #    RESCRAPE = "rescrape"
+    #    ADD_TO_COLLECTION = "add_to_collection"
+    #    REMOVE_FROM_COLLECTION = "remove_from_collection"
+        #Others? 
+
+    class ModelType(models.TextChoices):
+        SOURCE = "Source"
+        COLLECTION = "Collection"
+        FEED = "Feed"
+        ALTERNATIVE_DOMAIN = "AlternativeDomain"
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user_name = models.CharField(max_length=150, blank=True)  # Django User.username max_length
+    user_email = models.CharField(max_length=254,  blank=True)  # Django User.email max_length
+    action_type = models.CharField(max_length=50) #choices=ActionTypes.choices)
+    object_model = models.CharField(max_length=50, choices=ModelType.choices)
+    #Rather than a foreign key? Hard on several tables, but it would be nice to put a link to the changed record somewhere, I think this is sufficient
+    object_id = models.IntegerField(null=True, blank=True) 
+    object_name = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    changes = models.JSONField(null=True, blank=True)
+    notes = models.CharField(max_length=5000, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['object_model', 'object_id']),
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['action_type', '-created_at']),
+        ]
+    
+    def __str__(self):
+        user_display = self.user_name or (self.user.username if self.user else "Anonymous")
+        return f"{user_display} {self.action_type} {self.object_model} {self.object_id} at {self.created_at}"
+
+
+def log_action(user, action_type, object_model, object_id=None, object_name=None, 
+               changes=None, notes=None):
+    """
+    Helper function to create an ActionHistory record.
+    Returns the created ActionHistory instance.
+    
+    Args:
+        user: Django User object (from django.contrib.auth.models.User)
+        action_type: str (name of action, for searching)
+        object_model: the model the action is associated with
+        object_id: the id of the model being acted on
+        object_name: the name of the model being acted on
+        changes: a simple json diff of changes made
+        notes: optional additional context
+    """
+    logger.debug("logging action")
+    
+    # Extract user info if authenticated
+    user_obj = None
+    username = None
+    email = None
+    
+    if user and hasattr(user, 'is_authenticated') and user.is_authenticated:
+        user_obj = user
+        username = getattr(user, 'username', None)
+        email = getattr(user, 'email', None)
+    
+    return ActionHistory.objects.create(
+        user=user_obj,
+        user_name=username,
+        user_email=email,
+        action_type=action_type,
+        object_model=object_model,
+        object_id=object_id,
+        object_name=object_name,
+        changes=changes,
+        notes=notes
+    )
