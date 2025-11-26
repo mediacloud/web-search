@@ -4,6 +4,11 @@ import HighchartsReact from 'highcharts-react-official';
 import PropTypes from 'prop-types';
 
 export default function CountOverTimeChart({ series, normalized }) {
+  Highcharts.setOptions({
+    lang: {
+      thousandsSep: ',',
+    },
+  });
   const options = {
     chart: {
       type: 'spline',

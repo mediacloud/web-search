@@ -318,6 +318,7 @@ def _serialized_current_user(request) -> str:
     data['token'] = token.key
     data['group_names'] = get_groups(request)
     data['quota'] = get_quota(request)
+    data['quota_limit'] = current_user.profile.quota_mediacloud
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
 

@@ -49,7 +49,7 @@ export default function CollectionHeader() {
   }
 
   if (error) {
-    return <MediaNotFound source={false} />;
+    return <MediaNotFound type="collection" />;
   }
 
   const PlatformIcon = platformIcon(collection.platform);

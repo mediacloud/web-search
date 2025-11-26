@@ -21,30 +21,30 @@ function AdvancedSearch({ queryIndex }) {
     negatedQueryList,
     platform,
     anyAll,
-    advanced,
   } = useSelector((state) => state.query[queryIndex]);
 
   let language = platform ? setLanguage(platform) : null;
+
+  const replaceSpecialQuotes = (s) => {
+    let result = s.replaceAll('“', '"');
+    result = result.replaceAll('”', '"');
+    return result;
+  };
 
   useEffect(() => {
     language = setLanguage(platform);
   }, [platform]);
 
-  useEffect(() => {
-    dispatch(setQueryProperty({
-      queryString: queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll),
-      queryIndex,
-      property: 'queryString',
-    }));
-  }, [advanced]);
-
   const [query, setQuery] = useState(
-    queryString || queryGenerator(queryList, negatedQueryList, platform, anyAll),
+    replaceSpecialQuotes(queryString) || queryGenerator(queryList, negatedQueryList, platform, anyAll),
   );
 
   const handleChange = (queryArg) => {
-    setQuery(queryArg);
-    dispatch(setQueryProperty({ queryString: queryArg, queryIndex, property: 'queryString' }));
+    const replacedQuery = replaceSpecialQuotes(queryArg);
+    setQuery(replacedQuery);
+    dispatch(setQueryProperty({
+      queryString: replacedQuery, queryIndex, property: 'queryString', name: replacedQuery,
+    }));
   };
 
   return (
@@ -82,6 +82,7 @@ function AdvancedSearch({ queryIndex }) {
                 </a>
                 {' '}
                 for the choosen platform.
+                Remeber to capitalize the boolean operators.
               </p>
             </div>
             <div className="col-5">
