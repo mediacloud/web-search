@@ -82,6 +82,7 @@ function AdvancedSearch({ queryIndex }) {
                 </a>
                 {' '}
                 for the choosen platform.
+                Remeber to capitalize the boolean operators.
               </p>
             </div>
             <div className="col-5">
