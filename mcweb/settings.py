@@ -24,7 +24,38 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.3.4"
+VERSION = "2.4.1"
+
+class Groups:
+    CONTRIBUTOR = "contributor"
+    API_ACCESS = "api_access"
+    HIGH_RATE_LIMIT = "api-high-rate-limit"
+    
+    # Group permissions configuration
+    PERMISSIONS = {
+        CONTRIBUTOR: {
+            #django app model specific permissions
+            "source" : ["add","change","view"],
+            "collection" : ["add","change","view"],
+            "feed" : ["add","change","view"],     
+        },
+        API_ACCESS: {
+        },
+        HIGH_RATE_LIMIT:{
+
+        }
+    }
+    
+    # Default user assignments for groups
+    DEFAULT_USERS = {
+        CONTRIBUTOR : ["e.leon@northeastern.edu"],
+        API_ACCESS : ["all"],
+        HIGH_RATE_LIMIT: []
+    }
+
+# This FULLCAPS reference is required to refer this value elsewhere in the app 
+GROUPS = Groups
+>>>>>>> 36225a51ae99f4aa2fefad4027c6d11a10ec9f1d
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -190,7 +221,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
     "util.logging_middleware.RequestLoggingMiddleware"
 ]
 

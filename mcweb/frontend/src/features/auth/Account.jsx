@@ -172,7 +172,8 @@ function Account() {
         <div className="row" style={{ marginTop: '20px' }}>
           <div className="col-4">
             <Alert severity="info">
-              Quota is 4000 hits per week.
+              {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+              Quota is {currentUser.quotaLimit} hits per week.
             </Alert>
           </div>
         </div>
