@@ -34,7 +34,7 @@ from backend.util.tasks import get_completed_tasks, get_pending_tasks
 # local directory (mcweb/backend/sources)
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
 from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory, log_action
-from .action_history import ActionHistoryMixin, ActionHistoryContext
+from .action_history import ActionHistoryViewSetMixin, ActionHistoryContext
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
@@ -56,7 +56,7 @@ def _all_platforms() -> List:
     return ['onlinenews']
 
 
-class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
+class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.COLLECTION
     # use this queryset, so we ensure that every result has `source_count` included
     queryset = Collection.objects.\
@@ -206,7 +206,7 @@ class CollectionViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
 def _rss_fetcher_api():
     return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
-class FeedsViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
+class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.FEED
     queryset = Feed.objects.all()
     permission_classes = [
@@ -306,7 +306,7 @@ class FeedsViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
         return Response({"fetch_response": total})
 
 
-class SourcesViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
+class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.SOURCE
     queryset = Source.objects.annotate(
         collection_count=Count('collections')
@@ -606,9 +606,9 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collection.source_set.remove(source)
             log_action(request.user, 
                 "remove_from_collection",
-                ActionHistory.ModelType.SOURCE, 
-                object_id = source.id,
-                object_name = source.name,
+                ActionHistory.ModelType.COLLECTION, 
+                object_id = collection.id,
+                object_name = collection.name,
                 notes=f"Removed source {source.name} from collection {collection.name}"
                 )
             return Response({'collection_id': pk, 'source_id': source_id})
@@ -622,9 +622,9 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             source.collections.remove(collection)
             log_action(request.user, 
                 "remove_from_collection",
-                ActionHistory.ModelType.SOURCE, 
-                object_id = source.id,
-                object_name = source.name,
+                ActionHistory.ModelType.COLLECTION, 
+                object_id = collection.id,
+                object_name = collection.name,
                 notes=f"Removed source {source.name} from collection {collection.name}"
                 )
             return Response({'collection_id': collection_id, 'source_id': pk})
@@ -647,7 +647,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         return Response({'source_id': source_id, 'collection_id': collection_id})
     
 
-class AlternativeDomainViewSet(ActionHistoryMixin, viewsets.ModelViewSet):
+class AlternativeDomainViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.ALTERNATIVE_DOMAIN
     permission_classes = [
         IsGetOrIsStaffOrContributor

@@ -158,7 +158,7 @@ class ActionHistoryContext:
         )
 
 
-class ActionHistoryMixin:
+class ActionHistoryViewSetMixin:
     """
     Mixin that automatically tracks CRUD operations for Django REST Framework viewsets.
     
