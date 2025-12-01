@@ -1,4 +1,11 @@
-[{"version": "v2.3.4",
+[{"version": "v2.4.1",
+"date": "2025-12-01",
+"notes": ["fix special quoting in advanced and simple search",
+"fix rollover formatting on chart rollovers",
+"show true quota limit in profile",
+"update media not found component",
+"add note on advanced search about boolean operators"
+]},{"version": "v2.3.4",
 "date": "2025-07-17",
 "notes": ["add link to vitals in header",
 "fix release notes in header",
