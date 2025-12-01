@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.4.0"
+VERSION = "2.4.1"
 
 class Groups:
     CONTRIBUTOR = "contributor"
