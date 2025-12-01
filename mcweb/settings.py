@@ -55,7 +55,6 @@ class Groups:
 
 # This FULLCAPS reference is required to refer this value elsewhere in the app 
 GROUPS = Groups
->>>>>>> 36225a51ae99f4aa2fefad4027c6d11a10ec9f1d
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
