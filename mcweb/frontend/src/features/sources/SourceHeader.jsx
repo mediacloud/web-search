@@ -33,7 +33,7 @@ export default function SourceHeader() {
     return <CircularProgress size="75px" />;
   }
 
-  if (error) { return <MediaNotFound source />; }
+  if (error) { return <MediaNotFound type="source" />; }
 
   const PlatformIcon = platformIcon(source.platform);
 
