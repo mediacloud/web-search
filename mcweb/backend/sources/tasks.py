@@ -28,8 +28,9 @@ import numpy as np
 from ..util.provider import get_task_provider
 
 # mcweb/backend/sources
-from .models import Feed, Source, Collection
+from .models import Feed, Source, Collection, ActionHistory, log_action
 from .rss_fetcher_api import RssFetcherApi
+from .action_history import ActionHistoryContext
 
 # mcweb/backend/util
 from backend.util.tasks import (
@@ -176,7 +177,11 @@ def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) ->
     with ScrapeContext(subject, user_email, "source", source_id) as sc:
         sc.add_body_chunk(Source._scrape_source(source_id, homepage, name))
 
+    #log_action goes here
     logger.info(f"== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
+    log_action(None,  "scrape-source", ActionHistory.ModelType.SOURCE, source_id, name)
+   
+
 
 @background(queue=ADMIN_SLOW)   # admin user initiated
 def _scrape_collection(collection_id: int, user_email: str) -> None:
@@ -194,34 +199,47 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
             sc.add_body_chunk(f"collection {collection_id} not found")
             return
 
-        sources = collection.source_set.all()
-        for source in sources:
-            logger.info(f"== starting Source._scrape_source %d (%s) in collection %d for %s",
-                        source.id, source.name, collection_id, user_email)
-            if source.url_search_string:
-                sc.add_body_chunk(f"Skippped source {source.id} ({source.name}) with URL search string {source.url_search_string}\n")
-                logger.warning(f"  Source %d (%s) has url_search_string %s",
-                               source.id, source.name, source.url_search_string)
-                continue
+        with ActionHistoryContext() as ctx:
+            sources = collection.source_set.all()
+            for source in sources:
+                logger.info(f"== starting Source._scrape_source %d (%s) in collection %d for %s",
+                            source.id, source.name, collection_id, user_email)
+                if source.url_search_string:
+                    sc.add_body_chunk(f"Skippped source {source.id} ({source.name}) with URL search string {source.url_search_string}\n")
+                    logger.warning(f"  Source %d (%s) has url_search_string %s",
+                                   source.id, source.name, source.url_search_string)
+                    continue
 
-            try:
-                # remove verbosity=0 for more output!
-                sc.add_body_chunk(
-                    Source._scrape_source(source.id, source.homepage, source.name, verbosity=0))
-            except Exception as e:
-                logger.exception("Source._scrape_source exception in _scrape_source %d for %s",
-                                 source.id, user_email)
-                sc.add_error()  # keep going
+                try:
+                    # remove verbosity=0 for more output!
+                    sc.add_body_chunk(
+                        Source._scrape_source(source.id, source.homepage, source.name, verbosity=0))
+                except Exception as e:
+                    logger.exception("Source._scrape_source exception in _scrape_source %d for %s",
+                                     source.id, user_email)
+                    sc.add_error()  # keep going
 
-                # for debug (seeing where hung by ^C-ing under
-                # dokku-scripts/outside/run-manage-pdb.sh)
-                if isinstance(e, KeyboardInterrupt):
-                    raise
-            logger.info(f"== finished Source._scrape_source %d (%s) in collection %d %s for %s",
-                        source.id, source.name, collection_id, collection.name, user_email)
+                    # for debug (seeing where hung by ^C-ing under
+                    # dokku-scripts/outside/run-manage-pdb.sh)
+                    if isinstance(e, KeyboardInterrupt):
+                        raise
+                logger.info(f"== finished Source._scrape_source %d (%s) in collection %d %s for %s",
+                            source.id, source.name, collection_id, collection.name, user_email)
 
-        logger.info(f"==== finished _scrape_collection(%d, %s) for %s",
-                    collection.id, collection.name, user_email)
+            logger.info(f"==== finished _scrape_collection(%d, %s) for %s",
+                        collection.id, collection.name, user_email)
+
+        # Create summary log from accumulated actions
+        ctx.log_summary(
+            user=None,
+            action_type="scrape-collection",
+            object_model=ActionHistory.ModelType.COLLECTION,
+            object_id=collection.id,
+            object_name=collection.name,
+            additional_changes={},
+            notes=""
+        )
+        
     # end with ScrapeContext...
 
 
@@ -471,6 +489,8 @@ def analyze_sources(provider_name: str, sources:List, start_date: dt.datetime, t
             logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
 
     logger.info("Completed analysis for %d sources." % len(updated_sources))
+    #What object is this associated with? Maybe we can't do the bulk mask here. 
+    #log_action(None,  "scrape-source", ActionHistory.ModelType.SOURCE, source_id, name)
     return updated_sources
 
 def _get_min_update_date():

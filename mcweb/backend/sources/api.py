@@ -198,7 +198,7 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         collection_id = int(request.data["collection_id"])
         collection = get_object_or_404(self.queryset, pk=collection_id)
 
-        self._log_action("rescrape-feeds", collection, notes=f"Scheduled rescrape for collection {collection.name}")
+        self._log_action("rescrape-feeds-scheduled", collection, notes=f"Scheduled rescrape for collection {collection.name}")
         return Response(schedule_scrape_collection(collection_id, request.user))
 
 
@@ -529,7 +529,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         source_id = int(request.data["source_id"])
         source = get_object_or_404(self.queryset, pk=source_id)
 
-        self._log_action("rescrape-feeds", source, notes=f"Scheduled rescrape for source {source.name}")
+        self._log_action("rescrape-feeds-scheduled", source, notes=f"Scheduled rescrape for source {source.name}")
 
         return Response(schedule_scrape_source(source_id, request.user))
 
