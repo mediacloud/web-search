@@ -488,6 +488,7 @@ def analyze_sources(provider_name: str, sources:List, start_date: dt.datetime, t
                 primary_language = max(languages, key=lambda x: x["value"])["language"]
                 source.primary_language = primary_language
                 logger.info("Analyzed source %s. Primary language: %s" % (source.name, primary_language))
+                log_action(None,  "update-source-language", ActionHistory.ModelType.SOURCE, source.id, source.name)
                 updated_sources.append(source)
 
             elif task_name == "update_publication_date":
@@ -503,14 +504,14 @@ def analyze_sources(provider_name: str, sources:List, start_date: dt.datetime, t
                     if source.first_story is None or first_story < source.first_story:
                         source.first_story = first_story
                         logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
+                        log_action(None,  "update-source-pub-date", ActionHistory.ModelType.SOURCE, source.id, source.name)
                         updated_sources.append(source)
 
         except Exception as e:
             logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
 
     logger.info("Completed analysis for %d sources." % len(updated_sources))
-    #What object is this associated with? Maybe we can't do the bulk mask here. 
-    #log_action(None,  "scrape-source", ActionHistory.ModelType.SOURCE, source_id, name)
+    
     return updated_sources
 
 def _get_min_update_date():
