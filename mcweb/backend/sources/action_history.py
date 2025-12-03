@@ -289,5 +289,6 @@ class ActionHistoryViewSetMixin:
                 notes=notes,
             )
         except Exception as e:
-            logger.error(f"Failed to log action history: {e}", exc_info=True)
+            raise e
+            #logger.error(f"Failed to log action history: {e}", exc_info=True)
 
