@@ -390,8 +390,17 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         counts = dict(updated=0, skipped=0, created=0)
         row_num = 0
         
-        # Wrap bulk operations in context to accumulate actions
-        with ActionHistoryContext() as ctx:
+        # Wrap bulk operations in context - parent event created immediately, 
+        # child events automatically linked, summary updated in __exit__()
+        with ActionHistoryContext(
+            user=request.user,
+            action_type="bulk_upload_sources",
+            object_model=ActionHistory.ModelType.COLLECTION,
+            object_id=collection.id,
+            object_name=collection.name,
+            additional_changes={},  # Will be updated with final counts before __exit__()
+            notes=None  # Will be auto-generated in __exit__() with final counts
+        ) as ctx:
             for row in request.data['sources']:
                 row_num += 1
                 # skip empty rows
@@ -469,19 +478,17 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                     counts['skipped'] += 1
                     continue
                 collection.source_set.add(existing_source)
-        
-        # Create summary log from accumulated actions
-        ctx.log_summary(
-            user=request.user,
-            action_type="bulk_upload_sources",
-            object_model=ActionHistory.ModelType.COLLECTION,
-            object_id=collection.id,
-            object_name=collection.name,
-            additional_changes={
+            
+            # Update context with final counts for summary (will be used in __exit__())
+            # This happens before __exit__() is called, so the summary will have accurate counts
+            ctx.additional_changes.update({
                 "sources_skipped": counts['skipped'],
-            },
-            notes=f"Bulk upload: {counts['created']} created, {counts['updated']} updated, {counts['skipped']} skipped"
-        )
+                "sources_created": counts['created'],
+                "sources_updated": counts['updated'],
+            })
+            ctx.notes = f"Bulk upload: {counts['created']} created, {counts['updated']} updated, {counts['skipped']} skipped"
+        
+        # Context __exit__() automatically updates parent with summary info
         
         send_source_upload_email(email_title, email_text, request.user.email)
         return Response(counts)

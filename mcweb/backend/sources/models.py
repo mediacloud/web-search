@@ -432,7 +432,6 @@ class ActionHistory(models.Model):
     user_email = models.CharField(max_length=254,  blank=True)  # Django User.email max_length
     action_type = models.CharField(max_length=50) #choices=ActionTypes.choices)
     object_model = models.CharField(max_length=50, choices=ModelType.choices)
-    #Rather than a foreign key? Hard on several tables, but it would be nice to put a link to the changed record somewhere, I think this is sufficient
     object_id = models.IntegerField(null=True, blank=True) 
     object_name = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

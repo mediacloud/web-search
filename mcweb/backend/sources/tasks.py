@@ -113,9 +113,9 @@ class ScrapeContext:
 
         #with ActionHistoryContext as self.action_ctx:
 
-        self.action_history_ctx = ActionHistoryContext()
-        self.action_history_ctx.__enter__()  # Activate it
-        _delegated_history.set(self.action_history_ctx)
+        # ActionHistoryContext will be created in __enter__ if needed
+        # For now, we'll create it lazily when we have the info
+        self.action_history_ctx = None
 
         return self
 
@@ -173,7 +173,7 @@ class ScrapeContext:
             self.handler = None
 
         # Create action history summary before cleaning up
-        if self.action_history_ctx and self.action_history_ctx.actions:
+        if self.action_history_ctx:
             # Determine what was scraped (source vs collection)
             if self.what == "source":
                 model_type = ActionHistory.ModelType.SOURCE
@@ -182,14 +182,9 @@ class ScrapeContext:
                 model_type = ActionHistory.ModelType.COLLECTION
                 object_id = self.id
             
-            self.action_history_ctx.log_summary(
-                user=None,
-                action_type=f"rescrape-{self.what}",
-                object_model=model_type,
-                object_id=object_id,
-                object_name=f"{self.what} {self.id}",  # or fetch actual name
-                notes=f"Rescrape completed: {self.body_chunks[-1] if self.body_chunks else 'no details'}, initated by {self.email}"
-            )
+            # Update context with final notes (will be used in __exit__())
+            self.action_history_ctx.notes = f"Rescrape completed: {self.body_chunks[-1] if self.body_chunks else 'no details'}, initiated by {self.email}"
+            # __exit__() will be called automatically and update the parent
         
         # Clean up action history context
         if self.action_history_ctx:
