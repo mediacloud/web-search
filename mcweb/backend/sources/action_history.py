@@ -67,10 +67,14 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
     
     # Track child event ID if we're in a context and this is actually a child event
     # (i.e., parent_event is None and will be set later, or we're creating a child)
-    if context and parent_event is None:
-        # Only track if this will be a child (parent doesn't exist yet or will be created later)
-        context.child_event_ids.append(action_record.id)
-        logger.debug(f"Tracked child event {action_record.id} for parent linking")
+    if context:
+        # Track all events created during context as potential children
+        # (parent_event will be None until log_summary() is called)
+        if parent_event is None:
+            context.child_event_ids.append(action_record.id)
+            logger.debug(f"Tracked child event {action_record.id} for parent linking (context active, {len(context.child_event_ids)} total)")
+        else:
+            logger.debug(f"Event {action_record.id} already has parent {parent_event.id}, not tracking")
     
     return action_record
 
