@@ -33,8 +33,8 @@ from backend.util.tasks import get_completed_tasks, get_pending_tasks
 
 # local directory (mcweb/backend/sources)
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
-from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory, log_action
-from .action_history import ActionHistoryViewSetMixin, ActionHistoryContext
+from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory
+from .action_history import ActionHistoryViewSetMixin, ActionHistoryContext, log_action
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection

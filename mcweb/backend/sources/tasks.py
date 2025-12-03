@@ -28,7 +28,8 @@ import numpy as np
 from ..util.provider import get_task_provider
 
 # mcweb/backend/sources
-from .models import Feed, Source, Collection, ActionHistory, log_action
+from .models import Feed, Source, Collection, ActionHistory
+from .action_history import log_action
 from .rss_fetcher_api import RssFetcherApi
 from .action_history import ActionHistoryContext, _delegated_history
 

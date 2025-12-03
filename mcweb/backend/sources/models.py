@@ -436,6 +436,8 @@ class ActionHistory(models.Model):
     object_id = models.IntegerField(null=True, blank=True) 
     object_name = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    parent_event = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, 
+                                     related_name='child_events')
 
     changes = models.JSONField(null=True, blank=True)
     notes = models.CharField(max_length=5000, blank=True)
@@ -446,48 +448,20 @@ class ActionHistory(models.Model):
             models.Index(fields=['object_model', 'object_id']),
             models.Index(fields=['user', '-created_at']),
             models.Index(fields=['action_type', '-created_at']),
+            models.Index(fields=['parent_event']),  # For filtering parent vs child events
         ]
+    
+    def is_parent(self):
+        """Check if this is a parent event (has no parent itself)"""
+        return self.parent_event is None
+    
+    def has_children(self):
+        """Check if this event has child events"""
+        return self.child_events.exists()
     
     def __str__(self):
         user_display = self.user_name or (self.user.username if self.user else "Anonymous")
         return f"{user_display} {self.action_type} {self.object_model} {self.object_id} at {self.created_at}"
 
 
-def log_action(user, action_type, object_model, object_id=None, object_name=None, 
-               changes=None, notes=None):
-    """
-    Helper function to create an ActionHistory record.
-    Returns the created ActionHistory instance.
-    
-    Args:
-        user: Django User object (from django.contrib.auth.models.User)
-        action_type: str (name of action, for searching)
-        object_model: the model the action is associated with
-        object_id: the id of the model being acted on
-        object_name: the name of the model being acted on
-        changes: a simple json diff of changes made
-        notes: optional additional context
-    """
-    logger.debug("logging action")
-    
-    # Extract user info if authenticated
-    user_obj = None
-    username = None
-    email = None
-    
-    if user and hasattr(user, 'is_authenticated') and user.is_authenticated:
-        user_obj = user
-        username = getattr(user, 'username', None)
-        email = getattr(user, 'email', None)
-    
-    return ActionHistory.objects.create(
-        user=user_obj,
-        user_name=username,
-        user_email=email,
-        action_type=action_type,
-        object_model=object_model,
-        object_id=object_id,
-        object_name=object_name,
-        changes=changes,
-        notes=notes
-    )
+# log_action moved to action_history.py
