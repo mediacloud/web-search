@@ -35,9 +35,7 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
     """
     logger.debug("logging action")
     
-    # Check for active context - if present and parent exists, use it
-    # Note: parent_event may not exist yet (created in log_summary), so we track IDs
-    # and update them later
+    # Check for active context - if present, use its parent_event
     context = _delegated_history.get()
     if context and context.parent_event:
         parent_event = context.parent_event
@@ -65,16 +63,16 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
         notes=notes
     )
     
-    # Track child event ID if we're in a context and this is actually a child event
-    # (i.e., parent_event is None and will be set later, or we're creating a child)
+    # Track child event ID if we're in a context and this is a child event
+    # (parent_event will be set if context is active)
     if context:
-        # Track all events created during context as potential children
-        # (parent_event will be None until log_summary() is called)
         if parent_event is None:
-            context.child_event_ids.append(action_record.id)
-            logger.debug(f"Tracked child event {action_record.id} for parent linking (context active, {len(context.child_event_ids)} total)")
+            # This shouldn't happen if context is properly set up, but track it anyway
+            logger.warning(f"Context active but parent_event is None for event {action_record.id}")
         else:
-            logger.debug(f"Event {action_record.id} already has parent {parent_event.id}, not tracking")
+            # Event is already linked to parent via parent_event FK, just track ID for summary
+            context.child_event_ids.append(action_record.id)
+            logger.debug(f"Tracked child event {action_record.id} linked to parent {parent_event.id} (context active, {len(context.child_event_ids)} total)")
     
     return action_record
 
@@ -82,37 +80,29 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
 class ActionHistoryContext:
     """
     Context manager to create parent-child relationships for bulk operations.
-    All actions logged while this context is active will be marked as children
-    of a parent event created by log_summary().
+    All actions logged while this context is active will be automatically marked
+    as children of a parent event created in __enter__().
     
     Usage:
-        with ActionHistoryContext() as ctx:
+        with ActionHistoryContext(
+            user=request.user,
+            action_type="bulk_upload_sources",
+            object_model=ActionHistory.ModelType.COLLECTION,
+            object_id=collection.id,
+            object_name=collection.name,
+            additional_changes={"sources_skipped": 5},
+            notes="Bulk upload operation"
+        ) as ctx:
             # Actions logged here will be children of the parent event
             # ... perform bulk operations ...
             pass
-        # Create parent event and link all child events
-        ctx.log_summary(user, action_type, object_model, object_id, object_name)
+        # __exit__() automatically updates parent with summary info
     """
     
-    def __init__(self):
-        """Initialize context - parent event created lazily"""
-        self.parent_event = None
-        self.child_event_ids = []  # Track IDs of child events created during context
-    
-    def __enter__(self):
-        """Enter context - activate for parent_event linking"""
-        _delegated_history.set(self)
-        return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Exit context - restore normal logging"""
-        _delegated_history.set(None)
-        return False  # Don't suppress exceptions
-    
-    def log_summary(self, user, action_type, object_model, object_id, object_name, 
-                    additional_changes=None, notes=None):
+    def __init__(self, user, action_type, object_model, object_id, object_name,
+                 additional_changes=None, notes=None):
         """
-        Create a parent ActionHistory record and link all child events created during context.
+        Initialize context with parent event information.
         
         Args:
             user: Django User object
@@ -120,29 +110,32 @@ class ActionHistoryContext:
             object_model: ModelType enum value for the primary object
             object_id: ID of the primary object
             object_name: Name of the primary object
-            additional_changes: Optional dict of additional changes to include
+            additional_changes: Optional dict of additional changes to include in summary
             notes: Optional notes string (will be auto-generated if not provided)
-        
-        Returns:
-            The created parent ActionHistory instance
         """
-        # Build changes dict
-        changes = additional_changes or {}
-        changes['child_event_count'] = len(self.child_event_ids)
+        self.user = user
+        self.action_type = action_type
+        self.object_model = object_model
+        self.object_id = object_id
+        self.object_name = object_name
+        self.additional_changes = additional_changes or {}
+        self.notes = notes
         
-        # Auto-generate notes if not provided
-        if notes is None:
-            notes = f"Bulk operation with {len(self.child_event_ids)} child actions"
-        
-        # Create parent event (may be tracked as child initially, we'll remove it)
+        self.parent_event = None
+        self.child_event_ids = []  # Track IDs of child events created during context
+    
+    def __enter__(self):
+        """Enter context - create parent event and activate for child linking"""
+        # Create parent event immediately with basic info
+        # Summary info will be added in __exit__()
         self.parent_event = log_action(
-            user=user,
-            action_type=action_type,
-            object_model=object_model,
-            object_id=object_id,
-            object_name=object_name,
-            changes=changes,
-            notes=notes,
+            user=self.user,
+            action_type=self.action_type,
+            object_model=self.object_model,
+            object_id=self.object_id,
+            object_name=self.object_name,
+            changes={},  # Will be updated in __exit__()
+            notes=self.notes or "Bulk operation in progress",  # Will be updated in __exit__()
             parent_event=None,  # Parent events have no parent
         )
         
@@ -151,14 +144,59 @@ class ActionHistoryContext:
             self.child_event_ids.remove(self.parent_event.id)
             logger.debug(f"Removed parent event {self.parent_event.id} from child tracking")
         
-        # Update all child events to link to this parent
-        if self.child_event_ids:
-            ActionHistory.objects.filter(id__in=self.child_event_ids).update(
-                parent_event=self.parent_event
-            )
-            logger.debug(f"Linked {len(self.child_event_ids)} child events to parent {self.parent_event.id}")
+        # Activate context for child event linking
+        _delegated_history.set(self)
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit context - update parent with summary info and restore normal logging"""
+        # Build summary changes dict
+        changes = self.additional_changes.copy()
+        changes['child_event_count'] = len(self.child_event_ids)
         
-        return self.parent_event
+        # Build summary by action type and object model
+        summary = {
+            'by_action_type': {},
+            'by_object_model': {},
+            'object_ids': [],
+        }
+        
+        # Get child events to analyze
+        if self.child_event_ids:
+            child_events = ActionHistory.objects.filter(id__in=self.child_event_ids)
+            for child in child_events:
+                action_type = child.action_type
+                summary['by_action_type'][action_type] = summary['by_action_type'].get(action_type, 0) + 1
+                
+                object_model = child.object_model
+                summary['by_object_model'][object_model] = summary['by_object_model'].get(object_model, 0) + 1
+                
+                if child.object_id:
+                    summary['object_ids'].append(child.object_id)
+        
+        changes['summary'] = summary['by_action_type']
+        changes['by_object_model'] = summary['by_object_model']
+        changes['object_ids'] = summary['object_ids'][:100]  # Limit to avoid huge JSON
+        
+        # Auto-generate notes if not provided
+        if self.notes is None:
+            action_parts = []
+            for act_type, count in summary['by_action_type'].items():
+                action_parts.append(f"{count} {act_type}")
+            notes = f"Bulk operation: {', '.join(action_parts)}"
+        else:
+            notes = self.notes
+        
+        # Update parent event with summary info
+        self.parent_event.changes = changes
+        self.parent_event.notes = notes
+        self.parent_event.save(update_fields=['changes', 'notes'])
+        
+        logger.debug(f"Updated parent event {self.parent_event.id} with summary: {len(self.child_event_ids)} child events")
+        
+        # Restore normal logging
+        _delegated_history.set(None)
+        return False  # Don't suppress exceptions
 
 
 class ActionHistoryViewSetMixin:
