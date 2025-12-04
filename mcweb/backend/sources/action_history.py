@@ -228,7 +228,8 @@ class ActionHistoryViewSetMixin:
         logger.debug(f"Mixin for {self.action_history_object_model} UPDATE")
         changed_fields = self._get_changed_fields(serializer)
         updated_instance = serializer.save()
-        self._log_action("update", updated_instance, changed_fields)
+        if len(changed_fields) != 0: #Safe to skip logging if no changes occured
+            self._log_action("update", updated_instance, changed_fields)
         return updated_instance
     
     def perform_destroy(self, instance):
