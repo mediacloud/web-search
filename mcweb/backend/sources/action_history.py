@@ -50,6 +50,10 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
         username = getattr(user, 'username', None)
         email = getattr(user, 'email', None)
     
+    # Ensure notes is never None (field doesn't allow null, only blank)
+    if notes is None:
+        notes = ""
+    
     action_record = ActionHistory.objects.create(
         user=user_obj,
         user_name=username,
@@ -128,6 +132,9 @@ class ActionHistoryContext:
         """Enter context - create parent event and activate for child linking"""
         # Create parent event immediately with basic info
         # Summary info will be added in __exit__()
+        # Ensure notes is never None (field doesn't allow null)
+        initial_notes = self.notes if self.notes is not None else "Bulk operation in progress"
+        
         self.parent_event = log_action(
             user=self.user,
             action_type=self.action_type,
@@ -135,7 +142,7 @@ class ActionHistoryContext:
             object_id=self.object_id,
             object_name=self.object_name,
             changes={},  # Will be updated in __exit__()
-            notes=self.notes or "Bulk operation in progress",  # Will be updated in __exit__()
+            notes=initial_notes,  # Will be updated in __exit__()
             parent_event=None,  # Parent events have no parent
         )
         
