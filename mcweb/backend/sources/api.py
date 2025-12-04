@@ -651,8 +651,9 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             action_type="add_to_collection",
             object_model = ActionHistory.ModelType.COLLECTION,
             object_id = collection_id,
+            object_name = collection.name,
             notes  =f"Added source {source.name} to collection {collection.name}" ) as ctx:
-        
+
             source.collections.add(collection)
    
         return Response({'source_id': source_id, 'collection_id': collection_id})
