@@ -111,11 +111,44 @@ class ScrapeContext:
 
         self.body_chunks: list[str] = []
 
-        #with ActionHistoryContext as self.action_ctx:
-
-        # ActionHistoryContext will be created in __enter__ if needed
-        # For now, we'll create it lazily when we have the info
-        self.action_history_ctx = None
+        # Create and activate ActionHistoryContext for logging feed discoveries
+        # Look up User from email (or None if not found)
+        try:
+            user = User.objects.filter(email=self.email).first()
+        except Exception:
+            user = None
+        
+        # Determine object_model from what
+        if self.what == "source":
+            object_model = ActionHistory.ModelType.SOURCE
+            # Fetch object to get name
+            try:
+                obj = Source.objects.get(id=self.id)
+                object_name = obj.name or f"Source {self.id}"
+            except Source.DoesNotExist:
+                object_name = f"Source {self.id}"
+        else:  # collection
+            object_model = ActionHistory.ModelType.COLLECTION
+            # Fetch object to get name
+            try:
+                obj = Collection.objects.get(id=self.id)
+                object_name = obj.name or f"Collection {self.id}"
+            except Collection.DoesNotExist:
+                object_name = f"Collection {self.id}"
+        
+        # Create ActionHistoryContext
+        self.action_history_ctx = ActionHistoryContext(
+            user=user,
+            action_type=f"rescrape-{self.what}",
+            object_model=object_model,
+            object_id=self.id,
+            object_name=object_name,
+            additional_changes={},
+            notes=None  # Will be set in __exit__()
+        )
+        
+        # Activate the context
+        self.action_history_ctx.__enter__()
 
         return self
 
@@ -172,25 +205,20 @@ class ScrapeContext:
             self.handler.close()
             self.handler = None
 
-        # Create action history summary before cleaning up
+        # Update ActionHistoryContext with final summary and clean up
         if self.action_history_ctx:
-            # Determine what was scraped (source vs collection)
-            if self.what == "source":
-                model_type = ActionHistory.ModelType.SOURCE
-                object_id = self.id
-            else:  # collection
-                model_type = ActionHistory.ModelType.COLLECTION
-                object_id = self.id
+            # Update notes with final summary
+            summary_line = self.body_chunks[-1] if self.body_chunks else 'no details'
+            self.action_history_ctx.notes = f"Rescrape completed: {summary_line}, initiated by {self.email}"
             
-            # Update context with final notes (will be used in __exit__())
-            self.action_history_ctx.notes = f"Rescrape completed: {self.body_chunks[-1] if self.body_chunks else 'no details'}, initiated by {self.email}"
-            # __exit__() will be called automatically and update the parent
-        
-        # Clean up action history context
-        if self.action_history_ctx:
-            self.action_history_ctx.__exit__(None, None, None)
-            from .action_history import _delegated_history
-            _delegated_history.set(None)
+            # Update additional_changes if needed (e.g., feed counts could be extracted from body_chunks)
+            # For now, just pass through - could be enhanced later
+            
+            # Call __exit__() to update parent with summary and clean up
+            try:
+                self.action_history_ctx.__exit__(None, None, None)
+            except Exception as e:
+                logger.error(f"Error cleaning up ActionHistoryContext: {e}", exc_info=True)
 
         return True             # suppress exception!!!!
 
