@@ -608,14 +608,16 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             source_id = request.query_params.get('source_id')
             sources_queryset = Source.objects.all()
             source = get_object_or_404(sources_queryset, pk=source_id)
-            collection.source_set.remove(source)
-            log_action(request.user, 
-                "remove_from_collection",
-                ActionHistory.ModelType.COLLECTION, 
-                object_id = collection.id,
-                object_name = collection.name,
-                notes=f"Removed source {source.name} from collection {collection.name}"
-                )
+            with ActionHistoryContext(
+                user=request.user,
+                action_type="remove_from_collection",
+                object_model=ActionHistory.ModelType.COLLECTION,
+                object_id=collection.id,
+                object_name=collection.name,
+                notes=f"Removed source {source.name} from collection {collection.name}") as ctx:
+                
+                collection.source_set.remove(source)
+                
             return Response({'collection_id': pk, 'source_id': source_id})
         else:
             sources_queryset = Source.objects.all()
@@ -624,14 +626,16 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collections_queryset = Collection.objects.all()
             collection = get_object_or_404(
                 collections_queryset, pk=collection_id)
-            source.collections.remove(collection)
-            log_action(request.user, 
-                "remove_from_collection",
-                ActionHistory.ModelType.COLLECTION, 
-                object_id = collection.id,
-                object_name = collection.name,
-                notes=f"Removed source {source.name} from collection {collection.name}"
-                )
+
+            with ActionHistoryContext(
+                user=request.user,
+                action_type="remove_from_collection",
+                object_model=ActionHistory.ModelType.COLLECTION,
+                object_id=collection.id,
+                object_name=collection.name,
+                notes=f"Removed source {source.name} from collection {collection.name}") as ctx:
+                
+                source.collections.remove(collection)
             return Response({'collection_id': collection_id, 'source_id': pk})
 
     def create(self, request):
@@ -641,14 +645,15 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collection_id = request.data['collection_id']
         collections_queryset = Collection.objects.all()
         collection = get_object_or_404(collections_queryset, pk=collection_id)
-        source.collections.add(collection)
-        log_action(request.user, 
-                "add_to_collection",
-                ActionHistory.ModelType.SOURCE, 
-                object_id = source.id,
-                object_name = source.name,
-                notes=f"Added source {source.name} to collection {collection.name}"
-                )
+        with ActionHistoryContext(
+            user = request.user,
+            action_type="add_to_collection",
+            object_model = ActionHistory.ModelType.COLLECTION,
+            object_id = collection_id,
+            notes  =f"Added source {source.name} to collection {collection.name}" ) as ctx:
+        
+            source.collections.add(collection)
+   
         return Response({'source_id': source_id, 'collection_id': collection_id})
     
 

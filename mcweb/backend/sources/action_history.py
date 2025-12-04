@@ -198,7 +198,6 @@ class ActionHistoryContext:
         self.parent_event.notes = notes
         self.parent_event.save(update_fields=['changes', 'notes'])
         
-        logger.debug(f"Updated parent event {self.parent_event.id} with summary: {len(self.child_event_ids)} child events")
         
         # Restore normal logging
         _delegated_history.set(None)
