@@ -33,7 +33,6 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
         notes: optional additional context
         parent_event: Optional ActionHistory instance to set as parent (usually None, set by context)
     """
-    logger.debug("logging action")
     
     # Check for active context - if present, use its parent_event
     context = _delegated_history.get()
@@ -296,6 +295,5 @@ class ActionHistoryViewSetMixin:
                 notes=notes,
             )
         except Exception as e:
-            raise e
-            #logger.error(f"Failed to log action history: {e}", exc_info=True)
+            logger.error(f"Failed to log action history: {e}", exc_info=True)
 
