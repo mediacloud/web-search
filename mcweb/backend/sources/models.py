@@ -71,6 +71,7 @@ class Collection(models.Model):
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
     class Meta:
+        permissions = (('edit_collection', 'Edit collection')),
         indexes = [
             # useful for search filtering
             models.Index(fields=['platform'], name='collection platform'),

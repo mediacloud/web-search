@@ -1,31 +1,24 @@
-import string
-import random
 import json
 import logging
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import auth, User
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.decorators import action, authentication_classes, permission_classes
-from rest_framework.decorators import api_view
+from rest_framework.decorators import authentication_classes, permission_classes
 from django.core.exceptions import ValidationError
 import humps
-from django.core.mail import send_mail
-import settings
 from django.apps import apps
-from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from util.send_emails import send_signup_email
 from util.stats import api_stats
 import backend.users.legacy as legacy
 from django.core import serializers
-from .models import Profile, QuotaHistory, ResetCodes, Token
-from .serializer import ResetRequestSerializer, ResetPasswordSerializer
+from guardian.shortcuts import get_objects_for_user
+from .models import Profile, QuotaHistory
+from ..sources.models import Collection
 from ..sources.permissions import get_groups
 
 
@@ -307,6 +300,10 @@ def users_quotas(request):
         } for quota in quotas])
     return HttpResponse(data, content_type='application/json')
 
+def get_collections_permissions(user):
+    collection_perms = get_objects_for_user(user, 'edit_collection', Collection)
+    perms = set(c.id for c in collection_perms)
+    return list(perms)
 
 def _serialized_current_user(request) -> str:
     current_user = request.user
@@ -319,6 +316,7 @@ def _serialized_current_user(request) -> str:
     data['group_names'] = get_groups(request)
     data['quota'] = get_quota(request)
     data['quota_limit'] = current_user.profile.quota_mediacloud
+    data['collection_perms'] = get_collections_permissions(current_user)
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
 
