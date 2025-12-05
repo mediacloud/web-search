@@ -1,0 +1,54 @@
+erDiagram
+    COLLECTION {
+        int id PK "Primary key"
+        string name UK "Unique collection name"
+        text notes "Administrative notes"
+        string platform "Content platform type"
+        boolean public "Public visibility flag"
+        boolean featured "Featured collection flag"
+        boolean managed "Managed collection flag"
+        datetime created_at "Record creation timestamp"
+        datetime modified_at "Record modification timestamp"
+    }
+    
+    SOURCE {
+        int id PK "Primary key"
+        string name "Canonical domain identifier"
+        string url_search_string "URL pattern for content matching"
+        string label "Human-readable display label"
+        string homepage "Primary website URL"
+        text notes "Administrative notes"
+        string platform "Content platform type"
+        string media_type "Media organization type"
+        int stories_per_week "Weekly story publication count"
+        datetime first_story "First story publication date"
+        string pub_country "Publication country code (ISO 3166-1 alpha-3)"
+        string pub_state "Publication state code (ISO 3166-2)"
+        string primary_language "Primary language code (ISO 639-1)"
+        boolean alerted "Content alert status"
+        datetime last_rescraped "Last feed discovery timestamp"
+        string last_rescraped_msg "Feed discovery result message"
+        text search_vector "Full-text search index vector"
+        datetime created_at "Record creation timestamp"
+        datetime modified_at "Record modification timestamp"
+    }
+    
+    FEED {
+        int id PK "Primary key"
+        text url UK "Unique feed URL"
+        boolean admin_rss_enabled "Administrative RSS feed flag"
+        text name "Feed name"
+        datetime created_at "Record creation timestamp"
+        datetime modified_at "Record modification timestamp"
+    }
+    
+    ALTERNATIVE_DOMAIN {
+        int id PK "Primary key"
+        string domain UK "Alternative domain identifier"
+        datetime created_at "Record creation timestamp"
+        datetime modified_at "Record modification timestamp"
+    }
+    
+    COLLECTION ||--o{ SOURCE : "organizes"
+    SOURCE ||--o{ FEED : "publishes"
+    SOURCE ||--o{ ALTERNATIVE_DOMAIN : "identified_by"
