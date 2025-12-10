@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -20,7 +21,8 @@ import UploadSources from '../sources/UploadSources';
 import { trimStringForDisplay } from '../ui/uiUtil';
 import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
-import { PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedStaff, ROLE_STAFF, hasEditCollectionPerm } from '../auth/Permissioned';
+import { selectCurrentUser } from '../auth/authSlice';
 
 const MIN_QUERY_LEN = 1; // don't query for super short things
 const MAX_RESULTS = 10; // per endpoint
@@ -30,6 +32,7 @@ export default function ModifyCollection() {
   const params = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
+  const currentUser = useSelector(selectCurrentUser);
   const collectionId = Number(params.collectionId); // get collection id from wildcard
 
   const { data, isLoading } = useGetCollectionQuery(collectionId);
@@ -133,6 +136,7 @@ export default function ModifyCollection() {
   }
 
   const managedCollection = data.managed;
+  const disabled = managedCollection || !hasEditCollectionPerm(collectionId)
   document.title = `Edit ${data.name} | Media Cloud`;
 
   return (
@@ -158,7 +162,7 @@ export default function ModifyCollection() {
             name="name"
             value={formState.name}
             onChange={handleChange}
-            disabled={managedCollection}
+            disabled={disabled}
           />
           <br />
           <br />
@@ -171,7 +175,7 @@ export default function ModifyCollection() {
             rows={4}
             value={formState.notes}
             onChange={handleChange}
-            disabled={managedCollection}
+            disabled={disabled}
           />
           <br />
           <br />
@@ -194,7 +198,7 @@ export default function ModifyCollection() {
                   name="public"
                   checked={formState.public}
                   onChange={handleChange}
-                  disabled={managedCollection}
+                  disabled={disabled}
                 />
 )}
               label="Public?"
@@ -205,7 +209,7 @@ export default function ModifyCollection() {
                   name="featured"
                   checked={formState.featured}
                   onChange={handleChange}
-                  disabled={managedCollection}
+                  disabled={disabled}
                 />
               )}
               label="Featured?"
@@ -215,6 +219,7 @@ export default function ModifyCollection() {
           <br />
           <Button
             variant="contained"
+            disabled={disabled}
             onClick={async () => {
               try {
                 await updateCollection({
@@ -246,7 +251,7 @@ export default function ModifyCollection() {
             ref={autocompleteRef}
             id="quick-source-search"
             open={open}
-            disabled={managedCollection}
+            disabled={disabled}
             filterOptions={(x) => x} /* let the server filter optons */
             onOpen={() => {}}
             onClose={() => {
@@ -307,7 +312,7 @@ export default function ModifyCollection() {
                 name="rescrape"
                 checked={formState.rescrape}
                 onChange={handleChange}
-                disabled={managedCollection}
+                disabled={disabled}
               />
               )}
             label="Automatically discover feeds in new sources?"
@@ -318,7 +323,7 @@ export default function ModifyCollection() {
             className="col-6"
             collectionId={collectionId}
             rescrape={formState.rescrape}
-            managedCollection={managedCollection}
+            managedCollection={disabled}
           />
         </div>
 
@@ -348,7 +353,7 @@ export default function ModifyCollection() {
 
       <div className="row">
         <div className="col-12">
-          <SourceList collectionId={collectionId} edit managedCollection={managedCollection} />
+          <SourceList collectionId={collectionId} edit staticCollection={disabled} />
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ import {
   useRescrapeCollectionMutation,
 } from '../../app/services/collectionsApi';
 import DownloadSourcesCsv from './util/DownloadSourcesCsv';
-import { PermissionedContributor, PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
+import { PermissionedContributor, PermissionedStaff, ROLE_STAFF, hasEditCollectionPerm } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
 import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/platforms';
 import { platformDisplayName, platformIcon } from '../ui/uiUtil';
@@ -30,6 +30,7 @@ export default function CollectionHeader() {
   const params = useParams();
   if (!params.collectionId) return null;
   const collectionId = Number(params.collectionId);
+  const editor = hasEditCollectionPerm(collectionId);
 
   const {
     data: collection,
@@ -80,6 +81,12 @@ export default function CollectionHeader() {
             <Chip label="Managed Collection" color="warning" />
           </Tooltip>
         )}
+        {editor && (
+          <Tooltip title="You have edit permissions for this collection" style={{ marginLeft: '.25rem' }}>
+            <Chip label="Collection Editor" color="info" />
+          </Tooltip>
+        )}
+
       </Header>
 
       <ControlBar>
@@ -105,7 +112,7 @@ export default function CollectionHeader() {
 
         <DownloadSourcesCsv collectionId={collectionId} />
 
-        <PermissionedContributor>
+        <PermissionedContributor collectionId={collectionId}>
           <Button variant="outlined" startIcon={<LockOpenIcon titleAccess="admin edit collection" />}>
             <Link to={`${collectionId}/edit`}>Edit</Link>
           </Button>
