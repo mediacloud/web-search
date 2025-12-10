@@ -66,6 +66,7 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
         notes=notes
     )
     
+    logger.info(f"Created activity history entry: {object_model}:{object_name}:{action_type} by {username}")
     # Track child event ID if we're in a context and this is a child event
     # (parent_event will be set if context is active)
     if context:
