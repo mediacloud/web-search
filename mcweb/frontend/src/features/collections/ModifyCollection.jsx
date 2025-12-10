@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -22,7 +21,6 @@ import { trimStringForDisplay } from '../ui/uiUtil';
 import { useLazyListSourcesQuery } from '../../app/services/sourceApi';
 import { useCreateSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { PermissionedStaff, ROLE_STAFF, hasEditCollectionPerm } from '../auth/Permissioned';
-import { selectCurrentUser } from '../auth/authSlice';
 
 const MIN_QUERY_LEN = 1; // don't query for super short things
 const MAX_RESULTS = 10; // per endpoint
@@ -32,7 +30,6 @@ export default function ModifyCollection() {
   const params = useParams();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
-  const currentUser = useSelector(selectCurrentUser);
   const collectionId = Number(params.collectionId); // get collection id from wildcard
 
   const { data, isLoading } = useGetCollectionQuery(collectionId);
