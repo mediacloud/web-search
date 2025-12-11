@@ -59,6 +59,11 @@ GROUPS = Groups
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # this is default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
 # new config should make this obsolete!
 _DEFAULT_ALLOWED_HOSTS = [
     #### production:
@@ -208,6 +213,7 @@ INSTALLED_APPS = [
     "backend.search",
     "backend.users",
     "background_task",
+    "guardian",
 ]
 
 MIDDLEWARE = [

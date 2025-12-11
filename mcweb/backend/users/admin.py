@@ -16,6 +16,7 @@ class ProfileInline(admin.StackedInline):
 # Define a new User admin
 class UserAdmin(BaseUserAdmin):
     inlines = [ProfileInline]
+    search_fields = ('email', 'username', 'first_name', 'last_name')
 
 
 # Re-register UserAdmin

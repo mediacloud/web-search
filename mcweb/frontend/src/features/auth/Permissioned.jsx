@@ -12,6 +12,12 @@ export const ROLE_API_ACCESS = 'API_ACCESS';
 export const isContributor = (userGroups) => userGroups.includes(ROLE_CONTRIBUTOR.toLocaleLowerCase());
 export const isApiAccess = (userGroups) => userGroups.includes(ROLE_API_ACCESS.toLocaleLowerCase());
 
+export const hasEditCollectionPerm = (collectionId) => {
+  const currentUser = useSelector(selectCurrentUser);
+  const collectionPerms = new Set(currentUser.collectionPerms);
+  return collectionPerms.has(collectionId);
+};
+
 export function PermissionedStaff({ children, role }) {
   const isLoggedIn = useSelector(selectIsLoggedIn); // will be undefined if not logged in
   const currentUser = useSelector(selectCurrentUser); // will be undefined if not logged in
@@ -29,16 +35,16 @@ export function PermissionedStaff({ children, role }) {
   return allowed ? children : null;
 }
 
-export function PermissionedContributor({ children }) {
+export function PermissionedContributor({ children, collectionId }) {
   const isLoggedIn = useSelector(selectIsLoggedIn); // will be undefined if not logged in
   const currentUser = useSelector(selectCurrentUser); // will be undefined if not logged in
   const userGroups = currentUser.groupNames;
   const contributor = isContributor(userGroups);
+  const editor = collectionId ? hasEditCollectionPerm(collectionId) : false;
   let allowed = false;
-  if ((contributor) && isLoggedIn) {
+  if ((contributor && isLoggedIn)|| (currentUser.isStaff || currentUser.isSuperuser) || (editor && isLoggedIn)) {
     allowed = true;
-  } else if ((contributor && isLoggedIn)
-    || (currentUser.isStaff || currentUser.isSuperuser)) {
+  } else if (isLoggedIn && hasEditCollectionPerm(currentUser, collectionId)){
     allowed = true;
   }
 
@@ -62,4 +68,9 @@ PermissionedContributor.propTypes = {
     PropTypes.element,
     PropTypes.arrayOf(PropTypes.element),
   ]).isRequired,
+  collectionId: PropTypes.number,
+};
+
+PermissionedContributor.defaultProps = {
+  collectionId: null,
 };

@@ -8,16 +8,15 @@ from typing import List, Optional
 # PyPI
 import constance                # TEMP
 import mcmetadata.urls as urls
-import requests
-import requests.auth
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from guardian.decorators import permission_required
 
 # mcweb
 from settings import RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS # mcweb.settings
