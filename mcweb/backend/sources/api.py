@@ -8,16 +8,15 @@ from typing import List, Optional
 # PyPI
 import constance                # TEMP
 import mcmetadata.urls as urls
-import requests
-import requests.auth
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.db.models import Case, Count, When, Q
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from guardian.decorators import permission_required
 
 # mcweb
 from settings import RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS # mcweb.settings
@@ -33,7 +32,8 @@ from backend.util.tasks import get_completed_tasks, get_pending_tasks
 
 # local directory (mcweb/backend/sources)
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
-from .models import Collection, Feed, Source, AlternativeDomain
+from .models import Collection, Feed, Source, AlternativeDomain, ActionHistory
+from .action_history import ActionHistoryViewSetMixin, ActionHistoryContext, log_action
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
@@ -55,7 +55,8 @@ def _all_platforms() -> List:
     return ['onlinenews']
 
 
-class CollectionViewSet(viewsets.ModelViewSet):
+class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+    action_history_object_model = ActionHistory.ModelType.COLLECTION
     # use this queryset, so we ensure that every result has `source_count` included
     queryset = Collection.objects.\
         annotate(source_count=Count('source')).\
@@ -185,6 +186,9 @@ class CollectionViewSet(viewsets.ModelViewSet):
                 new_collection.source_set.add(source)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        self._log_action("copy-collection", new_collection, notes = f"Copied {original_collection.name} to new collection {new_name}")
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
@@ -192,13 +196,17 @@ class CollectionViewSet(viewsets.ModelViewSet):
     @action(methods=['post'], detail=False, url_path='rescrape-collection')
     def rescrape_feeds(self, request):
         collection_id = int(request.data["collection_id"])
+        collection = get_object_or_404(self.queryset, pk=collection_id)
+
+        self._log_action("rescrape-feeds-scheduled", collection, notes=f"Scheduled rescrape for collection {collection.name}")
         return Response(schedule_scrape_collection(collection_id, request.user))
 
 
 def _rss_fetcher_api():
     return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
-class FeedsViewSet(viewsets.ModelViewSet):
+class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+    action_history_object_model = ActionHistory.ModelType.FEED
     queryset = Feed.objects.all()
     permission_classes = [
         IsGetOrIsStaffOrContributor
@@ -297,7 +305,8 @@ class FeedsViewSet(viewsets.ModelViewSet):
         return Response({"fetch_response": total})
 
 
-class SourcesViewSet(viewsets.ModelViewSet):
+class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+    action_history_object_model = ActionHistory.ModelType.SOURCE
     queryset = Source.objects.annotate(
         collection_count=Count('collections')
     ).order_by('-collection_count').all()
@@ -349,7 +358,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
             serializer = SourceSerializer(
                 data=cleaned_data, context={'request': request})
             if serializer.is_valid():
-                serializer.save()
+                # Manually call perform_create to trigger action history logging
+                self.perform_create(serializer)
                 return Response({"source": serializer.data})
             else:
                 error_string = str(serializer.errors)
@@ -361,7 +371,8 @@ class SourcesViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = SourceSerializer(instance, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            # Manually call perform_update to trigger action history logging
+            self.perform_update(serializer)
             return Response({"source": serializer.data})
         else:
             error_string = serializer.errors
@@ -377,82 +388,107 @@ class SourcesViewSet(viewsets.ModelViewSet):
         queryset = Source.objects
         counts = dict(updated=0, skipped=0, created=0)
         row_num = 0
-        for row in request.data['sources']:
-            row_num += 1
-            # skip empty rows
-            if len(row.keys()) < 1:
-                continue
-            homepage = row.get('homepage', None)
-            if not homepage:
-                email_text += "\n Homepage is required"
-                counts['skipped'] += 1
-                continue
-            platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
-            if not platform:
-                platform = Source.SourcePlatforms.ONLINE_NEWS
-            # check if this is an update
-            id = row.get('id', None)
-            if id and (int(id) > 0):
-                existing_source = queryset.filter(pk=row['id'])
-            else:
-                #check if url_search_string_source
-                url_search_string = row.get('url_search_string', None)
-                if not url_search_string:
-                    url_search_string = None
-                if url_search_string:
-                    existing_source = queryset.filter(url_search_string=url_search_string)
-                # if online news, need to make check if canonical domain exists
-                elif platform == Source.SourcePlatforms.ONLINE_NEWS:
-                    canonical_domain = urls.canonical_domain(homepage)
-                    # call filter here, not get, so we can check for multiple matches (url_query_string case)
-                    existing_source = queryset.filter(
-                        name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
-                else:
-                    # a diff platform, so just check for unique name (ie. twitter handle, subreddit name, YT channel)
-                    existing_source = queryset.filter(
-                        homepage=row['homepage'], platform=platform)
-            # Making a new one
-            if len(existing_source) == 0:
-                cleaned_source_input = Source._clean_source(row)
-                serializer = SourceSerializer(data=cleaned_source_input)
-                if serializer.is_valid():
-                    existing_source = serializer.save()
-                    if rescrape and not existing_source.url_search_string:
-                        schedule_scrape_source(
-                            existing_source.id, request.user)
-                    email_text += "\n {}: created new {} source".format(
-                        existing_source.name, existing_source.platform)
-                    counts['created'] += 1
-                else:
-                    serializer_errors = format_serializer_errors(serializer.errors)
-                    email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+        
+        # Wrap bulk operations in context - parent event created immediately, 
+        # child events automatically linked, summary updated in __exit__()
+        with ActionHistoryContext(
+            user=request.user,
+            action_type="bulk_upload_sources",
+            object_model=ActionHistory.ModelType.COLLECTION,
+            object_id=collection.id,
+            object_name=collection.name,
+            additional_changes={},  # Will be updated with final counts before __exit__()
+            notes=None  # Will be auto-generated in __exit__() with final counts
+        ) as ctx:
+            for row in request.data['sources']:
+                row_num += 1
+                # skip empty rows
+                if len(row.keys()) < 1:
+                    continue
+                homepage = row.get('homepage', None)
+                if not homepage:
+                    email_text += "\n Homepage is required"
                     counts['skipped'] += 1
                     continue
-                # existing_source = Source.create_from_dict(row)
-            # Updating unique match
-            elif len(existing_source) == 1:
-                existing_source = existing_source[0]
-                cleaned_source_input = Source._clean_source(row)
-                serializer = SourceSerializer(
-                    existing_source, data=cleaned_source_input)
-                if serializer.is_valid():
-                    existing_source = serializer.save()
-                    email_text += "\n Row {}: {}, updated existing {} source".format(
-                        row_num, existing_source.name, existing_source.platform)
-                    counts['updated'] += 1
+                platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
+                if not platform:
+                    platform = Source.SourcePlatforms.ONLINE_NEWS
+                # check if this is an update
+                id = row.get('id', None)
+                if id and (int(id) > 0):
+                    existing_source = queryset.filter(pk=row['id'])
                 else:
-                    serializer_errors = format_serializer_errors(serializer.errors)
-                    email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+                    #check if url_search_string_source
+                    url_search_string = row.get('url_search_string', None)
+                    if not url_search_string:
+                        url_search_string = None
+                    if url_search_string:
+                        existing_source = queryset.filter(url_search_string=url_search_string)
+                    # if online news, need to make check if canonical domain exists
+                    elif platform == Source.SourcePlatforms.ONLINE_NEWS:
+                        canonical_domain = urls.canonical_domain(homepage)
+                        # call filter here, not get, so we can check for multiple matches (url_query_string case)
+                        existing_source = queryset.filter(
+                            name=canonical_domain, platform=Source.SourcePlatforms.ONLINE_NEWS)
+                    else:
+                        # a diff platform, so just check for unique name (ie. twitter handle, subreddit name, YT channel)
+                        existing_source = queryset.filter(
+                            homepage=row['homepage'], platform=platform)
+                # Making a new one
+                if len(existing_source) == 0:
+                    cleaned_source_input = Source._clean_source(row)
+                    serializer = SourceSerializer(data=cleaned_source_input)
+                    if serializer.is_valid():
+                        existing_source = self.perform_create(serializer)
+                        if rescrape and not existing_source.url_search_string:
+                            schedule_scrape_source(
+                                existing_source.id, request.user)
+                        email_text += "\n {}: created new {} source".format(
+                            existing_source.name, existing_source.platform)
+                        counts['created'] += 1
+                    else:
+                        serializer_errors = format_serializer_errors(serializer.errors)
+                        email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+                        counts['skipped'] += 1
+                        continue
+                    # existing_source = Source.create_from_dict(row)
+                # Updating unique match
+                elif len(existing_source) == 1:
+                    existing_source = existing_source[0]
+                    cleaned_source_input = Source._clean_source(row)
+                    serializer = SourceSerializer(
+                        existing_source, data=cleaned_source_input)
+                    if serializer.is_valid():
+                        #existing_source = serializer.save()
+                        existing_source = self.perform_update(serializer)
+                        email_text += "\n Row {}: {}, updated existing {} source".format(
+                            row_num, existing_source.name, existing_source.platform)
+                        counts['updated'] += 1
+                    else:
+                        serializer_errors = format_serializer_errors(serializer.errors)
+                        email_text += f"\n ⚠️Row {row_num}: {cleaned_source_input['name']}, {serializer_errors}"
+                        counts['skipped'] += 1
+                        continue
+                    # existing_source.update_from_dict(row)
+                # Request to update non-unique match, so skip and force them to do it by hand
+                else:
+                    email_text += "\n ⚠️ Row {}: {}, multiple matches - cowardly skipping so you can do it by hand existing source".\
+                        format(row_num, row["homepage"])
                     counts['skipped'] += 1
                     continue
-                # existing_source.update_from_dict(row)
-            # Request to update non-unique match, so skip and force them to do it by hand
-            else:
-                email_text += "\n ⚠️ Row {}: {}, multiple matches - cowardly skipping so you can do it by hand existing source".\
-                    format(row_num, row["homepage"])
-                counts['skipped'] += 1
-                continue
-            collection.source_set.add(existing_source)
+                collection.source_set.add(existing_source)
+            
+            # Update context with final counts for summary (will be used in __exit__())
+            # This happens before __exit__() is called, so the summary will have accurate counts
+            ctx.additional_changes.update({
+                "sources_skipped": counts['skipped'],
+                "sources_created": counts['created'],
+                "sources_updated": counts['updated'],
+            })
+            ctx.notes = f"Bulk upload: {counts['created']} created, {counts['updated']} updated, {counts['skipped']} skipped"
+        
+        # Context __exit__() automatically updates parent with summary info
+        
         send_source_upload_email(email_title, email_text, request.user.email)
         return Response(counts)
 
@@ -497,6 +533,10 @@ class SourcesViewSet(viewsets.ModelViewSet):
     def rescrape_feeds(self, request):
         # maybe take multiple ids?  Or just add a method to rescrape a source
         source_id = int(request.data["source_id"])
+        source = get_object_or_404(self.queryset, pk=source_id)
+
+        self._log_action("rescrape-feeds-scheduled", source, notes=f"Scheduled rescrape for source {source.name}")
+
         return Response(schedule_scrape_source(source_id, request.user))
 
     # NOTE!!!! {completed,pending}-tasks are ***NOT***
@@ -568,7 +608,16 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             source_id = request.query_params.get('source_id')
             sources_queryset = Source.objects.all()
             source = get_object_or_404(sources_queryset, pk=source_id)
-            collection.source_set.remove(source)
+            with ActionHistoryContext(
+                user=request.user,
+                action_type="remove_from_collection",
+                object_model=ActionHistory.ModelType.COLLECTION,
+                object_id=collection.id,
+                object_name=collection.name,
+                notes=f"Removed source {source.name} from collection {collection.name}") as ctx:
+                
+                collection.source_set.remove(source)
+                
             return Response({'collection_id': pk, 'source_id': source_id})
         else:
             sources_queryset = Source.objects.all()
@@ -577,7 +626,16 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
             collections_queryset = Collection.objects.all()
             collection = get_object_or_404(
                 collections_queryset, pk=collection_id)
-            source.collections.remove(collection)
+
+            with ActionHistoryContext(
+                user=request.user,
+                action_type="remove_from_collection",
+                object_model=ActionHistory.ModelType.COLLECTION,
+                object_id=collection.id,
+                object_name=collection.name,
+                notes=f"Removed source {source.name} from collection {collection.name}") as ctx:
+                
+                source.collections.remove(collection)
             return Response({'collection_id': collection_id, 'source_id': pk})
 
     def create(self, request):
@@ -587,11 +645,21 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         collection_id = request.data['collection_id']
         collections_queryset = Collection.objects.all()
         collection = get_object_or_404(collections_queryset, pk=collection_id)
-        source.collections.add(collection)
+        with ActionHistoryContext(
+            user = request.user,
+            action_type="add_to_collection",
+            object_model = ActionHistory.ModelType.COLLECTION,
+            object_id = collection_id,
+            object_name = collection.name,
+            notes  =f"Added source {source.name} to collection {collection.name}" ) as ctx:
+
+            source.collections.add(collection)
+   
         return Response({'source_id': source_id, 'collection_id': collection_id})
     
 
-class AlternativeDomainViewSet(viewsets.ModelViewSet):
+class AlternativeDomainViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+    action_history_object_model = ActionHistory.ModelType.ALTERNATIVE_DOMAIN
     permission_classes = [
         IsGetOrIsStaffOrContributor
     ]
@@ -611,6 +679,7 @@ class AlternativeDomainViewSet(viewsets.ModelViewSet):
             serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain_source.name})
             if serializer.is_valid():
                 serializer.save()
+                self.perform_create(serializer)
                 for collection in alternative_domain_source.collections.all():
                     source.collections.add(collection)
             # then add all source feeds to the alternative domain source
@@ -622,6 +691,7 @@ class AlternativeDomainViewSet(viewsets.ModelViewSet):
             else:
                 error_string = str(serializer.errors)
                 raise APIException(f"{error_string}")
+
         if alternative_domain is not None:
             source = get_object_or_404(Source, pk=source_id)
             domain_exists = Source.domain_exists(alternative_domain)
@@ -630,6 +700,7 @@ class AlternativeDomainViewSet(viewsets.ModelViewSet):
             serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain})
             if serializer.is_valid():
                 serializer.save()
+                self.perform_create(serializer)
                 return Response({"alternative_domain": serializer.data})
             else:
                 error_string = str(serializer.errors)

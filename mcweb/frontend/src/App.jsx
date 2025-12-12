@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Route, Navigate, useLocation, Routes, useSearchParams,
+  Route, Navigate, useLocation, Routes, useSearchParams, useParams,
 } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -145,9 +145,9 @@ function App() {
             <Route
               path=":collectionId/edit"
               element={(
-                <RequireAuth>
+                <RequireCollectionEditor>
                   <ModifyCollection />
-                </RequireAuth>
+                </RequireCollectionEditor>
               )}
             />
 
@@ -155,9 +155,9 @@ function App() {
           <Route
             path="collections/create"
             element={(
-              <RequireAuth>
+              <RequireStaff>
                 <CreateCollection />
-              </RequireAuth>
+              </RequireStaff>
             )}
           />
           <Route
@@ -196,26 +196,26 @@ function App() {
             <Route
               path=":sourceId/edit"
               element={(
-                <RequireAuth>
+                <RequireStaff>
                   <ModifySource />
-                </RequireAuth>
+                </RequireStaff>
               )}
             />
             <Route
               path=":sourceId/feeds/create"
               element={(
-                <RequireAuth>
+                <RequireStaff>
                   <CreateFeed />
-                </RequireAuth>
+                </RequireStaff>
               )}
             />
           </Route>
           <Route
             path="sources/create"
             element={(
-              <RequireAuth>
+              <RequireStaff>
                 <CreateSource />
-              </RequireAuth>
+              </RequireStaff>
             )}
           />
 
@@ -238,9 +238,9 @@ function App() {
             <Route
               path=":feedId/edit"
               element={(
-                <RequireAuth>
+                <RequireStaff>
                   <ModifyFeed />
-                </RequireAuth>
+                </RequireStaff>
               )}
             />
           </Route>
@@ -300,6 +300,31 @@ function RequireStaff({ children }) {
 }
 
 RequireStaff.propTypes = {
+  children: PropTypes.element.isRequired,
+};
+
+function RequireCollectionEditor({ children }) {
+  const { collectionId } = useParams();
+  const auth = useSelector(selectIsLoggedIn);
+  const currentUser = useSelector(selectCurrentUser);
+  const location = useLocation();
+  // Defensive: handle undefined/null
+  const collectionPerms = currentUser?.collectionPerms || [];
+
+  if (!auth) {
+    return <Navigate to="/sign-in" state={{ from: location }} replace />;
+  }
+  if (
+    currentUser?.isStaff ||
+    currentUser?.isSuperuser ||
+    (collectionId && collectionPerms.includes(Number(collectionId)))
+  ) {
+    return children;
+  }
+  return <Navigate to="/" state={{ from: location }} replace />;
+}
+
+RequireCollectionEditor.propTypes = {
   children: PropTypes.element.isRequired,
 };
 

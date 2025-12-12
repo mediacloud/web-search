@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Alert from '@mui/material/Alert';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -12,6 +13,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import Button from '@mui/material/Button';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import { useSnackbar } from 'notistack';
 import { useResetTokenMutation, useDeleteUserMutation, useRequestResetCodeEmailMutation } from '../../app/services/authApi';
 import {
@@ -22,14 +25,22 @@ import Header from '../ui/Header';
 import AlertDialog from '../ui/AlertDialog';
 import TaskList from '../tasks/TaskList';
 import UserQuotaTable from '../quotas/UserQuotaTable';
+import TabPanelHelper from '../ui/TabPanelHelper';
 
 function Account() {
   const currentUser = useSelector(selectCurrentUser);
+  const editerCollections = currentUser.collectionPerms;
+  const editor = editerCollections.length > 0;
   const [deleteUser] = useDeleteUserMutation();
   const [resetToken] = useResetTokenMutation();
   const { enqueueSnackbar } = useSnackbar();
   const [open, setOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [value, setValue] = useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  }
 
   const [requestResetEmail, { isLoading, error, isSuccess }] = useRequestResetCodeEmailMutation();
 
@@ -177,20 +188,44 @@ function Account() {
             </Alert>
           </div>
         </div>
-        <div className="row">
-          <div className="col-4">
-            <UserQuotaTable currentUser={currentUser} />
-          </div>
-          <PermissionedContributor>
+        <Tabs value={value} onChange={handleChange} aria-label="account tabs">
+          <Tab label="Quota and Tasks" />
+          {editor && (
+          <Tab label="Collection Editor" />
+          )}
+        </Tabs>
+        <TabPanelHelper value={value} index={0}>
+          <div className="row">
             <div className="col-4">
-              <TaskList completed={false} />
+              <UserQuotaTable currentUser={currentUser} />
             </div>
+            <PermissionedContributor>
+              <div className="col-4">
+                <TaskList completed={false} />
+              </div>
 
-            <div className="col-4">
-              <TaskList completed />
+              <div className="col-4">
+                <TaskList completed />
+              </div>
+            </PermissionedContributor>
+          </div>
+        </TabPanelHelper>
+        {editor && (
+        <TabPanelHelper value={value} index={1}>
+          <div className="row">
+            <div className="col-12">
+              <h3>Collections You Can Edit</h3>
+              <ul>
+                {editerCollections.map((collectionId) => (
+                  <li key={collectionId}>
+                    <Link to={`/collections/${collectionId}`}>Collection #{collectionId}</Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </PermissionedContributor>
-        </div>
+          </div>
+        </TabPanelHelper>
+        )}
       </div>
     </>
   );
