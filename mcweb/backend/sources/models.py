@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import feed_seeker
 import mcmetadata.urls as urls
 import requests
+from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
@@ -403,3 +404,64 @@ class AlternativeDomain(models.Model):
         ]
 
 
+class ActionHistory(models.Model):
+    """
+    Simple event model for actions taken on Sources models above
+    A symbolic edit to push on a new instance
+    """
+
+    #class ActionTypes(models.TextChoices):
+    #    CREATE = "create"
+    #    UPDATE = "update"
+    #    DELETE = "delete"
+
+    #    COPY_COLLECTION = "copy_collection"
+    #    UPLOAD_SOURCES = "upload_sources"
+    #    RESCRAPE = "rescrape"
+    #    ADD_TO_COLLECTION = "add_to_collection"
+    #    REMOVE_FROM_COLLECTION = "remove_from_collection"
+        #Others? 
+
+    class ModelType(models.TextChoices):
+        SOURCE = "Source"
+        COLLECTION = "Collection"
+        FEED = "Feed"
+        ALTERNATIVE_DOMAIN = "AlternativeDomain"
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user_name = models.CharField(max_length=150, blank=True)  # Django User.username max_length
+    user_email = models.CharField(max_length=254,  blank=True)  # Django User.email max_length
+    action_type = models.CharField(max_length=50) #choices=ActionTypes.choices)
+    object_model = models.CharField(max_length=50, choices=ModelType.choices)
+    object_id = models.IntegerField(null=True, blank=True) 
+    object_name = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    parent_event = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, 
+                                     related_name='child_events')
+
+    changes = models.JSONField(null=True, blank=True)
+    notes = models.CharField(max_length=5000, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['object_model', 'object_id']),
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['action_type', '-created_at']),
+            models.Index(fields=['parent_event']),  # For filtering parent vs child events
+        ]
+    
+    def is_parent(self):
+        """Check if this is a parent event (has no parent itself)"""
+        return self.parent_event is None
+    
+    def has_children(self):
+        """Check if this event has child events"""
+        return self.child_events.exists()
+    
+    def __str__(self):
+        user_display = self.user_name or (self.user.username if self.user else "Anonymous")
+        return f"{user_display} {self.action_type} {self.object_model} {self.object_id} at {self.created_at}"
+
+
+# log_action moved to action_history.py

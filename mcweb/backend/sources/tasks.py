@@ -28,8 +28,10 @@ import numpy as np
 from ..util.provider import get_task_provider
 
 # mcweb/backend/sources
-from .models import Feed, Source, Collection
+from .models import Feed, Source, Collection, ActionHistory
+from .action_history import log_action
 from .rss_fetcher_api import RssFetcherApi
+from .action_history import ActionHistoryContext, _delegated_history
 
 # mcweb/backend/util
 from backend.util.tasks import (
@@ -108,6 +110,46 @@ class ScrapeContext:
             logger.info("logging rescrape to %s", path) # path includes user, what, id
 
         self.body_chunks: list[str] = []
+
+        # Create and activate ActionHistoryContext for logging feed discoveries
+        # Look up User from email (or None if not found)
+        try:
+            user = User.objects.filter(email=self.email).first()
+        except Exception:
+            user = None
+        
+        # Determine object_model from what
+        if self.what == "source":
+            object_model = ActionHistory.ModelType.SOURCE
+            # Fetch object to get name
+            try:
+                obj = Source.objects.get(id=self.id)
+                object_name = obj.name or f"Source {self.id}"
+            except Source.DoesNotExist:
+                object_name = f"Source {self.id}"
+        else:  # collection
+            object_model = ActionHistory.ModelType.COLLECTION
+            # Fetch object to get name
+            try:
+                obj = Collection.objects.get(id=self.id)
+                object_name = obj.name or f"Collection {self.id}"
+            except Collection.DoesNotExist:
+                object_name = f"Collection {self.id}"
+        
+        # Create ActionHistoryContext
+        self.action_history_ctx = ActionHistoryContext(
+            user=user,
+            action_type=f"rescrape-{self.what}",
+            object_model=object_model,
+            object_id=self.id,
+            object_name=object_name,
+            additional_changes={},
+            notes=None  # Will be set in __exit__()
+        )
+        
+        # Activate the context
+        self.action_history_ctx.__enter__()
+
         return self
 
     def add_body_chunk(self, chunk: str) -> None:
@@ -163,6 +205,21 @@ class ScrapeContext:
             self.handler.close()
             self.handler = None
 
+        # Update ActionHistoryContext with final summary and clean up
+        if self.action_history_ctx:
+            # Update notes with final summary
+            summary_line = self.body_chunks[-1] if self.body_chunks else 'no details'
+            self.action_history_ctx.notes = f"Rescrape completed: {summary_line}, initiated by {self.email}"
+            
+            # Update additional_changes if needed (e.g., feed counts could be extracted from body_chunks)
+            # For now, just pass through - could be enhanced later
+            
+            # Call __exit__() to update parent with summary and clean up
+            try:
+                self.action_history_ctx.__exit__(None, None, None)
+            except Exception as e:
+                logger.error(f"Error cleaning up ActionHistoryContext: {e}", exc_info=True)
+
         return True             # suppress exception!!!!
 
 @background(queue=ADMIN_FAST)   # admin user initiated
@@ -176,7 +233,10 @@ def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) ->
     with ScrapeContext(subject, user_email, "source", source_id) as sc:
         sc.add_body_chunk(Source._scrape_source(source_id, homepage, name))
 
+    
     logger.info(f"== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
+   
+
 
 @background(queue=ADMIN_SLOW)   # admin user initiated
 def _scrape_collection(collection_id: int, user_email: str) -> None:
@@ -222,6 +282,8 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
 
         logger.info(f"==== finished _scrape_collection(%d, %s) for %s",
                     collection.id, collection.name, user_email)
+
+        
     # end with ScrapeContext...
 
 
@@ -450,6 +512,7 @@ def analyze_sources(provider_name: str, sources:List, start_date: dt.datetime, t
                 primary_language = max(languages, key=lambda x: x["value"])["language"]
                 source.primary_language = primary_language
                 logger.info("Analyzed source %s. Primary language: %s" % (source.name, primary_language))
+                log_action(None,  "update-source-language", ActionHistory.ModelType.SOURCE, source.id, source.name)
                 updated_sources.append(source)
 
             elif task_name == "update_publication_date":
@@ -465,12 +528,14 @@ def analyze_sources(provider_name: str, sources:List, start_date: dt.datetime, t
                     if source.first_story is None or first_story < source.first_story:
                         source.first_story = first_story
                         logger.info("Analyzed source %s. First story publication date: %s" % (source.name, first_story))
+                        log_action(None,  "update-source-pub-date", ActionHistory.ModelType.SOURCE, source.id, source.name)
                         updated_sources.append(source)
 
         except Exception as e:
             logger.error("Failed to analyze source %s: %s" % (source.name, str(e)))
 
     logger.info("Completed analysis for %d sources." % len(updated_sources))
+    
     return updated_sources
 
 def _get_min_update_date():
