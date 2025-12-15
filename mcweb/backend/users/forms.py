@@ -6,9 +6,9 @@ User = get_user_model()
 
 class UserAdminForm(forms.ModelForm):
     collection_id = forms.IntegerField(
-        queryset=Collection.objects.all(),
         required=False,
-        label="Grant edit permission for Collection (enter Collection ID)"
+        label="Grant edit permission for Collection (enter Collection ID)",
+        help_text="Enter a collection ID to grant edit permission. Leave blank to skip."
     )
 
     class Meta:
