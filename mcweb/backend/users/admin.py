@@ -11,6 +11,7 @@ class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
     verbose_name_plural = 'profile'
+    ordering = ['-created_at']
 
 
 # Define a new User admin
