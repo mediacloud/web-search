@@ -11,14 +11,13 @@ class ProfileInline(admin.StackedInline):
     model = Profile
     can_delete = False
     verbose_name_plural = 'profile'
-    ordering = ['-created_at']
 
 
 # Define a new User admin
 class UserAdmin(BaseUserAdmin):
     inlines = [ProfileInline]
     search_fields = ('email', 'username', 'first_name', 'last_name')
-    ordering = ['-created_at']
+    ordering = ['-date_joined']
 
 
 # Re-register UserAdmin
