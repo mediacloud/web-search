@@ -18,6 +18,7 @@ class ProfileInline(admin.StackedInline):
 class UserAdmin(BaseUserAdmin):
     inlines = [ProfileInline]
     search_fields = ('email', 'username', 'first_name', 'last_name')
+    ordering = ['-created_at']
 
 
 # Re-register UserAdmin
