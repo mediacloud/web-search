@@ -34,7 +34,8 @@ class ProfileInline(admin.StackedInline):
 
 class CustomUserAdmin(BaseUserAdmin):
     form = UserAdminForm
-
+    ordering = ['-date_joined']
+    
     def current_collection_permissions(self, obj):
         """Display the collection IDs this user can edit, as a table with remove buttons."""
         if not obj.pk:
