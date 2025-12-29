@@ -26,7 +26,7 @@ ADMIN_SLOW = 'admin-slow'  # eg scrape collection
 USER_FAST = 'user-fast'
 USER_SLOW = 'user-slow'  # eg email query results
 
-def background(queue: str, **kws):
+def background(*, queue: str, **kws):
     """
     @background decorator for background task functions.
 
@@ -57,7 +57,10 @@ def background(queue: str, **kws):
     * get additional required argument
     * be renamed
     """
-    return background_task.background(queue=queue, **kws)
+    remove_existing = kws.pop("remove_existing_tasks", True)
+    return background_task.background(queue=queue,
+                                      remove_existing_tasks=remove_existing,
+                                      **kws)
 
 
 def _serialize_task(task):

@@ -15,10 +15,10 @@ import traceback
 import types                    # for TracebackType
 from typing import Dict, List, Tuple
 
-from mc_providers.exceptions import ProviderParseException
 # PyPI:
 from mcmetadata.feeds import normalize_url
 from django.core.management import call_command
+from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import Q, QuerySet
@@ -59,12 +59,6 @@ from settings import (
     SCRAPE_TIMEOUT_SECONDS
 )
 
-ALERT_LOW = 'alert_low'
-GOOD = 'good'
-ALERT_HIGH = 'alert_high'
-
-ALERTS_TASK_USERNAME = ADMIN_USERNAME
-ANALYZE_TASK_USERNAME = ADMIN_USERNAME #Temporary fix
 SCRAPE_FROM_EMAIL = EMAIL_NOREPLY
 
 logger = logging.getLogger(__name__)
@@ -223,6 +217,12 @@ class ScrapeContext:
 
         return True             # suppress exception!!!!
 
+def sources_task_user():
+    """
+    used in management command queuing call
+    """
+    return User.objects.get(username=ADMIN_USERNAME)
+
 @background(queue=ADMIN_FAST)   # admin user initiated
 def _scrape_source(source_id: int, homepage: str, name: str, user_email: str) -> None:
     logger.info("== starting _scrape_source %d (%s) %s for %s",
@@ -288,132 +288,187 @@ def _scrape_collection(collection_id: int, user_email: str) -> None:
     # end with ScrapeContext...
 
 
-def run_alert_system():
-    user = User.objects.get(username=ALERTS_TASK_USERNAME)
-    with open('mcweb/backend/sources/data/collections-to-monitor.json') as collection_ids:
-        collection_ids = collection_ids.read()
-        collection_ids = json.loads(collection_ids)
+def monitored_collections():
+    with open('mcweb/backend/sources/data/collections-to-monitor.json') as f:
+        return json.load(f)
 
-    task = _alert_system(collection_ids,
-                        creator= user,
-                        verbose_name=f"source alert system {dt.datetime.now()}",
-                        remove_existing_tasks=True)
-    return return_task(task)
+#def _rss_fetcher_api():
+#    return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
-def _rss_fetcher_api():
-    return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
+ES_PROVIDER = "onlinenews-mediacloud"
+ES_PLATFORM = "online_news"     # column in sources XXX get from model?
+ES_SLEEP = 60 / 100             # 100 calls/minute
+
+def yesterday():
+    """
+    used for ES search range (date only) end date
+    """
+    return dt.datetime.utcnow() - dt.timedelta(days=1)
 
 @background(queue=SYSTEM_SLOW)
-def _alert_system(collection_ids):
-        sources = set()
-        for collection_id in collection_ids:
-            try:
-                collection = Collection.objects.get(pk=collection_id)
-                source_relations = set(collection.source_set.all())
-                sources = sources | source_relations
-            except:
-                print(collection_id)
+def alert_system(update):
+    """
+    monitor sources using ES 2D aggregation
 
-        with _rss_fetcher_api() as rss:
-        # stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
+    ignores "child sources" (with URL search strings)
+    and alternate domain names (would effect batching,
+    since source:domain would no longer be 1:1)
+    """
 
-            email="test"
-            alert_dict = {
-                "high": [],
-                "low": [],
-                "fixed": []
-            }
-            no_stories_alert = 0
-            low_stories_alert = 0
-            high_stories_alert = 0
-            fixed_source = 0
-            for source in sources:
-                stories_fetched = rss.source_stories_fetched_by_day(source.id)
-                # print(stories_fetched)
-                counts = [d['stories'] for d in stories_fetched]  # extract the count values
-                if not counts:
-                    # email += f"\n Source {source.id}: {source.name} is NOT FETCHING STORIES, please check the feeds \n"
-                    no_stories_alert += 1
+    p = get_task_provider(provider_name=ES_PROVIDER,
+                          task_name="alert-system")
+
+    collection_ids = monitored_collections()
+
+    alert_dict = {
+        "high": [],
+        "low": [],
+        "fixed": []
+    }
+    reports = 0
+
+    agg_interval = "day"
+    num_intervals = 28
+    last_week = -7
+
+    # can only get ~64K buckets per provider call
+    # so must limit the number of sources per call.
+    batch_size = p.MAX_2D_AGG_BUCKETS // num_intervals
+
+    # NOTE! Does not catch alternate domains!
+    # would complicate ES query batching!!
+    sources = Source.objects.filter(collections__id__in=collection_ids,
+                                    platform=ES_PLATFORM,
+                                    url_search_string__isnull=True)\
+                            .order_by("id")\
+                            .distinct()
+
+    paginator = Paginator(sources, batch_size)
+
+    for page_number in paginator.page_range:
+        batch = paginator.page(page_number)
+
+        agg = p.two_d_aggregation(end_date=yesterday(),
+                                  interval="day",
+                                  num_intervals=num_intervals,
+                                  domains=[s.name for s in batch],
+                                  inner_field="media_name")
+
+        # dict indexed by date string, of dicts indexed by domain, of counts
+        buckets = agg["buckets"]
+
+        for source in batch:
+            domain = source.name
+            srcid = source.id
+            changed = False
+
+            counts = [bucket.get(domain, 0) for bucket in buckets.values()]
+            if sum(counts) == 0:
+                logger.info("Source %d: %s not returning stories", srcid, domain)
+                if not source.alerted:
                     source.alerted = True
-                    continue
+                    changed = True
+            else:
                 mean = np.mean(counts)
                 std_dev = np.std(counts)
 
-                last_7_days_data = stories_fetched[-7:]
-                seven_day_counts = [d['stories'] for d in last_7_days_data]
-                mean_last_week = np.mean(seven_day_counts)
-                sum_count_week = _calculate_stories_last_week(stories_fetched)  #calculate the last seven days of stories
-                Source.update_stories_per_week(source.id, sum_count_week)
+                week_counts = counts[last_week:]
+                mean_last_week = np.mean(week_counts)
+                sum_last_week = sum(week_counts)
 
-                alert_status = _classify_alert(mean, mean_last_week, std_dev)
+                lower = mean - 1.5 * std_dev
+                upper = mean + 2 * std_dev
 
-                if alert_status == ALERT_LOW:
-                    alert_dict["low"].append(f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n")
-                    email += f"Source {source.id}: {source.name} is returning LOWER than usual story volume \n"
-                    low_stories_alert += 1
-                    source.alerted = True
-                elif alert_status == ALERT_HIGH:
-                    alert_dict["high"].append(f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n")
-                    email += f"Source {source.id}: {source.name} is returning HIGHER than usual story volume \n"
-                    high_stories_alert += 1
-                    source.alerted = True
+                def report(level, msg):
+                    """
+                    update alert_dict used in alert-system.html template
+                    """
+                    nonlocal reports
+
+                    alert_dict[level].append(msg) # depend on template for newlines
+                    logger.info("%s (%.1f %.1f %.1f)", msg, lower, mean_last_week, upper)
+                    reports += 1
+
+                # moved inline to avoid updating row twice: remove model method???
+                if source.stories_per_week != sum_last_week:
+                    source.stories_per_week = sum_last_week
+                    changed = True
+
+                if mean_last_week < lower:
+                    report("low", f"Source {srcid}: {domain} is returning LOWER than usual story volume")
+                    if not source.alerted:
+                        source.alerted = True
+                        changed = True
+                elif mean_last_week > upper:
+                    report("high", f"Source {srcid}: {domain} is returning HIGHER than usual story volume")
+                    if not source.alerted:
+                        source.alerted = True
+                        changed = True
+                elif source.alerted:
+                    report("fixed", f"Source {srcid}: {domain} was alerting before and is now fixed")
+                    source.alerted = False
+                    changed = True
                 else:
-                    if source.alerted:
-                         alert_dict["fixed"].append(f"Source {source.id}: {source.name} was alerting before and is now fixed \n")
-                         fixed_source += 1
-                         source.alerted = False
-                    logger.info(f"=====Source {source.name} is ingesting at regular levels")
-                # stories_published = rss.source_stories_published_by_day(source.id)
-                # counts_published = [d['count'] for d in stories_published]
-                # mean_published = np.mean(counts_published)
-                # std_dev_published = np.std(counts_published)
+                    logger.info(f"Source %d: %s is ingesting at regular levels", srcid, domain) #  XXX DEBUG?
+            if changed and update:
+                # XXX add to list and perform bulk_update at end???
                 source.save()
-            print(alert_dict)
-            if(email):
-                # email += f"NOT FETCHING STORIES count = {no_stories_alert} \n"
-                email += f"HIGH ingestion alert count = {high_stories_alert} \n"
-                email += f"LOW ingestion alert count = {low_stories_alert} \n"
-                email += f"FIXED source count = {fixed_source} \n"
-                send_alert_email(alert_dict)
+    logger.info("alert_dict %r", alert_dict)
+    if reports:
+        send_alert_email(alert_dict)
 
-def _classify_alert(month_mean, week_mean, std_dev):
-    lower_range = std_dev * 1.5
-    upper_range = std_dev * 2
-    lower = month_mean - lower_range
-    upper = month_mean + upper_range
-    if week_mean < lower:
-        return ALERT_LOW
-    elif week_mean > upper:
-        return ALERT_HIGH
-    elif week_mean > lower and week_mean < upper:
-        return GOOD
-
-def update_stories_per_week():
-    user = User.objects.get(username=ALERTS_TASK_USERNAME)
-
-    task = _update_stories_counts(
-                        creator= user,
-                        verbose_name=f"update stories per week {dt.datetime.now()}",
-                        remove_existing_tasks=True)
-    return return_task(task)
+#def update_stories_per_week():
+#    user = User.objects.get(username=ALERTS_TASK_USERNAME)
+#
+#    task = _update_stories_counts(
+#                        creator= user,
+#                        verbose_name=f"update stories per week {dt.datetime.now()}")
+#    return return_task(task)
 
 @background(queue=SYSTEM_FAST)
-def _update_stories_counts():
-        with _rss_fetcher_api() as rss:
-            stories_by_source = rss.stories_by_source() # This will generate tuples with (source_id and stories_per_day)
-            for source_tuple in stories_by_source:
-                source_id, stories_per_day = source_tuple
-                weekly_count = int(stories_per_day * 7)
-                print(source_id, stories_per_day, weekly_count)
-                Source.update_stories_per_week(int(source_id), weekly_count)
+def update_stories_per_week(update):
+    logger.info("==== starting update_story_counts")
 
-def _calculate_stories_last_week(stories_fetched):
-    """
-    helper to calculate update stories per week count by fetching last 7 days count from stories_fetched
-    """
-    last_7_days_data = stories_fetched[-7:]
-    sum_count = sum(day_data['stories'] for day_data in last_7_days_data)
-    return sum_count
+    sources = Source.objects.filter(name__isnull=False,
+                                    platform=ES_PLATFORM,
+                                    url_search_string__isnull=True)\
+                            .order_by("id")
+
+    p = get_task_provider(provider_name=ES_PROVIDER,
+                          task_name="update-stories-per-week")
+
+    # currently limited by number of boolean (OR) clauses
+    batch_size = 32767
+    paginator = Paginator(sources, batch_size)
+
+    for page_number in paginator.page_range:
+        batch = paginator.page(page_number)
+
+        # really only need 1-D aggregation (by media_name)
+        agg = p.two_d_aggregation(end_date=yesterday(),
+                                  interval="week",
+                                  num_intervals=1,
+                                  domains=[s.name for s in batch],
+                                  inner_field="media_name")
+
+        # dict indexed by (single) date string, of dicts indexed by domain, of counts
+        date_buckets = agg["buckets"]
+        date = next(iter(date_buckets.keys())) # get only date!
+        domains = date_buckets[date]
+
+        for source in batch:
+            domain = source.name
+            srcid = source.id
+
+            weekly_count = domains.get(domain, 0)
+            print(srcid, domain, source.stories_per_week, weekly_count)
+            if source.stories_per_week != weekly_count:
+                logger.info("%s (%d): %d", domain, srcid, weekly_count)
+                if update:
+                    Source.update_stories_per_week(srcid, weekly_count) # XXX do batch update??!!!
+
+        if ES_SLEEP > 0:
+            time.sleep(ES_SLEEP)
 
 def schedule_scrape_collection(collection_id, user):
     """
@@ -424,7 +479,7 @@ def schedule_scrape_collection(collection_id, user):
         return return_error(f"collection {collection_id} not found")
 
     name_or_id = collection.name or str(collection_id)
-    task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape collection {name_or_id}", remove_existing_tasks=True)
+    task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape collection {name_or_id}")
     return return_task(task)
 
 
@@ -451,8 +506,7 @@ def schedule_scrape_source(source_id, user):
     # (leaving no trace of the old one). Returns a Task object.
     task = _scrape_source(source_id, source.homepage, source.name, user.email,
                           creator=user,
-                          verbose_name=f"rescrape source {name_or_home}",
-                          remove_existing_tasks=True)
+                          verbose_name=f"rescrape source {name_or_home}")
     return return_task(task)
 
 SOURCE_UPDATE_DAYS_BACK = 180  # Number of days to look back for story analysis
@@ -473,7 +527,6 @@ def analyze_sources(provider_name: str, sources:List, start_date: dt.datetime, t
     user = User.objects.get(username=ANALYZE_TASK_USERNAME)
     END_DATE = timezone.now()
     updated_sources = []
-    sleep_interval = 60 / 100
 
     # getting canonical domain from urls.canonical_domain(homepage) makes a HTTP request, NOT IDEAL !!!
     if not sources:
@@ -503,7 +556,7 @@ def analyze_sources(provider_name: str, sources:List, start_date: dt.datetime, t
         logger.info("No records found for the following sources in Elasticsearch: %s", sources_with_no_records)
 
     for source in sources_with_records:
-        time.sleep(sleep_interval)  # Sleep for 0.6 seconds between requests
+        time.sleep(ES_SLEEP)
         try:
             query_str = f"{domain_search_string}:{source.name}"
             if task_name == "update_source_language":
@@ -546,25 +599,53 @@ def _get_min_update_date():
     return min_date
 
 @background(queue=SYSTEM_SLOW)
-def update_source_language(provider_name:str, batch_size: int = 100 ) -> None:
-    six_months_ago = _get_min_update_date()
-    last_seen_id = 0
-    while True:
-        sources_for_language = list(Source.objects.filter(primary_language__isnull=True, name__isnull=False, id__gt=last_seen_id)\
-                                   .order_by("id")[:batch_size])
+def update_source_language(provider_name:str, batch_size: int = 100) -> None:
+    update = False              # XXX TEMP add argument
 
-        if not sources_for_language:
-            logger.info("No new sources to process for language analysis.")
-            break
+    sources = Source.objects.filter(primary_language__isnull=True,
+                                    name__isnull=False,
+                                    stories_per_week__gt=0)\
+                            .order_by("id")
 
-        analyzed_sources = analyze_sources(provider_name, sources_for_language, six_months_ago, "update_source_language")
-        with transaction.atomic():
-            if analyzed_sources:
-                Source.objects.bulk_update(analyzed_sources, ["primary_language"])
-                logger.info("Bulk updated primary_language for %d sources." % len(analyzed_sources))
+    p = get_task_provider(provider_name=ES_PROVIDER,
+                          task_name="update-source-language")
 
-            Source.objects.filter(id__in=[s.id for s in sources_for_language]).update(modified_at=timezone.now())
-        last_seen_id = sources_for_language[-1].id
+    start_date = _get_min_update_date()
+    end_date = timezone.now()
+
+    # currently limited by number of boolean (OR) clauses
+    batch_size = 32767
+    paginator = Paginator(sources, batch_size)
+
+    for page_number in paginator.page_range:
+        batch = paginator.page(page_number)
+
+        # really only need 1-D aggregation (by media_name)
+        agg = p.two_d_aggregation(start_date=start_date,
+                                  end_date=end_date,
+                                  domains=[s.name for s in batch],
+                                  outer_field="media_name",
+                                  inner_field="language",
+                                  max_inner_buckets=1)
+
+        # dict indexed by domain name, of dicts indexed by language, of counts
+        domains = agg["buckets"]
+        print("domains", domains)
+        for source in batch:
+            domain = source.name
+            srcid = source.id
+
+            langs = domains.get(domain, {})
+            if langs:
+                lang = next(iter(langs.keys())) # get only language!
+                logger.info("%s (%d): %s", domain, srcid, lang)
+                if False:
+                    source.primary_language = lang
+                    # XXX save in list, do bulk update
+                    source.save()
+
+        if ES_SLEEP > 0:
+            time.sleep(ES_SLEEP)
 
 @background(queue=SYSTEM_SLOW)
 def update_publication_date(provider_name:str, batch_size: int = 100) -> None:
