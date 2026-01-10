@@ -14,6 +14,7 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpRespo
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 from django.views.decorators.http import require_http_methods
+from mc_providers import OnlineNewsMediaCloudProvider
 from mc_providers.exceptions import (
     PermanentProviderException, ProviderException, ProviderParseException, QueryingEverythingUnsupportedQuery,
     TemporaryProviderException, UnsupportedOperationException)
@@ -53,6 +54,8 @@ from backend.users.exceptions import OverQuotaException
 
 # mcweb/backend/util
 import backend.util.csv_stream as csv_stream
+
+from backend.sources.models import Collection
 
 TRACE_JSON_RESPONSE = False
 
@@ -234,6 +237,46 @@ def count_over_time(request):
         request.user.id, request.user.is_staff, pq.provider_name)
     return json_response({"count_over_time": response})
 
+@require_http_methods(["GET"])
+@action(detail=False)
+def count_by_source_week(request):
+    queries = parsed_query_state(request) # handles POST!
+    pq = queries[0]
+    provider = pq_provider(pq)
+    provider._base_url = "http://localhost:8010"
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
+    # compute time period
+    q_delta = pq.end_date - pq.start_date
+    num_weeks = q_delta.days // 7
+    if num_weeks > OnlineNewsMediaCloudProvider.MAX_2D_AGG_BUCKETS:
+        return error_response(f"Too many weeks selected in timespan for this query (max "
+                              f"{OnlineNewsMediaCloudProvider.MAX_2D_AGG_BUCKETS})")
+    # figure out the list of domains, from both sources and collections on the query
+    domains = pq.provider_props['domains']
+    if len(domains) > OnlineNewsMediaCloudProvider.MAX_2D_AGG_BUCKETS:
+        return error_response(f"Too many sources selected for this query (max "
+                              f"{OnlineNewsMediaCloudProvider.MAX_2D_AGG_BUCKETS})")
+    # get the counts for just matching stories
+    matching = provider.two_d_aggregation(query=_qs(pq), start_date=pq.start_date,
+                                          outer_field="publish_date", inner_field="media_name",
+                                          interval="week", num_intervals=num_weeks,
+                                          domains=domains)
+    # get the counts for all stories, so we can return normalized results too
+    total = provider.two_d_aggregation(query='*', start_date=pq.start_date,
+                                       outer_field="publish_date", inner_field="media_name",
+                                       interval="week", num_intervals=num_weeks,
+                                       domains=domains)
+    # reshape it for download as tidy data
+    shaped_data = []
+    for media in domains:
+        for week, values in total["buckets"].items(): # do this so we get totals for even if a week had no matching
+            total = values.get(media, 0)
+            count = matching['buckets'][week].get(media, 0)
+            shaped_data.append({"media_name": media, "week": week, "matching_stories": count, "total_stories": total,
+                                "ratio": (count / total) if total > 0 else 0})
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
+    return json_response({"source-week-attention": shaped_data})
+
 @api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
@@ -399,7 +442,6 @@ def download_words_csv(request):
     cols = ['term', 'term_count', 'term_ratio', 'doc_count', 'doc_ratio', 'sample_size']
     CSVWriterHelper.write_top_words(writer, words, cols)
     return response
-
 
 @require_http_methods(["GET"])
 @action(detail=False)
