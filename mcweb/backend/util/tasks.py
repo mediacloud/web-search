@@ -5,13 +5,31 @@ Utilities for background tasks
 # Python
 import datetime as dt
 import logging
+import os
+import time
+import types                    # for TracebackType
+from typing import Callable
 
 # PyPI
 import background_task
 from background_task.models import Task, CompletedTask
+from django.contrib.auth.models import User
+
+from backend.util.syslog_config import LOG_DIR
+from .provider import get_provider
+from settings import (
+    ADMIN_EMAIL,
+    ADMIN_USERNAME,
+    SENTRY_ENV
+)
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_TASK_USER = ADMIN_USERNAME
+TASKS_LOG_DIR = os.path.join(LOG_DIR, "tasks")
+
+
+################ queue names
 # NOTE! To enable/add a new queue you must also add a new line to Procfile!!
 
 # periodic system tasks, not launched on demand
@@ -25,6 +43,8 @@ ADMIN_SLOW = 'admin-slow'  # eg scrape collection
 # ordinary user tasks, launched on demand
 USER_FAST = 'user-fast'
 USER_SLOW = 'user-slow'  # eg email query results
+
+# See comment at top about adding new queues!!
 
 def background(*, queue: str, **kws):
     """
@@ -117,3 +137,93 @@ def get_pending_tasks(user: str | None) -> dict[str, list[dict]]:
     if user:
         tasks = tasks.created_by(user)
     return {'tasks': [_serialize_task(task) for task in tasks]}
+
+
+def get_task_provider(provider_name: str, task_name: str, caching: int = 0):
+    return get_provider(provider_name, session_id=f'{task_name}@{SENTRY_ENV}', caching=caching)
+
+def path_safe(thing: str) -> str:
+    """
+    return pathname safe version of thing
+    """
+    return thing.replace(os.path.sep, "_").replace(" ", "_")
+
+class TaskLogContext:
+    """
+    context for task logging
+    Catch exceptions not otherwise handled.
+    log everything to a named file
+    """
+    # control logging with a constance setting?
+    LOG_FILE = True
+
+    def __init__(self, username: str, long_task_name: str):
+        self.username = username
+        self.long_name = long_task_name
+        self.handler: logging.Handler | None = None # log file
+        self.t0 = 0.0
+
+    def __enter__(self) -> "TaskLogContext":
+        self.t0 = time.monotonic()
+        if not os.path.exists(TASKS_LOG_DIR):
+            os.makedirs(TASKS_LOG_DIR)
+
+        date = time.strftime("%Y-%m-%d-%H%M%S", time.gmtime())
+        username = path_safe(self.username or "noname")
+        long_name = path_safe(self.long_name)
+
+        self.fname = f"{date}.{username}.{long_name}.log"
+        path = os.path.join(TASKS_LOG_DIR, self.fname)
+        self.handler = logging.FileHandler(path)
+        self.handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(name)s | %(message)s"))
+        self.handler.setLevel(logging.DEBUG)
+
+        # add handler to root logger
+        logging.getLogger('').addHandler(self.handler)
+        logger.info("logging to %s", path)
+
+        return self
+
+    def __exit__(self, exc_type: type[BaseException],
+                 value: BaseException,
+                 traceback_: types.TracebackType) -> bool:
+        sec = time.monotonic() - self.t0
+        if exc_type:
+            # should only get here with unhandled exceptions
+            logger.exception("Exception for %s in %s (%.3f sec)",
+                             self.username, self.long_name, sec)
+
+        if value:
+            logger.error("ending log %s, Exception: %r", self.fname, value)
+        else:
+            logger.info("ending log %s (%.3f sec)", self.fname, sec)
+
+        if self.handler:
+            logging.getLogger('').removeHandler(self.handler)
+            self.handler.close()
+            self.handler = None
+
+        return True             # suppress exception!!!!
+
+def run_manage_task(*, func: Callable, queue: bool, **kwargs) -> None:
+    """
+    for invoking task functions from manage commands
+    """
+    print(kwargs)
+
+    # MUST be included in kwargs (for TaskLogContext)
+    username = kwargs["username"] # unique key
+    long_task_name = kwargs["long_task_name"]
+
+    # XXX check if kwargs is jsonable?
+    if queue:
+        # will raise exception for bad/missing user:
+        user = User.objects.get(username=username)
+        # XXX handle deleted/disabled user??
+        func(**kwargs,
+             # for task table:
+             creator=user,
+             verbose_name=long_task_name)
+    else:
+        # run in-process now:
+        func.now(**kwargs)

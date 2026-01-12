@@ -1,48 +1,59 @@
+import logging
+
 from django.core.management.base import BaseCommand
-from ...tasks import update_publication_date, update_source_language
+
+from settings import ADMIN_USERNAME
+from ...tasks import metadata_update, UPDATERS
+from ....util.tasks import run_manage_task
+
+DEF_PROVIDER = "onlinenews-mediacloud"
+DEF_PLATFORM = "online_news"
 
 class Command(BaseCommand):
-    help = "Perform analysis and update the Source table based on the specified task type."
+    help = "Update the Source table."
 
     def add_arguments(self, parser):
-        parser.add_argument("--queue", action="store_true", help="Queue the task to run in the background.")
-        parser.add_argument(
-            "--batch-size",
-            type=int,
-            default=100,
-            help="Number of sources to process in each batch (default: 100)",
-        )
         parser.add_argument(
             "--provider-name",
             type=str,
-            default="onlinenews-mediacloud",
-            help="Name of the provider to use (default: onlinenews-mediacloud)",
+            default=DEF_PROVIDER,
+            help=f"Name of the provider to use (default: {DEF_PROVIDER})",
         )
+
+        parser.add_argument(
+            "--platform-name",
+            type=str,
+            default=DEF_PLATFORM,
+            help=f"Name of the directory platform to use (default: {DEF_PLATFORM})",
+        )
+
+        parser.add_argument("--queue", action="store_true", help="Queue the task to run in the background.")
+
+        parser.add_argument("--rate", type=int, default=100, help="Max query rate.")
+
+        parser.add_argument("--user", default=ADMIN_USERNAME, help="User to run task under.")
+
+        updater_names = UPDATERS.keys()
         parser.add_argument(
             "--task",
-            type=str,
-            choices=["language", "publication_date"],
+            action="append",
+            choices=updater_names,
+            default=[],
             required=True,
-            help="Task to perform: 'language' or 'publication_date'.",
+            help="Task(s) to perform",
         )
+        parser.add_argument("--update", action="store_true", help="Perform database updates (else dry run)")
 
     def handle(self, *args, **options):
-        batch_size = options["batch_size"]
-        provider_name = options["provider_name"]
-        task = options["task"]
-
-        if task == "language":
-            if options["queue"]:
-                update_source_language(provider_name=provider_name, batch_size=batch_size)
-                self.stdout.write("Queued language analysis with a batch size of %d..." % batch_size)
-            else:
-                update_source_language.now(provider_name=provider_name, batch_size=batch_size)
-                self.stdout.write(self.style.SUCCESS("Language analysis task completed with a batch size of %d." % batch_size))
-
-        elif task == "publication_date":
-            if options["queue"]:
-                update_publication_date(provider_name=provider_name, batch_size=batch_size)
-                self.stdout.write("Queued first story publication date analysis with a batch size of %d..." % batch_size)
-            else:
-                update_publication_date.now(provider_name=provider_name, batch_size=batch_size)
-                self.stdout.write("Publication date analysis task completed with a batch size of %d." % batch_size)
+        tasks = options["task"]
+        run_manage_task(
+            func=metadata_update,
+            long_task_name=f"meta-update {','.join(tasks)}",
+            platform=options["platform_name"],
+            provider=options["provider_name"],
+            queue=options["queue"],
+            rate=options["rate"],
+            tasks=tasks,
+            update=options["update"],
+            username=options["user"],
+            verbosity=options["verbosity"])
