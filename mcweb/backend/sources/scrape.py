@@ -3,11 +3,15 @@ import types                    # TracebackType
 
 from django.contrib.auth.models import User
 
+# local directory mcweb/backend/sources
+from .action_history import ActionHistoryContext, _delegated_history, log_action
+from .models import Source, Collection, ActionHistory
+
 # mcweb/backend/util
 from ..util.tasks import TaskLogContext
 
 # mcweb/
-from util.send_emails import send_alert_email, send_rescrape_email
+from util.send_emails import send_rescrape_email
 from settings import (
     ADMIN_EMAIL,
     ADMIN_USERNAME,
@@ -36,6 +40,8 @@ class ScrapeContext(TaskLogContext):
         self.recipients = [email]
         self.what = what        # "source" or "collection"
         self.id = id
+
+        self.errors = False
 
         # init TaskLogContext:
         super().__init__(username=username, long_task_name=long_task_name)
@@ -142,40 +148,37 @@ class ScrapeContext(TaskLogContext):
 
         return True             # suppress exception!!!!
 
-def sources_task_user():
-    """
-    used in management command queuing call
-    """
-    return User.objects.get(username=ADMIN_USERNAME)
-
-#@background(queue=ADMIN_FAST)   # admin user initiated
 def scrape_source(*, username: str, long_task_name: str,
-                  source_id: int, homepage: str, name: str, user_email: str) -> None:
+                  source_id: int, homepage: str, name: str, email: str) -> None:
+    """
+    invoke only from task.scrape_collection
+    """
     logger.info("== starting _scrape_source %d (%s) %s for %s",
-                source_id, name, homepage, user_email)
+                source_id, name, homepage, email)
 
     subject = f"Source {source_id} ({name}) scrape complete"
 
     # ScrapeContext handles exceptions, sends mail!
     with ScrapeContext(username=username, long_task_name=long_task_name,
-                       subject=subject, email=user_email,
+                       subject=subject, email=email,
                        what="source", id=source_id) as sc:
         sc.add_body_chunk(Source._scrape_source(source_id, homepage, name))
 
-    logger.info(f"== finished _scrape_source {source_id} ({name}) {homepage} for {user_email}")
+    logger.info(f"== finished _scrape_source {source_id} ({name}) {homepage} for {email}")
    
 
-
-#@background(queue=ADMIN_SLOW)   # admin user initiated
 def scrape_collection(*, username: str, long_task_name: str,
-                     collection_id: int, user_email: str) -> None:
+                     collection_id: int, email: str) -> None:
+    """
+    invoke only from task.scrape_collection
+    """
     logger.info(f"==== starting _scrape_collection(%d) for %s",
-                collection_id, user_email)
+                collection_id, email)
 
     errors = 0
     subject = f"Collection {collection_id} scrape complete"
     with ScrapeContext(username=username, long_task_name=long_task_name,
-                       subject=subject, email=user_email,
+                       subject=subject, email=email,
                        what="collection", id=collection_id) as sc:
         collection = Collection.objects.get(id=collection_id)
         if not collection:
@@ -188,7 +191,7 @@ def scrape_collection(*, username: str, long_task_name: str,
         sources = collection.source_set.all()
         for source in sources:
             logger.info(f"== starting Source._scrape_source %d (%s) in collection %d for %s",
-                        source.id, source.name, collection_id, user_email)
+                        source.id, source.name, collection_id, email)
             if source.url_search_string:
                 sc.add_body_chunk(f"Skippped source {source.id} ({source.name}) with URL search string {source.url_search_string}\n")
                 logger.warning(f"  Source %d (%s) has url_search_string %s",
@@ -201,7 +204,7 @@ def scrape_collection(*, username: str, long_task_name: str,
                     Source._scrape_source(source.id, source.homepage, source.name, verbosity=0))
             except Exception as e:
                 logger.exception("Source._scrape_source exception in _scrape_source %d for %s",
-                                 source.id, user_email)
+                                 source.id, email)
                 sc.add_error()  # keep going
 
                 # for debug (seeing where hung by ^C-ing under
@@ -209,8 +212,8 @@ def scrape_collection(*, username: str, long_task_name: str,
                 if isinstance(e, KeyboardInterrupt):
                     raise
             logger.info(f"== finished Source._scrape_source %d (%s) in collection %d %s for %s",
-                        source.id, source.name, collection_id, collection.name, user_email)
+                        source.id, source.name, collection_id, collection.name, email)
 
         logger.info(f"==== finished _scrape_collection(%d, %s) for %s",
-                    collection.id, collection.name, user_email)
+                    collection.id, collection.name, email)
     # end with ScrapeContext...

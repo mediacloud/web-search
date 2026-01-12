@@ -28,10 +28,10 @@ from django.utils import timezone
 from ..util.tasks import TaskLogContext, get_task_provider
 
 # local directory: mcweb/backend/sources
+from . import scrape
 from .action_history import ActionHistoryContext, _delegated_history, log_action
 from .metadata_update import UPDATERS # map of fieldname to class to run
 from .models import Source, Collection, ActionHistory
-from .scrape import scrape_source, scrape_collection
 
 # mcweb/backend/util
 from backend.util.syslog_config import LOG_DIR
@@ -91,6 +91,8 @@ def alert_system(update):
 
     # NOTE! Does not catch alternate domains!
     # would complicate ES query batching!!
+
+    # XXX handle url_search_string!!
     sources = Source.objects.filter(collections__id__in=collection_ids,
                                     platform=ES_PLATFORM,
                                     url_search_string__isnull=True)\
@@ -171,22 +173,32 @@ def alert_system(update):
     if reports:
         send_alert_email(alert_dict)
 
+@background(queue=ADMIN_FAST)   # admin user initiated
+def scrape_source(**kws):
+    scrape.scrape_source(**kws)
+
+@background(queue=ADMIN_FAST)   # admin user initiated
+def scrape_collection(**kws):
+    scrape.scrape_collection(**kws)
+
 def schedule_scrape_collection(collection_id, user):
     """
-    call this function from a view action to schedule a (re)scrape for a collection
+    called from a view action to schedule a (re)scrape for a collection
+    NOT A TASK! MOVE??
     """
     collection = Collection.objects.get(id=collection_id)
     if not collection:
         return return_error(f"collection {collection_id} not found")
 
     name_or_id = collection.name or str(collection_id)
-    task = _scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape collection {name_or_id}")
+    task = scrape_collection(collection_id, user.email, creator=user, verbose_name=f"rescrape collection {collection_id}")
     return return_task(task)
 
 
 def schedule_scrape_source(source_id, user):
     """
-    call this function from a view action to schedule a (re)scrape
+    called from a view action to schedule a (re)scrape
+    NOT A TASK! MOVE??
     """
     source = Source.objects.get(id=source_id)
     if not source:
@@ -205,9 +217,9 @@ def schedule_scrape_source(source_id, user):
     # NOTE! Will remove any other pending scrapes for same source
     # rather than queuing a duplicate; the new user will "steal" the task
     # (leaving no trace of the old one). Returns a Task object.
-    task = _scrape_source(source_id, source.homepage, source.name, user.email,
-                          creator=user,
-                          verbose_name=f"rescrape source {name_or_home}")
+    task = scrape_source(source_id, source.homepage, source.name, user.email,
+                         creator=user,
+                         verbose_name=f"rescrape source {source_id}")
     return return_task(task)
 
 @background(queue=SYSTEM_SLOW)
