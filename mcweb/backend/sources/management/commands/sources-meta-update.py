@@ -3,11 +3,14 @@ import logging
 from django.core.management.base import BaseCommand
 
 from settings import ADMIN_USERNAME
-from ...tasks import metadata_update, UPDATERS
-from ....util.tasks import run_manage_task
 
-DEF_PROVIDER = "onlinenews-mediacloud"
-DEF_PLATFORM = "online_news"
+# mcweb/backend/sources/
+from ...metadata_update import UPDATERS
+from ...tasks import sources_metadata_update
+from ...util import ES_PLATFORM, ES_PROVIDER
+
+# mcweb/backend/util/
+from ....util.tasks import run_manage_task
 
 class Command(BaseCommand):
     help = "Update the Source table."
@@ -16,15 +19,15 @@ class Command(BaseCommand):
         parser.add_argument(
             "--provider-name",
             type=str,
-            default=DEF_PROVIDER,
-            help=f"Name of the provider to use (default: {DEF_PROVIDER})",
+            default=ES_PROVIDER,
+            help=f"Name of the provider to use (default: {ES_PROVIDER})",
         )
 
         parser.add_argument(
             "--platform-name",
             type=str,
-            default=DEF_PLATFORM,
-            help=f"Name of the directory platform to use (default: {DEF_PLATFORM})",
+            default=ES_PLATFORM,
+            help=f"Name of the directory platform to use (default: {ES_PLATFORM})",
         )
 
         parser.add_argument("--queue", action="store_true", help="Queue the task to run in the background.")
@@ -47,7 +50,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         tasks = options["task"]
         run_manage_task(
-            func=metadata_update,
+            func=sources_metadata_update,
             long_task_name=f"meta-update {','.join(tasks)}",
             platform=options["platform_name"],
             provider=options["provider_name"],

@@ -148,10 +148,12 @@ class ScrapeContext(TaskLogContext):
 
         return True             # suppress exception!!!!
 
+# NOTE! If arguments added, need to adjust both
+# tasks.schedule_scrape_source AND management/commands/scrape-source.py
 def scrape_source(*, username: str, long_task_name: str,
                   source_id: int, homepage: str, name: str, email: str) -> None:
     """
-    invoke only from task.scrape_collection
+    invoked only from task.scrape_collection (decorated)
     """
     logger.info("== starting _scrape_source %d (%s) %s for %s",
                 source_id, name, homepage, email)
@@ -167,10 +169,12 @@ def scrape_source(*, username: str, long_task_name: str,
     logger.info(f"== finished _scrape_source {source_id} ({name}) {homepage} for {email}")
    
 
+# NOTE! If arguments added, need to adjust both
+# tasks.shedule_scrape_collection AND management/commands/scrape-collection.py
 def scrape_collection(*, username: str, long_task_name: str,
                      collection_id: int, email: str) -> None:
     """
-    invoke only from task.scrape_collection
+    invoked only from task.scrape_collection (decorated)
     """
     logger.info(f"==== starting _scrape_collection(%d) for %s",
                 collection_id, email)
