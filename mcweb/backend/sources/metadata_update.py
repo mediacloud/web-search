@@ -16,7 +16,7 @@ from ..util.tasks import TaskLogContext, get_task_provider
 
 # local dir mcweb/backend/sources
 from .models import Source
-from .util import MetadataUpdater, yesterday
+from .task_utils import MetadataUpdater, yesterday
 
 logger = logging.getLogger(__name__)
 

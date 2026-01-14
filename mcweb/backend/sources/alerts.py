@@ -24,7 +24,7 @@ from ..util.tasks import TaskLogContext
 
 # local dir mcweb/backend/sources
 from .models import Source
-from .util import MetadataUpdater, yesterday, monitored_collections
+from .task_utils import MetadataUpdater, yesterday, monitored_collections
 
 TASK_NAME = "alert-system"
 

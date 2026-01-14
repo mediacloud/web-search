@@ -240,7 +240,7 @@ class TaskCommand(BaseCommand):
         # username and long_task_name passed for use by TaskLogContext
         print(options)
         username = kwargs["username"] = options["user"]
-        long_name = kwargs["long_task_name"] = self.long_task_name()
+        long_name = kwargs["long_task_name"] = self.long_task_name(options)
 
         # will raise exception for bad/missing user:
         user = User.objects.get(username=username) # XXX check if disabled?
