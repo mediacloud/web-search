@@ -14,9 +14,34 @@ const dateHelper = (dateString) => {
   return newDate;
 };
 
+function fillCountsToEndDate(counts, endDate) {
+  const dateFormat = 'YYYY-MM-DD';
+  if (!counts.length) return [];
+
+  // Last date in the data (assumed sorted)
+  let lastDate = dayjs(counts[counts.length - 1].date, dateFormat);
+  const targetEnd = dayjs(endDate, 'MM/DD/YYYY');
+
+  // Clone the counts array to avoid mutating input
+  const filled = [...counts];
+
+  // Add missing days up to and including endDate
+  while (lastDate.isBefore(targetEnd, 'day')) {
+    lastDate = lastDate.add(1, 'day');
+    filled.push({
+      date: lastDate.format(dateFormat),
+      count: 0,
+      total_count: 0,
+      ratio: 0,
+    });
+  }
+
+  return filled;
+}
+
 // date grouping with help from https://stackoverflow.com/questions/35441820/tomorrow-today-and-yesterday-with-momentjs
 function groupValues(elements, duration, normalized) {
-  const formatted = elements.count_over_time.counts.map((elem) => ({
+  const formatted = elements.map((elem) => ({
     date: dayjs(elem.date).startOf(duration).format('YYYY-MM-DD'),
     count: elem.count,
     total_count: elem.total_count,
@@ -27,7 +52,6 @@ function groupValues(elements, duration, normalized) {
   const uniqueDates = dates.filter((date, index) => dates.indexOf(date) === index);
 
   const returnData = uniqueDates.map((date) => {
-    // const count = formatted.filter((elem) => elem.date === date).reduce((count, elem) => count + elem.count, 0);
     const filtered = formatted.filter((elem) => elem.date === date);
     const count = filtered.reduce((redCount, elem) => redCount + elem.count, 0);
     const totalCount = filtered.reduce((redCount, elem) => redCount + elem.total_count, 0);
@@ -44,10 +68,13 @@ export const prepareCountOverTimeData = (results, normalized, chartBy, queryStat
   const colors = getColors(queryState);
   if (chartBy === DAY) {
     results.forEach((result, i) => {
-      const preparedData = result.count_over_time.counts.map((r) => [
+      const { endDate } = queryState[i];
+      const filledCounts = fillCountsToEndDate(result.count_over_time.counts, endDate);
+      const preparedData = filledCounts.map((r) => [
         dateHelper(r.date),
         normalized ? r.ratio * 100 : r.count,
       ]);
+
       series.push({
         data: preparedData,
         color: colors[i],
@@ -55,7 +82,9 @@ export const prepareCountOverTimeData = (results, normalized, chartBy, queryStat
     });
   } else if (chartBy === WEEK) {
     results.forEach((result, i) => {
-      const groupedData = groupValues(result, WEEK, normalized);
+      const filledCounts = fillCountsToEndDate(result.count_over_time.counts, queryState[i].endDate);
+      const groupedData = groupValues(filledCounts, WEEK, normalized);
+
       series.push({
         data: groupedData,
         color: colors[i],
@@ -63,7 +92,9 @@ export const prepareCountOverTimeData = (results, normalized, chartBy, queryStat
     });
   } else {
     results.forEach((result, i) => {
-      const groupedData = groupValues(result, MONTH, normalized);
+      const filledCounts = fillCountsToEndDate(result.count_over_time.counts, queryState[i].endDate);
+      const groupedData = groupValues(filledCounts, MONTH, normalized);
+
       series.push({
         data: groupedData,
         color: colors[i],
