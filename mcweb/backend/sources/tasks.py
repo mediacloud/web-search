@@ -35,7 +35,9 @@ from backend.util.tasks import (
 logger = logging.getLogger(__name__)
 
 
-@background(queue=SYSTEM_SLOW)
+# called from management/commands/source-alert-system.py
+# (via MetadataUpdaterCommand.run_task)
+@background(queue=SYSTEM_SLOW)  # run via periodic script
 def alert_system(**kws):
     alerts.alert_system(**kws)
 
@@ -92,6 +94,7 @@ def schedule_scrape_source(source_id, user: User):
     return return_task(task)
 
 # called from management/commands/sources-meta-update.py
-@background(queue=SYSTEM_SLOW)
+# (via MetadataUpdaterCommand.run_task)
+@background(queue=SYSTEM_SLOW)  # run via periodic script
 def sources_metadata_update(**kws):
     metadata_update.sources_metadata_update(**kws)

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+python mcweb/manage.py sources-meta-update --queue --update --task stories-per-week

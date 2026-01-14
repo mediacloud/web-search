@@ -46,8 +46,8 @@ logger = logging.getLogger(__name__)
 class AlertSystem(MetadataUpdater):
     UPDATE_FIELD = "alerted"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *, updater_args: dict):
+        super().__init__(**updater_args)
 
         # can only get ~64K buckets per provider call
         # so must limit the number of sources per call.
@@ -66,12 +66,14 @@ class AlertSystem(MetadataUpdater):
     def provider_task_name(self):
         return TASK_NAME
 
-    def filter_sources(self, queryset: QuerySet) -> QuerySet:
+    def sources_query(self) -> QuerySet:
         """
         only process sources in monitored collections
         """
         collection_ids = monitored_collections()
-        return queryset.filter(collections__id__in=collection_ids).distinct()
+        return super().sources_query()\
+                      .filter(collections__id__in=collection_ids)\
+                      .distinct()
 
     def report(self, source, level, lower, mean_last_week, upper):
         """
@@ -160,12 +162,9 @@ class AlertSystem(MetadataUpdater):
         if self.reports:
             send_alert_email(self.alert_dict)
 
-# call only from tasks.py
-def alert_system(*, username: str, long_task_name: str,
-                 update: bool, rate: int, verbosity: int,
-                 provider: str, platform: str):
+# call only from tasks.py (via MetadataUpdaterCommand.run_task)
+def alert_system(*, username: str, long_task_name: str, updater_args: dict):
     with TaskLogContext(username=username, long_task_name=TASK_NAME):
-        as_ = AlertSystem(
-            provider_name=provider, platform=platform,
-            sleep_time=60 / rate, verbosity=verbosity, update=update)
+        print(updater_args)
+        as_ = AlertSystem(updater_args=updater_args)
         as_.run()

@@ -1,9 +1,9 @@
 # mcweb/backend/sources/
 from ...metadata_update import UPDATERS
 from ...tasks import sources_metadata_update
-from ...task_utils import MetdataUpdaterCommand
+from ...task_utils import MetadataUpdaterCommand
 
-class Command(MetdataUpdaterCommand):
+class Command(MetadataUpdaterCommand):
     help = "Tasks to update the Source table."
 
     def add_arguments(self, parser):
@@ -16,6 +16,7 @@ class Command(MetdataUpdaterCommand):
             required=True,
             help="Task(s) to perform",
         )
+        super().add_arguments(parser)
 
     def long_task_name(self, options: dict):
         tasks = options["task"]

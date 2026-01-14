@@ -81,11 +81,12 @@ class UpdateSourceLanguage(MetadataUpdater):
     NAME = "language"
     UPDATE_FIELD = "primary_language" # Source field updated
 
-    def filter_sources(self, queryset: QuerySet) -> QuerySet:
+    def sources_query(self) -> QuerySet:
         """
         only process sources without primary language
         """
-        return queryset.filter(primary_language__isnull=True)
+        return super().sources_query()\
+                      .filter(primary_language__isnull=True)
 
     def process_sources(self, *,
                         sources: list[Source],
@@ -104,33 +105,35 @@ class UpdateSourceLanguage(MetadataUpdater):
                                        domains=domains,
                                        filters=url_search_strings)
 
-        # dict indexed by domain name, of ordered dict indexed by language, of counts
+        # dict indexed by domain name,
+        # of ordered dict indexed by language,
+        # of counts
         domains = agg["buckets"]
         sources_to_update = []
 
         for source in sources:
             langs = domains.get(source.name, {})
-            for lang, count in langs.items(): # should have at most one inner bucket!
-                self.verbose(3, "%s (%d): %s: %d", source.name, source.id, lang, count)
+            # should have at most one inner bucket!
+            for lang, count in langs.items():
+                self.verbose_source(3, "%s: %d", source, lang, count)
                 if count >= LANG_COUNT_MIN:
                     logger.info("%s (%d) found language %s (count %d)",
-                                source.name, source.id, lang, count)
+                                self.source_name(source), source.id,
+                                lang, count)
                     source.primary_language = lang
                     self.needs_update(source)
                 break           # quit after one (only) inner bucket!
 
-# call only from tasks.py
-def sources_metadata_update(*, username: str, long_task_name: str,
-                            tasks: list[str], update: bool,
-                            provider: str, platform: str,
-                            rate: int, verbosity: int):
+# call only from tasks.py (via MetadataUpdaterCommand.run_task)
+def sources_metadata_update(*,
+                            username: str, long_task_name: str, # TaskCommand
+                            updater_args: dict, # MetdataUpdaterCommand
+                            tasks: list[str]):
     with TaskLogContext(username=username, long_task_name=long_task_name):
         for updater in tasks:
             logger.info("=== start update %s", updater)
             try:
-                instance = UPDATERS[updater](
-                    provider_name=provider, platform=platform,
-                    sleep_time=60 / rate, verbosity=verbosity, update=update)
+                instance = UPDATERS[updater](**updater_args)
                 instance.run()
             except:
                 logger.exception("%s updater exception", updater)
