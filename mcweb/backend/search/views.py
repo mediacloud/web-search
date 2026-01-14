@@ -289,6 +289,8 @@ def download_sources_csv(request):
     data = provider.sources(_qs(pq), pq.start_date,
                             pq.end_date, **pq.provider_props, limit=100)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
+    data = add_ratios_to_source_counts(data)
+
     filename = "mc-{}-{}-top-sources".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
         content_type='text/csv',
@@ -296,7 +298,7 @@ def download_sources_csv(request):
     )
     writer = csv.writer(response)
     # TODO: extract into a constant (global)
-    cols = ['source', 'count']
+    cols = ['source', 'count', 'ratio']
     CSVWriterHelper.write_top_sources(writer, data, cols)
     return response
 
@@ -499,3 +501,10 @@ def providers(request):
         return json_response({"providers": providers})
     else:
         return error_response("No token provided", response_type=HttpResponseBadRequest)
+    
+
+def add_ratios_to_source_counts(data):
+    total_count = sum(item['count'] for item in data)
+    for item in data:
+        item['ratio'] = item['count'] / total_count if total_count > 0 else 0
+    return data
