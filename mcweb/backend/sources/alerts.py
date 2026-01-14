@@ -1,3 +1,6 @@
+# XXX remove Source.update_stories_per_week??
+# XXX create activity log entries when alerting/stopping???
+
 """
 Source alert system
 
@@ -13,12 +16,15 @@ import numpy as np
 from django.db.models import QuerySet
 from django.core.paginator import Paginator
 
+# mcweb/util
+from util.send_emails import send_alert_email
+
 # mcweb/backend/util/
-from ..util.tasks import TaskLogContext, get_task_provider
+from ..util.tasks import TaskLogContext
 
 # local dir mcweb/backend/sources
 from .models import Source
-from .util import ES_PROVIDER, ES_PLATFORM, MetadataUpdater, yesterday, monitored_collections
+from .util import MetadataUpdater, yesterday, monitored_collections
 
 TASK_NAME = "alert-system"
 
@@ -35,11 +41,13 @@ LONG = {
     "fixed": "was alerting before and is now fixed"
 }
 
+logger = logging.getLogger(__name__)
+
 class AlertSystem(MetadataUpdater):
     UPDATE_FIELD = "alerted"
 
     def __init__(self, **kwargs):
-        super.__init__(**kwargs)
+        super().__init__(**kwargs)
 
         # can only get ~64K buckets per provider call
         # so must limit the number of sources per call.
@@ -69,16 +77,16 @@ class AlertSystem(MetadataUpdater):
         """
         update alert_dict used in alert-system.html template
         """
-        self.verbose(2, "%s (%.1f %.1f %.1f)",
-                     level, lower, mean_last_week, upper)
+        self.verbose(2, "%s %s (%.1f %.1f %.1f)",
+                     self.source_name(source), level, lower, mean_last_week, upper)
 
-        name = source.url_search_string or source.name
+        name = self.source_name(source)
 
         # need ALL of this (prefix and LONG for EACH source???)
         long = f"Source {source.id}: {name} {LONG[level]}"
-
         self.alert_dict[level].append(long) # depend on template for newlines
         self.reports += 1
+        logger.info("%s", long)
 
     def process_sources(self, *,
                         sources: list[Source],
@@ -88,12 +96,12 @@ class AlertSystem(MetadataUpdater):
         called with either a list of domains, and no url_search strings,
         or a single url_search_string
         """
-        agg = p.two_d_aggregation(end_date=yesterday(),
-                                  interval=AGG_INTERVAL,
-                                  num_intervals=NUM_INTERVALS,
-                                  domains=domains,
-                                  url_search_strings=url_search_strings,
-                                  inner_field="media_name")
+        agg = self.p.two_d_aggregation(end_date=yesterday(),
+                                       interval=AGG_INTERVAL,
+                                       num_intervals=NUM_INTERVALS,
+                                       domains=domains,
+                                       url_search_strings=url_search_strings,
+                                       inner_field="media_name")
 
         # dict indexed by date string, of dicts indexed by domain, of counts
         buckets = agg["buckets"]
@@ -104,8 +112,9 @@ class AlertSystem(MetadataUpdater):
             counts = [bucket.get(source.name, 0)
                       for bucket in buckets.values()]
             if sum(counts) == 0:
+                # XXX verbose only?
                 logger.info("Source %d: %s not returning stories",
-                            source.id, source.name)
+                            source.id, self.source_name(source))
                 if not source.alerted:
                     source.alerted = True
                     self.needs_update(source)
@@ -122,8 +131,9 @@ class AlertSystem(MetadataUpdater):
 
                 # re-fetches row, and updates!
                 # _COULD_ change MetadataUpdater to update multiple fields...
-                # use manage.py stories-metadata-update stories_per_week??
-                Sources.update_stories_per_week(source.id, sum_last_week)
+                # use manage.py stories-metadata-update stories_per_week instead!!!!
+                if self.update:
+                    Source.update_stories_per_week(source.id, sum_last_week)
 
                 if mean_last_week < lower:
                     self.report(source, "low", lower, mean_last_week, upper)
@@ -135,12 +145,14 @@ class AlertSystem(MetadataUpdater):
                     if not source.alerted:
                         source.alerted = True
                         self.needs_update(source)
-                elif source.alerted:
-                    self.report(source, "fixed", lower, mean_last_week, upper)
-                    source.alerted = False
-                    self.needs_update(source)
-                else:
-                    self.verbose(2, f"Source %d: %s is ingesting at regular levels", source.id, source.name)
+                else:           # ingesting normally
+                    if source.alerted:
+                        self.report(source, "fixed", lower, mean_last_week, upper)
+                        source.alerted = False
+                        self.needs_update(source)
+                    else:
+                        self.verbose(2, f"Source %d: %s is ingesting at regular levels",
+                                     source.id, self.source_name(source))
 
     def run(self):
         super().run()
@@ -150,10 +162,10 @@ class AlertSystem(MetadataUpdater):
 
 # call only from tasks.py
 def alert_system(*, username: str, long_task_name: str,
-                 update: bool,
-                 rate: int, verbosity: int):
+                 update: bool, rate: int, verbosity: int,
+                 provider: str, platform: str):
     with TaskLogContext(username=username, long_task_name=TASK_NAME):
         as_ = AlertSystem(
-            provider_name=ES_PROVIDER, platform=ES_PLATFORM,
+            provider_name=provider, platform=platform,
             sleep_time=60 / rate, verbosity=verbosity, update=update)
         as_.run()

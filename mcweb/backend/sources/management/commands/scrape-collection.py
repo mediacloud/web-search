@@ -11,10 +11,12 @@ class Command(BaseCommand):
     help = "Scrape collection"
 
     def add_arguments(self, parser):
-        parser.add_argument("--queue", action="store_true")
-        parser.add_argument("--user", default=ADMIN_USERNAME, help="User to run task under.")
         parser.add_argument("collection_id", type=int)
         parser.add_argument("email", type=str)
+
+    def get_long_name(self, **options):
+        cid = options["collection_id"]
+        return f"scrape collection {cid}"
 
     def handle(self, *args, **options):
         cid = options["collection_id"]
@@ -25,10 +27,9 @@ class Command(BaseCommand):
             print("could not find collection id", cid)
             sys.exit(1)
 
-        run_manage_task(
+        self.run_task(
             func=scrape_collection,
             collection_id=cid,
-            long_task_name=f"scrape collection {cid}",
-            queue=options["queue"],
-            email=email,
-            username=options["user"])
+            email=email
+        )
+

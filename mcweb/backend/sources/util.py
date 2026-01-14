@@ -1,5 +1,5 @@
 """
-Utilities for source management (tasks mostly)
+Utilities for source management tasks
 """
 
 import datetime as dt
@@ -8,11 +8,12 @@ import logging
 import time                     # sleep
 
 # PyPI:
+from background_task.tasks import TaskProxy
 from django.core.paginator import Paginator
 from django.db.models import QuerySet
 
 # mcweb/backend/util/
-from ..util.tasks import get_task_provider
+from ..util.tasks import TaskCommand, get_task_provider
 
 # local directory
 from .models import Source
@@ -38,6 +39,8 @@ def yesterday(days=0):
 
 class MetadataUpdater:
     UPDATE_FIELD: str           # Source field to update
+
+    SOURCE_PAGE_SIZE = 5000
 
     def __init__(self, *,
                  provider_name: str, platform: str,
@@ -83,6 +86,9 @@ class MetadataUpdater:
             self.verbose(3, "sleep %.3f", self.sleep_time)
             time.sleep(self.sleep_time)
 
+    def source_name(self, source):
+        return source.url_search_string or source.name
+
     def run(self) -> None:
         # NOTE!! Does not handle alternate names!
         # order by id just for sanity watching it run
@@ -93,14 +99,14 @@ class MetadataUpdater:
         # apply additional filters
         sources = self.filter_sources(sources)
 
-        paginator = Paginator(sources, 5000)
+        paginator = Paginator(sources, self.SOURCE_PAGE_SIZE)
         for page_number in paginator.page_range:
             self.verbose(2, "sources query page %d", page_number)
             page = paginator.page(page_number)
 
             for source in page:
                 if source.url_search_string:
-                    self.verbose(3, "source %s (%d) %s", source.name, source.id, source.url_search_string)
+                    self.verbose(3, "source %s (%d)", self.source_name(source), source.id)
                     # cannot aggregate by url_search_string
                     # need to query child sources one at a time
                     self.process_child_source(source)
@@ -161,3 +167,51 @@ class MetadataUpdater:
 
     def provider_task_name(self):
         return f"update {self.UPDATE_FIELD}"
+
+class MetadataUpdaterCommand(TaskCommand):
+    """
+    base class for manage commands using MetaUpdater!!
+    """
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--provider-name",
+            type=str,
+            default=ES_PROVIDER,
+            help=f"Name of the provider to use (default: {ES_PROVIDER})",
+        )
+
+        parser.add_argument(
+            "--platform-name",
+            type=str,
+            default=ES_PLATFORM,
+            help=f"Name of the directory platform to use (default: {ES_PLATFORM})",
+        )
+
+        parser.add_argument("--rate", type=int, default=100,
+                            help="Max ES queries per minute.")
+
+        parser.add_argument("--update", action="store_true",
+                            help="Perform database updates (else dry run)")
+        super().add_arguments(parser)
+
+    def run_task(self, func: TaskProxy, options: dict, **kwargs):
+        """
+        utility for invoking task function from handle method.
+
+        func is a background task function that has been decorated
+        with @background()
+
+        options is full dict of arguments passed to handle method
+
+        kwargs are passed to func.
+        """
+        super().run_task(
+            func,
+            options,
+            platform=options["platform_name"],
+            provider=options["provider_name"],
+            rate=options["rate"],
+            update=options["update"],
+            verbosity=options["verbosity"], # from BaseCommand class!
+            **kwargs
+        )

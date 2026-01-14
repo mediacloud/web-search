@@ -1,21 +1,16 @@
-from django.core.management.base import BaseCommand
+# mcweb/backend/sources/
+from ...tasks import alert_system
+from ...util import MetadataUpdaterCommand
 
-from ...tasks import alert_system, sources_task_user
 
-class Command(BaseCommand):
+class Command(MetadataUpdaterCommand):
     help = 'Run or queue the source alert system'
 
-    def add_arguments(self, parser):
-        parser.add_argument("--queue", action="store_true")  # run from queue
-        parser.add_argument("--update", action="store_true") # write db
+    def long_task_name(self):
+        return "source alert system"
 
     def handle(self, *args, **options):
-        update = options["update"]
-        if options["queue"]:
-            alert_system(
-                update,
-                creator=sources_task_user(),
-                verbose_name=f"source alert system {dt.datetime.utcnow()}"
-            )
-        else:
-            alert_system.now(update)
+        self.run_task(
+            func=alert_system,
+            options=options
+        )

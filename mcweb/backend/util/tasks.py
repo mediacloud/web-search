@@ -1,31 +1,33 @@
 """
-Utilities for background tasks
+Utilities for background tasks for all apps
 """
 
 # Python
 import datetime as dt
+import json
 import logging
 import os
 import time
 import types                    # for TracebackType
-from typing import Callable
 
 # PyPI
-import background_task
+import background_task          # for background
 from background_task.models import Task, CompletedTask
-from django.contrib.auth.models import User
+from background_task.tasks import TaskProxy
 
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
+
+from settings import ADMIN_EMAIL, ADMIN_USERNAME, SENTRY_ENV
 from backend.util.syslog_config import LOG_DIR
+
+# local directory:
 from .provider import get_provider
-from settings import (
-    ADMIN_EMAIL,
-    ADMIN_USERNAME,
-    SENTRY_ENV
-)
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_TASK_USER = ADMIN_USERNAME
+DEFAULT_TASK_USER = ADMIN_USERNAME # XXX create special user??
+
 TASKS_LOG_DIR = os.path.join(LOG_DIR, "tasks")
 
 
@@ -140,6 +142,9 @@ def get_pending_tasks(user: str | None) -> dict[str, list[dict]]:
 
 
 def get_task_provider(provider_name: str, task_name: str, caching: int = 0):
+    """
+    get an mc_provider object in a uniform way
+    """
     return get_provider(provider_name, session_id=f'{task_name}@{SENTRY_ENV}', caching=caching)
 
 def path_safe(thing: str) -> str:
@@ -205,25 +210,51 @@ class TaskLogContext:
 
         return True             # suppress exception!!!!
 
-def run_manage_task(*, func: Callable, queue: bool, **kwargs) -> None:
+class TaskCommand(BaseCommand):
     """
-    for invoking task functions from manage commands
+    base class for manage commands that invoke (background) tasks
     """
-    print(kwargs)
+    def long_task_name(self, options: dict) -> str:
+        """
+        must be overridden to return a task description
+        for the Task table, and used in the task log file
+        (just a few words)
+        """
+        raise NotImplementedError("long_task_name not implemented")
 
-    # MUST be included in kwargs (for TaskLogContext)
-    username = kwargs["username"] # unique key
-    long_task_name = kwargs["long_task_name"]
+    def add_arguments(self, parser):
+        parser.add_argument("--queue", action="store_true",
+                            help="Queue the task to run in the background.")
 
-    # XXX check if kwargs is jsonable?
-    if queue:
+        parser.add_argument("--user", default=DEFAULT_TASK_USER,
+                            help=f"User to run task under (default {DEFAULT_TASK_USER}).")
+        super().add_arguments(parser)
+
+    def run_task(self, func: TaskProxy, options: dict, **kwargs):
+        """
+        utility for invoking task function from handle method.
+
+        func is a background task function that has been decorated
+        with @background()
+        """
+        # username and long_task_name passed for use by TaskLogContext
+        print(options)
+        username = kwargs["username"] = options["user"]
+        long_name = kwargs["long_task_name"] = self.long_task_name()
+
         # will raise exception for bad/missing user:
-        user = User.objects.get(username=username)
-        # XXX handle deleted/disabled user??
-        func(**kwargs,
-             # for task table:
-             creator=user,
-             verbose_name=long_task_name)
-    else:
-        # run in-process now:
-        func.now(**kwargs)
+        user = User.objects.get(username=username) # XXX check if disabled?
+
+        # test if JSONable for task table
+        json.dumps(kwargs)
+
+        if options["queue"]:
+            logger.info("queuing %s task for %s", long_name, username)
+            func(**kwargs,
+                 # for task table:
+                 creator=user,
+                 verbose_name=long_name)
+        else:
+            # run in-process now:
+            logger.info("running %s task for %s", long_name, username)
+            func.now(**kwargs)

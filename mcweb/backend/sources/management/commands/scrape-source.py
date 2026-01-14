@@ -5,16 +5,18 @@ from django.core.management.base import BaseCommand
 from settings import ADMIN_USERNAME
 from ...tasks import scrape_source
 from ...models import Source
-from ....util.tasks import run_manage_task
+from ....util.tasks import TaskCommand
 
-class Command(BaseCommand):
+class Command(TaskCommand):
     help = "Scrape source"
 
     def add_arguments(self, parser):
-        parser.add_argument("--queue", action="store_true")
-        parser.add_argument("--user", default=ADMIN_USERNAME, help="User to run task under.")
         parser.add_argument("source_id", type=int)
         parser.add_argument("email", type=str)
+
+    def get_long_name(self, **options):
+        sid = options["source_id"]
+        return f"scrape source {sid}"
 
     def handle(self, *args, **options):
         sid = options["source_id"]
@@ -30,7 +32,5 @@ class Command(BaseCommand):
             homepage=src.homepage,
             name=src.name,
             source_id=sid,
-            long_task_name=f"scrape source {sid}",
-            queue=options["queue"],
-            email=email,
-            username=options["user"])
+            email=email
+        )

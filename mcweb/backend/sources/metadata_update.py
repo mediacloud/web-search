@@ -63,14 +63,14 @@ class UpdateStoriesPerWeek(MetadataUpdater):
                 weekly_count = domains.get(source.name, 0) # XXX maybe default to None?
                 if source.stories_per_week != weekly_count:
                     self.verbose(2, "%s (%d): old %r new %d",
-                                source.url_search_string or source.name, 
+                                 self.source_name(source),
                                  source.id, source.stories_per_week, weekly_count)
                     # NOTE! no longer using Source.update_stories_per_week!
                     source.stories_per_week = weekly_count
                     self.needs_update(source)
                 else:
                     self.verbose(3, "%s (%d): no change: %d",
-                                 source.url_search_string or source.name, 
+                                 self.source_name(source),
                                  source.id, source.stories_per_week)
 
 LANG_COUNT_DAYS = 180  # number of days back to examine
