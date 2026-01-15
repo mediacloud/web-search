@@ -57,7 +57,7 @@ class ScrapeContext(TaskLogContext):
             user = User.objects.get(username=self.username)
         except Exception:
             user = None
-        
+
         # Determine object_model from what
         if self.what == "source":
             object_model = ActionHistory.ModelType.SOURCE
@@ -75,7 +75,7 @@ class ScrapeContext(TaskLogContext):
                 object_name = obj.name or f"Collection {self.id}"
             except Collection.DoesNotExist:
                 object_name = f"Collection {self.id}"
-        
+
         # Create ActionHistoryContext
         self.action_history_ctx = ActionHistoryContext(
             user=user,
