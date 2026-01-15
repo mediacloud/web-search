@@ -16,6 +16,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD, provider_name
 from guardian.decorators import permission_required
 
 # mcweb
@@ -37,6 +38,12 @@ from .action_history import ActionHistoryViewSetMixin, ActionHistoryContext, log
 from .permissions import IsGetOrIsStaffOrContributor
 from .rss_fetcher_api import RssFetcherApi
 from .tasks import schedule_scrape_source, schedule_scrape_collection
+
+# mcweb/backend/users
+from backend.users.models import QuotaHistory
+
+# provider for quota
+provider = provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
 
 def _featured_collection_ids(platform: Optional[str]) -> List:
     this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -101,6 +108,15 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if self.request.method != 'GET':
             serializer_class = CollectionWriteSerializer
         return serializer_class
+    
+    def retrieve(self, request, *args, **kwargs):
+        # Check quota before serving the request
+        QuotaHistory.check_quota(request.user.id, request.user.is_staff, provider)
+
+        # Increment quota hit
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider)
+
+        return super().retrieve(request, *args, **kwargs)
 
     @cache_by_kwargs()
     def _cached_serialized_featured_collections(self, platform) -> str:
@@ -351,6 +367,13 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
             alternative_sources = Source.objects.filter(id__in=alternative_domains.values_list('source_id', flat=True))
             queryset = queryset | alternative_sources
         return queryset
+    
+    
+    def retrieve(self, request, *args, **kwargs):
+        QuotaHistory.check_quota(request.user.id, request.user.is_staff, provider)
+        QuotaHistory.increment(request.user.id, request.user.is_staff, provider)
+        return super().retrieve(request, *args, **kwargs)
+
 
     def create(self, request):
         cleaned_data = Source._clean_source(request.data)
