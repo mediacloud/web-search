@@ -162,9 +162,9 @@ class TaskLogContext:
     # control logging with a constance setting?
     LOG_FILE = True
 
-    def __init__(self, username: str, long_task_name: str):
-        self.username = username
-        self.long_name = long_task_name
+    def __init__(self, task_args: dict):
+        self.username = task_args["username"]
+        self.long_name = task_args["long_task_name"]
         self.handler: logging.Handler | None = None # log file
         self.t0 = 0.0
 
@@ -238,8 +238,15 @@ class TaskCommand(BaseCommand):
         with @background()
         """
         # username and long_task_name passed for use by TaskLogContext
-        username = kwargs["username"] = options["user"]
-        long_name = kwargs["long_task_name"] = self.long_task_name(options)
+        username = options["user"]
+        long_name = self.long_task_name(options)
+
+        task_args = {
+            "long_task_name": long_name,
+            "username": username,
+            "verbosity": options["verbosity"] # from BaseCommand!
+        }
+        kwargs["task_args"] = task_args
 
         # will raise exception for bad/missing user:
         user = User.objects.get(username=username)

@@ -44,8 +44,8 @@ logger = logging.getLogger(__name__)
 class AlertSystem(MetadataUpdater):
     UPDATE_FIELD = "alerted"
 
-    def __init__(self, *, username: str, long_task_name: str, updater_args: dict):
-        super().__init__(username=username, long_task_name=long_task_name, **updater_args)
+    def __init__(self, *, task_args: dict, updater_args: dict):
+        super().__init__(task_args=task_args, updater_args=updater_args)
 
         # can only get ~64K buckets per provider call
         # so must limit the number of sources per call.
@@ -158,9 +158,7 @@ class AlertSystem(MetadataUpdater):
             send_alert_email(self.alert_dict)
 
 # call only from tasks.py (via MetadataUpdaterCommand.run_task)
-def alert_system(*, username: str, long_task_name: str, updater_args: dict):
-    with TaskLogContext(username=username, long_task_name=long_task_name):
-        as_ = AlertSystem(username=username,
-                          long_task_name=long_task_name,
-                          updater_args=updater_args)
+def alert_system(*, task_args:dict, updater_args: dict):
+    with TaskLogContext(task_args):
+        as_ = AlertSystem(task_args=task_args, updater_args=updater_args)
         as_.run()

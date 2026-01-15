@@ -130,16 +130,14 @@ class UpdateSourceLanguage(MetadataUpdater):
 
 # call only from tasks.py (via MetadataUpdaterCommand.run_task)
 def sources_metadata_update(*,
-                            username: str, long_task_name: str, # TaskCommand
+                            task_args: dict,    # TaskCommand
                             updater_args: dict, # MetdataUpdaterCommand
                             tasks: list[str]):
-    with TaskLogContext(username=username, long_task_name=long_task_name):
+    with TaskLogContext(task_args):
         for updater in tasks:
             logger.info("=== start update %s", updater)
             try:
-                instance = UPDATERS[updater](username=username,
-                                             long_task_name=long_task_name,
-                                             **updater_args)
+                instance = UPDATERS[updater](task_args=task_args, updater_args=updater_args)
                 instance.run()
             except:
                 logger.exception("%s updater exception", updater)
