@@ -152,7 +152,7 @@ class MetadataUpdater:
         self.sync()
 
         # final log message
-        counters = ",".join("{name}: {value}"
+        counters = ",".join(f"{name}: {value}"
                             for name, value in self.counters.items())
         if self.update:
             logger.info("totals: %s", counters)
