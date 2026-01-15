@@ -22,7 +22,7 @@ from .models import Source
 logger = logging.getLogger(__name__)
 
 ES_PROVIDER = "onlinenews-mediacloud"
-ES_PLATFORM = "online_news"     # platform column in Source table
+ES_PLATFORM = Source.SourcePlatforms.ONLINE_NEWS # platform column
 
 def monitored_collections():
     """
@@ -45,18 +45,22 @@ class MetadataUpdater:
     """
     UPDATE_FIELD: str           # Source field to update
 
-    SOURCE_PAGE_SIZE = 5000
+    SOURCE_PAGE_SIZE = 5000     # make a command line option?
 
     # To add new arguments, add to MetadataUpdaterCommand.run_task
     # updater_args dict.  To make them manage.py command line options,
     # also add to MetadataUpdaterCommand.add_arguments
     def __init__(self, *,
+                 username: str, long_task_name: str,
                  provider_name: str, platform: str,
                  rate: int, verbosity: int, update: bool,
                  process_child_sources: bool):
+        self.username = username
+        self.long_task_name = long_task_name
+
         self.platform = platform
         self.p = get_task_provider(provider_name=provider_name,
-                                   task_name=self.provider_task_name())
+                                   task_name=long_task_name)
         self.sources_to_update = []
         self.sleep_time = 60 / rate
         self.counters = collections.Counter()
@@ -65,7 +69,6 @@ class MetadataUpdater:
         self.process_child_sources = process_child_sources
 
         # not (YET) options(!!):
-
         # currently limited by number of query_string (OR) clauses
         # so limit parent source batch size:
         self.parent_batch_size = 32767
@@ -137,7 +140,7 @@ class MetadataUpdater:
                         self.verbose_source(3, "skipping %s", source)
                 else:
                     # here with a parent source, batch it up
-                    self.verbose_source(3, "saving %s", source)
+                    #self.verbose_source(4, "saving %s", source)
                     self.parent_sources.append(source)
                     if len(self.parent_sources) == self.parent_batch_size:
                         self.process_parent_sources(self.parent_sources)
@@ -187,8 +190,6 @@ class MetadataUpdater:
                              domains=[],
                              url_search_strings={source.name: [source.url_search_string]})
 
-    def provider_task_name(self):
-        return f"update {self.UPDATE_FIELD}"
 
 class MetadataUpdaterCommand(TaskCommand):
     """
@@ -243,7 +244,7 @@ class MetadataUpdaterCommand(TaskCommand):
             options,
             updater_args={
                 # bundle arguments to pass thru to MetadataUpdater
-                # without needing to update all tasks to take new args!!
+                # without needing to update top level functions
                 "platform": options["platform_name"],
                 "process_child_sources": options["process_child_sources"],
                 "provider_name": options["provider_name"],

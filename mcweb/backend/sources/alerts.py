@@ -26,8 +26,6 @@ from ..util.tasks import TaskLogContext
 from .models import Source
 from .task_utils import MetadataUpdater, yesterday, monitored_collections
 
-TASK_NAME = "alert-system"
-
 # parameterized for experimentation
 # (3 weeks instead of 28 days?)
 AGG_INTERVAL = "day"
@@ -46,13 +44,13 @@ logger = logging.getLogger(__name__)
 class AlertSystem(MetadataUpdater):
     UPDATE_FIELD = "alerted"
 
-    def __init__(self, *, updater_args: dict):
-        super().__init__(**updater_args)
+    def __init__(self, *, username: str, long_task_name: str, updater_args: dict):
+        super().__init__(username=username, long_task_name=long_task_name, **updater_args)
 
         # can only get ~64K buckets per provider call
         # so must limit the number of sources per call.
         batch_size = self.p.MAX_2D_AGG_BUCKETS // NUM_INTERVALS
-        if batch_size > 32767:      # unlikely!
+        if batch_size > 32767:      # unlikely!!
             batch_size = 32767      # approx max domains in query_string
         self.parent_batch_size = batch_size
 
@@ -62,9 +60,6 @@ class AlertSystem(MetadataUpdater):
             "fixed": []
         }
         self.reports = 0
-
-    def provider_task_name(self):
-        return TASK_NAME
 
     def sources_query(self) -> QuerySet:
         """
@@ -128,7 +123,7 @@ class AlertSystem(MetadataUpdater):
                 mean_last_week = np.mean(week_counts)
                 sum_last_week = sum(week_counts)
 
-                lower = mean - 1.5 * std_dev
+                lower = mean - 1.5 * std_dev # XXX can be negative!
                 upper = mean + 2 * std_dev
 
                 # re-fetches row, and updates!
@@ -164,7 +159,8 @@ class AlertSystem(MetadataUpdater):
 
 # call only from tasks.py (via MetadataUpdaterCommand.run_task)
 def alert_system(*, username: str, long_task_name: str, updater_args: dict):
-    with TaskLogContext(username=username, long_task_name=TASK_NAME):
-        print(updater_args)
-        as_ = AlertSystem(updater_args=updater_args)
+    with TaskLogContext(username=username, long_task_name=long_task_name):
+        as_ = AlertSystem(username=username,
+                          long_task_name=long_task_name,
+                          updater_args=updater_args)
         as_.run()

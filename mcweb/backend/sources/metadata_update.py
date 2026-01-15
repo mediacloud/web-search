@@ -61,18 +61,21 @@ class UpdateStoriesPerWeek(MetadataUpdater):
         date_buckets = agg["buckets"]
         for domains in date_buckets.values(): # should loop at most once!
             for source in sources:    # loop over PG query results again
-                weekly_count = domains.get(source.name, 0) # XXX maybe default to None?
-                if source.stories_per_week != weekly_count:
-                    self.verbose(2, "%s (%d): old %r new %d",
-                                 self.source_name(source),
-                                 source.id, source.stories_per_week, weekly_count)
+                weekly_count = domains.get(source.name, 0)
+                # don't overwrite NULL with zero
+                # (keep as signal nothing has ever been seen)
+                if weekly_count == 0 and source.stories_per_week is None:
+                    self.verbose_source(3, "%s: keeping as NULL", source)
+                elif weekly_count != source.stories_per_week:
+                    self.verbose_source(2, "%s: old %r new %d",
+                                        source, source.stories_per_week, weekly_count)
                     # NOTE! no longer using Source.update_stories_per_week!
                     source.stories_per_week = weekly_count
                     self.needs_update(source)
+
                 else:
-                    self.verbose(3, "%s (%d): no change: %d",
-                                 self.source_name(source),
-                                 source.id, source.stories_per_week)
+                    self.verbose_source(3, "%s: no change: %d",
+                                        source, weekly_count)
 
 LANG_COUNT_DAYS = 180  # number of days back to examine
 LANG_COUNT_MIN = 10    # min count for top lang within LANG_COUNT_DAYS
@@ -134,7 +137,9 @@ def sources_metadata_update(*,
         for updater in tasks:
             logger.info("=== start update %s", updater)
             try:
-                instance = UPDATERS[updater](**updater_args)
+                instance = UPDATERS[updater](username=username,
+                                             long_task_name=long_task_name,
+                                             **updater_args)
                 instance.run()
             except:
                 logger.exception("%s updater exception", updater)

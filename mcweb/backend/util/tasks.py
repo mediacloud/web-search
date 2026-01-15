@@ -238,14 +238,13 @@ class TaskCommand(BaseCommand):
         with @background()
         """
         # username and long_task_name passed for use by TaskLogContext
-        print(options)
         username = kwargs["username"] = options["user"]
         long_name = kwargs["long_task_name"] = self.long_task_name(options)
 
         # will raise exception for bad/missing user:
-        user = User.objects.get(username=username) # XXX check if disabled?
+        user = User.objects.get(username=username)
 
-        # test if JSONable for task table
+        # test if data JSONable for Task table
         json.dumps(kwargs)
 
         if options["queue"]:
