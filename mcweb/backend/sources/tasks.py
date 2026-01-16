@@ -54,7 +54,7 @@ def schedule_scrape_collection(collection_id, user: User):
         return return_error(f"collection {collection_id} not found")
 
     long_name = f"rescrape collection {collection_id}"
-    task = scrape_collection(options={"user": user.name},
+    task = scrape_collection(options={"user": user.username},
                              task_args={"long_task_name": long_name},
                              collection_id=collection_id, email=user.email,
                              # for bg tasks table:
