@@ -33,7 +33,7 @@ class ScrapeContext(TaskLogContext):
     # control logging with a constance setting?
     LOG_FILE = True
 
-    def __init__(self, *, username: str, long_task_name: str,
+    def __init__(self, *, options: dict, task_args: dict,
                  subject: str, email: str, what: str, id: int):
         self.subject = subject
         self.email = email
@@ -44,7 +44,7 @@ class ScrapeContext(TaskLogContext):
         self.errors = False
 
         # init TaskLogContext:
-        super().__init__(username=username, long_task_name=long_task_name)
+        super().__init__(options=options, task_args=task_args)
 
     def __enter__(self) -> "ScrapeContext":
         super().__enter__()
@@ -150,8 +150,8 @@ class ScrapeContext(TaskLogContext):
 
 # NOTE! If arguments added, need to adjust both
 # tasks.schedule_scrape_source AND management/commands/scrape-source.py
-def scrape_source(*, username: str, long_task_name: str,
-                  source_id: int, homepage: str, name: str, email: str) -> None:
+def scrape_source(*, source_id: int, homepage: str, name: str, email: str,
+                  options: dict, task_args: dict) -> None:
     """
     invoked only from task.scrape_collection (decorated)
     """
@@ -161,7 +161,7 @@ def scrape_source(*, username: str, long_task_name: str,
     subject = f"Source {source_id} ({name}) scrape complete"
 
     # ScrapeContext handles exceptions, sends mail!
-    with ScrapeContext(username=username, long_task_name=long_task_name,
+    with ScrapeContext(options=options, task_args=task_args,
                        subject=subject, email=email,
                        what="source", id=source_id) as sc:
         sc.add_body_chunk(Source._scrape_source(source_id, homepage, name))
@@ -171,7 +171,7 @@ def scrape_source(*, username: str, long_task_name: str,
 
 # NOTE! If arguments added, need to adjust both
 # tasks.shedule_scrape_collection AND management/commands/scrape-collection.py
-def scrape_collection(*, username: str, long_task_name: str,
+def scrape_collection(*, options: dict, task_args: dict,
                      collection_id: int, email: str) -> None:
     """
     invoked only from task.scrape_collection (decorated)
@@ -181,7 +181,7 @@ def scrape_collection(*, username: str, long_task_name: str,
 
     errors = 0
     subject = f"Collection {collection_id} scrape complete"
-    with ScrapeContext(username=username, long_task_name=long_task_name,
+    with ScrapeContext(options=options, task_args=task_args,
                        subject=subject, email=email,
                        what="collection", id=collection_id) as sc:
         collection = Collection.objects.get(id=collection_id)

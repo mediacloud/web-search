@@ -53,11 +53,13 @@ def schedule_scrape_collection(collection_id, user: User):
     if not collection:
         return return_error(f"collection {collection_id} not found")
 
-    task = scrape_collection(username=user.username,
+    long_name = f"rescrape collection {collection_id}"
+    task = scrape_collection(options={"user": user.name},
+                             task_args={"long_task_name": long_name},
                              collection_id=collection_id, email=user.email,
                              # for bg tasks table:
                              creator=user,
-                             verbose_name=f"rescrape collection {collection_id}")
+                             verbose_name=long_name)
     return return_task(task)
 
 
@@ -82,15 +84,18 @@ def schedule_scrape_source(source_id, user: User):
 
     # maybe check if re-scraped recently????
 
+    long_name = f"rescrape source {source_id}"
+
     # NOTE! Will remove any other pending scrapes for same source
     # rather than queuing a duplicate; the new user will "steal" the task
     # (leaving no trace of the old one). Returns a Task object.
-    task = scrape_source(username=user.username,
+    task = scrape_source(options={"user": user.username},
+                         task_args={"long_task_name": long_name},
                          source_id=source_id, homepage=source.homepage,
                          name=source.name, email=user.email,
                          # for bg tasks table:
                          creator=user,
-                         verbose_name=f"rescrape source {source_id}")
+                         verbose_name=long_name)
     return return_task(task)
 
 # called from management/commands/sources-meta-update.py

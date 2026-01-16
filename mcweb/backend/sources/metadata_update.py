@@ -44,8 +44,9 @@ class UpdateStoriesPerWeek(MetadataUpdater):
                         domains: list[str],
                         url_search_strings: dict[str,list[str]]) -> None:
         """
-        called with either a list of domains, and no url_search strings,
-        or a single domain and url_search_string
+        called with either a list of domains, and empty url_search strings,
+        or url_search_string with a single dict entry, with value
+        of a list of search strings for a single source.
         """
 
         # 1-D aggregation would suffice (one outer bucket)!
@@ -97,9 +98,12 @@ class UpdateSourceLanguage(MetadataUpdater):
                         domains: list[str],
                         url_search_strings: dict[str,list[str]]) -> None:
         """
-        called with either a list of domains, and no url_search strings,
-        or a single url_search_string
+        called with either a list of domains, and empty url_search strings,
+        or url_search_string with a single dict entry, with value
+        of a list of search strings for a single source.
         """
+        assert not (domains and url_search_strings)
+
         agg = self.p.two_d_aggregation(start_date=yesterday(LANG_COUNT_DAYS),
                                        end_date=yesterday(),
                                        url_search_strings=url_search_strings,
@@ -130,14 +134,14 @@ class UpdateSourceLanguage(MetadataUpdater):
 
 # call only from tasks.py (via MetadataUpdaterCommand.run_task)
 def sources_metadata_update(*,
-                            task_args: dict,    # TaskCommand
-                            updater_args: dict, # MetdataUpdaterCommand
-                            tasks: list[str]):
-    with TaskLogContext(task_args):
-        for updater in tasks:
+                            task_args: dict, # TaskCommand
+                            options: dict # MetdataUpdaterCommand
+                            ) -> None:
+    with TaskLogContext(task_args=task_args, options=options):
+        for updater in options["task"]:
             logger.info("=== start update %s", updater)
             try:
-                instance = UPDATERS[updater](task_args=task_args, updater_args=updater_args)
+                instance = UPDATERS[updater](task_args=task_args, options=options)
                 instance.run()
             except:
                 logger.exception("%s updater exception", updater)

@@ -26,5 +26,4 @@ class Command(MetadataUpdaterCommand):
         self.run_task(
             func=sources_metadata_update,
             options=options,
-            tasks=options["task"]
         )

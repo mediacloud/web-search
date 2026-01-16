@@ -32,7 +32,7 @@ AGG_INTERVAL = "day"
 NUM_INTERVALS = 28
 LAST_WEEK = -7
 
-# XXX are these needed per source????
+# added to email PER SOURCE!!
 LONG = {
     "low": "is returning LOWER than usual story volume",
     "high": "is returning HIGHER than usual story volume",
@@ -44,8 +44,8 @@ logger = logging.getLogger(__name__)
 class AlertSystem(MetadataUpdater):
     UPDATE_FIELD = "alerted"
 
-    def __init__(self, *, task_args: dict, updater_args: dict):
-        super().__init__(task_args=task_args, updater_args=updater_args)
+    def __init__(self, *, task_args: dict, options: dict):
+        super().__init__(task_args=task_args, options=options)
 
         # can only get ~64K buckets per provider call
         # so must limit the number of sources per call.
@@ -158,7 +158,7 @@ class AlertSystem(MetadataUpdater):
             send_alert_email(self.alert_dict)
 
 # call only from tasks.py (via MetadataUpdaterCommand.run_task)
-def alert_system(*, task_args:dict, updater_args: dict):
-    with TaskLogContext(task_args):
-        as_ = AlertSystem(task_args=task_args, updater_args=updater_args)
+def alert_system(*, task_args:dict, options: dict):
+    with TaskLogContext(task_args=task_args, options=options):
+        as_ = AlertSystem(task_args=task_args, options=options)
         as_.run()

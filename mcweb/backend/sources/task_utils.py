@@ -47,22 +47,21 @@ class MetadataUpdater:
 
     SOURCE_PAGE_SIZE = 5000     # make a command line option?
 
-    # To add new arguments, add to MetadataUpdaterCommand.run_task
-    # updater_args dict.  To make them manage.py command line options,
-    # also add to MetadataUpdaterCommand.add_arguments
-    def __init__(self, *, task_args: dict, updater_args: dict):
-        self.username = task_args["username"]
+    # To add new arguments from the manage.py command line
+    # add to MetadataUpdaterCommand.add_arguments
+    def __init__(self, *, task_args: dict, options: dict):
+        self.username = options["user"]
         self.long_task_name = task_args["long_task_name"]
-        self.verbosity = task_args["verbosity"]
+        self.verbosity = options["verbosity"]
 
-        self.platform = updater_args["platform"]
-        self.p = get_task_provider(provider_name=updater_args["provider_name"],
+        self.platform = options["platform_name"]
+        self.p = get_task_provider(provider_name=options["provider_name"],
                                    task_name=self.long_task_name)
         self.sources_to_update = []
-        self.sleep_time = 60 / updater_args["rate"]
+        self.sleep_time = 60 / options["rate"]
         self.counters = collections.Counter()
-        self.update = updater_args["update"]
-        self.process_child_sources = updater_args["process_child_sources"]
+        self.update = options["update"]
+        self.process_child_sources = options["process_child_sources"]
 
         # not (YET) options(!!):
         # currently limited by number of query_string (OR) clauses
@@ -192,8 +191,11 @@ class MetadataUpdaterCommand(TaskCommand):
     base class for manage commands using MetaUpdater!!
     """
     def add_arguments(self, parser):
+        # arguments here are handled in MetadataUpdater
+
         # slower (need to do one aggregation query per source),
         # and query results have been... questionable (provider bug?)
+        # more debugging/testing needed
         parser.add_argument(
             "--process-child-sources",
             action="store_true",
@@ -235,17 +237,9 @@ class MetadataUpdaterCommand(TaskCommand):
 
         kwargs are passed to func.
         """
+        print("MetadataUpdaterCommand.run_task", func, options, kwargs)
         super().run_task(
             func,
-            options,
-            updater_args={
-                # bundle arguments to pass thru to MetadataUpdater
-                # without needing to update things in between
-                "platform": options["platform_name"],
-                "process_child_sources": options["process_child_sources"],
-                "provider_name": options["provider_name"],
-                "rate": options["rate"],
-                "update": options["update"],
-            },
+            options=options,
             **kwargs
         )

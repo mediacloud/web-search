@@ -162,8 +162,8 @@ class TaskLogContext:
     # control logging with a constance setting?
     LOG_FILE = True
 
-    def __init__(self, task_args: dict):
-        self.username = task_args["username"]
+    def __init__(self, *, task_args: dict, options: dict):
+        self.username = options["user"]
         self.long_name = task_args["long_task_name"]
         self.handler: logging.Handler | None = None # log file
         self.t0 = 0.0
@@ -234,33 +234,37 @@ class TaskCommand(BaseCommand):
         """
         utility for invoking task function from handle method.
 
-        func is a background task function that has been decorated
+        func is a background task function in tasks.py that has been decorated
         with @background()
         """
-        # username and long_task_name passed for use by TaskLogContext
-        username = options["user"]
         long_name = self.long_task_name(options)
 
-        task_args = {
-            "long_task_name": long_name,
-            "username": username,
-            "verbosity": options["verbosity"] # from BaseCommand!
-        }
-        kwargs["task_args"] = task_args
+        # for passing things NOT in options dict
+
+        username = options["user"]
 
         # will raise exception for bad/missing user:
         user = User.objects.get(username=username)
 
         # test if data JSONable for Task table
         json.dumps(kwargs)
+        json.dumps(options)
 
+        # assemble one arg keyword arg dict for both flavors of call
+        args = {
+            "options": options,
+            "task_args": {
+                "long_task_name": long_name # for TaskLogContext (log file name)
+            },
+            **kwargs
+        }
         if options["queue"]:
             logger.info("queuing %s task for %s", long_name, username)
-            func(**kwargs,
-                 # for task table:
+            func(**args,
+                 # for background package Task table:
                  creator=user,
                  verbose_name=long_name)
         else:
             # run in-process now:
             logger.info("running %s task for %s", long_name, username)
-            func.now(**kwargs)
+            func.now(**args)
