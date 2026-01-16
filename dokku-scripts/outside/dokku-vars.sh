@@ -19,7 +19,7 @@ _HOSTNAME=$(hostname -f)
 
 dburl() {
     local SVC=$1
-    ssh dokku@$_HOSTNAME postgres:info $SVC | awk "
+    ssh -n dokku@$_HOSTNAME postgres:info $SVC | awk "
     /Dsn:/ { dsn = \$2 }
     /Internal ip:/ { ip = \$3
 	print gensub(/^postgres:/, \"postgresql:\", 1, 
@@ -30,7 +30,7 @@ dburl() {
 
 redisurl() {
     local SVC=$1
-    ssh dokku@$_HOSTNAME redis:info $SVC | awk "
+    ssh -n dokku@$_HOSTNAME redis:info $SVC | awk "
     /Dsn:/ { dsn = \$2 }
     /Internal ip:/ { ip = \$3
 	print gensub(/dokku-redis-$SVC/, ip, 1, dsn)

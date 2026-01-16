@@ -2,16 +2,22 @@ import sys
 
 from django.core.management.base import BaseCommand
 
-from ...tasks import _scrape_source
+from settings import ADMIN_USERNAME
+from ....util.tasks import TaskCommand
+from ...tasks import scrape_source
 from ...models import Source
 
-class Command(BaseCommand):
+class Command(TaskCommand):
     help = "Scrape source"
 
     def add_arguments(self, parser):
-        parser.add_argument("--queue", action="store_true")
         parser.add_argument("source_id", type=int)
         parser.add_argument("email", type=str)
+        super().add_arguments(parser)
+
+    def long_task_name(self, options: dict):
+        sid = options["source_id"]
+        return f"scrape source {sid}"
 
     def handle(self, *args, **options):
         sid = options["source_id"]
@@ -22,8 +28,11 @@ class Command(BaseCommand):
             print("could not find source id", sid)
             sys.exit(1)
 
-        if options["queue"]:
-            _scrape_source(sid, src.homepage, src.name, email)
-        else:
-            # run now
-            _scrape_source.now(sid, src.homepage, src.name, email)
+        self.run_task(
+            func=scrape_source,
+            options=options,
+            homepage=src.homepage,
+            name=src.name,
+            source_id=sid,
+            email=email
+        )

@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# disabled 2025-08-16 (leaving in place until more complete replacement)
-#python mcweb/manage.py sources-meta-update --queue  --task publication_date
