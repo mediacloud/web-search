@@ -3,8 +3,8 @@
 # cleanup task and old rescrape logs older than 30 days
 
 for DIR in rescrape tasks; do
-    PATH=data/logs/$DIR
-    if [ -d $PATH ]; then
-	find $PATH -type f -mtime +30 -delete
+    FULLDIR=data/logs/$DIR
+    if [ -d $FULLDIR ]; then
+	find $FULLDIR -type f -mtime +30 -delete
     fi
 done
