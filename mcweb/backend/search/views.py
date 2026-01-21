@@ -14,7 +14,6 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpRespo
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 from django.views.decorators.http import require_http_methods
-from mc_providers import OnlineNewsMediaCloudProvider
 from mc_providers.exceptions import (
     PermanentProviderException, ProviderException, ProviderParseException, QueryingEverythingUnsupportedQuery,
     TemporaryProviderException, UnsupportedOperationException)
@@ -54,8 +53,6 @@ from backend.users.exceptions import OverQuotaException
 
 # mcweb/backend/util
 import backend.util.csv_stream as csv_stream
-
-from backend.sources.models import Collection
 
 TRACE_JSON_RESPONSE = False
 
