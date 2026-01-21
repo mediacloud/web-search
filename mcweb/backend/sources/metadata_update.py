@@ -13,7 +13,7 @@ import logging
 from django.db.models import QuerySet
 
 # mcweb/backend/util/
-from ..util.tasks import TaskLogContext, get_task_provider
+from ..util.tasks import TaskLogContext
 
 # local dir mcweb/backend/sources
 from .models import Source
@@ -90,6 +90,7 @@ class UpdateSourceLanguage(MetadataUpdater):
         """
         only process sources without primary language
         """
+        # XXX filter by max age??
         return super().sources_query()\
                       .filter(primary_language__isnull=True)
 
@@ -146,3 +147,60 @@ def sources_metadata_update(*,
             except:
                 logger.exception("%s updater exception", updater)
             logger.info("=== end update %s", updater)
+
+from elasticsearch_dsl.aggs import A
+
+@updater
+class FindLastStory(MetadataUpdater):
+    UPDATE_FIELD = "first_story" # XXX crockery: use existing field
+    NAME = "last_story"
+
+    def process_sources(self, *,
+                        sources: list[Source],
+                        domains: list[str],
+                        url_search_strings: dict[str,list[str]]) -> None:
+        """
+        called with either a list of domains, and empty url_search strings,
+        or url_search_string with a single dict entry, with value
+        of a list of search strings for a single source.
+        """
+
+        p = self.p              # mc_provider
+
+        # aggregation names:
+        OUTER = "outer"
+        INNER = "inner"
+
+        # XXX nastiness: direct to elasticsearch_dsl:
+        search = p._basic_search(user_query=p.everything_query(),
+                                 start_date=dt.datetime(2008, 1, 1), # XXX
+                                 end_date=yesterday(),
+                                 domains=domains,
+                                 url_search_strings=url_search_strings)\
+                  .extra(size=0) # just aggs
+
+        s = len(domains or url_search_strings)
+        search.aggs.bucket(OUTER, A("terms", field="canonical_domain", size=s))\
+                   .bucket(INNER, "max", field="publication_date")
+
+        res = p._search(search, "pub-date-max")
+
+        # dict by domain of max pub date
+        max_date_by_domain = {
+            outer["key"]: outer[INNER]["value_as_string"]
+            for outer in res.aggregations[OUTER] # list of dicts
+        }
+
+        for source in sources:
+            # NULL out domains with no stories found
+            last_date = last_date_short = max_date_by_domain.get(source.name, None)
+            if last_date_short:
+                last_date_short = last_date_short[:10] # YYYY-MM-DD
+
+            curr = source.first_story
+            if curr:
+                curr = curr.strftime("%Y-%m-%d")
+
+            if last_date_short != curr: # keep date level granularity
+                source.first_story = last_date
+                self.needs_update(source)
