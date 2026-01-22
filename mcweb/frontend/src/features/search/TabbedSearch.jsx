@@ -157,7 +157,7 @@ export default function TabbedSearch() {
   return (
     <div className="container search-container">
       <br />
-      <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} />
+      {/* <PlatformPicker queryIndex={0} sx={{ paddingTop: 50 }} /> */}
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', marginLeft: 6 }}>
           <Tabs
