@@ -126,7 +126,6 @@ export default function AdvancedMenu({
           />
         )}
         endIcon={<KeyboardArrowDown />}
-        disabled={!!source.url_search_string}
       >
         Advanced Options
       </Button>

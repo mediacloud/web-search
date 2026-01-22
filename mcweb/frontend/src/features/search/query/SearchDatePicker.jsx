@@ -84,12 +84,6 @@ export default function SearchDatePicker({ queryIndex }) {
 
   return (
     <>
-      {platform === PROVIDER_NEWS_MEDIA_CLOUD && (
-        <Alert severity="warning">
-          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-          Reingest of historical data in progress. Search results since {minDJS.format('YYYY')} now available.
-        </Alert>
-      )}
       <div className="date-picker-wrapper local-provider">
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <div className="date-accuracy-alert">
@@ -126,8 +120,7 @@ export default function SearchDatePicker({ queryIndex }) {
         </LocalizationProvider>
       </div>
       <p className="help">
-        Each platform has different limitations on how recent your search can be.
-        The start and end dates are inclusive.
+        Earliest data is from January 2008. The start and end dates are inclusive.
       </p>
 
       <DefaultDates platform={platform} amountOfTime="1" typeOfTime="month" message="Last Month" queryIndex={queryIndex} />
