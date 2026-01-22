@@ -239,6 +239,45 @@ def count_over_time(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+def count_by_source_week(request):
+    pq = parse_query(request)
+    provider = pq_provider(pq)
+    provider._base_url = "http://localhost:8010"
+    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
+    # compute time period
+    q_delta = pq.end_date - pq.start_date
+    num_weeks = q_delta.days // 7
+    # figure out the list of domains, from both sources and collections on the query
+    domains = pq.provider_props['domains']
+    max_buckets = provider.MAX_2D_AGG_BUCKETS
+    if num_weeks*len(domains) > max_buckets:
+        return error_response(f"Too many sources*weeks selected for this query (max {max_buckets})")
+    # get the counts for just matching stories
+    matching = provider.two_d_aggregation(query=_qs(pq), start_date=pq.start_date,
+                                          outer_field="publish_date", inner_field="media_name",
+                                          interval="week", num_intervals=num_weeks,
+                                          domains=domains)
+    # get the counts for all stories, so we can return normalized results too
+    totals = provider.two_d_aggregation(query='*', start_date=pq.start_date,
+                                       outer_field="publish_date", inner_field="media_name",
+                                       interval="week", num_intervals=num_weeks,
+                                       domains=domains)
+    # reshape it for download as tidy data
+    shaped_data = []
+    for media in domains:
+        for week, values in totals["buckets"].items(): # do this so we get totals for even if a week had no matching
+            total = values.get(media, 0)
+            count = matching['buckets'][week].get(media, 0)
+            shaped_data.append({"media_name": media, "week": week, "matching_stories": count, "total_stories": total,
+                                "ratio": (count / total) if total > 0 else 0})
+    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
+    return json_response({"source-week-attention": shaped_data})
+
+@api_stats  # PLEASE KEEP FIRST!
+@handle_provider_errors
+@api_view(['GET', 'POST'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def sample(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -399,7 +438,6 @@ def download_words_csv(request):
     cols = ['term', 'term_count', 'term_ratio', 'doc_count', 'doc_ratio', 'sample_size']
     CSVWriterHelper.write_top_words(writer, words, cols)
     return response
-
 
 @require_http_methods(["GET"])
 @action(detail=False)
