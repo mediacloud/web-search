@@ -119,7 +119,11 @@ class MetadataUpdater:
                     if self.process_child_sources:
                         self.verbose_source(3, "processing %s", source)
                         # cannot aggregate by url_search_string
-                        # need to query child sources one at a time
+                        # need to query child sources one at a time;
+                        # COULD handle multiple child sources, and
+                        # even child sources mixed in with parents
+                        # so long as only one parent or child for
+                        # a domain is in the batch!!!
                         self.process_child_source(source)
                     else:
                         self.verbose_source(3, "skipping %s", source)
