@@ -163,7 +163,7 @@ class SourcesViewSerializer(serializers.ModelSerializer):
 
     alternative_domains = serializers.SerializerMethodField()
     
-    last_story = serializers.DateTimeField(format="%Y-%m", read_only=True)
+    last_story = serializers.DateTimeField(format="%m/%Y", read_only=True)
 
     class Meta:
         model = Source
