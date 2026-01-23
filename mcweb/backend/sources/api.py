@@ -528,11 +528,11 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
             for source in source_associations:
                 if first_page:  # send back columun names, which differ by platform
                     yield (['id', 'homepage', 'domain', 'url_search_string', 'label', 'notes', 'platform',
-                            'pub_country','pub_state','media_type','stories_per_week', 'first_story',  
+                            'pub_country','pub_state','media_type','stories_per_week', 'last_story',
                             'primary_language' ])
                 yield ([source.id, source.homepage, source.name, source.url_search_string, source.label,
                          source.notes, source.platform, source.pub_country, source.pub_state, source.media_type, 
-                        source.stories_per_week, source.first_story,  source.primary_language])
+                        source.stories_per_week, source.last_story,  source.primary_language])
                 first_page = False
 
         filename = "Collection-{}-{}-sources-{}".format(

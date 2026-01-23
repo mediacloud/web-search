@@ -152,8 +152,7 @@ from elasticsearch_dsl.aggs import A
 
 @updater
 class FindLastStory(MetadataUpdater):
-    UPDATE_FIELD = "first_story" # XXX crockery: use existing field
-    NAME = "last_story"
+    UPDATE_FIELD = "last_story"
 
     def process_sources(self, *,
                         sources: list[Source],
@@ -194,13 +193,16 @@ class FindLastStory(MetadataUpdater):
         for source in sources:
             # NULL out domains with no stories found
             last_date = last_date_short = max_date_by_domain.get(source.name, None)
+
+            # compare just the date part
+            # (minimizes updates, helpful in debug)
             if last_date_short:
                 last_date_short = last_date_short[:10] # YYYY-MM-DD
 
-            curr = source.first_story
+            curr = source.last_story
             if curr:
                 curr = curr.strftime("%Y-%m-%d")
 
             if last_date_short != curr: # keep date level granularity
-                source.first_story = last_date
+                source.last_story = last_date
                 self.needs_update(source)
