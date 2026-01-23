@@ -14,7 +14,6 @@ from ..util.tasks import TaskLogContext
 from util.send_emails import send_rescrape_email
 from settings import (
     ADMIN_EMAIL,
-    ADMIN_USERNAME,
     EMAIL_ORGANIZATION,
     EMAIL_NOREPLY,
     SCRAPE_ERROR_RECIPIENTS,

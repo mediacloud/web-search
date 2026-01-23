@@ -18,15 +18,13 @@ from background_task.tasks import TaskProxy
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from settings import ADMIN_EMAIL, ADMIN_USERNAME, SENTRY_ENV
+from settings import SYSTEM_TASK_USERNAME, SENTRY_ENV
 from backend.util.syslog_config import LOG_DIR
 
 # local directory:
 from .provider import get_provider
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_TASK_USER = ADMIN_USERNAME # XXX create special user??
 
 TASKS_LOG_DIR = os.path.join(LOG_DIR, "tasks")
 
@@ -226,8 +224,8 @@ class TaskCommand(BaseCommand):
         parser.add_argument("--queue", action="store_true",
                             help="Queue the task to run in the background.")
 
-        parser.add_argument("--user", default=DEFAULT_TASK_USER,
-                            help=f"User to run task under (default {DEFAULT_TASK_USER}).")
+        parser.add_argument("--user", default=SYSTEM_TASK_USERNAME,
+                            help=f"User to run task under (default {SYSTEM_TASK_USERNAME}).")
         super().add_arguments(parser)
 
     def run_task(self, func: TaskProxy, options: dict, **kwargs):
