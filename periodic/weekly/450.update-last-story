@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Ideally should take --start-date (currently scans back to 2008) and
+# --days DAYS options and run on full date range once a month
+# (if [ # $(date +%e) -le 7 ]) and just back 7 days the rest of the time??
+
+python mcweb/manage.py sources-meta-update --queue --update --task last_story
