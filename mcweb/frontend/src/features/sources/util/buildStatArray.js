@@ -1,5 +1,5 @@
 const statPanelValues = [
-  { label: 'Last Story', value: 'last_story' },
+  { label: 'New Stories In', value: 'last_story' },
   { label: 'Stories per Week', value: 'stories_per_week' },
   { label: 'Pub Country', value: 'pub_country' },
   { label: 'Pub State', value: 'pub_state' },
@@ -18,7 +18,7 @@ const buildStatArray = (sourceObject) => {
 export default buildStatArray;
 
 // [
-//     { label: 'Last Story', value: source.last_story },
+//     { label: 'New Stories In', value: source.last_story },
 //     { label: 'Stories per Week', value: source.stories_per_week },
 //     { label: 'Publication Country', value: source.pub_country },
 //     { label: 'Publication State', value: source.pub_state },

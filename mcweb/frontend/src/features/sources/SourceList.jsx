@@ -83,7 +83,7 @@ export default function SourceList(props) {
               <Tooltip
                 title="The most recent year and month a new story was ingested"
               >
-                <th>Last New Story</th>
+                <th>New Stories In</th>
               </Tooltip>
               <Tooltip
                 title="The last time our system tried to automatically check the website for more feeds
@@ -113,6 +113,7 @@ export default function SourceList(props) {
                 <td>{source.pub_state}</td>
                 <td>{source.primary_language}</td>
                 <td>{asNumber(source.stories_per_week)}</td>
+                <td>{source.last_story}</td>
                 {source.url_search_string && (
                   <td>
                     N/A (child source)
