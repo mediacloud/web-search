@@ -8,8 +8,27 @@ services!
 
 Uses mcweb/.env and vars.$USER for basic settings
 
-* run-server.sh: expects mcweb/static mcweb/frontend/static directories (*)
-* run-manage.sh: you supple the command and args
-* run-queue.sh: expects one argument: {user,system,admin}-{fast,slow}
+## run-server.sh: 
 
-(*) copy from your Dokku container
+expects you to have run `copy-static.sh` (see below)
+
+Will require setting _OUTSIDE_PORT port environment variable
+if multiple developers doing this on the same server.
+
+## copy-static.sh
+
+copies static (including generated JS) content from Docker container
+to allow running server.
+
+## run-manage.sh
+
+you supply the command and args to test a manage.py command
+
+## run-manage-pdb.sh
+
+starts manage.py under the Python debugger
+
+## run-queue.sh
+
+For testing and debugging background tasks.
+Expects a queue name as an argument: {user,system,admin}-{fast,slow}
