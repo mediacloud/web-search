@@ -1,6 +1,7 @@
 import logging
+import traceback
 import types                    # TracebackType
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 # PyPI:
 import feed_seeker
@@ -82,6 +83,7 @@ class ScrapeContext(TaskLogContext):
         self.recipients = [email]
         self.what = what        # "source" or "collection"
         self.id = id
+        self.errors = False
 
         # init TaskLogContext:
         super().__init__(options=options, task_args=task_args)
@@ -107,6 +109,7 @@ class ScrapeContext(TaskLogContext):
         """
         add ADMIN_EMAIL & users in SCRAPE_ERROR_RECIPIENTS to recipients
         """
+        self.errors = True
         if ADMIN_EMAIL and ADMIN_EMAIL not in self.recipients:
             self.recipients.append(ADMIN_EMAIL)
         for u in SCRAPE_ERROR_RECIPIENTS:
@@ -134,7 +137,7 @@ class FeedCounts:
     confirmed: int = 0
     old: int = 0
 
-# formatted with FeedCounts.asdict():
+# formatted with asdict(FeedCounts)
 SUMMARY_FORMAT = "{added}/{total} added, {confirmed}/{old} confirmed"
 
 class Scraper:
@@ -161,7 +164,8 @@ class Scraper:
         self.source_lines = []
         return chunk
 
-    def process_urls(self, from_: str, urls: list[str], feed_counts: FeedCounts, old_urls: dict[str, str]):
+    def process_urls(self, source_id: int, from_: str,
+                     urls: list[str], feed_counts: FeedCounts, old_urls: dict[str, str], verbosity: int):
         """
         from_ is description of where the feed came from (rss or sitemap)
         """
@@ -172,8 +176,8 @@ class Scraper:
             if nurl in old_urls:
                 if verbosity >= 1:
                     self.add_source_line(f"found existing {from_} feed {url}")
-                logger.info(f"scrape_source(%d, %s) found existing %s feed %s",
-                            source_id, homepage, from_, url)
+                logger.info(f"scrape_source(%d) found existing %s feed %s",
+                            source_id, from_, url)
                 feed_counts.confirmed += 1
             else:
                 try:
@@ -228,7 +232,7 @@ class Scraper:
             new_feed_generator = feed_seeker.generate_feed_urls(
                 homepage, max_time=SCRAPE_TIMEOUT_SECONDS, fetcher=rss_page_fetcher)
             # create list so DB operations in process_urls are not under the timeout gun.
-            self.process_urls("rss", list(new_feed_generator), feed_counts, old_urls)
+            self.process_urls(source_id, "rss", list(new_feed_generator), feed_counts, old_urls, verbosity)
         except requests.RequestException as e: # maybe just catch Exception?
             self.add_source_line(f"fatal error for rss: {e!r}")
             logger.warning("generate_feed_urls(%s): %r", homepage, e)
@@ -248,11 +252,11 @@ class Scraper:
             logger.exception("find_gnews_fast")
 
         if gnews_urls:
-            self.process_urls(sitemaps, gnews_urls, feed_counts, old_urls)
+            self.process_urls(source_id, sitemaps, gnews_urls, feed_counts, old_urls, verbosity)
 
         # after many tries to give a summary in english
         # NOTE! duplicates can make the numbers seem incongruous!
-        summary = SUMMARY_FORMAT.format(**feed_counts.asdict())
+        summary = SUMMARY_FORMAT.format(**asdict(feed_counts))
 
         self.add_source_line(summary)
         logger.info("%s", summary)
@@ -263,7 +267,7 @@ class Scraper:
         chunk = self.make_source_chunk("  ") # indent not applied to header line
         return chunk, summary, added
 
-    def scrape_sources(self, queryset) -> list[str]:
+    def scrape_sources(self, queryset, initiator: str) -> list[str]:
         """
         scrape multiple sources for a collection or auto-rescrape
         """
@@ -273,9 +277,9 @@ class Scraper:
         for source in queryset.filter(url_search_string__isnull=True).all():
             processed += 1
 
-            logger.info("== calling scrape_source %d (%s)", source.id, source.name, collection_id, email)
+            logger.info("== calling scrape_source %d (%s)", source.id, source.name)
             try:
-                chunk, summary, new = scraper.scrape_source(source.id, source.homepage, source.name, email, verbosity=0)
+                chunk, summary, new = self.scrape_source(source.id, source.homepage, source.name, initiator, verbosity=0)
                 # XXX sum up feed_counters.asdict() into a counter across all sources?
                 feeds_added += new
                 chunks.append(chunk)
@@ -283,8 +287,7 @@ class Scraper:
                 exceptions += 1
                 self.errors = True
 
-                logger.exception("scrape_source exception in scrape_source %d for %s",
-                                 source.id, email)
+                logger.exception("scrape_source exception in scrape_source %d", source.id)
                 chunks.append(f"ERROR:\n{traceback.format_exc()}") # format_exc has final newline
 
                 # for debug (seeing where hung by ^C-ing under
@@ -353,7 +356,7 @@ def scrape_collection(*, options: dict, task_args: dict,
         collection = Collection.objects.get(id=collection_id)
 
         sources = collection.source_set # all sources in collection
-        chunks, summary = scraper.scrape_sources(sources)
+        chunks, summary = scraper.scrape_sources(sources, email)
 
         if scraper.errors:
             sc.add_error_recipients()
@@ -371,6 +374,7 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
     invoked only from task.scrape_collection (decorated)
     """
 
+    # XXX create ActionHistoryContext (for what data??)
     with TaskLogContext(options=options, task_args=task_args):
         scraper = Scraper()
         count = 100             # XXX take as command line option!!!
@@ -384,11 +388,6 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
                                  .asc(nulls_first=True)\
                                  .limit(count)
     
-        chunks, summary = scrape.scrape_sources(sources)
+        chunks, summary = scrape.scrape_sources(sources, "autoscrape")
 
-        # XXX pass a Counter as additional_data instead of formatted summary?
-        ahc.notes = f"Rescrape completed: {summary}, initiated by {email}"
-
-        logger.info("==== finished scrape_sources(%d, %s) for %s (%s)",
-                    collection.id, collection.name, email, summary)
     # end with TaskLogContext
