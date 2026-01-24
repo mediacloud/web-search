@@ -145,8 +145,9 @@ class Scraper:
     encapsulate scraping state
     """
 
+    # XXX take timeout (make rss_page_fetcher a method)
     def __init__(self):
-        self.lines = []         # XXX feed_lines??
+        self.source_lines = []
         self.errors = False
 
     def add_source_line(self, line: str):
@@ -154,7 +155,7 @@ class Scraper:
         # Each line appended to list must end with a newline!
         if not line.endswith("\n"):
             line += "\n"
-        self.lines.append(line)
+        self.source_lines.append(line)
 
     def make_source_chunk(self, indent: str):
         """
@@ -265,7 +266,7 @@ class Scraper:
         Source.update_last_rescraped(source_id=source_id, summary=summary)
 
         chunk = self.make_source_chunk("  ") # indent not applied to header line
-        return chunk, summary, added
+        return chunk, summary, feed_counts.added
 
     def scrape_sources(self, queryset, initiator: str) -> list[str]:
         """
