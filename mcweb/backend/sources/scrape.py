@@ -1,31 +1,74 @@
 import logging
 import types                    # TracebackType
 
+# PyPI:
+import feed_seeker
+import requests
 from django.contrib.auth.models import User
+from django.db.utils import IntegrityError
+from mcmetadata.feeds import normalize_url
+from mcmetadata.requests_arcana import insecure_requests_session
+from mcmetadata.webpages import MEDIA_CLOUD_USER_AGENT
+
+
+# not from PyPI: package installed via github URL
+from mc_sitemap_tools.discover import NewsDiscoverer
 
 # local directory mcweb/backend/sources
 from .action_history import ActionHistoryContext, _delegated_history, log_action
-from .models import Source, Collection, ActionHistory
+from .models import Source, Collection, ActionHistory, Feed
 
 # mcweb/backend/util
 from ..util.tasks import TaskLogContext
 
-# mcweb/
+# mcweb/util
 from util.send_emails import send_rescrape_email
+
+# mcweb/
 from settings import (
     ADMIN_EMAIL,
     EMAIL_ORGANIZATION,
     EMAIL_NOREPLY,
     SCRAPE_ERROR_RECIPIENTS,
+    SCRAPE_TIMEOUT_SECONDS
 )
 
 logger = logging.getLogger(__name__)
 
 SCRAPE_FROM_EMAIL = EMAIL_NOREPLY
 
+# time for individual HTTP connect/read
+SCRAPE_HTTP_SECONDS = SCRAPE_TIMEOUT_SECONDS / 5
+
+def rss_page_fetcher(url: str) -> str:
+    """
+    custom fetcher for RSS pages for feed_seeker
+    (adapted from from feed_seeker default_fetch_function)
+    """
+    logger.debug("rss_page_fetcher %s", url)
+    session = insecure_requests_session(MEDIA_CLOUD_USER_AGENT)
+
+    try:
+        # provide connection and read timeouts in case alarm based timeout fails
+        # (scrapes sometimes hang).
+        response = session.get(url,
+                               timeout=(SCRAPE_HTTP_SECONDS, SCRAPE_HTTP_SECONDS))
+        if response.ok:
+            return response.text
+        else:
+            return ''  # non-fatal error
+    except (requests.ConnectTimeout, # connect timeout
+            requests.ConnectionError, # 404's
+            requests.ReadTimeout,     # read timeout
+            requests.TooManyRedirects, # redirect loop
+            requests.exceptions.InvalidSchema, # email addresses
+            requests.exceptions.RetryError):
+        # signal page failure, but not bad enough to abandon site:
+        return ''
+
 class ScrapeContext(TaskLogContext):
     """
-    context for rescrape tasks:
+    context for rescrape tasks that send email
 
     sends email (split out and support MIME so can be used for alert system?)
     XXX maybe refactor for use by other tasks (eg; alert system)???

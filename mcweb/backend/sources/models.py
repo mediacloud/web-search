@@ -3,54 +3,13 @@ from typing import Dict
 from datetime import datetime, timezone
 
 # PyPI:
-import feed_seeker
 import mcmetadata.urls as urls
-import requests
 from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
-from django.db.utils import IntegrityError
-from mcmetadata.feeds import normalize_url
-from mcmetadata.requests_arcana import insecure_requests_session
-from mcmetadata.webpages import MEDIA_CLOUD_USER_AGENT
-
-# not from PyPI: package installed via github URL
-from mc_sitemap_tools.discover import NewsDiscoverer
-
-# mcweb
-from settings import SCRAPE_TIMEOUT_SECONDS # time to scrape an entire source
 
 logger = logging.getLogger(__name__)
-
-# time for individual HTTP connect/read
-SCRAPE_HTTP_SECONDS = SCRAPE_TIMEOUT_SECONDS / 5
-
-def rss_page_fetcher(url: str) -> str:
-    """
-    custom fetcher for RSS pages for feed_seeker
-    (adapted from from feed_seeker default_fetch_function)
-    """
-    logger.debug("rss_page_fetcher %s", url)
-    session = insecure_requests_session(MEDIA_CLOUD_USER_AGENT)
-
-    try:
-        # provide connection and read timeouts in case alarm based timeout fails
-        # (scrapes sometimes hang).
-        response = session.get(url,
-                               timeout=(SCRAPE_HTTP_SECONDS, SCRAPE_HTTP_SECONDS))
-        if response.ok:
-            return response.text
-        else:
-            return ''  # non-fatal error
-    except (requests.ConnectTimeout, # connect timeout
-            requests.ConnectionError, # 404's
-            requests.ReadTimeout,     # read timeout
-            requests.TooManyRedirects, # redirect loop
-            requests.exceptions.InvalidSchema, # email addresses
-            requests.exceptions.RetryError):
-        # signal page failure, but not bad enough to abandon site:
-        return ''
 
 class Collection(models.Model):
 
