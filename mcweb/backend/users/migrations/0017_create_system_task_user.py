@@ -6,13 +6,16 @@ from django.db import migrations
 
 def create_system_task_user(apps, schema_editor):
     """
-    create user to own background tasks like
+    create user to own background tasks launched from manage commands
     """
     from django.contrib.auth import get_user_model
     from django.conf import settings
 
     task_user = get_user_model().objects.create_user(
-        username=settings.SYSTEM_TASK_USERNAME
+        username=settings.SYSTEM_TASK_USERNAME,
+        email=settings.EMAIL_NOREPLY,
+        first_name="Task",
+        last_name="Owner"
     )
     task_user.set_unusable_password()
     task_user.save()
