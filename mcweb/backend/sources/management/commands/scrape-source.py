@@ -3,10 +3,11 @@ import sys
 from django.core.management.base import BaseCommand
 
 from ....util.tasks import TaskCommand
-from ...tasks import scrape_source
 from ...models import Source
+from ...scrape import ScrapeTaskCommand
+from ...tasks import scrape_source
 
-class Command(TaskCommand):
+class Command(ScrapeTaskCommand):
     help = "Scrape source"
 
     def add_arguments(self, parser):

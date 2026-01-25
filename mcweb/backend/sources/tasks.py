@@ -68,6 +68,10 @@ def schedule_scrape_collection(collection_id, user: User):
 def scrape_source(**kws):
     scrape.scrape_source(**kws)
 
+@background(queue=SYSTEM_FAST)  # periodic, does not access ES
+def autoscrape(**kws):
+    scrape.autoscrape(**kws)
+
 def schedule_scrape_source(source_id, user: User):
     """
     called from a view action to schedule a (re)scrape
