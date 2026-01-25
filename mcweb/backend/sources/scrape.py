@@ -361,7 +361,7 @@ class Scraper:
         q = queryset.filter(url_search_string__isnull=True,
                             platform="online_news")\
                     .distinct()
-        logger.info("scrape_sources total %d limit %r",  q.count(), limit)
+        logger.info("scrape_sources %d candidates, limit %r",  q.count(), limit)
         if limit is not None:
             q = q[:limit]
 
@@ -496,17 +496,26 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
     # XXX create ActionHistoryContext parent (for what object model????)
     with TaskLogContext(options=options, task_args=task_args):
         count = options["count"]
-        min_age = options["min_age"]
         scraper = Scraper(options, verbosity=0)
 
-        collection_ids = monitored_collections()
+        # get date to consider "recent"
+        min_age = options["min_age"]
+        recent = yesterday(min_age)
+        logger.debug("%d days, recent %s", min_age, recent)
 
-        sources = Source.objects.filter(Q(last_rescraped__gt=yesterday(min_age)) |
-                                        Q(last_rescraped__isnull=True))\
-                                .order_by(F("last_rescraped")\
-                                          .asc(nulls_first=True))
-        if not options["all"]:
+        sources = Source.objects
+        if options["all"]:
+            logger.debug("%d total feeds", sources.count())
+        else:
+            collection_ids = monitored_collections()
             sources = sources.filter(collections__id__in=collection_ids)
+            logger.debug("%d monitored collections; %d feeds", len(collection_ids), sources.count())
+
+        # get least recently scraped sources
+        sources = sources.filter(Q(last_rescraped__lt=recent) |
+                                 Q(last_rescraped__isnull=True))\
+                         .order_by(F("last_rescraped")\
+                                   .asc(nulls_first=True))
 
         sssr = scraper.scrape_sources(sources, count)
         logger.info("Summary: %s", sssr.summary)
