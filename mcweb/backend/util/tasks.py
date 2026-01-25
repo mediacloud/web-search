@@ -244,10 +244,6 @@ class TaskCommand(BaseCommand):
         # will raise exception for bad/missing user:
         user = User.objects.get(username=username)
 
-        # test if data JSONable for Task table
-        json.dumps(kwargs)
-        json.dumps(options)
-
         # assemble one arg keyword arg dict for both flavors of call
         args = {
             "options": options,
@@ -256,6 +252,8 @@ class TaskCommand(BaseCommand):
             },
             **kwargs
         }
+        # test if data JSONable for Task table
+        json.dumps(args)
         if options["queue"]:
             logger.info("queuing %s task for %s", long_name, username)
             func(**args,
