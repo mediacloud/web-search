@@ -490,7 +490,8 @@ def scrape_collection(*, options: dict, task_args: dict,
 
 def autoscrape(*, options: dict, task_args: dict) -> None:
     """
-    invoked only from task.scrape_collection (decorated)
+    invoked only from task.autoscrape (decorated)
+    via management/commands/autoscrape.py (a ScrapeTaskCommand)
     """
 
     # XXX create ActionHistoryContext parent (for what object model????)
