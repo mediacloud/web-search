@@ -11,7 +11,7 @@ import time                     # sleep
 # PyPI:
 from background_task.tasks import TaskProxy
 from django.core.paginator import Paginator
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Q
 
 # mcweb/backend/util/
 from ..util.tasks import TaskCommand, get_task_provider
@@ -57,6 +57,7 @@ class MetadataUpdater:
         self.platform = options["platform_name"]
         self.p = get_task_provider(provider_name=options["provider_name"],
                                    task_name=self.long_task_name)
+        self.p.set_trace(options["provider_trace"])
         self.sources_to_update = []
         self.sleep_time = 60 / options["rate"]
         self.counters = collections.Counter()
@@ -67,7 +68,6 @@ class MetadataUpdater:
         # currently limited by number of query_string (OR) clauses
         # so limit parent source batch size:
         self.parent_batch_size = 32767
-        self.parent_sources = [] # for accumulating batches
 
     def verbose(self, level: int, format: str, *args) -> None:
         """
@@ -87,70 +87,77 @@ class MetadataUpdater:
             logger.debug(format, sstr, *args)
 
     def needs_update(self, source: Source):
+        # XXX take optional note string for ActionHistory, save as tuple?
         self.sources_to_update.append(source)
-
-    def sync(self) -> None:
-        if self.sources_to_update:
-            self.counters["processed"] += len(self.sources_to_update)
-            if self.update:
-                logger.info("starting bulk_update")
-                Source.objects.bulk_update(self.sources_to_update, [self.UPDATE_FIELD])
-                logger.info("updated %d sources", len(self.sources_to_update)) 
-            else:
-                logger.info("found %d sources to update", len(self.sources_to_update))
-            self.sources_to_update = []
-
-    def sleep(self) -> None:
-        self.sync()
-        if self.sleep_time > 0:
-            self.verbose(3, "sleep %.3f", self.sleep_time)
-            time.sleep(self.sleep_time)
 
     def source_name(self, source):
         return source.url_search_string or source.name
 
     def sources_query(self) -> QuerySet:
-        # NOTE!! Does not handle alternate names!
-        return Source.objects.filter(name__isnull=False,
-                                     platform=self.platform)\
-                             .order_by("id")
-    def run(self) -> None:
-        sources = self.sources_query()
+        q = Source.objects.filter(name__isnull=False,
+                                  platform=self.platform)\
+                          .order_by("id")
+        if not self.process_child_sources:
+            # don't return child sources unless processing them
+            q = q.filter(Q(url_search_string__isnull=True) |
+                         Q(url_search_string__exact=""))
+        return q
 
-        paginator = Paginator(sources, self.SOURCE_PAGE_SIZE)
+    def run(self) -> None:
+        full_query = self.sources_query()
+        parent_sources = []
+
+        paginator = Paginator(full_query, self.parent_batch_size)
         for page_number in paginator.page_range:
             self.verbose(2, "sources query page %d", page_number)
             page = paginator.page(page_number)
 
-            for source in page:
+            sources = page.object_list
+            for source in sources:
                 self.counters["scanned"] += 1
                 if source.url_search_string:
                     if self.process_child_sources:
                         self.verbose_source(3, "processing %s", source)
                         # cannot aggregate by url_search_string
-                        # need to query child sources one at a time
+                        # need to query child sources one at a time;
+                        # COULD handle multiple child sources, and
+                        # even child sources mixed in with parents
+                        # so long as only one parent or child for
+                        # a domain is in the batch!!!
                         self.process_child_source(source)
-                        self.sleep()
                     else:
                         self.verbose_source(3, "skipping %s", source)
                 else:
                     # here with a parent source, batch it up
-                    #self.verbose_source(4, "saving %s", source)
-                    self.parent_sources.append(source)
-                    if len(self.parent_sources) == self.parent_batch_size:
-                        self.process_parent_sources(self.parent_sources)
-                        self.parent_sources = []
-                        self.sleep()
-            # end for source
+                    parent_sources.append(source)
+            # end for source in sources
+
+            if parent_sources:
+                self.process_parent_sources(parent_sources)
+                parent_sources = []
+
+            nupdate = len(self.sources_to_update)
+            if nupdate > 0:
+                if self.update:
+                    logger.info("starting bulk_update %d", nupdate)
+                    # painfully slow without batch_size?
+                    Source.objects.bulk_update(self.sources_to_update,
+                                               [self.UPDATE_FIELD], batch_size=100)
+                    logger.info("updated %d sources", nupdate)
+                    self.counters["updated"] += nupdate
+                else:
+                    logger.info("found %d sources to update", nupdate)
+                    self.counters["found"] += nupdate
+                self.sources_to_update = []
+
+            if self.sleep_time > 0:
+                self.verbose(3, "sleep %.3f", self.sleep_time)
+                time.sleep(self.sleep_time)
+
         # end for page_number
 
-        # final batch, if any
-        if self.parent_sources:
-            self.process_parent_sources(self.parent_sources)
-        self.sync()
-
         # final log message
-        counters = ",".join(f"{name}: {value}"
+        counters = ", ".join(f"{name}: {value}"
                             for name, value in self.counters.items())
         if self.update:
             logger.info("totals: %s", counters)
@@ -175,6 +182,8 @@ class MetadataUpdater:
 
     def process_parent_sources(self, sources: list[Source]) -> None:
         self.verbose(2, "process_parent_sources %d", len(sources))
+        # NOTE! does not include alternative domain names!!!
+        # (would complicate keeping batches below domain list length limit)
         self.process_sources(sources=sources,
                              domains=[s.name for s in sources],
                              url_search_strings={})
@@ -219,6 +228,8 @@ class MetadataUpdaterCommand(TaskCommand):
             help=f"Name of the directory platform to use (default: {ES_PLATFORM})",
         )
 
+        parser.add_argument(
+            "--provider-trace", type=int, default=0, help="Provider trace level.")
         parser.add_argument("--rate", type=int, default=100,
                             help="Max ES queries per minute.")
 
@@ -237,7 +248,6 @@ class MetadataUpdaterCommand(TaskCommand):
 
         kwargs are passed to func.
         """
-        print("MetadataUpdaterCommand.run_task", func, options, kwargs)
         super().run_task(
             func,
             options=options,

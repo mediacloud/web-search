@@ -103,7 +103,7 @@ class Source(models.Model):
     platform = models.CharField(max_length=100, choices=SourcePlatforms.choices, null=True,
                                 default=SourcePlatforms.ONLINE_NEWS)
     stories_per_week = models.IntegerField(default=0, null=True)
-    first_story = models.DateTimeField(null=True)
+    last_story = models.DateTimeField(null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
     pub_country = models.CharField(max_length=5, null=True, blank=True)

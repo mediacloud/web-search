@@ -1,17 +1,17 @@
 Media Cloud Web Search and Source Management App
 ================================================
 
-🚧 **under construction** 🚧
+This is the new Media Cloud search application. It is intended to support online media research using
+news stories captured by [rss-fetcher](https://github.com/mediacloud/rss-fetcher) and
+[story-indexer](https://github.com/mediacloud/story-indexer)
+We also use it to manage a large set of 
+geographical and topical content collections, supporting research into specific sub-corpora of content.
 
-This is the new Media Cloud search application. It is intended to support online media research across platforms such
-as online news, Twitter, Reddit, and other social media (via 3rd party APIs). We also use it to manage a large set of 
-geographical and topical content collections, supporting research into specific sub-corpora of content on those
-platforms.
+Deployed in production (and staging and causual development) under Dokku,
+see [dokku-scripts/README.md](dokku-scripts/README.md) for how.
 
-_Expected to launch publicly in early 2023_
-
-Installation
-------------
+For Developer Installation
+--------------------------
 1. Clone this repository
 2. Install Python, npm, postgres and redis
 3. Python: `pip install -r requirements.txt` or `conda install --file requirements.txt` 
