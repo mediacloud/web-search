@@ -22,13 +22,18 @@ class Command(TaskCommand):
         parser.add_argument("--count", type=int, default=def_count,
                             help=f"Number of sources to scrape (default: {def_count})")
 
+        # to enable scraping just new sources:
+        parser.add_argument("--days-old", type=int, default=None,
+                            help="Only include new sources.")
+
+        # for test/debug:
         parser.add_argument("--dry-run", action="store_true",
                             help="Disable scraping, updating.")
 
-        def_min_age = 90
-        parser.add_argument("--min-age", type=int, default=def_min_age,
-                            help=f"Minimum days since last rescrape to consider (default: {def_min_age})")
-                            
+        # days since last scrape to consider ripe for rescrape
+        # a required option (since could be VERY different depending on other options)
+        parser.add_argument("--frequency", type=int, required=True,
+                            help=f"Days between scrapes.")
         
         super().add_arguments(parser)
 
