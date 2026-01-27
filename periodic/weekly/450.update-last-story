@@ -5,3 +5,12 @@
 # (if [ # $(date +%e) -le 7 ]) and just back 7 days the rest of the time??
 
 python mcweb/manage.py sources-meta-update --queue --update --task last_story
+
+# queue task to make sure stories_per_week is zero (not NULL) if any
+# searchable stories for a source.  This is idempotent, and _should_
+# only update rows the first time, but made a queued task to make SURE
+# it runs after last_story updated the first time after the last_story
+# and stories_per_week columns are NULLed by 0036_null_last_and_weekly
+# migration.
+
+python mcweb/manage.py source-tweak-stories-per-week --queue --update
