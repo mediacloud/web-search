@@ -76,7 +76,6 @@ export default function AdvancedMenu({
     setOpenAdvanced(false);
     setOpenCreateAlternativeDomain(false);
     setOpenAdConfirm(false);
-    navigate(`/sources/${selectedSource.id}`);
     enqueueSnackbar(
       `Source #${source.id} (${source.name}) converted into an alternative domain  
       for Source #${selectedSource.id} (${selectedSource.name})`,
@@ -112,6 +111,7 @@ export default function AdvancedMenu({
     if (altDomain) {
       setOpenNewAlternativeDomain(false);
       setOpenAdvanced(false);
+      navigate(`/sources/${selectedSource.id}`);
     }
   }, [altDomain]);
 

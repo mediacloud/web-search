@@ -54,7 +54,7 @@ function Account() {
 
   const handleApiAccessRequestEmail = async () => {
     setOpenDialog(false);
-    await requestResetEmail({ email: currentUser.email, reset_type: 'api_token' });
+    await requestResetEmail({ email: currentUser.email, reset_type: 'email-confirm' });
   };
 
   if (isLoading) {

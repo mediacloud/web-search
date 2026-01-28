@@ -17,6 +17,7 @@ from django.contrib.auth.models import User
 from . import alerts
 from . import scrape
 from . import metadata_update
+from . import misc_tasks
 from .models import Source, Collection
 
 # mcweb/backend/util
@@ -103,3 +104,9 @@ def schedule_scrape_source(source_id, user: User):
 @background(queue=SYSTEM_SLOW)  # run via periodic script
 def sources_metadata_update(**kws):
     metadata_update.sources_metadata_update(**kws)
+
+
+# MUST run in same queue as sources-meta-update!!
+@background(queue=SYSTEM_SLOW)  # run via periodic script
+def tweak_stories_per_week(**kws):
+    misc_tasks.tweak_stories_per_week(**kws)

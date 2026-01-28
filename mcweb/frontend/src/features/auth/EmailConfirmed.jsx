@@ -10,21 +10,21 @@ import Typography from '@mui/material/Typography';
 import { Container } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
-import { useGiveAPIAccessMutation } from '../../app/services/authApi';
+import { useEmailConfirmedMutation } from '../../app/services/authApi';
 
-export default function GetApiAccess() {
+export default function EmailConfirmed() {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
-  const [giveAccess, {
+  const [confirmedEmail, {
     isLoading, isError, error, isSuccess,
-  }] = useGiveAPIAccessMutation();
+  }] = useEmailConfirmedMutation();
 
   useEffect(() => {
     if (token) {
-      giveAccess({ token });
+      confirmedEmail({ token });
     }
   }, []);
 
@@ -47,11 +47,11 @@ export default function GetApiAccess() {
           </Avatar>
 
           <Typography component="h1" variant="h5">
-            Getting API Access...
+            Confirming Email...
           </Typography>
 
           <Alert severity="info">
-            Please wait while you are granted API Access
+            Please wait while we confirm your email and grant API Access.
           </Alert>
 
           <CircularProgress size="75px" />
@@ -61,13 +61,13 @@ export default function GetApiAccess() {
   }
 
   if (isSuccess) {
-    navigate('/account');
+    navigate('/sign-in');
     navigate(0);
-    enqueueSnackbar('API Access Granted!', { variant: 'success' });
+    enqueueSnackbar('Email confirmed, you may now sign-in and API Access has been granted!', { variant: 'success' });
   }
 
   if (isError) {
-    enqueueSnackbar('There was an error granting API Access, please try again.', { variant: 'error' });
+    enqueueSnackbar('There was an error confirming your email, please refresh and try again.', { variant: 'error' });
     return (
       <div style={{ paddingTop: '100px' }}>
         <Container maxWidth="xs">
@@ -92,7 +92,7 @@ export default function GetApiAccess() {
 
             <Alert severity="error">
               {error.data.error ? error.data.error
-                : 'There was an error granting API Access, please try again.'}
+                : 'There was an error confirming your email, please refresh and try again.'}
             </Alert>
           </Box>
         </Container>
@@ -119,7 +119,7 @@ export default function GetApiAccess() {
           </Avatar>
 
           <Typography component="h1" variant="h5">
-            Get API Access
+            Confirm Email
           </Typography>
 
         </Box>
