@@ -192,9 +192,9 @@ def register(request):
         user_profile = Profile()
         user_profile.user = created_user
         user_profile.notes = notes
+        user_profile.verified_email = False
         user_profile.save()
-        send_signup_email(created_user, request)
-        data = json.dumps({'message': "new user created"})
+        data = json.dumps({'message': "new user created", "email": created_user.email})
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
         logger.exception(e)

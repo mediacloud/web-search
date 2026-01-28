@@ -37,7 +37,7 @@ import TabbedSearch from './features/search/TabbedSearch';
 import StoryShow from './features/stories/StoryShow';
 import ModifyCollection from './features/collections/ModifyCollection';
 import ModifySource from './features/sources/ModifySource';
-import GetApiAccess from './features/auth/GetApiAccess';
+import EmailConfirmed from './features/auth/EmailConfirmed';
 import { selectIsLoggedIn, selectCurrentUser } from './features/auth/authSlice';
 import { setSearchQuery } from './features/search/util/setSearchQuery';
 
@@ -94,15 +94,6 @@ function App() {
             element={(
               <RequireAuth>
                 <AboutSearch />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="verify-user"
-            element={(
-              <RequireAuth>
-                <GetApiAccess />
               </RequireAuth>
             )}
           />
@@ -246,10 +237,18 @@ function App() {
           </Route>
 
           <Route path="sign-in" element={<SignIn />} />
+
           <Route path="reset-password" element={<ResetPassword />} />
+
           <Route path="reset-password/confirmed" element={<ConfirmedReset />} />
 
           <Route path="sign-up" element={<SignUp />} />
+
+          <Route
+            path="verify-user"
+            element={(<EmailConfirmed />)}
+          />
+
           <Route
             path="account"
             element={(
