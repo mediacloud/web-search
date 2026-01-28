@@ -6,6 +6,9 @@ Actual functions to implement misc. source tasks
 # standard:
 import logging
 
+# mcweb/backend/util/
+from ..util.tasks import TaskLogContext
+
 # local directory:
 from .models import Source
 
@@ -29,16 +32,16 @@ def tweak_stories_per_week(*, options: dict, task_args: dict):
     (b) make sure it runs after the last_story and stories_per_week
     are populated after the migration has run.
     """
+    with TaskLogContext(task_args=task_args, options=options):
+        # find online_news sources with searchable stories found
+        # by "last_story" metadata updater, but none (yet)
+        # by "stories_per_week"
+        queryset = Source.objects.filter(
+            platform=Source.SourcePlatforms.ONLINE_NEWS,
+            last_story__isnull=False,
+            stories_per_week__isnull=True)
 
-    # find online_news sources with searchable stories found
-    # by "last_story" metadata updater, but none (yet)
-    # by "stories_per_week"
-    queryset = Source.objects.filter(
-        platform=Source.SourcePlatforms.ONLINE_NEWS,
-        last_story__isnull=False,
-        stories_per_week__isnull=True)
-
-    logger.info("%d candidates", queryset.count())
-    if options["update"]:
-        queryset.update(stories_per_week=0)
-        logger.info("update complete")
+        logger.info("%d candidates", queryset.count())
+        if options["update"]:
+            queryset.update(stories_per_week=0)
+            logger.info("update complete")
