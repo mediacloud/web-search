@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from '../ui/Header';
+import { assetUrl } from '../ui/uiUtil';
 
 function Footer() {
   return (
@@ -66,6 +67,26 @@ function Footer() {
             Please cite us.
           </a>
         </p>
+
+        {/* Logos row */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 24, margin: '24px 0' }}>
+          <a href="https://www.mediaecosystems.org/" target="_blank" rel="noreferrer">
+            <img src={assetUrl('img/MEAG.png')} alt="MEAG" height={40} />
+          </a>
+          <a href="https://dataculture.northeastern.edu/" target="_blank" rel="noreferrer">
+            <img src={assetUrl('img/dcg-logo.png')} alt="Data Culture Group" height={40} />
+          </a>
+          <a href="https://publicinfrastructure.org/" target="_blank" rel="noreferrer">
+            <img src={assetUrl('img/idpi.webp')} alt="Initiative for Digital Public Infrastructure" height={40} />
+          </a>
+          <a href="https://dpg.org/" target="_blank" rel="noreferrer">
+            <img src={assetUrl('img/dpg-badge.png')} alt="Digital Public Good" height={40} />
+          </a>
+          <a href="https://www.nsf.gov/" target="_blank" rel="noreferrer">
+            <img src={assetUrl('img/nsf-logo.png')} alt="NSF" height={40} />
+          </a>
+        </div>
+
         <p>
           v
           {document.settings.appVersion}
