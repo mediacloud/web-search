@@ -104,6 +104,11 @@ def login(request):
             auth.login(request, user)
             data = _serialized_current_user(request)
             return HttpResponse(data, content_type='application/json')
+        elif not user.verified_email:
+            # ⚠️ email not verified
+            logger.debug('unverified email login attempted')
+            data = json.dumps({'message': "Email not verified"})
+            return HttpResponse(data, content_type='application/json', status=403)
         else:
             # ⚠️ user inactive
             logger.debug('inactive user login attempted')
@@ -192,9 +197,9 @@ def register(request):
         user_profile = Profile()
         user_profile.user = created_user
         user_profile.notes = notes
+        user_profile.verified_email = False
         user_profile.save()
-        send_signup_email(created_user, request)
-        data = json.dumps({'message': "new user created"})
+        data = json.dumps({'message': "new user created", "email": created_user.email})
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
         logger.exception(e)

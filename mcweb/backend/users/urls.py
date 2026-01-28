@@ -1,13 +1,12 @@
 from django.urls import path
 from rest_framework import routers
-from django.views.generic.base import RedirectView
-from .api import RequestReset, ResetPassword, GiveAPIAccess
+from .api import RequestReset, ResetPassword, ConfirmedEmail
 from . import views
 
 router = routers.DefaultRouter() 
 router.register('request-reset', RequestReset, 'request-reset')
 router.register('reset-password', ResetPassword, 'reset-password')
-router.register('give-api-access', GiveAPIAccess, 'give-api-access')
+router.register('confirmed-email', ConfirmedEmail, 'confirmed-email')
 
 urlpatterns = [
     path('login', views.login),
@@ -21,5 +20,5 @@ urlpatterns = [
     path('reset-token', views.reset_token),
     path('email-from-token', views.email_from_token),
     path('users-quotas', views.users_quotas),
-    path('give-api-access', GiveAPIAccess.as_view()),
+    path('email-confirmed', ConfirmedEmail.as_view()),
 ]
