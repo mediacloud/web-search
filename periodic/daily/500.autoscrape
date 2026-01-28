@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# launch autoscrape task for sources in monitored collections.
+
+# As of January 2026 there are 69256 such sources; to rescrape each
+# every 180 days requires rescraping at least 384 sources a day.
+# At an observed rate of 90/hour, that would take about 4.5 hours.
+# Scraping 2700 once a week would be about 30 hours.
+
+# 500/day allows about 5.55 hours of scraping, and scraping
+# up to 90000 sources every 180 days (20K of headroom).
+
+# Since scraping does not access Elasticsearch this should have little
+# user impact, and since only parent sources can have feeds, this
+# can't apply sustained load to a publisher.
+
+# Finally, the autoscrape task runs from the system-fast queue which
+# before this had no uses.  Most of what runs from system-slow is
+# Elasticsearch based, so using the -fast queue allows this and ES
+# based tasks to run in parallel.
+
+python mcweb/manage.py autoscrape --queue --frequency 180 --count 500
+
+# adding the below command should scrape up to 100 sources that were
+# created in the last 30 days regardless of whether they're in
+# the set of monitored collections.
+#  [--frequency is a required option(!),
+#  but with a value larger than the age limit, will never cause re-scaping]
+
+#python mcweb/manage.py autoscrape --queue --frequency 9999 --days-old 30 --all --count 100

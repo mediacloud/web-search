@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.db import transaction
 from .models import ResetCodes, User
 import datetime as dt
-from settings import ADMIN_USERNAME
+from settings import SYSTEM_TASK_USERNAME
 from backend.util.tasks import (
     SYSTEM_FAST,
     background,
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def cleanup_reset_codes(days=1):
-    user = User.objects.get(username=ADMIN_USERNAME)
+    user = User.objects.get(username=SYSTEM_TASK_USERNAME)
     task = _cleanup_reset_codes(days=days,
             creator=user ,
             verbose_name=f"cleanup reset codes {dt.datetime.now()}",

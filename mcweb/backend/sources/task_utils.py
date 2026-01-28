@@ -36,7 +36,7 @@ def yesterday(days=0):
     """
     used for ES search ranges
     """
-    return dt.datetime.utcnow() - dt.timedelta(days=days+1)
+    return dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days+1)
 
 class MetadataUpdater:
     """
