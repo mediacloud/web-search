@@ -81,7 +81,7 @@ export default function SourceList(props) {
                 <th>Content per Week</th>
               </Tooltip>
               <Tooltip
-                title="The most recent year and month a new story was ingested"
+                title="The most recent year and month a new story was ingested (updated weekly)"
               >
                 <th>New Stories In</th>
               </Tooltip>
