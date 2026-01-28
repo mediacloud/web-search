@@ -23,7 +23,7 @@ def create_system_task_user(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0016_resetcodes'),
+        ('users', '0017_profile_verified_email'),
     ]
 
     operations = [
