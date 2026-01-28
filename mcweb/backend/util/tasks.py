@@ -18,15 +18,13 @@ from background_task.tasks import TaskProxy
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from settings import ADMIN_EMAIL, ADMIN_USERNAME, SENTRY_ENV
+from settings import SYSTEM_TASK_USERNAME, SENTRY_ENV
 from backend.util.syslog_config import LOG_DIR
 
 # local directory:
 from .provider import get_provider
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_TASK_USER = ADMIN_USERNAME # XXX create special user??
 
 TASKS_LOG_DIR = os.path.join(LOG_DIR, "tasks")
 
@@ -226,8 +224,8 @@ class TaskCommand(BaseCommand):
         parser.add_argument("--queue", action="store_true",
                             help="Queue the task to run in the background.")
 
-        parser.add_argument("--user", default=DEFAULT_TASK_USER,
-                            help=f"User to run task under (default {DEFAULT_TASK_USER}).")
+        parser.add_argument("--user", default=SYSTEM_TASK_USERNAME,
+                            help=f"User to run task under (default {SYSTEM_TASK_USERNAME}).")
         super().add_arguments(parser)
 
     def run_task(self, func: TaskProxy, options: dict, **kwargs):
@@ -246,10 +244,6 @@ class TaskCommand(BaseCommand):
         # will raise exception for bad/missing user:
         user = User.objects.get(username=username)
 
-        # test if data JSONable for Task table
-        json.dumps(kwargs)
-        json.dumps(options)
-
         # assemble one arg keyword arg dict for both flavors of call
         args = {
             "options": options,
@@ -258,6 +252,8 @@ class TaskCommand(BaseCommand):
             },
             **kwargs
         }
+        # test if data JSONable for Task table
+        json.dumps(args)
         if options["queue"]:
             logger.info("queuing %s task for %s", long_name, username)
             func(**args,

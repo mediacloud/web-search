@@ -92,9 +92,6 @@ _DEFAULT_ALERTS_RECIPIENTS = []
 if ADMIN_EMAIL:
     _DEFAULT_ALERTS_RECIPIENTS.append(ADMIN_EMAIL)
 
-# necessary to run source alerts
-ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", ADMIN_EMAIL) # user in database
-
 env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value)
     # (cast, default_value) in alphabetical order:
     ALERTS_RECIPIENTS=(list, _DEFAULT_ALERTS_RECIPIENTS),
@@ -130,6 +127,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     STATSD_HOST=(str, ""),
     STATSD_PREFIX=(str, ""),
     SYSTEM_ALERT=(str,None),
+    SYSTEM_TASK_USERNAME=(str, "system-task"),
 )
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -191,6 +189,7 @@ SENTRY_PY_TRACES_RATE = env('SENTRY_PY_TRACES_RATE')
 STATSD_HOST = env('STATSD_HOST')
 STATSD_PREFIX = env('STATSD_PREFIX')
 SYSTEM_ALERT = env('SYSTEM_ALERT')
+SYSTEM_TASK_USERNAME = env('SYSTEM_TASK_USERNAME') # owner for system tasks
 
 # end config
 _env_logger.setLevel(_env_log_level) # restore log level
