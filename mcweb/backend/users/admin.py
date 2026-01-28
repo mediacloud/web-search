@@ -26,10 +26,11 @@ class ProfileInline(admin.StackedInline):
     verbose_name_plural = 'profile'
 
 
-# # Define a new User admin
-# class UserAdmin(BaseUserAdmin):
-#     inlines = [ProfileInline]
-#     search_fields = ('email', 'username', 'first_name', 'last_name')
+def mark_inactive(modeladmin, request, queryset):
+    updated = queryset.update(is_active=False)
+    messages.success(request, f"{updated} user(s) marked as inactive.")
+
+mark_inactive.short_description = "Mark selected users as inactive" 
 
 
 class CustomUserAdmin(BaseUserAdmin):
@@ -41,6 +42,8 @@ class CustomUserAdmin(BaseUserAdmin):
         return getattr(obj.profile, 'verified_email', False)
     verified_email.boolean = True  # Shows as a checkmark in admin
     verified_email.short_description = "Verified Email"
+    
+    actions = [mark_inactive]
     
     def current_collection_permissions(self, obj):
         """Display the collection IDs this user can edit, as a table with remove buttons."""
