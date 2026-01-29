@@ -41,7 +41,7 @@ from mc_sitemap_tools.discover import NewsDiscoverer
 # local directory mcweb/backend/sources
 from .action_history import ActionHistoryContext, log_action
 from .models import ActionHistory, Collection, Feed, Source
-from .task_utils import monitored_collections, yesterday
+from .task_utils import monitored_collections, yesterday_aware
 
 # mcweb/backend/util
 from ..util.tasks import TaskLogContext, TaskCommand
@@ -328,7 +328,6 @@ class Scraper:
                     self._add_source_line(f"found existing {from_} feed {url}")
                 logger.info("scrape_source(%d) found existing %s feed %s",
                             source_id, from_, url)
-                # XXX could create ActionHistory!
                 self._feed_counts.confirmed += 1
             else:
                 try:
@@ -533,7 +532,7 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
 
         # get latest date to consider "recently scraped"
         frequency = options["frequency"]
-        recent_rescrape_date = yesterday(frequency)
+        recent_rescrape_date = yesterday_aware(frequency)
         logger.debug("%d days, recent %s", frequency, recent_rescrape_date)
 
         sources = Source.objects
@@ -546,7 +545,7 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
 
         if options["days_old"] is not None:
             days_old = options["days_old"]
-            latest = yesterday(days_old)
+            latest = yesterday_aware(days_old)
             sources = sources.filter(created_at__gt=latest)
             logger.debug("max %d days old: %s", days_old, latest)
 
