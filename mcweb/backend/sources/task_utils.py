@@ -34,9 +34,17 @@ def monitored_collections():
 
 def yesterday(days=0):
     """
-    used for ES search ranges
+    returns a naive datetime for use in ES search ranges; mc_provider
+    two_d_aggregation currently only handles timezone naive datetimes
     """
-    return dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days+1)
+    return dt.datetime.utcnow() - dt.timedelta(days=days+1)
+
+def yesterday_aware(days=0):
+    """
+    return a timezone aware UTC datetime
+    for use in PG queries (for autoscrape)
+    """
+    return yesterday(days).replace(tzinfo=dt.timezone.utc)
 
 class MetadataUpdater:
     """
