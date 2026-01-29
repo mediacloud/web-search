@@ -39,7 +39,7 @@ class RequestReset(generics.GenericAPIView):
 
             if reset_type == 'email-confirm':
                 subject = 'Welcome to Media Cloud please verify your email'
-                message = f"Hello, thank you for joining Media Cloud please use this link to verify your email and complete your registration: {reset_url} \n\n Thank you!"
+                message = f"Hello, thank you for signing up. Please use this link to verify your email and complete your registration: {reset_url} \n\n Thank you!"
             elif reset_type == 'password':
                 subject = 'Reset Password'
                 message = f"Hello, please use this link to reset your password: {reset_url} \n\n Thank you!"
