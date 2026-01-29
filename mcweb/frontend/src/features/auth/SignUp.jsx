@@ -20,7 +20,7 @@ export default function SignUp() {
   const { enqueueSnackbar } = useSnackbar();
 
   // register user
-  const [register, { isLoading }] = useRegisterMutation();
+  const [register, { isLoading, error: isRegisterError }] = useRegisterMutation();
 
   const [requestResetEmail, { isLoading: isLoadingEmail, isError }] = useRequestResetCodeEmailMutation();
 
@@ -74,6 +74,7 @@ export default function SignUp() {
     };
     fetchDataAndProcess();
   }, [formState.password1, formState.password2]);
+  
   return (
     <div>
       <Container maxWidth="md">
@@ -94,6 +95,12 @@ export default function SignUp() {
           {isError && (
             <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
               There was an error sending the confirmation email, please refresh and try again.
+            </Alert>
+          )}
+
+          {isRegisterError && (
+            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+              There was an error creating your account {isRegisterError.data.message} please refresh and try again.
             </Alert>
           )}
 

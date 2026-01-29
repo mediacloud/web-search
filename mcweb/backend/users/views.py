@@ -98,7 +98,7 @@ def login(request):
 
     # password and username correct
     if user is not None:
-        if not user.verified_email:
+        if not user.profile.verified_email:
             # ⚠️ email not verified
             logger.debug('unverified email login attempted')
             data = json.dumps({'message': "Email not verified"})
