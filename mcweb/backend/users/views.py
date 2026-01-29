@@ -98,17 +98,17 @@ def login(request):
 
     # password and username correct
     if user is not None:
-        if user.is_active:
+        if not user.verified_email:
+            # ⚠️ email not verified
+            logger.debug('unverified email login attempted')
+            data = json.dumps({'message': "Email not verified"})
+            return HttpResponse(data, content_type='application/json', status=403)
+        elif user.is_active:
             # ✅ login worked
             logger.debug('logged in success')
             auth.login(request, user)
             data = _serialized_current_user(request)
             return HttpResponse(data, content_type='application/json')
-        elif not user.verified_email:
-            # ⚠️ email not verified
-            logger.debug('unverified email login attempted')
-            data = json.dumps({'message': "Email not verified"})
-            return HttpResponse(data, content_type='application/json', status=403)
         else:
             # ⚠️ user inactive
             logger.debug('inactive user login attempted')
