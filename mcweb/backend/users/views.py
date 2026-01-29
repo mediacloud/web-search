@@ -93,15 +93,23 @@ def login(request):
     trimmed_username = entered_username.strip() if entered_username else None
     trimmed_password = payload.get('password', None).strip() if payload.get('password', None) else None
     entered_password = payload.get('password', None)
-    user = auth.authenticate(username=trimmed_username,
-                             password=trimmed_password)
 
-    # password and username correct
+    user = auth.authenticate(username=trimmed_username, password=trimmed_password)
+
+    # If not found, try to treat the username as an email
+    if user is None and trimmed_username:
+        try:
+            user_obj = User.objects.get(email__iexact=trimmed_username)
+            user = auth.authenticate(username=user_obj.username, password=trimmed_password)
+        except User.DoesNotExist:
+            user = None
+
+    # password and username/email correct
     if user is not None:
         if not user.profile.verified_email:
             # ⚠️ email not verified
             logger.debug('unverified email login attempted')
-            data = json.dumps({'message': "Email not verified"})
+            data = json.dumps({'message': "Email not verified, please check your email for verification link"})
             return HttpResponse(data, content_type='application/json', status=403)
         elif user.is_active:
             # ✅ login worked
@@ -117,12 +125,14 @@ def login(request):
     # ❌ something went wrong
     else:
         # ⚠️ first time legacy login (so they used email)
-        matching_user = User.objects.get(username=entered_username)
+        try:
+            matching_user = User.objects.get(username=entered_username)
+        except User.DoesNotExist:
+            matching_user = None
         if matching_user is not None:
             if (len(matching_user.password) == 0) and\
                     (legacy.password_matches_hash(entered_password, matching_user.profile.imported_password_hash)):
                 # save their password in Django format for next time
-                # this will hash it properly
                 matching_user.set_password(entered_password)
                 matching_user.save()
                 # ✅ log them in
