@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 import logging
-from settings import ADMIN_USERNAME
+from settings import SYSTEM_TASK_USERNAME
 from ...tasks import cleanup_reset_codes
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,5 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        logger.info(f"Starting delete-reset-tokens command (days={options['days']}), ALERTS_TASK_USERNAME={ADMIN_USERNAME}")
+        logger.info(f"Starting delete-reset-tokens command (days={options['days']}), SYSTEM_TASK_USERNAME={SYSTEM_TASK_USERNAME}")
         cleanup_reset_codes(days=options['days'])
-       

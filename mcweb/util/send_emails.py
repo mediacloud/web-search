@@ -84,13 +84,15 @@ def send_zipped_large_download_email(zipped_filename, zipped_data, to: str):
 
 def send_alert_email(alert_dict: dict):
     logger.info("send_alert_email %r", alert_dict)
+    html_content = render_to_string('alerts/alert-system.html', {'alert_list': alert_dict})
+    email_body_txt = html_content # PB: just have one line message?
+
+    print(html_content)         # XXX TEMP
+
+    # after rendering for testing
     if not EMAIL_HOST:
         logger.info("EMAIL_HOST not set")
         return
-
-    # PB: these look identical to me!
-    html_content = render_to_string('alerts/alert-system.html', {'alert_list': alert_dict})
-    email_body_txt = render_to_string('alerts/alert-system.html', {'alert_list': alert_dict})
 
     msg = EmailMultiAlternatives(f'[{EMAIL_ORGANIZATION}] Alert System Email', email_body_txt, EMAIL_NOREPLY, ALERTS_RECIPIENTS)
     msg.attach_alternative(html_content, "text/html")

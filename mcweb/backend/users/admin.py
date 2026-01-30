@@ -26,15 +26,24 @@ class ProfileInline(admin.StackedInline):
     verbose_name_plural = 'profile'
 
 
-# # Define a new User admin
-# class UserAdmin(BaseUserAdmin):
-#     inlines = [ProfileInline]
-#     search_fields = ('email', 'username', 'first_name', 'last_name')
+def mark_inactive(modeladmin, request, queryset):
+    updated = queryset.update(is_active=False)
+    messages.success(request, f"{updated} user(s) marked as inactive.")
+
+mark_inactive.short_description = "Mark selected users as inactive" 
 
 
 class CustomUserAdmin(BaseUserAdmin):
     form = UserAdminForm
     ordering = ['-date_joined']
+
+    def verified_email(self, obj):
+        # Safely get the related profile's verified_email
+        return getattr(obj.profile, 'verified_email', False)
+    verified_email.boolean = True  # Shows as a checkmark in admin
+    verified_email.short_description = "Verified Email"
+    
+    actions = [mark_inactive]
     
     def current_collection_permissions(self, obj):
         """Display the collection IDs this user can edit, as a table with remove buttons."""
@@ -56,11 +65,14 @@ class CustomUserAdmin(BaseUserAdmin):
             format_html_join('', '<tr><td>{}</td><td>{}</td><td>{}</td></tr>', rows)
         )
     
-    readonly_fields = BaseUserAdmin.readonly_fields + ('current_collection_permissions',)
+    readonly_fields = BaseUserAdmin.readonly_fields + ('current_collection_permissions', 'verified_email')
 
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Collection Permissions', {
             'fields': ('collection_id', "current_collection_permissions"),
+        }),
+        ('Profile Info', {
+            'fields': ('verified_email',),
         }),
     )
     current_collection_permissions.allow_tags = True

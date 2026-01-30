@@ -24,7 +24,7 @@ class RequestReset(generics.GenericAPIView):
 
         # check to see in data if reset for password or api_token
         reset_type = data['reset_type']
-        if reset_type == 'api_token':
+        if reset_type == 'email-confirm':
             reset_text = 'verify-user'
         elif reset_type == 'password':
             reset_text = 'reset-password/confirmed'
@@ -37,14 +37,12 @@ class RequestReset(generics.GenericAPIView):
             domain = request.get_host()
             reset_url = f"http://{domain}/{reset_text}?token={token}"
 
-            if reset_type == 'api_token':
-                subject = 'Get API Access'
-                message = f"Hello, please use this link to get API Access: {reset_url} \n\n Thank you!"
-
+            if reset_type == 'email-confirm':
+                subject = 'Welcome to Media Cloud please verify your email'
+                message = f"Hello, thank you for signing up. Please use this link to verify your email and complete your registration: {reset_url} \n\n Thank you!"
             elif reset_type == 'password':
                 subject = 'Reset Password'
                 message = f"Hello, please use this link to reset your password: {reset_url} \n\n Thank you!"
-
             
             send_mail(
                 subject=subject,
@@ -91,9 +89,9 @@ class ResetPassword(generics.GenericAPIView):
             return Response({'error':'No user found'}, status=404)
         
 
-class GiveAPIAccess(generics.GenericAPIView):
+class ConfirmedEmail(generics.GenericAPIView):
     serializer_class = GiveAPIAccessSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -109,6 +107,8 @@ class GiveAPIAccess(generics.GenericAPIView):
 
         if user:
             user.groups.add(Group.objects.get(name=settings.GROUPS.API_ACCESS))
+            user.profile.verified_email = True
+            user.profile.save()
             user.save()
             reset_obj.delete()
-            return Response({'success':'API Access Granted'})
+            return Response({'success':'User verified and API Access Granted'})

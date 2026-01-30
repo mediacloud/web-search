@@ -1,14 +1,16 @@
-from django.core.management.base import BaseCommand
-import logging
-from ...tasks import run_alert_system
+# mcweb/backend/sources/
+from ...tasks import alert_system
+from ...task_utils import MetadataUpdaterCommand
 
-logger = logging.getLogger(__name__)
 
-class Command(BaseCommand):
-    help = 'Schedule the source alert system to run'
+class Command(MetadataUpdaterCommand):
+    help = 'Run or queue the source alert system'
+
+    def long_task_name(self, options: dict):
+        return "source alert system"
 
     def handle(self, *args, **options):
-        print('alert system')
-        run_alert_system()
-  
-
+        self.run_task(
+            func=alert_system,
+            options=options
+        )

@@ -1,5 +1,5 @@
 const statPanelValues = [
-  { label: 'First Story', value: 'first_story' },
+  { label: 'New Stories In', value: 'last_story' },
   { label: 'Stories per Week', value: 'stories_per_week' },
   { label: 'Pub Country', value: 'pub_country' },
   { label: 'Pub State', value: 'pub_state' },
@@ -18,7 +18,7 @@ const buildStatArray = (sourceObject) => {
 export default buildStatArray;
 
 // [
-//     { label: 'First Story', value: source.first_story },
+//     { label: 'New Stories In', value: source.last_story },
 //     { label: 'Stories per Week', value: source.stories_per_week },
 //     { label: 'Publication Country', value: source.pub_country },
 //     { label: 'Publication State', value: source.pub_state },
@@ -35,7 +35,7 @@ export default buildStatArray;
 //     "notes": null,
 //     "platform": "online_news",
 //     "stories_per_week": 635,
-//     "first_story": null,
+//     "last_story": null,
 //     "created_at": "2023-02-21T16:54:28.035524Z",
 //     "modified_at": "2023-07-20T13:24:37.455921Z",
 //     "pub_country": "USA",

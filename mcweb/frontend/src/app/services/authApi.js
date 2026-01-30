@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { getCookie } from '../../services/csrfToken';
 
 // const initialState = { isLoggedIn: false };
 
@@ -6,8 +7,10 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: '/api/auth/',
     prepareHeaders: (headers) => {
-      // Django requires this for security (cross-site forgery protection) once logged in
-      headers.set('X-Csrftoken', window.CSRF_TOKEN);
+      const token = getCookie('csrftoken');
+      if (token) {
+        headers.set('X-CSRFToken', token);
+      }
       return headers;
     },
   }),
@@ -79,9 +82,9 @@ export const api = createApi({
         body: { ...credentials },
       }),
     }),
-    giveAPIAccess: builder.mutation({
+    emailConfirmed: builder.mutation({
       query: (token) => ({
-        url: 'give-api-access',
+        url: 'email-confirmed',
         method: 'POST',
         body: { ...token },
       }),
@@ -100,5 +103,5 @@ export const {
   useResetTokenMutation,
   useGetUserQuotasQuery,
   useRequestResetCodeEmailMutation,
-  useGiveAPIAccessMutation,
+  useEmailConfirmedMutation,
 } = api;

@@ -17,7 +17,7 @@ export default function SignIn() {
   const { enqueueSnackbar } = useSnackbar();
   const from = location.state?.from?.pathname || '/';
   // formstate -> login
-  const [login, { isLoading }] = useLoginMutation();
+  const [login, { isLoading, error }] = useLoginMutation();
 
   // username and password
   const [formState, setFormState] = React.useState({
@@ -33,6 +33,11 @@ export default function SignIn() {
       <div className="row">
         <div className="col-4 offset-4">
           <h1>Login</h1>
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              Login failed - {error.data?.message || 'Unknown error occurred'}
+            </div>
+          )}
           <Box
             component="form"
             method="post"
@@ -43,7 +48,7 @@ export default function SignIn() {
               required
               fullWidth
               id="text"
-              label="Username"
+              label="Username or Email"
               name="username"
               autoComplete="Username"
               autoFocus
@@ -75,7 +80,8 @@ export default function SignIn() {
                   // the CSRF token changes because we've launched a new session - save the new one
                   saveCsrfToken();
                 } catch (err) {
-                  enqueueSnackbar('Login failed', { variant: 'error' });
+                  const errorMsg = `Failed - ${err.data.message}`;
+                  enqueueSnackbar(errorMsg, { variant: 'error' });
                 }
               }}
             >
