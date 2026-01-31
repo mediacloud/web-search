@@ -394,9 +394,12 @@ class Scraper:
             summary = "skipped"
         else:
             # will be parent event for Feed create events:
+            # turn "scrape source n" or "scrape collection n" into scrape-thing,
+            # leaves "autoscrape" alone:
+            action_type = "-".join(self.via.split()[:2])
             with ActionHistoryContext(
                     user=self.user,
-                    action_type=self.via.lower().replace(" ", "_"), # or "scrape"?
+                    action_type=action_type,
                     object_model=ActionHistory.ModelType.SOURCE,
                     object_id=source_id,
                     object_name=name,
