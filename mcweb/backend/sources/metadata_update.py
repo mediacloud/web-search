@@ -10,13 +10,15 @@ import datetime as dt
 import logging
 
 # PyPI
+from django.db import transaction
 from django.db.models import QuerySet
 
 # mcweb/backend/util/
 from ..util.tasks import TaskLogContext
 
 # local dir mcweb/backend/sources
-from .models import Source
+from .action_history import log_action # see NOTE in UpdateSourceLanguage
+from .models import ActionHistory, Source, User
 from .task_utils import MetadataUpdater, yesterday
 
 logger = logging.getLogger(__name__)
@@ -56,27 +58,27 @@ class UpdateStoriesPerWeek(MetadataUpdater):
                                        num_intervals=1,
                                        inner_field="media_name",
                                        domains=domains,
-                                       filters=url_search_strings)
+                                       url_search_strings=url_search_strings)
 
         # dict indexed by (single) date string, of dicts indexed by domain, of counts
         date_buckets = agg["buckets"]
         for domains in date_buckets.values(): # should loop at most once!
             for source in sources:    # loop over PG query results again
-                weekly_count = domains.get(source.name, 0)
                 # don't overwrite NULL with zero
                 # (keep as signal nothing has ever been seen)
-                if weekly_count == 0 and source.stories_per_week is None:
-                    self.verbose_source(3, "%s: keeping as NULL", source)
-                elif weekly_count != source.stories_per_week:
+                weekly_count = domains.get(source.name, None)
+                if weekly_count is None and source.stories_per_week is None:
+                    self.verbose_source(2, "%s: keeping as NULL", source)
+                else:
                     self.verbose_source(2, "%s: old %r new %d",
                                         source, source.stories_per_week, weekly_count)
-                    # NOTE! no longer using Source.update_stories_per_week!
-                    source.stories_per_week = weekly_count
-                    self.needs_update(source)
-
-                else:
-                    self.verbose_source(3, "%s: no change: %d",
-                                        source, weekly_count)
+                    if weekly_count != source.stories_per_week:
+                        # NOTE! no longer using Source.update_stories_per_week!
+                        source.stories_per_week = weekly_count
+                        self.needs_update(source)
+                    else:
+                        self.verbose_source(3, "%s: no change: %d",
+                                            source, weekly_count)
 
 LANG_COUNT_DAYS = 180  # number of days back to examine
 LANG_COUNT_MIN = 10    # min count for top lang within LANG_COUNT_DAYS
@@ -93,6 +95,10 @@ class UpdateSourceLanguage(MetadataUpdater):
         # XXX filter by max age??
         return super().sources_query()\
                       .filter(primary_language__isnull=True)
+
+    def run(self) -> None:
+        self.user_object = User.objects.get(username=self.username)
+        super().run()
 
     def process_sources(self, *,
                         sources: list[Source],
@@ -124,13 +130,29 @@ class UpdateSourceLanguage(MetadataUpdater):
             langs = domains.get(source.name, {})
             # should have at most one inner bucket!
             for lang, count in langs.items():
-                self.verbose_source(3, "%s: %d", source, lang, count)
+                self.verbose_source(3, "%s: %s %d", source, lang, count)
                 if count >= LANG_COUNT_MIN:
                     logger.info("%s (%d) found language %s (count %d)",
                                 self.source_name(source), source.id,
                                 lang, count)
-                    source.primary_language = lang
-                    self.needs_update(source)
+
+                    # NOTE WELL!!!!  Before you copy this code!!!  This task
+                    # does MANY orders of magnitude less updating than
+                    # stories_per_week or last_story (likely to change live
+                    # sources every week) AND only ever changes a source once,
+                    # so it's reasonable to do updates on a per-source basis,
+                    # since ActionHistory log entries are desired (and probably
+                    # only tenable given the rarity of actions taken), so calling
+                    # Source.save() directly rather than add log_entry creation
+                    # to the batch update process.  Anyone NULLing out the language
+                    # column may get a rude surprise!
+                    if self.update:
+                        with transaction.atomic():
+                            source.primary_language = lang
+                            source.save()
+                            log_action(self.user_object, "update-language", ActionHistory.ModelType.SOURCE,
+                                       source.id, source.name, # changes??
+                                       notes=f"Set primary_language to {lang}")
                 break           # quit after one (only) inner bucket!
 
 # call only from tasks.py (via MetadataUpdaterCommand.run_task)
@@ -203,6 +225,10 @@ class FindLastStory(MetadataUpdater):
             if curr:
                 curr = curr.strftime("%Y-%m-%d")
 
-            if last_date_short != curr: # keep date level granularity
+            if (last_date_short != curr or
+                last_date is None and source.last_story is not None):
                 source.last_story = last_date
                 self.needs_update(source)
+                self.verbose_source(2, "%s: was %s now %s", source, curr, last_date_short)
+            else:
+                self.verbose_source(3, "%s: was %s now %s (no update)", source, curr, last_date_short)
