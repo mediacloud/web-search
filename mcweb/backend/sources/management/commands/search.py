@@ -1,7 +1,7 @@
 """
 Created in March 2025 as a development environment for keyword search,
 Gutted in Feb 2026 to use CollectionViewSet and SourcesViewSet
-(since that's where the real code lives)
+so this can be used to test the REAL code!!
 """
 
 import time
@@ -28,27 +28,34 @@ class Command(BaseCommand):
         # generic preparation, don't charge for time spent:
         factory = APIRequestFactory()
         tokens = "+".join(options["token"]) # XXX full URL encoding!!
-        user = User.objects.get(username=options["user"])
 
         # https://search.mediacloud.org/api/sources/sources/?limit=100&name=york+times+new
-        src_view = SourcesViewSet.as_view(actions={'get': 'list'})
         src_req = factory.get(f'/sources/sources/?limit=100&name={tokens}')
+
+        # default user (system-task) is NOT marked as staff!
+        user = User.objects.get(username=options["user"])
+        if not user.is_staff:
+            print("NOTE!! user", user.username, "is *NOT* a staff user, and will only see public collections!!!")
+
         force_authenticate(src_req, user=user)
 
+        src_view = SourcesViewSet.as_view(actions={'get': 'list'})
 
         print("Sources")
-
         t0 = time.monotonic()
         src_resp = src_view(src_req)
         t1 = time.monotonic()
-        print(f"{(t1 - t0):.6f} seconds", )
         if src_resp.status_code == 200:
             d = src_resp.data
-            print("count", d["count"], "next", d["next"], "prev", d["previous"], "len", len(d["results"]))
             for r in d["results"]:
-                print(r["id"], ">>", r["name"], ">>", r["label"], [a["domain"] for a in r["alternative_domains"]])
+                alt = ",".join(a["domain"] for a in r["alternative_domains"])
+                if alt:
+                    alt = "alternates: " + alt
+                print(r["id"], ">>", r["name"], ">>", r["label"], ">>", alt, "in", r["collection_count"], "collections")
+            print("count", d["count"], "next", d["next"], "prev", d["previous"], "len", len(d["results"]))
         else:
             print("response", src_resp.status_code)
+        print(f"{(t1 - t0):.6f} seconds", )
         print("")
 
         ################
@@ -61,13 +68,17 @@ class Command(BaseCommand):
         t0 = time.monotonic()
         coll_resp = coll_view(coll_req)
         t1 = time.monotonic()
-        print(f"{(t1 - t0):.6f} seconds", )
 
         if coll_resp.status_code == 200:
             d = coll_resp.data
-            print("count", d["count"], "next", d["next"], "prev", d["previous"], "len", len(d["results"]))
             for r in d["results"]:
-                print(r["id"], ">>", r["name"], ">>", r["source_count"], "srcs")
+                if r["public"]:
+                    private = ""
+                else:
+                    private = "(private)"
+                print(r["id"], ">>", r["name"], private, ">>", r["source_count"], "srcs")
+            print("count", d["count"], "next", d["next"], "prev", d["previous"], "len", len(d["results"]))
         else:
             print("response", coll_resp.status_code)
+        print(f"{(t1 - t0):.6f} seconds", )
         print("")
