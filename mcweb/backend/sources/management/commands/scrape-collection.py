@@ -2,16 +2,21 @@ import sys
 
 from django.core.management.base import BaseCommand
 
-from ...tasks import _scrape_collection
 from ...models import Collection
+from ...scrape import ScrapeTaskCommand
+from ...tasks import scrape_collection
 
-class Command(BaseCommand):
+class Command(ScrapeTaskCommand):
     help = "Scrape collection"
 
     def add_arguments(self, parser):
-        parser.add_argument("--queue", action="store_true")
         parser.add_argument("collection_id", type=int)
         parser.add_argument("email", type=str)
+        super().add_arguments(parser)
+
+    def long_task_name(self, options: dict):
+        cid = options["collection_id"]
+        return f"scrape collection {cid}"
 
     def handle(self, *args, **options):
         cid = options["collection_id"]
@@ -22,9 +27,10 @@ class Command(BaseCommand):
             print("could not find collection id", cid)
             sys.exit(1)
 
-        if options["queue"]:
-            # queue to worker process
-            _scrape_collection(cid, email)
-        else:
-            # run in-process
-            _scrape_collection.now(cid, email)
+        self.run_task(
+            func=scrape_collection,
+            options=options,
+            collection_id=cid,
+            email=email
+        )
+

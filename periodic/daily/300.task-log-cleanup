@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# cleanup task and old rescrape logs older than 30 days
+
+for DIR in rescrape tasks; do
+    FULLDIR=data/logs/$DIR
+    if [ -d $FULLDIR ]; then
+	find $FULLDIR -type f -mtime +30 -delete
+    fi
+done

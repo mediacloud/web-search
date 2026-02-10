@@ -8,24 +8,21 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import { Container } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Container from '@mui/material/Container';
 import { useSnackbar } from 'notistack';
-import { useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { CsrfToken, saveCsrfToken } from '../../services/csrfToken';
-import { useRegisterMutation, useLoginMutation, usePasswordStrengthMutation } from '../../app/services/authApi';
-import { setCredentials } from './authSlice';
+import { CsrfToken } from '../../services/csrfToken';
+import { useRegisterMutation, usePasswordStrengthMutation, useRequestResetCodeEmailMutation } from '../../app/services/authApi';
 
 export default function SignUp() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   // register user
-  const [register, { isLoading }] = useRegisterMutation();
+  const [register, { isLoading, error: isRegisterError }] = useRegisterMutation();
 
-  // log in user
-  const [login] = useLoginMutation();
+  const [requestResetEmail, { isLoading: isLoadingEmail, isError }] = useRequestResetCodeEmailMutation();
 
   // a list of the errors
   const [listOfErrors, setListOfErrors] = useState([]);
@@ -77,6 +74,7 @@ export default function SignUp() {
     };
     fetchDataAndProcess();
   }, [formState.password1, formState.password2]);
+  
   return (
     <div>
       <Container maxWidth="md">
@@ -94,8 +92,24 @@ export default function SignUp() {
 
           </Avatar>
 
+          {isError && (
+            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+              There was an error sending the confirmation email, please refresh and try again.
+            </Alert>
+          )}
+
+          {isRegisterError && (
+            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+              There was an error creating your account {isRegisterError.data.message} please refresh and try again.
+            </Alert>
+          )}
+
           <Typography component="h1" variant="h5">
             Sign up
+          </Typography>
+
+          <Typography component="h3" variant="h5">
+            After Signing Up, please check your email to confirm your account.
           </Typography>
 
           <Box
@@ -105,9 +119,6 @@ export default function SignUp() {
           >
 
             <Grid container spacing={2}>
-
-              {/* Token  */}
-              <CsrfToken />
 
               {/* First Name */}
               <Grid item xs={12} sm={6}>
@@ -216,20 +227,9 @@ export default function SignUp() {
                 try {
                   // creating user
                   const user = await register(formState).unwrap();
-                  dispatch(setCredentials(user));
-
-                  // logging in user;
-                  const loggedInUser = await login({
-                    username: formState.username,
-                    password: formState.password1,
-                  }).unwrap();
-                  dispatch(setCredentials(loggedInUser));
-
-                  // the CSRF token changes because we've launched a new session - save the new one
-                  saveCsrfToken();
-
+                  await requestResetEmail({ email: user.email, reset_type: 'email-confirm' });
                   navigate('/');
-                  enqueueSnackbar('Your account has been created', { variant: 'success' });
+                  enqueueSnackbar('Your account has been created, please check your email for a confirmation link', { variant: 'success' });
                 } catch (err) {
                   const errorMsg = `Failed - ${err.data.message}`;
                   enqueueSnackbar(errorMsg, { variant: 'error' });

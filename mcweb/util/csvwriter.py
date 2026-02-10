@@ -32,4 +32,4 @@ class CSVWriterHelper:
     def write_top_sources(writer, data, columns):
         writer.writerow(columns)
         for top_source in data:
-            writer.writerow([top_source["source"], top_source["count"]])
+            writer.writerow([top_source["source"], top_source["count"], top_source["ratio"]])

@@ -25,6 +25,7 @@ class Profile(models.Model):
     # fields that store user-specific weekly quota for each provider, to block system abuse
     quota_mediacloud = models.IntegerField(default=4000, null=False)
     quota_wayback_machine = models.IntegerField(default=4000, null=False)
+    verified_email = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
