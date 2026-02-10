@@ -79,7 +79,13 @@ class Source(models.Model):
             # useful for search filtering
             models.Index(fields=['platform'], name='source platform'),
             # for keyword search
-            GinIndex(fields=['search_vector'], name='search_vector_gin_index')
+            GinIndex(fields=['search_vector'], name='search_vector_gin_index'),
+            # trigrams for ILIKE acceleration
+            # (GIN faster to search, slower to build than GiST)
+            # See migrations/0038.... for excruciatingly long discussion:
+            GinIndex(fields=['name', 'label'],
+                     opclasses=['gin_trgm_ops', 'gin_trgm_ops'],
+                     name='source_name_label_gin_index'),
         ]
         constraints = [
             models.UniqueConstraint(fields=('name', 'platform', 'url_search_string'),

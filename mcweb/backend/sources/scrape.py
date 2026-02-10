@@ -18,7 +18,8 @@ command by default (--queue is necessary to queue a task)
 
 import datetime as dt
 import logging
-import traceback
+import time                     # sleep
+import traceback                # format_exc
 import types                    # TracebackType
 from collections.abc import Iterable
 from dataclasses import dataclass, asdict
@@ -36,7 +37,7 @@ from mcmetadata.webpages import MEDIA_CLOUD_USER_AGENT
 
 
 # not from PyPI: package installed via github URL
-from mc_sitemap_tools.discover import NewsDiscoverer
+from mc_sitemap_tools.crawl import GNewsCrawler, VisitResult
 
 # local directory mcweb/backend/sources
 from .action_history import ActionHistoryContext, log_action
@@ -303,9 +304,16 @@ class Scraper:
         GNEWS = "news sitemap" # say something once, why say it again?
 
         try:
-            nd = NewsDiscoverer(MEDIA_CLOUD_USER_AGENT)
-            gnews_urls = nd.find_gnews_fast(homepage, timeout=SCRAPE_HTTP_SECONDS)
-            # XXX if nothing, consider crawling deeper?
+            gnc = GNewsCrawler(
+                home_page=homepage,
+                user_agent=MEDIA_CLOUD_USER_AGENT,
+                max_depth=1,
+                max_results=3)
+
+            while gnc.visit_one(timeout=SCRAPE_HTTP_SECONDS) == VisitResult.MORE:
+                time.sleep(0.05) # max 20/second
+
+            gnews_urls = [m["url"] for m in gnc.results]
         except requests.RequestException as e:
             self._add_source_line(f"fatal error for {GNEWS} discovery: {e!r}")
             logger.exception("find_gnews_fast")

@@ -9,7 +9,7 @@ from typing import List, Optional
 import constance                # TEMP
 import mcmetadata.urls as urls
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.db.models import Case, Count, When, Q
+from django.db.models import Case, Count, Field, Lookup, Q, When
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -42,6 +42,32 @@ from .tasks import schedule_scrape_source, schedule_scrape_collection
 # mcweb/backend/users
 from backend.users.models import QuotaHistory
 
+# Need to directly use "ILIKE" to allow Postgres to use trigram index,
+# and they seem disinclined to remedy this:
+# https://forum.djangoproject.com/t/case-insensitive-pattern-lookups-icontains-istartswith-and-iendswith-in-postgres-dont-use-ilike-and-thereby-miss-out-on-potential-performance-boosts-from-gin-indexes/35577
+# https://code.djangoproject.com/ticket/3575
+# https://code.djangoproject.com/ticket/17473
+
+# This isn't specific to the sources app, but the operation
+# is used here, so...
+
+@Field.register_lookup
+class IndexedIContains(Lookup):
+    """
+    An __icontains lookup operation that generates ILIKE to use trigram index
+    """
+    lookup_name = "iicontains"
+
+    def as_sql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        # Probably doesn't handle field name on RHS!!
+        # could have overridden process_rhs and hidden this there,
+        # but as Arlo wrote: "one big pile is better'n than two little piles"
+        rhs_params[0] = f"%{rhs_params[0]}%"
+        params = lhs_params + rhs_params
+        return f"{lhs} ILIKE {rhs}", params
+
 # provider for quota
 provider = provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
 
@@ -60,6 +86,17 @@ def _featured_collection_ids(platform: Optional[str]) -> List:
 
 def _all_platforms() -> List:
     return ['onlinenews']
+
+
+def _add_search_term(q, t):
+    """
+    helper to create query expressions
+    searching with individual terms per word.
+    """
+    if q:
+        return q & t
+    else:
+        return t
 
 
 class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
@@ -92,15 +129,23 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
         name = self.request.query_params.get("name")
         if name is not None:
-            if constance.config.SRCS_KW_SEARCH:
-                # EXPERIMENTAL! PG specific!!
+            if constance.config.SRCS_KW_NEWEST_SEARCH:
+                # NEW EXPERIMENTAL PG specific keyword search:
+                # Generates name ILIKE '%word1%' ...
+                # The collections table is small enough so that it has not (yet)
+                # been indexed to accelerate searches (see the SourcesViewSet below).
+                # ("manage.py search times york new" runs in 0.1 sec)
+                name_query = None
+                for word in name.split():
+                    name_query = _add_search_term(name_query, Q(name__iicontains=word))
+                queryset = queryset.filter(name_query)\
+                                   .order_by("-source_count")
+            else:
                 v = SearchVector("name")
                 q = SearchQuery(name, search_type="websearch")
                 queryset = queryset.annotate(rank=SearchRank(v, q))\
                                    .filter(rank__gte=0.01)\
                                    .order_by("-source_count", "-rank")
-            else:
-                queryset = queryset.filter(name__icontains=name)
         return queryset
 
     def get_serializer_class(self):
@@ -352,7 +397,38 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
         name = self.request.query_params.get("name")
         if name is not None:
-            if constance.config.SRCS_KW_SEARCH:
+            if constance.config.SRCS_KW_NEWEST_SEARCH:
+                # NEW EXPERIMENTAL PG specific keyword search:
+
+                # The strategy is to generate:
+                # ((name ILIKE '%word1%' AND name ILIKE '%word2' ....) OR
+                #  (label ILIKE '%word1%' AND label ILIKE '%word2' ....))
+                # which uses a trigram-based index to accelerate the search.  See
+                # migrations/0038_... for EXCRUCIATING detail/docs on the choice of the
+                # index.
+
+                # NOTA MOLTO MOLTO BENE!  The current formulation was developed
+                # PAINSTAKINGLY!  PLEASE test any changes here with the manage.py search
+                # command (which uses this code) and make sure it hasn't slowed down the
+                # search (ie; PG has stopped using the index).  Queries using the index
+                # can run in under 50 millseconds, while queries NOT using the index can
+                # take over 2.5 seconds (ie; one and a half orders of magnitude), and
+                # might support a find-as-you-type (live/incremental) search if the index
+                # is in use, while 2+ seconds is user-frustrating if not.
+                base_queryset = queryset # for union query
+                name_query = label_query = alt_query = None
+
+                for word in name.split():
+                    name_query = _add_search_term(name_query, Q(name__iicontains=word))
+                    label_query = _add_search_term(label_query, Q(label__iicontains=word))
+                    alt_query = _add_search_term(alt_query, Q(alternativedomain__domain__iicontains=word))
+
+                # When attempting to OR in alt_query along with name_ and label_query PG
+                # won't use the index, but will when the alt_query is unionized in.
+                queryset = queryset.filter(name_query | label_query)\
+                                   .union(base_queryset.filter(alt_query))\
+                                   .order_by("-collection_count")
+            else:
                 v = SearchVector("name", "label") # equal weight
                 q = SearchQuery(name, search_type="websearch")
                 # NOTE! uses precomputed search_vector column!!
@@ -360,12 +436,21 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                                    .annotate(rank=SearchRank(v, q))\
                                    .filter(rank__gte=0.01)\
                                    .order_by("-collection_count", "-rank")
-            else:
-                queryset = queryset.filter(
-                    Q(name__icontains=name) | Q(label__icontains=name))
-            alternative_domains = AlternativeDomain.objects.filter(domain__icontains=name)
-            alternative_sources = Source.objects.filter(id__in=alternative_domains.values_list('source_id', flat=True))
-            queryset = queryset | alternative_sources
+
+                # This slows query down from 0.09 sec to over 5 seconds, (but is still
+                # using index!).  Leaving as is, to allow reverting to EXACT previous
+                # behavior!
+                alternative_domains = AlternativeDomain.objects.filter(domain__icontains=name)
+                alternative_sources = Source.objects.filter(id__in=alternative_domains.values_list('source_id', flat=True))
+                queryset = queryset | alternative_sources
+
+        # uncomment to see the generated query and/or PG's query plan:
+        # (you want to see "source_name_label_gin_index", or whatever
+        # index index is present)
+        #print(queryset.query)
+        #print(queryset.explain())
+
+        # please read all the comments above before touching this!!
         return queryset
     
     
