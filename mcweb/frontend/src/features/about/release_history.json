@@ -32,7 +32,7 @@
 ]},{"version": "v2.4.0",
 "date": "2025-10-07",
 "notes": ["api throttling returns 429 error",
-"centralized group definitions",
+"centralized group definitions"
 ]},{"version": "v2.3.4",
 "date": "2025-07-17",
 "notes": ["add link to vitals in header",
