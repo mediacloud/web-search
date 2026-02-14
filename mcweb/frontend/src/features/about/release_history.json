@@ -1,5 +1,10 @@
-[{"version": "v2.4.3",
-"date": "2026-01-06",
+[{"version": "v2.4.4",
+"date": "2026-02-14",
+"notes": ["fix directory search of word fragments",
+"report stories per week and new stories date for child sources",
+"improved google news sitemap feed scraping"
+]},{"version": "v2.4.3",
+"date": "2026-02-04",
 "notes": ["must confirm email upon registration",
 "ensure attention over time chart shows until end of period",
 "add ratio to top sources download",
@@ -24,6 +29,10 @@
 "show true quota limit in profile",
 "update media not found component",
 "add note on advanced search about boolean operators"
+]},{"version": "v2.4.0",
+"date": "2025-10-07",
+"notes": ["api throttling returns 429 error",
+"centralized group definitions"
 ]},{"version": "v2.3.4",
 "date": "2025-07-17",
 "notes": ["add link to vitals in header",
