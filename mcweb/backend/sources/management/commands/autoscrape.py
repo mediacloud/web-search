@@ -6,11 +6,6 @@ from ....util.tasks import TaskCommand
 from ...tasks import autoscrape
 from ...models import Source
 
-# XXX maybe add options for:
-# * all vs. monitored sources
-# * number of sources to scrape in a batch
-# * minimum time before rescrape in days?
-
 class Command(TaskCommand):
     help = "Background rescrape"
 
@@ -18,7 +13,7 @@ class Command(TaskCommand):
         parser.add_argument("--all", action="store_true",
                             help="Consider all sources (else just monitored ones)")
 
-        def_count = 1000
+        def_count = 500
         parser.add_argument("--count", type=int, default=def_count,
                             help=f"Number of sources to scrape (default: {def_count})")
 
@@ -33,7 +28,7 @@ class Command(TaskCommand):
         # days since last scrape to consider ripe for rescrape
         # a required option (since could be VERY different depending on other options)
         parser.add_argument("--frequency", type=int, required=True,
-                            help=f"Days between scrapes.")
+                            help=f"Days between rescrapes of a source.")
         
         super().add_arguments(parser)
 
