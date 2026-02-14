@@ -18,7 +18,8 @@ command by default (--queue is necessary to queue a task)
 
 import datetime as dt
 import logging
-import traceback
+import time                     # sleep
+import traceback                # format_exc
 import types                    # TracebackType
 from collections.abc import Iterable
 from dataclasses import dataclass, asdict
@@ -36,7 +37,7 @@ from mcmetadata.webpages import MEDIA_CLOUD_USER_AGENT
 
 
 # not from PyPI: package installed via github URL
-from mc_sitemap_tools.discover import NewsDiscoverer
+from mc_sitemap_tools.crawl import GNewsCrawler, VisitResult
 
 # local directory mcweb/backend/sources
 from .action_history import ActionHistoryContext, log_action
@@ -298,14 +299,48 @@ class Scraper:
             self._add_source_line("timeout for rss")
             logger.warning("generate_feed_urls(%s): timeout", homepage)
 
-        # Do quick look for Google News Sitemaps (does NOT do full site crawl)
+        # Look for Google News Sitemaps (does not YET do full site crawl)
         gnews_urls = []
         GNEWS = "news sitemap" # say something once, why say it again?
 
         try:
-            nd = NewsDiscoverer(MEDIA_CLOUD_USER_AGENT)
-            gnews_urls = nd.find_gnews_fast(homepage, timeout=SCRAPE_HTTP_SECONDS)
-            # XXX if nothing, consider crawling deeper?
+            # GNewsCrawler heuristics have gotten better (both via
+            # regexps of urls to skip, and max_non_news_urls which
+            # makes visiting uninteresting pages faster). HOWEVER,
+            # we don't want to spend unlimited time on any one site,
+            # and the autoscraper even less so (perhaps allow deeper
+            # scraping for manually triggered single-source scrapes??).
+
+            # BUT, before raising any of these in production, do some
+            # autoscraping to see if there are any pitfalls!!
+
+            # univision.com is current record holder with three active pages.
+            # having this greater than one means having to crawl more of the site.
+            max_results = 3
+
+            # Don't follow index pages referenced by other index pages.
+            # this was an initial safety measure.  Now punts on parsing
+            # an index file if we won't visit the resulting URLs.
+            max_depth = 1
+
+            # Prevent parsing HUGE (50MB) files that show zero promise.
+            # https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemap
+            # says "... a sitemap may have up to 1,000 news:news tags", and we're hoping for
+            # files with nuthin' but news, so punt "early" if no news tags seen.
+            # Parsing 5k entries taking about 600ms on ifill.
+            max_non_news_urls = 5000
+
+            gnc = GNewsCrawler(
+                home_page=homepage,
+                user_agent=MEDIA_CLOUD_USER_AGENT,
+                max_depth=max_depth,
+                max_results=max_results,
+                max_non_news_urls=max_non_news_urls)
+
+            while gnc.visit_one(timeout=SCRAPE_HTTP_SECONDS) == VisitResult.MORE:
+                time.sleep(0.05) # max 20/second
+
+            gnews_urls = [m["url"] for m in gnc.results]
         except requests.RequestException as e:
             self._add_source_line(f"fatal error for {GNEWS} discovery: {e!r}")
             logger.exception("find_gnews_fast")
