@@ -16,7 +16,7 @@
             document.settings = {};
             document.settings.appVersion = "{{ version }}";
             document.settings.availableProviders = {{ providers|safe }};
-            {% if system_alert != None %}
+            {% if system_alert != "" %}
                 document.settings.systemAlert = "{{ system_alert|safe }}";
             {% else %}
                 document.settings.systemAlert = undefined;
