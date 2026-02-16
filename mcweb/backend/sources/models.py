@@ -74,6 +74,19 @@ class Source(models.Model):
     last_rescraped_msg = models.CharField(max_length=500, null=True, blank=True)
     search_vector = SearchVectorField(null=True) # for keyword search
 
+    # stories_total thru stories_date_empty updated by sources-meta-update "totals" task.
+    # Signed INT4 good for 2 billion stories.: more than 50x the current largest
+    # count (google.com, which is due to historic stories not having the final URL).
+    # Storing total (instead of "date_good") because that's the raw datum from ES, AND
+    # easier to query by hand if anything available.
+    stories_total = models.IntegerField(default=None, null=True)
+    # pub_date before settings.EARLIEST_AVAILABLE_DAET
+    stories_date_past = models.IntegerField(default=None, null=True)
+    # pub_date more than mcmetadata.MAX_FUTURE_PUB_DATE days in the future:
+    stories_date_future = models.IntegerField(default=None, null=True)
+    # pub_date is NULL:
+    stories_date_empty = models.IntegerField(default=None, null=True)
+
     class Meta:
         indexes = [
             # useful for search filtering

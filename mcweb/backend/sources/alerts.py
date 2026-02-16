@@ -42,17 +42,11 @@ LONG = {
 logger = logging.getLogger(__name__)
 
 class AlertSystem(MetadataUpdater):
-    UPDATE_FIELD = "alerted"
+    UPDATE_FIELDS = ["alerted"]
+    BUCKETS_PER_SOURCE = NUM_INTERVALS
 
     def __init__(self, *, task_args: dict, options: dict):
         super().__init__(task_args=task_args, options=options)
-
-        # can only get ~64K buckets per provider call
-        # so must limit the number of sources per call.
-        batch_size = self.p.MAX_2D_AGG_BUCKETS // NUM_INTERVALS
-        if batch_size > 32767:      # unlikely!!
-            batch_size = 32767      # approx max domains in query_string
-        self.parent_batch_size = batch_size
 
         self.alert_dict = {
             "high": [],

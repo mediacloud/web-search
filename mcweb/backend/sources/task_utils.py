@@ -63,34 +63,52 @@ class MetadataUpdater:
     as well as by UpdateStoriesPerWeek, UpdateSourceLanguage, and
     FindLastStory in metadata_update.py
     """
-    # bulk_update can handle multiple columns, but it hasn't
-    # been needed yet.  If it is, change this to FIELDS and
-    # make it a list.
-    UPDATE_FIELD: str           # Source field to update
-
+    # required:
+    UPDATE_FIELDS: list[str]    # Source fields to update
+    BUCKETS_PER_SOURCE = 1
     SOURCE_PAGE_SIZE = 5000     # PG query page: make a command line option?
 
     # To add new arguments from the manage.py command line
     # add to MetadataUpdaterCommand.add_arguments
     def __init__(self, *, task_args: dict, options: dict):
         self.username = options["user"]
-        self.long_task_name = task_args["long_task_name"]
         self.verbosity = options["verbosity"]
 
         self.platform = options["platform_name"]
         self.p = get_task_provider(provider_name=options["provider_name"],
-                                   task_name=self.long_task_name)
+                                   task_name=self.__class__.__name__)
         self.p.set_trace(options["provider_trace"])
         self.sources_to_update = []
         self.sleep_time = 60 / options["rate"]
         self.counters = collections.Counter()
         self.update = options["update"]
         self.process_child_sources = options["process_child_sources"]
+        self.source_ids = [int(x) for x in options["source_id"]]
 
-        # not (YET) options(!!):
-        # currently limited by number of query_string (OR) clauses
-        # so limit PG query page size:
-        self.child_batch_size = self.parent_batch_size = 32767
+        # was limited to 32767 by number of query_string (OR) clauses
+        # until mc-providers v4.3.1, now the limit is ES maxClauseCount,
+        # currently (Feb 2026) 42130
+        # https://www.elastic.co/guide/en/elasticsearch/reference/8.17/search-settings.html#search-settings
+        # says:
+        #    Elasticsearch will now dynamically set the maximum number of allowed clauses
+        #    in a query, using a heuristic based on the size of the search thread pool and
+        #    the size of the heap allocated to the JVM. This limit has a minimum value of
+        #    1024 and will in most cases be larger (for example, a node with 30Gb RAM and
+        #    48 CPUs will have a maximum clause count of around 27,000). Larger heaps lead
+        #    to higher values, and larger thread pools result in lower values.
+        #
+        #    Queries with many clauses should be avoided whenever possible. If you
+        #    previously bumped this setting to accommodate heavy queries, you might need
+        #    to increase the amount of memory available to Elasticsearch, or to reduce the
+        #    size of your search thread pool so that more memory is available to each
+        #    concurrent search.
+        max_clause_count = 42100 # XXX maybe fetch maxClauseCount from ES (may vary by node)
+        bucket_limit = self.p.MAX_2D_AGG_BUCKETS // self.BUCKETS_PER_SOURCE
+        self.parent_batch_size = min(bucket_limit, max_clause_count)
+        # four clauses per child source (Bool, Match domain, two wildcards)??
+        self.child_batch_size = min(bucket_limit, max_clause_count // 4)
+        logger.info("child_batch_size %d, parent_batch_size %d",
+                    self.child_batch_size, self.parent_batch_size)
 
     def verbose(self, level: int, format: str, *args) -> None:
         """
@@ -110,7 +128,6 @@ class MetadataUpdater:
             logger.debug(format, sstr, *args)
 
     def needs_update(self, source: Source):
-        # XXX take optional note string for ActionHistory, save as tuple?
         self.sources_to_update.append(source)
 
     def source_name(self, source):
@@ -123,12 +140,18 @@ class MetadataUpdater:
         q = Source.objects.filter(name__isnull=False,
                                   platform=self.platform)\
                           .order_by("id")
-        if self.process_child_sources == ChildSources.NEVER:
+
+        if self.source_ids:     # specific source ids for testing
+            q = q.filter(id__in=self.source_ids)
+        elif self.process_child_sources == ChildSources.NEVER:
             # don't return child sources unless processing them
             q = q.filter(Q(url_search_string__isnull=True) |
                          Q(url_search_string__exact=""))
         elif self.process_child_sources == ChildSources.ONLY:
             q = q.filter(url_search_string__isnull=False)
+        else:
+            assert self.process_child_sources == ChildSources.ALSO
+            # no filtering!
         return q
 
     def run(self) -> None:
@@ -194,11 +217,11 @@ class MetadataUpdater:
                 logger.info("starting bulk_update %d", nupdate)
                 # painfully slow without batch_size?
                 Source.objects.bulk_update(self.sources_to_update,
-                                           [self.UPDATE_FIELD], batch_size=100)
+                                           self.UPDATE_FIELDS, batch_size=100)
                 logger.info("updated %d sources", nupdate)
                 self.counters["updated"] += nupdate
             else:
-                logger.info("found %d sources to update", nupdate)
+                logger.info("found %d sources to update (--update not given)", nupdate)
                 self.counters["found"] += nupdate
             self.sources_to_update = []
 
@@ -296,6 +319,9 @@ class MetadataUpdaterCommand(TaskCommand):
             "--provider-trace", type=int, default=0, help="Provider trace level.")
         parser.add_argument("--rate", type=int, default=100,
                             help="Max ES queries per minute.")
+
+        parser.add_argument("--source-id", action="append", default=[],
+            help="Specific source ids (for testing).")
 
         parser.add_argument("--update", action="store_true",
                             help="Perform database updates (else dry run)")

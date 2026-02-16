@@ -9,7 +9,7 @@ class Command(MetadataUpdaterCommand):
     def add_arguments(self, parser):
         updater_names = UPDATERS.keys()
         parser.add_argument(
-            "--task",
+            "--task", "-T",
             action="append",
             choices=updater_names,
             default=[],

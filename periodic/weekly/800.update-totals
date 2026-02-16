@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# run only on the first weekend of the month
+# to avoid starting on a weekday.
+if [ "x$FORCE_UPDATE_TOTALS" != x -o $(date +%e) -le 7 ]; then
+    python mcweb/manage.py sources-meta-update --queue --update --task totals
+fi
