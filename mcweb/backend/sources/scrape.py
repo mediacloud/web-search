@@ -6,6 +6,11 @@ Beware all ye who enter here:
 This code has evolved through REPEATED evolutionary reworks,
 so it's less than perfectly lovely.
 
+AND this could very well be fruitful grounds for continued work:
+* We try CONSIDERABLY harder to fetch known feeds and stories.
+* No effort is made here to detect and report systemic connection errors
+* Even autoscrape is a one-time, best-effort event with no retry.
+
 The code runs in the context of a background task, so every attempt is
 made to be safe/reliable, and capture logs of what happens, and in the
 case of (admin) user initiated tasks, send email that is concise and
@@ -63,43 +68,11 @@ logger = logging.getLogger(__name__)
 
 SCRAPE_FROM_EMAIL = EMAIL_NOREPLY
 
-# time for individual HTTP connect/read
-SCRAPE_HTTP_SECONDS = SCRAPE_TIMEOUT_SECONDS / 5
-
 class ScrapeTaskCommand(TaskCommand):
     def add_arguments(self, parser):
         parser.add_argument("--dry-run", action="store_true",
                             help="Disable scraping, updating.")
         super().add_arguments(parser)
-
-def rss_page_fetcher(url: str) -> str:
-    """
-    custom fetcher for RSS pages for feed_seeker
-    (adapted from from feed_seeker default_fetch_function)
-
-    XXX make a Scraper method so can use passed timeout??
-    """
-    logger.debug("rss_page_fetcher %s", url)
-    session = insecure_requests_session(MEDIA_CLOUD_USER_AGENT)
-
-    try:
-        # provide connection and read timeouts in case alarm based timeout fails
-        # (scrapes sometimes hang).
-        response = session.get(url,
-                               timeout=(SCRAPE_HTTP_SECONDS, SCRAPE_HTTP_SECONDS))
-        if response.ok:
-            return response.text
-        else:
-            return ''  # non-fatal error
-    except (requests.ConnectTimeout, # connect timeout
-            requests.ConnectionError, # 404's
-            requests.ReadTimeout,     # read timeout
-            requests.TooManyRedirects, # redirect loop
-            requests.exceptions.InvalidSchema, # email addresses
-            requests.exceptions.RetryError):
-        # signal page failure, but not bad enough to abandon site:
-        return ''
-
 
 class ScrapeTaskLogContext(TaskLogContext):
     """
@@ -201,6 +174,8 @@ class FeedCounts:
     added: int = 0              # total new added
     old: int = 0                # total old
     confirmed: int = 0          # total old confirmed
+    duplicate: int = 0          # duplicate new feeds
+    preexisting: int = 0        # insert failed (duplicate URL)
 
     def summary(self) -> str:
         """
@@ -227,28 +202,48 @@ class ScrapeSourcesResult(NamedTuple):
     chunks: list[str]
     summary: str
 
+# handling argument for _add_source_line
+_L_ALWAYS = 0o1
+_L_INDENT = 0o2
+# use one of these:
+L_HEADER = _L_ALWAYS
+L_SUMMARY = _L_ALWAYS + _L_INDENT
+L_DETAIL = _L_INDENT
+
 class Scraper:
     """
     encapsulate scraping state
     """
-
-    # XXX take timeout (make rss_page_fetcher a method)
-    #   so different contexts can use different timeouts
-    #   (longer for scrape single source)?
-    # XXX take verbosity (for command line debug)??
-    def __init__(self, options: dict, verbosity: int, via: str):
+    def __init__(self, options: dict, via: str, detail: bool = False, try_harder: bool = False):
         """
         options: dict of kwargs from ScrapeTaskCommand
                 (or forged by schedule_scrape_XXX in tasks.py)
                 must include "user"
-        verbosity: non-zero to show individual feeds added in per-source "chunk" (for email)
         via: string indicating task type (and object id) for ActionHistory
+        detail: if True, show individual feeds added in per-source "chunk" (for email)
+        try_harder: if True, take longer, try harder
         """
         self.options = options
         self.errors = False
-        self.verbosity = verbosity # zero for batches/collections
+        self.detail = detail # False for batches/collections
         self.via = via
+        self.try_harder = try_harder
+
+        self.timeout = SCRAPE_TIMEOUT_SECONDS
+
+        # max_depth: max crawler depth (one means look at files referenced by robots.txt,
+        #       but not index pages referenced by index pages). Now immediately punts on an
+        #       index file if we won't visit the resulting URLs.
+        self.max_depth = 1      # maybe increase if "try_harder" set?
+        if self.try_harder:
+            self.timeout *= 3.0
+
+        # for ActionHistory entries:
         self.user = User.objects.get(username=options["user"]) # may raise exception!
+        # Use verbosity to enable/disable info & debug level logging??
+        #self.verbosity = options.get("verbosity", 0) # command line --verbosity
+        self.delay = 1 / 20 # max 20/second
+
         self._reset_source([])
 
     def _reset_source(self, all_old_urls: list[str]):
@@ -259,37 +254,67 @@ class Scraper:
         self._feed_counts = FeedCounts()
         self._feed_counts.old = len(all_old_urls)
         self.old_urls = {normalize_url(url) for url in all_old_urls}
+        self.new_urls = set()
 
-    def _add_source_line(self, line: str):
+    def _add_source_line(self, line: str, handling: int = L_DETAIL):
         """
-        Each line appended to list must end with a newline,
-        logging each as added to show progress (in long collection/auto scrapes)
-        but DON'T want newline in logged message!
+        loging everything to leave trail in log file
+        DON'T want newline in logged message!
+        handling: one of L_HEADER, L_SUMMARY, L_DETAIL
         """
         if line and line[-1] == "\n":
-            log_line = line[:-1]
-        else:
-            log_line = line
-            line += "\n"
-        logger.info(">>%s", log_line)
-        self.source_lines.append(line)
+            line = line[:-1]
+        if handling & _L_INDENT:
+            line = "  " + line
+        logger.info(">>%s", line) # drop reeces pieces in log file
+        if (handling & _L_ALWAYS) or self.detail:
+            self.source_lines.append(line)
 
-    def _make_source_chunk(self, indent: str):
+    def _make_source_chunk(self):
         """
         make a chunk of text (paragraph) from lines generated from scraping a source
+        first line is not indented, following lines are.
         """
-        chunk = indent.join(self.source_lines)
+        self.source_lines.append("") # ensure trailing newline
+        chunk = "\n".join(self.source_lines)
         self.source_lines = []
         return chunk
 
-    def _scrape_source(self, source_id: int, homepage: str, name: str):
+    def rss_page_fetcher(self, url: str) -> str:
         """
-        helper for scrape_source; may be called more than once per source
+        custom fetcher for RSS pages for feed_seeker
+        (adapted from from feed_seeker default_fetch_function)
+        """
+        logger.debug("rss_page_fetcher %s", url)
+        session = insecure_requests_session(MEDIA_CLOUD_USER_AGENT)
+        # XXX time.sleep(self.delay) to rate limit??
+        try:
+            # provide connection and read timeouts in case alarm based timeout fails
+            # (scrapes sometimes hang).
+
+            response = session.get(url, timeout=(self.timeout, self.timeout))
+            if response.ok:
+                return response.text
+            else:
+                return ''  # non-fatal error
+        except (requests.ConnectTimeout, # connect timeout
+                requests.ConnectionError, # 404's
+                requests.ReadTimeout,     # read timeout
+                requests.TooManyRedirects, # redirect loop
+                requests.exceptions.InvalidSchema, # email addresses
+                requests.exceptions.RetryError):
+            # signal page failure, but not bad enough to abandon site:
+            return ''
+
+
+    def _scrape_source3(self, source_id: int, homepage: str, name: str):
+        """
+        helper for _scrape_source2; may be called more than once per source
         """
         # Look for RSS feeds
         try:
             new_feed_generator = feed_seeker.generate_feed_urls(
-                homepage, max_time=SCRAPE_TIMEOUT_SECONDS, fetcher=rss_page_fetcher)
+                homepage, max_time=self.timeout, fetcher=self.rss_page_fetcher)
             # create list so DB operations in process_urls are not under the timeout gun.
             self._process_urls(source_id, homepage, "rss", new_feed_generator)
         except requests.RequestException as e: # maybe just catch Exception?
@@ -315,13 +340,8 @@ class Scraper:
             # autoscraping to see if there are any pitfalls!!
 
             # univision.com is current record holder with three active pages.
-            # having this greater than one means having to crawl more of the site.
+            # having this greater than one means having to crawl more (or all) of the site.
             max_results = 3
-
-            # Don't follow index pages referenced by other index pages.
-            # this was an initial safety measure.  Now punts on parsing
-            # an index file if we won't visit the resulting URLs.
-            max_depth = 1
 
             # Prevent parsing HUGE (50MB) files that show zero promise.
             # https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemap
@@ -333,17 +353,18 @@ class Scraper:
             gnc = GNewsCrawler(
                 home_page=homepage,
                 user_agent=MEDIA_CLOUD_USER_AGENT,
-                max_depth=max_depth,
+                max_depth=self.max_depth,
                 max_results=max_results,
                 max_non_news_urls=max_non_news_urls)
 
-            while gnc.visit_one(timeout=SCRAPE_HTTP_SECONDS) == VisitResult.MORE:
-                time.sleep(0.05) # max 20/second
+            while gnc.visit_one(timeout=self.timeout) == VisitResult.MORE:
+                time.sleep(self.delay)
 
             gnews_urls = [m["url"] for m in gnc.results]
         except requests.RequestException as e:
-            self._add_source_line(f"fatal error for {GNEWS} discovery: {e!r}")
-            logger.exception("find_gnews_fast")
+            # format repr(e), limit to 1024 characters
+            self._add_source_line(f"fatal error for {GNEWS} discovery: {e!r:.1024}")
+            logger.exception("GNewsCrawler")
 
         if gnews_urls:
             self._process_urls(source_id, homepage, GNEWS, gnews_urls)
@@ -358,56 +379,62 @@ class Scraper:
 
         for nurl, url in nurls.items():
             self._feed_counts.total += 1
-            if nurl in self.old_urls:
-                if self.verbosity > 0:
-                    self._add_source_line(f"found existing {from_} feed {url}")
-                logger.info("scrape_source(%d) found existing %s feed %s",
-                            source_id, from_, url)
+            if nurl in self.new_urls:
+                self._add_source_line(f"  duplicate {from_} feed {url}")
+                self._feed_counts.duplicate += 1
+            elif nurl in self.old_urls:
+                self._add_source_line(f"  confirmed {from_} feed {url}")
                 self._feed_counts.confirmed += 1
             else:
                 try:
                     feed = Feed(source_id=source_id, admin_rss_enabled=True, url=url)
                     feed.save()
 
-                    logger.info("scrape_source(%d, %s) added new %s feed %s",
+                    self._add_source_line(f"added {from_} feed {url}")
+
+                    logger.info("scrape_source(%d, %s) added %s feed %s",
                                 source_id, homepage, from_, url)
 
                     # create ActionHistory row: will be child of SOURCE entry
-                    # NOTE: "notes" omits user (part of row)??
                     log_action(self.user, "create", ActionHistory.ModelType.FEED, feed.id,
                                object_name=url, notes=f"{from_} feed via {self.via} for {self.user.username}")
 
-                    # try to prevent trying to adding twice
-                    # BUT new dup feeds come out as "verified"!!
-                    self.old_urls.add(nurl)
+                    self.new_urls.add(nurl) # avoid trying to add twice
                     self._feed_counts.added += 1
                 except IntegrityError:
-                    # happens when feed exists, but under a different source!
-                    # could do lookup by URL, and report what source (name & id) it's under....
-                    self._add_source_line(f"{from_} feed {url} exists under some other source!!!")
-                    logger.warning("process_urls(%d, %s) duplicate %s feed %s (exists under another source?)",
-                                   source_id, homepage, from_, url)
-                    # XXX increment duplicate counter?
+                    # happens when feed exists
+                    try:
+                        # url is a unique key, should not get more than one!
+                        ofeed = Feed.objects.filter(url=url).first()
+                        ofeed_src = f"source {ofeed.source.id} ({ofeed.source.name})"
+                    except Feed.DoesNotExist:
+                        ofeed_src = "unknown source!!"
+                    self._add_source_line(f"  {from_} feed {url} exists in {ofeed_src}")
+                    logger.warning("process_urls(%d, %s) duplicate %s feed %s (exists in %s)",
+                                   source_id, homepage, from_, url, ofeed_src)
+                    self._feed_counts.preexisting += 1
         # end _process_feeds
 
-    def _scrape_source_worker(self, source_id: int, homepage: str, name: str) -> None:
+    def _scrape_source2(self, source_id: int, homepage: str, name: str) -> None:
         """
-        do actual scrape_source work!
+        called from _scrape_source()
         called once per source, here to avoid double indent,
         and make scrape_source call as clear as possible
         """
-        logger.debug("_scrape_source_worker %d %s %s", source_id, homepage, name)
+        logger.debug("_scrape_source2 %d %s %s", source_id, homepage, name)
 
         if homepage:
             # XXX try validating home page? starts with http(s)://valid.do.ma.in??
-            self._scrape_source(source_id, homepage, name)
+            self._scrape_source3(source_id, homepage, name)
 
+        # homepage might be totally bogus!
         # if no feeds found, try harder:
-        # maybe always if single source scrape??
+        # maybe always if self.try_harder set?
+        # www.DOMAIN _slightly_ more common as homepage, so try bare domain
         if (self._feed_counts.total == 0 and
             homepage != f"http://{name}" and
             homepage != f"https://{name}"):
-            self._scrape_source(source_id, f"http://{name}", name)
+            self._scrape_source3(source_id, f"http://{name}", name)
 
         # XXX if still zero try www.{name}?? (make above into local function that formats/checks urls)
 
@@ -421,8 +448,8 @@ class Scraper:
         all_old_urls = [feed.url for feed in Feed.objects.filter(source_id=source_id)]
         self._reset_source(all_old_urls)
 
-        # per-source header line
-        self._add_source_line(f"Scraped source {source_id} ({name}){extra}")
+        # per-source header line: always included
+        self._add_source_line(f"Scraped source {source_id} ({name}){extra}", handling=L_HEADER)
 
         dry_run = self.options.get("dry_run", False)
         if dry_run:
@@ -440,15 +467,15 @@ class Scraper:
                     object_name=name,
                     notes=f"started via {self.via} for {self.user.username}"
             ) as ahc:
-                self._scrape_source_worker(source_id, homepage, name)
+                self._scrape_source2(source_id, homepage, name)
                 summary = self._feed_counts.summary()
                 Source.update_last_rescraped(source_id=source_id, summary=summary)
                 ahc.notes = f"{summary} via {self.via} for {self.user.username}"
 
-        self._add_source_line(summary)
+        self._add_source_line(summary, handling=L_SUMMARY)
 
         return ScrapeSourceResult(
-            full=self._make_source_chunk("  "), # indent not applied to header line
+            full=self._make_source_chunk(),
             counts=self._feed_counts)
 
     def scrape_sources(self, queryset, limit: int | None = None) -> ScrapeSourcesResult:
@@ -522,8 +549,11 @@ def scrape_source(*, source_id: int, homepage: str, name: str, email: str,
     with ScrapeMailContext(options=options, task_args=task_args,
                        subject=subject, email=email) as sc:
 
-        # scraping single source, so include added feed urls in email text
-        scraper = Scraper(options, verbosity=1, via=f"scrape source {source_id}")
+        # scraping single source, so include added feed urls in email text,
+        # increase timeouts for best chance of success.
+        # XXX See if increasing max_depth helps???
+        scraper = Scraper(options, via=f"scrape source {source_id}",
+                          detail=True, try_harder=True)
         ssr = scraper.scrape_source(source_id, homepage, name)
         sc.add_body_chunk(ssr.full) # no need for summary or count
 
@@ -541,7 +571,7 @@ def scrape_collection(*, options: dict, task_args: dict,
             options=options, task_args=task_args,
             subject=f"Collection {collection_id} scrape complete",
             email=email) as smc:
-        scraper = Scraper(options, verbosity=0, via=f"scrape collection {collection_id}")
+        scraper = Scraper(options, via=f"scrape collection {collection_id}")
 
         # will raise exception if not found, so inside ScrapeMailContext for logging/email
         collection = Collection.objects.get(id=collection_id)
@@ -566,7 +596,7 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
 
     with ScrapeTaskLogContext(options=options, task_args=task_args):
         count = options["count"]
-        scraper = Scraper(options, verbosity=0, via="autoscrape")
+        scraper = Scraper(options, via="autoscrape")
 
         # get latest date to consider "recently scraped"
         frequency = options["frequency"]
@@ -579,7 +609,7 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
         else:
             collection_ids = monitored_collections()
             sources = sources.filter(collections__id__in=collection_ids)
-            logger.debug("%d monitored collections; %d feeds", len(collection_ids), sources.count())
+            logger.debug("%d monitored collections; %d sources", len(collection_ids), sources.count())
 
         if options["days_old"] is not None:
             days_old = options["days_old"]

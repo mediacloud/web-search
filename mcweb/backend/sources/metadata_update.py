@@ -1,4 +1,6 @@
 # XXX add --max-age argument to UpdateSourceLanguage??
+# XXX add --extras key:value where each MetadataUpdater
+#       has an EXTRAS = {"key": constructor}
 """
 Classes to implement sources-meta-update management tasks
 
@@ -8,10 +10,17 @@ should be imported directly ONLY by tasks.py!
 # standard:
 import datetime as dt
 import logging
+from typing import NamedTuple
 
 # PyPI
+import mcmetadata
 from django.db import transaction
 from django.db.models import QuerySet
+from elasticsearch_dsl import Search
+from elasticsearch_dsl.aggs import A, Filters
+from elasticsearch_dsl.query import Bool, Exists, Range
+
+import settings
 
 # mcweb/backend/util/
 from ..util.tasks import TaskLogContext
@@ -25,21 +34,23 @@ logger = logging.getLogger(__name__)
 
 UPDATERS = {}
 
-def updater(cls):
-    """
-    decorator to register an updater class by name
-    """
-    name = getattr(cls, "NAME", None)
-    if not name:
-        name = cls.UPDATE_FIELD
+class UpdateTask(MetadataUpdater):
+    TASK_NAME: str
 
-    UPDATERS[name] = cls
+
+def updater(cls: type[UpdateTask]):
+    """
+    decorator to register an updater class by TASK_NAME
+    for sources-meta-update command "task" argument.
+    """
+    UPDATERS[cls.TASK_NAME] = cls
     return cls
 
 
 @updater
-class UpdateStoriesPerWeek(MetadataUpdater):
-    UPDATE_FIELD = "stories_per_week"
+class UpdateStoriesPerWeek(UpdateTask):
+    TASK_NAME = "stories_per_week"
+    UPDATE_FIELDS = ["stories_per_week"]
 
     def process_sources(self, *,
                         sources: list[Source],
@@ -84,20 +95,20 @@ LANG_COUNT_DAYS = 180  # number of days back to examine
 LANG_COUNT_MIN = 10    # min count for top lang within LANG_COUNT_DAYS
 
 @updater
-class UpdateSourceLanguage(MetadataUpdater):
-    NAME = "language"
-    UPDATE_FIELD = "primary_language" # Source field updated
+class UpdateSourceLanguage(UpdateTask):
+    TASK_NAME = "language"
+    UPDATE_FIELDS = ["primary_language"] # Source fields updated
 
     def sources_query(self) -> QuerySet:
         """
         only process sources without primary language
         """
-        # XXX filter by max age??
+        # XXX filter by created_at (only check new sources)??
         return super().sources_query()\
                       .filter(primary_language__isnull=True)
 
     def run(self) -> None:
-        self.user_object = User.objects.get(username=self.username)
+        self.user_object = User.objects.get(username=self.username) # for ActionHistory
         super().run()
 
     def process_sources(self, *,
@@ -122,7 +133,7 @@ class UpdateSourceLanguage(MetadataUpdater):
 
         # dict indexed by domain name,
         # of ordered dict indexed by language,
-        # of counts
+        # of counts (highest count first)
         domains = agg["buckets"]
         sources_to_update = []
 
@@ -146,6 +157,7 @@ class UpdateSourceLanguage(MetadataUpdater):
                     # Source.save() directly rather than add log_entry creation
                     # to the batch update process.  Anyone NULLing out the language
                     # column may get a rude surprise!
+
                     if self.update:
                         with transaction.atomic():
                             source.primary_language = lang
@@ -169,12 +181,26 @@ def sources_metadata_update(*,
             except:
                 logger.exception("%s updater exception", updater)
             logger.info("=== end update %s", updater)
+
+def es_start():
+    """
+    earliest searchable date.
+    NOTE!! mc-providers expects both start and end to have
+    same naïveté!!
+    """
+    return dt.datetime.fromisoformat(settings.EARLIEST_AVAILABLE_DATE)
 
-from elasticsearch_dsl.aggs import A
+def es_end(allow_future: bool = False):
+    if allow_future:
+        # newest possible story pub_date accepted by story-indexer
+        return dt.datetime.utcnow() + dt.timedelta(days=mcmetadata.MAX_FUTURE_PUB_DATE)
+    else:
+        return yesterday()
 
 @updater
-class FindLastStory(MetadataUpdater):
-    UPDATE_FIELD = "last_story"
+class FindLastStory(UpdateTask):
+    TASK_NAME = "last_story"
+    UPDATE_FIELDS = ["last_story"]
 
     def process_sources(self, *,
                         sources: list[Source],
@@ -192,10 +218,11 @@ class FindLastStory(MetadataUpdater):
         OUTER = "outer"
         INNER = "inner"
 
-        # XXX nastiness: direct to elasticsearch_dsl:
+        # XXX nastiness: direct to elasticsearch_dsl using provider method:
         search = p._basic_search(user_query=p.everything_query(),
-                                 start_date=dt.datetime(2008, 1, 1), # XXX
-                                 end_date=yesterday(),
+                                 start_date=es_start(),
+                                 source=False,
+                                 end_date=es_end(),
                                  domains=domains,
                                  url_search_strings=url_search_strings)\
                   .extra(size=0) # just aggs
@@ -204,7 +231,7 @@ class FindLastStory(MetadataUpdater):
         search.aggs.bucket(OUTER, A("terms", field="canonical_domain", size=s))\
                    .bucket(INNER, "max", field="publication_date")
 
-        res = p._search(search, "pub-date-max")
+        res = p._search(search, "pub-date-max") # name for grafana counter
 
         # dict by domain of max pub date
         max_date_by_domain = {
@@ -232,3 +259,105 @@ class FindLastStory(MetadataUpdater):
                 self.verbose_source(2, "%s: was %s now %s", source, curr, last_date_short)
             else:
                 self.verbose_source(3, "%s: was %s now %s (no update)", source, curr, last_date_short)
+
+class DateCounts(NamedTuple):
+    total: int
+    no_date: int
+    past_date: int
+    future_date: int
+
+@updater
+class UpdateTotals(UpdateTask):
+    """
+    originally called "UpdateInvisible"!
+    """
+    TASK_NAME = "totals"
+    UPDATE_FIELDS = [
+        "stories_total", "stories_date_past",
+        "stories_date_future", "stories_date_empty"
+    ]
+    BUCKETS_PER_SOURCE = 4      # inner, plus 3 counts?
+
+    def process_sources(self, *,
+                        sources: list[Source],
+                        domains: list[str],
+                        url_search_strings: dict[str,list[str]]) -> None:
+        """
+        called with either a list of domains, and empty url_search strings,
+        or url_search_string with a single dict entry, with value
+        of a list of search strings for a single source.
+        """
+
+        # XXX nastiness: direct to elasticsearch_dsl using provider methods:
+        # even nastier, create search from scratch with no date range,
+        p = self.p              # mc_provider
+        search = Search(using=p._es, index=[p.INDEX_PREFIX + "*"])\
+            .extra(size=0) # just aggs, no hits
+
+        if p._session_id:
+            search = search.params(preference=p._session_id)
+
+        # get DSL for site filtering:
+        t = p._selector_filter_tuple({"domains": domains, "url_search_strings": url_search_strings})
+        search = search.filter(t.query)
+
+        # aggregation bucket names:
+        OUTER = "outer"
+        INNER = "inner"
+        # Increment BUCKETS_PER_SOURCE if adding a new filter/bucket!!!
+        NO_DATE_BUCKET = "no_date"
+        PAST_DATE_BUCKET = "past_date" # too far in past
+        FUTURE_DATE_BUCKET = "future_date" # too far in future
+
+        s = len(domains or url_search_strings)
+        search.aggs.bucket(OUTER, A("terms", field="canonical_domain", size=s))\
+                   .bucket(INNER,
+                           Filters(
+                               filters={
+                                   # ES doesn't store fields with null values
+                                   # (maybe get "has date" count and subtract?)
+                                   NO_DATE_BUCKET: Bool(must_not=[
+                                       Exists(field="publication_date")]),
+                                   PAST_DATE_BUCKET: Range(publication_date={'lt': es_start()}),
+                                   # NOTE: future dates accepted by mcmetadata/story-indexer are "good"
+                                   FUTURE_DATE_BUCKET: Range(publication_date={'gt': es_end(True)}),
+                               }
+                           ))
+        res = p._search(search, "update_totals") # name for grafana counter
+        counts_by_domain: dict[str, DateCounts] = {
+            outer["key"]: DateCounts(
+                total=outer["doc_count"],
+                no_date=outer[INNER]["buckets"][NO_DATE_BUCKET]["doc_count"],
+                past_date=outer[INNER]["buckets"][PAST_DATE_BUCKET]["doc_count"],
+                future_date=outer[INNER]["buckets"][FUTURE_DATE_BUCKET]["doc_count"])
+            for outer in res.aggregations[OUTER]["buckets"]
+        }
+
+        zeroes = DateCounts(total=0, no_date=0, past_date=0, future_date=0)
+
+        for source in sources:
+            # default to zeroes: it means the source has been checked!!
+            counts = counts_by_domain.get(source.name, zeroes)
+
+            if (source.stories_total != counts.total or
+                source.stories_date_past != counts.past_date or
+                source.stories_date_future != counts.future_date or
+                source.stories_date_empty != counts.no_date):
+                self.log_counts("updated", counts, source) # before updating fields!!
+                # something changed; update database:
+                source.stories_total = counts.total
+                source.stories_date_past = counts.past_date
+                source.stories_date_future = counts.future_date
+                source.stories_date_empty = counts.no_date
+                self.needs_update(source)
+            else:
+                self.log_counts("same", counts, source)
+
+    def log_counts(self, status, counts, source):
+        # NOTE: %s for current, since may be None
+        self.verbose_source(3, "%s: [%s] %s %d/%s, %s %d/%s, %s %d/%s, %s %d/%s",
+                            source, status,
+                            "total", counts.total, source.stories_total,
+                            "past", counts.past_date, source.stories_date_past,
+                            "future", counts.future_date, source.stories_date_future,
+                            "no_date", counts.no_date, source.stories_date_empty)

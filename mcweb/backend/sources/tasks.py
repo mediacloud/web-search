@@ -3,6 +3,11 @@ Background tasks for "sources" app
 
 (almost) only decorated functions defined in other files
 to keep files just a few pages long.
+
+NOTE!  All system tasks that do big ES queries now run in SYSTEM_FAST
+queue.  They all currently run in less than an hour, and keeping them
+in one queue avoids more than one at a time.  SYSTEM_SLOW is used for
+the autoscraper, which runs for multiple hours, without using ES.
 """
 
 # standard:
@@ -38,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 # called from management/commands/source-alert-system.py
 # (via MetadataUpdaterCommand.run_task)
-@background(queue=SYSTEM_SLOW)  # run via periodic script
+@background(queue=SYSTEM_FAST)  # run via periodic script
 def alert_system(**kws):
     alerts.alert_system(**kws)
 
@@ -68,7 +73,7 @@ def schedule_scrape_collection(collection_id, user: User):
 def scrape_source(**kws):
     scrape.scrape_source(**kws)
 
-@background(queue=SYSTEM_FAST)  # periodic, does not access ES
+@background(queue=SYSTEM_SLOW)  # periodic, multi-hour runs (no ES)
 def autoscrape(**kws):
     scrape.autoscrape(**kws)
 
@@ -105,12 +110,12 @@ def schedule_scrape_source(source_id, user: User):
 
 # called from management/commands/sources-meta-update.py
 # (via MetadataUpdaterCommand.run_task)
-@background(queue=SYSTEM_SLOW)  # run via periodic script
+@background(queue=SYSTEM_FAST)  # run via periodic script
 def sources_metadata_update(**kws):
     metadata_update.sources_metadata_update(**kws)
 
 
 # MUST run in same queue as sources-meta-update!!
-@background(queue=SYSTEM_SLOW)  # run via periodic script
+@background(queue=SYSTEM_FAST)  # run via periodic script
 def tweak_stories_per_week(**kws):
     misc_tasks.tweak_stories_per_week(**kws)
