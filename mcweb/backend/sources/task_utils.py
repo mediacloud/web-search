@@ -104,7 +104,11 @@ class MetadataUpdater:
         #    concurrent search.
         max_clause_count = 42100 # XXX maybe fetch maxClauseCount from ES (may vary by node)
         bucket_limit = self.p.MAX_2D_AGG_BUCKETS // self.BUCKETS_PER_SOURCE
+
+        # It's possible having mc-providers generating Terms(canonical_domain=list(domains))
+        # will allow index.max_terms_count (default 64k) parent sources rather than max_clause_count.
         self.parent_batch_size = min(bucket_limit, max_clause_count)
+
         # four clauses per child source (Bool, Match domain, two wildcards)??
         self.child_batch_size = min(bucket_limit, max_clause_count // 4)
         logger.info("child_batch_size %d, parent_batch_size %d",
