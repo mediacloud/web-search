@@ -21,6 +21,7 @@ from settings import (
     SENTRY_ENV,
     SENTRY_JS_TRACES_RATE,
     SENTRY_JS_REPLAY_RATE,
+    SYSTEM_ALERT,
     VERSION
 )
 
@@ -43,7 +44,7 @@ def index(request):
         analytics_matomo_domain=ANALYTICS_MATOMO_DOMAIN,
         analytics_matomo_id=ANALYTICS_MATOMO_SITE_ID,
         earliest_available_date=_EARLIEST_AVAILABLE_DATE,
-        system_alert=constance.config.SYSTEM_ALERT,
+        system_alert=constance.config.SYSTEM_ALERT if constance.config.SYSTEM_ALERT else SYSTEM_ALERT,
         sentry_config={
             "sentry_dsn": (SENTRY_DSN or "null"),
             "sentry_env": (SENTRY_ENV or "null"),
