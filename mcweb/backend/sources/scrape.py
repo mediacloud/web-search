@@ -380,10 +380,10 @@ class Scraper:
         for nurl, url in nurls.items():
             self._feed_counts.total += 1
             if nurl in self.new_urls:
-                self._add_source_line(f"  duplicate {from_} feed {url}")
+                self._add_source_line(f"duplicate {from_} feed {url}")
                 self._feed_counts.duplicate += 1
             elif nurl in self.old_urls:
-                self._add_source_line(f"  confirmed {from_} feed {url}")
+                self._add_source_line(f"confirmed {from_} feed {url}")
                 self._feed_counts.confirmed += 1
             else:
                 try:
@@ -409,7 +409,7 @@ class Scraper:
                         ofeed_src = f"source {ofeed.source.id} ({ofeed.source.name})"
                     except Feed.DoesNotExist:
                         ofeed_src = "unknown source!!"
-                    self._add_source_line(f"  {from_} feed {url} exists in {ofeed_src}")
+                    self._add_source_line(f"{from_} feed {url} exists in {ofeed_src}")
                     logger.warning("process_urls(%d, %s) duplicate %s feed %s (exists in %s)",
                                    source_id, homepage, from_, url, ofeed_src)
                     self._feed_counts.preexisting += 1
