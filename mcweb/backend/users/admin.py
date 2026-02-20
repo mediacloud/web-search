@@ -36,6 +36,7 @@ mark_inactive.short_description = "Mark selected users as inactive"
 class CustomUserAdmin(BaseUserAdmin):
     form = UserAdminForm
     ordering = ['-date_joined']
+    inlines = [ProfileInline]
 
     def verified_email(self, obj):
         # Safely get the related profile's verified_email
