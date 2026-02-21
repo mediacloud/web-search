@@ -1,4 +1,7 @@
-[{"version": "v2.4.4",
+[{"version": "v2.4.5",
+"date": "2026-02-20",
+"notes": ["enhance scraping, source metadata"
+]},{"version": "v2.4.4",
 "date": "2026-02-14",
 "notes": ["fix directory search of word fragments",
 "report stories per week and new stories date for child sources",

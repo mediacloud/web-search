@@ -24,7 +24,7 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.4.4"
+VERSION = "2.4.5"
 
 class Groups:
     CONTRIBUTOR = "contributor"
@@ -117,7 +117,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     MONITOR_API_USER=(str, "monitor-api@mediacloud.org"), # manage.py monitor-api command
     PROVIDERS_TIMEOUT=(int, 60*10),
     SCRAPE_ERROR_RECIPIENTS=(list, []),
-    SCRAPE_TIMEOUT_SECONDS=(float, 30.0), # http connect/read
+    SCRAPE_TIMEOUT_SECONDS=(float, 10.0), # http connect/read
     SENTRY_DSN=(str, ""),
     SENTRY_ENV=(str, ""),
     SENTRY_JS_REPLAY_RATE=(float, 0.1), # fraction 0 to 1.0
