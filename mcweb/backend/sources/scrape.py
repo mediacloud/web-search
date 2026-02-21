@@ -214,7 +214,7 @@ class Scraper:
     """
     encapsulate scraping state
     """
-    def __init__(self, options: dict, via: str, detail: bool = False, try_harder: bool = False):
+    def __init__(self, options: dict, *, via: str, detail: bool = False, try_harder: bool = False):
         """
         options: dict of kwargs from ScrapeTaskCommand
                 (or forged by schedule_scrape_XXX in tasks.py)
@@ -234,10 +234,12 @@ class Scraper:
         # max_depth: max crawler depth (one means look at files referenced by robots.txt,
         #       but not index pages referenced by index pages). Now immediately punts on an
         #       index file if we won't visit the resulting URLs.
-        self.max_depth = 1      # maybe increase if "try_harder" set?
+        self.max_depth = 1
         if self.try_harder:
             self.timeout *= 3.0
-
+            # upping to three showed little/no benefit in initial testing,
+            # and _could_ exponentially expand work, so being cautious:
+            self.max_depth = 2
         # for ActionHistory entries:
         self.user = User.objects.get(username=options["user"]) # may raise exception!
         # Use verbosity to enable/disable info & debug level logging??
@@ -255,6 +257,37 @@ class Scraper:
         self._feed_counts.old = len(all_old_urls)
         self.old_urls = {normalize_url(url) for url in all_old_urls}
         self.new_urls = set()
+
+        # Keep GNewsCrawler on hand for the duration of scraping
+        # a source to avoid visiting a given sitemap more than
+        # once when trying different home pages.
+
+        # GNewsCrawler heuristics have gotten better (both via
+        # regexps of urls to skip, and max_non_news_urls which
+        # makes visiting uninteresting pages faster). HOWEVER,
+        # we don't want to spend unlimited time on any one site,
+        # and the autoscraper even less so.
+
+        # BUT, before raising any of these in production, do some
+        # autoscraping to see if there are any pitfalls!!
+
+        # univision.com is current record holder with three active pages.
+        # having this greater than one means having to crawl more (or all) of the site.
+        max_results = 3
+
+        # Prevent parsing HUGE (50MB) files that show zero promise.
+        # https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemap
+        # says "... a sitemap may have up to 1,000 news:news tags", and we're hoping for
+        # files with nuthin' but news, so punt "early" if no news tags seen.
+        # Parsing 5k entries taking about 600ms on ifill.
+        max_non_news_urls = 5000
+
+        self.gnews_crawler = GNewsCrawler(
+            user_agent=MEDIA_CLOUD_USER_AGENT,
+            max_depth=self.max_depth,
+            max_results=max_results,
+            max_non_news_urls=max_non_news_urls)
+
 
     def _add_source_line(self, line: str, handling: int = L_DETAIL):
         """
@@ -329,37 +362,10 @@ class Scraper:
         GNEWS = "news sitemap" # say something once, why say it again?
 
         try:
-            # GNewsCrawler heuristics have gotten better (both via
-            # regexps of urls to skip, and max_non_news_urls which
-            # makes visiting uninteresting pages faster). HOWEVER,
-            # we don't want to spend unlimited time on any one site,
-            # and the autoscraper even less so (perhaps allow deeper
-            # scraping for manually triggered single-source scrapes??).
-
-            # BUT, before raising any of these in production, do some
-            # autoscraping to see if there are any pitfalls!!
-
-            # univision.com is current record holder with three active pages.
-            # having this greater than one means having to crawl more (or all) of the site.
-            max_results = 3
-
-            # Prevent parsing HUGE (50MB) files that show zero promise.
-            # https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemap
-            # says "... a sitemap may have up to 1,000 news:news tags", and we're hoping for
-            # files with nuthin' but news, so punt "early" if no news tags seen.
-            # Parsing 5k entries taking about 600ms on ifill.
-            max_non_news_urls = 5000
-
-            gnc = GNewsCrawler(
-                home_page=homepage,
-                user_agent=MEDIA_CLOUD_USER_AGENT,
-                max_depth=self.max_depth,
-                max_results=max_results,
-                max_non_news_urls=max_non_news_urls)
-
+            gnc = self.gnews_crawler # kept across calls
+            gnc.start(homepage)
             while gnc.visit_one(timeout=self.timeout) == VisitResult.MORE:
                 time.sleep(self.delay)
-
             gnews_urls = [m["url"] for m in gnc.results]
         except requests.RequestException as e:
             # format repr(e), limit to 1024 characters
@@ -447,6 +453,9 @@ class Scraper:
         # NOTE! want feed URLs regardless of whether disabled
         all_old_urls = [feed.url for feed in Feed.objects.filter(source_id=source_id)]
         self._reset_source(all_old_urls)
+
+        logger.debug("scraping %s: timeout %.1f max_depth %d delay %.3f",
+                     name, self.timeout, self.max_depth, self.delay)
 
         # per-source header line: always included
         self._add_source_line(f"Scraped source {source_id} ({name}){extra}", handling=L_HEADER)
@@ -596,7 +605,7 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
 
     with ScrapeTaskLogContext(options=options, task_args=task_args):
         count = options["count"]
-        scraper = Scraper(options, via="autoscrape")
+        scraper = Scraper(options=options, via="autoscrape")
 
         # get latest date to consider "recently scraped"
         frequency = options["frequency"]
