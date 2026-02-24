@@ -7,6 +7,7 @@ import time
 import mc_providers
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
+import constance
 
 # mcweb
 from settings import (
@@ -34,6 +35,7 @@ if _EARLIEST_AVAILABLE_DATE.isdigit(): # all digits?
 @ensure_csrf_cookie
 def index(request):
     # the main entry point for the web app - it just renders the index HTML file to load all the JS
+
     return render(request, 'frontend/index.html', dict(
         version=VERSION,
         providers=AVAILABLE_PROVIDERS,
@@ -42,7 +44,7 @@ def index(request):
         analytics_matomo_domain=ANALYTICS_MATOMO_DOMAIN,
         analytics_matomo_id=ANALYTICS_MATOMO_SITE_ID,
         earliest_available_date=_EARLIEST_AVAILABLE_DATE,
-        system_alert=SYSTEM_ALERT,
+        system_alert=constance.config.SYSTEM_ALERT if constance.config.SYSTEM_ALERT else SYSTEM_ALERT,
         sentry_config={
             "sentry_dsn": (SENTRY_DSN or "null"),
             "sentry_env": (SENTRY_ENV or "null"),
