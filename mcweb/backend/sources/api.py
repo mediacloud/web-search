@@ -370,8 +370,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.SOURCE
     queryset = Source.objects.annotate(
         collection_count=Count('collections')
-    ).order_by(_ordering)
-
+    ).order_by(_ordering).all()
 
     permission_classes = [
         IsGetOrIsStaffOrContributor
