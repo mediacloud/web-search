@@ -9,7 +9,7 @@ from typing import List, Optional
 import constance                # TEMP
 import mcmetadata.urls as urls
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.db.models import Case, Count, Field, Lookup, Q, When
+from django.db.models import Case, Count, F, Field, Lookup, Q, When
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -138,14 +138,12 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 name_query = None
                 for word in name.split():
                     name_query = _add_search_term(name_query, Q(name__iicontains=word))
-                queryset = queryset.filter(name_query)\
-                                   .order_by("-source_count")
+                queryset = queryset.filter(name_query)
             else:
                 v = SearchVector("name")
                 q = SearchQuery(name, search_type="websearch")
                 queryset = queryset.annotate(rank=SearchRank(v, q))\
-                                   .filter(rank__gte=0.01)\
-                                   .order_by("-source_count", "-rank")
+                                   .filter(rank__gte=0.01)
         return queryset
 
     def get_serializer_class(self):
@@ -370,7 +368,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.SOURCE
     queryset = Source.objects.annotate(
         collection_count=Count('collections')
-    ).order_by('-collection_count').all()
+    ).order_by(F('stories_per_week').desc(nulls_last=True))
         
     permission_classes = [
         IsGetOrIsStaffOrContributor
@@ -426,17 +424,14 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 # When attempting to OR in alt_query along with name_ and label_query PG
                 # won't use the index, but will when the alt_query is unionized in.
                 queryset = queryset.filter(name_query | label_query)\
-                                   .union(base_queryset.filter(alt_query))\
-                                   .order_by("-collection_count")
+                                   .union(base_queryset.filter(alt_query))
             else:
                 v = SearchVector("name", "label") # equal weight
                 q = SearchQuery(name, search_type="websearch")
                 # NOTE! uses precomputed search_vector column!!
                 queryset = queryset.filter(search_vector=q)\
                                    .annotate(rank=SearchRank(v, q))\
-                                   .filter(rank__gte=0.01)\
-                                   .order_by("-collection_count", "-rank")
-
+                                   .filter(rank__gte=0.01)
                 # This slows query down from 0.09 sec to over 5 seconds, (but is still
                 # using index!).  Leaving as is, to allow reverting to EXACT previous
                 # behavior!
