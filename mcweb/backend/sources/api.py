@@ -365,11 +365,14 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 
 
 class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+    # private class variable used in queryset AND against union query:
+    _ordering = F('stories_per_week').desc(nulls_last=True)
     action_history_object_model = ActionHistory.ModelType.SOURCE
     queryset = Source.objects.annotate(
         collection_count=Count('collections')
-    ).order_by(F('stories_per_week').desc(nulls_last=True))
-        
+    ).order_by(_ordering)
+
+
     permission_classes = [
         IsGetOrIsStaffOrContributor
     ]
@@ -424,7 +427,8 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 # When attempting to OR in alt_query along with name_ and label_query PG
                 # won't use the index, but will when the alt_query is unionized in.
                 queryset = queryset.filter(name_query | label_query)\
-                                   .union(base_queryset.filter(alt_query))
+                                   .union(base_queryset.filter(alt_query))\
+                                   .order_by(self._ordering)
             else:
                 v = SearchVector("name", "label") # equal weight
                 q = SearchQuery(name, search_type="websearch")
