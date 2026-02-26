@@ -51,7 +51,7 @@ class Command(BaseCommand):
                 alt = ",".join(a["domain"] for a in r["alternative_domains"])
                 if alt:
                     alt = "alternates: " + alt
-                print(r["id"], ">>", r["name"], ">>", r["label"], ">>", alt, "in", r["collection_count"], "collections")
+                print(r["id"], ">>", r["name"], ">>", r["label"], ">>", alt, r["stories_per_week"], "stories per week")
             print("count", d["count"], "next", d["next"], "prev", d["previous"], "len", len(d["results"]))
         else:
             print("response", src_resp.status_code)
