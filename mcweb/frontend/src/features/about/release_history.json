@@ -1,4 +1,10 @@
-[{"version": "v2.4.5",
+[{"version": "v2.5.0",
+"date": "2026-02-27",
+"notes": ["sort sources by stories per week",
+"new source metadata visible in api",
+"profile visible in user admin",
+"system alert can be updated without restart"
+]},{"version": "v2.4.5",
 "date": "2026-02-20",
 "notes": ["enhance scraping, source metadata"
 ]},{"version": "v2.4.4",
