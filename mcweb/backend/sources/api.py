@@ -99,6 +99,32 @@ def _add_search_term(q, t):
         return t
 
 
+def _featured_collections(platform) -> list[Collection]:
+    """
+    helper for featured collections; pulled out of CollectionViewSet for testing.
+    results are serialized and cached by _cached_serialized_featured_collections.
+
+    Ordering used to be done by an SQL CASE on id that returned enumerated
+    position of id in list, could that have made it slow???
+    """
+    if platform == 'onlinenews': # known to/wired into jsx code
+        platform = 'online_news'
+
+    fc = CollectionViewSet.queryset.filter(platform=platform, featured=True)
+
+    # get positions from featured collections JSON file, if any!
+    # _COULD_ have a table with (platorm, collection_id, weight)
+    # OR a Collection column
+    pos_map = {}
+    for pos, id in enumerate(_featured_collection_ids(platform)):
+        if id not in pos_map:
+            pos_map[id] = pos
+    if pos_map:
+        # if id not in JSON file, put it last!
+        fc = sorted(fc, key=lambda c: pos_map.get(c.id, 54321))
+
+    return fc
+
 class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.COLLECTION
     # use this queryset, so we ensure that every result has `source_count` included
@@ -163,16 +189,7 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 
     @cache_by_kwargs()
     def _cached_serialized_featured_collections(self, platform) -> str:
-        if platform == 'onlinenews':
-            featured_collection_ids = _featured_collection_ids(Source.SourcePlatforms.ONLINE_NEWS)
-            ordered_cases = Case(*[When(pk=pk, then=pos)
-                                 for pos, pk in enumerate(featured_collection_ids)])
-            featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
-                                                        id__in=featured_collection_ids).order_by(ordered_cases)
-        else:
-            queryset = self.queryset.filter(platform=platform)
-            featured_collections = queryset.filter(featured=True)
-
+        featured_collections = _featured_collections(platform)
         serializer = self.serializer_class(featured_collections, many=True)
         return serializer.data
 

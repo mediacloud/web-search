@@ -47,7 +47,7 @@ from mc_sitemap_tools.crawl import GNewsCrawler, VisitResult
 # local directory mcweb/backend/sources
 from .action_history import ActionHistoryContext, log_action
 from .models import ActionHistory, Collection, Feed, Source
-from .task_utils import monitored_collections, yesterday_aware
+from .task_utils import ES_PLATFORM, yesterday_aware
 
 # mcweb/backend/util
 from ..util.tasks import TaskLogContext, TaskCommand
@@ -494,7 +494,7 @@ class Scraper:
 
         # limit to online-news parent sources (children can't have feeds)
         q = queryset.filter(url_search_string__isnull=True,
-                            platform="online_news")\
+                            platform=ES_PLATFORM)\
                     .distinct()
         logger.info("=== scrape_sources start: %d candidates, limit %r",  q.count(), limit)
 
@@ -612,13 +612,13 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
         recent_rescrape_date = yesterday_aware(frequency)
         logger.debug("%d days, recent %s", frequency, recent_rescrape_date)
 
-        sources = Source.objects
+        sources = Source.objects.filter(platform=ES_PLATFORM)
         if options["all"]:
-            logger.debug("%d total feeds", sources.count())
+            logger.debug("%d total sources", sources.count())
         else:
-            collection_ids = monitored_collections()
-            sources = sources.filter(collections__id__in=collection_ids)
-            logger.debug("%d monitored collections; %d sources", len(collection_ids), sources.count())
+            managed = Collection.objects.filter(platform=ES_PLATFORM, managed=True)
+            sources = sources.filter(collections__managed=True).distinct()
+            logger.debug("%d managed collections; %d sources", managed.count(), sources.count())
 
         if options["days_old"] is not None:
             days_old = options["days_old"]

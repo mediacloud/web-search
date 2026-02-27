@@ -24,7 +24,7 @@ from ..util.tasks import TaskLogContext
 
 # local dir mcweb/backend/sources
 from .models import Source
-from .task_utils import MetadataUpdater, yesterday, monitored_collections
+from .task_utils import MetadataUpdater, yesterday
 
 # parameterized for experimentation
 # (3 weeks instead of 28 days?)
@@ -57,11 +57,10 @@ class AlertSystem(MetadataUpdater):
 
     def sources_query(self) -> QuerySet:
         """
-        only process sources in monitored collections
+        only process sources in "managed" collections
         """
-        collection_ids = monitored_collections()
         return super().sources_query()\
-                      .filter(collections__id__in=collection_ids)\
+                      .filter(collections__managed=True)\
                       .distinct()
 
     def report(self, source, level, lower, mean_last_week, upper):
