@@ -137,15 +137,22 @@ class UpdateSourceLanguage(UpdateTask):
         domains = agg["buckets"]
         sources_to_update = []
 
+        if self.update:
+            counter = self.UPDATED_COUNTER
+        else:
+            counter = self.FOUND_COUNTER
+
         for source in sources:
             langs = domains.get(source.name, {})
             # should have at most one inner bucket!
             for lang, count in langs.items():
                 self.verbose_source(3, "%s: %s %d", source, lang, count)
+                # NOTE! looking only at count for top language, NOT percentage of total
+                # (would require another inner bucket, and a custom DSL query)
                 if count >= LANG_COUNT_MIN:
-                    logger.info("%s (%d) found language %s (count %d)",
+                    logger.info("%s (%d) %s language %s (count %d)",
                                 self.source_name(source), source.id,
-                                lang, count)
+                                counter, lang, count)
 
                     # NOTE WELL!!!!  Before you copy this code!!!  This task
                     # does MANY orders of magnitude less updating than
@@ -165,6 +172,8 @@ class UpdateSourceLanguage(UpdateTask):
                             log_action(self.user_object, "update-language", ActionHistory.ModelType.SOURCE,
                                        source.id, source.name, # changes??
                                        notes=f"Set primary_language to {lang}")
+                    self.counters[counter] += 1
+
                 break           # quit after one (only) inner bucket!
 
 # call only from tasks.py (via MetadataUpdaterCommand.run_task)
