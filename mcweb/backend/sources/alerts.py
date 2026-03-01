@@ -57,10 +57,10 @@ class AlertSystem(MetadataUpdater):
 
     def sources_query(self) -> QuerySet:
         """
-        only process sources in "managed" collections
+        only process sources in monitored collections
         """
         return super().sources_query()\
-                      .filter(collections__managed=True)\
+                      .filter(collections__monitored=True)\
                       .distinct()
 
     def report(self, source, level, lower, mean_last_week, upper):

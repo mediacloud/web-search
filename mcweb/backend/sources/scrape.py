@@ -616,9 +616,9 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
         if options["all"]:
             logger.debug("%d total sources", sources.count())
         else:
-            managed = Collection.objects.filter(platform=ES_PLATFORM, managed=True)
-            sources = sources.filter(collections__managed=True).distinct()
-            logger.debug("%d managed collections; %d sources", managed.count(), sources.count())
+            mcoll = Collection.objects.filter(platform=ES_PLATFORM, monitored=True)
+            sources = sources.filter(collections__monitored=True).distinct()
+            logger.debug("%d monitored collections; %d sources", mcoll.count(), sources.count())
 
         if options["days_old"] is not None:
             days_old = options["days_old"]

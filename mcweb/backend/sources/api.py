@@ -71,19 +71,6 @@ class IndexedIContains(Lookup):
 # provider for quota
 provider = provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
 
-def _featured_collection_ids(platform: Optional[str]) -> List:
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(this_dir, 'data', 'featured-collections.json')
-    with open(file_path) as json_file:
-        data = json.load(json_file)
-        list_ids = []
-        for collection in data['featuredCollections']['entries']:
-            if (platform is None) or (collection['platform'] == platform):
-                for cid in collection['collections']:
-                    list_ids.append(cid)
-        return list_ids
-
-
 def _all_platforms() -> List:
     return ['onlinenews']
 
@@ -99,31 +86,43 @@ def _add_search_term(q, t):
         return t
 
 
-def _featured_collections(platform) -> list[Collection]:
+def featured_collections(platform: str | None): # returns queryset
     """
-    helper for featured collections; pulled out of CollectionViewSet for testing.
-    results are serialized and cached by _cached_serialized_featured_collections.
+    helper for featured collections; pulled out of CollectionViewSet;
+    called by "manage.py featured-collections list" command!!
 
+    This is the one place that interprets featured_rank values.
+
+    Results cached by _cached_featured_collections.
     Ordering used to be done by an SQL CASE on id that returned enumerated
     position of id in list, could that have made it slow???
     """
     if platform == 'onlinenews': # known to/wired into jsx code
         platform = 'online_news'
 
-    fc = CollectionViewSet.queryset.filter(platform=platform, featured=True)
+    queryset = CollectionViewSet.queryset
+    if platform:
+        queryset = queryset.filter(platform=platform)
 
-    # get positions from featured collections JSON file, if any!
-    # _COULD_ have a table with (platorm, collection_id, weight)
-    # OR a Collection column
-    pos_map = {}
-    for pos, id in enumerate(_featured_collection_ids(platform)):
-        if id not in pos_map:
-            pos_map[id] = pos
-    if pos_map:
-        # if id not in JSON file, put it last!
-        fc = sorted(fc, key=lambda c: pos_map.get(c.id, 54321))
+    # lower number rank comes first (0th, 1st, 2nd, ...)  secondary
+    # sort by id so ties deterministic.  NOTE! default rank is NULL,
+    # which Postgres treats as huge
+    queryset = queryset.filter(featured=True)\
+                       .order_by('featured_rank', 'id')
 
-    return fc
+    return queryset
+
+@cache_by_kwargs()
+def _cached_serialized_featured_collections(platform) -> str:
+    """
+    pulled out of CollectionViewSet class because "cache_by_kwargs"
+    uses ALL arguments to form cache key, including positionals,
+    including "self" in method calls which means it changes, and less
+    (or no) caching occurs!
+    """
+    fc = featured_collections(platform)
+    serializer = CollectionViewSet.serializer_class(fc, many=True)
+    return serializer.data
 
 class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.COLLECTION
@@ -187,15 +186,9 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 
         return super().retrieve(request, *args, **kwargs)
 
-    @cache_by_kwargs()
-    def _cached_serialized_featured_collections(self, platform) -> str:
-        featured_collections = _featured_collections(platform)
-        serializer = self.serializer_class(featured_collections, many=True)
-        return serializer.data
-
     @action(detail=False)
     def featured(self, request):
-        data = self._cached_serialized_featured_collections(
+        data = _cached_serialized_featured_collections(
             request.query_params.get('platform', None))
         response = Response({"collections": data})
         response.accepted_renderer = JSONRenderer()

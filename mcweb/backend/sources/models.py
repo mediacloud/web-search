@@ -29,6 +29,8 @@ class Collection(models.Model):
     managed = models.BooleanField(default=False, null=False, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
+    featured_rank = models.IntegerField(default=None, null=True)
+    monitored = models.BooleanField(default=False, null=False)
 
     class Meta:
         permissions = (('edit_collection', 'Edit collection')),

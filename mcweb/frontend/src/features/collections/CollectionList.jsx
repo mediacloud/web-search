@@ -3,6 +3,7 @@ import Pagination from '@mui/material/Pagination';
 import CircularProgress from '@mui/material/CircularProgress';
 import PropTypes from 'prop-types';
 import ShieldIcon from '@mui/icons-material/Shield';
+import StarIcon from '@mui/icons-material/Star';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
@@ -61,6 +62,7 @@ export default function CollectionList(props) {
                       {collection.name}
                     </Link>
                     {!collection.public && <ShieldIcon fontSize="small" titleAccess="private" />}
+                    {collection.monitored && <StarIcon fontSize="small" titleAccess="monitored" color="warning" />}
                   </td>
                   <td className="numeric">{asNumber(collection.source_count)}</td>
                   { edit && (

@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
 import ShieldIcon from '@mui/icons-material/Shield';
 import SearchIcon from '@mui/icons-material/Search';
+import StarIcon from '@mui/icons-material/Star';
 import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
@@ -70,6 +71,7 @@ export default function CollectionHeader() {
             &nbsp;
             {collection.name}
             {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
+            {collection.monitored && <StarIcon fontSize="large" titleAccess="monitored" color="warning" />}
           </Link>
         </h1>
 
