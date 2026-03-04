@@ -1,4 +1,8 @@
-[{"version": "v2.5.0",
+[{"version": "v2.5.1",
+"date": "2026-03-06",
+"notes": ["made monitored and featured collections visible",
+"made monitored and featured collections easier to manage"
+]},{"version": "v2.5.0",
 "date": "2026-02-27",
 "notes": ["sort sources by stories per week",
 "new source metadata visible in api",
