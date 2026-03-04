@@ -47,7 +47,7 @@ from mc_sitemap_tools.crawl import GNewsCrawler, VisitResult
 # local directory mcweb/backend/sources
 from .action_history import ActionHistoryContext, log_action
 from .models import ActionHistory, Collection, Feed, Source
-from .task_utils import monitored_collections, yesterday_aware
+from .task_utils import ES_PLATFORM, yesterday_aware
 
 # mcweb/backend/util
 from ..util.tasks import TaskLogContext, TaskCommand
@@ -494,14 +494,14 @@ class Scraper:
 
         # limit to online-news parent sources (children can't have feeds)
         q = queryset.filter(url_search_string__isnull=True,
-                            platform="online_news")\
+                            platform=ES_PLATFORM)\
                     .distinct()
         logger.info("=== scrape_sources start: %d candidates, limit %r",  q.count(), limit)
 
         if limit is not None:   # apply limit, if any
             q = q[:limit]
 
-        processed = feeds_added = exceptions = 0
+        processed = feeds_added = sources_updated = exceptions = 0
         chunks = []
 
         # pagination not practical: scraping will remove Sources from result set!
@@ -524,7 +524,9 @@ class Scraper:
             try:
                 ssr = self.scrape_source(source.id, source.homepage, source.name, last_rescrape_extra)
                 # XXX sum up feed_counters.asdict() into a Counter??
-                feeds_added += ssr.counts.added
+                if ssr.counts.added:
+                    feeds_added += ssr.counts.added
+                    sources_updated += 1
                 chunks.append(ssr.full)
             except Exception as e:
                 exceptions += 1
@@ -540,7 +542,7 @@ class Scraper:
             # insert no lines here!
             logger.info("== finished scrape_source %d (%s)", source.id, source.name)
 
-        summary = f"{processed} sources processed: {feeds_added} feeds added, {exceptions} errors"
+        summary = f"{processed} sources processed, {sources_updated} updated, {feeds_added} feeds added, {exceptions} errors"
         logger.info("=== scrape sources end: %s", summary)
         chunks.append(summary)
         return ScrapeSourcesResult(chunks=chunks, summary=summary)
@@ -612,13 +614,13 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
         recent_rescrape_date = yesterday_aware(frequency)
         logger.debug("%d days, recent %s", frequency, recent_rescrape_date)
 
-        sources = Source.objects
+        sources = Source.objects.filter(platform=ES_PLATFORM)
         if options["all"]:
-            logger.debug("%d total feeds", sources.count())
+            logger.debug("%d total sources", sources.count())
         else:
-            collection_ids = monitored_collections()
-            sources = sources.filter(collections__id__in=collection_ids)
-            logger.debug("%d monitored collections; %d sources", len(collection_ids), sources.count())
+            mcoll = Collection.objects.filter(platform=ES_PLATFORM, monitored=True)
+            sources = sources.filter(collections__monitored=True).distinct()
+            logger.debug("%d monitored collections; %d sources", mcoll.count(), sources.count())
 
         if options["days_old"] is not None:
             days_old = options["days_old"]

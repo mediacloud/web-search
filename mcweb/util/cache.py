@@ -83,7 +83,10 @@ def mc_providers_cacher(fn: Callable, cache_prefix: str, *args, **kwargs) -> tup
     seconds = kwargs.pop("_cache_seconds", None)
     return cached_function_call(fn, cache_prefix, seconds, *args, **kwargs)
 
-# decorator for caching functions/methods in backend code
+# decorator for caching functions in backend code.
+# NOTE!  **ALL** arguments used for cache key, so does NOT work for
+# methods!!! Phil says: It's possible I broke this when I merged
+# code in this module...
 def cache_by_kwargs(seconds: int | None = None):
     def decorator(fn):
         def wrapper(*args, **kwargs):

@@ -8,6 +8,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import CircularProgress from '@mui/material/CircularProgress';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import { PermissionedContributor } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -51,6 +52,8 @@ export default function SourceHeader() {
             <PlatformIcon titleAccess={source.name} fontSize="large" />
             &nbsp;
             {source.label || source.name}
+            {' '}
+            {source.monitored && <QueryStatsIcon fontSize="large" titleAccess="monitored" color="success" />}
           </Link>
         </h1>
         {source.url_search_string && (
