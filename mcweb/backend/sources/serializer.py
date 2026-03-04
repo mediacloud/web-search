@@ -59,7 +59,7 @@ class SourceSerializer(serializers.ModelSerializer):
         model = Source
         fields = ['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform', 'stories_per_week',
                   'last_story', 'created_at', 'modified_at', 'pub_country', 'pub_state', 'primary_language',
-                  'media_type', 'last_rescraped', 'last_rescraped_msg']
+                  'media_type', 'last_rescraped', 'last_rescraped_msg', 'monitored']
         extra_kwargs = {'collections': {'required': False}}
     
     def validate_homepage(self, value):
@@ -166,13 +166,16 @@ class SourcesViewSerializer(serializers.ModelSerializer):
     
     last_story = serializers.DateTimeField(format="%m/%Y", read_only=True)
 
+    monitored = serializers.BooleanField()
+
     class Meta:
         model = Source
         fields = ['id', 'name', 'url_search_string', 'label', 'homepage', 'notes', 'platform', 'stories_per_week',
                   'last_story', 'created_at', 'modified_at', 'pub_country', 'pub_state', 'primary_language',
                   'media_type', 'last_rescraped', 'last_rescraped_msg',
                   'collection_count', 'collections', 'alternative_domains',
-                  'stories_total', 'stories_date_past', 'stories_date_future', 'stories_date_empty']
+                  'stories_total', 'stories_date_past', 'stories_date_future', 'stories_date_empty',
+                  'monitored']
 
     def get_alternative_domains(self, obj):
         # Fetch all related AlternativeDomain objects and return their domains as a list

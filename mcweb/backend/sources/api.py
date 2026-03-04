@@ -9,7 +9,7 @@ from typing import List, Optional
 import constance                # TEMP
 import mcmetadata.urls as urls
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.db.models import Case, Count, F, Field, Lookup, Q, When
+from django.db.models import Case, Count, Exists, F, Field, Lookup, OuterRef, Q, When
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -378,8 +378,13 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     # private class variable used in queryset AND against union query:
     _ordering = F('stories_per_week').desc(nulls_last=True)
     action_history_object_model = ActionHistory.ModelType.SOURCE
+    # Added `monitored` (with index on Collection.monitored)
+    # to make it possible to decorate pages with a monitored icon.
     queryset = Source.objects.annotate(
-        collection_count=Count('collections')
+        collection_count=Count('collections'),
+        monitored=Exists(
+            Collection.objects.filter(monitored=True,
+                                      source__id=OuterRef("pk")))
     ).order_by(_ordering).all()
 
     permission_classes = [

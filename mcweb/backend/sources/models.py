@@ -37,6 +37,7 @@ class Collection(models.Model):
         indexes = [
             # useful for search filtering
             models.Index(fields=['platform'], name='collection platform'),
+            models.Index(fields=['monitored'], name='collection_monitored'),
         ]
 
 
