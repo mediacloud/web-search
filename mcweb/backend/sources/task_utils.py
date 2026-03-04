@@ -4,7 +4,6 @@ Utilities for source management tasks
 
 import collections
 import datetime as dt
-import json
 import logging
 import time                     # sleep
 from typing import TypeAlias
@@ -33,14 +32,6 @@ class ChildSources:
     NEVER = "never"
 
 CHILD_SOURCES_DEFAULT = ChildSources.ALSO
-
-def monitored_collections():
-    """
-    return list of monitored/important collections
-    (someday use a collection set??)
-    """
-    with open('mcweb/backend/sources/data/collections-to-monitor.json') as f:
-        return json.load(f)
 
 def yesterday(days=0):
     """
