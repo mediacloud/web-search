@@ -68,6 +68,9 @@ class MetadataUpdater:
     BUCKETS_PER_SOURCE = 1
     SOURCE_PAGE_SIZE = 5000     # PG query page: make a command line option?
 
+    UPDATED_COUNTER = "updated"
+    FOUND_COUNTER = "found"
+
     # To add new arguments from the manage.py command line
     # add to MetadataUpdaterCommand.add_arguments
     def __init__(self, *, task_args: dict, options: dict):
@@ -223,10 +226,10 @@ class MetadataUpdater:
                 Source.objects.bulk_update(self.sources_to_update,
                                            self.UPDATE_FIELDS, batch_size=100)
                 logger.info("updated %d sources", nupdate)
-                self.counters["updated"] += nupdate
+                self.counters[self.UPDATED_COUNTER] += nupdate
             else:
                 logger.info("found %d sources to update (--update not given)", nupdate)
-                self.counters["found"] += nupdate
+                self.counters[self.FOUND_COUNTER] += nupdate
             self.sources_to_update = []
 
     def process_sources(self, *,
