@@ -501,7 +501,7 @@ class Scraper:
         if limit is not None:   # apply limit, if any
             q = q[:limit]
 
-        processed = feeds_added = exceptions = 0
+        processed = feeds_added = sources_updated = exceptions = 0
         chunks = []
 
         # pagination not practical: scraping will remove Sources from result set!
@@ -524,7 +524,9 @@ class Scraper:
             try:
                 ssr = self.scrape_source(source.id, source.homepage, source.name, last_rescrape_extra)
                 # XXX sum up feed_counters.asdict() into a Counter??
-                feeds_added += ssr.counts.added
+                if ssr.counts.added:
+                    feeds_added += ssr.counts.added
+                    sources_updated += 1
                 chunks.append(ssr.full)
             except Exception as e:
                 exceptions += 1
@@ -540,7 +542,7 @@ class Scraper:
             # insert no lines here!
             logger.info("== finished scrape_source %d (%s)", source.id, source.name)
 
-        summary = f"{processed} sources processed: {feeds_added} feeds added, {exceptions} errors"
+        summary = f"{processed} sources processed, {sources_updated} updated, {feeds_added} feeds added, {exceptions} errors"
         logger.info("=== scrape sources end: %s", summary)
         chunks.append(summary)
         return ScrapeSourcesResult(chunks=chunks, summary=summary)
