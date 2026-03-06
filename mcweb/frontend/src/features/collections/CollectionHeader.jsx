@@ -4,7 +4,6 @@ import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
 import ShieldIcon from '@mui/icons-material/Shield';
 import SearchIcon from '@mui/icons-material/Search';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
@@ -24,6 +23,7 @@ import { platformDisplayName, platformIcon } from '../ui/uiUtil';
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
+import Monitored from '../ui/Monitored';
 import CopyCollectionDialog from './util/CopyCollectionDialog';
 import MediaNotFound from '../ui/MediaNotFound';
 
@@ -73,7 +73,7 @@ export default function CollectionHeader() {
             {' '}
             {!collection.public && <ShieldIcon fontSize="large" titleAccess="private" />}
             {' '}
-            {collection.monitored && <QueryStatsIcon fontSize="large" titleAccess="monitored" color="success" />}
+            {collection.monitored && <Monitored fontSize="large" type="collection" />}
           </Link>
         </h1>
 
