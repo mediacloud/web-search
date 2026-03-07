@@ -36,7 +36,7 @@ export default function ModifyCollection() {
 
   // form state for text fields
   const [formState, setFormState] = useState({
-    id: 0, name: '', notes: '', platform: 'online_news', public: true, featured: false, rescrape: true, managed: false,
+    id: 0, name: '', notes: '', platform: 'online_news', public: true, featured: false, rescrape: true, managed: false, monitored: false,
   });
 
   const [open, setOpen] = useState(false);
@@ -84,6 +84,7 @@ export default function ModifyCollection() {
         featured: data.featured,
         rescrape: data.platform === 'online_news',
         managed: data.managed,
+        monitored: data.monitored,
       };
       setFormState(formData);
     }
@@ -211,6 +212,17 @@ export default function ModifyCollection() {
               )}
               label="Featured?"
             />
+            <FormControlLabel
+              control={(
+                <Checkbox
+                  name="monitored"
+                  checked={formState.monitored}
+                  onChange={handleChange}
+                  disabled={disabled}
+                />
+)}
+              label="Monitored?"
+            />
           </FormGroup>
           <br />
           <br />
@@ -227,6 +239,7 @@ export default function ModifyCollection() {
                   public: formState.public,
                   featured: formState.featured,
                   managed: formState.managed,
+                  monitored: formState.monitored,
                 }).unwrap();
                 enqueueSnackbar('Saved changes', { variant: 'success' });
                 navigate(`/collections/${collectionId}`);

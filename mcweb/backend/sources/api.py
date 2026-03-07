@@ -9,7 +9,7 @@ from typing import List, Optional
 import constance                # TEMP
 import mcmetadata.urls as urls
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.db.models import Case, Count, F, Field, Lookup, Q, When
+from django.db.models import Case, Count, Exists, F, Field, Lookup, OuterRef, Q, When
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -71,19 +71,6 @@ class IndexedIContains(Lookup):
 # provider for quota
 provider = provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
 
-def _featured_collection_ids(platform: Optional[str]) -> List:
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    file_path = os.path.join(this_dir, 'data', 'featured-collections.json')
-    with open(file_path) as json_file:
-        data = json.load(json_file)
-        list_ids = []
-        for collection in data['featuredCollections']['entries']:
-            if (platform is None) or (collection['platform'] == platform):
-                for cid in collection['collections']:
-                    list_ids.append(cid)
-        return list_ids
-
-
 def _all_platforms() -> List:
     return ['onlinenews']
 
@@ -98,6 +85,44 @@ def _add_search_term(q, t):
     else:
         return t
 
+
+def featured_collections(platform: str | None): # returns queryset
+    """
+    helper for featured collections; pulled out of CollectionViewSet;
+    called by "manage.py featured-collections list" command!!
+
+    This is the one place that interprets featured_rank values.
+
+    Results cached by _cached_featured_collections.
+    Ordering used to be done by an SQL CASE on id that returned enumerated
+    position of id in list, could that have made it slow???
+    """
+    if platform == 'onlinenews': # known to/wired into jsx code
+        platform = 'online_news'
+
+    queryset = CollectionViewSet.queryset
+    if platform:
+        queryset = queryset.filter(platform=platform)
+
+    # lower number rank comes first (0th, 1st, 2nd, ...)  secondary
+    # sort by id so ties deterministic.  NOTE! default rank is NULL,
+    # which Postgres treats as huge
+    queryset = queryset.filter(featured=True)\
+                       .order_by('featured_rank', 'id')
+
+    return queryset
+
+@cache_by_kwargs()
+def _cached_serialized_featured_collections(platform) -> str:
+    """
+    pulled out of CollectionViewSet class because "cache_by_kwargs"
+    uses ALL arguments to form cache key, including positionals,
+    including "self" in method calls which means it changes, and less
+    (or no) caching occurs!
+    """
+    fc = featured_collections(platform)
+    serializer = CollectionViewSet.serializer_class(fc, many=True)
+    return serializer.data
 
 class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.COLLECTION
@@ -161,24 +186,9 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 
         return super().retrieve(request, *args, **kwargs)
 
-    @cache_by_kwargs()
-    def _cached_serialized_featured_collections(self, platform) -> str:
-        if platform == 'onlinenews':
-            featured_collection_ids = _featured_collection_ids(Source.SourcePlatforms.ONLINE_NEWS)
-            ordered_cases = Case(*[When(pk=pk, then=pos)
-                                 for pos, pk in enumerate(featured_collection_ids)])
-            featured_collections = self.queryset.filter(pk__in=featured_collection_ids,
-                                                        id__in=featured_collection_ids).order_by(ordered_cases)
-        else:
-            queryset = self.queryset.filter(platform=platform)
-            featured_collections = queryset.filter(featured=True)
-
-        serializer = self.serializer_class(featured_collections, many=True)
-        return serializer.data
-
     @action(detail=False)
     def featured(self, request):
-        data = self._cached_serialized_featured_collections(
+        data = _cached_serialized_featured_collections(
             request.query_params.get('platform', None))
         response = Response({"collections": data})
         response.accepted_renderer = JSONRenderer()
@@ -368,8 +378,13 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     # private class variable used in queryset AND against union query:
     _ordering = F('stories_per_week').desc(nulls_last=True)
     action_history_object_model = ActionHistory.ModelType.SOURCE
+    # Added `monitored` (with index on Collection.monitored)
+    # to make it possible to decorate pages with a monitored icon.
     queryset = Source.objects.annotate(
-        collection_count=Count('collections')
+        collection_count=Count('collections'),
+        monitored=Exists(
+            Collection.objects.filter(monitored=True,
+                                      source__id=OuterRef("pk")))
     ).order_by(_ordering).all()
 
     permission_classes = [

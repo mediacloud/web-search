@@ -4,7 +4,6 @@ Utilities for source management tasks
 
 import collections
 import datetime as dt
-import json
 import logging
 import time                     # sleep
 from typing import TypeAlias
@@ -34,14 +33,6 @@ class ChildSources:
 
 CHILD_SOURCES_DEFAULT = ChildSources.ALSO
 
-def monitored_collections():
-    """
-    return list of monitored/important collections
-    (someday use a collection set??)
-    """
-    with open('mcweb/backend/sources/data/collections-to-monitor.json') as f:
-        return json.load(f)
-
 def yesterday(days=0):
     """
     returns a naive datetime for use in ES search ranges; mc_provider
@@ -67,6 +58,9 @@ class MetadataUpdater:
     UPDATE_FIELDS: list[str]    # Source fields to update
     BUCKETS_PER_SOURCE = 1
     SOURCE_PAGE_SIZE = 5000     # PG query page: make a command line option?
+
+    UPDATED_COUNTER = "updated"
+    FOUND_COUNTER = "found"
 
     # To add new arguments from the manage.py command line
     # add to MetadataUpdaterCommand.add_arguments
@@ -223,10 +217,10 @@ class MetadataUpdater:
                 Source.objects.bulk_update(self.sources_to_update,
                                            self.UPDATE_FIELDS, batch_size=100)
                 logger.info("updated %d sources", nupdate)
-                self.counters["updated"] += nupdate
+                self.counters[self.UPDATED_COUNTER] += nupdate
             else:
                 logger.info("found %d sources to update (--update not given)", nupdate)
-                self.counters["found"] += nupdate
+                self.counters[self.FOUND_COUNTER] += nupdate
             self.sources_to_update = []
 
     def process_sources(self, *,

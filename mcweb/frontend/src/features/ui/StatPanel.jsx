@@ -8,7 +8,7 @@ export default function StatPanel({ items }) {
         <div className="col-2" key={`item-${item.label}`}>
           <div className="stat-item">
             <em className="small-label">{item.label}</em>
-            {item.value || '?'}
+            {item.value ?? '?'}
           </div>
         </div>
       ))}

@@ -29,12 +29,15 @@ class Collection(models.Model):
     managed = models.BooleanField(default=False, null=False, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
+    featured_rank = models.IntegerField(default=None, null=True)
+    monitored = models.BooleanField(default=False, null=False)
 
     class Meta:
         permissions = (('edit_collection', 'Edit collection')),
         indexes = [
             # useful for search filtering
             models.Index(fields=['platform'], name='collection platform'),
+            models.Index(fields=['monitored'], name='collection_monitored'),
         ]
 
 
