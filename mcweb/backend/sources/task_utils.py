@@ -17,7 +17,7 @@ from django.db.models import QuerySet, Q
 from ..util.tasks import TaskCommand, get_task_provider
 
 # local directory
-from .models import Source
+from .models import MetadataUpdateTask, Source
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +202,8 @@ class MetadataUpdater:
                             for name, value in self.counters.items())
         if self.update:
             logger.info("totals: %s", counters)
+            MetadataUpdateTask.run("MetadataUpdater", type(self).__name__,
+                                   self.counters[self.UPDATED_COUNTER])
         else:
             logger.info("totals: %s (no update)", counters)
 

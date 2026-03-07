@@ -356,3 +356,14 @@ class ActionHistory(models.Model):
 
 
 # log_action moved to action_history.py
+
+class MetadataUpdateTask(models.Model):
+    script = models.CharField(max_length=50)
+    task = models.CharField(max_length=50)
+    updated = models.IntegerField()
+    run_at = models.DateTimeField(auto_now=True, null=False)
+
+    @classmethod
+    def run(cls, script: str, task: str, updated: int) -> None:
+        # returns (object, created)
+        cls.objects.update_or_create(script=script, task=task, updated=updated)
