@@ -3,7 +3,6 @@ import Pagination from '@mui/material/Pagination';
 import CircularProgress from '@mui/material/CircularProgress';
 import PropTypes from 'prop-types';
 import ShieldIcon from '@mui/icons-material/Shield';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import { Link } from 'react-router-dom';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import IconButton from '@mui/material/IconButton';
@@ -11,6 +10,7 @@ import { useListCollectionsQuery } from '../../app/services/collectionsApi';
 import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { asNumber, platformIcon } from '../ui/uiUtil';
+import Monitored from '../ui/Monitored';
 
 export default function CollectionList(props) {
   const { sourceId, edit } = props;
@@ -64,7 +64,7 @@ export default function CollectionList(props) {
                     {' '}
                     {!collection.public && <ShieldIcon fontSize="small" titleAccess="private" />}
                     {' '}
-                    {collection.monitored && <QueryStatsIcon fontSize="small" titleAccess="monitored" color="success" />}
+                    {collection.monitored && <Monitored fontSize="small" type="collection" />}
                   </td>
                   <td className="numeric">{asNumber(collection.source_count)}</td>
                   { edit && (

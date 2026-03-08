@@ -8,7 +8,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import CircularProgress from '@mui/material/CircularProgress';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import { useGetSourceQuery } from '../../app/services/sourceApi';
 import { PermissionedContributor } from '../auth/Permissioned';
 import urlSerializer from '../search/util/urlSerializer';
@@ -17,6 +16,7 @@ import { defaultPlatformProvider, defaultPlatformQuery } from '../search/util/pl
 import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import MediaNotFound from '../ui/MediaNotFound';
+import Monitored from '../ui/Monitored';
 import AdvancedMenu from './util/AdvancedMenu';
 import FeedMenu from './util/FeedMenu';
 
@@ -53,7 +53,7 @@ export default function SourceHeader() {
             &nbsp;
             {source.label || source.name}
             {' '}
-            {source.monitored && <QueryStatsIcon fontSize="large" titleAccess="monitored" color="success" />}
+            {source.monitored && <Monitored fontSize="large" type="source" />}
           </Link>
         </h1>
         {source.url_search_string && (
