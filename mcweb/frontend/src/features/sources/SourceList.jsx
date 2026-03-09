@@ -11,6 +11,7 @@ import { useListSourcesQuery } from '../../app/services/sourceApi';
 import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { sourceFavIcon, asNumber } from '../ui/uiUtil';
+import sourceTooltips from './util/sourceTooltips';
 
 const utc = require('dayjs/plugin/utc');
 
@@ -24,6 +25,7 @@ export default function SourceList(props) {
   } = useListSourcesQuery({ collection_id: collectionId, page });
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
+  const tt = sourceTooltips();
 
   // if loading
   if (isLoading) {
@@ -49,46 +51,25 @@ export default function SourceList(props) {
         <table width="100%">
           <thead>
             <tr>
-              <Tooltip
-                title="The domain that uniquely identifies the Source within our system for
-                searching against the Online News Archive."
-              >
+              <Tooltip title={tt.name}>
                 <th>Domain</th>
               </Tooltip>
-              <Tooltip
-                title="The primary country this Source is publishing from or
-                where their headquarters are located. This is the 3-letter ISO 3166-1 alpha-3 standard format"
-              >
+              <Tooltip title={tt.pub_country}>
                 <th>Publication Country</th>
               </Tooltip>
-              <Tooltip
-                title="The primary state or province this Source is publishing from or
-                where their headquarters are located. This is the ISO 3166-2 standard format"
-              >
+              <Tooltip title={tt.pub_state}>
                 <th>Publication State</th>
               </Tooltip>
-              <Tooltip
-                title="Our system guesses the primary language of each article it ingests.
-                For each Source we indicate the language the majority of its articles are in
-                (if we have enough to measure)."
-              >
+              <Tooltip title={tt.primary_language}>
                 <th>Primary Language</th>
               </Tooltip>
-              <Tooltip
-                title="The number of stories ingested from this Source in the past week,
-                 based on our ingestion."
-              >
+              <Tooltip title={tt.stories_per_week}>
                 <th>Content per Week</th>
               </Tooltip>
-              <Tooltip
-                title="The most recent year and month a new story was ingested (updated weekly)"
-              >
+              <Tooltip title={tt.last_story}>
                 <th>New Stories In</th>
               </Tooltip>
-              <Tooltip
-                title="The last time our system tried to automatically check the website for more feeds
-                we can use to ingest stories every day. “?” means it hasn't tried since fall 2023."
-              >
+              <Tooltip title={tt.last_rescraped}>
                 <th>Last Checked For New Feeds</th>
               </Tooltip>
               {edit && (<th>Admin</th>)}

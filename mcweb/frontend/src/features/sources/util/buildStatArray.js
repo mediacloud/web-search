@@ -1,3 +1,5 @@
+import sourceTooltips from './sourceTooltips';
+
 const statPanelValues = [
   { label: 'New Stories In', value: 'last_story' },
   { label: 'Stories per Week', value: 'stories_per_week' },
@@ -9,8 +11,9 @@ const statPanelValues = [
 
 const buildStatArray = (sourceObject) => {
   const returnArr = [];
+  const tt = sourceTooltips();
   statPanelValues.forEach((panelValue) => {
-    returnArr.push({ label: panelValue.label, value: sourceObject[panelValue.value] });
+    returnArr.push({ label: panelValue.label, value: sourceObject[panelValue.value], toolTip: tt[panelValue.value] });
   });
   return returnArr;
 };

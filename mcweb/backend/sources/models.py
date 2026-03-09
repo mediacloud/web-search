@@ -9,6 +9,8 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 
+from util.cache import cache_by_kwargs
+
 logger = logging.getLogger(__name__)
 
 class Collection(models.Model):
@@ -367,3 +369,32 @@ class MetadataUpdateTask(models.Model):
     def run(cls, script: str, task: str, updated: int) -> None:
         # returns (object, created)
         cls.objects.update_or_create(script=script, task=task, updated=updated)
+
+# could be generated from Metadataupdater class UPDATE_FIELDS variable:
+_TASK_TO_FIELDS = {
+    "UpdateSourceLanguage": ["primary_language"],
+    "UpdateStoriesPerWeek":  ["stories_per_week"],
+    "FindLastStory": ["last_story"],
+    # not user visible fields:
+    #"AlertSystem": ["alerted"],
+    #"UpdateTotals": ["stories_total", "stories_date_past", "stories_date_future", "stories_date_empty"]
+}
+
+def _task_to_fields(script: str, task: str) -> list[str]:
+    return _TASK_TO_FIELDS.get(task, [])
+
+# not a method to allow caching:
+@cache_by_kwargs(seconds=60*60)
+def last_metadata_updates() -> dict[str, str]:
+    """
+    used to populate JS window.metadata_updates trying to localize
+    knowledge of what fields updated by what tasks here.
+    """
+    q = MetadataUpdateTask.objects.filter(script="MetadataUpdater")\
+                                  .values("script", "task")\
+                                  .annotate(last_run_at=models.Max('run_at'))
+    return {
+        field: row["last_run_at"].strftime("%Y-%m-%d")
+        for row in q
+        for field in _task_to_fields(row["script"], row["task"])
+    }

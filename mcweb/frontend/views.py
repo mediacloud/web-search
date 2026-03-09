@@ -25,6 +25,8 @@ from settings import (
     VERSION
 )
 
+from backend.sources.models import last_metadata_updates
+
 logger = logging.getLogger(__name__)
 
 # TEMPORARY! convert Unix timestamp to ISO date
@@ -50,6 +52,6 @@ def index(request):
             "sentry_env": (SENTRY_ENV or "null"),
             "traces_rate": SENTRY_JS_TRACES_RATE,
             "replay_rate": SENTRY_JS_REPLAY_RATE,
-        }
-
+        },
+        last_metadata_updates=last_metadata_updates()
     ))
