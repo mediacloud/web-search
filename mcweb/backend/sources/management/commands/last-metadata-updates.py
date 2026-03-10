@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from ...models import last_metadata_updates
+from ...models import MetadataUpdateTask
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        print(last_metadata_updates())
+        print(MetadataUpdateTask.last_metadata_updates())

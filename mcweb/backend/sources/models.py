@@ -359,41 +359,66 @@ class ActionHistory(models.Model):
 
 # log_action moved to action_history.py
 
+# map MetadataUpdater final classes to list of updated fields
+METADATA_UPDATER_CLASS_TO_FIELDS: dict[str, list[str]] = {}
+
+class MetadataUpdaterMetaclass(type):
+    """
+    metaclass for MetadataUpdater to create map
+    from class names to fields updated
+    """
+
+    def __new__(cls, name, bases, dct):
+        new_cls = super().__new__(cls, name, bases, dct)
+        # here with new MetadataUpdater subclass
+        # final classes MUST have UPDATE_FIELDS to update data
+        fields = getattr(new_cls, "UPDATE_FIELDS", None)
+        if fields is not None:
+            METADATA_UPDATER_CLASS_TO_FIELDS[name] = fields
+        return new_cls
+
 class MetadataUpdateTask(models.Model):
-    script = models.CharField(max_length=50)
-    task = models.CharField(max_length=50)
-    updated = models.IntegerField()
+    """
+    Table for recording last run of metadata update tasks.
+    Currently supports only subclasses of MetadataUpdater,
+    but baseclass included for generality.
+    """
+    class UpdaterClass(models.TextChoices):
+        METADATA_UPDATER = "MetadataUpdater"
+
+    baseclass = models.CharField(max_length=50, choices=UpdaterClass.choices)
+    subclass = models.CharField(max_length=50)
+    updated = models.IntegerField() # number of sources updated
     run_at = models.DateTimeField(auto_now=True, null=False)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['baseclass', 'subclass'], name='updater_baseclass_subclass')
+        ]
+
     @classmethod
-    def run(cls, script: str, task: str, updated: int) -> None:
+    def run(cls, baseclass: str, subclass: str, updated: int) -> None:
         # returns (object, created)
-        cls.objects.update_or_create(script=script, task=task, updated=updated)
+        cls.objects.update_or_create(baseclass=baseclass, subclass=subclass, updated=updated)
 
-# could be generated from MetadataUpdater class UPDATE_FIELDS variable:
-_TASK_TO_FIELDS = {
-    "UpdateSourceLanguage": ["primary_language"],
-    "UpdateStoriesPerWeek":  ["stories_per_week"],
-    "FindLastStory": ["last_story"],
-    # not user visible fields:
-    #"AlertSystem": ["alerted"],
-    #"UpdateTotals": ["stories_total", "stories_date_past", "stories_date_future", "stories_date_empty"]
-}
+    @classmethod
+    def _class_subclass_to_fields(cls, script: str, task: str) -> list[str]:
+        """
+        hide METADATA_UPDATER_CLASS_TO_FIELDS
+        """
+        assert script == cls.UpdaterClass.METADATA_UPDATER
+        return METADATA_UPDATER_CLASS_TO_FIELDS[task]
 
-def _task_to_fields(script: str, task: str) -> list[str]:
-    return _TASK_TO_FIELDS.get(task, [])
-
-# not a method to allow caching:
-@cache_by_kwargs(seconds=60*60)
-def last_metadata_updates() -> dict[str, str]:
-    """
-    Used to populate browser document.settings.lastMetadataUpdates.
-    """
-    q = MetadataUpdateTask.objects.filter(script="MetadataUpdater")\
-                                  .values("script", "task")\
-                                  .annotate(last_run_at=models.Max('run_at'))
-    return {
-        field: row["last_run_at"].strftime("%Y-%m-%d")
-        for row in q
-        for field in _task_to_fields(row["script"], row["task"])
-    }
+    @classmethod               # must be first
+    @cache_by_kwargs(seconds=60*60)
+    def last_metadata_updates(cls) -> dict[str, str]:
+        """
+        Used to populate browser document.settings.lastMetadataUpdates,
+        and called by manage.py last-metadata-updates for test
+        """
+        q = cls.objects.filter(baseclass=cls.UpdaterClass.METADATA_UPDATER)
+        return {
+            field: row.run_at.strftime("%Y-%m-%d")
+            for row in q
+            for field in cls._class_subclass_to_fields(row.baseclass, row.subclass)
+        }

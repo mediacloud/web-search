@@ -25,7 +25,7 @@ from settings import (
     VERSION
 )
 
-from backend.sources.models import last_metadata_updates
+from backend.sources.models import MetadataUpdateTask
 
 logger = logging.getLogger(__name__)
 
@@ -53,5 +53,5 @@ def index(request):
             "traces_rate": SENTRY_JS_TRACES_RATE,
             "replay_rate": SENTRY_JS_REPLAY_RATE,
         },
-        last_metadata_updates=last_metadata_updates()
+        last_metadata_updates=MetadataUpdateTask.last_metadata_updates()
     ))

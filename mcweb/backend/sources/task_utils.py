@@ -17,7 +17,7 @@ from django.db.models import QuerySet, Q
 from ..util.tasks import TaskCommand, get_task_provider
 
 # local directory
-from .models import MetadataUpdateTask, Source
+from .models import MetadataUpdaterMetaclass, MetadataUpdateTask, Source
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ def yesterday_aware(days=0):
     """
     return yesterday(days).replace(tzinfo=dt.timezone.utc)
 
-class MetadataUpdater:
+class MetadataUpdater(metaclass=MetadataUpdaterMetaclass):
     """
     Class for metadata updater tasks, invoked by MetadataUpdaterCommand
     subclass manage commands.  Used by AlertSystem (in alerts.py)
@@ -202,7 +202,8 @@ class MetadataUpdater:
                             for name, value in self.counters.items())
         if self.update:
             logger.info("totals: %s", counters)
-            MetadataUpdateTask.run("MetadataUpdater", type(self).__name__,
+            MetadataUpdateTask.run(MetadataUpdateTask.UpdaterClass.METADATA_UPDATER,
+                                   type(self).__name__,
                                    self.counters[self.UPDATED_COUNTER])
         else:
             logger.info("totals: %s (no update)", counters)
