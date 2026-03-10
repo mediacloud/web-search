@@ -398,8 +398,10 @@ class MetadataUpdateTask(models.Model):
 
     @classmethod
     def run(cls, baseclass: str, subclass: str, updated: int) -> None:
+        # lookup by {base,sub}class
         # returns (object, created)
-        cls.objects.update_or_create(baseclass=baseclass, subclass=subclass, updated=updated)
+        cls.objects.update_or_create(baseclass=baseclass, subclass=subclass,
+                                     defaults={'updated': updated})
 
     @classmethod
     def _class_subclass_to_fields(cls, script: str, task: str) -> list[str]:
