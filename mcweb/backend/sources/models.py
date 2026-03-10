@@ -409,12 +409,10 @@ class MetadataUpdateTask(models.Model):
         assert script == cls.UpdaterClass.METADATA_UPDATER
         return METADATA_UPDATER_CLASS_TO_FIELDS[task]
 
-    @classmethod               # must be first
-    @cache_by_kwargs(seconds=60*60)
-    def last_metadata_updates(cls) -> dict[str, str]:
+    @classmethod
+    def _last_metadata_updates(cls) -> dict[str, str]:
         """
-        Used to populate browser document.settings.lastMetadataUpdates,
-        and called by manage.py last-metadata-updates for test
+        called by manage.py last-metadata-updates for test
         """
         q = cls.objects.filter(baseclass=cls.UpdaterClass.METADATA_UPDATER)
         return {
@@ -422,3 +420,12 @@ class MetadataUpdateTask(models.Model):
             for row in q
             for field in cls._class_subclass_to_fields(row.baseclass, row.subclass)
         }
+
+    @classmethod               # must be first
+    @cache_by_kwargs(seconds=60*60)
+    def last_metadata_updates(cls) -> dict[str, str]:
+        """
+        Used to populate browser document.settings.lastMetadataUpdates,
+        called by manage.py last-metadata-updates for test
+        """
+        return cls._last_metdata_updates()
