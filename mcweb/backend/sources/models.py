@@ -370,7 +370,7 @@ class MetadataUpdateTask(models.Model):
         # returns (object, created)
         cls.objects.update_or_create(script=script, task=task, updated=updated)
 
-# could be generated from Metadataupdater class UPDATE_FIELDS variable:
+# could be generated from MetadataUpdater class UPDATE_FIELDS variable:
 _TASK_TO_FIELDS = {
     "UpdateSourceLanguage": ["primary_language"],
     "UpdateStoriesPerWeek":  ["stories_per_week"],
@@ -387,8 +387,7 @@ def _task_to_fields(script: str, task: str) -> list[str]:
 @cache_by_kwargs(seconds=60*60)
 def last_metadata_updates() -> dict[str, str]:
     """
-    used to populate JS window.metadata_updates trying to localize
-    knowledge of what fields updated by what tasks here.
+    Used to populate browser document.settings.lastMetadataUpdates.
     """
     q = MetadataUpdateTask.objects.filter(script="MetadataUpdater")\
                                   .values("script", "task")\
