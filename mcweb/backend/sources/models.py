@@ -430,4 +430,4 @@ class MetadataUpdateTask(models.Model):
         Used to populate browser document.settings.lastMetadataUpdates,
         called by manage.py last-metadata-updates for test
         """
-        return cls._last_metdata_updates()
+        return cls._last_metadata_updates()
