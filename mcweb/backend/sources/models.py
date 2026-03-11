@@ -9,6 +9,8 @@ from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 
+from util.cache import cache_by_kwargs
+
 logger = logging.getLogger(__name__)
 
 class Collection(models.Model):
@@ -356,3 +358,76 @@ class ActionHistory(models.Model):
 
 
 # log_action moved to action_history.py
+
+# map MetadataUpdater final classes to list of updated fields
+METADATA_UPDATER_CLASS_TO_FIELDS: dict[str, list[str]] = {}
+
+class MetadataUpdaterMetaclass(type):
+    """
+    metaclass for MetadataUpdater to create map
+    from class names to fields updated
+    """
+
+    def __new__(cls, name, bases, dct):
+        new_cls = super().__new__(cls, name, bases, dct)
+        # here with new MetadataUpdater subclass
+        # final classes MUST have UPDATE_FIELDS to update data
+        fields = getattr(new_cls, "UPDATE_FIELDS", None)
+        if fields is not None:
+            METADATA_UPDATER_CLASS_TO_FIELDS[name] = fields
+        return new_cls
+
+class MetadataUpdateTask(models.Model):
+    """
+    Table for recording last run of metadata update tasks.
+    Currently supports only subclasses of MetadataUpdater,
+    but baseclass included for generality.
+    """
+    class UpdaterClass(models.TextChoices):
+        METADATA_UPDATER = "MetadataUpdater"
+
+    baseclass = models.CharField(max_length=50, choices=UpdaterClass.choices)
+    subclass = models.CharField(max_length=50)
+    updated = models.IntegerField() # number of sources updated
+    run_at = models.DateTimeField(auto_now=True, null=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['baseclass', 'subclass'], name='updater_baseclass_subclass')
+        ]
+
+    @classmethod
+    def run(cls, baseclass: str, subclass: str, updated: int) -> None:
+        # lookup by {base,sub}class
+        # returns (object, created)
+        cls.objects.update_or_create(baseclass=baseclass, subclass=subclass,
+                                     defaults={'updated': updated})
+
+    @classmethod
+    def _class_subclass_to_fields(cls, script: str, task: str) -> list[str]:
+        """
+        hide METADATA_UPDATER_CLASS_TO_FIELDS
+        """
+        assert script == cls.UpdaterClass.METADATA_UPDATER
+        return METADATA_UPDATER_CLASS_TO_FIELDS[task]
+
+    @classmethod
+    def _last_metadata_updates(cls) -> dict[str, str]:
+        """
+        called by manage.py last-metadata-updates for test
+        """
+        q = cls.objects.filter(baseclass=cls.UpdaterClass.METADATA_UPDATER)
+        return {
+            field: row.run_at.strftime("%Y-%m-%d")
+            for row in q
+            for field in cls._class_subclass_to_fields(row.baseclass, row.subclass)
+        }
+
+    @classmethod               # must be first
+    @cache_by_kwargs(seconds=60*60)
+    def last_metadata_updates(cls) -> dict[str, str]:
+        """
+        Used to populate browser document.settings.lastMetadataUpdates,
+        called by manage.py last-metadata-updates for test
+        """
+        return cls._last_metdata_updates()
