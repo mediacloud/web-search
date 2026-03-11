@@ -9,6 +9,9 @@
 // A function 'cause export default won't take an object,
 // AND to make sure templates expanded with (latest) values.
 export default function sourceTooltips() {
+    // embedding update period here less than ideal, but will only
+    // be shown when table of last task runs not populated.
+
     function updated(field, period) {
 	const date = document.settings.lastMetadataUpdates[field];
 	return date ? "column last updated " + date : "column updated " + period;
@@ -25,7 +28,7 @@ export default function sourceTooltips() {
 
 	stories_per_week: `The number of stories ingested from this Source in the past week (${updated('stories_per_week', 'weekly')}).`,
 
-	last_story: `The most recent year and month a new story was ingested (${updated('last_story', 'monthly')}).`,
+	last_story: `The most recent year and month a new story was ingested (${updated('last_story', 'weekly')}).`,
 
 	media_type: "Type of media: print, digital, audio or video (if known).",
 
