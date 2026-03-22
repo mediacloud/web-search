@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import CircularProgress from '@mui/material/CircularProgress';
+import { PermissionedContributor } from '../auth/Permissioned';
 import TabPanelHelper from '../ui/TabPanelHelper';
 import StoriesOverTime from '../stories/StoriesOverTime';
 import buildStatArray from './util/buildStatArray';
@@ -157,6 +158,35 @@ export default function SourceShow() {
             ? source.last_rescraped_msg
             : 'Source has not been rescraped recently' }
         </p>
+
+        <PermissionedContributor>
+          <p>
+            <div>
+              <b>Total stories (as of {document.settings.lastMetadataUpdates.stories_total ?? '??'}):</b> {source.stories_total ?? 'unknown'}
+            </div>
+            {
+              (source.stories_date_past > 0) && (
+                <div>
+                  <b>Stories too far in the past:</b> {source.stories_date_past}
+                </div>
+              )
+            }
+            {
+              (source.stories_date_future > 0) && (
+                <div>
+                  <b>Stories too far in the future:</b> {source.stories_date_future}
+                </div>
+              )
+            }
+            {
+              (source.stories_date_empty > 0) && (
+                <div>
+                  <b>Stories with no date:</b> {source.stories_date_empty}
+                </div>
+              )
+            }
+          </p>
+        </PermissionedContributor>
 
       </div>
 
