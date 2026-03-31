@@ -131,11 +131,13 @@ class CustomUserAdmin(BaseUserAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         provider = provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
-        week = QuotaHistory._this_week()
+        latest_provider_week = QuotaHistory.objects.filter(
+            provider=provider,
+        ).order_by("-week").values("week")[:1]
         current_week_hits = QuotaHistory.objects.filter(
             user_id=OuterRef("pk"),
             provider=provider,
-            week=week,
+            week=Subquery(latest_provider_week),
         ).values("hits")[:1]
         high_rate_limit_group = User.groups.through.objects.filter(
             user_id=OuterRef("pk"),
