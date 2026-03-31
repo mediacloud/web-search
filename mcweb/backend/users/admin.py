@@ -119,7 +119,6 @@ class CustomUserAdmin(BaseUserAdmin):
         "quota_limit",
         "weekly_hits",
         "quota_used_pct",
-        "remaining_quota",
         "high_rate_limit",
     )
     list_filter = BaseUserAdmin.list_filter + (
@@ -170,10 +169,6 @@ class CustomUserAdmin(BaseUserAdmin):
                 default=Value(0.0),
                 output_field=FloatField(),
             ),
-            remaining_quota=ExpressionWrapper(
-                F("quota_limit") - F("weekly_hits"),
-                output_field=IntegerField(),
-            ),
         )
 
     @admin.display(ordering="quota_limit", description="Quota limit")
@@ -187,10 +182,6 @@ class CustomUserAdmin(BaseUserAdmin):
     @admin.display(ordering="quota_used_pct", description="Quota used %")
     def quota_used_pct(self, obj):
         return f"{obj.quota_used_pct:.1f}%"
-
-    @admin.display(ordering="remaining_quota", description="Remaining quota")
-    def remaining_quota(self, obj):
-        return obj.remaining_quota
 
     @admin.display(ordering="high_rate_limit", boolean=True, description="High rate")
     def high_rate_limit(self, obj):
