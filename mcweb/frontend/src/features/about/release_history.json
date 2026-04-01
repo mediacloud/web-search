@@ -1,4 +1,9 @@
-[{"version": "v2.5.3",
+[{"version": "v2.6.0",
+"date": "2026-03-27",
+"notes": ["disabled fuzzzy~ word search",
+"show full source counts to contributors",
+"note about single-source feed scraping"
+]},{"version": "v2.5.3",
 "date": "2026-03-14",
 "notes": ["show update date in source column tooltips",
 "give error if search selections don't find sources"

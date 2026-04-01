@@ -138,7 +138,9 @@ export default function FeedMenu({ source, disabled }) {
             outsideTitle="Rescrape Source"
             title={`Rescrape Source ${source.name} for new Feeds`}
             content={`Are you sure you would like to rescrape ${source.name} for new feeds?
-                       Confirming will place this source in a queue to be rescraped for new feeds`}
+                       NOTE: tries a little harder (longer timeouts, and deeper traversal of site maps)
+                       than when rescraping an entire collection.
+                       Confirming will place this source in a queue to be rescraped for new feeds.`}
             dispatchNeeded={false}
             action={scrapeForFeeds}
             actionTarget={source.id}
