@@ -167,7 +167,7 @@ export default function SourceShow() {
             {
               (source.stories_date_past > 0) && (
                 <div>
-                  <b>Stories too far in the past:</b> {source.stories_date_past}
+                  <b>Stories before {document.settings.earliestAvailableDate}:</b> {source.stories_date_past}
                 </div>
               )
             }
