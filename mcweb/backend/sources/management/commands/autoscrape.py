@@ -10,8 +10,11 @@ class Command(TaskCommand):
     help = "Background rescrape"
 
     def add_arguments(self, parser):
-        parser.add_argument("--all", action="store_true",
-                            help="Consider all sources (else just monitored ones)")
+        sources = parser.add_mutually_exclusive_group()
+        sources.add_argument("--all", action="store_true",
+                             help="Consider all sources (else just ones in monitored collections)")
+        sources.add_argument("--featured", action="store_true",
+                             help="Consider only featured collections (else all monitored ones)")
 
         def_count = 500
         parser.add_argument("--count", type=int, default=def_count,

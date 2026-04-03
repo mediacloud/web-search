@@ -617,6 +617,10 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
         sources = Source.objects.filter(platform=ES_PLATFORM)
         if options["all"]:
             logger.debug("%d total sources", sources.count())
+        elif options["featured"]:
+            fcoll = Collection.objects.filter(platform=ES_PLATFORM, featured=True)
+            sources = sources.filter(collections__featured=True).distinct()
+            logger.debug("%d featured collections; %d sources", fcoll.count(), sources.count())
         else:
             mcoll = Collection.objects.filter(platform=ES_PLATFORM, monitored=True)
             sources = sources.filter(collections__monitored=True).distinct()
