@@ -24,7 +24,8 @@ from django.core.exceptions import ImproperlyConfigured
 logger = logging.getLogger(__file__)
 
 # The static version of the app
-VERSION = "2.6.0"
+# PLEASE update mcweb/frontend/src/features/about/release_history.json as well!
+VERSION = "2.6.1"
 
 class Groups:
     CONTRIBUTOR = "contributor"
