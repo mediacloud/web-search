@@ -1,4 +1,9 @@
-[{"version": "v2.6.0",
+[{"version": "v2.6.1",
+"date": "2026-04-07",
+"notes": ["make quota info visible in user admin",
+"show 'Stories before DATE'",
+"make collection scrape use 'slow' queue"
+]},{"version": "v2.6.0",
 "date": "2026-03-27",
 "notes": ["disabled fuzzzy~ word search",
 "show full source counts to contributors",
