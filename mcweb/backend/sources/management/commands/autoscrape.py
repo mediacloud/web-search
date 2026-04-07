@@ -15,6 +15,8 @@ class Command(TaskCommand):
                              help="Consider all sources (else just ones in monitored collections)")
         sources.add_argument("--featured", action="store_true",
                              help="Consider only featured collections (else all monitored ones)")
+        sources.add_argument("--not-featured", action="store_true",
+                             help="Never consider featured collections (else all monitored ones)")
 
         def_count = 500
         parser.add_argument("--count", type=int, default=def_count,
