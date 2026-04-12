@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 def alert_system(**kws):
     alerts.alert_system(**kws)
 
-@background(queue=ADMIN_FAST)   # admin user initiated
+@background(queue=ADMIN_SLOW)   # admin user initiated
 def scrape_collection(**kws):
     scrape.scrape_collection(**kws)
 
