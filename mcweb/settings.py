@@ -25,7 +25,7 @@ logger = logging.getLogger(__file__)
 
 # The static version of the app
 # PLEASE update mcweb/frontend/src/features/about/release_history.json as well!
-VERSION = "2.6.1"
+VERSION = "3.0.0"
 
 class Groups:
     CONTRIBUTOR = "contributor"
