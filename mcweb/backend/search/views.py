@@ -234,44 +234,86 @@ def count_over_time(request):
         request.user.id, request.user.is_staff, pq.provider_name)
     return json_response({"count_over_time": response})
 
+
 @api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
-def count_by_source_week(request):
-    pq = parse_query(request)
+def count_by_source_over_interval(request):
+    pq, params = parse_query_params(request)
     provider = pq_provider(pq)
-    provider._base_url = "http://localhost:8010"
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    # compute time period
-    q_delta = pq.end_date - pq.start_date
-    num_weeks = q_delta.days // 7
-    # figure out the list of domains, from both sources and collections on the query
-    domains = pq.provider_props['domains']
+
+    interval = str(params.get("interval", "week")).lower()
+    valid_intervals = {"day", "week", "month", "year"}
+    if interval not in valid_intervals:
+        return error_response(
+            f"Invalid interval '{interval}'. Must be one of: {', '.join(sorted(valid_intervals))}"
+        )
+
+    domains = pq.provider_props.get("domains", [])
+    if not domains:
+        return error_response("No domains selected for source-over-interval query.")
+
+    date_span_days = (pq.end_date - pq.start_date).days + 1
+    if date_span_days <= 0:
+        return error_response("Invalid date range: end_date must be on or after start_date.")
+
+    if interval == "day":
+        num_intervals = date_span_days
+    elif interval == "week":
+        num_intervals = max(1, (date_span_days + 6) // 7)
+    elif interval == "month":
+        num_intervals = max(
+            1,
+            (pq.end_date.year - pq.start_date.year) * 12
+            + (pq.end_date.month - pq.start_date.month)
+            + 1
+        )
+    else:  # year
+        num_intervals = max(1, (pq.end_date.year - pq.start_date.year) + 1)
+
     max_buckets = provider.MAX_2D_AGG_BUCKETS
-    if num_weeks*len(domains) > max_buckets:
-        return error_response(f"Too many sources*weeks selected for this query (max {max_buckets})")
-    # get the counts for just matching stories
-    matching = provider.two_d_aggregation(query=_qs(pq), start_date=pq.start_date,
-                                          outer_field="publish_date", inner_field="media_name",
-                                          interval="week", num_intervals=num_weeks,
-                                          domains=domains)
-    # get the counts for all stories, so we can return normalized results too
-    totals = provider.two_d_aggregation(query='*', start_date=pq.start_date,
-                                       outer_field="publish_date", inner_field="media_name",
-                                       interval="week", num_intervals=num_weeks,
-                                       domains=domains)
-    # reshape it for download as tidy data
+    if num_intervals * len(domains) > max_buckets:
+        return error_response(
+            f"Too many sources*time-buckets selected for this query (max {max_buckets})"
+        )
+
+    matching = provider.two_d_aggregation(
+        query=_qs(pq),
+        start_date=pq.start_date,
+        outer_field="publish_date",
+        inner_field="media_name",
+        interval=interval,
+        num_intervals=num_intervals,
+        domains=domains
+    )
+    totals = provider.two_d_aggregation(
+        query='*',
+        start_date=pq.start_date,
+        outer_field="publish_date",
+        inner_field="media_name",
+        interval=interval,
+        num_intervals=num_intervals,
+        domains=domains
+    )
+
     shaped_data = []
     for media in domains:
-        for week, values in totals["buckets"].items(): # do this so we get totals for even if a week had no matching
+        for bucket, values in totals["buckets"].items():
             total = values.get(media, 0)
-            count = matching['buckets'][week].get(media, 0)
-            shaped_data.append({"media_name": media, "week": week, "matching_stories": count, "total_stories": total,
-                                "ratio": (count / total) if total > 0 else 0})
+            count = matching["buckets"].get(bucket, {}).get(media, 0)
+            shaped_data.append({
+                "media_name": media,
+                "interval": interval,
+                "bucket": bucket,
+                "matching_stories": count,
+                "total_stories": total,
+                "ratio": (count / total) if total > 0 else 0
+            })
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
-    return json_response({"source-week-attention": shaped_data})
+    return json_response({"source-interval-attention": shaped_data})
 
 @api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
