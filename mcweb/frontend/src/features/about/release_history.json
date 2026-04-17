@@ -1,6 +1,6 @@
 [{"version":"v3.0.0b",
 "notes":["replace source_over_week endpoint with count_source_over_interval"],
-"date":"2026-04-17"]},
+"date":"2026-04-17"},
 {"version": "v2.6.1",
 "date": "2026-04-07",
 "notes": ["make quota info visible in user admin",
