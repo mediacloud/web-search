@@ -1,4 +1,4 @@
-[{"version":"v3.0.0b",
+[{"version":"v3.0.0",
 "notes":["replace source_over_week endpoint with count_source_over_interval"],
 "date":"2026-04-17"},
 {"version": "v2.6.1",
