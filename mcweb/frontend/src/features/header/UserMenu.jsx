@@ -69,7 +69,7 @@ const UserMenu = () => {
               Web User Admin
             </MenuItem>
             <MenuItem
-              href="http://localhost:8000/adminsources/collection/"
+              href="/adminsources/collection/"
               target="_blank"
               component="a"
             >
