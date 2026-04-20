@@ -12,6 +12,7 @@ import datetime as dt
 import logging
 
 # PyPI:
+import constance
 import numpy as np
 from django.db.models import QuerySet
 from django.core.paginator import Paginator
@@ -24,6 +25,7 @@ from ..util.tasks import TaskLogContext
 
 # local dir mcweb/backend/sources
 from .models import Source
+from .pelt import prepare_daily_series, run_pelt, summarize_regime_changes
 from .task_utils import MetadataUpdater, yesterday
 
 # parameterized for experimentation
@@ -82,16 +84,48 @@ class AlertSystem(MetadataUpdater):
                         sources: list[Source],
                         domains: list[str],
                         url_search_strings: dict[str,list[str]]) -> None:
+        use_pelt = bool(constance.config.SOURCE_ALERT_USE_PELT)
+        if use_pelt:
+            try:
+                self._process_sources_pelt(
+                    sources=sources,
+                    domains=domains,
+                    url_search_strings=url_search_strings,
+                )
+                return
+            except Exception:
+                logger.exception("PELT alert path failed; falling back to legacy thresholds")
+
+        self._process_sources_legacy(
+            sources=sources,
+            domains=domains,
+            url_search_strings=url_search_strings,
+        )
+
+    def _aggregate_counts(self, *,
+                          domains: list[str],
+                          url_search_strings: dict[str, list[str]]) -> dict:
+        return self.p.two_d_aggregation(
+            end_date=yesterday(),
+            interval=AGG_INTERVAL,
+            num_intervals=NUM_INTERVALS,
+            domains=domains,
+            url_search_strings=url_search_strings,
+            inner_field="media_name",
+        )
+
+    def _process_sources_legacy(self, *,
+                                sources: list[Source],
+                                domains: list[str],
+                                url_search_strings: dict[str,list[str]]) -> None:
         """
         called with either a list of domains, and no url_search strings,
         or a single url_search_string
         """
-        agg = self.p.two_d_aggregation(end_date=yesterday(),
-                                       interval=AGG_INTERVAL,
-                                       num_intervals=NUM_INTERVALS,
-                                       domains=domains,
-                                       url_search_strings=url_search_strings,
-                                       inner_field="media_name")
+        agg = self._aggregate_counts(
+            domains=domains,
+            url_search_strings=url_search_strings,
+        )
 
         # dict indexed by date string, of dicts indexed by domain, of counts
         buckets = agg["buckets"]
@@ -143,6 +177,70 @@ class AlertSystem(MetadataUpdater):
                     else:
                         self.verbose(2, f"Source %d: %s is ingesting at regular levels",
                                      source.id, self.source_name(source))
+
+    def _report_pelt_change(self, *, source: Source, change: dict) -> None:
+        pct_change = change.get("pct_change")
+        pct_text = "n/a" if pct_change is None else f"{pct_change:.1f}%"
+        msg = (
+            f"Source {source.id}: {self.source_name(source)} regime change on {change['start']} "
+            f"(change={pct_text}, median {change['prev_median']:.1f}->{change['curr_median']:.1f}, "
+            f"mode {change['prev_mode']}->{change['curr_mode']})"
+        )
+        self.alert_dict.setdefault("pelt", []).append(msg)
+        self.reports += 1
+        logger.info("%s", msg)
+
+    def _process_sources_pelt(self, *,
+                              sources: list[Source],
+                              domains: list[str],
+                              url_search_strings: dict[str,list[str]]) -> None:
+        agg = self._aggregate_counts(
+            domains=domains,
+            url_search_strings=url_search_strings,
+        )
+        buckets = agg["buckets"]
+        bucket_items = sorted(buckets.items(), key=lambda item: item[0])
+
+        for source in sources:
+            series = [
+                {"date": bucket_date, "volume": bucket.get(source.name, 0)}
+                for bucket_date, bucket in bucket_items
+            ]
+
+            if not series:
+                logger.info("Source %d: %s has no aggregation buckets", source.id, self.source_name(source))
+                continue
+
+            # Keep stories_per_week updates consistent with the legacy alert path.
+            week_counts = [int(row["volume"]) for row in series[LAST_WEEK:]]
+            if self.update:
+                Source.update_stories_per_week(source.id, sum(week_counts))
+
+            start_date = dt.date.fromisoformat(str(series[0]["date"])[:10])
+            end_date = dt.date.fromisoformat(str(series[-1]["date"])[:10])
+            prepared = prepare_daily_series(series, start_date=start_date, end_date=end_date)
+            run = run_pelt(
+                start_date=start_date,
+                end_date=end_date,
+                dates=prepared.dates,
+                volume=prepared.volume,
+                log_volume=prepared.log_volume,
+            )
+            changes = summarize_regime_changes(segments=run.segments, volume=prepared.volume)
+
+            # Emit one line per transition so downstream systems can choose policy.
+            for change in changes:
+                self._report_pelt_change(source=source, change=change.to_dict())
+
+            # Optional compatibility with existing Source.alerted semantics:
+            # alert when latest regime mode is exactly zero.
+            latest_mode = run.segments[-1].mode_volume if run.segments else None
+            if latest_mode == 0 and not source.alerted:
+                source.alerted = True
+                self.needs_update(source)
+            elif latest_mode != 0 and source.alerted:
+                source.alerted = False
+                self.needs_update(source)
 
     def run(self):
         super().run()
