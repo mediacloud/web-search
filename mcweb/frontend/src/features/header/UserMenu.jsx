@@ -4,12 +4,14 @@ import PersonIcon from '@mui/icons-material/Person';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
+import Divider from '@mui/material/Divider';
 import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLogoutMutation } from '../../app/services/authApi';
 import { selectIsLoggedIn, setCredentials } from '../auth/authSlice';
 import { saveCsrfToken } from '../../services/csrfToken';
+import { PermissionedStaff, ROLE_STAFF } from '../auth/Permissioned';
 
 // to save us typing redundant info when using MUI <Menu>s
 const defaultMenuOriginProps = {
@@ -56,6 +58,56 @@ const UserMenu = () => {
           <MenuItem component={NavLink} to="account" onClick={handleCloseUserMenu}>
             Profile
           </MenuItem>
+
+          <PermissionedStaff role={ROLE_STAFF}>
+            <Divider />
+            <MenuItem
+              href="/adminauth/user/"
+              target="_blank"
+              component="a"
+            >
+              Web User Admin
+            </MenuItem>
+            <MenuItem
+              href="http://localhost:8000/adminsources/collection/"
+              target="_blank"
+              component="a"
+            >
+              Web Collection Admin
+            </MenuItem>
+            <MenuItem
+              href="/adminsources/actionhistory/"
+              target="_blank"
+              component="a"
+            >
+              Web Action History
+            </MenuItem>
+            <Divider />
+            <MenuItem
+              href="https://mediacloud.github.io/sous-chef-kitchen-frontend/"
+              target="_blank"
+              component="a"
+            >
+              Sous Chef
+            </MenuItem>
+            <MenuItem
+              href="https://source-inspector.tarbell.mediacloud.org/"
+              target="_blank"
+              component="a"
+            >
+              Source Inspector
+            </MenuItem>
+            <MenuItem
+              href="https://stats.tarbell.mediacloud.org/"
+              target="_blank"
+              component="a"
+            >
+              Monitoring Dashboard
+            </MenuItem>
+          </PermissionedStaff>
+
+          <Divider />
+
           <MenuItem onClick={handleLogout}>
             Logout
           </MenuItem>
