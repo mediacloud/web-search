@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Preprocessing helpers for PELT-ready daily source volume series."""
+
 import datetime as dt
 from collections.abc import Mapping, Sequence
 
@@ -9,10 +11,11 @@ from .types import DailySeries
 
 
 def _coerce_date(value: object) -> dt.date:
-    if isinstance(value, dt.date) and not isinstance(value, dt.datetime):
-        return value
+    """Normalize supported date-like values to ``datetime.date``."""
     if isinstance(value, dt.datetime):
         return value.date()
+    if isinstance(value, dt.date):
+        return value
     if isinstance(value, str):
         return dt.date.fromisoformat(value[:10])
     raise TypeError(f"Unsupported date value: {value!r}")
@@ -25,7 +28,10 @@ def prepare_daily_series(
     end_date: dt.date,
 ) -> DailySeries:
     """
-    Build a dense daily series with zero-fill and log1p transform.
+    Build a dense daily series with zero-fill and ``log1p`` transform.
+
+    Input rows may use either ``volume`` or ``count`` as the numeric field.
+    Multiple rows for the same day are summed before output.
     """
     if start_date > end_date:
         raise ValueError("start_date must be <= end_date")

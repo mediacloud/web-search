@@ -1,3 +1,9 @@
+"""Minimal PELT toolkit for source health alerting flows.
+
+Public API intentionally exposes only preprocessing, detection, and regime
+summary primitives needed by ``backend.sources.alerts``.
+"""
+
 from .detect import run_pelt, suggest_penalty
 from .preprocess import prepare_daily_series
 from .summarize import summarize_regime_changes

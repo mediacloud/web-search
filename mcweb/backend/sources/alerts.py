@@ -12,7 +12,6 @@ import datetime as dt
 import logging
 
 # PyPI:
-import constance
 import numpy as np
 from django.db.models import QuerySet
 from django.core.paginator import Paginator
@@ -49,11 +48,13 @@ class AlertSystem(MetadataUpdater):
 
     def __init__(self, *, task_args: dict, options: dict):
         super().__init__(task_args=task_args, options=options)
+        self.alert_algorithm = options.get("algorithm", "both")
 
         self.alert_dict = {
             "high": [],
             "low": [],
-            "fixed": []
+            "fixed": [],
+            "pelt": [],
         }
         self.reports = 0
 
@@ -84,23 +85,24 @@ class AlertSystem(MetadataUpdater):
                         sources: list[Source],
                         domains: list[str],
                         url_search_strings: dict[str,list[str]]) -> None:
-        use_pelt = bool(constance.config.SOURCE_ALERT_USE_PELT)
-        if use_pelt:
-            try:
-                self._process_sources_pelt(
-                    sources=sources,
-                    domains=domains,
-                    url_search_strings=url_search_strings,
-                )
-                return
-            except Exception:
-                logger.exception("PELT alert path failed; falling back to legacy thresholds")
-
-        self._process_sources_legacy(
-            sources=sources,
+        agg = self._aggregate_counts(
             domains=domains,
             url_search_strings=url_search_strings,
         )
+        buckets = agg["buckets"]
+        mode = str(self.alert_algorithm).lower()
+
+        if mode in ("legacy", "both"):
+            self._process_sources_legacy(sources=sources, buckets=buckets)
+
+        if mode in ("pelt", "both"):
+            try:
+                self._process_sources_pelt(sources=sources, buckets=buckets)
+            except Exception:
+                logger.exception("PELT alert path failed")
+                if mode == "pelt":
+                    logger.info("Falling back to legacy thresholds")
+                    self._process_sources_legacy(sources=sources, buckets=buckets)
 
     def _aggregate_counts(self, *,
                           domains: list[str],
@@ -114,22 +116,11 @@ class AlertSystem(MetadataUpdater):
             inner_field="media_name",
         )
 
-    def _process_sources_legacy(self, *,
-                                sources: list[Source],
-                                domains: list[str],
-                                url_search_strings: dict[str,list[str]]) -> None:
+    def _process_sources_legacy(self, *, sources: list[Source], buckets: dict) -> None:
         """
         called with either a list of domains, and no url_search strings,
         or a single url_search_string
         """
-        agg = self._aggregate_counts(
-            domains=domains,
-            url_search_strings=url_search_strings,
-        )
-
-        # dict indexed by date string, of dicts indexed by domain, of counts
-        buckets = agg["buckets"]
-
         for source in sources:
             # XXX depends on each possible date bucket being present
             # need to pad with zeroes if not!!!
@@ -192,13 +183,7 @@ class AlertSystem(MetadataUpdater):
 
     def _process_sources_pelt(self, *,
                               sources: list[Source],
-                              domains: list[str],
-                              url_search_strings: dict[str,list[str]]) -> None:
-        agg = self._aggregate_counts(
-            domains=domains,
-            url_search_strings=url_search_strings,
-        )
-        buckets = agg["buckets"]
+                              buckets: dict) -> None:
         bucket_items = sorted(buckets.items(), key=lambda item: item[0])
 
         for source in sources:

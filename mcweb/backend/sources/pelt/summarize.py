@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+"""Regime-level summary helpers for downstream alert policy decisions."""
+
 import numpy as np
 
 from .types import RegimeChange, Segment
 
 
 def _segment_median(volume: np.ndarray, segment: Segment) -> float:
+    """Return median raw volume for one segment."""
     values = np.asarray(volume[segment.start_idx:segment.end_idx], dtype=float)
     if values.size == 0:
         return 0.0
@@ -13,6 +16,10 @@ def _segment_median(volume: np.ndarray, segment: Segment) -> float:
 
 
 def _segment_mode(volume: np.ndarray, segment: Segment) -> int | None:
+    """Return mode raw volume for one segment.
+
+    Prefers ``segment.mode_volume`` when available to avoid recomputation.
+    """
     if segment.mode_volume is not None:
         return segment.mode_volume
     values = np.asarray(volume[segment.start_idx:segment.end_idx], dtype=int)
@@ -24,7 +31,10 @@ def _segment_mode(volume: np.ndarray, segment: Segment) -> int | None:
 
 def summarize_regime_changes(*, segments: list[Segment], volume: np.ndarray) -> list[RegimeChange]:
     """
-    Build a neutral regime-transition summary for downstream alert policies.
+    Build a neutral transition summary between adjacent regimes.
+
+    The output does not impose thresholds (up/down/near-zero). It intentionally
+    reports descriptive statistics so downstream systems can choose policy.
     """
     if len(segments) < 2:
         return []

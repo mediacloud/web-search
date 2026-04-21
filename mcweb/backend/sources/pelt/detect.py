@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""PELT execution and segment construction utilities."""
+
 import datetime as dt
 
 import numpy as np
@@ -8,6 +10,7 @@ from .types import PeltRunResult, Segment
 
 
 def _segment_mode(volume: np.ndarray, *, start_idx: int, end_idx: int) -> int | None:
+    """Compute the most frequent integer volume value in a slice."""
     values = np.asarray(volume[start_idx:end_idx], dtype=int)
     if values.size == 0:
         return None
@@ -16,6 +19,10 @@ def _segment_mode(volume: np.ndarray, *, start_idx: int, end_idx: int) -> int | 
 
 
 def suggest_penalty(log_volume: np.ndarray, *, penalty_scale: float = 1.0) -> float:
+    """Heuristic penalty: ``penalty_scale * log(n) * variance``.
+
+    Returns a safe positive fallback (1.0) when variance is zero/non-finite.
+    """
     n = int(len(log_volume))
     if n <= 1:
         return 1.0
@@ -33,6 +40,7 @@ def segments_from_breakpoints(
     volume: np.ndarray,
     log_volume: np.ndarray,
 ) -> list[Segment]:
+    """Convert ruptures breakpoints into rich segment objects."""
     n = len(volume)
     if len(dates) != n or len(log_volume) != n:
         raise ValueError("`dates`, `volume`, and `log_volume` must have the same length.")
@@ -76,6 +84,18 @@ def run_pelt(
     min_size: int = 7,
     penalty: float | str = "auto",
 ) -> PeltRunResult:
+    """Run PELT on a preprocessed time series and return segment metadata.
+
+    Args:
+        start_date: Analysis window start.
+        end_date: Analysis window end.
+        dates: Dense calendar aligned with ``volume``.
+        volume: Raw daily counts.
+        log_volume: ``log1p(volume)`` signal for changepoint detection.
+        model: ruptures cost model (default ``l2``).
+        min_size: Minimum segment length in days.
+        penalty: Numeric value or ``"auto"`` to use ``suggest_penalty``.
+    """
     if len(log_volume) == 0:
         raise ValueError("Cannot run PELT on an empty series.")
 
