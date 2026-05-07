@@ -25,7 +25,7 @@ logger = logging.getLogger(__file__)
 
 # The static version of the app
 # PLEASE update mcweb/frontend/src/features/about/release_history.json as well!
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 
 class Groups:
     CONTRIBUTOR = "contributor"
@@ -49,7 +49,7 @@ class Groups:
     
     # Default user assignments for groups
     DEFAULT_USERS = {
-        CONTRIBUTOR : ["e.leon@northeastern.edu"],
+        CONTRIBUTOR : ["r.bhargava@northeastern.edu"],
         API_ACCESS : ["all"],
         HIGH_RATE_LIMIT: []
     }

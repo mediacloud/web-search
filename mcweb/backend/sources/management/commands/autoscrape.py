@@ -33,7 +33,10 @@ class Command(TaskCommand):
         # days since last scrape to consider ripe for rescrape
         # a required option (since could be VERY different depending on other options)
         parser.add_argument("--frequency", type=int, required=True,
-                            help=f"Days between rescrapes of a source.")
+                            help="Days between rescrapes of a source.")
+
+        parser.add_argument("--no-stories", action="store_true",
+                            help="Only scrape sources with zero or NULL stories_per_week.")
         
         super().add_arguments(parser)
 
