@@ -12,6 +12,16 @@ import { useGetFeedQuery, useGetFeedDetailsQuery } from '../../app/services/feed
 const relativeTime = require('dayjs/plugin/relativeTime');
 const utc = require('dayjs/plugin/utc');
 
+function formatFeedDate(date) {
+    if (date) {
+        const djsl = dayjs.utc(date).local();
+        return `${djsl.fromNow()}
+                (${djsl.format('MM/DD/YYYY HH:mm:ss')})`;
+    }
+    else
+        return '(unknown)';
+}
+
 function FeedShow() {
   dayjs.extend(relativeTime);
   dayjs.extend(utc);
@@ -63,6 +73,24 @@ function FeedShow() {
             &nbsp;
             <Chip label={workingLabel} color={(isWorking) ? 'success' : 'error'} />
           </div>
+          <div>
+            <b>URL</b>
+            :
+            &nbsp;
+            {`${feedData.url}`}
+          </div>
+          <div>
+            <b>Created</b>
+            :
+            &nbsp;
+            {`${formatFeedDate(feedData.created_at)}`}
+          </div>
+          <div>
+            <b>Modified</b>
+            :
+            &nbsp;
+            {`${formatFeedDate(feedData.modified_at)}`}
+          </div>
         </div>
       </div>
 
@@ -73,26 +101,22 @@ function FeedShow() {
             <li>
               Last New Story:
               {' '}
-              {`${dayjs.utc(details.last_new_stories).local().fromNow()}
-               (${dayjs.utc(details.last_new_stories).local().format('MM/DD/YYYY HH:mm:ss')})`}
+              {`${formatFeedDate(details.last_new_stories)}`}
             </li>
             <li>
               Last Fetch Attempt:
               {' '}
-              {`${dayjs.utc(details.last_fetch_attempt).local().fromNow()}
-               (${dayjs.utc(details.last_fetch_attempt).local().format('MM/DD/YYYY HH:mm:ss')})`}
+              {`${formatFeedDate(details.last_fetch_attempt)}`}
             </li>
             <li>
               Last Fetch Success:
               {' '}
-              {`${dayjs.utc(details.last_fetch_success).local().fromNow()}
-               (${dayjs.utc(details.last_fetch_success).local().format('MM/DD/YYYY HH:mm:ss')})`}
+              {`${formatFeedDate(details.last_fetch_success)}`}
             </li>
             <li>
               Next Fetch Attempt:
               {' '}
-              {`${dayjs.utc(details.next_fetch_attempt).local().fromNow()}
-               (${dayjs.utc(details.next_fetch_attempt).local().format('MM/DD/YYYY HH:mm:ss')})`}
+              {`${formatFeedDate(details.next_fetch_attempt)}`}
               {details.queued && 'a fetch attempt is currently in the queue'}
             </li>
             <li>

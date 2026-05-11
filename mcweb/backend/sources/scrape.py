@@ -487,7 +487,8 @@ class Scraper:
             full=self._make_source_chunk(),
             counts=self._feed_counts)
 
-    def scrape_sources(self, queryset, limit: int | None = None) -> ScrapeSourcesResult:
+    def scrape_sources(self, queryset,
+                       limit: int | None = None) -> ScrapeSourcesResult:
         """
         public method to scrape multiple sources for a collection or autoscrape!!
         """
@@ -498,6 +499,7 @@ class Scraper:
                     .distinct()
         logger.info("=== scrape_sources start: %d candidates, limit %r",  q.count(), limit)
 
+        logger.debug("SQL: %s", q.query)
         if limit is not None:   # apply limit, if any
             q = q[:limit]
 
@@ -508,11 +510,12 @@ class Scraper:
         for source in q.all():
             # have I mentioned I hate the Python ternary? leading space for "extra" arg.
             if source.last_rescraped:
-                last_rescrape_extra = " last rescraped " + source.last_rescraped.strftime("%F %T")
+                last_rescrape_extra = "last rescraped " + source.last_rescraped.strftime("%F %T")
             else:
-                last_rescrape_extra = " never rescraped"
+                last_rescrape_extra = "never rescraped"
 
-            logger.info("Source %d (%s)%s", source.id, source.name, last_rescrape_extra)
+            logger.info("Source %d (%s) %s, stories/week: %r",
+                        source.id, source.name, last_rescrape_extra, source.stories_per_week)
             processed += 1
 
             if source.url_search_string: # should not happen!!
@@ -635,6 +638,10 @@ def autoscrape(*, options: dict, task_args: dict) -> None:
             latest = yesterday_aware(days_old)
             sources = sources.filter(created_at__gt=latest)
             logger.debug("max %d days old: %s", days_old, latest)
+
+        if options["no_stories"]:
+            sources = sources.filter(Q(stories_per_week=0) |
+                                     Q(stories_per_week__isnull=True))
 
         # get least recently scraped sources first
         sources = sources.filter(Q(last_rescraped__lt=recent_rescrape_date) |

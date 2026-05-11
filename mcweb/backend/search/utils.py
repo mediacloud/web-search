@@ -62,22 +62,25 @@ def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvi
     return get_provider(name, api_key=pq.api_key,
                         caching=pq.caching, session_id=pq.session_id)
 
-def parse_date_str(date_str: str) -> dt.datetime:
+
+def _get_parse_date(params: dict[str], key: str) -> dt.datetime:
     """
     accept both YYYY-MM-DD and MM/DD/YYYY
     (was accepting former in JSON and latter in GET/query-str)
     """
+    date_str: str | None = params.get(key)
+    if not date_str:
+        raise UserValueError(f"Missing '{key}' parameter/value")
     try: 
         if '-' in date_str:
             return dt.datetime.strptime(date_str, '%Y-%m-%d')
         else:
             return dt.datetime.strptime(date_str, '%m/%d/%Y')
-    except ValueError as e:
+    except ValueError:
+        raise UserValueError(f"Bad '{key}' value: must be date (without time)")
 
-        raise UserValueError("Bad datestring- must be date (without time)")
 
-
-def listify(input: str) -> list[str]:
+def _listify(input: str) -> list[str]:
     if input:
         return input.split(',')
     return []
@@ -90,9 +93,14 @@ def request_session_id(request) -> str | None:
     else:
         return None
 
-def parse_query_params(request) -> (ParsedQuery, dict):
+def parse_query_params(request, is_search: bool = True) -> (ParsedQuery, dict):
     """
-    return ParsedQuery plus dict for other params
+    return ParsedQuery plus dict for other params.
+
+    NOTE! `is_search` added to avoid doing more major rework
+    of views.story_detail.  If you find yourself needing to set `is_search=False`
+    consider whether there should be a cleaner solution (possibly avoiding
+    a ParsedQuery object, or an alternate function to make one)
     """
     session_id = request_session_id(request)
     if request.method == 'POST':
@@ -100,17 +108,25 @@ def parse_query_params(request) -> (ParsedQuery, dict):
         return (parsed_query_from_dict(payload.get("queryObject"), session_id), payload)
 
     provider_name = request.GET.get("p", 'onlinenews-mediacloud')
-    query_str = request.GET.get("q", "*")
-    collections = listify(request.GET.get("cs", None))
-    sources = listify(request.GET.get("ss", None))
-    provider_props = search_props_for_provider(
-        provider_name,
-        collections,
-        sources,
-        request.GET
-    )
-    start_date = parse_date_str(request.GET.get("start", "2010-01-01"))
-    end_date = parse_date_str(request.GET.get("end", "2030-01-01"))
+    if is_search:
+        query_str = request.GET.get("q")
+        if not query_str: # NOTE: passing "*" is OK
+            raise UserValueError("Missing 'q' parameter value")
+        cs = request.GET.get("cs", None)
+        ss = request.GET.get("ss", None)
+        if cs is None and ss is None:
+            raise UserValueError("Must have at least one of 'ss' or 'cs' parameters")
+        provider_props = search_props_for_provider(
+            provider_name,
+            _listify(cs),
+            _listify(ss),
+            request.GET
+        )
+        start_date = _get_parse_date(request.GET, "start")
+        end_date = _get_parse_date(request.GET, "end")
+    else:
+        start_date = end_date = query_str = None
+        provider_props = {}
     api_key = _get_api_key(provider_name)
 
     # caching is enabled unless cache is passed ONCE with:
@@ -143,11 +159,13 @@ def parsed_query_from_dict(payload: dict, session_id: str) -> ParsedQuery:
     """
     provider_name = payload["platform"]
     query_str = payload["query"]
+    if not query_str:
+        raise UserValueError("Missing 'query' parameter value")
     collections = payload["collections"]
     sources = payload["sources"]
     provider_props = search_props_for_provider(provider_name, collections, sources, payload)
-    start_date = parse_date_str(payload["startDate"])
-    end_date = parse_date_str(payload["endDate"])
+    start_date = _get_parse_date(payload, "startDate")
+    end_date = _get_parse_date(payload, "endDate")
     api_key = _get_api_key(provider_name)
     caching = payload.get("caching", True)
     return ParsedQuery(start_date=start_date, end_date=end_date,

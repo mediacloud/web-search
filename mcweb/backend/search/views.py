@@ -334,7 +334,7 @@ def sample(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def story_detail(request):
-    pq, params = parse_query_params(request) # unlikely to handle POST!
+    pq, params = parse_query_params(request, is_search=False) # unlikely to handle POST!
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     story_id = params.get("storyId")
     platform = params.get("platform")

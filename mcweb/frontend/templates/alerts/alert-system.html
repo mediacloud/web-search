@@ -23,6 +23,16 @@
 
     </div>
 
+    PELT Regime Changes:
+    {% for source in alert_list.pelt %}
+        <div style="background-color: lightblue">
+            {{source}}
+        </div>
+    {% endfor %}
+
+    <div>
+    </div>
+
     Sources that alerted last week and not this week:
     {% for source in alert_list.fixed %}
         <div style="background-color: green">

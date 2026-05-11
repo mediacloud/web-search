@@ -2,29 +2,45 @@
 
 # launch autoscrape task for sources in monitored collections.
 
-# As of January 2026 there are 69256 such sources; to rescrape each
-# every 180 days requires rescraping at least 384 sources a day.
-# At an observed rate of 90/hour, that would take about 4.5 hours.
-# Scraping 2700 once a week would be about 30 hours.
+# As of April 2026 there are 41638 such sources.
 
-# 500/day allows about 5.55 hours of scraping, and scraping
-# up to 90000 sources every 180 days (20K of headroom).
+# Nightly scrapes of 500 sources in April 2026
+# ran from 5 to 10 hours, averaging 7.3 with a stdev of 1.5hrs
 
 # Since scraping does not access Elasticsearch this should have little
-# user impact, and since only parent sources can have feeds, this
-# can't apply sustained load to a publisher.
+# user impact, and is unlikely to subject a publisher to sustained
+# load (unless a batch of publications are added that all point to the
+# same server)
 
 # Finally, the autoscrape task runs from the system-fast queue which
 # before this had no uses.  Most of what runs from system-slow is
 # Elasticsearch based, so using the -fast queue allows this and ES
 # based tasks to run in parallel.
 
-python mcweb/manage.py autoscrape --queue --frequency 180 --count 500
+# 90 days of batches of 500 can handle up to 45000 sources
+# 120 days of batches of 500 can handle up to 60000 sources
+# could also consider enabling --no-stories and only scraping
+# dead sources!!
+
+# DANGER!  venturing into the unscraped wild can find large feed files
+# (have seen multiple google news sitemaps of 45K on sites) which can
+# swamp the story-indexer!!
+
+python mcweb/manage.py autoscrape --queue --frequency 90 --count 500
+
+################
+# possibly useful information:
 
 # adding the below command should scrape up to 100 sources that were
 # created in the last 30 days regardless of whether they're in
 # the set of monitored collections.
 #  [--frequency is a required option(!),
 #  but with a value larger than the age limit, will never cause re-scaping]
-
 #python mcweb/manage.py autoscrape --queue --frequency 9999 --days-old 30 --all --count 100
+
+# Other options:
+# --featured -- limit featured collections
+#	should be a subset of monitored collections, could scrape more frequently
+#	and reduce the frequency of the rest of monitored collections.
+# --no-stories -- limit to sources with no stories when
+#	weekly/400.update-stories-per-week was last run.

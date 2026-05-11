@@ -1,4 +1,15 @@
-[{"version":"v3.0.b",
+[
+{"version":"v3.0.1",
+ "date":"2026-05-07",
+ "notes":[
+   "misc small updates",
+   "require query API parameters",
+   "show feed dates to contributors",
+   "autoscrape every 90 days",
+   "add new alert algorithm",
+   "use metadata library v1.4"]
+},
+{"version":"v3.0.0",
 "notes":["replace source_over_week endpoint with count_source_over_interval"],
 "date":"2026-04-20"},
 {"version": "v2.6.1",
