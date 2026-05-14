@@ -1,4 +1,11 @@
 [
+{"version":"v3.1.0",
+ "date":"2026-05-15",
+ "notes":[
+   "staff-only features",
+   "randomize argument",
+   "allow sourcess queries"]
+},
 {"version":"v3.0.1",
  "date":"2026-05-07",
  "notes":[
