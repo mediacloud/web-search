@@ -437,6 +437,13 @@ def story_list(request):
         if not request.user.is_staff:
             return error_response("You are not permitted to fetch `expanded` stories.", response_type=HttpResponseForbidden)
 
+    # support page random sort, for staff only because compute cost is likely high after a handful of pages
+    if pq.provider_props.get('randomize') is not None:
+        pq.provider_props['randomize'] = pq.provider_props['randomize'] == '1'
+        if not request.user.is_staff:
+            return error_response("You are not permitted to fetch randomized stories due to server load concerns.",
+                                  response_type=HttpResponseForbidden)
+
     # NOTE! indexed_date is default sort key in MC ES provider, so no longer
     # strictly necessary, *BUT* it's presense here means users cannot pass it in
     # as an parameter.  This MAY be a feature, as it's possible to imagine that

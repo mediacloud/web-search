@@ -114,7 +114,8 @@ def parse_query_params(request, is_search: bool = True) -> (ParsedQuery, dict):
             raise UserValueError("Missing 'q' parameter value")
         cs = request.GET.get("cs", None)
         ss = request.GET.get("ss", None)
-        if cs is None and ss is None:
+        # allow staff without ado for SourceInspector:
+        if cs is None and ss is None and not request.user.is_staff:
             raise UserValueError("Must have at least one of 'ss' or 'cs' parameters")
         provider_props = search_props_for_provider(
             provider_name,
@@ -228,6 +229,7 @@ def _for_wayback_machine(collections: List, sources: List) -> Dict:
 # attack, or to leak full text in pagination key), so omitting it
 # until/unless it's needed and proven safe.
 _MEDIA_CLOUD_EXTRA_PROPS = [
+    'randomize',   # NOTE! view MUST check user has permission!
     'expanded',    # NOTE! view MUST check user has permission!
     'sort_order',  # NOTE: built into news-search-api?
     'pagination_token'
