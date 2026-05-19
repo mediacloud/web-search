@@ -1,12 +1,14 @@
 """
+web-search/mcweb/backend/sources/rss_fetcher_api.py
 Interface to rss-fetcher API.
 
 Not tied to Django/web-search infrastructure
-so can be put into a repo of its own.
+so can be put into a repo of its own
+(and/or used to test rss-fetcher)
 """
 
 import logging
-from typing import Any, Type
+from typing import Any, Literal, Type
 
 # PyPI
 import requests.auth
@@ -156,6 +158,12 @@ class RssFetcherApi:
         return [(d.get('sources_id'), d.get('count')/days)
                 for d in r.get('sources', [])]
 
+    # new in rss-fetcher 0.17.0 2026-04-08
+    def stories_count(self, column: Literal["domain", "feed_id", "sources_id"]) -> list[dict[str, int|str]]:
+        """returns list of top sources aggregated by column"""
+        # also takes days=N, _limit=M
+        return self._get_list(f"stories/count?column={column}")
+
 if __name__ == '__main__':
     # test run via:
     # venv/bin/python -m backend.sources.rss_fetcher_api
@@ -171,43 +179,49 @@ if __name__ == '__main__':
     password = os.environ["RSS_FETCHER_PASS"]
 
     with RssFetcherApi(url, user, password) as rss:
-        # tested against staging-rss-fetcher.ifill.angwin:
 
-        SRC = 1                 # NYT
-        FEED = 10               # NYT Baseball
-        FURL = 'http://www.nytimes.com/services/xml/rss/nyt/Baseball.xml'
+        assert 'GIT_REV' in rss._get("version") # basic connectivity, no pw required
+
+        # was used for staging-rss-fetcher.ifill.angwin:
+        #SRC = 1; FEED = 10; FURL = 'http://www.nytimes.com/services/xml/rss/nyt/Baseball.xml'; SS = 10 # NYT Baseball
+
+        # works for testing against pbudne-rss-fetcher.ifill.angwin, staging-rss-fetcher.ifill.angwin & production
+        SRC = 19347; FEED = 9765; FURL = 'http://www.freerepublic.com/tag/*/feed.rss'; SS = 2; FH = 10; FS = 50; SF = 1; SSPD = 450; SSFBD = 450
+        #DUMP = 1
 
         ################ feed
 
         f = rss.feed(FEED)
-        if DUMP: print(f)
+        if DUMP: print("f", len(f))
         assert f['url'] == FURL
 
         fh = rss.feed_history(FEED)
-        assert len(fh) > 10
+        if DUMP: print("fh", len(fh))
+        assert len(fh) > FH
 
-        s = rss.feed_stories(FEED)
-        if DUMP: print("fs", s)
-        assert len(s) > 1
+        fs = rss.feed_stories(FEED)
+        if DUMP: print("fs", len(fs))
+        assert len(fs) >= FS
 
         #rss.feed_fetch_soon(FEED) # should return 0 or 1
 
         ################ source
 
-        f = rss.source_feeds(SRC)
-        assert len(f) > 10
+        sf = rss.source_feeds(SRC)
+        if DUMP: print("sf", len(sf))
+        assert len(sf) >= SF
 
-        s = rss.source_stories(SRC)
-        if DUMP: print("ss", s)
-        assert len(s) > 10
+        ss = rss.source_stories(SRC)
+        if DUMP: print("ss", len(ss))
+        assert len(ss) >= SS
 
-        s = rss.source_stories_published_by_day(SRC)
-        if DUMP: print("ss", s)
-        assert len(s) > 10
+        sspd = rss.source_stories_published_by_day(SRC)
+        if DUMP: print("sspd", len(sspd))
+        assert len(sspd) > SSPD
 
-        s = rss.source_stories_fetched_by_day(SRC)
-        if DUMP: print("ss", s)
-        assert len(s) > 10
+        ssfbd = rss.source_stories_fetched_by_day(SRC)
+        if DUMP: print("sssfbd", len(ssfbd))
+        assert len(ssfbd) > SSFBD
 
         ################ stories
 
@@ -224,3 +238,13 @@ if __name__ == '__main__':
                 print(row[0], round(row[1]*7))
 
         # print("soon:", rss.source_fetch_soon(SRC))  # returns number of feeds updated
+
+        # get top N recent story sources
+        for col in ["domain", "feed_id", "sources_id"]:
+            if DUMP:
+                print("================", col)
+            for row in rss.stories_count(col):
+                if DUMP:
+                    print(row)
+                assert col in row
+                assert "count" in row

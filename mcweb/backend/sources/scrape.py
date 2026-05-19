@@ -510,20 +510,17 @@ class Scraper:
         for source in q.all():
             # have I mentioned I hate the Python ternary? leading space for "extra" arg.
             if source.last_rescraped:
-                last_rescrape_extra = "last rescraped " + source.last_rescraped.strftime("%F %T")
+                last_rescrape_extra = " last rescraped " + source.last_rescraped.strftime("%F %T")
             else:
-                last_rescrape_extra = "never rescraped"
+                last_rescrape_extra = " never rescraped"
 
-            logger.info("Source %d (%s) %s, stories/week: %r",
-                        source.id, source.name, last_rescrape_extra, source.stories_per_week)
             processed += 1
 
             if source.url_search_string: # should not happen!!
                 logger.warning("source %d with url_search_string %s", source.id, source.url_search_string)
                 continue
 
-            logger.info("== calling scrape_source %d (%s)", source.id, source.name)
-            # insert no lines here!
+            # insert no lines here, outside try!
             try:
                 ssr = self.scrape_source(source.id, source.homepage, source.name, last_rescrape_extra)
                 # XXX sum up feed_counters.asdict() into a Counter??

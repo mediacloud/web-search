@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Collection, ActionHistory
+from .models import Collection, Source, ActionHistory
 from guardian.admin import GuardedModelAdmin
 
 
@@ -12,6 +12,15 @@ class CollectionAdmin(GuardedModelAdmin):
 
 
 admin.site.register(Collection, CollectionAdmin)
+
+class SourceAdmin(GuardedModelAdmin):
+    list_display = ('id', 'name', 'label', 'alerted', 'url_search_string', 'modified_at')
+    search_fields = ('id', 'name')
+    list_filter = ('alerted','platform')
+    ordering = ('-modified_at',)
+
+
+admin.site.register(Source, SourceAdmin)
 
 
 class IsParentEventFilter(admin.SimpleListFilter):

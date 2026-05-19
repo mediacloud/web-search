@@ -210,6 +210,7 @@ export default function AdvancedMenu({
                           </>
                         ),
                       }}
+                      onKeyDown={(e) => e.stopPropagation()}
                       onKeyUp={(event) => {
                         if (event.key === 'Enter') {
                           const { value } = event.target;

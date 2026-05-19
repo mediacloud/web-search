@@ -281,9 +281,19 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
             else:
                 logger.warning("Source %d has no name!", src.id)
 
-    save_sources(Source.objects.filter(id__in=sources))
-    save_sources(Source.objects.filter(collections__id__in=collections))
-
+    selected_source_objects = Source.objects.filter(id__in=sources)
+    if len(sources) != len(selected_source_objects):
+        raise UserValueError("You have included some unrecognized sources; double check your ids")
+    save_sources(selected_source_objects)
+    selected_source_objects_in_collections = Source.objects.filter(collections__id__in=collections)
+    selected_matching_collection_ids = []
+    for contained_sources in selected_source_objects_in_collections:
+        for contained_source_collection in contained_sources.collections.all():
+            if contained_source_collection.id in collections: # because the source might be in other collections too!
+                selected_matching_collection_ids.append(contained_source_collection.id)
+    if len(collections) != len(set(selected_matching_collection_ids)):
+        raise UserValueError("You have included some unrecognized collections; double check your ids")
+    save_sources(selected_source_objects_in_collections)
 
     # 1B. collect alternative domains
     AlternativeDomain = apps.get_model('sources', 'AlternativeDomain')

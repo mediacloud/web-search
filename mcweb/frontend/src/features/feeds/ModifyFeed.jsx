@@ -249,7 +249,7 @@ function ModifyFeed() {
                 await updateFeed({
                   feed: {
                     id: formState.id,
-                    name: formState.name.trim(),
+                    name: formState.name ? formState.name.trim() : '',
                     url: formState.url.trim(),
                     admin_rss_enabled: formState.admin_rss_enabled,
                     source: formState.source,

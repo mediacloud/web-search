@@ -76,6 +76,13 @@ const UserMenu = () => {
               Web Collection Admin
             </MenuItem>
             <MenuItem
+              href="/adminsources/source/"
+              target="_blank"
+              component="a"
+            >
+              Web Source Admin
+            </MenuItem>
+            <MenuItem
               href="/adminsources/actionhistory/"
               target="_blank"
               component="a"
