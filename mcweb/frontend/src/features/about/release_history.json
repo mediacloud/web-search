@@ -1,4 +1,18 @@
 [
+{"version":"v3.1.1",
+ "date":"2026-05-24",
+ "notes":[
+   "small fixes",
+   "improve featured collection summarization",
+   "reject unknown source/collection ids",
+   "fix alt source UI",
+   "add sources to admin screens",
+   "handle empty feed names better",
+   "update for new rss-fetcher API call",
+   "add find-alternatives manage command",
+   "fix last rescraped spacing in rescrape emails"
+ ]
+},
 {"version":"v3.1.0",
  "date":"2026-05-15",
  "notes":[
