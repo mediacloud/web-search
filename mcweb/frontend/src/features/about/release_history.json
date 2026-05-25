@@ -11,6 +11,7 @@
    "update for new rss-fetcher API call",
    "add find-alternatives manage command",
    "fix last rescraped spacing in rescrape emails"
+ ]
 },
 {"version":"v3.1.0",
  "date":"2026-05-15",
