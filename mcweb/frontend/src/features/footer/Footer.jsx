@@ -62,7 +62,7 @@ function Footer() {
         <p>
           Using Media Cloud tools and data?
           {' '}
-          <a href="https://ojs.aaai.org/index.php/ICWSM/article/view/18127" target="_blank" rel="noreferrer">
+          <a href="https://doi.org/10.1609/icwsm.v20i1.42778" target="_blank" rel="noreferrer">
             Please cite us.
           </a>
         </p>
