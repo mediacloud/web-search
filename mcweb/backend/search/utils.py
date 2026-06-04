@@ -7,7 +7,11 @@ from collections import defaultdict
 from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
 
 # PyPI
+import constance
 from django.apps import apps
+from django.db.models import CharField, F, Value
+
+# no longer in PyPI:
 from mc_providers import provider_by_name, provider_name, ContentProvider, PLATFORM_SOURCE_MEDIA_CLOUD,\
     PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
 
@@ -259,65 +263,103 @@ def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
 def _for_media_cloud(collections: list[int], sources: list[int], all_params: dict) -> dict:
     # pull in at runtime, rather than outside class, so we can make sure the models are loaded
     Source = apps.get_model('sources', 'Source')
-
-    # 1. collect unique sources with and without url_search_string (uss)
-    domains: set[str] = set()   # unique domains w/o url_search_string
-
-    # unique srcid to domain and url_search_string
-    domain_and_uss_by_sid: dict[int, tuple[str, str]] = {}
-
-    def save_sources(srcs):     # Iterable[Source]
-        for src in srcs:
-            if src.url_search_string:
-                domain_and_uss_by_sid[src.id] = (src.name, src.url_search_string)
-            elif src.name:
-                if src.name not in domains and (
-                        src.name.endswith("/") or
-                        src.name.startswith("http:") or
-                        src.name.startswith("https:")):
-                    # may cause significant noise, but it means searches will fail!
-                    logger.warning("Source %d name %s", src.id, src.name)
-                domains.add(src.name)
-            else:
-                logger.warning("Source %d has no name!", src.id)
-
-    save_sources(Source.objects.filter(id__in=sources))
-    save_sources(Source.objects.filter(collections__id__in=collections))
-
-
-    # 1B. collect alternative domains
+    Collection = apps.get_model('sources', 'Collection')
     AlternativeDomain = apps.get_model('sources', 'AlternativeDomain')
-    domains.update(AlternativeDomain.objects.filter(source__id__in=sources).values_list('domain', flat=True))
 
-    # 2. second pass: create dict indexed by domain
-    #    with sets of url_search_strings for domains
-    #    that are not in the "domains" set
+    # 0. set up base queries
+
+    # just ONLINE_NEWS sources
+    news_srcs = Source.objects.filter(
+        platform=Source.SourcePlatforms.ONLINE_NEWS)
+
+    srcs_by_id = news_srcs.filter(id__in=sources)\
+                          .values('name', 'url_search_string')
+
+    coll_srcs = news_srcs.filter(collections__id__in=collections)
+    srcs_by_coll_id = coll_srcs.values('name', 'url_search_string')
+
+    # 1: Validate inputs (if enabled)
+    validate = constance.config.VALIDATE_SEARCH_IDS # 0 no, 1 warn, 2 error
+    if validate:
+        # WISH: do both in single query SELECT COUNT(SELECT...), COUNT(SELECT...)!
+        if sources and srcs_by_id.count() != len(sources):
+            if validate >= 2:
+                raise UserValueError("invalid source id(s)")
+            logger.warning("invalid source id(s) %s", sources)
+
+        if collections:
+            colls = Collection.objects.filter(
+                id__in=collections,
+                platform=Collection.CollectionPlatforms.ONLINE_NEWS)
+            if colls.count() != len(collections):
+                if validate >= 2:
+                    raise UserValueError("invalid collection id(s)")
+                logger.warning("invalid collection id(s) %s", collections)
+
+    # 2: UNION the four queries src by src/coll id, alts by src/coll id
+
+    # alternate domain table base query: need to alias the "domain"
+    # column to "name" to match Source table for UNIONification.
+    alts = AlternativeDomain.objects.annotate(
+        name=F('domain'),
+        # next line can go away if table had a url_search_string col!
+        # (as could imports of Value and CharField)
+        url_search_string=Value(None, output_field=CharField())
+    ).values('name', 'url_search_string')
+
+    union_queryset = srcs_by_id.union(
+        srcs_by_coll_id,
+        # by source ids:
+        alts.filter(source_id__in=sources),
+        # by collection ids: (using a subquery; but at least reuses it)
+        alts.filter(source_id__in=coll_srcs)
+    )
+
+    # 3: run the UNION query, collect parent domains, save child sources.
+
+    # unique parent domains without url_search_string, domain set is
+    # checked for each child source, so using set avoids
+    # O(parents*children) searching.
+    domains: set[str] = set()
+
+    # rows with search strings:
+    child_sources: list[dict] = []
+
+    # NOTE! This is the ONLY place the queryset is iterated over, if
+    # you must reiterate (reruns the query), consider running once,
+    # collecting the results: rows = list(union_queryset)
+    for row in union_queryset:
+        if row["url_search_string"]:
+            child_sources.append(row)
+        else:
+            domains.add(row["name"]) # must ONLY contain parents!!
+
+    # 4: collect sets of url_search_strings by domain skipping any where the parent is
+    # present, so domains must ONLY contain parents. This can only be done after domain
+    # set is complete).  UNION query should only return unique rows, but use set/add
+    # instead of list/append out of excess caution.
     url_search_strings = defaultdict(set)
-    for domain, uss in domain_and_uss_by_sid.values():
-        if domain not in domains:
-            # add to the set of search strings for the domain
-            url_search_strings[domain].add(uss)
+    for row in child_sources:
+        domain = row["name"]
+        if domain in domains:   # already searching parent?
+            continue            # skip it.
+        url_search_strings[domain].add(row["url_search_string"])
 
-    # error if no output domains w/ non-empty inputs:
-    if ((collections or sources) and
-        not domains and
-        not url_search_strings):
-        raise UserValueError("No sources found")
-
-    # 3. assemble dict of search properties
+    # 5. assemble dict of provider parameters:
     props = {}
     if domains:
         # repr used to generate cache key;
         # consider conversion to list if ordering proves to be an issue
         props["domains"] = domains
+
     if url_search_strings:
         # repr used to generate cache key
         # defaultdict repr is uglier than plain dict:
         # "defaultdict(<class 'set'>, {....})"
-        # but is ordered, and digested before use
+        # but is ordered, and hashed before use
         props["url_search_strings"] = url_search_strings
 
-    # 4. add in other supported params
+    # 6. add in other supported params
     _copy_media_cloud_extra_props(props, all_params)
 
     return props
