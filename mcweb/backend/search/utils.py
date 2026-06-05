@@ -345,6 +345,12 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
             continue            # skip it.
         url_search_strings[domain].add(row["url_search_string"])
 
+    # error if no output domains w/ non-empty inputs:
+    if ((collections or sources) and
+        not domains and
+        not url_search_strings):
+        raise UserValueError("No sources found")
+
     # 5. assemble dict of provider parameters:
     props = {}
     if domains:
