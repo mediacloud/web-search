@@ -33,11 +33,16 @@ class Command(BaseCommand):
         feeds_moved = 0
         for child in child_sources:
             print(f"{prefix}{child.id}: {child.name} child source ({child.url_search_string}) has {child.feed_count} feeds")
-            parent = self._find_parent(child)
-            if parent is None:
+            potential_parents = self._find_potential_parents(child)
+            if len(potential_parents) == 0:
                 print(f"{prefix}  !!! No parent found for child source {child.id} — skipping")
                 continue
+            if len(potential_parents) > 1:
+                ids = ", ".join(str(p.id) for p in potential_parents)
+                print(f"{prefix}  !!! Multiple potential parents found for child source {child.id} ({ids}) — skipping")
+                continue
 
+            parent = potential_parents[0]
             print(f"{prefix}  found parent {parent.id} {parent.name}")
             if dry_run:
                 moved = Feed.objects.filter(source=child).count()
@@ -57,12 +62,11 @@ class Command(BaseCommand):
             .filter(feed_count__gt=0)
         )
 
-    def _find_parent(self, child: Source) -> Source | None:
-        return (
+    def _find_potential_parents(self, child: Source) -> list[Source]:
+        return list(
             Source.objects.filter(name=child.name, platform=child.platform)
             .filter(url_search_string__isnull=True)
             .exclude(id=child.id)
-            .first()
         )
 
     def _move_feeds(self, child: Source, parent: Source) -> int:
