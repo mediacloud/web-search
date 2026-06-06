@@ -79,6 +79,10 @@ class SourceSerializer(serializers.ModelSerializer):
         """
         Check that name is normalized version of homepage, ensure name is unique in db
         """
+        if value.startswith('http:') or value.startswith('https:'):
+            raise serializers.ValidationError("name may not begin with http: or https:")
+        if value.startswith('/'):
+            raise serializers.ValidationError("name may not begin with '/'")
         if value.endswith('/'):
             raise serializers.ValidationError("name cannot end with '/'")
         homepage = self.initial_data["homepage"]
@@ -100,10 +104,12 @@ class SourceSerializer(serializers.ModelSerializer):
         canonical_domain = urls.canonical_domain(homepage)
         if urls.canonical_domain(value) != canonical_domain:
             raise serializers.ValidationError(f"url_search_string {value} does not match the canonicalized version of homepage: {canonical_domain}")
-        if value.startswith('http://') or value.startswith('https://'):
-            raise serializers.ValidationError("url_search_string may not begin with http:// or https://")
+        if value.startswith('http:') or value.startswith('https:'):
+            raise serializers.ValidationError("url_search_string may not begin with http: or https:")
+        if value.startswith('/'):
+            raise serializers.ValidationError("url_search_string may not begin with '/'")
         if not value.endswith('/*'):
-            raise serializers.ValidationError("urls_search_string must end with '/*' wildcard")
+            raise serializers.ValidationError("url_search_string must end with '/*' wildcard")
         return value
 
     def validate_pub_country(self, value):
@@ -189,15 +195,30 @@ class AlternativeDomainSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AlternativeDomain
-        fields = ['id', 'source', 'domain']
+        fields = ['id', 'source', 'domain', 'url_search_string']
 
     def create(self, validated_data):
         return AlternativeDomain.objects.create(**validated_data)
     
     def validate_domain(self, value):
         """
-        Check that domain is unique in db, ensure it is a valid domain and does not start with http or https
+        Check that domain is reasonable
         """
-        if value.startswith('http://') or value.startswith('https://'):
-            raise serializers.ValidationError("domain may not begin with http:// or https://")
+        if value.startswith('http:') or value.startswith('https:'):
+            raise serializers.ValidationError("domain must not begin with http: or https:")
+        if value.startswith('/'):
+            raise serializers.ValidationError("domain must not begin with '/'")
+        if value.endswith('/'):
+            raise serializers.ValidationError("domain must not end with '/'")
+        return value
+
+    def validate_url_search_string(self, value):
+        if not value:
+            return None         # NULLify if falsey
+        if value.startswith('http:') or value.startswith('https:'):
+            raise serializers.ValidationError("url_search_string must not begin with http: or https:")
+        if value.startswith('/'):
+            raise serializers.ValidationError("url_search_string must not begin with '/'")
+        if not value.endswith('/*'):
+            raise serializers.ValidationError("url_search_string must end with '/*' wildcard")
         return value

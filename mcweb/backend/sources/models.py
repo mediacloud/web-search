@@ -260,12 +260,23 @@ class Source(models.Model):
             logger.warning(f"source {source_id} not found")
 
     @classmethod
-    def domain_exists(cls, domain: str) -> bool:
+    def domain_exists(cls, domain: str, url_search_string: str | None) -> bool:
         """
         Check if a source with the given domain exists.
+        called from api.AlternativeDomainViewSet.create
+
+        Before url_search_string added to AlternativeDomain,
+        this checked ONLY the Source.name field.
         """
-        return (Source.objects.filter(name=domain).exists() or 
-            AlternativeDomain.objects.filter(domain=domain).exists())
+        return (
+            Source.objects.filter(
+                name=domain,
+                url_search_string=url_search_string).exists()
+            or
+            AlternativeDomain.objects.filter(
+                domain=domain,
+                url_search_string=url_search_string).exists()
+        )
 
     
 class Feed(models.Model):
@@ -285,7 +296,7 @@ class AlternativeDomain(models.Model):
     domain = models.CharField(max_length=255, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
-
+    url_search_string = models.CharField(max_length=1000, blank=True, null=True, default=None)
     class Meta:
         indexes = [
             models.Index(fields=['domain'], name='domain'),
@@ -293,7 +304,10 @@ class AlternativeDomain(models.Model):
         ]
 
         constraints = [
-            models.UniqueConstraint(fields=['source', 'domain'], name='unique_source_domain')
+            # just the strings: don't allow dups attached to different sources!
+            # creates an index.
+            models.UniqueConstraint(fields=['domain', 'url_search_string'],
+                                    name='unique_domain_uss')
         ]
 
 

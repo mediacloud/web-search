@@ -16,8 +16,10 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD, provider_name
 from guardian.decorators import permission_required
+
+# external repo, no longer in PyPI:
+from mc_providers import PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD, provider_name
 
 # mcweb
 from settings import RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS # mcweb.settings
@@ -790,46 +792,52 @@ class AlternativeDomainViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet)
     serializer_class = AlternativeDomainSerializer
 
     def create(self, request):
-        alternative_domain = request.data.get("alternative_domain", None)
         source_id = request.data.get("source_id", None)
         alternative_domain_id = request.data.get("alternative_domain_id", None)
+
+        # used if alternative_domain_id not supplied:
+        alternative_domain = request.data.get("alternative_domain", None)
+        url_search_string = request.data.get("url_search_string", None)
+
         if alternative_domain_id is not None:
+            # Here with existing Source to turn into an alternative
             alternative_domain_source = get_object_or_404(
                 Source, pk=alternative_domain_id)
             source = get_object_or_404(Source, pk=source_id)
-            serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain_source.name})
+            serializer = AlternativeDomainSerializer(
+                data={"source": source_id,
+                      "domain": alternative_domain_source.name,
+                      "url_search_string": alternative_domain_source.url_search_string})
             if serializer.is_valid():
                 serializer.save()
                 self.perform_create(serializer)
                 for collection in alternative_domain_source.collections.all():
                     source.collections.add(collection)
-            # then add all source feeds to the alternative domain source
+                # then add all source feeds to the alternative domain source
                 for feed in alternative_domain_source.feed_set.all():
                     source.feed_set.add(feed)
-            # now delete alternative domain source
+                # now delete alternative domain source
                 alternative_domain_source.delete()
                 return Response({"alternative_domain": serializer.data})
             else:
-                error_string = str(serializer.errors)
-                raise APIException(f"{error_string}")
+                raise APIException(str(serializer.errors))
 
         if alternative_domain is not None:
+            # Here with alternative_domain input string to add
+
             source = get_object_or_404(Source, pk=source_id)
-            domain_exists = Source.domain_exists(alternative_domain)
+            domain_exists = Source.domain_exists(alternative_domain, url_search_string)
             if domain_exists:
-                raise ValidationError(f"domain {alternative_domain} already exists as a source or an alternative domain")
-            serializer = AlternativeDomainSerializer(data={"source": source_id, "domain": alternative_domain})
+                raise ValidationError(f"domain {alternative_domain} with search string '{url_search_string or ''}' already exists as a source or an alternative domain")
+            serializer = AlternativeDomainSerializer(data={"source": source_id,
+                                                           "domain": alternative_domain,
+                                                           "url_search_string": url_search_string})
             if serializer.is_valid():
                 serializer.save()
                 self.perform_create(serializer)
                 return Response({"alternative_domain": serializer.data})
             else:
-                error_string = str(serializer.errors)
-                raise APIException(f"{error_string}")
-
-        
-
-        
+                raise APIException(str(serializer.errors))
 
 
 def _filename_timestamp() -> str:
