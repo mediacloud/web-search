@@ -206,6 +206,7 @@ class AlternativeDomainSerializer(serializers.ModelSerializer):
         """
         Check that domain is reasonable
         """
+        value = value.strip()
         if value.startswith('http:') or value.startswith('https:'):
             raise serializers.ValidationError("domain must not begin with http: or https:")
         if value.startswith('/'):
@@ -215,8 +216,11 @@ class AlternativeDomainSerializer(serializers.ModelSerializer):
         return value
 
     def validate_url_search_string(self, value):
+        if value is None:       # needed?
+            return None
+        value = value.strip()
         if not value:
-            return None         # NULLify if falsey
+            return None
         if value.startswith('http:') or value.startswith('https:'):
             raise serializers.ValidationError("url_search_string must not begin with http: or https:")
         if value.startswith('/'):
