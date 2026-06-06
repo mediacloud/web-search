@@ -273,16 +273,19 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
         platform=Source.SourcePlatforms.ONLINE_NEWS)
 
     # Aliased fields end up last, and AlternativeDomain table "domain"
-    # field has to be aliased to "name", so have to alias url_search_string
-    # to another name in queries of both table to ensure that all the queries
-    # return the name and uss columns in the same order?!!
+    # field has to be aliased to "name", so have to alias
+    # url_search_string to "uss" in queries of both table to ensure
+    # that all the queries return the name and uss columns in the same
+    # order for UNIONization.  Define the columns names once:
+    union_cols = ['name', 'uss']
+
     srcs_by_id = news_srcs.filter(id__in=sources)\
                           .annotate(uss=F('url_search_string'))\
-                          .values('name', 'uss')
+                          .values(*union_cols)
 
     coll_srcs = news_srcs.filter(collections__id__in=collections)
     srcs_by_coll_id = coll_srcs.annotate(uss=F('url_search_string'))\
-                               .values('name', 'uss')
+                               .values(*union_cols)
 
     # 1: Validate inputs (if enabled)
     validate = constance.config.VALIDATE_SEARCH_IDS # 0 no, 1 warn, 2 error
@@ -302,13 +305,15 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
                     raise UserValueError("invalid collection id(s)")
                 logger.warning("invalid collection id(s) %s", collections)
 
-    # 2: UNION the four queries src by src/coll id, alts by src/coll id
+    # 2: UNION the four queries: src by src/coll id, alts by src/coll id
 
     # alternate domain table base query: need to alias the "domain"
-    # column to "name" to match Source table for UNIONification.
+    # column to "name" to match Source table for UNIONification,
+    # this causes it to appear last, unless url_search_string is ALSO
+    # aliased!
     alts = AlternativeDomain.objects.annotate(name=F('domain'),
                                               uss=F('url_search_string'))\
-                                    .values('name', 'uss')
+                                    .values(*union_cols)
 
     union_queryset = srcs_by_id.union(
         srcs_by_coll_id,
