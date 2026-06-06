@@ -186,7 +186,9 @@ class SourcesViewSerializer(serializers.ModelSerializer):
 
     def get_alternative_domains(self, obj):
         # Fetch all related AlternativeDomain objects and return their domains as a list
-        return list(AlternativeDomain.objects.filter(source=obj).values('id','domain'))
+        # PB: Looking at "manage.py search --sql" output it's possible this is causing a query
+        #   for each source returned
+        return list(AlternativeDomain.objects.filter(source=obj).values('id','domain','url_search_string'))
 
 class AlternativeDomainSerializer(serializers.ModelSerializer):
     source = serializers.PrimaryKeyRelatedField(

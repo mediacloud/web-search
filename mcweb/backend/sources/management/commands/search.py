@@ -56,9 +56,10 @@ class Command(BaseCommand):
         if src_resp.status_code == 200:
             d = src_resp.data
             for r in d["results"]:
-                alt = ",".join(a["domain"] for a in r["alternative_domains"])
+                alt = " ".join((a["domain"] if a["url_search_string"] is None else a["url_search_string"])
+                                for a in r["alternative_domains"])
                 if alt:
-                    alt = "alternates: " + alt
+                    alt = f"alternates: {alt} >>"
                 print(r["id"], ">>", r["name"], ">>", r["label"], ">>", alt, r["stories_per_week"], "stories per week")
             print("count", d["count"], "next", d["next"], "prev", d["previous"], "len", len(d["results"]))
         else:
