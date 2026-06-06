@@ -146,7 +146,6 @@ export default function AdvancedMenu({
                   titleAccess="convert-source-to-ad"
                 />
             )}
-              disabled={!!source.url_search_string}
             >
               Convert Source Into Alternative Domain...
             </Button>
@@ -289,7 +288,6 @@ export default function AdvancedMenu({
                   titleAccess="create-alternative-domain"
                 />
             )}
-              disabled={!!source.url_search_string}
             >
               Create Alternative Domain...
             </Button>
