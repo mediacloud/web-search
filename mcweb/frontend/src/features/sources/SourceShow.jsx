@@ -135,8 +135,8 @@ export default function SourceShow() {
                 {source.name}
               </li>
               {source.alternative_domains.map((aD) => (
-                <li key={aD.domain}>
-                  {aD.domain}
+                <li key={aD.domain + ' ' + (aD.url_search_string ?? '')}>
+                  {aD.url_search_string ? aD.url_search_string : aD.domain}
                 </li>
               ))}
             </ul>
