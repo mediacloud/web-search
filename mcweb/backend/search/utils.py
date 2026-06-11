@@ -278,10 +278,10 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
     # that all the queries return the name and uss columns in the same
     # order for UNIONization.  Define the columns names once:
     union_cols = ['name', 'uss']
-
-    srcs_by_id = news_srcs.filter(id__in=sources)\
-                          .annotate(uss=F('url_search_string'))\
-                          .values(*union_cols)
+    filtered_srcs = news_srcs.filter(id__in=sources)
+    srcs_by_id = (filtered_srcs
+                  .annotate(uss=F('url_search_string'))
+                  .values(*union_cols))
 
     coll_srcs = news_srcs.filter(collections__id__in=collections)
     srcs_by_coll_id = coll_srcs.annotate(uss=F('url_search_string'))\
@@ -290,20 +290,31 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
     # 1: Validate inputs (if enabled)
     validate = constance.config.VALIDATE_SEARCH_IDS # 0 no, 1 warn, 2 error
     if validate:
-        # WISH: do both in single query SELECT COUNT(SELECT...), COUNT(SELECT...)!
-        if sources and srcs_by_id.count() != len(sources):
-            if validate >= 2:
-                raise UserValueError("invalid source id(s)")
-            logger.warning("invalid source id(s) %s", sources)
+        if sources:
+            # set creation 2-3x slower, so make list of int at first:
+            good_src_ids = list(filtered_srcs.values_list('id', flat=True))
+            if len(good_src_ids) != len(sources):
+                # set of strings:
+                bad_src_id_set = set(sources) - set(map(str, good_src_ids))
+                missing = ",".join(bad_src_id_set)
+                logger.warning("invalid source(s) %s", missing)
+                if validate >= 2:
+                    raise UserValueError(f"invalid source(s): {missing}")
 
         if collections:
-            colls = Collection.objects.filter(
+            coll_base = Collection.objects.filter(
                 id__in=collections,
                 platform=Collection.CollectionPlatforms.ONLINE_NEWS)
-            if colls.count() != len(collections):
+
+            # set creation 2-3x slower, so make list of int at first:
+            good_coll_ids = list(coll_base.values_list('id', flat=True))
+            if len(good_coll_ids) != len(collections):
+                # set of strings:
+                bad_coll_id_set = set(collections) - set(map(str, good_coll_ids))
+                missing = ",".join(bad_coll_id_set)
+                logger.warning("invalid collection(s) %s", missing)
                 if validate >= 2:
-                    raise UserValueError("invalid collection id(s)")
-                logger.warning("invalid collection id(s) %s", collections)
+                    raise UserValueError(f"invalid collection(s) {missing}")
 
     # 2: UNION the four queries: src by src/coll id, alts by src/coll id
 

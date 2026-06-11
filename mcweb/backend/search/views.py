@@ -160,7 +160,8 @@ def handle_provider_errors(func):
             # Log exception/trace as warning to identify cases that
             # can be subclassed into more specific classes (or marked
             # that no traceback is needed).  Send traceback detail to client,
-            # log traceback with user name to aid locating reported problems.
+            # log traceback with user name to aid locating reported problems
+            # (FOR NOW):
             logger.warning("%r for user %s", e, _get_user(), exc_info=True)
             return error_response(str(e), exc=e, traceback=True)
         except Exception as e:
