@@ -4,11 +4,13 @@ Gutted in Feb 2026 to use CollectionViewSet and SourcesViewSet
 so this can be used to test the REAL code!!
 """
 
+import logging
 import time
 
 from django.contrib.auth.models import User
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.core.management.base import BaseCommand, CommandError
+from django.db import connection
 from rest_framework.test import APIRequestFactory, force_authenticate
 
 from settings import SYSTEM_TASK_USERNAME, ALLOWED_HOSTS
@@ -19,10 +21,16 @@ class Command(BaseCommand):
     help = 'Search sources and collections'
 
     def add_arguments(self, parser):
+        parser.add_argument("--sql", action="store_true",
+                            help="enable SQL display")
         parser.add_argument("--user", default=SYSTEM_TASK_USERNAME, type=str)
         parser.add_argument("token", nargs="+", type=str)
 
     def handle(self, *args, **options):
+        if options["sql"]:
+            connection.force_debug_cursor = options["sql"]
+            logging.getLogger("django.db.backends").setLevel(logging.DEBUG)
+
         ALLOWED_HOSTS.append("testserver")
 
         # generic preparation, don't charge for time spent:
@@ -48,9 +56,10 @@ class Command(BaseCommand):
         if src_resp.status_code == 200:
             d = src_resp.data
             for r in d["results"]:
-                alt = ",".join(a["domain"] for a in r["alternative_domains"])
+                alt = " ".join((a["domain"] if a["url_search_string"] is None else a["url_search_string"])
+                                for a in r["alternative_domains"])
                 if alt:
-                    alt = "alternates: " + alt
+                    alt = f"alternates: {alt} >>"
                 print(r["id"], ">>", r["name"], ">>", r["label"], ">>", alt, r["stories_per_week"], "stories per week")
             print("count", d["count"], "next", d["next"], "prev", d["previous"], "len", len(d["results"]))
         else:

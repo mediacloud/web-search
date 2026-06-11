@@ -43,6 +43,7 @@ export default function AdvancedMenu({
   const [openSearch, setOpenSearch] = useState(false);
   const [openAdvanced, setOpenAdvanced] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [urlSearchString, setUrlSearchString] = useState('');
 
   const [selectedSource, setSelectedSource] = useState({
     id: '',
@@ -146,7 +147,6 @@ export default function AdvancedMenu({
                   titleAccess="convert-source-to-ad"
                 />
             )}
-              disabled={!!source.url_search_string}
             >
               Convert Source Into Alternative Domain...
             </Button>
@@ -289,7 +289,6 @@ export default function AdvancedMenu({
                   titleAccess="create-alternative-domain"
                 />
             )}
-              disabled={!!source.url_search_string}
             >
               Create Alternative Domain...
             </Button>
@@ -324,10 +323,23 @@ export default function AdvancedMenu({
                   value={alternativeDomain || ''}
                   placeholder="eg...huffpost.com"
                 />
+                <TextField
+                  margin="dense"
+                  id="ad-uss"
+                  label="Url Search String"
+                  type="text"
+                  fullWidth
+                  variant="standard"
+                  onChange={(e) => setUrlSearchString(e.target.value)}
+                  value={urlSearchString || ''}
+                  helperText="For a very small number of news sources, we want to search within a subdomain
+              (such as news.bbc.co.uk/nigeria). If this is one of those exceptions, enter a wild-carded search string
+              here, such as 'news.bbc.co.uk/nigeria/*'."
+                />
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => setOpenNewAlternativeDomain(false)}>Cancel</Button>
-                <Button onClick={() => createAlternativeDomain({ source_id: source.id, alternative_domain: alternativeDomain })}>
+                <Button onClick={() => createAlternativeDomain({ source_id: source.id, alternative_domain: alternativeDomain, url_search_string: urlSearchString })}>
                   Confirm
                 </Button>
               </DialogActions>
