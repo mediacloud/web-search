@@ -152,15 +152,16 @@ def handle_provider_errors(func):
             return error_response(str(e), exc=e)
         except UserValueError as e:
             # ValueErrors will be thrown when the user provides bad input
-            # Should be the same handling flow as Runtime errors
-            logger.debug("UserValueError %r", e, exc_info=True)
+            # Should be the same handling flow as Runtime errors.
+            logger.debug("%r", e) # repr includes class name; removed exc_info: too many notes!
             return error_response(str(e), response_type=HttpResponseUnprocessableEntity, exc=e)
         except ProviderException as e:
             # ProviderException includes Provider{Permanent,Mystery}Exceptions.
             # Log exception/trace as warning to identify cases that
             # can be subclassed into more specific classes (or marked
             # that no traceback is needed).  Send traceback detail to client,
-            # log traceback with user name to aid locating reported problems.
+            # log traceback with user name to aid locating reported problems
+            # (FOR NOW):
             logger.warning("%r for user %s", e, _get_user(), exc_info=True)
             return error_response(str(e), exc=e, traceback=True)
         except Exception as e:
