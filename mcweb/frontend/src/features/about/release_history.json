@@ -1,4 +1,12 @@
 [
+{"version":"v3.1.5",
+ "date":"2026-06-12",
+ "notes":[
+   "Include bad src/coll ids in API errors",
+   "manage script to move feeds from child srcs",
+   "deverbosify UserValueError logging"
+ ]
+},
 {"version":"v3.1.4",
  "date":"2026-06-07",
  "notes":[

@@ -25,7 +25,10 @@ logger = logging.getLogger(__file__)
 
 # The static version of the app
 # PLEASE update mcweb/frontend/src/features/about/release_history.json as well!
-VERSION = "3.1.4"
+# validate with
+# "jq . < mcweb/frontend/src/features/about/release_history.json"
+# (JSON reader doesn't handle trailing commas in lists/dicts)
+VERSION = "3.1.5"
 
 class Groups:
     CONTRIBUTOR = "contributor"
