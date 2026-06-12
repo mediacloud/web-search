@@ -272,11 +272,11 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
     news_srcs = Source.objects.filter(
         platform=Source.SourcePlatforms.ONLINE_NEWS)
 
-    # Aliased fields end up last, and AlternativeDomain table "domain"
-    # field has to be aliased to "name", so have to alias
-    # url_search_string to "uss" in queries of both table to ensure
-    # that all the queries return the name and uss columns in the same
-    # order for UNIONization.  Define the columns names once:
+    # Aliased fields end up last in results, and AlternativeDomain
+    # table "domain" field has to be aliased to "name", so have to
+    # alias url_search_string to "uss" in queries of both table to
+    # ensure that all the queries return the name and uss columns in
+    # the same order for UNIONization.  Define the columns names once:
     union_cols = ['name', 'uss']
     filtered_srcs = news_srcs.filter(id__in=sources)
     srcs_by_id = (filtered_srcs
@@ -287,50 +287,67 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
     srcs_by_coll_id = coll_srcs.annotate(uss=F('url_search_string'))\
                                .values(*union_cols)
 
-    # 1: Validate inputs (if enabled)
-    validate = constance.config.VALIDATE_SEARCH_IDS # 0 no, 1 warn, 2 error
-    if validate:
-        if sources:
-            # set creation 2-3x slower, so make list of int at first:
-            good_src_ids = list(filtered_srcs.values_list('id', flat=True))
-            if len(good_src_ids) != len(sources):
-                # set of strings:
-                bad_src_id_set = set(sources) - set(map(str, good_src_ids))
-                missing = ",".join(bad_src_id_set)
-                logger.warning("invalid source(s) %s", missing)
-                if validate >= 2:
-                    raise UserValueError(f"invalid source(s): {missing}")
-
-        if collections:
-            coll_base = Collection.objects.filter(
-                id__in=collections,
-                platform=Collection.CollectionPlatforms.ONLINE_NEWS)
-
-            # set creation 2-3x slower, so make list of int at first:
-            good_coll_ids = list(coll_base.values_list('id', flat=True))
-            if len(good_coll_ids) != len(collections):
-                # set of strings:
-                bad_coll_id_set = set(collections) - set(map(str, good_coll_ids))
-                missing = ",".join(bad_coll_id_set)
-                logger.warning("invalid collection(s) %s", missing)
-                if validate >= 2:
-                    raise UserValueError(f"invalid collection(s) {missing}")
-
-    # 2: UNION the four queries: src by src/coll id, alts by src/coll id
-
     # alternate domain table base query: need to alias the "domain"
-    # column to "name" to match Source table for UNIONification,
-    # this causes it to appear last, unless url_search_string is ALSO
-    # aliased!
+    # column to "name" to match Source table for UNIONification, this
+    # causes it to appear last in results, so url_search_string is
+    # ALSO aliased to force IT to be last!!
     alts = AlternativeDomain.objects.annotate(name=F('domain'),
                                               uss=F('url_search_string'))\
                                     .values(*union_cols)
 
+    # 1: Validate inputs (if enabled)
+
+    # Contance setting (can be changed via admin UI)
+    # MEANT to be TEMPORARY to allow testing and/or backoff!!
+    # == 0 means no checking
+    # == 1 means log warning (API user sees nothing)
+    # >= 2 means return fatal UserValueError
+
+    # If fatal made permanent (tests removed),
+    # the "No sources found" check below can probably go away.
+    validate = constance.config.VALIDATE_SEARCH_IDS
+    if validate:
+        if sources:       # only perform queries if user supplied ids!
+            # set creation 2-3x slower than list, so make list of int at first
+            # (the common case is all ids are valid):
+            good_src_ids = list(filtered_srcs.values_list('id', flat=True))
+            if len(good_src_ids) != len(sources):
+                # set of strings (would need to convert int to str for formatting):
+                bad_src_id_set = set(sources) - set(map(str, good_src_ids))
+                missing = ",".join(bad_src_id_set)
+                if validate >= 2: # give fatal error (test should be TEMPORARY!)?
+                    raise UserValueError(f"invalid source(s): {missing}")
+                logger.warning("invalid source(s) %s", missing)
+
+        if collections:   # only perform queries if user supplied ids!
+            # set creation 2-3x slower than list, so make list of int at first
+            # (the common case is all ids are valid):
+            good_coll_ids = list(
+                Collection.objects.filter(
+                    id__in=collections,
+                    platform=Collection.CollectionPlatforms.ONLINE_NEWS)
+                .values_list('id', flat=True))
+            if len(good_coll_ids) != len(collections):
+                # set of strings (would need to convert int to str for formatting):
+                bad_coll_id_set = set(collections) - set(map(str, good_coll_ids))
+                missing = ",".join(bad_coll_id_set)
+                if validate >= 2: # give fatal error (test should be TEMPORARY!)?
+                    raise UserValueError(f"invalid collection(s) {missing}")
+                logger.warning("invalid collection(s) %s", missing)
+
+    # 2: UNION the four queries: src by src/coll id, alts by src/coll id
+
+    # Using UNION means we pass one query and get all the results at once:
+    # * avoiding multiple database round trips (the "1+N problem")
+    # * queries can be run in parallel if the SQL optimizer chooses
+    # * using OR in WHERE clause can stop use of indicices
+    # * filters duplicate results
+
     union_queryset = srcs_by_id.union(
         srcs_by_coll_id,
-        # by source ids:
+        # AlternativeDomains by source ids:
         alts.filter(source_id__in=sources),
-        # by collection ids: (using a subquery; but at least reuses it)
+        # AlternativeDomains by collection ids:
         alts.filter(source_id__in=coll_srcs)
     )
 
@@ -364,7 +381,8 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
             continue            # skip it.
         url_search_strings[domain].add(row["uss"])
 
-    # error if no output domains w/ non-empty inputs:
+    # error if no output domains w/ non-empty inputs (this can be
+    # removed if VALIDATE_SEARCH_IDS ever made fatal and permanent):
     if ((collections or sources) and
         not domains and
         not url_search_strings):
