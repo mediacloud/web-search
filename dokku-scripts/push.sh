@@ -361,12 +361,14 @@ echo "pushing tag $TAG to $DOKKU_GIT_REMOTE"
 git push $DOKKU_GIT_REMOTE $TAG >/dev/null 2>&1
 echo "================"
 
-# push tag to upstream repos
-for REMOTE in $PUSH_TAG_TO; do
-    echo pushing tag $TAG to $REMOTE
-    git push $REMOTE $TAG
-    echo "================"
-done
+# push tag to upstream repos (unless --unpushed given)
+if [ -z "$MCWEB_UNPUSHED" ]; then
+    for REMOTE in $PUSH_TAG_TO; do
+	echo pushing tag $TAG to $REMOTE
+	git push $REMOTE $TAG
+	echo "================"
+    done
+fi
 
 # for prod/staging: tag config repo and push tag
 if [ -n "$PRIVATE_CONF_REPO" -a -d "$PRIVATE_CONF_REPO" ]; then
@@ -391,7 +393,8 @@ echo "$(date '+%F %T') $APP $REMOTE $TAG" >> push.log
 
 case $BRANCH in
 prod|staging)
-    # outputs message if update needed:
+    # outputs message if update needed
+    # (script needs to be run as root):
     check_crontab_sh_file_git_hashes
     ;;
 esac
