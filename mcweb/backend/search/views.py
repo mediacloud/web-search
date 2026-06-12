@@ -152,8 +152,8 @@ def handle_provider_errors(func):
             return error_response(str(e), exc=e)
         except UserValueError as e:
             # ValueErrors will be thrown when the user provides bad input
-            # Should be the same handling flow as Runtime errors
-            logger.debug("UserValueError %r", e, exc_info=True)
+            # Should be the same handling flow as Runtime errors.
+            logger.debug("%r", e) # repr includes class name; removed exc_info: too many notes!
             return error_response(str(e), response_type=HttpResponseUnprocessableEntity, exc=e)
         except ProviderException as e:
             # ProviderException includes Provider{Permanent,Mystery}Exceptions.
