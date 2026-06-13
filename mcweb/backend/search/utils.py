@@ -260,7 +260,41 @@ def _copy_media_cloud_extra_props(output: Dict, input: Mapping) -> None:
             output[prop_name] = int(input[prop_name])
 
 
-def _for_media_cloud(collections: list[int], sources: list[int], all_params: dict) -> dict:
+def _validate_sources_or_collections(input: list[str],
+                                     table, # django.models.Model
+                                     platform: str) -> None:
+    """
+    helper to validatate sources or collections (handling is identical)
+    """
+    # set creation 2-3x slower than list, so make list of int at first
+    # (the common case is all ids are valid):
+    good_ids = list(table.objects
+                    .filter(platform=platform, id__in=input)
+                    .values_list('id', flat=True))
+
+    if len(good_ids) == len(input):
+        return
+
+    # initial check failed: see remove dups from input by making into set
+    # (paranoia: input SHOULD be list[str], but make sure
+    # str('str') should be noop; NEED two string sets below)
+    input_set = set(map(str, input))
+    if len(good_ids) == len(input_set):
+        return
+
+    # set of strings (would need to convert int to str for formatting):
+    bad_id_set = input_set - set(map(str, good_ids))
+    missing = ",".join(bad_id_set)
+
+    tname = table.__name__
+    # give fatal error (test should be TEMPORARY!)?
+    if constance.config.VALIDATE_SEARCH_IDS >=2:
+        raise UserValueError(f"invalid {tname}(s): {missing}")
+
+    logger.warning("invalid %s(s) %s", tname, missing)
+
+
+def _for_media_cloud(collections: list[str], sources: list[str], all_params: dict) -> dict:
     # pull in at runtime, rather than outside class, so we can make sure the models are loaded
     Source = apps.get_model('sources', 'Source')
     Collection = apps.get_model('sources', 'Collection')
@@ -276,10 +310,10 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
     # table "domain" field has to be aliased to "name", so have to
     # alias url_search_string to "uss" in queries of both table to
     # ensure that all the queries return the name and uss columns in
-    # the same order for UNIONization.  Define the columns names once:
+    # the same order for UNIONization.  Define the column names once:
     union_cols = ['name', 'uss']
-    filtered_srcs = news_srcs.filter(id__in=sources)
-    srcs_by_id = (filtered_srcs
+
+    srcs_by_id = (news_srcs.filter(id__in=sources)
                   .annotate(uss=F('url_search_string'))
                   .values(*union_cols))
 
@@ -297,43 +331,19 @@ def _for_media_cloud(collections: list[int], sources: list[int], all_params: dic
 
     # 1: Validate inputs (if enabled)
 
-    # Contance setting (can be changed via admin UI)
+    # Constance setting (can be changed via admin UI)
     # MEANT to be TEMPORARY to allow testing and/or backoff!!
     # == 0 means no checking
     # == 1 means log warning (API user sees nothing)
     # >= 2 means return fatal UserValueError
+    if constance.config.VALIDATE_SEARCH_IDS:
+        if sources:
+            _validate_sources_or_collections(sources, Source,
+                                             Source.SourcePlatforms.ONLINE_NEWS)
 
-    # If fatal made permanent (tests removed),
-    # the "No sources found" check below can probably go away.
-    validate = constance.config.VALIDATE_SEARCH_IDS
-    if validate:
-        if sources:       # only perform queries if user supplied ids!
-            # set creation 2-3x slower than list, so make list of int at first
-            # (the common case is all ids are valid):
-            good_src_ids = list(filtered_srcs.values_list('id', flat=True))
-            if len(good_src_ids) != len(sources):
-                # set of strings (would need to convert int to str for formatting):
-                bad_src_id_set = set(sources) - set(map(str, good_src_ids))
-                missing = ",".join(bad_src_id_set)
-                if validate >= 2: # give fatal error (test should be TEMPORARY!)?
-                    raise UserValueError(f"invalid source(s): {missing}")
-                logger.warning("invalid source(s) %s", missing)
-
-        if collections:   # only perform queries if user supplied ids!
-            # set creation 2-3x slower than list, so make list of int at first
-            # (the common case is all ids are valid):
-            good_coll_ids = list(
-                Collection.objects.filter(
-                    id__in=collections,
-                    platform=Collection.CollectionPlatforms.ONLINE_NEWS)
-                .values_list('id', flat=True))
-            if len(good_coll_ids) != len(collections):
-                # set of strings (would need to convert int to str for formatting):
-                bad_coll_id_set = set(collections) - set(map(str, good_coll_ids))
-                missing = ",".join(bad_coll_id_set)
-                if validate >= 2: # give fatal error (test should be TEMPORARY!)?
-                    raise UserValueError(f"invalid collection(s) {missing}")
-                logger.warning("invalid collection(s) %s", missing)
+        if collections:
+            _validate_sources_or_collections(collections, Collection,
+                                             Collection.CollectionPlatforms.ONLINE_NEWS)
 
     # 2: UNION the four queries: src by src/coll id, alts by src/coll id
 
