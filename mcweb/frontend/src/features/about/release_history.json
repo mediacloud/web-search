@@ -1,4 +1,10 @@
 [
+{"version":"v3.1.6",
+ "date":"2026-06-12",
+ "notes":[
+   "handle duplicate src/coll ids"
+ ]
+},
 {"version":"v3.1.5",
  "date":"2026-06-12",
  "notes":[
