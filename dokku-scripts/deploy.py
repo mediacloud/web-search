@@ -1,20 +1,20 @@
 """
-web-search deploy script using mc-deploy (in system-dev-ops repo.
+web-search deploy script using mc-deploy (in system-dev-ops repo).
 
-Needs to be installed in dev venv, but not in container!!
+mc-deploy needs to be installed in dev venv, but not in container!!
 
 meant to replace shell scripts: push.sh, instance.sh, config.sh,
-common.sh, dburl.sh, clone-db.sh plus vars.py
+common.sh, dburl.sh, clone-db.sh, vars.py, scale.awk, etc.
 """
 
 import os
 import sys
 
-from mc_deploy.dokku import DokkuDBDeploy
-from mc_deploy.django import SettingsVersionMixin, DjangoMixin
+from mc_deploy.dokku import DokkuDBDjangoDeploy
+from mc_deploy.django import SettingsVersionMixin
 
 
-class WebSearchDeploy(SettingsVersionMixin, DjangoMixin, DokkuDBDeploy):
+class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
     # Much better to increase WEB_CONCURRENCY setting (gunicorn workers)
     # than number of web containers (parallel containers don't cooperate,
     # or report stats properly)!
@@ -105,8 +105,6 @@ class WebSearchDeploy(SettingsVersionMixin, DjangoMixin, DokkuDBDeploy):
                 )
         self.debug("allowed", allowed)
         self.settings_add("ALLOWED_HOSTS", ",".join(allowed))
-        print(self.settings)
-        sys.exit(1)
 
 d = WebSearchDeploy()
 sys.exit(d.run())
