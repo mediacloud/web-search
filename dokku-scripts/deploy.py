@@ -7,6 +7,7 @@ meant to replace shell scripts: push.sh, instance.sh, config.sh,
 common.sh, dburl.sh, clone-db.sh plus vars.py
 """
 
+import os
 import sys
 
 from mc_deploy.dokku import DokkuDBDeploy
@@ -57,9 +58,15 @@ class WebSearchDeploy(SettingsVersionMixin, DjangoMixin, DokkuDBDeploy):
             self.settings_load_private_files(f"{self.PROJECT_REPO}-config",
                                              files)
         else:
-            # load template config file for external development
-            # (avoid multiple places with default dev settings):
-            self.settings_load_file("mcweb/.env.template")
+            # load config file used outside Dokku, or template config
+            # file to avoid multiple places with default dev
+            # settings.
+            for path in ["mcweb/.env", "mcweb/.env-template"]:
+                if os.path.exists(path):
+                    self.settings_load_file(path)
+                    break
+            else:
+                self.fatal("did not find .env")
 
             # but remove static, external database & redis URLs
             # (dokku supplies those):
@@ -69,9 +76,9 @@ class WebSearchDeploy(SettingsVersionMixin, DjangoMixin, DokkuDBDeploy):
             user_conf = f"vars.{self.user}"
             if not os.path.exists(user_conf):
                 with open(user_conf, "w") as f:
-                    print("creating {user_conf} for overrides")
+                    print(f"creating {user_conf} for overrides")
                     f.write("# put config overrides in this file\n")
-                    f.write("ADMIN_EMAIL= # gets alerts, scrape errors\n")
+                    f.write("ADMIN_EMAIL='' # gets alerts, scrape errors\n")
                     # set system alert banner:
                     f.write(
                         f"""SYSTEM_ALERT="🚧 {self.user}'s dev instance 🚧"\n"""
