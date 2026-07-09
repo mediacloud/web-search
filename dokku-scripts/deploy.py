@@ -54,7 +54,7 @@ class WebSearchDeploy(SettingsVersionMixin, DjangoMixin, DokkuDBDeploy):
         if self.is_prod_staging():
             files = ["web-search.prod.sh"]
             if self.is_staging():
-                files.append("web-search.staging.sh") # overrides
+                files.append("web-search.staging.sh") # overrides to prod
             self.settings_load_private_files(f"{self.PROJECT_REPO}-config",
                                              files)
         else:
