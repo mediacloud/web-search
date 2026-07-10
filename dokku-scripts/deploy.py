@@ -73,6 +73,7 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
             self.settings.pop("DATABASE_URL", None)
             self.settings.pop("REDIS_URL", None)
 
+            # Dokku only per-user settings:
             user_conf = f"vars.{self.user}"
             if not os.path.exists(user_conf):
                 with open(user_conf, "w") as f:
@@ -85,10 +86,13 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
                     )
             self.settings_load_file(user_conf)
 
-        # for prod/staging could almost CERTAINLY
-        # keep this in the static config!
         app = self.inst_name
+
+        # ALLOWED_HOSTS config for Django.  For prod/staging could almost
+        # CERTAINLY keep this in the static config!  Django doesn't pick up
+        # ALLOWED_HOSTS from the environment by default.
         allowed: list[str] = []
+
         if self.is_prod():
             allowed.append(
                 f"{app}.{self.dokku_host_short}.{self.PUBLIC_DOMAIN}"
@@ -97,11 +101,13 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
                 f"{self.PUBLIC_NAME}.{self.PUBLIC_DOMAIN}"
             )
         else:
+            # private/local name w/ internal domain:
             allowed.append(f"{app}.{self.dokku_host_fqdn}")
             if self.is_staging():
                 base = self.get_inst_base() # without "staging-"
+                # public name has -staging last
                 allowed.append(
-                    f"staging-{base}.{self.PUBLIC_HOST}.{self.PUBLIC_DOMAIN}"
+                    f"{base}-staging.{self.PUBLIC_HOST}.{self.PUBLIC_DOMAIN}"
                 )
         self.debug("allowed", allowed)
         self.settings_add("ALLOWED_HOSTS", ",".join(allowed))
