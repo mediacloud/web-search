@@ -10,7 +10,7 @@ common.sh, dburl.sh, clone-db.sh, vars.py, scale.awk, etc.
 import os
 import sys
 
-from mc_deploy.base import ParserArgs
+from mc_deploy.base import CmdArgs, ParserArgs
 from mc_deploy.dokku import DokkuDBDjangoDeploy
 from mc_deploy.django import SettingsVersionMixin
 
@@ -87,6 +87,8 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
                     )
             self.settings_load_file(user_conf)
 
+    def deploy_cmd_helper(self, args: CmdArgs) -> None:
+        super().deploy_cmd_helper(args)  # load config
         app = self.inst_name
 
         # ALLOWED_HOSTS config for Django.  For prod/staging could almost
