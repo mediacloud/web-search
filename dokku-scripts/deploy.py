@@ -16,11 +16,13 @@ from mc_deploy.django import SettingsVersionMixin
 
 
 class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
-    # Much better to increase WEB_CONCURRENCY setting (gunicorn workers)
-    # than number of web containers (parallel containers don't cooperate,
-    # or report stats properly)!
+    # MUCH better to increase WEB_CONCURRENCY setting (gunicorn
+    # workers) in web-search.prod.sh than the number of independent
+    # containers/gunicorn processes (which don't sum gunicorn stats)!
     DOKKU_SCALE = {"web": 1, "supervisord": 1}
     PUBLIC_NAME = "search"      # w/o PUBLIC_DOMAIN
+    # NOTE: -staging last:
+    STAGING_PUBLIC_NAME = "mcweb-staging" # w/o PUBLIC_DOMAIN
 
     # map of plugin name to service name suffix:
     DOKKU_SERVICES = {
@@ -93,7 +95,8 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
 
         # ALLOWED_HOSTS config for Django.  For prod/staging could almost
         # CERTAINLY keep this in the static config!  Django doesn't pick up
-        # ALLOWED_HOSTS from the environment by default.
+        # ALLOWED_HOSTS from the environment by default; it's done in
+        # web-search/mcweb/settings.py
         allowed: list[str] = []
 
         if self.is_prod():
@@ -107,10 +110,8 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
             # private/local name w/ internal domain:
             allowed.append(f"{app}.{self.dokku_host_fqdn}")
             if self.is_staging():
-                base = self.get_inst_base() # without "staging-"
-                # public name has -staging last
                 allowed.append(
-                    f"{base}-staging.{self.PUBLIC_HOST}.{self.PUBLIC_DOMAIN}"
+                    f"{self.STAGING_PUBLIC_HOST}.{self.PUBLIC_DOMAIN}"
                 )
         self.debug("allowed", allowed)
         self.settings_add("ALLOWED_HOSTS", ",".join(allowed))
