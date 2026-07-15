@@ -10,6 +10,7 @@ common.sh, dburl.sh, clone-db.sh, vars.py, scale.awk, etc.
 import os
 import sys
 
+from mc_deploy.base import ParserArgs
 from mc_deploy.dokku import DokkuDBDjangoDeploy
 from mc_deploy.django import SettingsVersionMixin
 
@@ -33,11 +34,11 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
 
     SETTINGS_FILE = "mcweb/settings.py" # for SettingsVersionMixin
 
-    def settings_get_new(self) -> None:
+    def settings_get_new(self, args: ParserArgs) -> None:
         """
         load project settings
         """
-        super().settings_get_new()
+        super().settings_get_new(args)
 
         self.settings_add("STATSD_HOST", self.STATSD_HOST)
         # STATSD_PREFIX provided by base!
@@ -70,8 +71,8 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
 
             # but remove static, external database & redis URLs
             # (dokku supplies those):
-            self.settings.pop("DATABASE_URL", None)
-            self.settings.pop("REDIS_URL", None)
+            self.settings_del("DATABASE_URL")
+            self.settings_del("REDIS_URL")
 
             # Dokku only per-user settings:
             user_conf = f"vars.{self.user}"
