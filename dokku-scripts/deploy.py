@@ -11,30 +11,28 @@ import os
 import sys
 
 from mc_deploy.base import CmdArgs, ParserArgs
-from mc_deploy.dokku import DokkuDBDjangoDeploy
 from mc_deploy.django import SettingsVersionMixin
+from mc_deploy.dokku import AllowedHostsMixin, DokkuDBMixin, DokkuDeploy
 
 
-class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
+class WebSearchDeploy(
+    AllowedHostsMixin, DokkuDBMixin, SettingsVersionMixin, DokkuDeploy
+):
     # MUCH better to increase WEB_CONCURRENCY setting (gunicorn
     # workers) in web-search.prod.sh than the number of independent
     # containers/gunicorn processes (which don't sum gunicorn stats)!
     DOKKU_SCALE = {"web": 1, "supervisord": 1}
-    PUBLIC_NAME = "search"      # w/o PUBLIC_DOMAIN
+    PUBLIC_NAME = "search"  # w/o PUBLIC_DOMAIN
     # NOTE: -staging last:
-    STAGING_PUBLIC_NAME = "mcweb-staging" # w/o PUBLIC_DOMAIN
+    STAGING_PUBLIC_NAME = "mcweb-staging"  # w/o PUBLIC_DOMAIN
 
     # map of plugin name to service name suffix:
-    DOKKU_SERVICES = {
-        "postgres": "-db",
-        "redis": "-cache",
-        "storage": ""
-    }
+    DOKKU_SERVICES = {"postgres": "-db", "redis": "-cache", "storage": ""}
 
-    INST_BASE = "mcweb"         # app base name
+    INST_BASE = "mcweb"  # app base name
     PROJECT_REPO = "web-search"
 
-    SETTINGS_FILE = "mcweb/settings.py" # for SettingsVersionMixin
+    SETTINGS_FILE = "mcweb/settings.py"  # for SettingsVersionMixin
 
     def settings_get_new(self, args: ParserArgs) -> None:
         """
@@ -57,9 +55,8 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
         if self.is_prod_staging():
             files = ["web-search.prod.sh"]
             if self.is_staging():
-                files.append("web-search.staging.sh") # overrides to prod
-            self.settings_load_private_files(f"{self.PROJECT_REPO}-config",
-                                             files)
+                files.append("web-search.staging.sh")  # overrides to prod
+            self.settings_load_private_files(f"{self.PROJECT_REPO}-config", files)
         else:
             # load config file used outside Dokku, or template config
             # file to avoid multiple places with default dev
@@ -84,37 +81,9 @@ class WebSearchDeploy(SettingsVersionMixin,DokkuDBDjangoDeploy):
                     f.write("# put config overrides in this file\n")
                     f.write("ADMIN_EMAIL='' # gets alerts, scrape errors\n")
                     # set system alert banner:
-                    f.write(
-                        f"""SYSTEM_ALERT="🚧 {self.user}'s dev instance 🚧"\n"""
-                    )
+                    f.write(f"""SYSTEM_ALERT="🚧 {self.user}'s dev instance 🚧"\n""")
             self.settings_load_file(user_conf)
 
-    def deploy_cmd_helper(self, args: CmdArgs) -> None:
-        super().deploy_cmd_helper(args)  # load config
-        app = self.inst_name
-
-        # ALLOWED_HOSTS config for Django.  For prod/staging could almost
-        # CERTAINLY keep this in the static config!  Django doesn't pick up
-        # ALLOWED_HOSTS from the environment by default; it's done in
-        # web-search/mcweb/settings.py
-        allowed: list[str] = []
-
-        if self.is_prod():
-            allowed.append(
-                f"{app}.{self.dokku_host_short}.{self.PUBLIC_DOMAIN}"
-            )
-            allowed.append(
-                f"{self.PUBLIC_NAME}.{self.PUBLIC_DOMAIN}"
-            )
-        else:
-            # private/local name w/ internal domain:
-            allowed.append(f"{app}.{self.dokku_host_fqdn}")
-            if self.is_staging():
-                allowed.append(
-                    f"{self.STAGING_PUBLIC_HOST}.{self.PUBLIC_DOMAIN}"
-                )
-        self.debug("allowed", allowed)
-        self.settings_add("ALLOWED_HOSTS", ",".join(allowed))
 
 d = WebSearchDeploy()
 sys.exit(d.run())
