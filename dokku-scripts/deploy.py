@@ -12,11 +12,11 @@ import sys
 
 from mc_deploy.base import CmdArgs, ParserArgs
 from mc_deploy.django import SettingsVersionMixin
-from mc_deploy.dokku import AllowedHostsMixin, DokkuDBMixin, DokkuDeploy
+from mc_deploy.dokku import AllowedHostsMixin, DokkuCacheMixin, DokkuDBMixin, DokkuDeploy
 
 
 class WebSearchDeploy(
-    AllowedHostsMixin, DokkuDBMixin, SettingsVersionMixin, DokkuDeploy
+    AllowedHostsMixin, DokkuCacheMixin, DokkuDBMixin, SettingsVersionMixin, DokkuDeploy
 ):
     # MUCH better to increase WEB_CONCURRENCY setting (gunicorn
     # workers) in web-search.prod.sh than the number of independent
