@@ -30,4 +30,4 @@ sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v5.0.latest
 supervisor==4.2.*
 statsd_client==1.0.*
 # only needed in dev venv:
-mc-deploy @ git+https://github.com/mediacloud/system-dev-ops@mc-deploy-0.9.0#subdirectory=deploy/mc-deploy
+mc-deploy @ git+https://github.com/mediacloud/system-dev-ops@mc-deploy-0.9.latest#subdirectory=deploy/mc-deploy
