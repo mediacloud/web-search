@@ -56,7 +56,7 @@ class WebSearchDeploy(
             files = ["web-search.prod.sh"]
             if self.is_staging():
                 files.append("web-search.staging.sh")  # overrides to prod
-            self.settings_load_private_files(f"{self.PROJECT_REPO}-config", files)
+            self.settings_load_private_files(PROJECT_REPO", files)
         else:
             # load config file used outside Dokku, or template config
             # file to avoid multiple places with default dev
