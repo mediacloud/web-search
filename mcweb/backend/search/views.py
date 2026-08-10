@@ -182,8 +182,13 @@ def handle_429(func):
         try:
             return func(request)
         except Ratelimited as e:
-            return HttpResponseRatelimited()
-
+            # return standard format JSON response for
+            # mediacloud.error.APIResponseError
+            return error_response(
+                msg="rate limited",
+                response_type=HttpResponseRatelimited, # 429
+                temporary=True
+            )
     return _handler
 
 def _qs(pq: ParsedQuery) -> str:
