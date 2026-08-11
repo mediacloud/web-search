@@ -23,6 +23,7 @@ urlpatterns = [
     path('download-top-sources-csv', views.download_sources_csv),
     path('send-email-large-download-csv', views.send_email_large_download_csv),
     path('story-list', views.story_list),
-    path('providers', views.providers)
+    path('providers', views.providers),
+    path('requests', views.recent_requests),
 ]
 urlpatterns += router.urls

@@ -45,6 +45,7 @@ from .utils import (
     request_session_id
 )
 from .tasks import download_all_large_content_csv, download_all_queries_csv_task
+from .read_requests import read_requests
 
 # mcweb/backend/users
 from ..users.models import QuotaHistory
@@ -601,3 +602,40 @@ def add_ratios_to_source_counts(data):
     for item in data:
         item['ratio'] = item['count'] / total_count if total_count > 0 else 0
     return data
+
+## TEMP?
+@api_stats  # PLEASE KEEP FIRST!
+@handle_provider_errors
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
+def recent_requests(request):
+    if not request.user.is_staff:
+        # Starkist wants tunas that taste good!
+        return error_response("Sorry Charlie!", response_type=HttpResponseForbidden)
+
+    srcs = True
+    rows = read_requests(want=100, srcs=srcs)   # take query params?
+    if request.headers.get("Accept") == "application/json":
+        return json_response({"requests": rows}) # JSON only request
+
+    # TEMP: not a pure JSON request: send HTML!
+    lines = [
+        "<html>",
+        "<head><title>recent requests</title></head>",
+        "<body>",
+        "<h1>recent requests</h2>",
+        "<table border=1>"
+    ]
+    if rows:
+        keys = list(rows[0].keys())
+        header = "".join(f"<th>{key}</th>" for key in keys)
+        lines.append(f"<tr>{header}</tr>")
+        for row in rows:
+            line = "".join(f"<td>{row[key]}</td>" for key in keys)
+            lines.append(f"<tr>{line}</tr>")
+    lines.append("</table>")
+    lines.append("</body>")
+    lines.append("</html>")
+    html = "\n".join(lines)
+    return HttpResponse(html, content_type='text/html; charset=utf-8')
