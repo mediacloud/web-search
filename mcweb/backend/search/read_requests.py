@@ -21,30 +21,32 @@ def parse_date(s):
     except:
         return dt.datetime.strptime(s, "%m/%d/%Y").date()
 
-def parse_requests(fname: str, srcs: bool, ss_cache: dict) -> list[dict]:
+def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -> list[dict]:
     """
     srcs: expand sources
     ss_cache: cache of source results for collection/sources args
     """
     results = []
-    logger.info("parse_requests %s", fname)
+    logger.debug("parse_requests %s", fname)
     if os.path.exists(fname):
         with open(fname) as fin:
             for line in fin:
                 j = json.loads(line.strip())
-                code = j.get("response", {}).get("code", None)
-                if code != 200:
-                    continue
 
-                # all web requests come in as queryObjects?
-                if j.get("has_session"):
-                    sess = "yes"
-                else:
-                    sess = "no"
                 path = j.get("path")
-                if not path.startswith("/api/search"):
+                if not path.startswith("/api/search/"):
                     continue
-                path = path[12:]
+                path = path[12:] # trim /api/search/ prefix
+
+                if status is not None:
+                    code = j.get("response", {}).get("code", None)
+                    if code != status:
+                        continue
+
+                # all web requests come in as queryObjects
+                # more complex to process (mutiple queries)
+                if j.get("has_session"):
+                    continue
 
                 user = j.get("user")
                 ts = j.get("timestamp")
@@ -52,7 +54,7 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict) -> list[dict]:
 
                 h = j.get("headers", {})
                 ua = h.get("User-Agent", "")
-                # gets nothing for local requests:
+                # get original IP addr from CloudFlare or nginx headers:
                 ip = h.get("Cf-Connecting-Ip", "") or h.get("X-Forwarded-For", "")
 
                 rp = j.get("request_params")
@@ -85,7 +87,6 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict) -> list[dict]:
                     "user": user,
                     "ep": path,
                     "ms": int(duration * 1000),
-                    #"sess": sess, # curr always false
 
                     # all of the following may appear more than once in browser queryString!!
                     "q": q,
@@ -117,24 +118,24 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict) -> list[dict]:
                 results.append(row)
             # end for line in fin
         # end with open(fname) as fin
+        logger.debug(" read %d entries", len(results))
     # end if path.exists
     return results
 
-def read_requests(*, want: int = 100, srcs: bool = True) -> list[dict]:
+def read_requests(*, want: int = 100, srcs: bool = True, status: int | None = 200) -> list[dict]:
     ss_cache = {}               # (parents, children)
 
+    # find path to current file
     for logs in [
+            "data/logs/requests.log", # testing outside dokku
             "/app/data/logs/requests.log",
-            # tarbell, outside:
-            "/var/lib/dokku/data/storage/mcweb/logs/requests.log",
-            "/nfs/ang/users/pbudne/web-search/data/logs/requests.log",
     ]:
         if os.path.exists(logs):
             break
 
     logger.info("logs %s", logs)
 
-    rows = parse_requests(logs, srcs, ss_cache)
+    rows = parse_requests(logs, srcs, ss_cache, status)
 
     # may have rolled over recently, be prepared
     # to read more files
@@ -145,11 +146,12 @@ def read_requests(*, want: int = 100, srcs: bool = True) -> list[dict]:
         p2 = logs + time.strftime(".%F_%H", time.gmtime(now-hours*60*60))
         hours += 1
         if os.path.exists(p2):
-            rows.extend(parse_requests(p2, srcs, ss_cache))
-        elif hours > 24:
+            rows.extend(parse_requests(p2, srcs, ss_cache, status))
+        elif hours > 26:
             # missing files after the previous day
             # likely means we ran off the edge past kept files.
             break
+
+    # sort in place, most recent first:
     rows.sort(key=operator.itemgetter("ts"), reverse=True)
-    print(rows)
     return rows

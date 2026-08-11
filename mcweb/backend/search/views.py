@@ -1,5 +1,6 @@
 import csv
 import datetime as dt
+import html                     # temp for "requests" ep?!!
 import json
 import logging
 import time
@@ -621,7 +622,6 @@ def add_ratios_to_source_counts(data):
 
 ## TEMP?
 @api_stats  # PLEASE KEEP FIRST!
-@handle_provider_errors
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
@@ -630,17 +630,17 @@ def recent_requests(request):
         # Starkist wants tunas that taste good!
         return error_response("Sorry Charlie!", response_type=HttpResponseForbidden)
 
-    rows = read_requests(want=100, srcs=True)   # take query params?
+    rows = read_requests(want=100, srcs=True, status=200)   # take query params?
     if request.headers.get("Accept") == "application/json":
         return json_response({"requests": rows}) # JSON only request
 
-    # TEMP!!!!! not a pure JSON request: send HTML!
+    # TEMP!!!!! not a pure JSON request: send HTML
     title = "recent API requests"
     lines = [
         "<html>",
         f"<head><title>{title}</title></head>",
         "<body>",
-        f"<h1>{title}</h2>",
+        f"<h2>{title}</h2>",
         "<table border=1>"
     ]
     if rows:
@@ -648,10 +648,10 @@ def recent_requests(request):
         header = "".join(f"<th>{key}</th>" for key in keys)
         lines.append(f"<tr>{header}</tr>")
         for row in rows:
-            line = "".join(f"<td>{row[key]}</td>" for key in keys)
+            line = "".join(f"<td>{html.escape(str(row[key]))}</td>" for key in keys)
             lines.append(f"<tr>{line}</tr>")
     lines.append("</table>")
     lines.append("</body>")
     lines.append("</html>")
-    html = "\n".join(lines)
-    return HttpResponse(html, content_type='text/html; charset=utf-8')
+    body = "\n".join(lines)
+    return HttpResponse(body, content_type='text/html; charset=utf-8')
