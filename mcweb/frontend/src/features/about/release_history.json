@@ -1,4 +1,13 @@
 [
+{"version":"v3.1.7",
+ "date":"2026-08-10",
+ "notes":[
+   "updated feed search",
+   "give better 429 errors",
+   "new deploy script",
+   "requests endpoint"
+ ]
+},
 {"version":"v3.1.6",
  "date":"2026-06-12",
  "notes":[
