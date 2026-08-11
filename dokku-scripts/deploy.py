@@ -24,7 +24,7 @@ class WebSearchDeploy(
     DOKKU_SCALE = {"web": 1, "supervisord": 1}
     PUBLIC_NAME = "search"  # w/o PUBLIC_DOMAIN
     # NOTE: -staging last:
-    STAGING_PUBLIC_NAME = "mcweb-staging"  # w/o PUBLIC_DOMAIN
+    STAGING_PUBLIC_NAME = "mcweb-staging.tarbell"  # w/o PUBLIC_DOMAIN
 
     # map of plugin name to service name suffix:
     DOKKU_SERVICES = {"postgres": "-db", "redis": "-cache", "storage": ""}
@@ -84,6 +84,10 @@ class WebSearchDeploy(
                     f.write(f"""SYSTEM_ALERT="🚧 {self.user}'s dev instance 🚧"\n""")
             self.settings_load_file(user_conf)
 
+    # WANT: typing.override decorator
+    def stats_app(self) -> str:
+        # use repo name (web-search), not app (mcweb)
+        return self.PROJECT_REPO
 
 d = WebSearchDeploy()
 sys.exit(d.run())
