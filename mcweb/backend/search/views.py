@@ -208,6 +208,8 @@ def _qs(pq: ParsedQuery) -> str:
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def total_count(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -227,6 +229,8 @@ def total_count(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def count_over_time(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -247,6 +251,8 @@ def count_over_time(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def count_by_source_over_interval(request):
     pq, params = parse_query_params(request)
     provider = pq_provider(pq)
@@ -327,6 +333,8 @@ def count_by_source_over_interval(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def sample(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -340,6 +348,8 @@ def sample(request):
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def story_detail(request):
     pq, params = parse_query_params(request, is_search=False) # unlikely to handle POST!
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
@@ -357,6 +367,8 @@ def story_detail(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def sources(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -396,6 +408,8 @@ def download_sources_csv(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def languages(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -432,7 +446,7 @@ def download_languages_csv(request):
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.story_list_rate')
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def story_list(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -465,6 +479,8 @@ def story_list(request):
 @api_view(['GET', 'POST'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
+@handle_429
+@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
 def words(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
