@@ -58,11 +58,11 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -
                 ip = h.get("Cf-Connecting-Ip", "") or h.get("X-Forwarded-For", "")
 
                 rp = j.get("request_params")
-                qo = rp.get("queryObject", None)
+                qo = rp.get("queryObject", None) # web-search only
                 if qo:
                     continue
 
-                if rp.get("qS"): # should not happen without session!!!
+                if rp.get("qS"): # web-search only
                     # qs is JSON of list of query_objects
                     continue
 
@@ -104,7 +104,7 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -
                     else:
                         cs = [int(x) for x in cs_str.split(",") if x]
                         ss = [int(x) for x in ss_str.split(",") if x]
-                        # use query utility to get domains/url_search_strings
+                        # use query utility to get domains/url_search_strings!!
                         prov_params = _for_media_cloud(cs, ss, {})
                         parents = len(prov_params.get("domains", []))
                         uss_strings = prov_params.get("url_search_strings", {})
