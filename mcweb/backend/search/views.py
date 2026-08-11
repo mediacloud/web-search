@@ -630,17 +630,17 @@ def recent_requests(request):
         # Starkist wants tunas that taste good!
         return error_response("Sorry Charlie!", response_type=HttpResponseForbidden)
 
-    srcs = True
-    rows = read_requests(want=100, srcs=srcs)   # take query params?
+    rows = read_requests(want=100, srcs=True)   # take query params?
     if request.headers.get("Accept") == "application/json":
         return json_response({"requests": rows}) # JSON only request
 
-    # TEMP: not a pure JSON request: send HTML!
+    # TEMP!!!!! not a pure JSON request: send HTML!
+    title = "recent API requests"
     lines = [
         "<html>",
-        "<head><title>recent requests</title></head>",
+        f"<head><title>{title}</title></head>",
         "<body>",
-        "<h1>recent requests</h2>",
+        f"<h1>{title}</h2>",
         "<table border=1>"
     ]
     if rows:
