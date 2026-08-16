@@ -1,5 +1,5 @@
 
-## Scripts to assist creating and deploying web-search as a Dokku App
+## Creating and deploying web-search as a Dokku App
 
 These scripts are used to run web-search in production, for final
 "staging" testing, and for developers to test their changes under
@@ -16,24 +16,22 @@ If you have a dokku instance running and have created a local virtual environmen
 in `web-search/venv`, you can use some scripts in the [outside](outside) directory
 to do CASUAL development/testing.
 
-### instance.sh
+### creating instances (must run `make install-deploy` first):
 
 ```
-dokku-scripts/instance.sh create NAME
+deploy-venv/bin/python dokku-scripts/deploy.py create NAME
 ```
 
-where name is `prod`, `staging` or a user name, creates a dokku app
+where NAME is `prod`, `staging` or a user name, creates a dokku app
 and associated services.  For `prod` the app name is `mcweb`, otherwise
 the app name is `NAME-mcweb`
 
+To destroy an instance:
 ```
-dokku-scripts/instance.sh destroy NAME
+deploy-venv/bin/python dokku-scripts/deploy.py destroy NAME
 ```
 
-You will be prompted to enter the app and service names to destroy.
-this can be regarded as both a bug and a feature.
-
-### clone-db.sh
+### cloning from production database
 
 Requires the user running the script have ssh access to user dokku on tarbell
 (ie; `dokku ssh:keys add` has been run) and on the local server.
@@ -43,7 +41,7 @@ database.
 
 
 ```
-dokku-scripts/clone.db USERNAME-mcweb-db
+deploy-venv/bin/python dokku-scripts/deploy.py clone NAME
 ```
 
 Performs a full dump of the database of the production system on tarbell
@@ -61,19 +59,16 @@ sudo dokku enter pbudne-mcweb web /app/mcweb/manage.py createsuperuser
 To configure an instance, and update its code run:
 
 ```
-dokku-scripts/push.sh
+make deploy
 ````
 
 If the currently checked out branch is `prod` or `staging` the
-associated instance will be updated (requires git remote
-`mcweb_BRANCH` be set up.
+associated instance will be updated.  Otherwise, the logged in user's
+dokku instance will be used.
 
-Otherwise, the logged in user's dokku instance will be used (using git
-remote `mcweb_USERNAME` set up by `instance.sh create USERNAME`)
-
-`push.sh` requires the current repo is "clean" (all changes checked
+`make deploy` requires the current repo is "clean" (all changes checked
 in), and pushed (to to the mediacloud repo for staging and production,
-or to "origin" for user deployments).  
+or to "origin" (possibly a private repo fork) for user deployments).
 
 A tag will be applied and pushed (for staging and user deploys the tag
 name is generated), for production, the tag name is vVERSION
@@ -132,6 +127,7 @@ host *.HIDDENDOMAIN HIDDEN-SERVER1 HIDDEN-SERVER2 HIDDEN-SERVER3
 
 Then `ssh ANYSERVER.HIDDENDOMAIN` or `ssh HIDDEN-SERVERn`
 should work.
+
 
 NOTE: HIDDEN-SERVERn need not be fully qualified, so long
 as the name is meaningfull on VISIBLE-SERVER.

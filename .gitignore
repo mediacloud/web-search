@@ -9,6 +9,7 @@ __pycache__/
 *.pyc 
 venv/
 .venv/
+deploy-venv
 
 # IDE
 .idea

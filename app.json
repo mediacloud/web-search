@@ -1,8 +1,20 @@
 {
-    "scripts": {
-        "dokku": {
-            "predeploy": "./install.sh ",
-            "postdeploy": "./postdeploy.sh"
-        }
+  "scripts": {
+    "dokku": {
+      "predeploy": "./install.sh ",
+      "postdeploy": "./postdeploy.sh"
     }
+  },
+  "cron": [
+    {
+      "command": "./run-periodic.sh daily",
+      "schedule": "17 0,4 * * *",
+      "concurrency_policy": "replace"
+    },
+    {
+      "command": "./run-periodic.sh weekly",
+      "schedule": "42 0,4 * * 6",
+      "concurrency_policy": "replace"
+    }
+  ]
 }

@@ -28,7 +28,3 @@ ruptures
 sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v5.0.latest
 supervisor==4.2.*
 statsd_client==1.0.*
-# only needed in dev venv
-# (and then only if using dokku so perhaps in a push-venv?)
-# This project doesn't have a Makefile for setting things up!
-mc-deploy @ git+https://github.com/mediacloud/system-dev-ops@mc-deploy-0.14.latest#subdirectory=deploy/mc-deploy
