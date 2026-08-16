@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo "for reference only; use deploy.py"
+exit 1
+
 # Deploy code by pushing current branch to Dokkku app instance
 # (development, staging, or production, depending on branch name)
 # Phil Budne, August 2024
