@@ -46,7 +46,8 @@ case "$PERIODIC_HOUR" in
 [12]|0[12]) log "bad PERIODIC_HOUR: $PERIODIC_HOUR"; exit 1;;
 esac
 
-HOUR=$(date +%k)
+# get time in US/East to match tarbell crontab
+HOUR=$(TZ=America/New_York date +%k)
 if [ "$HOUR" -ne "$PERIODIC_HOUR" ]; then
     log "not time: $PERIODIC_HOUR"
     exit 0
