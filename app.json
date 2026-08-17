@@ -1,8 +1,7 @@
 {
   "scripts": {
     "dokku": {
-      "predeploy": "./install.sh ",
-      "postdeploy": "./postdeploy.sh"
+      "predeploy": "./install.sh "
     }
   },
   "cron": [
