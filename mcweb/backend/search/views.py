@@ -648,7 +648,18 @@ def recent_requests(request):
         header = "".join(f"<th>{key}</th>" for key in keys)
         lines.append(f"<tr>{header}</tr>")
         for row in rows:
-            line = "".join(f"<td>{html.escape(str(row[key]))}</td>" for key in keys)
+            def _fetch(key) -> str:
+                v = row[key]
+                if key == "pt":
+                    # import datetime first list item.  could include
+                    # hh:mm:ss replacing T with space so it can be put
+                    # on two rows
+                    d = v[0][:10]
+                    # if list has three elements, third is random seed!
+                    return d
+                else:
+                    return str(v)
+            line = "".join(f"<td>{html.escape(_fetch(key))}</td>" for key in keys)
             lines.append(f"<tr>{line}</tr>")
     lines.append("</table>")
     lines.append("</body>")

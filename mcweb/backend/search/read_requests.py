@@ -11,6 +11,9 @@ import os
 import time
 import datetime as dt
 
+# AIEEE! using private function and constant!!!
+from mc_providers.onlinenews import _b64_decode_page_token, _SORT_KEY_SEP
+
 from .utils import _for_media_cloud
 
 logger = logging.getLogger(__name__)
@@ -115,6 +118,12 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -
                     row["par"] = parents
                     row["chld"] = children
                 # end if sources
+                pt = rp.get("pagination_token", "")
+                if pt:
+                    try:
+                        row["pt"] = _b64_decode_page_token(pt).split(_SORT_KEY_SEP)
+                    except:
+                        pass
                 results.append(row)
             # end for line in fin
         # end with open(fname) as fin
