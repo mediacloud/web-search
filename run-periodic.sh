@@ -57,5 +57,5 @@ log "starting run-parts"
 # script names MUST start with three digits and a dot,
 # MAY contain any combination of letters, digits, hyphen
 # MUST NOT end with .sh!!
-run-parts --regex='^[0-9][0-9][0-9]\.[a-zA-Z0-9-]$' --verbose "$DIR"
+run-parts --regex='^[0-9][0-9][0-9]\.[a-zA-Z0-9-]*$' --verbose "$DIR"
 log "done $?"
