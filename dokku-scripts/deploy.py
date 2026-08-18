@@ -34,6 +34,13 @@ class WebSearchDeploy(
 
     SETTINGS_FILE = "mcweb/settings.py"  # for SettingsVersionMixin
 
+    def deploy_cmd_helper(self, args: CmdArgs) -> None:
+        super().deploy_cmd_helper(args)  # load config, set inst_name
+
+        crontab = os.path.join("/etc/cron.d", self.inst_name)
+        if os.path.exists(crontab):
+            self.fatal(f"remove {crontab}!!")
+
     def settings_get_new(self, args: ParserArgs) -> None:
         """
         load project settings
