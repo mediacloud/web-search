@@ -7,7 +7,7 @@ PERIOD=${1:-novalue}
 # redirect stdout and stderr to log for help
 # seeing why things may not have run without email.
 # (not rotated, so keep only last invocation)
-exec >> data/logs/run-periodic-$PERIOD.log 2>& 1
+exec > data/logs/run-periodic-$PERIOD.log 2>& 1
 
 log() {
     echo `date '+%F %T'` $*
