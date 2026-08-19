@@ -119,6 +119,7 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -
                     row["chld"] = children
                 # end if sources
                 pt = rp.get("pagination_token", "")
+                row["pt"] = ["", 0]
                 if pt:
                     try:
                         row["pt"] = _b64_decode_page_token(pt).split(_SORT_KEY_SEP)
