@@ -4,12 +4,13 @@ read requests.log for /api/search/requests
 kinda big and ugly, so hiding it here!
 """
 
+import datetime as dt
+import html                     # temp? for make_table
 import json
 import logging
 import operator
 import os
 import time
-import datetime as dt
 
 # AIEEE! using private function and constant!!!
 from mc_providers.onlinenews import _b64_decode_page_token, _SORT_KEY_SEP
@@ -165,3 +166,35 @@ def read_requests(*, want: int = 100, srcs: bool = True, status: int | None = 20
     # sort in place, most recent first:
     rows.sort(key=operator.itemgetter("ts"), reverse=True)
     return rows
+
+def make_table(rows: list[dict]) -> str:
+    title = "recent API requests"
+    lines = [
+        "<html>",
+        f"<head><title>{title}</title></head>",
+        "<body>",
+        f"<h2>{title}</h2>",
+        "<table border=1>"
+    ]
+    if rows:
+        keys = list(rows[0].keys())
+        header = "".join(f"<th>{key}</th>" for key in keys)
+        lines.append(f"<tr>{header}</tr>")
+        for row in rows:
+            def _fetch(key) -> str:
+                v = row[key]
+                if key == "pt":
+                    # import datetime first list item.  could include
+                    # hh:mm:ss replacing T with space so it can be put
+                    # on two rows
+                    d = v[0][:10]
+                    # if list has three elements, third is random seed!
+                    return d
+                else:
+                    return str(v)
+            line = "".join(f"<td>{html.escape(_fetch(key))}</td>" for key in keys)
+            lines.append(f"<tr>{line}</tr>")
+    lines.append("</table>")
+    lines.append("</body>")
+    lines.append("</html>")
+    return "\n".join(lines)

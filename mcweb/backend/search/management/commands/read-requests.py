@@ -7,7 +7,7 @@ import time
 
 from django.core.management.base import BaseCommand
 
-from ...read_requests import parse_requests
+from ...read_requests import parse_requests, make_table
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +19,14 @@ class Command(BaseCommand):
 
         # NOTE! nargs="*" means "takes multiple values after the option",
         # not accept multiple invocations of the option!!!!
+        parser.add_argument("--html", action="store_true")
         parser.add_argument("file")
 
     def handle(self, *args, **options):
         ss_cache = {}
         reqs = parse_requests(fname=options["file"], srcs=True, ss_cache=ss_cache, status=200)
-        for req in reqs:
-            print(req)
+        if options["html"]:
+            print(make_table(reqs))
+        else:
+            for req in reqs:
+                print(req)

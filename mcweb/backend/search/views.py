@@ -1,6 +1,5 @@
 import csv
 import datetime as dt
-import html                     # temp for "requests" ep?!!
 import json
 import logging
 import time
@@ -46,7 +45,7 @@ from .utils import (
     request_session_id
 )
 from .tasks import download_all_large_content_csv, download_all_queries_csv_task
-from .read_requests import read_requests
+from .read_requests import read_requests, make_table
 
 # mcweb/backend/users
 from ..users.models import QuotaHistory
@@ -635,34 +634,5 @@ def recent_requests(request):
         return json_response({"requests": rows}) # JSON only request
 
     # TEMP!!!!! not a pure JSON request: send HTML
-    title = "recent API requests"
-    lines = [
-        "<html>",
-        f"<head><title>{title}</title></head>",
-        "<body>",
-        f"<h2>{title}</h2>",
-        "<table border=1>"
-    ]
-    if rows:
-        keys = list(rows[0].keys())
-        header = "".join(f"<th>{key}</th>" for key in keys)
-        lines.append(f"<tr>{header}</tr>")
-        for row in rows:
-            def _fetch(key) -> str:
-                v = row[key]
-                if key == "pt":
-                    # import datetime first list item.  could include
-                    # hh:mm:ss replacing T with space so it can be put
-                    # on two rows
-                    d = v[0][:10]
-                    # if list has three elements, third is random seed!
-                    return d
-                else:
-                    return str(v)
-            line = "".join(f"<td>{html.escape(_fetch(key))}</td>" for key in keys)
-            lines.append(f"<tr>{line}</tr>")
-    lines.append("</table>")
-    lines.append("</body>")
-    lines.append("</html>")
-    body = "\n".join(lines)
+    body = make_table(rows)
     return HttpResponse(body, content_type='text/html; charset=utf-8')
