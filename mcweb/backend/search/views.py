@@ -443,7 +443,7 @@ def download_languages_csv(request):
 @api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])  # API-only method for now
+@authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
 @ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
