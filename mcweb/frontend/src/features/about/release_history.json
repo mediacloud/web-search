@@ -1,4 +1,11 @@
 [
+{"version":"v3.1.8",
+ "date":"2026-08-23",
+ "notes":[
+   "improve requests endpoint",
+   "clean up deployment"
+ ]
+},
 {"version":"v3.1.7",
  "date":"2026-08-11",
  "notes":[
