@@ -1,3 +1,4 @@
+import constance
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -61,10 +62,11 @@ class IncreasedQuotaFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
+        default = constance.config.QUOTA_DEFAULT_MEDIA_CLOUD
         if value == "yes":
-            return queryset.filter(quota_limit__gt=4000)
+            return queryset.filter(quota_limit__gt=default)
         if value == "no":
-            return queryset.filter(quota_limit__lte=4000)
+            return queryset.filter(quota_limit__lte=default)
         return queryset
 
 
@@ -144,7 +146,10 @@ class CustomUserAdmin(BaseUserAdmin):
         )
 
         queryset = queryset.annotate(
-            quota_limit=F("profile__quota_mediacloud"),
+            quota_limit=Coalesce(
+                "profile__quota_mediacloud",
+                Value(constance.config.QUOTA_DEFAULT_MEDIA_CLOUD),
+            ),
             weekly_hits=Coalesce(
                 Subquery(current_week_hits, output_field=IntegerField()),
                 Value(0),

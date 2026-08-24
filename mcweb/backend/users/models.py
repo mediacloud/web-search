@@ -1,3 +1,4 @@
+import constance
 from django import db
 from django.db import models
 from django.contrib.auth.models import User
@@ -23,7 +24,7 @@ class Profile(models.Model):
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
     # fields that store user-specific weekly quota for each provider, to block system abuse
-    quota_mediacloud = models.IntegerField(default=4000, null=False)
+    quota_mediacloud = models.IntegerField(default=None, null=True, blank=True)
     quota_wayback_machine = models.IntegerField(default=4000, null=False)
     verified_email = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
@@ -33,6 +34,8 @@ class Profile(models.Model):
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
             return self.quota_wayback_machine
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
+            if self.quota_mediacloud is None:
+                return constance.config.QUOTA_DEFAULT_MEDIA_CLOUD
             return self.quota_mediacloud
         raise UnknownProviderException(provider, "")
 
