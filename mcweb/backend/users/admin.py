@@ -21,6 +21,7 @@ from django.db.models import (
     Exists,
     ExpressionWrapper,
 )
+from django.db.models import F
 from django.db.models.functions import Coalesce
 
 from guardian.shortcuts import assign_perm, get_objects_for_user, remove_perm
@@ -121,6 +122,7 @@ class CustomUserAdmin(BaseUserAdmin):
         "quota_limit",
         "weekly_hits",
         "quota_used_pct",
+        "last_use",
         "high_rate_limit",
     )
     list_filter = BaseUserAdmin.list_filter + (
@@ -144,6 +146,11 @@ class CustomUserAdmin(BaseUserAdmin):
             user_id=OuterRef("pk"),
             group__name=settings.GROUPS.HIGH_RATE_LIMIT,
         )
+        last_use_provider_week = QuotaHistory.objects.filter(
+            user_id=OuterRef("pk"),
+            provider=provider,
+            hits__gt=0,
+        ).order_by("-week").values("week")[:1]
 
         queryset = queryset.annotate(
             quota_limit=Coalesce(
@@ -160,6 +167,7 @@ class CustomUserAdmin(BaseUserAdmin):
                 default=Value(False),
                 output_field=BooleanField(),
             ),
+            last_use=last_use_provider_week,
         )
 
         return queryset.annotate(
@@ -176,21 +184,26 @@ class CustomUserAdmin(BaseUserAdmin):
             ),
         )
 
-    @admin.display(ordering="quota_limit", description="Quota limit")
+    @admin.display(ordering="quota_limit", description="Quota")
     def quota_limit(self, obj):
         return obj.quota_limit
 
-    @admin.display(ordering="weekly_hits", description="This week hits")
+    @admin.display(ordering="weekly_hits", description="Usage")
     def weekly_hits(self, obj):
         return obj.weekly_hits
 
-    @admin.display(ordering="quota_used_pct", description="Quota used %")
+    @admin.display(ordering="quota_used_pct", description="%used")
     def quota_used_pct(self, obj):
         return f"{obj.quota_used_pct:.1f}%"
 
-    @admin.display(ordering="high_rate_limit", boolean=True, description="High rate")
+    @admin.display(ordering="high_rate_limit", boolean=True, description="hirate")
     def high_rate_limit(self, obj):
         return obj.high_rate_limit
+
+    @admin.display(ordering=F("last_use").desc(nulls_last=True),
+                   description="last use")
+    def last_use(self, obj):
+        return obj.last_use
 
     def current_collection_permissions(self, obj):
         """Display the collection IDs this user can edit, as a table with remove buttons."""
