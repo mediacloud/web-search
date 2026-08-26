@@ -266,16 +266,6 @@ def _validate_sources_or_collections(input: list[str],
     """
     helper to validatate sources or collections (handling is identical)
     """
-    # Constance setting (can be changed via admin UI)
-    # MEANT to be TEMPORARY to allow testing and/or backoff!!
-    # REMOVE this after normal setting is fatal error (2)!!!
-    # == 0 means no checking
-    # == 1 means log warning (API user sees nothing)
-    # >= 2 means return fatal UserValueError
-    validate = constance.config.VALIDATE_SEARCH_IDS
-    if validate == 0:
-        return
-
     # set creation 2-3x slower than list, so make list of int at first
     # (the common case is all ids are valid):
     good_ids = list(table.objects
@@ -298,11 +288,6 @@ def _validate_sources_or_collections(input: list[str],
     missing = ",".join(bad_id_set)
 
     tname = table.__name__
-
-    # THIS SHOULD GO AWAY!!
-    if validate < 2:            # just warn?
-        logger.warning("invalid %s(s) %s", tname, missing)
-        return
 
     raise UserValueError(f"invalid {tname}(s): {missing}")
 
@@ -396,13 +381,6 @@ def _for_media_cloud(collections: list[str], sources: list[str], all_params: dic
         if domain in domains:   # already searching parent?
             continue            # skip it.
         url_search_strings[domain].add(row["uss"])
-
-    # error if no output domains w/ non-empty inputs (this can be
-    # removed if VALIDATE_SEARCH_IDS ever made fatal and permanent):
-    if ((collections or sources) and
-        not domains and
-        not url_search_strings):
-        raise UserValueError("No sources found")
 
     # 5. assemble dict of provider parameters:
     props = {}

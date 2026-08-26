@@ -476,7 +476,7 @@ CONSTANCE_CONFIG_FIELDSETS = {
     "Monitoring Options": ("REQUEST_LOGGING_ENABLED", "LOG_RAW_QUERY_ENABLED"),
     "Quotas": ("QUOTA_DEFAULT_MEDIA_CLOUD",),
     "System": ("SYSTEM_ALERT",),
-    "Temporary": ("SRCS_KW_NEWEST_SEARCH", "VALIDATE_SEARCH_IDS"),
+    #"Temporary": ("NEW_TEMP_VARS_HERE",),
 }
 
 ################
