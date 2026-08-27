@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 import mcmetadata.urls as urls
 from django.contrib.auth.models import User
 from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 
 from util.cache import cache_by_kwargs
@@ -77,7 +76,6 @@ class Source(models.Model):
     alerted = models.BooleanField(default=False)
     last_rescraped = models.DateTimeField(null=True)
     last_rescraped_msg = models.CharField(max_length=500, null=True, blank=True)
-    search_vector = SearchVectorField(null=True) # for keyword search
 
     # stories_total thru stories_date_empty updated by sources-meta-update "totals" task.
     # Signed INT4 good for 2 billion stories.: more than 50x the current largest
@@ -96,8 +94,6 @@ class Source(models.Model):
         indexes = [
             # useful for search filtering
             models.Index(fields=['platform'], name='source platform'),
-            # for keyword search
-            GinIndex(fields=['search_vector'], name='search_vector_gin_index'),
             # trigrams for ILIKE acceleration
             # (GIN faster to search, slower to build than GiST)
             # See migrations/0038.... for excruciatingly long discussion:
