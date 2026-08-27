@@ -4,7 +4,9 @@
  "notes":[
    "quota default setting",
    "last use in user list",
-   "removed temporary settings"
+   "removed temporary settings",
+   "add 'I accept' checkbox",
+   "include time in pt display"
  ]
 },
 {"version":"v3.1.8",
