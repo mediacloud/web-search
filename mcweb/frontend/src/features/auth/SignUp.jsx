@@ -10,6 +10,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container';
+import { FormControlLabel, Checkbox } from '@mui/material';
+import { Link as MuiLink } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useNavigate, Link } from 'react-router-dom';
 import { CsrfToken } from '../../services/csrfToken';
@@ -40,8 +42,15 @@ export default function SignUp() {
     notes: '',
   });
 
+  // initialize accepted checkbox state as false
+  const [accepted, setAccepted] = useState(false);
+
   const handleChange = ({ target: { name, value } }) => (
     setFormState((prev) => ({ ...prev, [name]: value.trim() }))
+  );
+
+  const handleAcceptedChange = (e) => (
+    setAccepted(e.target.checked)
   );
 
   // list of password validators (ex: password is too short, no numbers, no special characters ...)
@@ -215,14 +224,47 @@ export default function SignUp() {
                 />
               </Grid>
 
+              {/* terms of use checkbox */}
+              <Grid item xs={12}>
+		<FormControlLabel
+		  control={
+		    <Checkbox
+		      checked={accepted}
+		      onChange={handleAcceptedChange}
+		      name="terms"
+		      color="primary"
+		    />
+		  }
+		  label='I accept the <a href="https://www.mediacloud.org/legal/media-cloud-terms-of-use" target="_blank" rel="noopener noreferrer">terms of use</a>.'
+
+                  label={
+		    <span>
+		      I accept the{' '}
+		      <MuiLink
+			href="https://www.mediacloud.org/legal/media-cloud-terms-of-use"
+			target="_blank"
+			rel="noopener noreferrer"
+			onClick={(event) => {
+			  // Crucial: Stops the click from checking/unchecking the checkbox
+			  event.stopPropagation();
+			}}
+		      >
+                      terms of use
+		      </MuiLink>.
+		    </span>
+                  }
+		/>
+              </Grid>
+
             </Grid>
+
 
             {/* SignUp Button */}
             <Button
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={isLoading || show}
+              disabled={isLoading || show || !accepted}
               onClick={async () => {
                 try {
                   // creating user
