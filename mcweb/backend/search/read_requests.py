@@ -184,11 +184,10 @@ def make_table(rows: list[dict]) -> str:
             def _fetch(key) -> str:
                 v = row[key]
                 if key == "pt":
-                    # import datetime first list item.  could include
-                    # hh:mm:ss replacing T with space so it can be put
-                    # on two rows
-                    d = v[0][:10]
-                    # if list has three elements, third is random seed!
+                    # first list item is datetime w/ microseconds
+                    d = v[0][:19] # just yyyy-mm-ddThh:mm:ss
+                    # replace T with space so can be line break
+                    d = d.replace("T", " ")
                     return d
                 else:
                     return str(v)
