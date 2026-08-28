@@ -227,6 +227,7 @@ export default function SignUp() {
               {/* terms of use checkbox */}
               <Grid item xs={12}>
 		<FormControlLabel
+                  required
 		  control={
 		    <Checkbox
 		      checked={accepted}
@@ -235,8 +236,6 @@ export default function SignUp() {
 		      color="primary"
 		    />
 		  }
-		  label='I accept the <a href="https://www.mediacloud.org/legal/media-cloud-terms-of-use" target="_blank" rel="noopener noreferrer">terms of use</a>.'
-
                   label={
 		    <span>
 		      I accept the{' '}
@@ -250,7 +249,7 @@ export default function SignUp() {
 			}}
 		      >
                       terms of use
-		      </MuiLink>.
+		      </MuiLink>
 		    </span>
                   }
 		/>
