@@ -1,4 +1,4 @@
 # only needed for Dokku deployment
 #
 # could be in "deploy" extras section of pyproject.toml
-mc-deploy @ git+https://github.com/mediacloud/system-dev-ops@mc-deploy-0.14.latest#subdirectory=deploy/mc-deploy
+mc-deploy @ git+https://github.com/mediacloud/system-dev-ops@mc-deploy-0.15.latest#subdirectory=deploy/mc-deploy
