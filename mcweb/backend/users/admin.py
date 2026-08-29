@@ -14,6 +14,7 @@ from django.db.models import (
     IntegerField,
     FloatField,
     BooleanField,
+    DateField,
     Value,
     F,
     Case,
@@ -21,8 +22,7 @@ from django.db.models import (
     Exists,
     ExpressionWrapper,
 )
-from django.db.models import F
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Cast, Coalesce
 
 from guardian.shortcuts import assign_perm, get_objects_for_user, remove_perm
 from .forms import UserAdminForm
@@ -134,23 +134,23 @@ class CustomUserAdmin(BaseUserAdmin):
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         provider = provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD)
-        latest_provider_week = QuotaHistory.objects.filter(
-            provider=provider,
-        ).order_by("-week").values("week")[:1]
         current_week_hits = QuotaHistory.objects.filter(
             user_id=OuterRef("pk"),
             provider=provider,
-            week=Subquery(latest_provider_week),
+            week=QuotaHistory._this_week()
         ).values("hits")[:1]
         high_rate_limit_group = User.groups.through.objects.filter(
             user_id=OuterRef("pk"),
             group__name=settings.GROUPS.HIGH_RATE_LIMIT,
         )
-        last_use_provider_week = QuotaHistory.objects.filter(
+        # get latest row with non-zero use count (may not be current week),
+        # grab "modified_at" (datetime): "week" is Monday of quota week.
+        # will be truncated (cast) to date below
+        last_use = QuotaHistory.objects.filter(
             user_id=OuterRef("pk"),
             provider=provider,
             hits__gt=0,
-        ).order_by("-week").values("week")[:1]
+        ).order_by("-week").values("modified_at")[:1]
 
         queryset = queryset.annotate(
             quota_limit=Coalesce(
@@ -167,7 +167,7 @@ class CustomUserAdmin(BaseUserAdmin):
                 default=Value(False),
                 output_field=BooleanField(),
             ),
-            last_use=last_use_provider_week,
+            last_use=Cast(last_use, output_field=DateField())
         )
 
         return queryset.annotate(
