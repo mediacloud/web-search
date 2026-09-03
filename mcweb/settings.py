@@ -111,8 +111,8 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     EMAIL_HOST=(str, ""),
     EMAIL_HOST_PASSWORD=(str, ""),
     EMAIL_HOST_USER=(str, ""),
-    EMAIL_HOST_PORT=(int,465),  # ssmtp (SSL submission)
-    EMAIL_HOST_USE_SSL=(bool, True),
+    EMAIL_USE_SSL=(bool, True), # make SSL connection to 465 (smtps)
+    EMAIL_USE_TLS=(bool, False), # connect to 587, use STARTTLS
     EMAIL_NOREPLY=(str, 'noreply@mediacloud.org'),
     EMAIL_ORGANIZATION=(str, "Media Cloud Development"),
     GIT_REV=(str, ""),
@@ -165,8 +165,8 @@ EMAIL_BACKEND = env('EMAIL_BACKEND') # select django.core.mail.backend
 EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_HOST_PORT = env('EMAIL_HOST_PORT')
-EMAIL_HOST_USE_SSL = env('EMAIL_HOST_USE_SSL')
+EMAIL_USE_SSL = env('EMAIL_USE_SSL')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
 
 EMAIL_NOREPLY = env('EMAIL_NOREPLY') # email sender address
 EMAIL_ORGANIZATION = env('EMAIL_ORGANIZATION') # used in subject line
@@ -497,8 +497,8 @@ except AssertionError as exc:
     EMAIL_HOST = None
     EMAIL_HOST_USER = None
     EMAIL_HOST_PASSWORD = None
-    EMAIL_HOST_PORT = None
-    EMAIL_HOST_USE_SSL = None
+    EMAIL_USE_SSL = None
+    EMAIL_USE_TLS = None
 
 # sentry config for Python code:
 if SENTRY_DSN and SENTRY_ENV:
