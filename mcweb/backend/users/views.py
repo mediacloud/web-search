@@ -157,10 +157,7 @@ def register(request):
         first_name = first_name.strip() if first_name else None
         last_name = payload.get('last_name', None)
         last_name = last_name.strip() if last_name else None
-        email = payload.get('email', None)
-        email = email.strip() if email else None
-        username = payload.get('username', None)
-        username = username.strip() if username else None
+        email = payload.get('email', '').strip()
         password1 = payload.get('password1', None)
         password1 = password1.strip() if password1 else None
         password2 = payload.get('password2', None)
@@ -200,7 +197,10 @@ def register(request):
         except Exception as e:
             pass
         # checks out, make a new user
-        created_user = User.objects.create_user(username=username, password=password1, email=email,
+
+        # NOTE!! Removed username from mcweb/frontend/src/features/auth/SignUp.jsx
+        # passing email from UI as both username and email:
+        created_user = User.objects.create_user(username=email, password=password1, email=email,
                                                 first_name=first_name, last_name=last_name)
         created_user.save()
         logging.debug('new user created')
