@@ -24,6 +24,23 @@ from ..sources.permissions import get_groups
 
 logger = logging.getLogger(__name__)
 
+def _auth_err_message(message: str) -> HttpResponse:
+    """
+    shorthand to return HTTP 403 (Forbidden)
+    with explanation in JSON "message" field
+    """
+    logger.debug("_auth_err_message %s", message)
+    data = json.dumps({'message': message})
+    return HttpResponse(data, content_type='application/json', status=403)
+
+def _auth_err_error(error: str) -> HttpResponse:
+    """
+    shorthand to return HTTP 403 (Forbidden)
+    with explanation in JSON "error" field
+    """
+    logger.debug("_auth_err_error %s", error)
+    data = json.dumps({'error': error})
+    return HttpResponse(data, content_type='application/json', status=403)
 
 @api_stats  # PLEASE KEEP FIRST!
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -33,18 +50,15 @@ def profile(request):
     user = None
     if token:
         try:
-            user = _user_from_token(token)
+            user = _user_from_token(token) # MAY RETURN None!!
         except:
-            logger.debug("Token not found")
-            data = json.dumps({'message': "API Token Not Found"})
-            return HttpResponse(data, content_type='application/json', status=403)
+            return _auth_err_message("API Token Not Found")
     if request.user.id is not None and not user:
         data = _serialized_current_user(request)
     elif user:
         data = json.dumps(_serialized_api_user(user))
     else:
-        data = json.dumps({'message': "User Not Found"})
-        return HttpResponse(data, content_type='application/json', status=403)
+        return _auth_err_message("User Not Found")
     return HttpResponse(data, content_type='application/json')
 
 @api_stats  # PLEASE KEEP FIRST!
@@ -108,9 +122,7 @@ def login(request):
     if user is not None:
         if not user.profile.verified_email:
             # ⚠️ email not verified
-            logger.debug('unverified email login attempted')
-            data = json.dumps({'message': "Email not verified, please check your email for verification link"})
-            return HttpResponse(data, content_type='application/json', status=403)
+            return _auth_err_message("Email not verified, please check your email for verification link")
         elif user.is_active:
             # ✅ login worked
             logger.debug('logged in success')
@@ -119,9 +131,7 @@ def login(request):
             return HttpResponse(data, content_type='application/json')
         else:
             # ⚠️ user inactive
-            logger.debug('inactive user login attempted')
-            data = json.dumps({'message': "Inactive user"})
-            return HttpResponse(data, content_type='application/json', status=403)
+            return _auth_err_message("Inactive user")
     # ❌ something went wrong
     else:
         # ⚠️ first time legacy login (so they used email)
@@ -142,9 +152,7 @@ def login(request):
                 data = _serialized_current_user(request)
                 return HttpResponse(data, content_type='application/json')
         # ❌ username or password was wrong (legacy or new user)
-        logger.debug('user login failed')
-        data = json.dumps({'message': "Unable to login"})
-        return HttpResponse(data, content_type='application/json', status=403)
+        return _auth_err_message("Unable to login")
 
 
 @api_stats  # PLEASE KEEP FIRST!
@@ -157,7 +165,8 @@ def register(request):
         first_name = first_name.strip() if first_name else None
         last_name = payload.get('last_name', None)
         last_name = last_name.strip() if last_name else None
-        email = payload.get('email', '').strip()
+        email = payload.get('email', None)
+        email = email.strip() if email else None
         password1 = payload.get('password1', None)
         password1 = password1.strip() if password1 else None
         password2 = payload.get('password2', None)
@@ -168,15 +177,12 @@ def register(request):
         # first verify passwords match
         if password1 != password2:
             logging.debug('password not matching')
-            data = json.dumps({'message': "Passwords don't match"})
-            return HttpResponse(data, content_type='application/json', status=403)
+            return _auth_err_message("Passwords don't match")
 
         # verify if the email is left empty
         if email == "" or '@' not in email:
             logging.debug("Email is either empty or doesn't contain an @")
-            data = json.dumps({'message': "Invalid email"})
-            return HttpResponse(data, content_type='application/json', status=403)
-
+            return _auth_err_message("Invalid email")
 
         """"
         verifies is password passes:
@@ -201,11 +207,9 @@ def register(request):
             # presumably the database does the comparison correctly) rather than
             # throwing out information the user entered!
             user = User.objects.get(email__iexact=email)
-            logger.debug('Email taken')
-            data = json.dumps({'message': "Email already exists"})
-            return HttpResponse(data, content_type='application/json', status=403)
+            return _auth_err_message("Email already exists")
         except Exception as e:
-            pass
+            pass                # no user with matching email!
         # checks out, make a new user
 
         # NOTE!! Removed username from mcweb/frontend/src/features/auth/SignUp.jsx
@@ -279,22 +283,19 @@ def email_from_token(request):
     user_token = request.GET.get('user', None)
     if token:
         try:
-            user = _user_from_token(token)
+            user = _user_from_token(token) # MAY RETURN None!!
         except:
-            logger.debug("Token not found")
-            data = json.dumps({'message': "API Token Not Found"})
-            return HttpResponse(data, content_type='application/json', status=403)
+            return _auth_err_error("API Token Not Found")
     else:
-        data = json.dumps({'message': "No token provided"})
-        return HttpResponse(data, content_type='application/json', status=403)
+        return _auth_err_error("No token provided")
     if user.is_superuser and user_token:
-        user = _user_from_token(user_token)
+        user = _user_from_token(user_token) # MAY RETURN None!!
         return HttpResponse(json.dumps({"email": user.email}), content_type='application/json')
     elif not user.is_superuser:
-        return HttpResponse(json.dumps({"error": "Must be super user"}), content_type='application/json', status=403)
+        return _auth_err_error("Must be super user")
     elif not user_token:
-        return HttpResponse(json.dumps({"error": "No user token provided"}), content_type='application/json', status=403)
-    
+        return _auth_err_error("No user token provided")
+
 
 @api_stats  # PLEASE KEEP FIRST!
 @authentication_classes([TokenAuthentication, SessionAuthentication])
@@ -307,11 +308,9 @@ def users_quotas(request):
     user = None
     if token:
         try:
-            user = _user_from_token(token)
+            user = _user_from_token(token) # MAY RETURN None!!
         except:
-            logger.debug("Token not found")
-            data = json.dumps({'message': "API Token Not Found"})
-            return HttpResponse(data, content_type='application/json', status=403)
+            return _auth_err_message("API Token Not Found")
     else:
         user = request.user
     if user.is_staff or user.is_superuser:
@@ -363,6 +362,8 @@ def _serialized_api_user(user) -> str:
     return cleaned_user
 
 def _user_from_token(token):
+    # often called from inside "try", but seems as/more likely
+    # to return None if nothing found than to raise exception???
     token = token.split()[1]
     Token = apps.get_model('authtoken', 'Token')
     token = Token.objects.filter(key=token)
