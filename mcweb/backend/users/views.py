@@ -190,7 +190,17 @@ def register(request):
 
         # next verify email is new
         try:
-            user = User.objects.get(email__exact=email)
+            # was using email__exist, while login endpoint using email__iexact
+            # (case insensitive) so changed this to case-insensitive as well
+            # to try to prevent multiple entries with differently cased versions
+            # of the same email address.
+
+            # If email was guaranteed to be plain ASCII/bytes would be tempted
+            # to use email.lower(), but case flattening unicode is a delicate
+            # business, so foisting it onto the database at comparison time (and
+            # presumably the database does the comparison correctly) rather than
+            # throwing out information the user entered!
+            user = User.objects.get(email__iexact=email)
             logger.debug('Email taken')
             data = json.dumps({'message': "Email already exists"})
             return HttpResponse(data, content_type='application/json', status=403)
