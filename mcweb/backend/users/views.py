@@ -196,7 +196,7 @@ def register(request):
 
         # next verify email is new
         try:
-            # was using email__exist, while login endpoint using email__iexact
+            # was using email__exact, while login endpoint using email__iexact
             # (case insensitive) so changed this to case-insensitive as well
             # to try to prevent multiple entries with differently cased versions
             # of the same email address.
