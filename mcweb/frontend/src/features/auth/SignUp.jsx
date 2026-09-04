@@ -168,19 +168,6 @@ export default function SignUp() {
                 />
               </Grid>
 
-              {/* Username */}
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  label="Username"
-                  name="username"
-                  type="text"
-                  autoComplete="username"
-                  onChange={handleChange}
-                />
-              </Grid>
-
               {/* Password */}
               <Grid item xs={12}>
                 <TextField
