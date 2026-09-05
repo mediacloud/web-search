@@ -1,4 +1,11 @@
 [
+{"version":"v3.1.11",
+ "date":"2026-09-05",
+ "notes":[
+   "use email only for account creation",
+   "allow use of google for sending mail"
+ ]
+},
 {"version":"v3.1.10",
  "date":"2026-08-29",
  "notes":[
