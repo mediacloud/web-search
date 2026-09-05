@@ -3,6 +3,7 @@
  "date":"2026-09-05",
  "notes":[
    "use email only for account creation",
+   "use case independent email lookup on create",
    "allow use of google for sending mail"
  ]
 },
