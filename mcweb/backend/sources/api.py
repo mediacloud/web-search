@@ -292,7 +292,7 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if modified_since is not None:
             # validation: should throw a ValueError back up the chain
             modified_since = float(modified_since)
-            modified_since = dt.datetime.fromtimestamp(modified_since)
+            modified_since = dt.datetime.fromtimestamp(modified_since, tz=dt.timezone.utc)
             queryset = queryset.filter(modified_at__gte=modified_since)
         # passed a "now" value returned by /api/version
         modified_before = self.request.query_params.get(
@@ -300,7 +300,7 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if modified_before is not None:
             # validation: should throw a ValueError back up the chain
             modified_before = float(modified_before)
-            modified_before = dt.datetime.fromtimestamp(modified_before)
+            modified_before = dt.datetime.fromtimestamp(modified_before, tz=dt.timezone.utc)
             queryset = queryset.filter(modified_at__lt=modified_before)
 
         if modified_since is not None or modified_before is not None:
@@ -334,6 +334,8 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     def stories(self, request):
         feed_id = self.request.query_params.get("feed_id", None)
         source_id = self.request.query_params.get("source_id", None)
+        if feed_id is None and source_id is None:
+            raise ValidationError("Must provide 'feed_id' or 'source_id'")
 
         with _rss_fetcher_api() as rss:
             if feed_id is not None:
