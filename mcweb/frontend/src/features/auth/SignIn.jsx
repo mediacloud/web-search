@@ -15,7 +15,13 @@ export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
   const { enqueueSnackbar } = useSnackbar();
-  const from = location.state?.from?.pathname || '/';
+  // client-side route we bounced here from (e.g. a RequireAuth guard)
+  const from = location.state?.from?.pathname;
+  // server-side redirect target (e.g. an expired session hitting a
+  // @login_required API endpoint directly, like a CSV download link) -
+  // this can be a backend URL outside the SPA's routes, so it needs a
+  // full navigation rather than react-router's client-side `navigate`
+  const next = new URLSearchParams(location.search).get('next');
   // formstate -> login
   const [login, { isLoading, error }] = useLoginMutation();
 
@@ -75,10 +81,16 @@ export default function SignIn() {
                 try {
                   const user = await login(formState).unwrap();
                   dispatch(setCredentials(user));
-                  navigate(from, { replace: true });
                   enqueueSnackbar('You are now signed in', { variant: 'success' });
                   // the CSRF token changes because we've launched a new session - save the new one
                   saveCsrfToken();
+                  if (from) {
+                    navigate(from, { replace: true });
+                  } else if (next) {
+                    window.location.href = next;
+                  } else {
+                    navigate('/', { replace: true });
+                  }
                 } catch (err) {
                   const errorMsg = `Failed - ${err.data.message}`;
                   enqueueSnackbar(errorMsg, { variant: 'error' });

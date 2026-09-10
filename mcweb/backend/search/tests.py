@@ -1,7 +1,7 @@
 import datetime as dt
 import json
 from unittest.mock import MagicMock, patch
-from urllib.parse import quote
+from urllib.parse import parse_qs, urlparse
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -72,10 +72,11 @@ class LoginSearchDownloadCSVTest(TestCase):
             with self.subTest(endpoint=name):
                 response = self.client.get(url, self.query_params)
                 self.assertEqual(response.status_code, 302)
-                self.assertTrue(response.url.startswith("/sign-in"))
+                parsed = urlparse(response.url)
+                self.assertEqual(parsed.path, "/sign-in")
                 # the frontend's sign-in page reads ?next= to send the user
                 # back where they came from after logging in
-                self.assertIn(f"next={quote(url, safe='')}", response.url)
+                self.assertTrue(parse_qs(parsed.query)["next"][0].startswith(url))
 
     def test_anonymous_download_all_content_csv_is_redirected_to_login(self):
         response = self.client.get("/api/search/download-all-content-csv", self.query_params)

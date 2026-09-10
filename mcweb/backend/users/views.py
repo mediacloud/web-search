@@ -194,7 +194,7 @@ def register(request):
 
 
 @api_stats  # PLEASE KEEP FIRST!
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["POST"])
 def logout(request):
     logging.debug('logout success')
@@ -204,7 +204,7 @@ def logout(request):
 
 
 @api_stats  # PLEASE KEEP FIRST!
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["DELETE"])
 def delete_user(request):
     logging.debug('deleting user')
@@ -220,7 +220,7 @@ def delete_user(request):
 
 
 @api_stats  # PLEASE KEEP FIRST!
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["POST"])
 def reset_token(request):
     current_user = request.user

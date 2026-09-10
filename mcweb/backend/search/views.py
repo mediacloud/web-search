@@ -377,7 +377,7 @@ def sources(request):
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"sources": response})
 
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_sources_csv(request):
@@ -420,7 +420,7 @@ def languages(request):
     return json_response({"languages": response})
 
 
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_languages_csv(request):
@@ -493,7 +493,7 @@ def words(request):
                         
 
 
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_words_csv(request):
@@ -514,7 +514,7 @@ def download_words_csv(request):
     CSVWriterHelper.write_top_words(writer, words, cols)
     return response
 
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_counts_over_time_csv(request):
@@ -543,7 +543,7 @@ def download_counts_over_time_csv(request):
     return response
 
 
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["GET"])
 @action(detail=False)
 def download_all_content_csv(request):
@@ -555,7 +555,7 @@ def download_all_content_csv(request):
 
 # called by frontend sendTotalAttentionDataEmail
 @api_stats  # PLEASE KEEP FIRST!
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @handle_provider_errors
 @require_http_methods(["POST"])
 def send_email_large_download_csv(request):
@@ -588,7 +588,7 @@ def send_email_large_download_csv(request):
         return error_response("Total {} not between {} and {}".format(
             total, ALL_URLS_CSV_EMAIL_MIN, ALL_URLS_CSV_EMAIL_MAX))
 
-@login_required(redirect_field_name='/auth/login')
+@login_required(login_url='/sign-in')
 @require_http_methods(["POST"])
 @action(detail=False)
 def download_all_queries_csv(request):
