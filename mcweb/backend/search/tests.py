@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 from unittest.mock import MagicMock, patch
+from urllib.parse import quote
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -71,7 +72,29 @@ class LoginSearchDownloadCSVTest(TestCase):
             with self.subTest(endpoint=name):
                 response = self.client.get(url, self.query_params)
                 self.assertEqual(response.status_code, 302)
-                self.assertTrue(response.url.startswith("/accounts/login/"))
+                self.assertTrue(response.url.startswith("/sign-in"))
+                # the frontend's sign-in page reads ?next= to send the user
+                # back where they came from after logging in
+                self.assertIn(f"next={quote(url, safe='')}", response.url)
+
+    def test_anonymous_download_all_content_csv_is_redirected_to_login(self):
+        response = self.client.get("/api/search/download-all-content-csv", self.query_params)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/sign-in"))
+
+    def test_anonymous_send_email_large_download_csv_is_redirected_to_login(self):
+        response = self.client.post(
+            "/api/search/send-email-large-download-csv",
+            data=json.dumps({"prepareQuery": [], "email": "someone@example.com"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/sign-in"))
+
+    def test_anonymous_download_all_queries_csv_is_redirected_to_login(self):
+        response = self.client.post("/api/search/download-all-queries", self.query_params)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/sign-in"))
 
     @patch("backend.search.views.pq_provider")
     def test_login_then_download_top_sources_csv(self, mock_pq_provider):
@@ -145,3 +168,35 @@ class LoginSearchDownloadCSVTest(TestCase):
         self.assertEqual(rows[0], "date,count,total_count,ratio")
         self.assertEqual(rows[1], "2026-08-10,3,30,0.1")
         self.assertEqual(provider.normalized_count_over_time.call_args.args[0], "robots")
+
+
+class AnonymousAccessSearchApiTest(TestCase):
+    """
+    Every one of these endpoints is gated by DRF's IsAuthenticated permission
+    (either explicitly via @permission_classes, or via the project-wide
+    REST_FRAMEWORK DEFAULT_PERMISSION_CLASSES). None of them had a test
+    confirming anonymous requests are actually rejected.
+    """
+
+    # endpoints reachable with a bare GET and no query params: DRF's
+    # permission check runs before the view body, so these are rejected
+    # before parse_query would ever complain about missing params.
+    GET_URLS = [
+        "/api/search/total-count",
+        "/api/search/sample",
+        "/api/search/words",
+        "/api/search/count-over-time",
+        "/api/search/count-by-source-over-interval",
+        "/api/search/story",
+        "/api/search/languages",
+        "/api/search/sources",
+        "/api/search/story-list",
+        "/api/search/providers",
+        "/api/search/requests",
+    ]
+
+    def test_anonymous_requests_are_rejected(self):
+        for url in self.GET_URLS:
+            with self.subTest(endpoint=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 401)
