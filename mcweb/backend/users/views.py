@@ -6,7 +6,7 @@ from django.contrib.auth.models import auth, User
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.core.exceptions import ValidationError
 import humps
 from django.apps import apps
@@ -44,6 +44,7 @@ def _auth_err_error(error: str, *, status: int = 403) -> HttpResponse:
     return HttpResponse(data, content_type='application/json', status=status)
 
 @api_stats  # PLEASE KEEP FIRST!
+@api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def profile(request):
@@ -236,6 +237,7 @@ def reset_token(request):
         return _auth_err_error(str(e), status=400)
     
 @api_stats  # PLEASE KEEP FIRST!
+@api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def email_from_token(request):
@@ -258,6 +260,7 @@ def email_from_token(request):
 
 
 @api_stats  # PLEASE KEEP FIRST!
+@api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 def users_quotas(request):
@@ -273,15 +276,16 @@ def users_quotas(request):
             return _auth_err_message("API Token Not Found")
     else:
         user = request.user
-    if user.is_staff or user.is_superuser:
-        quotas = QuotaHistory.objects.filter(week__gte=QuotaHistory.objects.latest('week').week).order_by('-hits')[:40]
-        data = json.dumps([{
-            'user': quota.user.id,
-            'email': quota.user.email,
-            'provider': quota.provider,
-            'hits': quota.hits,
-            'week': quota.week.strftime('%Y-%m-%d'),
-        } for quota in quotas])
+    if not (user.is_staff or user.is_superuser):
+        return _auth_err_message("Must be staff or superuser")
+    quotas = QuotaHistory.objects.filter(week__gte=QuotaHistory.objects.latest('week').week).order_by('-hits')[:40]
+    data = json.dumps([{
+        'user': quota.user.id,
+        'email': quota.user.email,
+        'provider': quota.provider,
+        'hits': quota.hits,
+        'week': quota.week.strftime('%Y-%m-%d'),
+    } for quota in quotas])
     return HttpResponse(data, content_type='application/json')
 
 @api_stats  # PLEASE KEEP FIRST!
