@@ -8,10 +8,11 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from mc_providers.exceptions import (
     ProviderException, TemporaryProviderException, UnsupportedOperationException)
+from rest_framework.authtoken.models import Token
 
 from backend.sources.models import Collection, Source
 from backend.users.exceptions import OverQuotaException
-from backend.users.models import Profile
+from backend.users.models import Profile, QuotaHistory
 from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
 from util.exceptions import UserValueError
 
@@ -545,4 +546,344 @@ class ParsedQueryFromDictTest(TestCase):
         self.assertEqual(pq.start_date, dt.datetime(2026, 8, 1))
         self.assertEqual(pq.end_date, dt.datetime(2026, 9, 1))
         self.assertEqual(pq.session_id, "user@example.com")
+
+
+def _quota_hits(user, provider="onlinenews-mediacloud"):
+    row = QuotaHistory.objects.filter(user_id=user.id, provider=provider).first()
+    return row.hits if row else 0
+
+
+class SearchJsonEndpointsTest(TestCase):
+    """
+    Happy-path coverage for the thin JSON passthrough endpoints
+    (total_count, sample, count_over_time, languages, sources). Previously
+    only their anonymous-rejection was tested; this also pins down the
+    per-endpoint quota increment amount, which differs by endpoint and had
+    never been checked.
+    """
+
+    def setUp(self):
+        self.username = "json_endpoints_test_user"
+        self.password = "correct-horse-battery-staple"
+        # staff so query validation doesn't require real sources/collections
+        self.user = User.objects.create_user(
+            username=self.username, email=f"{self.username}@example.com",
+            password=self.password, is_staff=True)
+        Profile.objects.create(user=self.user, verified_email=True, quota_mediacloud=1000)
+
+        response = self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": self.username, "password": self.password}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        self.query_params = {"q": "robots", "start": "2026-08-01", "end": "2026-09-01"}
+
+    def test_total_count_happy_path_and_quota(self):
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            provider = MagicMock()
+            provider.count.side_effect = [10, 50]
+            provider.everything_query.return_value = "*"
+            mock_pq_provider.return_value = provider
+            response = self.client.get("/api/search/total-count", self.query_params)
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["count"], {"relevant": 10, "total": 50})
+        self.assertEqual(_quota_hits(self.user), 1)
+
+    def test_sample_happy_path_and_quota(self):
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            provider = MagicMock()
+            provider.sample.return_value = [{"id": 1, "title": "a story"}]
+            mock_pq_provider.return_value = provider
+            response = self.client.get("/api/search/sample", self.query_params)
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["sample"], [{"id": 1, "title": "a story"}])
+        self.assertEqual(_quota_hits(self.user), 1)
+
+    def test_count_over_time_uses_normalized_counts_when_supported(self):
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            provider = MagicMock()
+            provider.normalized_count_over_time.return_value = {"counts": [{"date": "2026-08-01", "count": 3}]}
+            mock_pq_provider.return_value = provider
+            response = self.client.get("/api/search/count-over-time", self.query_params)
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["count_over_time"], {"counts": [{"date": "2026-08-01", "count": 3}]})
+        provider.count_over_time.assert_not_called()
+        self.assertEqual(_quota_hits(self.user), 1)
+
+    def test_count_over_time_falls_back_when_normalized_unsupported(self):
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            provider = MagicMock()
+            provider.normalized_count_over_time.side_effect = UnsupportedOperationException("nope")
+            provider.count_over_time.return_value = {"counts": [{"date": "2026-08-01", "count": 3}]}
+            mock_pq_provider.return_value = provider
+            response = self.client.get("/api/search/count-over-time", self.query_params)
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["count_over_time"], {"counts": [{"date": "2026-08-01", "count": 3}]})
+        self.assertEqual(_quota_hits(self.user), 1)
+
+    def test_languages_happy_path_and_quota(self):
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            provider = MagicMock()
+            provider.languages.return_value = [{"language": "en", "value": 5, "ratio": 1.0}]
+            mock_pq_provider.return_value = provider
+            response = self.client.get("/api/search/languages", self.query_params)
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["languages"], [{"language": "en", "value": 5, "ratio": 1.0}])
+        self.assertEqual(_quota_hits(self.user), 2)
+
+    def test_sources_happy_path_and_quota(self):
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            provider = MagicMock()
+            provider.sources.return_value = [{"source": "example.com", "count": 10}]
+            mock_pq_provider.return_value = provider
+            response = self.client.get("/api/search/sources", self.query_params)
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["sources"], [{"source": "example.com", "count": 10}])
+        # sources() passes a fixed limit of 10 as the 4th positional arg
+        self.assertEqual(provider.sources.call_args.args[3], 10)
+        self.assertEqual(_quota_hits(self.user), 4)
+
+
+class CountBySourceOverIntervalTest(TestCase):
+    """
+    count_by_source_over_interval (search/urls.py:15) has substantial
+    hand-written branching -- interval validation, a required-domains
+    check, a date-range sanity check, per-interval bucket-count arithmetic
+    for day/week/month/year, and a bucket-overflow guard -- none of it
+    previously tested.
+    """
+
+    URL = "/api/search/count-by-source-over-interval"
+
+    def setUp(self):
+        self.username = "interval_test_user"
+        self.password = "correct-horse-battery-staple"
+        self.user = User.objects.create_user(
+            username=self.username, email=f"{self.username}@example.com",
+            password=self.password, is_staff=True)
+        Profile.objects.create(user=self.user, verified_email=True, quota_mediacloud=1000)
+
+        response = self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": self.username, "password": self.password}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        # a real Source (no url_search_string) so _for_media_cloud populates
+        # provider_props["domains"], which the view requires to be non-empty
+        self.source = Source.objects.create(
+            name="example.com", homepage="http://example.com",
+            platform=Source.SourcePlatforms.ONLINE_NEWS)
+
+    def _get(self, provider=None, **params):
+        query_params = {
+            "q": "robots", "ss": str(self.source.id),
+            "start": "2026-08-01", "end": "2026-08-05",
+            **params,
+        }
+        if provider is None:
+            provider = MagicMock()
+            provider.MAX_2D_AGG_BUCKETS = 100000
+            provider.two_d_aggregation.return_value = {"buckets": {}}
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            mock_pq_provider.return_value = provider
+            return self.client.get(self.URL, query_params), provider
+
+    def test_invalid_interval_is_rejected(self):
+        response, _ = self._get(interval="fortnight")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Invalid interval", json.loads(response.content)["note"])
+
+    def test_missing_domains_is_rejected(self):
+        provider = MagicMock()
+        provider.MAX_2D_AGG_BUCKETS = 100000
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            mock_pq_provider.return_value = provider
+            response = self.client.get(self.URL, {
+                "q": "robots", "start": "2026-08-01", "end": "2026-08-05",
+            })
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("No domains selected", json.loads(response.content)["note"])
+
+    def test_invalid_date_range_is_rejected(self):
+        response, _ = self._get(start="2026-08-05", end="2026-08-01")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Invalid date range", json.loads(response.content)["note"])
+
+    def test_too_many_buckets_is_rejected(self):
+        provider = MagicMock()
+        provider.MAX_2D_AGG_BUCKETS = 1  # 5-day span, 1 domain, interval=day -> 5 buckets > 1
+        response, _ = self._get(provider=provider, interval="day")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Too many sources", json.loads(response.content)["note"])
+
+    def test_day_interval_bucket_count(self):
+        # 2026-08-01 through 2026-08-05 inclusive = 5 days
+        response, provider = self._get(interval="day")
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(provider.two_d_aggregation.call_args_list[0].kwargs["num_intervals"], 5)
+
+    def test_week_interval_bucket_count(self):
+        # 2026-08-01 through 2026-08-14 inclusive = 14 days -> ceil(14/7) = 2
+        response, provider = self._get(interval="week", start="2026-08-01", end="2026-08-14")
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(provider.two_d_aggregation.call_args_list[0].kwargs["num_intervals"], 2)
+
+    def test_month_interval_bucket_count(self):
+        # Jan 15 through Mar 10 spans 3 distinct calendar months
+        response, provider = self._get(interval="month", start="2026-01-15", end="2026-03-10")
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(provider.two_d_aggregation.call_args_list[0].kwargs["num_intervals"], 3)
+
+    def test_year_interval_bucket_count(self):
+        # 2024 through 2026 spans 3 distinct calendar years
+        response, provider = self._get(interval="year", start="2024-06-01", end="2026-01-10")
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(provider.two_d_aggregation.call_args_list[0].kwargs["num_intervals"], 3)
+
+    def test_happy_path_shapes_data_and_computes_ratio_and_quota(self):
+        provider = MagicMock()
+        provider.MAX_2D_AGG_BUCKETS = 100000
+        matching = {"buckets": {"2026-08-01": {"example.com": 3}}}
+        totals = {"buckets": {"2026-08-01": {"example.com": 10}}}
+        provider.two_d_aggregation.side_effect = [matching, totals]
+
+        response, _ = self._get(provider=provider, interval="day", start="2026-08-01", end="2026-08-01")
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["source-interval-attention"], [{
+            "media_name": "example.com",
+            "interval": "day",
+            "bucket": "2026-08-01",
+            "matching_stories": 3,
+            "total_stories": 10,
+            "ratio": 0.3,
+        }])
+        self.assertEqual(_quota_hits(self.user), 4)
+
+    def test_zero_total_stories_gives_zero_ratio_not_division_error(self):
+        provider = MagicMock()
+        provider.MAX_2D_AGG_BUCKETS = 100000
+        matching = {"buckets": {"2026-08-01": {"example.com": 0}}}
+        totals = {"buckets": {"2026-08-01": {"example.com": 0}}}
+        provider.two_d_aggregation.side_effect = [matching, totals]
+
+        response, _ = self._get(provider=provider, interval="day", start="2026-08-01", end="2026-08-01")
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["source-interval-attention"][0]["ratio"], 0)
+
+
+class StoryListTest(TestCase):
+    """
+    story_list (search/urls.py:25) gates the 'expanded' (full-text) and
+    'randomize' query params behind staff-only access -- neither branch had
+    a test. Note: this endpoint only accepts TokenAuthentication (not
+    session), so tests authenticate via an Authorization header.
+    """
+
+    URL = "/api/search/story-list"
+
+    def _make_user(self, username, is_staff):
+        user = User.objects.create_user(
+            username=username, email=f"{username}@example.com",
+            password="correct-horse-battery-staple", is_staff=is_staff)
+        Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
+        return user
+
+    def _token_header(self, user):
+        token = Token.objects.get(user=user)
+        return {"HTTP_AUTHORIZATION": f"Token {token.key}"}
+
+    def _mock_provider(self):
+        provider = MagicMock()
+        provider.paged_items.return_value = ([{"id": 1}], "next-page-token")
+        return provider
+
+    def test_happy_path_and_quota(self):
+        user = self._make_user("story_list_staff", is_staff=True)
+        provider = self._mock_provider()
+        with patch("backend.search.views.pq_provider", return_value=provider):
+            response = self.client.get(
+                self.URL, {"q": "robots", "start": "2026-08-01", "end": "2026-09-01"},
+                **self._token_header(user))
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["stories"], [{"id": 1}])
+        self.assertEqual(body["pagination_token"], "next-page-token")
+        self.assertEqual(_quota_hits(user), 1)
+
+    def test_non_staff_cannot_request_expanded_stories(self):
+        user = self._make_user("story_list_non_staff_expanded", is_staff=False)
+        source = Source.objects.create(
+            name="example.com", homepage="http://example.com",
+            platform=Source.SourcePlatforms.ONLINE_NEWS)
+        provider = self._mock_provider()
+        with patch("backend.search.views.pq_provider", return_value=provider):
+            response = self.client.get(
+                self.URL,
+                {"q": "robots", "ss": str(source.id), "start": "2026-08-01", "end": "2026-09-01", "expanded": "1"},
+                **self._token_header(user))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("expanded", json.loads(response.content)["note"])
+        provider.paged_items.assert_not_called()
+
+    def test_staff_can_request_expanded_stories(self):
+        user = self._make_user("story_list_staff_expanded", is_staff=True)
+        provider = self._mock_provider()
+        with patch("backend.search.views.pq_provider", return_value=provider):
+            response = self.client.get(
+                self.URL,
+                {"q": "robots", "start": "2026-08-01", "end": "2026-09-01", "expanded": "1"},
+                **self._token_header(user))
+
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(provider.paged_items.call_args.kwargs["expanded"], True)
+
+    def test_non_staff_cannot_request_randomized_stories(self):
+        user = self._make_user("story_list_non_staff_random", is_staff=False)
+        source = Source.objects.create(
+            name="random.com", homepage="http://random.com",
+            platform=Source.SourcePlatforms.ONLINE_NEWS)
+        provider = self._mock_provider()
+        with patch("backend.search.views.pq_provider", return_value=provider):
+            response = self.client.get(
+                self.URL,
+                {"q": "robots", "ss": str(source.id), "start": "2026-08-01", "end": "2026-09-01", "randomize": "1"},
+                **self._token_header(user))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("randomized", json.loads(response.content)["note"])
+        provider.paged_items.assert_not_called()
+
+    def test_staff_can_request_randomized_stories(self):
+        user = self._make_user("story_list_staff_random", is_staff=True)
+        provider = self._mock_provider()
+        with patch("backend.search.views.pq_provider", return_value=provider):
+            response = self.client.get(
+                self.URL,
+                {"q": "robots", "start": "2026-08-01", "end": "2026-09-01", "randomize": "1"},
+                **self._token_header(user))
+
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(provider.paged_items.call_args.kwargs["randomize"], True)
 
