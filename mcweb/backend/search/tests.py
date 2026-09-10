@@ -6,12 +6,16 @@ from urllib.parse import parse_qs, urlparse
 import requests
 from django.contrib.auth.models import User
 from django.test import TestCase
-from mc_providers.exceptions import ProviderException, TemporaryProviderException
+from mc_providers.exceptions import (
+    ProviderException, TemporaryProviderException, UnsupportedOperationException)
 
-from backend.sources.models import Collection
+from backend.sources.models import Collection, Source
 from backend.users.exceptions import OverQuotaException
 from backend.users.models import Profile
+from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
 from util.exceptions import UserValueError
+
+from .utils import _get_parse_date, _validate_sources_or_collections, parsed_query_from_dict
 
 
 class LoginSearchDownloadCSVTest(TestCase):
@@ -298,4 +302,247 @@ class ProviderErrorHandlingTest(TestCase):
         self.assertEqual(response.status_code, 400)
         body = json.loads(response.content)
         self.assertIn("traceback", body)
+
+
+class StoryDetailTest(TestCase):
+    """
+    story_detail (used by the frontend's StoryShow.jsx via getStoryDetails)
+    strips the full story text for non-staff users -- untested before, and
+    exactly the kind of authorization branch worth pinning down.
+    """
+
+    def _make_user(self, username, is_staff):
+        user = User.objects.create_user(
+            username=username, email=f"{username}@example.com",
+            password="correct-horse-battery-staple", is_staff=is_staff)
+        Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
+        return user
+
+    def _login_as(self, user):
+        response = self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": user.username, "password": "correct-horse-battery-staple"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+    @patch("backend.search.views.pq_provider")
+    def test_staff_user_sees_full_story_text(self, mock_pq_provider):
+        provider = MagicMock()
+        provider.item.return_value = {"title": "headline", "text": "the full article body"}
+        mock_pq_provider.return_value = provider
+
+        self._login_as(self._make_user("story_detail_staff", is_staff=True))
+        response = self.client.get(
+            "/api/search/story", {"storyId": "story-123", "platform": "onlinenews-mediacloud"})
+
+        self.assertEqual(response.status_code, 200)
+        story = json.loads(response.content)["story"]
+        self.assertEqual(story["text"], "the full article body")
+
+    @patch("backend.search.views.pq_provider")
+    def test_non_staff_user_does_not_see_story_text(self, mock_pq_provider):
+        provider = MagicMock()
+        provider.item.return_value = {"title": "headline", "text": "the full article body"}
+        mock_pq_provider.return_value = provider
+
+        self._login_as(self._make_user("story_detail_non_staff", is_staff=False))
+        response = self.client.get(
+            "/api/search/story", {"storyId": "story-123", "platform": "onlinenews-mediacloud"})
+
+        self.assertEqual(response.status_code, 200)
+        story = json.loads(response.content)["story"]
+        self.assertNotIn("text", story)
+        self.assertEqual(story["title"], "headline")
+
+
+class SendEmailLargeDownloadCsvTest(TestCase):
+    """
+    send-email-large-download-csv (used by TotalAttentionEmailModal.jsx) only
+    triggers the email task when the summed count across all queries falls
+    within [ALL_URLS_CSV_EMAIL_MIN, ALL_URLS_CSV_EMAIL_MAX]. Neither boundary,
+    nor the "provider can't count" escape hatch, had a test.
+    """
+
+    URL = "/api/search/send-email-large-download-csv"
+
+    def setUp(self):
+        self.username = "email_download_test_user"
+        self.password = "correct-horse-battery-staple"
+        self.user = User.objects.create_user(
+            username=self.username, email=f"{self.username}@example.com",
+            password=self.password)
+        Profile.objects.create(user=self.user, verified_email=True, quota_mediacloud=1000)
+
+        response = self.client.post(
+            "/api/auth/login",
+            data=json.dumps({"username": self.username, "password": self.password}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        self.query_state = [{
+            "platform": "onlinenews-mediacloud",
+            "query": "robots",
+            "collections": [],
+            "sources": [],
+            "startDate": "2026-08-01",
+            "endDate": "2026-09-01",
+        }]
+
+    def _post(self, total, email="someone@example.com"):
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            provider = MagicMock()
+            provider.count.return_value = total
+            mock_pq_provider.return_value = provider
+            return self.client.post(
+                self.URL,
+                data=json.dumps({"prepareQuery": self.query_state, "email": email}),
+                content_type="application/json",
+            )
+
+    @patch("backend.search.views.download_all_large_content_csv")
+    def test_total_below_minimum_is_rejected(self, mock_download_task):
+        response = self._post(total=ALL_URLS_CSV_EMAIL_MIN - 1)
+        self.assertEqual(response.status_code, 400)
+        body = json.loads(response.content)
+        self.assertIn("not between", body["note"])
+        mock_download_task.assert_not_called()
+
+    @patch("backend.search.views.download_all_large_content_csv")
+    def test_total_above_maximum_is_rejected(self, mock_download_task):
+        response = self._post(total=ALL_URLS_CSV_EMAIL_MAX + 1)
+        self.assertEqual(response.status_code, 400)
+        mock_download_task.assert_not_called()
+
+    @patch("backend.search.views.download_all_large_content_csv")
+    def test_total_within_range_triggers_email_task(self, mock_download_task):
+        mock_download_task.return_value = {"task": "queued"}
+        total = (ALL_URLS_CSV_EMAIL_MIN + ALL_URLS_CSV_EMAIL_MAX) // 2
+
+        response = self._post(total=total, email="reporter@example.com")
+
+        self.assertEqual(response.status_code, 200, response.content)
+        mock_download_task.assert_called_once()
+        args = mock_download_task.call_args.args
+        self.assertEqual(args[0], self.query_state)
+        self.assertEqual(args[1], self.user.id)
+        self.assertEqual(args[3], "reporter@example.com")
+
+    @patch("backend.search.views.download_all_large_content_csv")
+    def test_provider_that_cannot_count_is_reported_cleanly(self, mock_download_task):
+        with patch("backend.search.views.pq_provider") as mock_pq_provider:
+            provider = MagicMock()
+            provider.count.side_effect = UnsupportedOperationException("no counting here")
+            mock_pq_provider.return_value = provider
+            response = self.client.post(
+                self.URL,
+                data=json.dumps({"prepareQuery": self.query_state, "email": "someone@example.com"}),
+                content_type="application/json",
+            )
+
+        self.assertEqual(response.status_code, 400)
+        body = json.loads(response.content)
+        self.assertIn("Can't count results", body["note"])
+        mock_download_task.assert_not_called()
+
+
+class GetParseDateTest(TestCase):
+    """
+    _get_parse_date backs every date-range param on every search endpoint
+    (via parse_query_params/parsed_query_from_dict) -- it accepts two
+    different date formats depending on caller, and had no direct test.
+    """
+
+    def test_accepts_iso_format(self):
+        self.assertEqual(
+            _get_parse_date({"start": "2026-08-01"}, "start"),
+            dt.datetime(2026, 8, 1))
+
+    def test_accepts_us_slash_format(self):
+        self.assertEqual(
+            _get_parse_date({"start": "08/01/2026"}, "start"),
+            dt.datetime(2026, 8, 1))
+
+    def test_missing_value_raises_user_value_error(self):
+        with self.assertRaises(UserValueError):
+            _get_parse_date({}, "start")
+
+    def test_blank_value_raises_user_value_error(self):
+        with self.assertRaises(UserValueError):
+            _get_parse_date({"start": ""}, "start")
+
+    def test_malformed_value_raises_user_value_error(self):
+        with self.assertRaises(UserValueError):
+            _get_parse_date({"start": "not-a-date"}, "start")
+
+    def test_wrong_separator_for_format_raises_user_value_error(self):
+        # has a "-" so it's parsed as ISO, but isn't valid ISO -> should
+        # still be a clean UserValueError, not an uncaught ValueError
+        with self.assertRaises(UserValueError):
+            _get_parse_date({"start": "2026/08-01"}, "start")
+
+
+class ValidateSourcesOrCollectionsTest(TestCase):
+    """
+    _validate_sources_or_collections backs the media-cloud query-scoping
+    validation in utils._for_media_cloud -- untested directly before.
+    """
+
+    def setUp(self):
+        self.source = Source.objects.create(
+            name="testsource.com", homepage="http://testsource.com",
+            platform=Source.SourcePlatforms.ONLINE_NEWS)
+
+    def test_all_valid_ids_does_not_raise(self):
+        _validate_sources_or_collections(
+            [str(self.source.id)], Source, Source.SourcePlatforms.ONLINE_NEWS)
+
+    def test_unknown_id_raises_user_value_error_naming_it(self):
+        bogus_id = self.source.id + 1000
+        with self.assertRaises(UserValueError) as ctx:
+            _validate_sources_or_collections(
+                [str(self.source.id), str(bogus_id)], Source, Source.SourcePlatforms.ONLINE_NEWS)
+        self.assertIn(str(bogus_id), str(ctx.exception))
+
+    def test_id_for_wrong_platform_is_treated_as_invalid(self):
+        other_platform_source = Source.objects.create(
+            name="other.com", homepage="http://other.com",
+            platform=Source.SourcePlatforms.YOUTUBE)
+        with self.assertRaises(UserValueError) as ctx:
+            _validate_sources_or_collections(
+                [str(other_platform_source.id)], Source, Source.SourcePlatforms.ONLINE_NEWS)
+        self.assertIn(str(other_platform_source.id), str(ctx.exception))
+
+
+class ParsedQueryFromDictTest(TestCase):
+    """
+    parsed_query_from_dict turns the frontend's queryState objects into
+    ParsedQuery, and is shared by every download-*-csv endpoint plus
+    send-email-large-download-csv and download-all-queries -- untested
+    directly before (only exercised incidentally through the CSV tests'
+    happy paths).
+    """
+
+    def test_missing_query_raises_user_value_error(self):
+        payload = {
+            "platform": "onlinenews-mediacloud", "query": "",
+            "collections": [], "sources": [],
+            "startDate": "2026-08-01", "endDate": "2026-09-01",
+        }
+        with self.assertRaises(UserValueError):
+            parsed_query_from_dict(payload, session_id=None)
+
+    def test_valid_payload_produces_expected_parsed_query(self):
+        payload = {
+            "platform": "onlinenews-mediacloud", "query": "robots",
+            "collections": [], "sources": [],
+            "startDate": "2026-08-01", "endDate": "2026-09-01",
+        }
+        pq = parsed_query_from_dict(payload, session_id="user@example.com")
+        self.assertEqual(pq.provider_name, "onlinenews-mediacloud")
+        self.assertEqual(pq.query_str, "robots")
+        self.assertEqual(pq.start_date, dt.datetime(2026, 8, 1))
+        self.assertEqual(pq.end_date, dt.datetime(2026, 9, 1))
+        self.assertEqual(pq.session_id, "user@example.com")
 
