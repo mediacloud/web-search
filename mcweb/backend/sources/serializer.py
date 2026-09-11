@@ -88,7 +88,12 @@ class SourceSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("name may not begin with '/'")
         if value.endswith('/'):
             raise serializers.ValidationError("name cannot end with '/'")
-        homepage = self.initial_data["homepage"]
+        homepage = self.initial_data.get("homepage")
+        if not homepage:
+            # validate_homepage will raise its own error for this; here we
+            # just need to avoid crashing since we can't check the name
+            # against a homepage that isn't there.
+            raise serializers.ValidationError("cannot validate name without a homepage")
         canonical_domain = urls.canonical_domain(homepage)
         if canonical_domain != value:
             raise serializers.ValidationError(f"domain {value} does not match the canonicalized version of homepage: {homepage}")
@@ -110,7 +115,9 @@ class SourceSerializer(serializers.ModelSerializer):
             return None
         if not value:
             return value
-        homepage = self.initial_data["homepage"]
+        homepage = self.initial_data.get("homepage")
+        if not homepage:
+            raise serializers.ValidationError("cannot validate url_search_string without a homepage")
         canonical_domain = urls.canonical_domain(homepage)
         if urls.canonical_domain(value) != canonical_domain:
             raise serializers.ValidationError(f"url_search_string {value} does not match the canonicalized version of homepage: {canonical_domain}")
