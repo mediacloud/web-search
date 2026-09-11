@@ -1,0 +1,46 @@
+id,homepage,domain,url_search_string,label,notes,platform,pub_country,pub_state,media_type,stories_per_week,last_story,primary_language
+1092,https://foxnews.com,foxnews.com,,foxnews.com,,online_news,USA,US-NY,video_broadcast,932,2026-09-04 00:00:00+00:00,en
+1095,https://cnn.com,cnn.com,,cnn.com,,online_news,USA,US-GA,video_broadcast,892,2026-09-04 00:00:00+00:00,en
+21208,https://people.com,people.com,,people.com,,online_news,,,,0,2026-02-05 00:00:00+00:00,en
+7,https://nypost.com,nypost.com,,nypost.com,,online_news,USA,US-NY,print_native,1825,2026-09-04 00:00:00+00:00,en
+1755,https://cnbc.com,cnbc.com,,cnbc.com,,online_news,USA,,video_broadcast,417,2026-09-04 00:00:00+00:00,en
+22732,https://wsj.com,wsj.com,,wsj.com,,online_news,,,,21,2026-09-04 00:00:00+00:00,zh
+25499,https://nbcnews.com,nbcnews.com,,nbcnews.com,"Asian American,Pacific Islander",online_news,USA,US-NY,,396,2026-09-04 00:00:00+00:00,en
+1752,https://cbsnews.com,cbsnews.com,,cbsnews.com,,online_news,USA,US-NY,video_broadcast,3970,2026-09-04 00:00:00+00:00,en
+1096,https://npr.org,npr.org,,npr.org,,online_news,USA,,video_broadcast,408,2026-09-04 00:00:00+00:00,en
+1145,https://drudgereport.com,drudgereport.com,,drudgereport.com,,online_news,USA,,digital_native,,,en
+162705,https://abcnews.com,abcnews.com,,abcnews.com,,online_news,,,,819,2026-09-04 00:00:00+00:00,en
+20694,https://dailymail.com,dailymail.com,,dailymail.com,,online_news,,,,0,2013-11-21 00:00:00+00:00,
+314,https://huffpost.com,huffpost.com,,huffpost.com,This refers to stories published at both the old huffingtonpost.com domain and the new huffpost.com domain.,online_news,usa,,digital_native,374,2026-09-04 00:00:00+00:00,en
+18710,https://businessinsider.com,businessinsider.com,,businessinsider.com,,online_news,USA,,digital_native,360,2026-09-04 00:00:00+00:00,en
+1342960,https://newsbreak.com,newsbreak.com,,newsbreak.com,,online_news,,,,11476,2026-09-04 00:00:00+00:00,en
+18342,https://politico.com,politico.com,,politico.com,,online_news,,,,0,2025-11-05 00:00:00+00:00,en
+1098,https://newsweek.com,newsweek.com,,newsweek.com,,online_news,USA,,,1,2026-09-04 00:00:00+00:00,en
+19334,https://breitbart.com,breitbart.com,,breitbart.com,,online_news,USA,,digital_native,517,2026-09-04 00:00:00+00:00,en
+1110,https://theatlantic.com,theatlantic.com,,theatlantic.com,,online_news,USA,,print_native,76,2026-09-04 00:00:00+00:00,en
+1357898,https://the-sun.com,the-sun.com,,the-sun.com,US online edition of The Sun UK,online_news,,,,0,2026-07-29 00:00:00+00:00,en
+19076,https://variety.com,variety.com,,variety.com,,online_news,USA,,print_native,419,2026-09-04 00:00:00+00:00,en
+1100,https://usnews.com,usnews.com,,usnews.com,,online_news,USA,,print_native,1174,2026-09-04 00:00:00+00:00,en
+6,https://latimes.com,latimes.com,,latimes.com,,online_news,USA,US-CA,print_native,661,2026-09-04 00:00:00+00:00,en
+25444,https://thegatewaypundit.com,thegatewaypundit.com,,thegatewaypundit.com,,online_news,,,,346,2026-09-04 00:00:00+00:00,en
+25349,https://newsmax.com,newsmax.com,,newsmax.com,,online_news,USA,,digital_native,747,2026-09-04 00:00:00+00:00,en
+23132,https://independent.co.uk,independent.co.uk,,independent.co.uk,,online_news,GBR,,,2058,2026-09-04 00:00:00+00:00,en
+245559,https://ksl.com,ksl.com,,ksl.com,,online_news,,,,508,2026-09-04 00:00:00+00:00,en
+148602,https://mensjournal.com,mensjournal.com,,mensjournal.com,,online_news,,,,0,2025-09-06 00:00:00+00:00,en
+372870,https://axios.com,axios.com,,axios.com,,online_news,,,,0,2024-07-18 00:00:00+00:00,
+14,https://sfgate.com,sfgate.com,,sfgate.com,,online_news,USA,US-CA,digital_native,1270,2026-09-04 00:00:00+00:00,en
+25884,https://today.com,today.com,,today.com,,online_news,,,,149,2026-09-04 00:00:00+00:00,en
+1,http://nytimes.com,nytimes.com,,New York Times,"Due to paywall restrictions, we can only catalog some of the NYT on the open web. In early 2026 this seemed to be content from video articles and the Athletic. We don't advise using our corpus of NYT stories as representative of all their coverage.",online_news,USA,US-NY,print_native,1276,2026-09-04 00:00:00+00:00,en
+106249,http://msn.com/,msn.com,,msn.com,,online_news,,,,0,2026-08-04 00:00:00+00:00,en
+932549,http://bbc.com,bbc.com,,BBC,,online_news,GBR,,,4655,2026-09-04 00:00:00+00:00,en
+4,http://www.usatoday.com,usatoday.com,,USA Today,,online_news,USA,US-OH,print_native,2128,2026-09-04 00:00:00+00:00,en
+106145,https://apnews.com,apnews.com,,apnews.com,,online_news,,,,1946,2026-09-04 00:00:00+00:00,en
+300560,http://www.theguardian.com/uk,theguardian.com,,theguardian.com,,online_news,GBR,,print_native,1526,2026-09-04 00:00:00+00:00,en
+115065,http://indiatimes.com/,indiatimes.com,,indiatimes.com,"This appears to be a generic content homepage, while the child source with a subdomain is the newspaper base URL.",online_news,IND,,digital_native,15866,2026-09-04 00:00:00+00:00,en
+2,https://washingtonpost.com,washingtonpost.com,,washingtonpost.com,,online_news,USA,US-DC,print_native,0,2024-03-04 00:00:00+00:00,
+1104,http://www.forbes.com/,forbes.com,,Forbes,,online_news,USA,,print_native,626,2026-09-04 00:00:00+00:00,en
+209455,http://thehill.com/,thehill.com,,thehill.com,,online_news,USA,,,194,2026-09-02 00:00:00+00:00,en
+1089,http://www.reuters.com/,reuters.com,,Reuters,stopped official rss support in 2020,online_news,USA,,other,1,2026-09-04 00:00:00+00:00,en
+6218,http://buzzfeed.com,buzzfeed.com,,buzzfeed.com,,online_news,USA,,digital_native,905,2026-09-04 00:00:00+00:00,en
+19080,https://www.aljazeera.com/where/kenya/,aljazeera.com,,aljazeera.com,,online_news,,,video_broadcast,627,2026-09-04 00:00:00+00:00,en
+18482,http://bloomberg.com,bloomberg.com,,bloomberg.com,,online_news,USA,US-NY,,863,2026-09-04 00:00:00+00:00,en
