@@ -205,10 +205,11 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     @api_stats  # PLEASE KEEP FIRST
     @action(methods=['GET'], detail=False, url_path='collections-from-list')
     def collections_from_list(self, request):
-        collection_ids = request.query_params.get('c')
-        if len(collection_ids) != 0:
-            collection_ids = collection_ids.split(',')
-            collection_ids = [int(i) for i in collection_ids]
+        collection_ids_param = request.query_params.get('c')
+        if not collection_ids_param:
+            collection_ids = []
+        else:
+            collection_ids = [int(i) for i in collection_ids_param.split(',')]
         collections = Collection.objects.filter(id__in=collection_ids)
         serializer = CollectionWriteSerializer(collections, many=True)
         return Response({"collections": serializer.data})
