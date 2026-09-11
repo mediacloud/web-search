@@ -77,7 +77,7 @@ class ConfirmedEmail(generics.GenericAPIView):
         if not reset_obj:
             return Response({'error':'Invalid token'}, status=400)
         
-        user = User.objects.filter(email=reset_obj.email).first()
+        user = User.objects.filter(email__iexact=reset_obj.email).first()
 
         if user:
             user.groups.add(Group.objects.get(name=settings.GROUPS.API_ACCESS))
@@ -86,3 +86,5 @@ class ConfirmedEmail(generics.GenericAPIView):
             user.save()
             reset_obj.delete()
             return Response({'success':'User verified and API Access Granted'})
+        else:
+            return Response({"error": "User with credentials not found"}, status=status.HTTP_404_NOT_FOUND)
