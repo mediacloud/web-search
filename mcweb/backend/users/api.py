@@ -8,6 +8,9 @@ from django.contrib.auth.decorators import login_required
 from .models import ResetCodes, create_auth_token
 from .serializer import ResetRequestSerializer, GiveAPIAccessSerializer
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RequestReset(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -27,6 +30,8 @@ class RequestReset(generics.GenericAPIView):
             reset_text = 'verify-user'
         elif reset_type == 'password':
             reset_text = 'reset-password/confirmed'
+        else:
+            return Response({"error": "Invalid reset_type"}, status=status.HTTP_400_BAD_REQUEST)
 
         if user:
             token_generator = PasswordResetTokenGenerator()
@@ -43,12 +48,15 @@ class RequestReset(generics.GenericAPIView):
                 subject = 'Reset Password'
                 message = f"Hello, please use this link to reset your password: {reset_url} \n\n Thank you!"
             
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[email]
-            )
+            if settings.EMAIL_HOST:
+                send_mail(
+                    subject=subject,
+                    message=message,
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[email]
+                )
+            else:
+                logger.info("RequestReset: EMAIL_HOST not set, skipping email to %s", email)
 
             return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
         else:
