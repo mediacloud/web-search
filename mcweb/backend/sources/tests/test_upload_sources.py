@@ -133,15 +133,18 @@ class UploadSourcesTest(APITestCase):
         self.assertEqual(Source.objects.count(), 45)
         self.assertEqual(self.collection.source_set.count(), 45)
 
-    def test_stale_id_column_can_overwrite_an_unrelated_existing_source(self):
+    def test_stale_id_pointing_at_a_different_named_source_is_skipped_as_a_conflict(self):
         # Real-world hazard surfaced by the production fixture: its `id`
         # column holds primary keys from the database it was exported
         # from. If those same integer ids already exist in the database
         # being uploaded into -- entirely plausible for small/legacy ids,
         # and specifically how this test's own earlier runs collided by
         # accident via Postgres's non-transactional sequence counter --
-        # upload_sources silently overwrites that unrelated existing
-        # Source instead of creating a new one or reporting an error.
+        # upload_sources used to silently overwrite that unrelated existing
+        # Source instead of creating a new one or reporting an error. Now
+        # an id whose existing name doesn't match the row's domain is
+        # treated as a conflict and the row is skipped, leaving the
+        # unrelated source untouched.
         unrelated = Source.objects.create(
             name="totally-unrelated.com", homepage="http://totally-unrelated.com")
 
@@ -153,11 +156,30 @@ class UploadSourcesTest(APITestCase):
         }])
 
         self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(response.data, {"created": 0, "updated": 1, "skipped": 0})
+        self.assertEqual(response.data, {"created": 0, "updated": 0, "skipped": 1})
 
         unrelated.refresh_from_db()
-        self.assertEqual(unrelated.name, "nytimes.com")
-        self.assertNotEqual(unrelated.name, "totally-unrelated.com")
+        self.assertEqual(unrelated.name, "totally-unrelated.com")
+        self.assertFalse(Source.objects.filter(name="nytimes.com").exists())
+
+    def test_id_matching_its_existing_source_updates_normally(self):
+        # the id-matching path still works fine when the id and domain
+        # genuinely agree (the actual "download CSV, edit fields, reupload
+        # into the same database" use case this feature exists for).
+        source = Source.objects.create(
+            name="nytimes.com", homepage="http://nytimes.com", label="old label")
+
+        response = self._upload([{
+            "id": str(source.id),
+            "homepage": "http://nytimes.com",
+            "domain": "nytimes.com",
+            "label": "New York Times",
+        }])
+
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.data, {"created": 0, "updated": 1, "skipped": 0})
+        source.refresh_from_db()
+        self.assertEqual(source.label, "New York Times")
 
     def test_row_missing_homepage_is_skipped(self):
         response = self._upload([{"domain": "nohomepage.com"}])

@@ -516,10 +516,25 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
                 if not platform:
                     platform = Source.SourcePlatforms.ONLINE_NEWS
+                cleaned_source_input = Source._clean_source(row)
                 # check if this is an update
                 id = row.get('id', None)
                 if id and (int(id) > 0):
                     existing_source = queryset.filter(pk=row['id'])
+                    # the id column may be stale/foreign (e.g. exported from
+                    # a different database), so don't trust it blindly: if
+                    # it happens to match an unrelated existing source here,
+                    # that's a conflict, not an update -- skip rather than
+                    # silently overwriting the wrong row.
+                    if len(existing_source) == 1 and existing_source[0].name != cleaned_source_input['name']:
+                        email_text += (
+                            "\n ⚠️ Row {}: id {} belongs to existing source '{}', "
+                            "which does not match this row's domain '{}' "
+                            "- id and name conflict, skipping".format(
+                                row_num, id, existing_source[0].name, cleaned_source_input['name'])
+                        )
+                        counts['skipped'] += 1
+                        continue
                 else:
                     #check if url_search_string_source
                     url_search_string = row.get('url_search_string', None)
@@ -539,7 +554,6 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                             homepage=row['homepage'], platform=platform)
                 # Making a new one
                 if len(existing_source) == 0:
-                    cleaned_source_input = Source._clean_source(row)
                     serializer = SourceSerializer(data=cleaned_source_input)
                     if serializer.is_valid():
                         existing_source = self.perform_create(serializer)
@@ -558,7 +572,6 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 # Updating unique match
                 elif len(existing_source) == 1:
                     existing_source = existing_source[0]
-                    cleaned_source_input = Source._clean_source(row)
                     serializer = SourceSerializer(
                         existing_source, data=cleaned_source_input)
                     if serializer.is_valid():
