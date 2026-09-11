@@ -455,6 +455,19 @@ CACHES = {
     }
 }
 
+if 'test' in sys.argv:
+    # util.cache's @cache_by_kwargs() (e.g. featured collections) stores
+    # results in CACHES above -- Redis, an external store with a 24h
+    # default TTL, so it survives across separate `manage.py test` runs
+    # and can hand a test stale results from a previous run's data. Same
+    # class of problem as RATELIMIT_ENABLE above; same fix: an in-process
+    # cache that starts empty every run and never persists.
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
+
 DISABLE_SERVER_SIDE_CURSORS = True
 
 ################
