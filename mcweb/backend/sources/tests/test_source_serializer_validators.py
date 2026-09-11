@@ -24,6 +24,16 @@ class SourceSerializerValidatorsTest(APITestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn('homepage', serializer.errors)
 
+    def test_name_must_be_present(self):
+        # Regression test: name's model field has null=True, so DRF marks
+        # it not-required and passes an explicit `"name": null` straight to
+        # validate_name -- which used to crash with AttributeError
+        # (None.startswith(...)) instead of returning a clean validation error.
+        data = {**VALID_DATA, 'name': None}
+        serializer = SourceSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('name', serializer.errors)
+
     def test_homepage_must_start_with_http_or_https(self):
         data = {**VALID_DATA, 'homepage': 'testhomepage.com'}
         serializer = SourceSerializer(data=data)
