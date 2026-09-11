@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from backend.users.models import Profile
+from ..models import Profile
 
 
 class AnonymousAccessUsersApiTest(TestCase):
