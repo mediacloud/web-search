@@ -612,21 +612,19 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['GET'], detail=False)
     def download_csv(self, request):
         collection_id = request.query_params.get('collection_id')
-        collection = Collection.objects.get(id=collection_id)
+        collection = get_object_or_404(Collection, id=collection_id)
         source_associations = collection.source_set.all()
         # we want to stream the results back to the user row by row (based on paging through results)
 
         def data_generator():
-            first_page = True
+            # always send column names, even for an empty collection
+            yield (['id', 'homepage', 'domain', 'url_search_string', 'label', 'notes', 'platform',
+                    'pub_country','pub_state','media_type','stories_per_week', 'last_story',
+                    'primary_language' ])
             for source in source_associations:
-                if first_page:  # send back columun names, which differ by platform
-                    yield (['id', 'homepage', 'domain', 'url_search_string', 'label', 'notes', 'platform',
-                            'pub_country','pub_state','media_type','stories_per_week', 'last_story',
-                            'primary_language' ])
                 yield ([source.id, source.homepage, source.name, source.url_search_string, source.label,
-                         source.notes, source.platform, source.pub_country, source.pub_state, source.media_type, 
+                         source.notes, source.platform, source.pub_country, source.pub_state, source.media_type,
                         source.stories_per_week, source.last_story,  source.primary_language])
-                first_page = False
 
         filename = "Collection-{}-{}-sources-{}".format(
             collection_id, collection.name, _filename_timestamp())
@@ -635,10 +633,11 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     @api_stats  # PLEASE KEEP FIRST
     @action(methods=['GET'], detail=False, url_path='sources-from-list')
     def sources_from_list(self, request):
-        source_ids = request.query_params.get('s', None)  # decode
-        if len(source_ids) != 0:
-            source_ids = source_ids.split(',')
-            source_ids = [int(i) for i in source_ids if i.isnumeric()]
+        source_ids_param = request.query_params.get('s', None)  # decode
+        if not source_ids_param:
+            source_ids = []
+        else:
+            source_ids = [int(i) for i in source_ids_param.split(',') if i.isnumeric()]
         sources = Source.objects.filter(id__in=source_ids)
         serializer = SourceSerializer(sources, many=True)
         return Response({"sources": serializer.data})
