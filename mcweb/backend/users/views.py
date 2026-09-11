@@ -190,7 +190,7 @@ def register(request):
         return HttpResponse(data, content_type='application/json', status=200)
     except Exception as e:
         logger.exception("register")
-        return _auth_error_message(str(e), 400)
+        return _auth_err_message(str(e), status=400)
 
 
 @api_stats  # PLEASE KEEP FIRST!
