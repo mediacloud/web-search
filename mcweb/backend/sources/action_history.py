@@ -49,9 +49,16 @@ def log_action(user, action_type, object_model, object_id=None, object_name=None
         username = getattr(user, 'username', None)
         email = getattr(user, 'email', None)
     
-    # Ensure notes is never None (field doesn't allow null, only blank)
+    # Ensure notes/object_name/username/email are never None
+    # (fields don't allow null, only blank)
     if notes is None:
         notes = ""
+    if object_name is None:
+        object_name = ""
+    if username is None:
+        username = ""
+    if email is None:
+        email = ""
     
     action_record = ActionHistory.objects.create(
         user=user_obj,
@@ -152,56 +159,62 @@ class ActionHistoryContext:
             logger.debug(f"Removed parent event {self.parent_event.id} from child tracking")
         
         # Activate context for child event linking
-        _delegated_history.set(self)
+        self._token = _delegated_history.set(self)
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Exit context - update parent with summary info and restore normal logging"""
-        # Build summary changes dict
-        changes = self.additional_changes.copy()
-        changes['child_event_count'] = len(self.child_event_ids)
-        
-        # Build summary by action type and object model
-        summary = {
-            'by_action_type': {},
-            'by_object_model': {},
-            'object_ids': [],
-        }
-        
-        # Get child events to analyze
-        if self.child_event_ids:
-            child_events = ActionHistory.objects.filter(id__in=self.child_event_ids)
-            for child in child_events:
-                action_type = child.action_type
-                summary['by_action_type'][action_type] = summary['by_action_type'].get(action_type, 0) + 1
-                
-                object_model = child.object_model
-                summary['by_object_model'][object_model] = summary['by_object_model'].get(object_model, 0) + 1
-                
-                if child.object_id:
-                    summary['object_ids'].append(child.object_id)
-        
-        changes['summary'] = summary['by_action_type']
-        changes['by_object_model'] = summary['by_object_model']
-        changes['object_ids'] = summary['object_ids'][:100]  # Limit to avoid huge JSON
-        
-        # Auto-generate notes if not provided
-        if self.notes is None:
-            action_parts = []
-            for act_type, count in summary['by_action_type'].items():
-                action_parts.append(f"{count} {act_type}")
-            notes = f"Bulk operation: {', '.join(action_parts)}"
-        else:
-            notes = self.notes
-        
-        # Update parent event with summary info
-        self.parent_event.changes = changes
-        self.parent_event.notes = notes
-        self.parent_event.save(update_fields=['changes', 'notes'])
-        
-        
-        # Restore normal logging
-        _delegated_history.set(None)
+        try:
+            # Build summary changes dict
+            changes = self.additional_changes.copy()
+            changes['child_event_count'] = len(self.child_event_ids)
+
+            # Build summary by action type and object model
+            summary = {
+                'by_action_type': {},
+                'by_object_model': {},
+                'object_ids': [],
+            }
+
+            # Get child events to analyze
+            if self.child_event_ids:
+                child_events = ActionHistory.objects.filter(id__in=self.child_event_ids)
+                for child in child_events:
+                    action_type = child.action_type
+                    summary['by_action_type'][action_type] = summary['by_action_type'].get(action_type, 0) + 1
+
+                    object_model = child.object_model
+                    summary['by_object_model'][object_model] = summary['by_object_model'].get(object_model, 0) + 1
+
+                    if child.object_id:
+                        summary['object_ids'].append(child.object_id)
+
+            changes['summary'] = summary['by_action_type']
+            changes['by_object_model'] = summary['by_object_model']
+            changes['object_ids'] = summary['object_ids'][:100]  # Limit to avoid huge JSON
+
+            # Auto-generate notes if not provided
+            if self.notes is None:
+                action_parts = []
+                for act_type, count in summary['by_action_type'].items():
+                    action_parts.append(f"{count} {act_type}")
+                notes = f"Bulk operation: {', '.join(action_parts)}"
+            else:
+                notes = self.notes
+
+            # Update parent event with summary info
+            self.parent_event.changes = changes
+            self.parent_event.notes = notes
+            self.parent_event.save(update_fields=['changes', 'notes'])
+        finally:
+            # Restore normal logging (restores whatever context -- if any --
+            # was active before this one, rather than always clearing to
+            # None, so nested contexts don't clobber an outer one). This
+            # MUST run even if the summary/save above raises (e.g. a DB
+            # error), otherwise the contextvar is left pointing at this
+            # (now-dead) context for the rest of the worker thread's
+            # lifetime, silently misattributing every later log_action call.
+            _delegated_history.reset(self._token)
         return False  # Don't suppress exceptions
 
 
