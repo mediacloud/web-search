@@ -248,10 +248,14 @@ def email_from_token(request):
             user = _user_from_token(token) # MAY RETURN None!!
         except:
             return _auth_err_error("API Token Not Found")
+        if user is None:
+            return _auth_err_error("API Token Not Found")
     else:
         return _auth_err_error("No token provided")
     if user.is_superuser and user_token:
         user = _user_from_token(user_token) # MAY RETURN None!!
+        if user is None:
+            return _auth_err_error("API Token Not Found")
         return HttpResponse(json.dumps({"email": user.email}), content_type='application/json')
     elif not user.is_superuser:
         return _auth_err_error("Must be super user")
@@ -273,6 +277,8 @@ def users_quotas(request):
         try:
             user = _user_from_token(token) # MAY RETURN None!!
         except:
+            return _auth_err_message("API Token Not Found")
+        if user is None:
             return _auth_err_message("API Token Not Found")
     else:
         user = request.user
