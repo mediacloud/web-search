@@ -473,7 +473,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None):
         instance = self.get_object()
-        serializer = SourceSerializer(instance, data=request.data)
+        serializer = SourceSerializer(instance, data=request.data, partial=True)
         if serializer.is_valid():
             # Manually call perform_update to trigger action history logging
             self.perform_update(serializer)
