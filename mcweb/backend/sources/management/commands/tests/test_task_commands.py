@@ -20,7 +20,7 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 
-from ..models import Collection, Source
+from ....models import Collection, Source
 
 scrape_source_cmd = importlib.import_module("backend.sources.management.commands.scrape-source")
 scrape_collection_cmd = importlib.import_module("backend.sources.management.commands.scrape-collection")

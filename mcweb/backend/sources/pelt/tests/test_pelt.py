@@ -12,12 +12,12 @@ import datetime as dt
 import numpy as np
 from django.test import SimpleTestCase
 
-from ..pelt.detect import run_pelt, segments_from_breakpoints, suggest_penalty
-from ..pelt.detect import _segment_mode as detect_segment_mode
-from ..pelt.preprocess import _coerce_date, prepare_daily_series
-from ..pelt.summarize import summarize_regime_changes
-from ..pelt.summarize import _segment_median, _segment_mode as summarize_segment_mode
-from ..pelt.types import RegimeChange, Segment
+from ..detect import run_pelt, segments_from_breakpoints, suggest_penalty
+from ..detect import _segment_mode as detect_segment_mode
+from ..preprocess import _coerce_date, prepare_daily_series
+from ..summarize import summarize_regime_changes
+from ..summarize import _segment_median, _segment_mode as summarize_segment_mode
+from ..types import RegimeChange, Segment
 
 
 def _seg(start_idx, end_idx, *, start, end, mean_volume=0.0, mean_log_volume=0.0, mode_volume=None):
