@@ -1,18 +1,17 @@
-django==4.1.*
-djangorestframework==3.14.*
-django-rest-knox==4.2.*
+django==4.2.*
+djangorestframework==3.17.*
 psycopg2-binary==2.9.*
-djangorestframework-simplejwt[crypto]==5.2.*
+djangorestframework-simplejwt[crypto]==5.5.*
 pyhumps==3.8.*
-django-environ==0.9.*
+django-environ==0.14.*
 django-constance[redis]==4.1.*
 django-ratelimit==4.1.*
-dj-database-url==1.0.*
+dj-database-url==3.1.*
 mediacloud-metadata==1.4.*
 python-dateutil==2.8.*
-django-redis==5.2.*
-gunicorn==20.1.*
-whitenoise==6.2.*
+django-redis==6.0.*
+gunicorn==26.*
+whitenoise==6.12.*
 sentry-sdk==1.39.*
 requests  # let the other dependencies sort out which is the right version
 fasttext==0.9.*
@@ -25,5 +24,5 @@ feed-seeker==2.*
 numpy
 ruptures
 sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v5.0.latest
-supervisor==4.2.*
+supervisor==4.3.*
 statsd_client==1.0.*
