@@ -608,11 +608,10 @@ def providers(request):
     token = request.GET.get('Authorization', None)
     if token:
         user = _user_from_token(token)
-        providers = {
-            AVAILABLE_PROVIDERS[0]: user.profile.quota_mediacloud,
-            AVAILABLE_PROVIDERS[1]: user.profile.quota_wayback_machine,
+        providers_list = {
+            AVAILABLE_PROVIDERS[0]: user.profile.quota_mediacloud
         }
-        return json_response({"providers": providers})
+        return json_response({"providers": providers_list})
     else:
         return error_response("No token provided", response_type=HttpResponseBadRequest)
     

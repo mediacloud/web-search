@@ -9,8 +9,7 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
 
-from mc_providers import provider_name, PLATFORM_ONLINE_NEWS, \
-    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_SOURCE_MEDIA_CLOUD
+from mc_providers import provider_name, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD
 from mc_providers import UnknownProviderException
 
 from .exceptions import OverQuotaException
@@ -32,8 +31,6 @@ class Profile(models.Model):
     modified_at = models.DateTimeField(auto_now=True, null=True)
 
     def quota_for(self, provider: str) -> int:
-        if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
-            return self.quota_wayback_machine
         if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
             if self.quota_mediacloud is None:
                 return constance.config.QUOTA_DEFAULT_MEDIA_CLOUD
