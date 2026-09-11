@@ -302,6 +302,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Without this, plain `python manage.py test` (no args) breaks: see
+# backend/util/test_runner.py for why.
+TEST_RUNNER = "backend.util.test_runner.ProjectDiscoverRunner"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
