@@ -8,11 +8,15 @@ from ..models import ActionHistory, Source
 class SourcesViewSetCreateUpdateTest(APITestCase):
     """
     SourcesViewSet.create/partial_update are hand-rolled overrides (not
-    DRF's defaults) with no prior coverage. Two real quirks pinned down
-    here rather than fixed (see conversation): both raise APIException
-    (-> 500) instead of a clean 400 on validation failure, and
-    partial_update doesn't pass partial=True to the serializer, so a
-    partial PATCH payload can fail validation for fields it never touched.
+    DRF's defaults) with no prior coverage. One real quirk is pinned down
+    here rather than fixed: create() raises a bare APIException (-> 500)
+    instead of a clean 400 on validation failure.
+
+    partial_update's missing `partial=True` *was* a second such quirk --
+    found and fixed when upgrading to Django 4.2/DRF 3.17 surfaced it as a
+    hard test failure (validate_name crashed on the now-uncaught AttributeError
+    instead of the exception being silently converted to a 500 response, which
+    is how the test client used to mask it).
     """
 
     URL = "/api/sources/sources/"
@@ -84,14 +88,15 @@ class SourcesViewSetCreateUpdateTest(APITestCase):
 
     # -- partial_update() --
 
-    def test_partial_update_with_only_changed_field_fails_validation(self):
-        # Documents the actual current behavior: partial_update doesn't
-        # pass partial=True, so PATCHing just `notes` still requires
-        # `homepage`/`name` per the full serializer, and fails.
+    def test_partial_update_with_only_changed_field_succeeds(self):
         response = self.client.patch(self._detail_url(), {"notes": "just a note"}, format="json")
-        self.assertEqual(response.status_code, 500)
+
+        self.assertEqual(response.status_code, 200, response.content)
         self.source.refresh_from_db()
-        self.assertNotEqual(self.source.notes, "just a note")
+        self.assertEqual(self.source.notes, "just a note")
+        # untouched fields must survive a true partial update
+        self.assertEqual(self.source.name, "example.com")
+        self.assertEqual(self.source.homepage, "http://example.com")
 
     def test_partial_update_with_full_payload_succeeds_and_logs_history(self):
         response = self.client.patch(self._detail_url(), {
