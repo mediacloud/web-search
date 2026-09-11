@@ -120,7 +120,7 @@ def get_completed_tasks(user: str | None) -> dict:
 
     Currently available thru SourcesViewSet for historical reasons.
     """
-    tasks = CompletedTask.objects
+    tasks = CompletedTask.objects.all()
     if user:
         tasks = tasks.created_by(user)
     return {'completed_tasks': [_serialize_completed_task(task) for task in tasks]}
@@ -133,7 +133,7 @@ def get_pending_tasks(user: str | None) -> dict[str, list[dict]]:
 
     Currently available thru SourcesViewSet for historical reasons.
     """
-    tasks = Task.objects
+    tasks = Task.objects.all()
     if user:
         tasks = tasks.created_by(user)
     return {'tasks': [_serialize_task(task) for task in tasks]}
