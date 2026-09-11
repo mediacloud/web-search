@@ -8,7 +8,6 @@ from mc_providers import UnknownProviderException
 from ..exceptions import OverQuotaException
 from ..models import Profile, QuotaHistory
 
-WAYBACK = "onlinenews-waybackmachine"
 MEDIACLOUD = "onlinenews-mediacloud"
 
 
@@ -18,10 +17,6 @@ class ProfileQuotaForTest(TestCase):
     only ever exercised indirectly (via QuotaHistory rows as fixtures) in
     the search app's own tests, never directly.
     """
-
-    def test_wayback_uses_the_dedicated_field(self):
-        profile = Profile(quota_wayback_machine=1234)
-        self.assertEqual(profile.quota_for(WAYBACK), 1234)
 
     def test_mediacloud_uses_the_configured_value_when_set(self):
         profile = Profile(quota_mediacloud=500)

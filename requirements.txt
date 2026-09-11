@@ -15,7 +15,7 @@ whitenoise==6.12.*
 sentry-sdk==1.39.*
 requests  # let the other dependencies sort out which is the right version
 fasttext==0.9.*
-mc-providers @ git+https://github.com/mediacloud/mc-providers@v4.5.latest
+mc-providers @ git+https://github.com/mediacloud/mc-providers@v5.0.latest
 pycountry==24.6.*
 django-background-tasks-updated==1.2.* # need >= 1.2.6
 django-cors-headers==4.3.*
