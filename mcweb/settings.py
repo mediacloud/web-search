@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import logging
 from pathlib import Path
 import os
+import sys
 
 # PyPI
 import dj_database_url
@@ -305,6 +306,14 @@ USE_TZ = True
 # Without this, plain `python manage.py test` (no args) breaks: see
 # backend/util/test_runner.py for why.
 TEST_RUNNER = "backend.util.test_runner.ProjectDiscoverRunner"
+
+# django_ratelimit's counters live in CACHES (Redis, see below), which is
+# an external, persistent store -- it survives across separate `manage.py
+# test` invocations, so tests can spuriously start returning 429 once
+# enough of them accumulate against the same rate-limit key. Rate limiting
+# isn't something we want to test against a real clock/store anyway.
+if 'test' in sys.argv:
+    RATELIMIT_ENABLE = False
 
 
 # Static files (CSS, JavaScript, Images)
