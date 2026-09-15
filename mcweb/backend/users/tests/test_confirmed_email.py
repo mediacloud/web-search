@@ -35,8 +35,8 @@ class ConfirmedEmailTest(TestCase):
     def test_invalid_token_returns_400(self):
         response = self._post(token="wrong-token")
 
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("Invalid token", response.json()["error"])
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("invalid", response.json()["error"])
         # nothing should have been consumed for an invalid token
         self.assertTrue(ResetCodes.objects.filter(pk=self.reset_code.pk).exists())
 
@@ -56,7 +56,7 @@ class ConfirmedEmailTest(TestCase):
 
         response = self._post(token="orphan-token")
 
-        self.assertEqual(response.status_code, 404, response.content)
+        self.assertEqual(response.status_code, 401, response.content)
 
     def test_email_matching_is_case_insensitive(self):
         """

@@ -638,7 +638,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if not source_ids_param:
             source_ids = []
         else:
-            source_ids = [int(i) for i in source_ids_param.split(',') if i.isnumeric()]
+            source_ids = [int(i) for i in source_ids_param.split(',') if i.isdigit()]
         sources = Source.objects.filter(id__in=source_ids)
         serializer = SourceSerializer(sources, many=True)
         return Response({"sources": serializer.data})

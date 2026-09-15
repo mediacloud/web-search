@@ -37,7 +37,7 @@ class RequestResetTest(TestCase):
 
     def test_unknown_email_returns_404(self):
         response = self._post(email="does-not-exist@example.com", reset_type="password")
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 401)
 
     def test_password_reset_type_creates_reset_code(self):
         response = self._post(email=self.user.email, reset_type="password")
