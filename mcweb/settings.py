@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import logging
 from pathlib import Path
 import os
+import sys
 
 # PyPI
 import dj_database_url
@@ -302,6 +303,18 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Without this, plain `python manage.py test` (no args) breaks: see
+# backend/util/test_runner.py for why.
+TEST_RUNNER = "backend.util.test_runner.ProjectDiscoverRunner"
+
+# django_ratelimit's counters live in CACHES (Redis, see below), which is
+# an external, persistent store -- it survives across separate `manage.py
+# test` invocations, so tests can spuriously start returning 429 once
+# enough of them accumulate against the same rate-limit key. Rate limiting
+# isn't something we want to test against a real clock/store anyway.
+if 'test' in sys.argv:
+    RATELIMIT_ENABLE = False
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
@@ -441,6 +454,19 @@ CACHES = {
         "KEY_PREFIX": "cache"
     }
 }
+
+if 'test' in sys.argv:
+    # util.cache's @cache_by_kwargs() (e.g. featured collections) stores
+    # results in CACHES above -- Redis, an external store with a 24h
+    # default TTL, so it survives across separate `manage.py test` runs
+    # and can hand a test stale results from a previous run's data. Same
+    # class of problem as RATELIMIT_ENABLE above; same fix: an in-process
+    # cache that starts empty every run and never persists.
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
 
 DISABLE_SERVER_SIDE_CURSORS = True
 

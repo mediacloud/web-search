@@ -23,8 +23,9 @@ class Command(ScrapeTaskCommand):
         sid = options["source_id"]
         email = options["email"]
 
-        src = Source.objects.get(id=sid)
-        if not src:
+        try:
+            src = Source.objects.get(id=sid)
+        except Source.DoesNotExist:
             print("could not find source id", sid)
             sys.exit(1)
 

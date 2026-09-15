@@ -205,10 +205,11 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     @api_stats  # PLEASE KEEP FIRST
     @action(methods=['GET'], detail=False, url_path='collections-from-list')
     def collections_from_list(self, request):
-        collection_ids = request.query_params.get('c')
-        if len(collection_ids) != 0:
-            collection_ids = collection_ids.split(',')
-            collection_ids = [int(i) for i in collection_ids]
+        collection_ids_param = request.query_params.get('c')
+        if not collection_ids_param:
+            collection_ids = []
+        else:
+            collection_ids = [int(i) for i in collection_ids_param.split(',')]
         collections = Collection.objects.filter(id__in=collection_ids)
         serializer = CollectionWriteSerializer(collections, many=True)
         return Response({"collections": serializer.data})
@@ -292,7 +293,7 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if modified_since is not None:
             # validation: should throw a ValueError back up the chain
             modified_since = float(modified_since)
-            modified_since = dt.datetime.fromtimestamp(modified_since)
+            modified_since = dt.datetime.fromtimestamp(modified_since, tz=dt.timezone.utc)
             queryset = queryset.filter(modified_at__gte=modified_since)
         # passed a "now" value returned by /api/version
         modified_before = self.request.query_params.get(
@@ -300,7 +301,7 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if modified_before is not None:
             # validation: should throw a ValueError back up the chain
             modified_before = float(modified_before)
-            modified_before = dt.datetime.fromtimestamp(modified_before)
+            modified_before = dt.datetime.fromtimestamp(modified_before, tz=dt.timezone.utc)
             queryset = queryset.filter(modified_at__lt=modified_before)
 
         if modified_since is not None or modified_before is not None:
@@ -334,6 +335,8 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     def stories(self, request):
         feed_id = self.request.query_params.get("feed_id", None)
         source_id = self.request.query_params.get("source_id", None)
+        if feed_id is None and source_id is None:
+            raise ValidationError("Must provide 'feed_id' or 'source_id'")
 
         with _rss_fetcher_api() as rss:
             if feed_id is not None:
@@ -514,10 +517,25 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 platform = row.get('platform', Source.SourcePlatforms.ONLINE_NEWS)
                 if not platform:
                     platform = Source.SourcePlatforms.ONLINE_NEWS
+                cleaned_source_input = Source._clean_source(row)
                 # check if this is an update
                 id = row.get('id', None)
                 if id and (int(id) > 0):
                     existing_source = queryset.filter(pk=row['id'])
+                    # the id column may be stale/foreign (e.g. exported from
+                    # a different database), so don't trust it blindly: if
+                    # it happens to match an unrelated existing source here,
+                    # that's a conflict, not an update -- skip rather than
+                    # silently overwriting the wrong row.
+                    if len(existing_source) == 1 and existing_source[0].name != cleaned_source_input['name']:
+                        email_text += (
+                            "\n ⚠️ Row {}: id {} belongs to existing source '{}', "
+                            "which does not match this row's domain '{}' "
+                            "- id and name conflict, skipping".format(
+                                row_num, id, existing_source[0].name, cleaned_source_input['name'])
+                        )
+                        counts['skipped'] += 1
+                        continue
                 else:
                     #check if url_search_string_source
                     url_search_string = row.get('url_search_string', None)
@@ -537,7 +555,6 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                             homepage=row['homepage'], platform=platform)
                 # Making a new one
                 if len(existing_source) == 0:
-                    cleaned_source_input = Source._clean_source(row)
                     serializer = SourceSerializer(data=cleaned_source_input)
                     if serializer.is_valid():
                         existing_source = self.perform_create(serializer)
@@ -556,7 +573,6 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 # Updating unique match
                 elif len(existing_source) == 1:
                     existing_source = existing_source[0]
-                    cleaned_source_input = Source._clean_source(row)
                     serializer = SourceSerializer(
                         existing_source, data=cleaned_source_input)
                     if serializer.is_valid():
@@ -597,21 +613,19 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['GET'], detail=False)
     def download_csv(self, request):
         collection_id = request.query_params.get('collection_id')
-        collection = Collection.objects.get(id=collection_id)
+        collection = get_object_or_404(Collection, id=collection_id)
         source_associations = collection.source_set.all()
         # we want to stream the results back to the user row by row (based on paging through results)
 
         def data_generator():
-            first_page = True
+            # always send column names, even for an empty collection
+            yield (['id', 'homepage', 'domain', 'url_search_string', 'label', 'notes', 'platform',
+                    'pub_country','pub_state','media_type','stories_per_week', 'last_story',
+                    'primary_language' ])
             for source in source_associations:
-                if first_page:  # send back columun names, which differ by platform
-                    yield (['id', 'homepage', 'domain', 'url_search_string', 'label', 'notes', 'platform',
-                            'pub_country','pub_state','media_type','stories_per_week', 'last_story',
-                            'primary_language' ])
                 yield ([source.id, source.homepage, source.name, source.url_search_string, source.label,
-                         source.notes, source.platform, source.pub_country, source.pub_state, source.media_type, 
+                         source.notes, source.platform, source.pub_country, source.pub_state, source.media_type,
                         source.stories_per_week, source.last_story,  source.primary_language])
-                first_page = False
 
         filename = "Collection-{}-{}-sources-{}".format(
             collection_id, collection.name, _filename_timestamp())
@@ -620,10 +634,11 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     @api_stats  # PLEASE KEEP FIRST
     @action(methods=['GET'], detail=False, url_path='sources-from-list')
     def sources_from_list(self, request):
-        source_ids = request.query_params.get('s', None)  # decode
-        if len(source_ids) != 0:
-            source_ids = source_ids.split(',')
-            source_ids = [int(i) for i in source_ids if i.isnumeric()]
+        source_ids_param = request.query_params.get('s', None)  # decode
+        if not source_ids_param:
+            source_ids = []
+        else:
+            source_ids = [int(i) for i in source_ids_param.split(',') if i.isnumeric()]
         sources = Source.objects.filter(id__in=source_ids)
         serializer = SourceSerializer(sources, many=True)
         return Response({"sources": serializer.data})

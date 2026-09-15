@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 from unittest.mock import MagicMock, patch
+from urllib.parse import parse_qs, urlparse
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -71,7 +72,30 @@ class LoginSearchDownloadCSVTest(TestCase):
             with self.subTest(endpoint=name):
                 response = self.client.get(url, self.query_params)
                 self.assertEqual(response.status_code, 302)
-                self.assertTrue(response.url.startswith("/accounts/login/"))
+                parsed = urlparse(response.url)
+                self.assertEqual(parsed.path, "/sign-in")
+                # the frontend's sign-in page reads ?next= to send the user
+                # back where they came from after logging in
+                self.assertTrue(parse_qs(parsed.query)["next"][0].startswith(url))
+
+    def test_anonymous_download_all_content_csv_is_redirected_to_login(self):
+        response = self.client.get("/api/search/download-all-content-csv", self.query_params)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/sign-in"))
+
+    def test_anonymous_send_email_large_download_csv_is_redirected_to_login(self):
+        response = self.client.post(
+            "/api/search/send-email-large-download-csv",
+            data=json.dumps({"prepareQuery": [], "email": "someone@example.com"}),
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/sign-in"))
+
+    def test_anonymous_download_all_queries_csv_is_redirected_to_login(self):
+        response = self.client.post("/api/search/download-all-queries", self.query_params)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/sign-in"))
 
     @patch("backend.search.views.pq_provider")
     def test_login_then_download_top_sources_csv(self, mock_pq_provider):

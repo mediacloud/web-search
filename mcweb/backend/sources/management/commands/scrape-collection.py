@@ -22,8 +22,9 @@ class Command(ScrapeTaskCommand):
         cid = options["collection_id"]
         email = options["email"]
 
-        collection = Collection.objects.get(id=cid)
-        if not collection:
+        try:
+            collection = Collection.objects.get(id=cid)
+        except Collection.DoesNotExist:
             print("could not find collection id", cid)
             sys.exit(1)
 
