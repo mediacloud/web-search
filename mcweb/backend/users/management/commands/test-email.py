@@ -1,25 +1,38 @@
 from django.core.management.base import BaseCommand
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
 
+from settings import EMAIL_HOST, EMAIL_HOST_USER, EMAIL_NOREPLY, EMAIL_ORGANIZATION
 from util.send_emails import send_rescrape_email
 
 class Command(BaseCommand):
-    help = 'TEMP EMAIL TEST'
+    help = 'send a test email'
 
     def add_arguments(self, parser):
-        parser.add_argument('file_path')
+        # to allow variation when sending multiple messages:
+        parser.add_argument("--subject", "-s", default="test-email")
+
+        # required: one or more recipents:
+        parser.add_argument("recipients", nargs="+")
 
     def handle(self, *args, **options):
-        #user = User.objects.get(email__exact="phil.budne@gmail.com")
-        #send_signup_email(user, None)
+        if not EMAIL_HOST:
+            print("EMAIL_HOST not set")
+            return 1
 
-        send_rescrape_email("test", "testing", "backend@mediacloud.org", ["phil@ultimate.com"])
-        """
-        email = EmailMessage(subject="test",
-                             body="this is a test",
-                             from_email="backend@mediacloud.org",
-                             to=["phil@ultimate.com"])
+        if EMAIL_HOST_USER != EMAIL_NOREPLY:
+            print(f"NOTE!!!! EMAIL_HOST_USER ({EMAIL_HOST_USER}) != EMAIL_NOREPLY ({EMAIL_NOREPLY})")
 
-        email.send()
-        """
+        # from send_rescrape_email
+        cmdline_subject = options["subject"]
+        subject = f"[{EMAIL_ORGANIZATION}] {cmdline_subject}"
+        recip = options["recipients"]
+        header_from = EMAIL_NOREPLY
+        body = "testing\n1\n2\n3\n"
+        print("subject", subject)
+        print("header_from", header_from)
+        print("recipents", recip)
+
+        ret = send_mail(subject, body, header_from, recip, fail_silently=False)
+        print("send_mail returned", ret)
+        return ret < 1          # error (non-zero) status if no msgs sent
