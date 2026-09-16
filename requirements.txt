@@ -21,7 +21,7 @@ pycountry==24.6.*
 django-background-tasks-updated==1.2.* # need >= 1.2.6
 django-cors-headers==4.3.*
 django-guardian==3.0.*
-feed-seeker==1.1.*
+feed-seeker==2.*
 numpy
 ruptures
 sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v5.0.latest
