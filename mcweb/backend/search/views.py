@@ -629,7 +629,6 @@ def download_all_content_csv(request):
 
 # called by frontend sendTotalAttentionDataEmail
 @api_stats  # PLEASE KEEP FIRST!
-@handle_provider_errors
 @login_required(login_url='/sign-in')
 @handle_provider_errors
 @require_http_methods(["POST"])
