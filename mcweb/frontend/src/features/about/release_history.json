@@ -1,4 +1,10 @@
 [
+{"version":"v3.1.14",
+ "date":"2026-09-18",
+ "notes":[
+   "Add authentication to CSV downloads"
+ ]
+},
 {"version":"v3.1.12",
  "date":"2026-09-11",
  "notes":[
