@@ -11,6 +11,10 @@ from django.core.exceptions import ValidationError
 import humps
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
+
+# pulled from github repo (no longer in PyPI)
+from mc_providers import provider_name, PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD
+
 from util.send_emails import send_signup_email
 from util.stats import api_stats
 import backend.users.legacy as legacy
@@ -352,7 +356,8 @@ def _serialized_current_user(request) -> str:
     data['token'] = token.key
     data['group_names'] = get_groups(request)
     data['quota'] = get_quota(request)
-    data['quota_limit'] = current_user.profile.quota_mediacloud
+    data['quota_limit'] = current_user.profile.quota_for(
+        provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD))
     data['collection_perms'] = get_collections_permissions(current_user)
     camelcase_data = humps.camelize(data)
     return json.dumps(camelcase_data)
@@ -369,7 +374,8 @@ def _serialized_api_user(user) -> str:
             'provider': most_recent_quota.provider,
             'hits': most_recent_quota.hits,
             'week': most_recent_quota.week.strftime('%Y-%m-%d'),
-            'limit': user.profile.quota_mediacloud, 
+            'limit': user.profile.quota_for(
+                provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD))
         } if most_recent_quota else None
     }
     return cleaned_user

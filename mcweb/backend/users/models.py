@@ -15,7 +15,6 @@ from mc_providers import UnknownProviderException
 
 from .exceptions import OverQuotaException
 
-
 # this is how Django recommends adding custom information to the User object - adding in second model with custom info
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -24,6 +23,7 @@ class Profile(models.Model):
     was_imported = models.BooleanField(default=False)
     imported_password_hash = models.TextField(null=True, blank=True)
     # fields that store user-specific weekly quota for each provider, to block system abuse
+    # NOTE! Use quota_for() to retrieve values to handle default (NULL)
     quota_mediacloud = models.IntegerField(default=None, null=True, blank=True,
                                            help_text="Empty for default quota")
     quota_wayback_machine = models.IntegerField(default=4000, null=False)

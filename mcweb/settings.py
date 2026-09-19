@@ -105,6 +105,7 @@ env = environ.Env(      # @@CONFIGURATION@@ definitions (datatype, default value
     ALLOWED_HOSTS=(list, _DEFAULT_ALLOWED_HOSTS),
     ANALYTICS_MATOMO_DOMAIN=(str, "null"),
     ANALYTICS_MATOMO_SITE_ID=(str, "null"),
+    API_PYTHON_CLIENT=(str, "5.1.0"), # latest python client
     CACHE_SECONDS=(int, 24*60*60),
     CSRF_TRUSTED_ORIGINS=(list, _DEFAULT_CSRF_TRUSTED_ORIGINS),
     DEBUG=(bool, False),
@@ -151,6 +152,7 @@ ALL_URLS_CSV_EMAIL_MIN = env('ALL_URLS_CSV_EMAIL_MIN')
 ALLOWED_HOSTS = env("ALLOWED_HOSTS") # list
 ANALYTICS_MATOMO_DOMAIN = env('ANALYTICS_MATOMO_DOMAIN')
 ANALYTICS_MATOMO_SITE_ID = env('ANALYTICS_MATOMO_SITE_ID')
+API_PYTHON_CLIENT = env('API_PYTHON_CLIENT')
 
 AVAILABLE_PROVIDERS = ["onlinenews-mediacloud", "onlinenews-waybackmachine"]
 CACHE_SECONDS = env("CACHE_SECONDS")
