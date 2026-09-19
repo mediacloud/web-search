@@ -67,6 +67,11 @@ def _download_all_large_content_csv(queryState: list[dict], user_id: int, user_i
     # a writeable file-like object that can be passed to csv.writer
     # (without storing uncompressed bytes)
 
+    # check quotas still not exhausted up front
+    # (counts would help ensure the fetch will complete)
+    for pq in parsed_queries:
+        QuotaHistory.check_quota(user_id, is_staff, pq.provider_name)
+
     data_generator = all_content_csv_generator(parsed_queries, user_id, user_isStaff)
     basename = all_content_csv_basename(parsed_queries)
 
@@ -119,13 +124,18 @@ def download_all_queries_csv_task(data, request):
 
 @background(queue=USER_SLOW, remove_existing_tasks=True)
 def _download_all_queries_csv(data: list[ParsedQuery], user_id, is_staff, email):
+    # check quotas still not exhausted up front
+    # (counts would help ensure the fetch will complete)
+    for pq in data:
+        QuotaHistory.check_quota(user_id, is_staff, pq.provider_name)
+
     for pq in data:
         provider = pq_provider(pq)
         data = provider.languages(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
         QuotaHistory.increment(user_id, is_staff, pq.provider_name)
 
     # code from: https://stackoverflow.com/questions/17584550/attach-generated-csv-file-to-email-and-send-with-django
-    
+
     # Create an in-memory byte stream
     zipstream = BytesIO()
 
