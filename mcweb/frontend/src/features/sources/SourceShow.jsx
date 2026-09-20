@@ -13,6 +13,7 @@ import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery, useListSourcesQuery } from '../../app/services/sourceApi';
 import StatPanel from '../ui/StatPanel';
 import FeedStories from '../feeds/FeedStories';
+import RecentlyIndexedStories from '../stories/RecentlyIndexedStories';
 import renderNotes from '../collections/util/formatNotesToHTML';
 import getParentSource from './util/getParentSource';
 import getChildSources from './util/getChildSources';
@@ -205,6 +206,13 @@ export default function SourceShow() {
             // eslint-disable-next-line react/jsx-props-no-spreading
                 {...a11yProps(1)}
               />
+              {source.platform === 'online_news' && (
+                <Tab
+                  label="Recently Discovered"
+            // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...a11yProps(2)}
+                />
+              )}
 
             </Tabs>
           </Box>
@@ -215,7 +223,7 @@ export default function SourceShow() {
               </div>
               {source.platform === 'online_news' && (
               <div className="col-6">
-                <FeedStories feed={false} sourceId={sourceId} />
+                <RecentlyIndexedStories sourceId={sourceId} />
               </div>
               )}
             </div>
@@ -223,6 +231,11 @@ export default function SourceShow() {
           <TabPanelHelper value={value} index={1}>
             <StoriesOverTime sourceId={sourceId} collectionId={false} />
           </TabPanelHelper>
+          {source.platform === 'online_news' && (
+            <TabPanelHelper value={value} index={2}>
+              <FeedStories feed={false} sourceId={sourceId} />
+            </TabPanelHelper>
+          )}
         </Box>
       </div>
     </div>

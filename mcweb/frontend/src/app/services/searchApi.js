@@ -1,6 +1,24 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import dayjs from 'dayjs';
 
 const TIMEOUT_CONST_MS = 5;
+
+export const recentlyIndexedStoriesQuery = ({
+  sourceId,
+  startDate,
+  endDate,
+}) => ({
+  url: 'story-list',
+  method: 'GET',
+  params: {
+    q: `indexed_date:[${dayjs().subtract(90, 'day').format('YYYY-MM-DD')} TO *]`,
+    ss: sourceId,
+    start: startDate,
+    end: endDate,
+    p: 'onlinenews-mediacloud',
+    page_size: 10,
+  },
+});
 
 const timeoutAction = (fetchFunc) => new Promise((resolve) => {
   setTimeout(() => {
@@ -70,6 +88,9 @@ export const searchApi = createApi({
         method: 'GET',
       }),
     }),
+    getRecentlyIndexedStories: builder.query({
+      query: recentlyIndexedStoriesQuery,
+    }),
     getTopWords: builder.mutation({
       queryFn: (queryState, _queryApi, _extraOptions, fetchWithBQ) => {
         const promises = queryState.map((queryObject) => timeoutAction(fetchWithBQ({
@@ -136,6 +157,7 @@ export const {
   useGetCountOverTimeMutation,
   useGetSampleStoriesMutation,
   useGetStoryDetailsQuery,
+  useGetRecentlyIndexedStoriesQuery,
   useGetTopWordsMutation,
   useGetTopLanguagesMutation,
   useSendTotalAttentionDataEmailMutation,
