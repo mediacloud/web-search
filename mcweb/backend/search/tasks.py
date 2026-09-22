@@ -70,7 +70,7 @@ def _download_all_large_content_csv(queryState: list[dict], user_id: int, user_i
     # check quotas still not exhausted up front
     # (counts would help ensure the fetch will complete)
     for pq in parsed_queries:
-        QuotaHistory.check_quota(user_id, is_staff, pq.provider_name)
+        QuotaHistory.check_quota(user_id, user_isStaff, pq.provider_name)
 
     data_generator = all_content_csv_generator(parsed_queries, user_id, user_isStaff)
     basename = all_content_csv_basename(parsed_queries)
