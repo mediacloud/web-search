@@ -11,16 +11,16 @@ mediacloud-metadata==1.4.*
 django-redis==7.0.*
 gunicorn==26.*
 whitenoise==6.12.*
-sentry-sdk==2.69.*
+sentry-sdk==2.70.*
 requests  # let the other dependencies sort out which is the right version
 mc-providers @ git+https://github.com/mediacloud/mc-providers@v5.0.latest
-pycountry==24.6.*
+pycountry==26.2.16  # that these aren't semantic version numbers... they are YY.mm.dd dates so pin to exact!
 django-background-tasks==1.2.*  # django-background-tasks-updated deprecated now
 django-cors-headers==4.9.*
 django-guardian==3.5.*
 feed-seeker==2.*
-numpy
-ruptures
+numpy==2.5.*
+ruptures==1.1.*
 sitemap-tools @ git+https://github.com/mediacloud/sitemap-tools@v5.0.latest
 supervisor==4.3.*
 statsd_client==1.0.*
