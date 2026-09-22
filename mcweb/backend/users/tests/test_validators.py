@@ -26,8 +26,8 @@ class MinimumAmountOfNumbersTest(SimpleTestCase):
             validator.validate("only1234")
         validator.validate("has12345digits")
 
-    def test_get_help_test_mentions_the_configured_minimum(self):
-        self.assertIn("3", MinimumAmountOfNumbers(minimum_amount_of_numbers=3).get_help_test())
+    def test_get_help_text_mentions_the_configured_minimum(self):
+        self.assertIn("3", MinimumAmountOfNumbers(minimum_amount_of_numbers=3).get_help_text())
 
 
 class MinimumAmountOfSpecialCharactersTest(SimpleTestCase):
@@ -50,5 +50,5 @@ class MinimumAmountOfSpecialCharactersTest(SimpleTestCase):
             with self.subTest(char=char):
                 validator.validate(f"password{char}")
 
-    def test_get_help_test_mentions_the_configured_minimum(self):
-        self.assertIn("1", MinimumAmountOfSpecialCharacters(minimum_amount_of_special_characters=1).get_help_test())
+    def test_get_help_text_mentions_the_configured_minimum(self):
+        self.assertIn("1", MinimumAmountOfSpecialCharacters(minimum_amount_of_special_characters=1).get_help_text())
