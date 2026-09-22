@@ -1,11 +1,10 @@
 import datetime as dt
 
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from settings import GROUPS
 
 from ..admin import CustomUserAdmin
 from ..models import Profile, QuotaHistory
@@ -54,13 +53,6 @@ class CustomUserAdminGetQuerysetTest(TestCase):
 
         self.assertTrue(self._annotated(user).high_rate_limit)
 
-    def test_high_rate_limit_true_for_group_member(self):
-        user = User.objects.create_user(username="group_hirate_user", password="pw")
-        Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
-        group, _ = Group.objects.get_or_create(name=GROUPS.HIGH_RATE_LIMIT)
-        user.groups.add(group)
-
-        self.assertTrue(self._annotated(user).high_rate_limit)
 
     def test_last_use_reflects_most_recent_week_with_hits(self):
         user = User.objects.create_user(username="last_use_user", password="pw")

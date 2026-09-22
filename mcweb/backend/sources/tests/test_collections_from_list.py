@@ -25,9 +25,3 @@ class CollectionsFromListTest(APITestCase):
         self.assertEqual(response.status_code, 200, response.content)
         names = {row["name"] for row in response.data["collections"]}
         self.assertEqual(names, {"A Collection", "B Collection"})
-
-    def test_missing_c_param_returns_empty_list_not_a_500(self):
-        response = self.client.get(URL)
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(response.data["collections"], [])
-

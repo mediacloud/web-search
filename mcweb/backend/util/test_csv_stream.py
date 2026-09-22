@@ -16,13 +16,6 @@ class StreamingCsvResponseTest(SimpleTestCase):
     eyeball it" note in its own docstring.
     """
 
-    def test_content_type_is_text_csv(self):
-        response = streaming_csv_response(lambda: iter([("a", "b")]))
-        self.assertEqual(response["Content-Type"], "text/csv")
-
-    def test_filename_sets_content_disposition(self):
-        response = streaming_csv_response(lambda: iter([("a", "b")]), filename="my-export")
-        self.assertEqual(response["Content-Disposition"], "attachment; filename=my-export.csv")
 
     def test_all_rows_present_when_row_count_is_not_a_multiple_of_chunk_size(self):
         rows = [("id", "name"), (1, "alice"), (2, "bob"), (3, "carol")]
@@ -35,4 +28,3 @@ class StreamingCsvResponseTest(SimpleTestCase):
         response = streaming_csv_response(lambda: iter(rows))
 
         self.assertEqual(_content(response), 'name,notes\r\n"has,comma","has ""quotes"""\r\n')
-

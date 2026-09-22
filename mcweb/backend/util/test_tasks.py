@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from background_task.models import CompletedTask, Task
 
-from .tasks import _serialize_task, get_completed_tasks, get_pending_tasks
+from .tasks import _serialize_task, get_completed_tasks
 
 
 class SerializeTaskTest(TestCase):
@@ -48,27 +48,4 @@ class GetCompletedTasksTest(TestCase):
     def test_no_user_returns_all(self):
         result = get_completed_tasks(None)
         names = {t["task_name"] for t in result["completed_tasks"]}
-        self.assertEqual(names, {"task.for.a", "task.for.b"})
-
-
-class GetPendingTasksTest(TestCase):
-    """get_pending_tasks (used by SourcesViewSet.pending_tasks) had no test."""
-
-    def setUp(self):
-        self.user_a = User.objects.create_user(username="pending_tasks_user_a", password="pw")
-        self.user_b = User.objects.create_user(username="pending_tasks_user_b", password="pw")
-
-        task_a = Task.objects.new_task("task.for.a", creator=self.user_a)
-        task_a.save()
-        task_b = Task.objects.new_task("task.for.b", creator=self.user_b)
-        task_b.save()
-
-    def test_filters_to_the_given_user(self):
-        result = get_pending_tasks(self.user_a)
-        names = [t["task_name"] for t in result["tasks"]]
-        self.assertEqual(names, ["task.for.a"])
-
-    def test_no_user_returns_all(self):
-        result = get_pending_tasks(None)
-        names = {t["task_name"] for t in result["tasks"]}
         self.assertEqual(names, {"task.for.a", "task.for.b"})

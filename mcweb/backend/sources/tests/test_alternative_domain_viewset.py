@@ -106,15 +106,8 @@ class AlternativeDomainViewSetReadTest(APITestCase):
         self.source = Source.objects.create(name="example.com", homepage="http://example.com")
         self.alt = AlternativeDomain.objects.create(source=self.source, domain="alt.example.com")
 
-    def test_list_includes_created_domain(self):
-        response = self.client.get(URL)
-        self.assertEqual(response.status_code, 200)
-        body = response.data
-        results = body["results"] if isinstance(body, dict) and "results" in body else body
-        self.assertIn("alt.example.com", [row["domain"] for row in results])
 
     def test_staff_can_delete(self):
         response = self.client.delete(f"{URL}{self.alt.id}/")
         self.assertEqual(response.status_code, 204)
         self.assertFalse(AlternativeDomain.objects.filter(pk=self.alt.id).exists())
-

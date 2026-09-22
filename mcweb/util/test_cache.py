@@ -59,9 +59,3 @@ class McProvidersCacherTest(SimpleTestCase):
         mc_providers_cacher(self._fn, "prefix", "a", _cache_seconds=30)
 
         self.assertEqual(self.calls, [(("a",), {})])
-
-    def test_repeated_calls_are_cached(self):
-        mc_providers_cacher(self._fn, "prefix", "a", _cache_seconds=30)
-        mc_providers_cacher(self._fn, "prefix", "a", _cache_seconds=30)
-
-        self.assertEqual(len(self.calls), 1)

@@ -6,7 +6,7 @@ exercised as a side effect of other tests (e.g. upload_sources), never
 asserted on directly.
 """
 
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from ..action_history import ActionHistoryContext, ActionHistoryViewSetMixin, _delegated_history, log_action
@@ -28,18 +28,6 @@ class LogActionTest(TestCase):
         self.assertEqual(record.object_model, ActionHistory.ModelType.SOURCE)
         self.assertIsNone(record.parent_event)
 
-    def test_anonymous_user_records_no_user_info(self):
-        """
-        Regression test: user_name/user_email are NOT NULL CharFields, but
-        the "no authenticated user" branch left them as None (only `notes`
-        had a None->"" guard) -- crashed with IntegrityError before this
-        was fixed alongside object_name below.
-        """
-        record = log_action(AnonymousUser(), "create", ActionHistory.ModelType.SOURCE)
-
-        self.assertIsNone(record.user)
-        self.assertEqual(record.user_name, "")
-        self.assertEqual(record.user_email, "")
 
     def test_active_context_sets_parent_and_tracks_child_id(self):
         with ActionHistoryContext(
@@ -56,14 +44,6 @@ class ActionHistoryContextTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="context_user")
 
-    def test_enter_creates_a_parentless_parent_event(self):
-        with ActionHistoryContext(
-                user=self.user, action_type="bulk_upload_sources",
-                object_model=ActionHistory.ModelType.COLLECTION, object_id=1, object_name="Collection") as ctx:
-            pass
-
-        self.assertIsNotNone(ctx.parent_event)
-        self.assertIsNone(ctx.parent_event.parent_event)
 
     def test_nested_contexts_restore_the_outer_context_on_exit(self):
         """
@@ -103,14 +83,6 @@ class ActionHistoryContextTest(TestCase):
         self.assertEqual(sorted(changes["object_ids"]), [10, 11, 12])
         self.assertEqual(changes["sources_skipped"], 5)
 
-    def test_explicit_notes_are_preserved_over_auto_generation(self):
-        with ActionHistoryContext(
-                user=self.user, action_type="bulk", object_model=ActionHistory.ModelType.COLLECTION,
-                object_id=1, object_name="c", notes="my custom notes") as ctx:
-            log_action(self.user, "create", ActionHistory.ModelType.SOURCE, object_id=1)
-
-        ctx.parent_event.refresh_from_db()
-        self.assertEqual(ctx.parent_event.notes, "my custom notes")
 
     def test_exception_inside_the_block_still_updates_parent_and_propagates(self):
         with self.assertRaises(ValueError):

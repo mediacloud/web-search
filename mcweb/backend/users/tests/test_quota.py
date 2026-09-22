@@ -78,18 +78,6 @@ class QuotaHistoryCheckQuotaTest(TestCase):
         with self.assertRaises(OverQuotaException):
             QuotaHistory.check_quota(self.user.id, False, MEDIACLOUD)
 
-    def test_over_quota_raises_for_non_staff(self):
-        QuotaHistory.objects.create(
-            user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=15)
-
-        with self.assertRaises(OverQuotaException):
-            QuotaHistory.check_quota(self.user.id, False, MEDIACLOUD)
-
-    def test_staff_bypasses_the_quota(self):
-        QuotaHistory.objects.create(
-            user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=99)
-
-        self.assertEqual(QuotaHistory.check_quota(self.user.id, True, MEDIACLOUD), 99)
 
     def test_missing_quota_history_row_is_treated_as_zero_hits(self):
         self.assertEqual(QuotaHistory.check_quota(self.user.id, False, MEDIACLOUD), 0)

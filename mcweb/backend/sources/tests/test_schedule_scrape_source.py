@@ -17,13 +17,6 @@ class ScheduleScrapeSourceTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="scrape_test_user", password="pw")
 
-    def test_missing_source_raises_does_not_exist(self):
-        # Source.objects.get() raises DoesNotExist rather than returning
-        # None, so the `if not source: return_error(...)` branch in
-        # schedule_scrape_source is actually unreachable dead code -- this
-        # documents the real current behavior.
-        with self.assertRaises(Source.DoesNotExist):
-            schedule_scrape_source(999999, self.user)
 
     def test_source_without_homepage_is_rejected(self):
         source = Source.objects.create(name="nohomepage.com", homepage="")

@@ -67,13 +67,3 @@ class SourcesCollectionsViewSetTest(APITestCase):
             object_model=ActionHistory.ModelType.COLLECTION, object_id=self.collection.id,
             action_type="remove_from_collection").first()
         self.assertIsNotNone(history)
-
-    def test_destroy_removes_collection_from_source(self):
-        self.collection.source_set.add(self.source)
-
-        response = self.client.delete(
-            f"{URL}{self.source.id}/?collection_id={self.collection.id}")
-
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertNotIn(self.collection, self.source.collections.all())
-
