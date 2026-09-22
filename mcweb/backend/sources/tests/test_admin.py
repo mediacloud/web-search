@@ -86,7 +86,9 @@ class IsParentEventFilterTest(TestCase):
         self.request = RequestFactory().get("/adminauth/sources/actionhistory/")
 
     def _filtered(self, value):
-        filter_ = IsParentEventFilter(self.request, {'event_type': value}, ActionHistory, self.admin)
+        # Django >=5.0 builds filter params from request.GET.lists(), so each
+        # value is a list and SimpleListFilter takes its last element.
+        filter_ = IsParentEventFilter(self.request, {'event_type': [value]}, ActionHistory, self.admin)
         return set(filter_.queryset(self.request, ActionHistory.objects.all()))
 
     def test_parent_filter_returns_only_parent_events(self):
