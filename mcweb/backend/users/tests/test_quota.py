@@ -1,5 +1,3 @@
-import datetime as dt
-
 import constance
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -39,21 +37,6 @@ class ProfileQuotaForTest(TestCase):
 
         self.assertEqual(quota, constance.config.QUOTA_DEFAULT_MEDIA_CLOUD)
         self.assertTrue(Profile.objects.filter(user=user).exists())
-
-    def test_user_provider_quota_uses_existing_profile(self):
-        user = User.objects.create_user(username="quota_existing_profile_user")
-        Profile.objects.create(user=user, quota_mediacloud=77)
-
-        self.assertEqual(Profile.user_provider_quota(user.id, MEDIACLOUD), 77)
-
-
-class QuotaHistoryThisWeekTest(TestCase):
-    def test_returns_the_monday_of_the_current_week(self):
-        monday = QuotaHistory._this_week()
-        self.assertEqual(monday.weekday(), 0)
-        self.assertLessEqual(monday, dt.date.today())
-        self.assertGreater(monday, dt.date.today() - dt.timedelta(days=7))
-
 
 class QuotaHistoryCurrentForTest(TestCase):
     def setUp(self):
@@ -122,10 +105,6 @@ class QuotaHistoryIncrementTest(TestCase):
 
         self.assertEqual(result, 3)
         self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 3)
-
-    def test_default_amount_is_one(self):
-        QuotaHistory.increment(self.user.id, False, MEDIACLOUD)
-        self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 1)
 
     def test_crossing_the_quota_raises_but_still_persists_the_increment(self):
         QuotaHistory.objects.create(

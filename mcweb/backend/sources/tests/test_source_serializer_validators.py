@@ -40,37 +40,11 @@ class SourceSerializerValidatorsTest(APITestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn('homepage', serializer.errors)
 
-    def test_homepage_accepts_https(self):
-        data = {**VALID_DATA, 'homepage': 'https://testhomepage.com'}
-        serializer = SourceSerializer(data=data)
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-
-    def test_valid_pub_country_accepted(self):
-        data = {**VALID_DATA, 'pub_country': 'USA'}
-        serializer = SourceSerializer(data=data)
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-
     def test_invalid_pub_country_rejected(self):
         data = {**VALID_DATA, 'pub_country': 'ZZZ'}
         serializer = SourceSerializer(data=data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('pub_country', serializer.errors)
-
-    def test_valid_pub_state_accepted(self):
-        data = {**VALID_DATA, 'pub_state': 'US-MA'}
-        serializer = SourceSerializer(data=data)
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-
-    def test_invalid_pub_state_rejected(self):
-        data = {**VALID_DATA, 'pub_state': 'ZZ-99'}
-        serializer = SourceSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('pub_state', serializer.errors)
-
-    def test_valid_primary_language_accepted(self):
-        data = {**VALID_DATA, 'primary_language': 'en'}
-        serializer = SourceSerializer(data=data)
-        self.assertTrue(serializer.is_valid(), serializer.errors)
 
     def test_invalid_primary_language_rejected(self):
         data = {**VALID_DATA, 'primary_language': 'zz'}

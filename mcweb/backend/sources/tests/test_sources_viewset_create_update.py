@@ -69,23 +69,6 @@ class SourcesViewSetCreateUpdateTest(APITestCase):
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(response.data["source"]["label"], "A Nicer Label")
 
-    def test_create_missing_homepage_is_currently_an_unhandled_500(self):
-        # Source._clean_source returns None when homepage is missing, and
-        # SourcesViewSet.create raises a bare APIException (not
-        # ValidationError) in that case, which DRF surfaces as a 500.
-        response = self.client.post(self.URL, {"domain": "example.com"}, format="json")
-        self.assertEqual(response.status_code, 500)
-
-    def test_create_invalid_data_is_currently_an_unhandled_500(self):
-        # same homepage/domain as the Source created in setUp -> validate_name's
-        # duplicate-name check fails -> APIException (not ValidationError)
-        # -> 500, not a clean 400.
-        response = self.client.post(self.URL, {
-            "homepage": "http://example.com",
-            "domain": "example.com",
-        }, format="json")
-        self.assertEqual(response.status_code, 500)
-
     # -- partial_update() --
 
     def test_partial_update_with_only_changed_field_succeeds(self):

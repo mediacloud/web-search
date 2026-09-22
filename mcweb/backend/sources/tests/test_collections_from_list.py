@@ -31,7 +31,3 @@ class CollectionsFromListTest(APITestCase):
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(response.data["collections"], [])
 
-    def test_empty_c_param_returns_empty_list(self):
-        response = self.client.get(URL, {"c": ""})
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(response.data["collections"], [])

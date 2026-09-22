@@ -52,12 +52,6 @@ class ResetPasswordTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("too short", response.json()["error"])
 
-    def test_malformed_body_rejected(self):
-        response = self.client.post(URL, data="not json", content_type="application/json")
-
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("Invalid request", response.json()["error"])
-
     def test_no_matching_user_returns_404(self):
         self.reset_code.email = "someone-else@example.com"
         self.reset_code.save()

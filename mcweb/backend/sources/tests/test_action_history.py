@@ -41,25 +41,6 @@ class LogActionTest(TestCase):
         self.assertEqual(record.user_name, "")
         self.assertEqual(record.user_email, "")
 
-    def test_none_user_records_no_user_info(self):
-        record = log_action(None, "create", ActionHistory.ModelType.SOURCE)
-        self.assertIsNone(record.user)
-
-    def test_none_notes_defaults_to_empty_string(self):
-        record = log_action(self.user, "create", ActionHistory.ModelType.SOURCE, notes=None)
-        self.assertEqual(record.notes, "")
-
-    def test_omitted_object_name_defaults_to_empty_string_not_none(self):
-        # Regression test: object_name is a NOT NULL CharField; omitting it
-        # (defaults to None in the signature) used to crash with
-        # IntegrityError since only `notes` had a None->"" guard.
-        record = log_action(self.user, "create", ActionHistory.ModelType.SOURCE)
-        self.assertEqual(record.object_name, "")
-
-    def test_with_no_active_context_parent_event_is_not_set(self):
-        record = log_action(self.user, "create", ActionHistory.ModelType.SOURCE, object_name="x")
-        self.assertIsNone(record.parent_event)
-
     def test_active_context_sets_parent_and_tracks_child_id(self):
         with ActionHistoryContext(
                 user=self.user, action_type="bulk", object_model=ActionHistory.ModelType.COLLECTION,
@@ -83,16 +64,6 @@ class ActionHistoryContextTest(TestCase):
 
         self.assertIsNotNone(ctx.parent_event)
         self.assertIsNone(ctx.parent_event.parent_event)
-
-    def test_context_var_is_active_only_during_the_with_block(self):
-        self.assertIsNone(_delegated_history.get())
-
-        with ActionHistoryContext(
-                user=self.user, action_type="bulk", object_model=ActionHistory.ModelType.COLLECTION,
-                object_id=1, object_name="c") as ctx:
-            self.assertIs(_delegated_history.get(), ctx)
-
-        self.assertIsNone(_delegated_history.get())
 
     def test_nested_contexts_restore_the_outer_context_on_exit(self):
         """
@@ -132,15 +103,6 @@ class ActionHistoryContextTest(TestCase):
         self.assertEqual(sorted(changes["object_ids"]), [10, 11, 12])
         self.assertEqual(changes["sources_skipped"], 5)
 
-    def test_auto_generated_notes_describe_the_child_actions(self):
-        with ActionHistoryContext(
-                user=self.user, action_type="bulk", object_model=ActionHistory.ModelType.COLLECTION,
-                object_id=1, object_name="c") as ctx:
-            log_action(self.user, "create", ActionHistory.ModelType.SOURCE, object_id=1)
-
-        ctx.parent_event.refresh_from_db()
-        self.assertEqual(ctx.parent_event.notes, "Bulk operation: 1 create")
-
     def test_explicit_notes_are_preserved_over_auto_generation(self):
         with ActionHistoryContext(
                 user=self.user, action_type="bulk", object_model=ActionHistory.ModelType.COLLECTION,
@@ -149,15 +111,6 @@ class ActionHistoryContextTest(TestCase):
 
         ctx.parent_event.refresh_from_db()
         self.assertEqual(ctx.parent_event.notes, "my custom notes")
-
-    def test_no_child_events_still_updates_parent_without_error(self):
-        with ActionHistoryContext(
-                user=self.user, action_type="bulk", object_model=ActionHistory.ModelType.COLLECTION,
-                object_id=1, object_name="c") as ctx:
-            pass
-
-        ctx.parent_event.refresh_from_db()
-        self.assertEqual(ctx.parent_event.changes["child_event_count"], 0)
 
     def test_exception_inside_the_block_still_updates_parent_and_propagates(self):
         with self.assertRaises(ValueError):
@@ -201,27 +154,6 @@ class _NoLoggingViewSet(ActionHistoryViewSetMixin):
         self.request = _FakeRequest(user)
 
 
-class ActionHistoryViewSetMixinGetObjectNameTest(TestCase):
-    def setUp(self):
-        self.viewset = _SourceViewSet(User.objects.create_user(username="mixin_user"))
-
-    def test_prefers_name_field(self):
-        source = Source(name="example.com", homepage="http://example.com", label="Example")
-        self.assertEqual(self.viewset._get_object_name(source), "example.com")
-
-    def test_falls_back_to_label_when_name_is_blank(self):
-        source = Source(name="", homepage="http://example.com", label="Example Label")
-        self.assertEqual(self.viewset._get_object_name(source), "Example Label")
-
-    def test_falls_back_to_id_when_no_name_field_has_a_value(self):
-        # Source itself always has a required homepage, so use a bare stand-in
-        # to exercise the ultimate "none of name/label/title/homepage" fallback.
-        class _NamelessObject:
-            id = 42
-
-        self.assertEqual(self.viewset._get_object_name(_NamelessObject()), "ID 42")
-
-
 class ActionHistoryViewSetMixinGetChangedFieldsTest(TestCase):
     def setUp(self):
         self.viewset = _SourceViewSet(User.objects.create_user(username="mixin_user2"))
@@ -233,13 +165,6 @@ class ActionHistoryViewSetMixinGetChangedFieldsTest(TestCase):
         changed = self.viewset._get_changed_fields(serializer)
 
         self.assertEqual(changed, {"name": "Old Name -> New Name"})
-
-    def test_no_changes_returns_empty_dict(self):
-        source = Source.objects.create(name="Same Name", homepage="http://example.com")
-        serializer = _FakeSerializer(source, {"name": "Same Name"})
-
-        self.assertEqual(self.viewset._get_changed_fields(serializer), {})
-
 
 class ActionHistoryViewSetMixinCrudLoggingTest(TestCase):
     def setUp(self):

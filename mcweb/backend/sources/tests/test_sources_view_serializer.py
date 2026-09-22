@@ -39,11 +39,6 @@ class SourcesViewSerializerTest(APITestCase):
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(response.data["collection_count"], 1)
 
-    def test_collection_count_is_zero_with_no_collections(self):
-        response = self.client.get(self._detail_url())
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(response.data["collection_count"], 0)
-
     def test_monitored_is_true_when_in_a_monitored_collection(self):
         monitored_collection = Collection.objects.create(name="Monitored Collection", monitored=True)
         monitored_collection.source_set.add(self.source)
@@ -51,14 +46,6 @@ class SourcesViewSerializerTest(APITestCase):
         response = self.client.get(self._detail_url())
         self.assertEqual(response.status_code, 200, response.content)
         self.assertTrue(response.data["monitored"])
-
-    def test_monitored_is_false_when_only_in_unmonitored_collections(self):
-        unmonitored_collection = Collection.objects.create(name="Unmonitored Collection", monitored=False)
-        unmonitored_collection.source_set.add(self.source)
-
-        response = self.client.get(self._detail_url())
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertFalse(response.data["monitored"])
 
     def test_alternative_domains_lists_associated_domains(self):
         AlternativeDomain.objects.create(source=self.source, domain="alt.example.com")

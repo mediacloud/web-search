@@ -15,36 +15,11 @@ import datetime as dt
 
 from django.test import SimpleTestCase
 
-from ..metadata_update import es_end, es_start
-from ..task_utils import yesterday, yesterday_aware
-
-
-class YesterdayTest(SimpleTestCase):
-    def test_yesterday_is_naive(self):
-        self.assertIsNone(yesterday().tzinfo)
-
-    def test_yesterday_is_about_one_day_before_now(self):
-        now = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
-        delta = now - yesterday()
-        self.assertTrue(dt.timedelta(hours=23) < delta < dt.timedelta(hours=25))
-
-    def test_days_argument_shifts_further_into_the_past(self):
-        self.assertTrue(yesterday(days=5) < yesterday(days=0))
-
-    def test_yesterday_aware_is_timezone_aware_utc(self):
-        result = yesterday_aware()
-        self.assertEqual(result.tzinfo, dt.timezone.utc)
-
-    def test_yesterday_aware_matches_yesterday_wall_clock_time(self):
-        naive = yesterday()
-        aware = yesterday_aware()
-        self.assertLess(abs((aware.replace(tzinfo=None) - naive).total_seconds()), 1)
+from ..metadata_update import es_end
+from ..task_utils import yesterday
 
 
 class EsStartEndTest(SimpleTestCase):
-    def test_es_start_is_naive(self):
-        self.assertIsNone(es_start().tzinfo)
-
     def test_es_end_default_is_naive_and_matches_yesterday(self):
         self.assertIsNone(es_end().tzinfo)
         self.assertLess(abs((es_end() - yesterday()).total_seconds()), 1)

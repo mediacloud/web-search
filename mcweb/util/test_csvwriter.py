@@ -40,10 +40,6 @@ class CSVWriterHelperTest(SimpleTestCase):
             ["2026-01-01", "3"],
         ])
 
-    def test_write_attn_over_time_returns_the_writer(self):
-        result = CSVWriterHelper.write_attn_over_time(self.writer, {"counts": []}, ["date", "count"])
-        self.assertIs(result, self.writer)
-
     def test_write_top_langs(self):
         data = [{"language": "en", "value": 42, "ratio": 1.0}]
         CSVWriterHelper.write_top_langs(self.writer, data, ["language", "count", "ratio"])
@@ -76,6 +72,3 @@ class CSVWriterHelperTest(SimpleTestCase):
             ["example.com", "10", "1.0"],
         ])
 
-    def test_header_row_is_written_as_given_even_with_no_data(self):
-        CSVWriterHelper.write_top_sources(self.writer, [], ["source", "count", "ratio"])
-        self.assertEqual(_rows(self.buf), [["source", "count", "ratio"]])

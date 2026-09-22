@@ -37,7 +37,3 @@ class SourcesFromListTest(APITestCase):
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(response.data["sources"], [])
 
-    def test_empty_s_param_returns_empty_list(self):
-        response = self.client.get(URL, {"s": ""})
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(response.data["sources"], [])

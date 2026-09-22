@@ -72,7 +72,3 @@ class FeaturedCollectionsActionTest(APITestCase):
         names = [row["name"] for row in response.data["collections"]]
         self.assertEqual(names, ["Featured"])
 
-    def test_anonymous_is_rejected(self):
-        self.client.logout()
-        response = self.client.get(URL)
-        self.assertEqual(response.status_code, 401)

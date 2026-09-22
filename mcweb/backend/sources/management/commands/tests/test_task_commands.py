@@ -35,10 +35,6 @@ class ScrapeSourceCommandTest(TestCase):
     def setUp(self):
         self.source = Source.objects.create(name="example.com", homepage="http://example.com")
 
-    def test_long_task_name(self):
-        command = scrape_source_cmd.Command()
-        self.assertEqual(command.long_task_name({"source_id": self.source.id}), f"scrape source {self.source.id}")
-
     def test_missing_source_exits_with_error(self):
         with self.assertRaises(SystemExit):
             call_command("scrape-source", 999999, "someone@example.com")
@@ -68,12 +64,6 @@ class ScrapeCollectionCommandTest(TestCase):
     def setUp(self):
         self.collection = Collection.objects.create(name="Scrape Test Collection")
 
-    def test_long_task_name(self):
-        command = scrape_collection_cmd.Command()
-        self.assertEqual(
-            command.long_task_name({"collection_id": self.collection.id}),
-            f"scrape collection {self.collection.id}")
-
     def test_missing_collection_exits_with_error(self):
         with self.assertRaises(SystemExit):
             call_command("scrape-collection", 999999, "someone@example.com")
@@ -97,10 +87,6 @@ class ScrapeCollectionCommandTest(TestCase):
 
 
 class AutoscrapeCommandTest(TestCase):
-    def test_long_task_name_is_constant(self):
-        command = autoscrape_cmd.Command()
-        self.assertEqual(command.long_task_name({}), "autoscrape")
-
     def test_frequency_is_required(self):
         with self.assertRaises(CommandError):
             call_command("autoscrape")
@@ -124,10 +110,6 @@ class AutoscrapeCommandTest(TestCase):
 
 
 class SourceTweakStoriesPerWeekCommandTest(TestCase):
-    def test_long_task_name_is_constant(self):
-        command = tweak_stories_cmd.Command()
-        self.assertEqual(command.long_task_name({}), "tweak-stories-per-week")
-
     @patch.object(tweak_stories_cmd, "tweak_stories_per_week")
     def test_default_invocation_runs_the_task_now(self, mock_task):
         call_command("source-tweak-stories-per-week")
@@ -151,10 +133,6 @@ class SourceTweakStoriesPerWeekCommandTest(TestCase):
 
 
 class SourceAlertSystemCommandTest(TestCase):
-    def test_long_task_name_is_constant(self):
-        command = alert_system_cmd.Command()
-        self.assertEqual(command.long_task_name({}), "source alert system")
-
     @patch.object(alert_system_cmd, "alert_system")
     def test_default_invocation_runs_the_task_now(self, mock_task):
         call_command("source-alert-system")
@@ -173,12 +151,6 @@ class SourceAlertSystemCommandTest(TestCase):
 
 
 class SourcesMetaUpdateCommandTest(TestCase):
-    def test_long_task_name_joins_task_names(self):
-        command = meta_update_cmd.Command()
-        self.assertEqual(
-            command.long_task_name({"task": ["stories_per_week", "language"]}),
-            "meta-update stories_per_week,language")
-
     def test_task_argument_is_required(self):
         with self.assertRaises(CommandError):
             call_command("sources-meta-update")

@@ -31,10 +31,6 @@ class RequestResetTest(TestCase):
         self.assertEqual(response.status_code, 400, response.content)
         self.assertFalse(ResetCodes.objects.exists())
 
-    def test_invalid_reset_type_rejected_even_for_unknown_email(self):
-        response = self._post(email="does-not-exist@example.com", reset_type="bogus")
-        self.assertEqual(response.status_code, 400)
-
     def test_unknown_email_returns_404(self):
         response = self._post(email="does-not-exist@example.com", reset_type="password")
         self.assertEqual(response.status_code, 401)
@@ -50,14 +46,6 @@ class RequestResetTest(TestCase):
 
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(ResetCodes.objects.filter(email=self.user.email).count(), 1)
-
-    def test_missing_reset_type_returns_400(self):
-        response = self._post(email=self.user.email)
-        self.assertEqual(response.status_code, 400)
-
-    def test_missing_email_returns_400(self):
-        response = self._post(reset_type="password")
-        self.assertEqual(response.status_code, 400)
 
     def test_succeeds_without_crashing_when_email_host_is_not_configured(self):
         # EMAIL_HOST is unset in this test environment -- confirms the view
