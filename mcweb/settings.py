@@ -162,6 +162,31 @@ DEBUG = env("DEBUG")
 
 EARLIEST_AVAILABLE_DATE = env('EARLIEST_AVAILABLE_DATE') # earliest available date for elastic search
 
+# DEPRECATION (Django 7.0): the six EMAIL_* settings below are the only
+# RemovedInDjango70Warning left in this project. Django 6.1 deprecates them
+# in favour of a MAILERS dict:
+#
+#   MAILERS = {"default": {"BACKEND": ..., "OPTIONS": {"host": ..., ...}}}
+#
+# Deliberately NOT done as part of the Django 6.x upgrade. Two things make
+# it more than a mechanical rename:
+#
+#  1. Django warns merely because these names are *defined* here, not only
+#     when they're read, so silencing the warnings means renaming them --
+#     at which point `override_settings(EMAIL_HOST=...)` in
+#     backend/users/tests/test_request_reset.py and
+#     backend/search/integration_tests/test_live_large_csv_email.py stops
+#     doing anything, silently.
+#  2. EMAIL_HOST doubles as the "is email configured?" flag (see the
+#     assert block near the bottom of this file, util/send_emails.py, and
+#     backend/users/api.py); MAILERS wants an explicit dummy backend
+#     instead, so that flag needs to become its own setting.
+#
+# Tests can't cover the result -- EMAIL_HOST is unset under `manage.py
+# test`, so every send path is skipped -- so this wants its own PR with
+# real SMTP testing rather than riding along on a version bump.
+# Note EMAIL_NOREPLY/EMAIL_ORGANIZATION below are ours, not Django's, and
+# are unaffected.
 EMAIL_BACKEND = env('EMAIL_BACKEND') # select django.core.mail.backend
 
 # vars used by django.core.mail.backends.smtp.EmailBackend:
