@@ -25,5 +25,6 @@ urlpatterns = [
     path('story-list', views.story_list),
     path('providers', views.providers),
     path('requests', views.recent_requests),
+    path('api-params', views.api_params),
 ]
 urlpatterns += router.urls

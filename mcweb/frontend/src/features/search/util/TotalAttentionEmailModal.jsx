@@ -30,6 +30,8 @@ export default function TotalAttentionEmailModal({
     if (totalCountOfQuery < document.settings.allUrlsCsvEmailMin) {
       enqueueSnackbar('Downloading your data!', { variant: 'success' });
       handleDownloadRequest([querySlice]);
+    } else if (totalCountOfQuery > document.settings.allUrlsCsvEmailMax) {
+      enqueueSnackbar('The size of your downloaded data is too large!', { variant: 'error' });
     } else {
       setOpen(true);
     }

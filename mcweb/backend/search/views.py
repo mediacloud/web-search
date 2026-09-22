@@ -10,7 +10,7 @@ from typing import Type
 import mc_providers
 import requests
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse, HttpRequest
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 from django.views.decorators.http import require_http_methods
@@ -19,17 +19,19 @@ from mc_providers.exceptions import (
     TemporaryProviderException, UnsupportedOperationException)
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import api_view, action, authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.request import Request
 from urllib3.util.retry import Retry
 
 # mcweb
-from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_PROVIDERS
+from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN, AVAILABLE_PROVIDERS, API_PYTHON_CLIENT
 
 # mcweb/util
 from util.cache import cache_by_kwargs, mc_providers_cacher
 from util.csvwriter import CSVWriterHelper
 from util.stats import api_stats
 from util.exceptions import HttpResponseUnprocessableEntity, HttpResponseRatelimited, UserValueError
+from util.ratelimit_callables import query_rate
 
 # mcweb/backend/search (local dir)
 from .utils import (
@@ -55,6 +57,9 @@ from backend.users.exceptions import OverQuotaException
 # mcweb/backend/util
 import backend.util.csv_stream as csv_stream
 
+# TEMP: enforce SOME limit on csv endpoints!
+CSV_RATE_LIMIT = "6/m"
+
 TRACE_JSON_RESPONSE = False
 
 logger = logging.getLogger(__name__)
@@ -76,6 +81,7 @@ def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = Http
     return _class(j, content_type="application/json")
 
 def error_response(msg: str, *, exc: Exception | None = None,
+                   request: HttpRequest = None,
                    response_type: Type[HttpResponse] = HttpResponseBadRequest,
                    temporary: bool = False,
                    traceback: bool = False,
@@ -92,6 +98,27 @@ def error_response(msg: str, *, exc: Exception | None = None,
     nature of the error, but django regards returning anything >= 500 as an internal error
     (logs at ERROR level, which can generate admin emails), so added to JSON response.
     """
+    # NOTE! checking "application/json" not in .... causes test failures
+    if request and "text/html" in request.headers.get("Accept", ""):
+        # request passed by handle_provider_errors and handle_429;
+        # try to give legible response in cases where client pops a
+        # new window to attempt to start a download.
+        #
+        # Use a template file, named in a config var?
+        if temporary:
+            # If `response_type.status_code == 429 could add
+            # a meta-refresh tag to reload??
+            err = "Temporary error"
+        else:
+            err = "Error"
+        text = (
+            "<html>\n"
+            f"<head><title>{err}: {msg}</title></head>\n"
+            f"<body><h1>{err}: {msg}</h1></body>\n"
+            "</html>"
+        )
+        return response_type(text, content_type="text/html")
+
     response = dict(status="error", note=msg)
     if exc:
         # detailed info (for optional display)
@@ -119,7 +146,7 @@ TEMPORARY_ERROR_MESSAGE = "Search service is currently unavailable. This may be 
 def handle_provider_errors(func):
     """
     Decorator for view functions calling mc-providers.
-    Handle exceptions and translate to HttpResponse with JSON payload
+    Handle exceptions and translate to HttpResponse (with JSON payload)
     """
     def _handler(request):
         def _get_user():
@@ -132,30 +159,33 @@ def handle_provider_errors(func):
         # 1. what string(s) are returned in response (from the exception, or a replacement),
         # 2. whether to log, at what level, include user, log traceback
         # 3. whether to indicate in response condition is temporary and can be retried.
-        # Code is likely to change over time, and be hard to fully test,
-        # so I'm tempted to say it could be done as a JSON or YAML file
-        # that maps exception class names to a list of actions/conditions!
         try:
             return func(request)
         except (requests.exceptions.ConnectionError, TemporaryProviderException) as e:
             # Temporary conditions
-            return error_response(TEMPORARY_ERROR_MESSAGE, exc=e, temporary=True)
+            return error_response(TEMPORARY_ERROR_MESSAGE, exc=e, temporary=True,
+                                  request=request)
         except (OverQuotaException, ProviderParseException) as e:
             # expected, self-explanatory errors (str(e) should be user friendly)
             # no traceback logged.  Passing exc for detail from repr(e)
-            return error_response(str(e), exc=e)
+
+            # NOTE! django-smart-ratelimit returns 429 for over quota,
+            # which would be clearer than 400 (Bad Request), but that
+            # breaks a test!
+            return error_response(str(e), exc=e, request=request)
         except RuntimeError as e:
             # RuntimeError is very broad (Python internal errors, Django errors,
             # and mc-providers errors), often without subclassing.  Logging traceback
             # at debug level so they're visible in development to see if any need
             # better handling.
             logger.debug("RuntimeError %r", e, exc_info=True)
-            return error_response(str(e), exc=e)
+            return error_response(str(e), exc=e, request=request)
         except UserValueError as e:
             # ValueErrors will be thrown when the user provides bad input
             # Should be the same handling flow as Runtime errors.
             logger.debug("%r", e) # repr includes class name; removed exc_info: too many notes!
-            return error_response(str(e), response_type=HttpResponseUnprocessableEntity, exc=e)
+            return error_response(str(e), response_type=HttpResponseUnprocessableEntity, exc=e,
+                                  request=request)
         except ProviderException as e:
             # ProviderException includes Provider{Permanent,Mystery}Exceptions.
             # Log exception/trace as warning to identify cases that
@@ -164,12 +194,13 @@ def handle_provider_errors(func):
             # log traceback with user name to aid locating reported problems
             # (FOR NOW):
             logger.warning("%r for user %s", e, _get_user(), exc_info=True)
-            return error_response(str(e), exc=e, traceback=True)
+            return error_response(str(e), exc=e, traceback=True,
+                                  request=request)
         except Exception as e:
             # these are internal errors we care about, so handle them as true errors
             # log traceback with user name to aid locating reported problems.
             logger.exception("unhandled exception: %r for user %s", e, _get_user())
-            return error_response(str(e), exc=e, traceback=True)
+            return error_response(str(e), exc=e, traceback=True, request=request)
 
     return _handler
 
@@ -187,6 +218,7 @@ def handle_429(func):
             # mediacloud.error.APIResponseError
             return error_response(
                 msg="rate limited",
+                request=request,
                 response_type=HttpResponseRatelimited, # 429
                 temporary=True
             )
@@ -209,7 +241,7 @@ def _qs(pq: ParsedQuery) -> str:
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def total_count(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -230,7 +262,7 @@ def total_count(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def count_over_time(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -252,7 +284,7 @@ def count_over_time(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def count_by_source_over_interval(request):
     pq, params = parse_query_params(request)
     provider = pq_provider(pq)
@@ -334,7 +366,7 @@ def count_by_source_over_interval(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def sample(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -349,7 +381,7 @@ def sample(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def story_detail(request):
     pq, params = parse_query_params(request, is_search=False) # unlikely to handle POST!
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
@@ -368,7 +400,7 @@ def story_detail(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def sources(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -377,9 +409,13 @@ def sources(request):
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"sources": response})
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(login_url='/sign-in')
+@handle_provider_errors
 @require_http_methods(["GET"])
 @action(detail=False)
+@handle_429
+@ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def download_sources_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
@@ -410,7 +446,7 @@ def download_sources_csv(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def languages(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -420,9 +456,13 @@ def languages(request):
     return json_response({"languages": response})
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(login_url='/sign-in')
+@handle_provider_errors
 @require_http_methods(["GET"])
 @action(detail=False)
+@handle_429
+@ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def download_languages_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
@@ -448,7 +488,7 @@ def download_languages_csv(request):
 @authentication_classes([TokenAuthentication])  # API-only method for now
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def story_list(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -482,7 +522,7 @@ def story_list(request):
 @authentication_classes([TokenAuthentication, SessionAuthentication])
 @permission_classes([IsAuthenticated])
 @handle_429
-@ratelimit(key="user", rate='util.ratelimit_callables.query_rate')
+@ratelimit(key="user", rate=query_rate)
 def words(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
@@ -493,9 +533,13 @@ def words(request):
                         
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(login_url='/sign-in')
+@handle_provider_errors
 @require_http_methods(["GET"])
 @action(detail=False)
+@handle_429
+@ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def download_words_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
@@ -514,9 +558,13 @@ def download_words_csv(request):
     CSVWriterHelper.write_top_words(writer, words, cols)
     return response
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(login_url='/sign-in')
+@handle_provider_errors
 @require_http_methods(["GET"])
 @action(detail=False)
+@handle_429
+@ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def download_counts_over_time_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
@@ -543,11 +591,37 @@ def download_counts_over_time_csv(request):
     return response
 
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(login_url='/sign-in')
+@handle_provider_errors
 @require_http_methods(["GET"])
 @action(detail=False)
+@handle_429
+@ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def download_all_content_csv(request):
     parsed_queries = parsed_query_state(request) # handles POST!
+
+    # get result total to verify in range:
+    total = 0
+    for pq in parsed_queries:
+        # maybe check user has enough remaining quota to retrieve count/pagesize pages????
+        # for now, just check they're not already over quota (no charge for the count)
+        QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
+        provider = pq_provider(pq)
+        try:
+            total += provider.count(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+        except UnsupportedOperationException:
+            return error_response(f"Can't count results for download for {pq.provider_name}",
+                                  request=request)
+
+    if total >= ALL_URLS_CSV_EMAIL_MIN:
+        return error_response(f"Total {total} >= {ALL_URLS_CSV_EMAIL_MIN}",
+                              request=request)
+    # paranoia (should not happen if ALL_URLS_CSV_EMAIL_MIN < ALL_URLS_CSV_EMAIL_MAX!)
+    if total > ALL_URLS_CSV_EMAIL_MAX:
+        return error_response(f"Total {total} >= {ALL_URLS_CSV_EMAIL_MAX}",
+                              request=request)
+
     data_generator = all_content_csv_generator(parsed_queries, request.user.id, request.user.is_staff)
     filename = all_content_csv_basename(parsed_queries)
     return csv_stream.streaming_csv_response(data_generator, filename)
@@ -558,6 +632,8 @@ def download_all_content_csv(request):
 @login_required(login_url='/sign-in')
 @handle_provider_errors
 @require_http_methods(["POST"])
+@handle_429
+@ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def send_email_large_download_csv(request):
     # get queryState and email
     payload = json.loads(request.body)
@@ -588,9 +664,13 @@ def send_email_large_download_csv(request):
         return error_response("Total {} not between {} and {}".format(
             total, ALL_URLS_CSV_EMAIL_MIN, ALL_URLS_CSV_EMAIL_MAX))
 
+@api_stats  # PLEASE KEEP FIRST!
 @login_required(login_url='/sign-in')
+@handle_provider_errors
 @require_http_methods(["POST"])
 @action(detail=False)
+@handle_429
+@ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def download_all_queries_csv(request):
     queries = parsed_query_state(request) # handles GET with qS=JSON
 
@@ -599,6 +679,10 @@ def download_all_queries_csv(request):
     # was: return HttpResponse(content_type="application/json", status=200)
     return json_response("")
 
+# PB 9/26: IS THIS USED???  It works, but only if supplied
+# "Authorization" as a ***QUERY PARAMETER***, with value "Token
+# <TOKEN>"!!!  NONETHELESS, I've fixed it to honor AVAILABLE_PROVIDERS
+# and use Profile.quota_for to handle NULL for MC default quota.
 @api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET'])
@@ -608,10 +692,11 @@ def providers(request):
     token = request.GET.get('Authorization', None)
     if token:
         user = _user_from_token(token)
-        providers_list = {
-            AVAILABLE_PROVIDERS[0]: user.profile.quota_mediacloud
+        providers = {
+            provider: user.profile.quota_for(provider)
+            for provider in AVAILABLE_PROVIDERS
         }
-        return json_response({"providers": providers_list})
+        return json_response({"providers": providers})
     else:
         return error_response("No token provided", response_type=HttpResponseBadRequest)
     
@@ -626,12 +711,8 @@ def add_ratios_to_source_counts(data):
 @api_stats  # PLEASE KEEP FIRST!
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminUser])
 def recent_requests(request):
-    if not request.user.is_staff:
-        # Starkist wants tunas that taste good!
-        return error_response("Sorry Charlie!", response_type=HttpResponseForbidden)
-
     rows = read_requests(want=100, srcs=True, status=200)   # take query params?
     if request.headers.get("Accept") == "application/json":
         return json_response({"requests": rows}) # JSON only request
@@ -639,3 +720,15 @@ def recent_requests(request):
     # TEMP!!!!! not a pure JSON request: send HTML
     body = make_table(rows)
     return HttpResponse(body, content_type='text/html; charset=utf-8')
+
+@api_stats  # PLEASE KEEP FIRST!
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def api_params(request):
+    # return data helpful to client libraries in one swell foop
+    params = {
+        "api-python-client": API_PYTHON_CLIENT, # current/best client
+        "query-rate": query_rate("", request),
+    }
+    return json_response({"params": params})
