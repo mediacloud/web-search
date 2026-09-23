@@ -416,6 +416,8 @@ if _DOKKU:
 
     hostname = socket.gethostname().split('.')[0] # host/container w/o domain
 
+    # in Python 3.12 can use:
+    # format = '%(asctime)s %(hostname)s %(levelname)s: %(message)s'
     format = f'%(asctime)s {hostname} %(levelname)s: %(message)s'
 
     LOGGING['formatters'][_SYSLOG_FORMATTER] = {
