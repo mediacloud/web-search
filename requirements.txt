@@ -1,7 +1,6 @@
 django==6.1.*
 djangorestframework==3.18.*
 psycopg2-binary==2.9.*
-djangorestframework-simplejwt[crypto]==5.5.*
 pyhumps==3.8.*
 django-environ==0.14.*
 django-constance[redis]==4.3.*
