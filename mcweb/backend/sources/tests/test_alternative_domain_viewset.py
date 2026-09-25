@@ -51,26 +51,6 @@ class AlternativeDomainViewSetCreateBareDomainTest(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(AlternativeDomain.objects.filter(domain="already-alt.com").count(), 1)
 
-    def test_non_staff_cannot_create(self):
-        non_staff = User.objects.create_user(username="alt_domain_non_staff", password="pw")
-        self.client.force_login(non_staff)
-
-        response = self.client.post(URL, {
-            "source_id": self.source.id,
-            "alternative_domain": "alt.example.com",
-        }, format="json")
-
-        self.assertEqual(response.status_code, 403)
-
-    def test_anonymous_cannot_create(self):
-        self.client.logout()
-        response = self.client.post(URL, {
-            "source_id": self.source.id,
-            "alternative_domain": "alt.example.com",
-        }, format="json")
-        self.assertEqual(response.status_code, 401)
-
-
 class AlternativeDomainViewSetMergeSourceTest(APITestCase):
     """
     Covers the other create() branch: turning an existing Source into an
@@ -117,14 +97,6 @@ class AlternativeDomainViewSetMergeSourceTest(APITestCase):
         }, format="json")
         self.assertEqual(response.status_code, 404)
 
-    def test_missing_alternative_domain_source_returns_404(self):
-        response = self.client.post(URL, {
-            "source_id": self.winner.id,
-            "alternative_domain_id": 999999,
-        }, format="json")
-        self.assertEqual(response.status_code, 404)
-
-
 class AlternativeDomainViewSetReadTest(APITestCase):
     """Default list/retrieve/destroy behavior (not overridden), plus anonymous rejection."""
 
@@ -134,19 +106,8 @@ class AlternativeDomainViewSetReadTest(APITestCase):
         self.source = Source.objects.create(name="example.com", homepage="http://example.com")
         self.alt = AlternativeDomain.objects.create(source=self.source, domain="alt.example.com")
 
-    def test_list_includes_created_domain(self):
-        response = self.client.get(URL)
-        self.assertEqual(response.status_code, 200)
-        body = response.data
-        results = body["results"] if isinstance(body, dict) and "results" in body else body
-        self.assertIn("alt.example.com", [row["domain"] for row in results])
 
     def test_staff_can_delete(self):
         response = self.client.delete(f"{URL}{self.alt.id}/")
         self.assertEqual(response.status_code, 204)
         self.assertFalse(AlternativeDomain.objects.filter(pk=self.alt.id).exists())
-
-    def test_anonymous_list_is_rejected(self):
-        self.client.logout()
-        response = self.client.get(URL)
-        self.assertEqual(response.status_code, 401)

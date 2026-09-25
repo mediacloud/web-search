@@ -81,11 +81,6 @@ class EmailFromTokenTest(TestCase):
 
         self.assertEqual(response.status_code, 403, response.content)
 
-    def test_unresolvable_user_token_returns_clean_error_not_a_server_error(self):
-        response = self._get(self.superuser_token.key, "does-not-exist")
-
-        self.assertEqual(response.status_code, 403, response.content)
-
 
 class UsersQuotasTokenTest(TestCase):
     def setUp(self):

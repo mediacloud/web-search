@@ -10,6 +10,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Django >= 6.0 no longer emits DROP COLUMN ... CASCADE, so the
+        # trigger created in 0029 must be dropped explicitly before the
+        # column it depends on goes away.
+        migrations.RunSQL(
+            sql='DROP TRIGGER IF EXISTS search_vector_trigger ON sources_source;',
+            reverse_sql=migrations.RunSQL.noop,
+        ),
         migrations.RemoveIndex(
             model_name='source',
             name='search_vector_gin_index',

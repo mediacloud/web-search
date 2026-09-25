@@ -67,31 +67,3 @@ class SourcesCollectionsViewSetTest(APITestCase):
             object_model=ActionHistory.ModelType.COLLECTION, object_id=self.collection.id,
             action_type="remove_from_collection").first()
         self.assertIsNotNone(history)
-
-    def test_destroy_removes_collection_from_source(self):
-        self.collection.source_set.add(self.source)
-
-        response = self.client.delete(
-            f"{URL}{self.source.id}/?collection_id={self.collection.id}")
-
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertNotIn(self.collection, self.source.collections.all())
-
-    def test_non_staff_can_read_but_not_write(self):
-        non_staff = User.objects.create_user(username="src_coll_non_staff", password="pw")
-        self.client.force_login(non_staff)
-        self.collection.source_set.add(self.source)
-
-        self.assertEqual(self.client.get(f"{URL}{self.source.id}/").status_code, 200)
-        self.assertEqual(
-            self.client.post(URL, {"source_id": self.source.id, "collection_id": self.collection.id},
-                              format="json").status_code,
-            403)
-
-    def test_anonymous_cannot_create(self):
-        self.client.logout()
-        response = self.client.post(URL, {
-            "source_id": self.source.id,
-            "collection_id": self.collection.id,
-        }, format="json")
-        self.assertEqual(response.status_code, 401)

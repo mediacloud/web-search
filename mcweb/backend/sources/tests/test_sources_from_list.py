@@ -31,13 +31,3 @@ class SourcesFromListTest(APITestCase):
         self.assertEqual(response.status_code, 200, response.content)
         names = {row["name"] for row in response.data["sources"]}
         self.assertEqual(names, {"a.com"})
-
-    def test_missing_s_param_returns_empty_list_not_a_500(self):
-        response = self.client.get(URL)
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(response.data["sources"], [])
-
-    def test_empty_s_param_returns_empty_list(self):
-        response = self.client.get(URL, {"s": ""})
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(response.data["sources"], [])

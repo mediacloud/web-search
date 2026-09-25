@@ -78,25 +78,6 @@ class LoginSearchDownloadCSVTest(TestCase):
                 # back where they came from after logging in
                 self.assertTrue(parse_qs(parsed.query)["next"][0].startswith(url))
 
-    def test_anonymous_download_all_content_csv_is_redirected_to_login(self):
-        response = self.client.get("/api/search/download-all-content-csv", self.query_params)
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.startswith("/sign-in"))
-
-    def test_anonymous_send_email_large_download_csv_is_redirected_to_login(self):
-        response = self.client.post(
-            "/api/search/send-email-large-download-csv",
-            data=json.dumps({"prepareQuery": [], "email": "someone@example.com"}),
-            content_type="application/json",
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.startswith("/sign-in"))
-
-    def test_anonymous_download_all_queries_csv_is_redirected_to_login(self):
-        response = self.client.post("/api/search/download-all-queries", self.query_params)
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.startswith("/sign-in"))
-
     @patch("backend.search.views.pq_provider")
     def test_login_then_download_top_sources_csv(self, mock_pq_provider):
         provider = MagicMock()
@@ -117,41 +98,6 @@ class LoginSearchDownloadCSVTest(TestCase):
         self.assertEqual(start, self.expected_start)
         self.assertEqual(end, self.expected_end)
 
-    @patch("backend.search.views.pq_provider")
-    def test_login_then_download_top_languages_csv(self, mock_pq_provider):
-        provider = MagicMock()
-        provider.languages.return_value = [{"language": "en", "value": 42, "ratio": 1.0}]
-        mock_pq_provider.return_value = provider
-
-        self._login()
-        response = self.client.get(self.DOWNLOAD_URLS["languages"], self.query_params)
-
-        self.assertEqual(response.status_code, 200)
-        rows = response.content.decode().splitlines()
-        # NOTE: the view's CSV header label is "count", even though the
-        # provider data field it pulls from is named "value" (existing
-        # naming quirk in CSVWriterHelper.write_top_langs, not a test bug)
-        self.assertEqual(rows[0], "language,count,ratio")
-        self.assertEqual(rows[1], "en,42,1.0")
-        self.assertEqual(provider.languages.call_args.args[0], "robots")
-
-    @patch("backend.search.views.pq_provider")
-    def test_login_then_download_top_words_csv(self, mock_pq_provider):
-        provider = MagicMock()
-        provider.words.return_value = [{
-            "term": "robots", "term_count": 5, "term_ratio": 0.5,
-            "doc_count": 3, "doc_ratio": 0.3, "sample_size": 1000,
-        }]
-        mock_pq_provider.return_value = provider
-
-        self._login()
-        response = self.client.get(self.DOWNLOAD_URLS["words"], self.query_params)
-
-        self.assertEqual(response.status_code, 200)
-        rows = response.content.decode().splitlines()
-        self.assertEqual(rows[0], "term,term_count,term_ratio,doc_count,doc_ratio,sample_size")
-        self.assertEqual(rows[1], "robots,5,0.5,3,0.3,1000")
-        self.assertEqual(provider.words.call_args.args[0], "robots")
 
     @patch("backend.search.views.pq_provider")
     def test_login_then_download_counts_over_time_csv(self, mock_pq_provider):

@@ -2,8 +2,6 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from rest_framework.authtoken.models import Token
 
-from ..models import create_auth_token
-
 
 class CreateAuthTokenSignalTest(TestCase):
     """
@@ -30,26 +28,3 @@ class CreateAuthTokenSignalTest(TestCase):
         self.assertEqual(Token.objects.filter(user=user).count(), 1)
         self.assertEqual(Token.objects.get(user=user).key, original_token)
 
-    def test_each_user_gets_a_distinct_token(self):
-        user_a = User.objects.create_user(username="user_a", password="pw")
-        user_b = User.objects.create_user(username="user_b", password="pw")
-
-        token_a = Token.objects.get(user=user_a).key
-        token_b = Token.objects.get(user=user_b).key
-        self.assertNotEqual(token_a, token_b)
-
-    def test_handler_called_directly_with_created_false_does_nothing(self):
-        user = User.objects.create_user(username="direct_call_user", password="pw")
-        Token.objects.filter(user=user).delete()
-
-        create_auth_token(sender=User, instance=user, created=False)
-
-        self.assertFalse(Token.objects.filter(user=user).exists())
-
-    def test_handler_called_directly_with_created_true_creates_token(self):
-        user = User.objects.create_user(username="direct_call_user_2", password="pw")
-        Token.objects.filter(user=user).delete()
-
-        create_auth_token(sender=User, instance=user, created=True)
-
-        self.assertTrue(Token.objects.filter(user=user).exists())

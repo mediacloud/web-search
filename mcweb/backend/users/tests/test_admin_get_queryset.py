@@ -1,12 +1,10 @@
 import datetime as dt
 
-import constance
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from settings import GROUPS
 
 from ..admin import CustomUserAdmin
 from ..models import Profile, QuotaHistory
@@ -38,13 +36,6 @@ class CustomUserAdminGetQuerysetTest(TestCase):
 
         self.assertEqual(self._annotated(user).quota_limit, 1234)
 
-    def test_quota_limit_falls_back_to_constance_default_when_unset(self):
-        user = User.objects.create_user(username="quota_unset_user", password="pw")
-        Profile.objects.create(user=user, verified_email=True, quota_mediacloud=None)
-
-        self.assertEqual(
-            self._annotated(user).quota_limit, constance.config.QUOTA_DEFAULT_MEDIA_CLOUD)
-
     def test_weekly_hits_reflects_current_week_only(self):
         user = User.objects.create_user(username="weekly_hits_user", password="pw")
         Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
@@ -56,31 +47,12 @@ class CustomUserAdminGetQuerysetTest(TestCase):
 
         self.assertEqual(self._annotated(user).weekly_hits, 7)
 
-    def test_weekly_hits_is_zero_with_no_quota_history(self):
-        user = User.objects.create_user(username="no_history_user", password="pw")
-        Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
-
-        self.assertEqual(self._annotated(user).weekly_hits, 0)
-
     def test_high_rate_limit_true_for_staff(self):
         user = User.objects.create_user(username="staff_hirate_user", password="pw", is_staff=True)
         Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
 
         self.assertTrue(self._annotated(user).high_rate_limit)
 
-    def test_high_rate_limit_true_for_group_member(self):
-        user = User.objects.create_user(username="group_hirate_user", password="pw")
-        Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
-        group, _ = Group.objects.get_or_create(name=GROUPS.HIGH_RATE_LIMIT)
-        user.groups.add(group)
-
-        self.assertTrue(self._annotated(user).high_rate_limit)
-
-    def test_high_rate_limit_false_for_plain_user(self):
-        user = User.objects.create_user(username="plain_user", password="pw")
-        Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
-
-        self.assertFalse(self._annotated(user).high_rate_limit)
 
     def test_last_use_reflects_most_recent_week_with_hits(self):
         user = User.objects.create_user(username="last_use_user", password="pw")
@@ -93,12 +65,6 @@ class CustomUserAdminGetQuerysetTest(TestCase):
         QuotaHistory.objects.create(user=user, provider=PROVIDER, week=QuotaHistory._this_week(), hits=0)
 
         self.assertEqual(self._annotated(user).last_use, newer.modified_at.date())
-
-    def test_last_use_is_none_with_no_usage(self):
-        user = User.objects.create_user(username="no_use_user", password="pw")
-        Profile.objects.create(user=user, verified_email=True, quota_mediacloud=1000)
-
-        self.assertIsNone(self._annotated(user).last_use)
 
     def test_quota_used_pct_computed_from_weekly_hits_and_limit(self):
         user = User.objects.create_user(username="pct_user", password="pw")

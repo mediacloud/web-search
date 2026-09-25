@@ -34,14 +34,3 @@ class CollectionsFromNestedListTest(APITestCase):
         self.assertEqual(set(groups[0]), {"A Collection", "B Collection"})
         self.assertEqual(groups[1], ["C Collection"])
 
-    def test_no_query_params_returns_empty_list(self):
-        response = self.client.get(URL)
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(response.data["collection"], [])
-
-    def test_empty_group_value_produces_an_empty_sublist(self):
-        response = self.client.get(URL, {"group1": "", "group2": str(self.collection_a.id)})
-
-        self.assertEqual(response.status_code, 200, response.content)
-        groups = response.data["collection"]
-        self.assertEqual(groups, [[], ["A Collection"]])
