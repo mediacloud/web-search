@@ -11,6 +11,7 @@ import logging
 import operator
 import os
 import time
+from typing import TypeAlias
 
 # AIEEE! using private function and constant!!!
 from mc_providers.onlinenews import _b64_decode_page_token, _SORT_KEY_SEP
@@ -21,35 +22,60 @@ from util.exceptions import UserValueError
 # mcweb/backend/search/
 from .utils import _for_media_cloud
 
+SrcCounts: TypeAlias = tuple[int, int] # (parents, children)
+SrcCountCache: TypeAlias = dict[str, SrcCounts]
+
 logger = logging.getLogger(__name__)
 
 def parse_date(s):
     try:
         return dt.date.fromisoformat(s)
     except:
+        # sent by web-search
         return dt.datetime.strptime(s, "%m/%d/%Y").date()
 
-def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -> list[dict]:
+def parse_requests(fname: str, srcs: bool, sc_cache: SrcCountCache, status: int | None) -> list[dict]:
     """
     srcs: expand sources
-    ss_cache: cache of source results for collection/sources args
+    sc_cache: cache of source results for collection/sources args
     """
-    def check_cache(cs_str, ss_str, cs=None, ss=None) -> tuple[int, int]:
-        key = f"{cs_str}~{ss_str}"
-        if key in ss_cache:
-            return ss_cache[key]
+    def check_cache(*, cs_str: str | None = None,
+                    ss_str: str | None = None,
+                    cs: list[int] | None = None,
+                    ss: list[int] | None = None) -> SrcCounts:
+        cs_strs = ss_strs = None
+        if cs is not None and cs_str is None:
+            cs_strs = [str(x) for x in cs]
+            cs_str = ",".join(cs_strs)
 
-        if cs is None:
-            cs = [int(x) for x in cs_str.split(",") if x]
-        if ss is None:
-            ss = [int(x) for x in ss_str.split(",") if x]
+        if ss is not None and ss_str is None:
+            ss_strs = [str(x) for x in ss]
+            ss_str = ",".join(ss_strs)
+
+        key = f"{cs_str}~{ss_str}"
+        if key in sc_cache:
+            return sc_cache[key]
+
+        if cs_strs is None:
+            assert isinstance(cs_str, str)
+            if cs_str:
+                cs_strs = cs_str.split(",")
+            else:
+                cs_strs = []
+        if ss_strs is None:
+            assert isinstance(ss_str, str)
+            if ss_str:
+                ss_strs = ss_str.split(",")
+            else:
+                ss_strs = []
+
         # use query utility to get domains/url_search_strings!!
-        prov_params = _for_media_cloud(cs, ss, {})
+        prov_params = _for_media_cloud(cs_strs, ss_strs, {})
         parents = len(prov_params.get("domains", []))
         uss_strings = prov_params.get("url_search_strings", {})
         children = sum(len(ss_list)
                        for ss_list in uss_strings.values())
-        ss_cache[key] = pc = (parents, children)
+        sc_cache[key] = pc = (parents, children)
         return pc
 
     def pqo(qo):
@@ -69,10 +95,7 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -
         if srcs:
             cs = rp.get("collections", [])
             ss = rp.get("sources", [])
-
-            cs_str = ",".join(str(c) for c in cs)
-            ss_str = ",".join(str(c) for c in ss)
-            ret["par"], ret["chld"] = check_cache(cs_str, ss_str, cs, ss)
+            ret["par"], ret["chld"] = check_cache(cs=cs, ss=ss)
         return ret
 
     results = []
@@ -149,7 +172,7 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -
                         cs_str = rp.get("cs", "")
                         ss_str = rp.get("ss", "")
                         try:
-                            q1["par"], q1["chld"] = check_cache(cs_str, ss_str)
+                            q1["par"], q1["chld"] = check_cache(cs_str=cs_str, ss_str=ss_str)
                         except UserValueError:
                             continue
                     # end if sources
@@ -174,7 +197,7 @@ def parse_requests(fname: str, srcs: bool, ss_cache: dict, status: int | None) -
     return results
 
 def read_requests(*, want: int = 100, srcs: bool = True, status: int | None = 200) -> list[dict]:
-    ss_cache = {}               # (parents, children)
+    sc_cache: SrcCountCache = {}
 
     # find path to current file
     for logs in [
@@ -186,7 +209,7 @@ def read_requests(*, want: int = 100, srcs: bool = True, status: int | None = 20
 
     logger.info("logs %s", logs)
 
-    rows = parse_requests(logs, srcs, ss_cache, status)
+    rows = parse_requests(logs, srcs, sc_cache, status)
 
     # may have rolled over recently, be prepared
     # to read more files
@@ -197,7 +220,7 @@ def read_requests(*, want: int = 100, srcs: bool = True, status: int | None = 20
         p2 = logs + time.strftime(".%F_%H", time.gmtime(now-hours*60*60))
         hours += 1
         if os.path.exists(p2):
-            rows.extend(parse_requests(p2, srcs, ss_cache, status))
+            rows.extend(parse_requests(p2, srcs, sc_cache, status))
         elif hours > 26:
             # missing files after the previous day
             # likely means we ran off the edge past kept files.
@@ -208,6 +231,9 @@ def read_requests(*, want: int = 100, srcs: bool = True, status: int | None = 20
     return rows
 
 def make_table(rows: list[dict]) -> str:
+    """
+    return an HTML table for parsed requests
+    """
     title = "recent API requests"
     lines = [
         "<html>",
