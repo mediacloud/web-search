@@ -20,23 +20,27 @@ logger = logging.getLogger(__name__)
 
 class EmailThread(threading.Thread):
 
-    def __init__(self, email):
+    def __init__(self, email, why = ""):
         self.email = email
+        logger.info("EmailThread to %r: %s", email.to, why or email.subject)
         threading.Thread.__init__(self)
 
     def run(self):
-        self.email.send()
+        try:
+            self.email.send()
+            logger.info("EmailThread to %r completed", email.to)
+        except:
+            logger.exception("EmailThread to %r exception", email.to)
 
 def send_rescrape_email(subject: str, body: str, from_email: str, recipients: list[str]) -> int:
     """
     returns count of messages sent
     """
-    logger.info(f"send_rescrape_email '%s' to %s", subject, ", ".join(recipients))
-    logger.debug("body: %s", body)
     if not EMAIL_HOST:
-        logger.info("no EMAIL_HOST")
+        logger.info("send_rescrapeemail: no EMAIL_HOST")
         return 0
 
+    logger.info("send_rescrape_email '%s' to %s", subject, ", ".join(recipients))
     try:
         n = send_mail(subject, body, from_email, recipients, fail_silently=False)
         logger.info("send_rescrape_email sent %d messages to %r", n, recipients)
@@ -56,7 +60,7 @@ def send_signup_email(user, request):
                          from_email=EMAIL_NOREPLY,
                          to=[user.email])
     try:
-        EmailThread(email).start()
+        EmailThread(email, "send_signup_email").start()
     except Exception as e:
         logger.exception("send_signup_email")
 
@@ -68,30 +72,24 @@ def send_source_upload_email(title: str, text: str, to: str):
 
 
 # if 25k < count < 200k and user is not staff --> csv file will be emailed to user rather than downloaded
-def send_zipped_large_download_email(zipped_filename, zipped_data, to: str):
+def send_zipped_large_download_email(zipped_filename: str, zipped_data, to: str, descr: str):
     if not EMAIL_HOST:
         logger.debug("send_zipped_large_download_email: EMAIL_HOST not set for %s", to)
         return
-    email = EmailMessage(subject=f"[{EMAIL_ORGANIZATION}] Downloaded Total Attention's Data",
-                         body=zipped_filename,
+    email = EmailMessage(subject=f"[{EMAIL_ORGANIZATION}] Total Attention URL ZIP file",
+                         body=descr or zipped_filename,
                          from_email=EMAIL_NOREPLY, to=[to])
-    try:
-        email.attach(zipped_filename, zipped_data, 'application/zip')
-        EmailThread(email).start()
-    except Exception as e:
-        logger.exception("send_zipped_large_download_email for %s", to)
+    email.attach(zipped_filename, zipped_data, 'application/zip')
+    EmailThread(email, "zipped download").start()
 
 
 def send_alert_email(alert_dict: dict):
-    logger.info("send_alert_email %r", alert_dict)
     html_content = render_to_string('alerts/alert-system.html', {'alert_list': alert_dict})
-    email_body_txt = html_content # PB: just have one line message?
-
-    print(html_content)         # XXX TEMP
+    email_body_txt = html_content # have a second template?
 
     # after rendering for testing
     if not EMAIL_HOST:
-        logger.info("EMAIL_HOST not set")
+        logger.info("send_alert_email: EMAIL_HOST not set")
         return
 
     msg = EmailMultiAlternatives(f'[{EMAIL_ORGANIZATION}] Alert System Email', email_body_txt, EMAIL_NOREPLY, ALERTS_RECIPIENTS)
