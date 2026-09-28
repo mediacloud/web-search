@@ -6,6 +6,7 @@ Background tasks for 'download_all_content_csv'
 import csv
 import datetime as dt
 import logging
+import os
 import zipfile
 from io import StringIO, BytesIO
 
@@ -33,6 +34,9 @@ from backend.util.tasks import (
 # mcweb/util
 from util.send_emails import send_zipped_large_download_email
 
+# mcweb
+from settings import EMAIL_HOST
+
 logger = logging.getLogger(__name__)
 
 
@@ -42,59 +46,96 @@ def download_all_large_content_csv(queryState: list[dict], user_id: int, user_is
     task = _download_all_large_content_csv(queryState, user_id, user_isStaff, email)
     return {'task': return_task(task)}  # XXX double wraps {task: {task: TASK_DATA}}??
 
+QUERY_ITEMS = [
+    # queryState item, description
+    # see https://github.com/mediacloud/web-search/issues/1337
+    ("query", "Search phrases"),
+    ("startDate", "Start date"),
+    ("endDate", "End date")
+]
+
+# queryState items with list of int values
+LIST_ITEMS = [
+    ("Collections", "collections"),
+    ("Sources", "sources")
+]
+
 @background(queue=USER_SLOW, remove_existing_tasks=True)
-def _download_all_large_content_csv(queryState: list[dict], user_id: int, user_isStaff: bool, email: str):
+def _download_all_large_content_csv(queryState: list[dict], user_id: int, is_staff: bool, email: str):
+    if not EMAIL_HOST:
+        logger.info("large_content_csv for %s; %d query/ies: EMAIL_HOST not set")
+        return
+
+    # maybe put the rest in a helper, and wrap in a try, sending email on failure?
+
     parsed_queries = [parsed_query_from_dict(q, session_id=email) for q in queryState]
     # code from: https://stackoverflow.com/questions/17584550/attach-generated-csv-file-to-email-and-send-with-django
-
-    # Phil: maybe catch exception, and send email?
 
     logger.info("starting large_content_csv for %s; %d query/ies",
                 email, len(parsed_queries))
 
-    # if the uncompressed data size is ever an issue
-    # (taking too much memory) do:
-    # try:
-    #    with open("/var/tmp/" + csv_filename, "w") as csvfile:
-    #       write to file....
-    # and after:
-    #    zipfile_obj.write(csv_filename, ....)
-    #    send email....
-    # finally:
-    #    os.unlink(csv_filename)
-    # ***OR***
-    # switch to gzip (.gz) for compression, which provides
-    # a writeable file-like object that can be passed to csv.writer
-    # (without storing uncompressed bytes)
-
-    # check quotas still not exhausted up front
-    # (counts would help ensure the fetch will complete)
-    for pq in parsed_queries:
-        QuotaHistory.check_quota(user_id, user_isStaff, pq.provider_name)
-
-    data_generator = all_content_csv_generator(parsed_queries, user_id, user_isStaff)
     basename = all_content_csv_basename(parsed_queries)
 
     # always make matching filenames
     csv_filename = basename + ".csv"
     zip_filename = basename + ".zip"
+    descr_filename = basename + ".txt"
 
-    # Create a StringIO object to store the CSV data
-    csvfile = StringIO()
-    csvwriter = csv.writer(csvfile)
+    # check quotas still not exhausted up front
+    # (counts would help ensure the fetch will complete)
+    # There SHOULD only be a single parsed query!
+    for pq in parsed_queries:
+        QuotaHistory.check_quota(user_id, is_staff, pq.provider_name)
 
-    # Generate and write data to the CSV
-    csvwriter.writerows(data_generator())
+    # collect description used as body of email AND descr_file inside ZIP;
+    # see https://github.com/mediacloud/web-search/issues/1337
+    descr_lines = [
+        "Attached is {csv_filename} with all the stories matching your query:\n"
+    ]
+
+    # loop thru raw queryState (instead of ParsedQuery)
+    # to generate description; for raw source and collection ids.
+    # Dates are in web-search format.
+    for qs in queryState:
+        for key, text in QUERY_ITEMS:
+            if (tmp := qs.get(key)):
+                descr_lines.append(f"{text}: {tmp}\n")
+        for key, text in LIST_ITEMS:
+            if (t2 := qs.get(key)):
+                tmp = ",".join(str(x) for x in t2)
+            else:
+                tmp = "None"
+            descr_lines.append(f"{text}: {tmp}\n")
+
+    # concatenate lines with extra newline for double spacing
+    description = "\n".join(descr_lines) + "\n"
 
     # Create an in-memory byte stream, and wrap ZipFile object around it
     zipstream = BytesIO()
     zipfile_obj = zipfile.ZipFile(zipstream, 'w', zipfile.ZIP_DEFLATED)
 
-    # Convert the CSV data from StringIO to bytes
-    csv_data = csvfile.getvalue()
+    # include description in the ZIP file as as UNIQUENAME.txt
+    # unzipped data files can be identified.
+    zipfile_obj.writestr(descr_filename, description)
 
-    # Add the CSV data to the zip file
-    zipfile_obj.writestr(csv_filename, csv_data)
+    # 250000 URLs in pages of 1000 at 120/minute is 2 minutes
+    data_generator = all_content_csv_generator(parsed_queries, user_id, is_staff, delay=0.5)
+
+    # write uncompressed CSV to a temp file to avoid swelling VM footprint
+    # of web worker processes
+    tmp_csv = f"/var/tmp/{csv_filename}"
+    try:
+        with open(tmp_csv, "w") as csvfile:
+            csvwriter = csv.writer(csvfile)
+
+            # Generate and write data to the CSV
+            csvwriter.writerows(data_generator())
+
+        # Add the CSV file to the ZIP file
+        zipfile_obj.write(tmp_csv, arcname=csv_filename)
+    finally:
+        if os.path.exists(csv_filename):
+            os.unlink(csv_filename)
 
     # Close the zip file
     zipfile_obj.close()
@@ -102,9 +143,8 @@ def _download_all_large_content_csv(queryState: list[dict], user_id: int, user_i
     # Get the zip data
     zipped_data = zipstream.getvalue()
 
-    send_zipped_large_download_email(zip_filename, zipped_data, email)
-    logger.info("Sent Email to %s (csv: %d, zip: %d)",
-                email, len(csv_data), len(zipped_data))
+    send_zipped_large_download_email(zip_filename, zipped_data, email, description)
+
 
 def download_all_queries_csv_task(data, request):
     task = _download_all_queries_csv(data, request.user.id, request.user.is_staff, request.user.email)
@@ -124,6 +164,9 @@ def download_all_queries_csv_task(data, request):
 
 @background(queue=USER_SLOW, remove_existing_tasks=True)
 def _download_all_queries_csv(data: list[ParsedQuery], user_id, is_staff, email):
+    # to check that this is dead code:
+    logger.error("_download_all_queries_csv called!!!!!")
+
     # check quotas still not exhausted up front
     # (counts would help ensure the fetch will complete)
     for pq in data:
