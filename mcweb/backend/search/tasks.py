@@ -46,18 +46,25 @@ def download_all_large_content_csv(queryState: list[dict], user_id: int, user_is
     task = _download_all_large_content_csv(queryState, user_id, user_isStaff, email)
     return {'task': return_task(task)}  # XXX double wraps {task: {task: TASK_DATA}}??
 
-QUERY_ITEMS = [
-    # queryState item, description
-    # see https://github.com/mediacloud/web-search/issues/1337
-    ("query", "Search phrases"),
-    ("startDate", "Start date"),
-    ("endDate", "End date")
-]
+def str_or_none(value):
+    if value is None:
+        return ""               # line will be omitted
+    return value
 
-# queryState items with list of int values
-LIST_ITEMS = [
-    ("Collections", "collections"),
-    ("Sources", "sources")
+def int_list(value):
+    """format list of src/collection id ints"""
+    if value:
+        return ",".join(str(x) for x in value)
+    return "None"
+
+DESCR_ITEMS = [
+    # queryState item, description, formatter
+    # see https://github.com/mediacloud/web-search/issues/1337
+    ("query", "Search phrases", str_or_none),
+    ("startDate", "Start date", str_or_none),  # MM/DD/YYYY
+    ("endDate", "End date", str_or_none),  # MM/DD/YYYY
+    ("collections", "Collections", int_list),
+    ("sources", "Sources", int_list)
 ]
 
 @background(queue=USER_SLOW, remove_existing_tasks=True)
@@ -90,22 +97,16 @@ def _download_all_large_content_csv(queryState: list[dict], user_id: int, is_sta
     # collect description used as body of email AND descr_file inside ZIP;
     # see https://github.com/mediacloud/web-search/issues/1337
     descr_lines = [
-        "Attached is {csv_filename} with all the stories matching your query:\n"
+        f"Attached is {csv_filename} with all stories matching your query:\n"
     ]
 
-    # loop thru raw queryState (instead of ParsedQuery)
-    # to generate description; for raw source and collection ids.
-    # Dates are in web-search format.
+    # loop thru raw queryState (instead of ParsedQuery) for raw source
+    # and collection ids.  SHOULD only have one query.
     for qs in queryState:
-        for key, text in QUERY_ITEMS:
-            if (tmp := qs.get(key)):
+        for key, text, formatter in DESCR_ITEMS:
+            tmp = formatter(qs.get(key))
+            if tmp:
                 descr_lines.append(f"{text}: {tmp}\n")
-        for key, text in LIST_ITEMS:
-            if (t2 := qs.get(key)):
-                tmp = ",".join(str(x) for x in t2)
-            else:
-                tmp = "None"
-            descr_lines.append(f"{text}: {tmp}\n")
 
     # concatenate lines with extra newline for double spacing
     description = "\n".join(descr_lines) + "\n"
@@ -114,8 +115,8 @@ def _download_all_large_content_csv(queryState: list[dict], user_id: int, is_sta
     zipstream = BytesIO()
     zipfile_obj = zipfile.ZipFile(zipstream, 'w', zipfile.ZIP_DEFLATED)
 
-    # include description in the ZIP file as as UNIQUENAME.txt
-    # unzipped data files can be identified.
+    # include query description in the ZIP file as as UNIQUENAME.txt
+    # so information present after unzipping.
     zipfile_obj.writestr(descr_filename, description)
 
     # 250000 URLs in pages of 1000 at 120/minute is 2 minutes
