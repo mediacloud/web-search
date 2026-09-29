@@ -34,7 +34,10 @@ def parse_date(s):
         # sent by web-search
         return dt.datetime.strptime(s, "%m/%d/%Y").date()
 
-def parse_requests(fname: str, srcs: bool, sc_cache: SrcCountCache, status: int | None) -> list[dict]:
+def parse_requests(fname: str, srcs: bool, sc_cache: SrcCountCache,
+                   status: int | None,
+                   session: bool | None = None
+                   ) -> list[dict]:
     """
     srcs: expand sources
     sc_cache: cache of source results for collection/sources args
@@ -93,8 +96,8 @@ def parse_requests(fname: str, srcs: bool, sc_cache: SrcCountCache, status: int 
             "days": days
         }
         if srcs:
-            cs = rp.get("collections", [])
-            ss = rp.get("sources", [])
+            cs = qo.get("collections", [])
+            ss = qo.get("sources", [])
             ret["par"], ret["chld"] = check_cache(cs=cs, ss=ss)
         return ret
 
@@ -110,16 +113,21 @@ def parse_requests(fname: str, srcs: bool, sc_cache: SrcCountCache, status: int 
                     continue
                 path = path[12:] # trim /api/search/ prefix
 
-                if status is not None:
+                if status is not None: # status filter?
                     code = j.get("response", {}).get("code", None)
                     if code != status:
+                        continue
+
+                has_session = j.get("has_session") # bool
+                if session is not None: # session filter?
+                    if has_session != session:
                         continue
 
                 user = j.get("user")
                 ts = j.get("timestamp")
                 duration = j.get("duration")
 
-                if j.get("has_session"):
+                if has_session:
                     s = "*"
                 else:
                     s = ""
@@ -196,7 +204,10 @@ def parse_requests(fname: str, srcs: bool, sc_cache: SrcCountCache, status: int 
     # end if path.exists
     return results
 
-def read_requests(*, want: int = 100, srcs: bool = True, status: int | None = 200) -> list[dict]:
+def read_requests(*, want: int = 100, srcs: bool = True,
+                  status: int | None = 200,
+                  session: bool | None = None
+                  ) -> list[dict]:
     sc_cache: SrcCountCache = {}
 
     # find path to current file
@@ -209,7 +220,7 @@ def read_requests(*, want: int = 100, srcs: bool = True, status: int | None = 20
 
     logger.info("logs %s", logs)
 
-    rows = parse_requests(logs, srcs, sc_cache, status)
+    rows = parse_requests(logs, srcs, sc_cache, status, session)
 
     # may have rolled over recently, be prepared
     # to read more files
