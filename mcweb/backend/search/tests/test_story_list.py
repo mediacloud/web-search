@@ -14,9 +14,8 @@ from .helpers import quota_hits
 class StoryListTest(TestCase):
     """
     story_list (search/urls.py:25) gates the 'expanded' (full-text) and
-    'randomize' query params behind staff-only access -- neither branch had
-    a test. Note: this endpoint only accepts TokenAuthentication (not
-    session), so tests authenticate via an Authorization header.
+    'randomize' query params behind staff-only access with either token or
+    session authentication.
     """
 
     URL = "/api/search/story-list"
@@ -50,6 +49,39 @@ class StoryListTest(TestCase):
         self.assertEqual(body["stories"], [{"id": 1}])
         self.assertEqual(body["pagination_token"], "next-page-token")
         self.assertEqual(quota_hits(user), 1)
+
+    def test_session_authenticated_non_staff_can_request_stories(self):
+        user = self._make_user("story_list_session", is_staff=False)
+        self.client.force_login(user)
+        source = Source.objects.create(
+            name="session.com", homepage="http://session.com",
+            platform=Source.SourcePlatforms.ONLINE_NEWS)
+        provider = self._mock_provider()
+        with patch("backend.search.views.pq_provider", return_value=provider):
+            response = self.client.get(
+                self.URL, {"q": "robots", "ss": str(source.id), "start": "2026-08-01", "end": "2026-09-01"})
+
+        self.assertEqual(response.status_code, 200, response.content)
+        body = json.loads(response.content)
+        self.assertEqual(body["stories"], [{"id": 1}])
+        self.assertEqual(body["pagination_token"], "next-page-token")
+        self.assertEqual(quota_hits(user), 1)
+
+    def test_session_authenticated_non_staff_cannot_request_expanded_stories(self):
+        user = self._make_user("story_list_session_expanded", is_staff=False)
+        self.client.force_login(user)
+        source = Source.objects.create(
+            name="session-expanded.com", homepage="http://session-expanded.com",
+            platform=Source.SourcePlatforms.ONLINE_NEWS)
+        provider = self._mock_provider()
+        with patch("backend.search.views.pq_provider", return_value=provider):
+            response = self.client.get(
+                self.URL,
+                {"q": "robots", "ss": str(source.id), "start": "2026-08-01", "end": "2026-09-01", "expanded": "1"})
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("expanded", json.loads(response.content)["note"])
+        provider.paged_items.assert_not_called()
 
     def test_non_staff_cannot_request_expanded_stories(self):
         user = self._make_user("story_list_non_staff_expanded", is_staff=False)

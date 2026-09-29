@@ -7,11 +7,12 @@ export const recentlyIndexedStoriesQuery = ({
   sourceId,
   startDate,
   endDate,
+  dayWindow = 90,
 }) => ({
   url: 'story-list',
   method: 'GET',
   params: {
-    q: `indexed_date:[${dayjs().subtract(90, 'day').format('YYYY-MM-DD')} TO *]`,
+    q: `indexed_date:[${dayjs().subtract(dayWindow, 'day').format('YYYY-MM-DD')} TO *]`,
     ss: sourceId,
     start: startDate,
     end: endDate,

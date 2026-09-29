@@ -9,9 +9,12 @@ import {
   latestAllowedEndDate,
 } from '../search/util/platforms';
 
-export default function RecentlyIndexedStories({ sourceId }) {
+export default function RecentlyIndexedStories({ sourceId, dayWindow }) {
+  // recentlyIndexedStoriesQuery filters indexed_date to the last N days; start/end are the
+  // widest publication-date bounds; story-list sorts by indexed_date, newest first.
   const { data, isLoading } = useGetRecentlyIndexedStoriesQuery({
     sourceId,
+    dayWindow,
     startDate: earliestAllowedStartDate(PROVIDER_NEWS_MEDIA_CLOUD).format('YYYY-MM-DD'),
     endDate: latestAllowedEndDate(PROVIDER_NEWS_MEDIA_CLOUD).format('YYYY-MM-DD'),
   });
@@ -25,7 +28,7 @@ export default function RecentlyIndexedStories({ sourceId }) {
     <div className="results-item-wrapper results-sample-stories">
       <div className="row">
         <div className="col-12">
-          <h1>Recently Indexed Stories</h1>
+          <h1>{`Stories indexed in the last ${dayWindow} days`}</h1>
         </div>
         <div className="row">
           <div className="col-12">
@@ -54,4 +57,9 @@ export default function RecentlyIndexedStories({ sourceId }) {
 
 RecentlyIndexedStories.propTypes = {
   sourceId: PropTypes.number.isRequired,
+  dayWindow: PropTypes.number,
+};
+
+RecentlyIndexedStories.defaultProps = {
+  dayWindow: 90,
 };
