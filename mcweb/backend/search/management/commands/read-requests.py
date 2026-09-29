@@ -7,7 +7,7 @@ import time
 
 from django.core.management.base import BaseCommand
 
-from ...read_requests import parse_requests, make_table
+from ...read_requests import parse_requests, make_table, SrcCountCache
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +23,8 @@ class Command(BaseCommand):
         parser.add_argument("file")
 
     def handle(self, *args, **options):
-        ss_cache = {}
-        reqs = parse_requests(fname=options["file"], srcs=True, ss_cache=ss_cache, status=200)
+        sc_cache: SrcCountCache = {}
+        reqs = parse_requests(fname=options["file"], srcs=True, sc_cache=sc_cache, status=200)
         if options["html"]:
             print(make_table(reqs))
         else:

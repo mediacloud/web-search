@@ -385,12 +385,12 @@ def filename_timestamp() -> str:
     """
     return time.strftime("%Y%m%d%H%M%S", time.localtime())
 
-def all_content_csv_generator(pqs: list[ParsedQuery], user_id, is_staff) -> Callable[[],Generator[list, None, None]]:
+def all_content_csv_generator(pqs: list[ParsedQuery], user_id, is_staff, delay = 0.0) -> Callable[[],Generator[list, None, None]]:
     """
     returns function returning generator for "total attention" CSV file
     with rows from all queries.
     used for both immediate CSV download (download_all_content_csv)
-    and emailed CSV (download_all_large_content_csv)
+    and emailed CSV (download_all_large_content_csv).
     """
     def data_generator() -> Generator[list, None, None]:
         # phil: moved outside per-query loop (so headers appear once)
@@ -405,6 +405,8 @@ def all_content_csv_generator(pqs: list[ParsedQuery], user_id, is_staff) -> Call
                     first_page = False
                 for story in page:
                     yield [v for k, v in sorted(story.items())]
+                if delay > 0.0:
+                    time.sleep(delay)
     return data_generator
 
 def all_content_csv_basename(pqs: list[ParsedQuery]) -> str:

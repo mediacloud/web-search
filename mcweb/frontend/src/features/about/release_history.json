@@ -1,4 +1,12 @@
 [
+{"version":"v3.1.15",
+ "date":"2026-09-25",
+ "notes":[
+   "add api-params for library pacing",
+   "tell user up front if URL CSV too large",
+   "more tests and cleanup"
+ ]
+},
 {"version":"v3.1.14",
  "date":"2026-09-18",
  "notes":[
