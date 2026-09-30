@@ -1,4 +1,12 @@
 [
+{"version":"v3.1.16",
+ "date":"2026-10-02",
+ "notes":[
+   "include query info in CSV email and ZIP",
+   "handle large CSVs using less memory",
+   "limit CSV generation query rate"
+ ]
+},
 {"version":"v3.1.15",
  "date":"2026-09-25",
  "notes":[
