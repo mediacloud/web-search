@@ -474,8 +474,8 @@ else:
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        # REDIS_URL supplied by Dokku:
-        'LOCATION': env('REDIS_URL'),
+        # REDIS_URL supplied by Dokku, tweak for redis v6:
+        'LOCATION': env('REDIS_URL').replace("redis://:", "redis://default:"),
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient"
         },
