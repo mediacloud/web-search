@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import auth, User, Group
 from rest_framework import generics, status
@@ -5,12 +6,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
-from .models import ResetCodes, create_auth_token
+from .models import ResetCodes
 from .serializer import ResetRequestSerializer, GiveAPIAccessSerializer
 from django.conf import settings
-import logging
 
 logger = logging.getLogger(__name__)
+
+INVALID_USER_MESSAGE = "User or credentials invalid"  # best to be generic about if user, password, or token is problem
 
 class RequestReset(generics.GenericAPIView):
     permission_classes = [AllowAny]
@@ -60,7 +62,7 @@ class RequestReset(generics.GenericAPIView):
 
             return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "User with credentials not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": INVALID_USER_MESSAGE}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ConfirmedEmail(generics.GenericAPIView):
@@ -71,11 +73,10 @@ class ConfirmedEmail(generics.GenericAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        
         reset_obj = ResetCodes.objects.filter(token=data['token']).first()
         
         if not reset_obj:
-            return Response({'error':'Invalid token'}, status=400)
+            return Response({'error': INVALID_USER_MESSAGE}, status=status.HTTP_401_UNAUTHORIZED)
         
         user = User.objects.filter(email__iexact=reset_obj.email).first()
 
@@ -87,4 +88,4 @@ class ConfirmedEmail(generics.GenericAPIView):
             reset_obj.delete()
             return Response({'success':'User verified and API Access Granted'})
         else:
-            return Response({"error": "User with credentials not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": INVALID_USER_MESSAGE}, status=status.HTTP_401_UNAUTHORIZED)

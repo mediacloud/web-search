@@ -202,7 +202,7 @@ def es_start():
 def es_end(allow_future: bool = False):
     if allow_future:
         # newest possible story pub_date accepted by story-indexer
-        return dt.datetime.utcnow() + dt.timedelta(days=mcmetadata.MAX_FUTURE_PUB_DATE)
+        return dt.datetime.now(dt.timezone.utc).replace(tzinfo=None) + dt.timedelta(days=mcmetadata.MAX_FUTURE_PUB_DATE)
     else:
         return yesterday()
 

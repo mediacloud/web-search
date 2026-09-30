@@ -19,7 +19,7 @@ class MinimumAmountOfNumbers:
                 params={"minimum_amount_of_numbers": self.minimum_amount_of_numbers},
             )
 
-    def get_help_test(self):
+    def get_help_text(self):
         return _(
             "Your password must contain at least %(minimum_amount_of_numbers)d numbers."
             % {"minimum_amount_of_numbers": self.minimum_amount_of_numbers},
@@ -46,7 +46,7 @@ class MinimumAmountOfSpecialCharacters:
                 params={"minimum_amount_of_special_characters": self.minimum_amount_of_special_characters},
             )
 
-    def get_help_test(self):
+    def get_help_text(self):
         return _(
             "Your password must contain at least %(minimum_amount_of_special_characters)d special character: !,  @,  #,  $,  ^,  &,  *,  (,  ),  ~,  /,  :,  ; "
             % {"minimum_amount_of_special_characters": self.minimum_amount_of_special_characters},

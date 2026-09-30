@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
-from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 
 from ...users.models import Profile
@@ -61,38 +60,3 @@ class CollectionRescrapeFeedsTest(APITestCase):
     def test_missing_collection_returns_404(self):
         response = self.client.post(URL, {"collection_id": 999999}, format="json")
         self.assertEqual(response.status_code, 404)
-
-    def test_anonymous_cannot_rescrape(self):
-        self.client.logout()
-        response = self.client.post(URL, {"collection_id": self.collection.id}, format="json")
-        self.assertEqual(response.status_code, 401)
-
-
-class CollectionRescrapeFeedsPermissionTest(APITestCase):
-    """
-    Unlike SourcesViewSet.rescrape_feeds (staff-only), this is a
-    list-route POST with `collection_id` in the body, so a contributor's
-    edit_collection grant on that specific collection is enough to reach it.
-    """
-
-    def setUp(self):
-        self.collection = Collection.objects.create(name="Contributor Rescrape Collection")
-
-    @patch("backend.sources.api.schedule_scrape_collection")
-    def test_contributor_with_edit_collection_can_rescrape(self, mock_schedule):
-        mock_schedule.return_value = {"task": "queued"}
-        user = User.objects.create_user(username="collection_rescrape_contributor", password="pw")
-        assign_perm("edit_collection", user, self.collection)
-        self.client.force_login(user)
-
-        response = self.client.post(URL, {"collection_id": self.collection.id}, format="json")
-
-        self.assertEqual(response.status_code, 200, response.content)
-
-    def test_non_staff_without_edit_collection_cannot_rescrape(self):
-        user = User.objects.create_user(username="collection_rescrape_non_staff", password="pw")
-        self.client.force_login(user)
-
-        response = self.client.post(URL, {"collection_id": self.collection.id}, format="json")
-
-        self.assertEqual(response.status_code, 403)

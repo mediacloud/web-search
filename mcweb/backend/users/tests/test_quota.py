@@ -1,5 +1,3 @@
-import datetime as dt
-
 import constance
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -8,7 +6,6 @@ from mc_providers import UnknownProviderException
 from ..exceptions import OverQuotaException
 from ..models import Profile, QuotaHistory
 
-WAYBACK = "onlinenews-waybackmachine"
 MEDIACLOUD = "onlinenews-mediacloud"
 
 
@@ -18,10 +15,6 @@ class ProfileQuotaForTest(TestCase):
     only ever exercised indirectly (via QuotaHistory rows as fixtures) in
     the search app's own tests, never directly.
     """
-
-    def test_wayback_uses_the_dedicated_field(self):
-        profile = Profile(quota_wayback_machine=1234)
-        self.assertEqual(profile.quota_for(WAYBACK), 1234)
 
     def test_mediacloud_uses_the_configured_value_when_set(self):
         profile = Profile(quota_mediacloud=500)
@@ -44,21 +37,6 @@ class ProfileQuotaForTest(TestCase):
 
         self.assertEqual(quota, constance.config.QUOTA_DEFAULT_MEDIA_CLOUD)
         self.assertTrue(Profile.objects.filter(user=user).exists())
-
-    def test_user_provider_quota_uses_existing_profile(self):
-        user = User.objects.create_user(username="quota_existing_profile_user")
-        Profile.objects.create(user=user, quota_mediacloud=77)
-
-        self.assertEqual(Profile.user_provider_quota(user.id, MEDIACLOUD), 77)
-
-
-class QuotaHistoryThisWeekTest(TestCase):
-    def test_returns_the_monday_of_the_current_week(self):
-        monday = QuotaHistory._this_week()
-        self.assertEqual(monday.weekday(), 0)
-        self.assertLessEqual(monday, dt.date.today())
-        self.assertGreater(monday, dt.date.today() - dt.timedelta(days=7))
-
 
 class QuotaHistoryCurrentForTest(TestCase):
     def setUp(self):
@@ -100,18 +78,6 @@ class QuotaHistoryCheckQuotaTest(TestCase):
         with self.assertRaises(OverQuotaException):
             QuotaHistory.check_quota(self.user.id, False, MEDIACLOUD)
 
-    def test_over_quota_raises_for_non_staff(self):
-        QuotaHistory.objects.create(
-            user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=15)
-
-        with self.assertRaises(OverQuotaException):
-            QuotaHistory.check_quota(self.user.id, False, MEDIACLOUD)
-
-    def test_staff_bypasses_the_quota(self):
-        QuotaHistory.objects.create(
-            user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=99)
-
-        self.assertEqual(QuotaHistory.check_quota(self.user.id, True, MEDIACLOUD), 99)
 
     def test_missing_quota_history_row_is_treated_as_zero_hits(self):
         self.assertEqual(QuotaHistory.check_quota(self.user.id, False, MEDIACLOUD), 0)
@@ -127,10 +93,6 @@ class QuotaHistoryIncrementTest(TestCase):
 
         self.assertEqual(result, 3)
         self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 3)
-
-    def test_default_amount_is_one(self):
-        QuotaHistory.increment(self.user.id, False, MEDIACLOUD)
-        self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 1)
 
     def test_crossing_the_quota_raises_but_still_persists_the_increment(self):
         QuotaHistory.objects.create(

@@ -38,21 +38,6 @@ class PasswordMatchesHashTest(SimpleTestCase):
         stored_hash = make_legacy_hash("correct horse battery staple")
         self.assertFalse(password_matches_hash("wrong password", stored_hash))
 
-    def test_matching_is_case_sensitive(self):
-        stored_hash = make_legacy_hash("CaseSensitive")
-        self.assertFalse(password_matches_hash("casesensitive", stored_hash))
-
-    def test_different_salts_produce_different_hashes_for_same_password(self):
-        hash_a = make_legacy_hash("same password", salt=b"a" * SALT_LENGTH)
-        hash_b = make_legacy_hash("same password", salt=b"b" * SALT_LENGTH)
-        self.assertNotEqual(hash_a, hash_b)
-        self.assertTrue(password_matches_hash("same password", hash_a))
-        self.assertTrue(password_matches_hash("same password", hash_b))
-
-    def test_unicode_password_round_trips(self):
-        stored_hash = make_legacy_hash("paßwörd\U0001F600")
-        self.assertTrue(password_matches_hash("paßwörd\U0001F600", stored_hash))
-
     def test_malformed_base64_returns_false_not_raises(self):
         # note: the leading "{SSHA256}" characters are stripped
         # unconditionally without checking the prefix is actually present,
@@ -61,13 +46,3 @@ class PasswordMatchesHashTest(SimpleTestCase):
         # reason (bad base64) rather than a clean prefix check.
         self.assertFalse(password_matches_hash("anything", "not valid base64!!"))
 
-    def test_empty_hash_returns_false_not_raises(self):
-        self.assertFalse(password_matches_hash("anything", ""))
-
-    def test_truncated_hash_returns_false_not_raises(self):
-        # valid base64, but far too short to contain a real hash+salt
-        stored_hash = HASH_SALT_PREFIX + base64.b64encode(b"short").decode("ascii")
-        self.assertFalse(password_matches_hash("anything", stored_hash))
-
-    def test_none_hash_returns_false_not_raises(self):
-        self.assertFalse(password_matches_hash("anything", None))

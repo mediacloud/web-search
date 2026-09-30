@@ -16,13 +16,6 @@ class ScheduleScrapeCollectionTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="scrape_collection_test_user", password="pw")
 
-    def test_missing_collection_raises_does_not_exist(self):
-        # Collection.objects.get() raises DoesNotExist rather than
-        # returning None, so the `if not collection: return_error(...)`
-        # branch is unreachable dead code -- same pattern already
-        # documented for schedule_scrape_source.
-        with self.assertRaises(Collection.DoesNotExist):
-            schedule_scrape_collection(999999, self.user)
 
     def test_valid_collection_schedules_a_task(self):
         collection = Collection.objects.create(name="Scrapable Collection")

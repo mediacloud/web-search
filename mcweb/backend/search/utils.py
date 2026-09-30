@@ -13,7 +13,7 @@ from django.db.models import F
 
 # no longer in PyPI:
 from mc_providers import provider_by_name, provider_name, ContentProvider, PLATFORM_SOURCE_MEDIA_CLOUD,\
-    PLATFORM_SOURCE_WAYBACK_MACHINE, PLATFORM_ONLINE_NEWS
+    PLATFORM_ONLINE_NEWS
 
 # mcweb
 from settings import ALL_URLS_CSV_EMAIL_MAX, ALL_URLS_CSV_EMAIL_MIN
@@ -201,32 +201,10 @@ def _get_api_key(provider: str) -> str | None:
     return None
 
 def search_props_for_provider(provider, collections: List, sources: List, all_params: Dict) -> Dict:
-    if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_WAYBACK_MACHINE):
-        return _for_wayback_machine(collections, sources)
     if provider == provider_name(PLATFORM_ONLINE_NEWS, PLATFORM_SOURCE_MEDIA_CLOUD):
         return _for_media_cloud(collections, sources, all_params)
     return {}
 
-
-def _for_wayback_machine(collections: List, sources: List) -> Dict:
-    # pull these in at runtime, rather than outside class, so we can make sure the models are loaded
-    Source = apps.get_model('sources', 'Source')
-    # 1. pull out all unique domains that don't have url_search_strs
-    domains = []
-    # turn media ids into list of domains
-    selected_sources = Source.objects.filter(id__in=sources)
-    domains += [s.name for s in selected_sources if s.url_search_string is None]
-    # turn collections ids into list of domains
-    selected_sources_in_collections = Source.objects.filter(collections__id__in=collections)
-    selected_sources_in_collections = [s for s in selected_sources_in_collections if s.name is not None]
-    domains += [s.name for s in selected_sources_in_collections if bool(s.url_search_string) is False]
-    # 2. pull out all the domains that have url_search_strings and turn those into search clauses
-    # CURRENTLY URL_SEARCH_STRINGS ARE NOT IMPLEMENTED IN WB SYSTEM
-    # sources_with_url_search_strs = []
-    # sources_with_url_search_strs += [s for s in selected_sources if bool(s.url_search_string) is not False]
-    # sources_with_url_search_strs += [s for s in selected_sources_in_collections if bool(s.url_search_string) is not False]
-    # domain_url_filters = ["(domain:{} AND url:*{}*)".format(s.name, s.url_search_string) for s in sources_with_url_search_strs]
-    return dict(domains=domains)
 
 # additional query properties to pass to MediaCloud Providers
 # sort_field could possibly be used nefariously (be used in a DoS

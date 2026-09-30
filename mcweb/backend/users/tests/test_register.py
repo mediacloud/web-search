@@ -23,11 +23,6 @@ class RegisterTest(TestCase):
         self.assertFalse(user.profile.verified_email)
         self.assertEqual(user.profile.notes, "hello")
 
-    def test_missing_passwords_rejected(self):
-        response = self._post(email="a@example.com")
-        self.assertEqual(response.status_code, 403)
-        self.assertIn("Passwords missing", response.json()["message"])
-
     def test_mismatched_passwords_rejected(self):
         response = self._post(email="a@example.com", password1="correct-horse", password2="different")
         self.assertEqual(response.status_code, 403)

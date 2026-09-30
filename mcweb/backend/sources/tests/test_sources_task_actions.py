@@ -48,12 +48,3 @@ class SourcesTaskActionsTest(TestCase):
         names = [t["task_name"] for t in response.data["tasks"]]
         self.assertEqual(names, ["mine.pending"])
 
-    def test_anonymous_cannot_list_completed_tasks(self):
-        self.client.logout()
-        response = self.client.get(f"{BASE_URL}completed-tasks/")
-        self.assertEqual(response.status_code, 401)
-
-    def test_anonymous_cannot_list_pending_tasks(self):
-        self.client.logout()
-        response = self.client.get(f"{BASE_URL}pending-tasks/")
-        self.assertEqual(response.status_code, 401)

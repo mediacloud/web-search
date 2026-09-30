@@ -82,6 +82,8 @@ class SourceSerializer(serializers.ModelSerializer):
         Sources may share a name/homepage as long as their url_search_string differs
         (that duplicate case is caught by validate_url_search_string instead).
         """
+        if value is None:
+            raise serializers.ValidationError("name is required")
         if value.startswith('http:') or value.startswith('https:'):
             raise serializers.ValidationError("name may not begin with http: or https:")
         if value.startswith('/'):

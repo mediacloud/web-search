@@ -38,7 +38,7 @@ def yesterday(days=0):
     returns a naive datetime for use in ES search ranges; mc_provider
     two_d_aggregation currently only handles timezone naive datetimes
     """
-    return dt.datetime.utcnow() - dt.timedelta(days=days+1)
+    return dt.datetime.now(dt.timezone.utc).replace(tzinfo=None) - dt.timedelta(days=days+1)
 
 def yesterday_aware(days=0):
     """

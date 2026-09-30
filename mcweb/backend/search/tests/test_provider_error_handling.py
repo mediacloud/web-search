@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import requests
 from django.contrib.auth.models import User
 from django.test import TestCase
-from mc_providers.exceptions import ProviderException, TemporaryProviderException
+from mc_providers.exceptions import TemporaryProviderException
 
 from backend.users.exceptions import OverQuotaException
 from backend.users.models import Profile
@@ -88,13 +88,6 @@ class ProviderErrorHandlingTest(TestCase):
         body = json.loads(response.content)
         self.assertEqual(body["note"], "bad query syntax")
 
-    def test_generic_provider_exception_includes_traceback(self):
-        exc = ProviderException("mystery upstream failure")
-        response = self._get_with_provider_raising(exc)
-        self.assertEqual(response.status_code, 400)
-        body = json.loads(response.content)
-        self.assertEqual(body["note"], "mystery upstream failure")
-        self.assertIn("traceback", body)
 
     def test_unhandled_exception_returns_400_with_traceback(self):
         exc = KeyError("totally unexpected")

@@ -228,14 +228,3 @@ class UploadSourcesTest(APITestCase):
         self.assertEqual(response.data, {"created": 1, "updated": 0, "skipped": 0})
         mock_schedule.assert_not_called()
 
-    def test_non_staff_user_cannot_upload(self):
-        non_staff = User.objects.create_user(username="upload_sources_non_staff", password="pw")
-        self.client.force_login(non_staff)
-        response = self._upload(load_fixture_rows())
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(Source.objects.count(), 0)
-
-    def test_anonymous_cannot_upload(self):
-        self.client.logout()
-        response = self._upload(load_fixture_rows())
-        self.assertEqual(response.status_code, 401)

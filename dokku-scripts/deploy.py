@@ -12,7 +12,8 @@ import sys
 
 from mc_deploy.base import CmdArgs, ParserArgs
 from mc_deploy.django import SettingsVersionMixin
-from mc_deploy.dokku import AllowedHostsMixin, DokkuCacheMixin, DokkuDBMixin, DokkuDeploy
+from mc_deploy.dokku import (AllowedHostsMixin, DokkuCacheMixin, DokkuDBMixin,
+                             DokkuDeploy, Service)
 
 
 class WebSearchDeploy(
@@ -26,8 +27,12 @@ class WebSearchDeploy(
     # NOTE: -staging last:
     STAGING_PUBLIC_NAME = "mcweb-staging.tarbell"  # w/o PUBLIC_DOMAIN
 
-    # map of plugin name to service name suffix:
-    DOKKU_SERVICES = {"postgres": "-db", "redis": "-cache", "storage": ""}
+    # map of plugin name to Service (requires mc-deploy 0.17)
+    DOKKU_SERVICES = {
+        "postgres": Service(suffix="-db", version="16"),
+        "redis": Service(suffix="-cache", version="8.10.0"),
+        "storage": Service()    # no suffix, image or version!
+    }
 
     INST_BASE = "mcweb"  # app base name
     PROJECT_REPO = "web-search"

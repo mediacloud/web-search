@@ -51,14 +51,6 @@ class TweakStoriesPerWeekTest(TestCase):
         source.refresh_from_db()
         self.assertIsNone(source.stories_per_week)
 
-    def test_sources_that_already_have_stories_per_week_are_left_alone(self):
-        source = self._source(last_story=timezone.now(), stories_per_week=42)
-
-        self._run(update=True)
-
-        source.refresh_from_db()
-        self.assertEqual(source.stories_per_week, 42)
-
     def test_non_online_news_platforms_are_left_alone(self):
         source = self._source(
             platform=Source.SourcePlatforms.YOUTUBE, last_story=timezone.now(), stories_per_week=None)

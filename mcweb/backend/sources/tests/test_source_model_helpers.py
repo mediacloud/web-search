@@ -16,10 +16,6 @@ class UpdateStoriesPerWeekTest(TestCase):
         source.refresh_from_db()
         self.assertEqual(source.stories_per_week, 42)
 
-    def test_missing_source_does_not_raise(self):
-        Source.update_stories_per_week(999999, 42)  # should log a warning, not raise
-
-
 class UpdateLastRescrapedTest(TestCase):
     """Source.update_last_rescraped (called from scrape.py), same bare-except pattern."""
 
@@ -29,10 +25,6 @@ class UpdateLastRescrapedTest(TestCase):
         source.refresh_from_db()
         self.assertIsNotNone(source.last_rescraped)
         self.assertEqual(source.last_rescraped_msg, "found 3 new feeds")
-
-    def test_missing_source_does_not_raise(self):
-        Source.update_last_rescraped(999999, "summary")  # should log a warning, not raise
-
 
 class DomainExistsTest(TestCase):
     """

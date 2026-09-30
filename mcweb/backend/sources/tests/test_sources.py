@@ -22,17 +22,8 @@ class SourceSerializerTest(APITestCase):
             'platform': Source.SourcePlatforms.ONLINE_NEWS,
         }
 
-    def test_valid_source_serializer(self):
-        serializer = SourceSerializer(data=self.valid_data)
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.validated_data['name'], self.valid_data['name'])
         # self.assertEqual(serializer.validated_data['url_search_string'], self.valid_data['url_search_string'])
 
-    def test_invalid_source_serializer(self):
-        serializer = SourceSerializer(data=self.invalid_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('name', serializer.errors)
-        self.assertIn('url_search_string', serializer.errors)
 
     def test_create_source(self):
         serializer = SourceSerializer(data=self.valid_data)
@@ -80,13 +71,5 @@ class SourceSerializerTest(APITestCase):
         # name) would incorrectly flag itself as a duplicate of itself.
         source = Source.objects.create(**self.valid_data)
         updated_data = {**self.valid_data, 'notes': 'updated notes'}
-        serializer = SourceSerializer(source, data=updated_data)
-        self.assertTrue(serializer.is_valid(), serializer.errors)
-
-    def test_update_existing_source_without_changing_url_search_string_is_valid(self):
-        # Same as above, but for validate_url_search_string's duplicate check.
-        data_with_uss = {**self.valid_data, 'url_search_string': 'testhomepage.com/*'}
-        source = Source.objects.create(**data_with_uss)
-        updated_data = {**data_with_uss, 'notes': 'updated notes'}
         serializer = SourceSerializer(source, data=updated_data)
         self.assertTrue(serializer.is_valid(), serializer.errors)

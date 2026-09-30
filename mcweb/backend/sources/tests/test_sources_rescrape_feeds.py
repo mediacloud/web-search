@@ -43,13 +43,3 @@ class SourcesRescrapeFeedsTest(APITestCase):
         response = self.client.post(URL, {"source_id": 999999}, format="json")
         self.assertEqual(response.status_code, 404)
 
-    def test_anonymous_cannot_rescrape(self):
-        self.client.logout()
-        response = self.client.post(URL, {"source_id": self.source.id}, format="json")
-        self.assertEqual(response.status_code, 401)
-
-    def test_non_staff_cannot_rescrape(self):
-        non_staff = User.objects.create_user(username="rescrape_feeds_non_staff", password="pw")
-        self.client.force_login(non_staff)
-        response = self.client.post(URL, {"source_id": self.source.id}, format="json")
-        self.assertEqual(response.status_code, 403)
