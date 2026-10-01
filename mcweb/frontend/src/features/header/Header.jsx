@@ -71,15 +71,6 @@ function Header() {
                     sx={{ marginTop: 5 }}
                   >
                     <div className="container" style={{ marginLeft: 5 }}>
-                      <div className="row">
-                        <h5 className="col-8">Recent Changes</h5>
-                        <p className="col-4" style={{ color: '#e5e5e5' }}>
-                          {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                          {dayjs(date).fromNow()}
-                        </p>
-                      </div>
-                      <Divider />
-                      {/* <br /> */}
                       <div className="row" style={{ paddingTop: 10 }}>
                         <Chip className="col-2" label="new" color="success" />
                         <p className="col-10">{notes[0]}</p>
@@ -92,7 +83,7 @@ function Header() {
                       style={{ textDecoration: 'none', color: 'black' }}
                     >
                       <MenuItem>
-                        Read More Release Notes
+                        Recent release notes
                       </MenuItem>
                     </Link>
                     <a
@@ -103,7 +94,29 @@ function Header() {
                       rel="noreferrer"
                     >
                       <MenuItem>
+                        Search Tool Guide
+                      </MenuItem>
+                    </a>
+                    <a
+                      href="https://www.mediacloud.org/documentation/search-api-guide"
+                      target="_blank"
+                      onClick={handleClose}
+                      style={{ textDecoration: 'none', color: 'black' }}
+                      rel="noreferrer"
+                    >
+                      <MenuItem>
                         About Search API
+                      </MenuItem>
+                    </a>
+                    <a
+                      href="https://www.mediacloud.org/documentation/"
+                      target="_blank"
+                      onClick={handleClose}
+                      style={{ textDecoration: 'none', color: 'black' }}
+                      rel="noreferrer"
+                    >
+                      <MenuItem>
+                        Media Cloud Documentation
                       </MenuItem>
                     </a>
                   </Menu>
