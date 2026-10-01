@@ -2,9 +2,9 @@
 {"version":"v3.1.16",
  "date":"2026-10-02",
  "notes":[
-   "include query info in CSV email and ZIP",
-   "handle large CSVs using less memory",
-   "limit CSV generation query rate"
+   "Include query info in URL CSV email and ZIP",
+   "Handle large CSVs using less memory",
+   "Limit CSV generation query rate"
  ]
 },
 {"version":"v3.1.15",
