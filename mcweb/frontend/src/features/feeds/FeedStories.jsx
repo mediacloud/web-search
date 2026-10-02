@@ -15,7 +15,11 @@ function FeedStories({ feedId, feed, sourceId }) {
     <div className="results-item-wrapper results-sample-stories">
       <div className="row">
         <div className="col-12">
-          <h1 id="feed-story-title">Latest Stories</h1>
+          <h1 id="feed-story-title">Latest Discovered Stories</h1>
+          <p>
+            The URLs for these stories have been recently discovered, but might not show up in
+            search results yet because that can take a few hours.
+          </p>
         </div>
         <div className="row">
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import Box from '@mui/material/Box';
@@ -13,6 +13,7 @@ import CollectionList from '../collections/CollectionList';
 import { useGetSourceQuery, useListSourcesQuery } from '../../app/services/sourceApi';
 import StatPanel from '../ui/StatPanel';
 import FeedStories from '../feeds/FeedStories';
+import RecentlyIndexedStories from '../stories/RecentlyIndexedStories';
 import renderNotes from '../collections/util/formatNotesToHTML';
 import getParentSource from './util/getParentSource';
 import getChildSources from './util/getChildSources';
@@ -31,6 +32,10 @@ export default function SourceShow() {
   const sourceId = Number(params.sourceId);
   dayjs.extend(utc);
   const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    setValue(0);
+  }, [sourceId]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -200,27 +205,41 @@ export default function SourceShow() {
             // eslint-disable-next-line react/jsx-props-no-spreading
                 {...a11yProps(0)}
               />
+              {source.platform === 'online_news' && (
+                <Tab
+                  label="Recent Stories"
+            // eslint-disable-next-line react/jsx-props-no-spreading
+                  {...a11yProps(1)}
+                />
+              )}
               <Tab
                 label="Coverage Over Time"
             // eslint-disable-next-line react/jsx-props-no-spreading
-                {...a11yProps(1)}
+                {...a11yProps(source.platform === 'online_news' ? 2 : 1)}
               />
 
             </Tabs>
           </Box>
           <TabPanelHelper value={value} index={0}>
             <div className="row">
-              <div className="col-6">
+              <div className="col-12">
                 <CollectionList sourceId={sourceId} />
               </div>
-              {source.platform === 'online_news' && (
-              <div className="col-6">
-                <FeedStories feed={false} sourceId={sourceId} />
-              </div>
-              )}
             </div>
           </TabPanelHelper>
-          <TabPanelHelper value={value} index={1}>
+          {source.platform === 'online_news' && (
+            <TabPanelHelper value={value} index={1}>
+              <div className="row">
+                <div className="col-6">
+                  <RecentlyIndexedStories sourceId={sourceId} />
+                </div>
+                <div className="col-6">
+                  <FeedStories feed={false} sourceId={sourceId} />
+                </div>
+              </div>
+            </TabPanelHelper>
+          )}
+          <TabPanelHelper value={value} index={source.platform === 'online_news' ? 2 : 1}>
             <StoriesOverTime sourceId={sourceId} collectionId={false} />
           </TabPanelHelper>
         </Box>
