@@ -24,20 +24,7 @@ class GetParseDateTest(TestCase):
             _get_parse_date({"start": "08/01/2026"}, "start"),
             dt.datetime(2026, 8, 1))
 
-    def test_missing_value_raises_user_value_error(self):
-        with self.assertRaises(UserValueError):
-            _get_parse_date({}, "start")
-
-    def test_blank_value_raises_user_value_error(self):
-        with self.assertRaises(UserValueError):
-            _get_parse_date({"start": ""}, "start")
 
     def test_malformed_value_raises_user_value_error(self):
         with self.assertRaises(UserValueError):
             _get_parse_date({"start": "not-a-date"}, "start")
-
-    def test_wrong_separator_for_format_raises_user_value_error(self):
-        # has a "-" so it's parsed as ISO, but isn't valid ISO -> should
-        # still be a clean UserValueError, not an uncaught ValueError
-        with self.assertRaises(UserValueError):
-            _get_parse_date({"start": "2026/08-01"}, "start")

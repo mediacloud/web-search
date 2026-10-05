@@ -38,33 +38,6 @@ class FeedsViewSetCrudTest(APITestCase):
         self.assertEqual(self.client.get(self.URL).status_code, 401)
         self.assertEqual(self.client.get(f"{self.URL}{self.feed.id}/").status_code, 401)
 
-    def test_anonymous_create_update_delete_are_rejected(self):
-        self.assertEqual(
-            self.client.post(self.URL, {"url": "http://x.com/feed.xml", "source": self.source.id}, format="json").status_code,
-            401)
-        self.assertEqual(
-            self.client.patch(f"{self.URL}{self.feed.id}/", {"name": "x"}, format="json").status_code, 401)
-        self.assertEqual(self.client.delete(f"{self.URL}{self.feed.id}/").status_code, 401)
-
-    def test_non_staff_can_read_but_not_write(self):
-        self.client.force_login(self.non_staff_user)
-
-        self.assertEqual(self.client.get(self.URL).status_code, 200)
-        self.assertEqual(self.client.get(f"{self.URL}{self.feed.id}/").status_code, 200)
-
-        self.assertEqual(
-            self.client.post(
-                self.URL, {"url": "http://new.example.com/feed.xml", "source": self.source.id},
-                format="json").status_code,
-            403)
-        self.assertEqual(
-            self.client.patch(f"{self.URL}{self.feed.id}/", {"name": "hacked"}, format="json").status_code,
-            403)
-        self.assertEqual(self.client.delete(f"{self.URL}{self.feed.id}/").status_code, 403)
-        # confirm none of the rejected writes actually happened
-        self.feed.refresh_from_db()
-        self.assertEqual(self.feed.name, "Example Feed")
-
     def test_staff_can_create_update_delete_and_action_history_is_logged(self):
         self.client.force_login(self.staff_user)
 

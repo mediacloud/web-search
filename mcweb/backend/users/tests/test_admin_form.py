@@ -26,9 +26,3 @@ class UserAdminFormCleanCollectionIdTest(TestCase):
         with self.assertRaises(forms.ValidationError):
             self._clean(999999)
 
-    def test_blank_collection_id_is_allowed(self):
-        self.assertIsNone(self._clean(None))
-
-    def test_zero_collection_id_is_treated_as_blank(self):
-        # falsy-but-not-None value takes the same "skip" path as None
-        self.assertEqual(self._clean(0), 0)

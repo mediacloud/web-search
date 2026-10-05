@@ -32,6 +32,6 @@ class ProjectDiscoverRunner(DiscoverRunner):
             top_level = str(BASE_DIR)
         super().__init__(*args, top_level=top_level, **kwargs)
 
-    def build_suite(self, test_labels=None, extra_tests=None, **kwargs):
+    def build_suite(self, test_labels=None, **kwargs):
         test_labels = test_labels or [str(BASE_DIR)]
-        return super().build_suite(test_labels, extra_tests, **kwargs)
+        return super().build_suite(test_labels, **kwargs)

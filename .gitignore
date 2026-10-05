@@ -28,6 +28,7 @@ mcweb/.env
 mcweb/static/admin
 mcweb/static/frontend
 mcweb/static/rest_framework
+mcweb/static/about
 
 tmp/*.csv
 

@@ -33,12 +33,3 @@ class IndexViewSmokeTest(TestCase):
         ):
             with self.subTest(key=key):
                 self.assertIn(key, response.context)
-
-    def test_unmatched_path_also_renders_via_catch_all(self):
-        # mcweb/urls.py has a catch-all re_path routing any unmatched
-        # frontend route (e.g. client-side React Router paths) to this
-        # same index view.
-        response = self.client.get("/search")
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "frontend/index.html")

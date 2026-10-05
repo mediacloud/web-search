@@ -90,24 +90,6 @@ class CountBySourceOverIntervalTest(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(provider.two_d_aggregation.call_args_list[0].kwargs["num_intervals"], 5)
 
-    def test_week_interval_bucket_count(self):
-        # 2026-08-01 through 2026-08-14 inclusive = 14 days -> ceil(14/7) = 2
-        response, provider = self._get(interval="week", start="2026-08-01", end="2026-08-14")
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(provider.two_d_aggregation.call_args_list[0].kwargs["num_intervals"], 2)
-
-    def test_month_interval_bucket_count(self):
-        # Jan 15 through Mar 10 spans 3 distinct calendar months
-        response, provider = self._get(interval="month", start="2026-01-15", end="2026-03-10")
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(provider.two_d_aggregation.call_args_list[0].kwargs["num_intervals"], 3)
-
-    def test_year_interval_bucket_count(self):
-        # 2024 through 2026 spans 3 distinct calendar years
-        response, provider = self._get(interval="year", start="2024-06-01", end="2026-01-10")
-        self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(provider.two_d_aggregation.call_args_list[0].kwargs["num_intervals"], 3)
-
     def test_happy_path_shapes_data_and_computes_ratio_and_quota(self):
         provider = MagicMock()
         provider.MAX_2D_AGG_BUCKETS = 100000

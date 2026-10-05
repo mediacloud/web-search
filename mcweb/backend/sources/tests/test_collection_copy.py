@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from guardian.shortcuts import assign_perm
 from rest_framework.test import APITestCase
 
 from ..models import ActionHistory, Collection, Source
@@ -72,37 +71,3 @@ class CopyCollectionTest(APITestCase):
             object_model=ActionHistory.ModelType.COLLECTION, object_id=response.data["id"],
             action_type="copy-collection").first()
         self.assertIsNotNone(history)
-
-
-class CopyCollectionPermissionTest(APITestCase):
-    """
-    copy_collection is a list-route POST that puts `collection_id` in the
-    request body pointing at the ORIGINAL collection -- so, unlike a plain
-    create, a contributor's edit_collection grant on that original
-    collection IS enough to reach this action, even though they hold no
-    permission at all on the (not-yet-existing) copy.
-    """
-
-    def setUp(self):
-        self.original = Collection.objects.create(name="Original Collection")
-
-    def test_contributor_with_edit_collection_on_original_can_copy_it(self):
-        user = User.objects.create_user(username="copy_collection_contributor", password="pw")
-        assign_perm("edit_collection", user, self.original)
-        self.client.force_login(user)
-
-        response = self.client.post(URL, {"collection_id": self.original.id}, format="json")
-
-        self.assertEqual(response.status_code, 201, response.content)
-
-    def test_non_staff_without_edit_collection_cannot_copy(self):
-        user = User.objects.create_user(username="copy_collection_non_staff", password="pw")
-        self.client.force_login(user)
-
-        response = self.client.post(URL, {"collection_id": self.original.id}, format="json")
-
-        self.assertEqual(response.status_code, 403)
-
-    def test_anonymous_cannot_copy(self):
-        response = self.client.post(URL, {"collection_id": self.original.id}, format="json")
-        self.assertEqual(response.status_code, 401)

@@ -53,7 +53,7 @@ class RequestLoggingMiddleware:
 
         if(request_logging_enabled):
             # Check if user is authenticated and add user data
-            log_msg["timestamp"] = dt.datetime.utcnow().isoformat() 
+            log_msg["timestamp"] = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None).isoformat()
             log_msg['user'] = str(request.user)if request.user.is_authenticated else "Anonymous"
             log_msg['ip'] = request.META.get('REMOTE_ADDR')
 

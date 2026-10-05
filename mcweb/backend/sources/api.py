@@ -65,8 +65,11 @@ class IndexedIContains(Lookup):
         # Probably doesn't handle field name on RHS!!
         # could have overridden process_rhs and hidden this there,
         # but as Arlo wrote: "one big pile is better'n than two little piles"
-        rhs_params[0] = f"%{rhs_params[0]}%"
-        params = lhs_params + rhs_params
+        # Django 6.0 requires as_sql() to return params as a tuple, and
+        # process_lhs/process_rhs now hand back tuples rather than lists,
+        # so build a new tuple instead of assigning into rhs_params.
+        rhs_params = (f"%{rhs_params[0]}%", *rhs_params[1:])
+        params = (*lhs_params, *rhs_params)
         return f"{lhs} ILIKE {rhs}", params
 
 # provider for quota
@@ -473,7 +476,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None):
         instance = self.get_object()
-        serializer = SourceSerializer(instance, data=request.data)
+        serializer = SourceSerializer(instance, data=request.data, partial=True)
         if serializer.is_valid():
             # Manually call perform_update to trigger action history logging
             self.perform_update(serializer)
@@ -638,7 +641,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if not source_ids_param:
             source_ids = []
         else:
-            source_ids = [int(i) for i in source_ids_param.split(',') if i.isnumeric()]
+            source_ids = [int(i) for i in source_ids_param.split(',') if i.isdigit()]
         sources = Source.objects.filter(id__in=source_ids)
         serializer = SourceSerializer(sources, many=True)
         return Response({"sources": serializer.data})
