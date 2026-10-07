@@ -64,6 +64,9 @@ function groupValues(elements, duration, normalized) {
 
 export const prepareCountOverTimeData = (results, normalized, chartBy, queryState) => {
   if (!results || results.length === 0) return null;
+  // every result needs the matching query's endDate to pad its counts, so refuse to
+  // chart results we have no query state for (e.g. stale results after a query is removed)
+  if (!queryState || queryState.length !== results.length) return null;
   const series = [];
   const colors = getColors(queryState);
   if (chartBy === DAY) {
