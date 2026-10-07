@@ -55,6 +55,14 @@ export default function SampleStories() {
     }
   }, [lastSearchTime, queryState.length]);
 
+  // removing a query can leave the selected tab index past the end of the tab list,
+  // which renders an empty panel; pull it back into range (a no-op while it's valid)
+  useEffect(() => {
+    setValue((current) => (
+      current >= queryState.length ? Math.max(queryState.length - 1, 0) : current
+    ));
+  }, [queryState.length]);
+
   if (newQuery) return null;
 
   if (isLoading) {
@@ -63,6 +71,10 @@ export default function SampleStories() {
 
   let content;
   if (!data && !error) return null;
+  // `data` is from the last search. If a query has been added or removed since then,
+  // the result rows no longer line up with queryState and there are no names to label
+  // them with -- blank the panel until the next search.
+  if (data && data.length !== queryState.length) return null;
 
   if (error || !data[0].sample[0]) {
     content = (
