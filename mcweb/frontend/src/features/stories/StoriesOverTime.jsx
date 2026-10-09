@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useGetCountOverTimeMutation } from '../../app/services/searchApi';
 import CountOverTimeChart from '../search/results/CountOverTimeChart';
-import { prepareCountOverTimeData } from '../search/util/prepareCountOverTimeData';
+import { prepareCountOverTimeData, MONTH } from '../search/util/prepareCountOverTimeData';
 import prepareQueries from '../search/util/prepareQueries';
 import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate, earliestAllowedStartDate } from '../search/util/platforms';
 
@@ -42,7 +42,9 @@ export default function StoriesOverTime({ collectionId, sourceId }) {
 
   if (!data && !error) return null;
 
-  const preparedData = prepareCountOverTimeData(data, false, query, query);
+  // grouped by month -- this chart spans the whole archive, so daily buckets are too fine
+  const preparedData = prepareCountOverTimeData(data, false, MONTH, query);
+  if (!preparedData) return null;
   const updatedPrepareCountOverTimeData = preparedData.map(
     (originalDataObj) => {
       const queryTitleForPreparation = { name: 'All Stories' };
