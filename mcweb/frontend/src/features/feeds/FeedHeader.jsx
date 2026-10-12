@@ -13,6 +13,7 @@ import Header from '../ui/Header';
 import ControlBar from '../ui/ControlBar';
 import AlertDialog from '../ui/AlertDialog';
 import MediaNotFound from '../ui/MediaNotFound';
+import ErrorBoundary from '../ui/ErrorBoundary';
 
 export default function FeedHeader() {
   const { enqueueSnackbar } = useSnackbar();
@@ -99,7 +100,10 @@ export default function FeedHeader() {
         </PermissionedStaff>
 
       </ControlBar>
-      <Outlet />
+      {/* the entity's own header and tabs stay usable when the page body fails */}
+      <ErrorBoundary label="feed-detail">
+        <Outlet />
+      </ErrorBoundary>
     </>
   );
 }
