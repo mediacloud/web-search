@@ -12,6 +12,7 @@ import { PAGE_SIZE } from '../../app/services/queryUtil';
 import { useDeleteSourceCollectionAssociationMutation } from '../../app/services/sourcesCollectionsApi';
 import { sourceFavIcon, asNumber } from '../ui/uiUtil';
 import sourceTooltips from './util/sourceTooltips';
+import throwApiError from '../ui/apiError';
 
 const utc = require('dayjs/plugin/utc');
 
@@ -22,10 +23,15 @@ export default function SourceList(props) {
   const {
     data: sources,
     isLoading,
+    error,
   } = useListSourcesQuery({ collection_id: collectionId, page });
 
   const [deleteSourceCollectionAssociation] = useDeleteSourceCollectionAssociationMutation();
   const tt = sourceTooltips();
+
+  // surface fetch failures through the nearest ErrorBoundary rather than
+  // rendering an empty panel with no explanation
+  throwApiError(error);
 
   // if loading
   if (isLoading) {

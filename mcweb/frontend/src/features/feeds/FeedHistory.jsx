@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
 import dayjs from 'dayjs';
 import { useGetFeedHistoryQuery } from '../../app/services/feedsApi';
+import throwApiError from '../ui/apiError';
 
 const utc = require('dayjs/plugin/utc');
 
@@ -12,11 +13,16 @@ function FeedHistory({ feedId }) {
   const {
     data,
     isLoading,
+    error,
   } = useGetFeedHistoryQuery({ feed_id: feedId });
 
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
+
+  // surface fetch failures through the nearest ErrorBoundary rather than
+  // rendering an empty panel with no explanation
+  throwApiError(error);
 
   if (!data) return null;
 

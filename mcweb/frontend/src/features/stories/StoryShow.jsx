@@ -9,12 +9,13 @@ import {
   PROVIDER_NEWS_MEDIA_CLOUD, PROVIDER_NEWS_WAYBACK_MACHINE,
 } from '../search/util/platforms';
 import { ROLE_STAFF, PermissionedStaff } from '../auth/Permissioned';
+import throwApiError from '../ui/apiError';
 
 export default function StoryShow() {
   const params = useParams();
   const { storyURL, platform } = params;
 
-  const { data, isLoading } = useGetStoryDetailsQuery({ storyId: storyURL, platform });
+  const { data, isLoading, error } = useGetStoryDetailsQuery({ storyId: storyURL, platform });
 
   const [platformName, setPlatformName] = useState('');
 
@@ -29,6 +30,10 @@ export default function StoryShow() {
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
+
+  // surface fetch failures through the nearest ErrorBoundary rather than
+  // rendering an empty panel with no explanation
+  throwApiError(error);
 
   if (!data) return null;
 

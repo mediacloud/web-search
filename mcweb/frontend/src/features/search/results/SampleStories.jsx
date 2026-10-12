@@ -11,6 +11,7 @@ import {
 } from '../util/platforms';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
+import throwApiError from '../../ui/apiError';
 import SampleStoryShow from './SampleStoryShow';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 
@@ -76,13 +77,14 @@ export default function SampleStories() {
   // them with -- blank the panel until the next search.
   if (data && data.length !== queryState.length) return null;
 
-  if (error || !data[0].sample[0]) {
+  // let API failures (including transient ones, eg. no route to Elasticsearch) reach
+  // the ErrorBoundary around this panel, which shows copyable details and tells Sentry
+  throwApiError(error);
+
+  if (!data[0].sample[0]) {
     content = (
-      <Alert severity="warning">
-        Sorry, but something went wrong.
-        (
-        {error ? error.note : 'No results please try a different query'}
-        )
+      <Alert severity="info">
+        No results, please try a different query.
       </Alert>
     );
   } else {

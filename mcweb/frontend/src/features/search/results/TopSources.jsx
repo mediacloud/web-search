@@ -16,6 +16,7 @@ import { useGetTopSourcesMutation } from '../../../app/services/searchApi';
 import { SOURCES } from '../util/getDownloadUrl';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
+import throwApiError from '../../ui/apiError';
 import prepareSourceData from '../util/prepareSourcesData';
 
 export default function TopSources() {
@@ -79,13 +80,14 @@ export default function TopSources() {
   // them with -- blank the panel until the next search.
   if (data && data.length !== queryState.length) return null;
 
-  if (error || !data[0].sources[0]) {
+  // let API failures (including transient ones, eg. no route to Elasticsearch) reach
+  // the ErrorBoundary around this panel, which shows copyable details and tells Sentry
+  throwApiError(error);
+
+  if (!data[0].sources[0]) {
     content = (
-      <Alert severity="warning">
-        Sorry, but something went wrong.
-        (
-        {error ? error.note : 'No results please try a different query'}
-        )
+      <Alert severity="info">
+        No results, please try a different query.
       </Alert>
     );
   } else {

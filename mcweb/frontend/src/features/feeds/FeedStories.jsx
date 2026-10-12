@@ -3,12 +3,17 @@ import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useListStoriesQuery } from '../../app/services/feedsApi';
+import throwApiError from '../ui/apiError';
 
 function FeedStories({ feedId, feed, sourceId }) {
-  const { data, isLoading } = useListStoriesQuery(feed ? { feed_id: Number(feedId) } : { source_id: Number(sourceId) });
+  const { data, isLoading, error } = useListStoriesQuery(feed ? { feed_id: Number(feedId) } : { source_id: Number(sourceId) });
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
+  // surface fetch failures through the nearest ErrorBoundary rather than
+  // rendering an empty panel with no explanation
+  throwApiError(error);
+
   if (!data) return null;
 
   return (

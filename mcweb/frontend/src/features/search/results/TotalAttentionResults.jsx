@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,6 +15,7 @@ import {
 import { selectCurrentUser } from '../../auth/authSlice';
 import checkForBlankQuery from '../util/checkForBlankQuery';
 import prepareQueries from '../util/prepareQueries';
+import throwApiError from '../../ui/apiError';
 import prepareTotalAttentionData from '../util/prepareTotalAttentionData';
 import { TA } from '../util/getDownloadUrl';
 
@@ -80,117 +80,108 @@ function TotalAttentionResults() {
 
   if (!data && !error) return null;
 
-  let content;
-  if (error) {
-    content = (
-      <Alert severity="warning">
-        Sorry, but something went wrong.
-        (
-        {error.note}
-        )
-      </Alert>
-    );
-  } else {
-    const preparedTAdata = prepareTotalAttentionData(data, normalized, queryState);
-    if (!preparedTAdata) return null;
-    if (preparedTAdata.length !== queryState.length) return null;
-    const updatedTotalAttentionData = preparedTAdata.map(
-      (originalDataObj, index) => {
-        const queryTitleForPreparation = { name: queryState[index].name };
-        return { ...queryTitleForPreparation, ...originalDataObj };
-      },
-    );
-    content = (
-      <>
-        <div>
-          <BarChart
-            series={updatedTotalAttentionData}
-            normalized={normalized}
-            title="Total Stories Count"
-            height={200}
-          />
-        </div>
+  // let API failures (including transient ones, eg. no route to Elasticsearch) reach
+  // the ErrorBoundary around this panel, which shows copyable details and tells Sentry
+  throwApiError(error);
+  const preparedTAdata = prepareTotalAttentionData(data, normalized, queryState);
+  if (!preparedTAdata) return null;
+  if (preparedTAdata.length !== queryState.length) return null;
+  const updatedTotalAttentionData = preparedTAdata.map(
+    (originalDataObj, index) => {
+      const queryTitleForPreparation = { name: queryState[index].name };
+      return { ...queryTitleForPreparation, ...originalDataObj };
+    },
+  );
+  const content = (
+    <>
+      <div>
+        <BarChart
+          series={updatedTotalAttentionData}
+          normalized={normalized}
+          title="Total Stories Count"
+          height={200}
+        />
+      </div>
 
-        <div className="clearfix">
-          {supportsNormalizedCount(platform) && (
-            <div className="float-start">
-              {normalized && (
-                <div>
-                  <Button
-                    onClick={handleClick}
-                    variant="outlined"
-                    startIcon={
-                      <Settings titleAccess="view other chart viewing options" />
-                    }
-                  >
-                    View Options...
-                  </Button>
-                  <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
+      <div className="clearfix">
+        {supportsNormalizedCount(platform) && (
+          <div className="float-start">
+            {normalized && (
+              <div>
+                <Button
+                  onClick={handleClick}
+                  variant="outlined"
+                  startIcon={
+                    <Settings titleAccess="view other chart viewing options" />
+                  }
+                >
+                  View Options...
+                </Button>
+                <Menu
+                  id="basic-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                  }}
+                >
+                  <MenuItem
+                    onClick={() => {
+                      setNormalized(false);
+                      handleClose();
                     }}
                   >
-                    <MenuItem
-                      onClick={() => {
-                        setNormalized(false);
-                        handleClose();
-                      }}
-                    >
-                      View Story Count
-                    </MenuItem>
-                  </Menu>
-                </div>
-              )}
-              {!normalized && (
-                <div>
-                  <Button variant="outlined" onClick={handleClick}>View Options...</Button>
-                  <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      'aria-labelledby': 'basic-button',
+                    View Story Count
+                  </MenuItem>
+                </Menu>
+              </div>
+            )}
+            {!normalized && (
+              <div>
+                <Button variant="outlined" onClick={handleClick}>View Options...</Button>
+                <Menu
+                  id="basic-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                  }}
+                >
+                  <MenuItem
+                    onClick={() => {
+                      setNormalized(true);
+                      handleClose();
                     }}
                   >
-                    <MenuItem
-                      onClick={() => {
-                        setNormalized(true);
-                        handleClose();
-                      }}
-                    >
-                      View Normalized Story Percentage (default)
-                    </MenuItem>
-                  </Menu>
-                </div>
-              )}
-            </div>
-          )}
+                    View Normalized Story Percentage (default)
+                  </MenuItem>
+                </Menu>
+              </div>
+            )}
+          </div>
+        )}
 
-          <div className="float-end">
-            <div>
-              <CSVDialog
-                openDialog={openDownloadDialog}
-                queryState={queryState}
-                downloadType={TA}
-                outsideTitle="Download All URLS"
-                title="Choose a Query to Download a CSV of all the URLs for that query"
-                snackbarText="Total attention CSV Downloading"
-                onClick={() => setopenDownloadDialog(true)}
-                variant="outlined"
-                userEmail={currentUserEmail}
-                data={data}
-              />
-            </div>
+        <div className="float-end">
+          <div>
+            <CSVDialog
+              openDialog={openDownloadDialog}
+              queryState={queryState}
+              downloadType={TA}
+              outsideTitle="Download All URLS"
+              title="Choose a Query to Download a CSV of all the URLs for that query"
+              snackbarText="Total attention CSV Downloading"
+              onClick={() => setopenDownloadDialog(true)}
+              variant="outlined"
+              userEmail={currentUserEmail}
+              data={data}
+            />
           </div>
         </div>
-      </>
-    );
-  }
+      </div>
+    </>
+  );
 
   return (
     <div className="results-item-wrapper">
