@@ -40,6 +40,7 @@ import ModifySource from './features/sources/ModifySource';
 import EmailConfirmed from './features/auth/EmailConfirmed';
 import { selectIsLoggedIn, selectCurrentUser } from './features/auth/authSlice';
 import { setSearchQuery } from './features/search/util/setSearchQuery';
+import ErrorBoundary from './features/ui/ErrorBoundary';
 
 function App() {
   const { lastSearchTime } = useSelector((state) => state.query);
@@ -59,211 +60,215 @@ function App() {
     <>
       <Header />
       <div id="content">
-        <Routes>
-          <Route index element={<Homepage />} />
-
-          <Route
-            path="directory"
-            element={(
-              <RequireAuth>
-                <DirectoryHome />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="release-notes"
-            element={(
-              <RequireAuth>
-                <ReleaseNotes />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="user-quotas"
-            element={(
-              <RequireStaff>
-                <UsersQuotas />
-              </RequireStaff>
-            )}
-          />
-
-          <Route
-            path="about-search"
-            element={(
-              <RequireAuth>
-                <AboutSearch />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="search"
-            element={(
-              <RequireAuth>
-                <TabbedSearch />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="story/:platform/:storyURL"
-            element={(
-              <RequireAuth>
-                <StoryShow />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="collections"
-            element={(
-              <RequireAuth>
-                <CollectionHeader />
-              </RequireAuth>
-            )}
-          >
+        {/* catch-all for any page without a more specific boundary; sits below the
+            global Header so the nav bar stays usable when a page fails */}
+        <ErrorBoundary label="page">
+          <Routes>
+            <Route index element={<Homepage />} />
 
             <Route
-              path=":collectionId"
+              path="directory"
               element={(
                 <RequireAuth>
-                  <CollectionShow />
+                  <DirectoryHome />
                 </RequireAuth>
               )}
             />
-            <Route
-              path=":collectionId/edit"
-              element={(
-                <RequireCollectionEditor>
-                  <ModifyCollection />
-                </RequireCollectionEditor>
-              )}
-            />
 
-          </Route>
-          <Route
-            path="collections/create"
-            element={(
-              <RequireStaff>
-                <CreateCollection />
-              </RequireStaff>
-            )}
-          />
-          <Route
-            path="collections/news/geographic"
-            element={(
-              <RequireAuth>
-                <GeographicNewsCollections />
-              </RequireAuth>
-            )}
-          />
-
-          <Route
-            path="sources"
-            element={(
-              <RequireAuth>
-                <SourceHeader />
-              </RequireAuth>
-            )}
-          >
             <Route
-              path=":sourceId"
+              path="release-notes"
               element={(
                 <RequireAuth>
-                  <SourceShow />
+                  <ReleaseNotes />
                 </RequireAuth>
               )}
             />
+
             <Route
-              path=":sourceId/feeds"
-              element={(
-                <RequireAuth>
-                  <ListSourceFeeds />
-                </RequireAuth>
-              )}
-            />
-            <Route
-              path=":sourceId/edit"
+              path="user-quotas"
               element={(
                 <RequireStaff>
-                  <ModifySource />
+                  <UsersQuotas />
+                </RequireStaff>
+              )}
+            />
+
+            <Route
+              path="about-search"
+              element={(
+                <RequireAuth>
+                  <AboutSearch />
+                </RequireAuth>
+              )}
+            />
+
+            <Route
+              path="search"
+              element={(
+                <RequireAuth>
+                  <TabbedSearch />
+                </RequireAuth>
+              )}
+            />
+
+            <Route
+              path="story/:platform/:storyURL"
+              element={(
+                <RequireAuth>
+                  <StoryShow />
+                </RequireAuth>
+              )}
+            />
+
+            <Route
+              path="collections"
+              element={(
+                <RequireAuth>
+                  <CollectionHeader />
+                </RequireAuth>
+              )}
+            >
+
+              <Route
+                path=":collectionId"
+                element={(
+                  <RequireAuth>
+                    <CollectionShow />
+                  </RequireAuth>
+                )}
+              />
+              <Route
+                path=":collectionId/edit"
+                element={(
+                  <RequireCollectionEditor>
+                    <ModifyCollection />
+                  </RequireCollectionEditor>
+                )}
+              />
+
+            </Route>
+            <Route
+              path="collections/create"
+              element={(
+                <RequireStaff>
+                  <CreateCollection />
                 </RequireStaff>
               )}
             />
             <Route
-              path=":sourceId/feeds/create"
-              element={(
-                <RequireStaff>
-                  <CreateFeed />
-                </RequireStaff>
-              )}
-            />
-          </Route>
-          <Route
-            path="sources/create"
-            element={(
-              <RequireStaff>
-                <CreateSource />
-              </RequireStaff>
-            )}
-          />
-
-          <Route
-            path="feeds"
-            element={(
-              <RequireAuth>
-                <FeedHeader />
-              </RequireAuth>
-            )}
-          >
-            <Route
-              path=":feedId"
+              path="collections/news/geographic"
               element={(
                 <RequireAuth>
-                  <FeedShow />
+                  <GeographicNewsCollections />
                 </RequireAuth>
               )}
             />
+
             <Route
-              path=":feedId/edit"
+              path="sources"
+              element={(
+                <RequireAuth>
+                  <SourceHeader />
+                </RequireAuth>
+              )}
+            >
+              <Route
+                path=":sourceId"
+                element={(
+                  <RequireAuth>
+                    <SourceShow />
+                  </RequireAuth>
+                )}
+              />
+              <Route
+                path=":sourceId/feeds"
+                element={(
+                  <RequireAuth>
+                    <ListSourceFeeds />
+                  </RequireAuth>
+                )}
+              />
+              <Route
+                path=":sourceId/edit"
+                element={(
+                  <RequireStaff>
+                    <ModifySource />
+                  </RequireStaff>
+                )}
+              />
+              <Route
+                path=":sourceId/feeds/create"
+                element={(
+                  <RequireStaff>
+                    <CreateFeed />
+                  </RequireStaff>
+                )}
+              />
+            </Route>
+            <Route
+              path="sources/create"
               element={(
                 <RequireStaff>
-                  <ModifyFeed />
+                  <CreateSource />
                 </RequireStaff>
               )}
             />
-          </Route>
 
-          <Route path="sign-in" element={<SignIn />} />
+            <Route
+              path="feeds"
+              element={(
+                <RequireAuth>
+                  <FeedHeader />
+                </RequireAuth>
+              )}
+            >
+              <Route
+                path=":feedId"
+                element={(
+                  <RequireAuth>
+                    <FeedShow />
+                  </RequireAuth>
+                )}
+              />
+              <Route
+                path=":feedId/edit"
+                element={(
+                  <RequireStaff>
+                    <ModifyFeed />
+                  </RequireStaff>
+                )}
+              />
+            </Route>
 
-          <Route path="reset-password" element={<ResetPassword />} />
+            <Route path="sign-in" element={<SignIn />} />
 
-          <Route path="reset-password/confirmed" element={<ConfirmedReset />} />
+            <Route path="reset-password" element={<ResetPassword />} />
 
-          <Route path="sign-up" element={<SignUp />} />
+            <Route path="reset-password/confirmed" element={<ConfirmedReset />} />
 
-          <Route
-            path="verify-user"
-            element={(<EmailConfirmed />)}
-          />
+            <Route path="sign-up" element={<SignUp />} />
 
-          <Route
-            path="account"
-            element={(
-              <RequireAuth>
-                <Account />
-              </RequireAuth>
-            )}
-          />
+            <Route
+              path="verify-user"
+              element={(<EmailConfirmed />)}
+            />
 
-          <Route
-            path="*"
-            element={<BadURL />}
-          />
+            <Route
+              path="account"
+              element={(
+                <RequireAuth>
+                  <Account />
+                </RequireAuth>
+              )}
+            />
 
-        </Routes>
+            <Route
+              path="*"
+              element={<BadURL />}
+            />
+
+          </Routes>
+        </ErrorBoundary>
       </div>
       <Footer />
     </>

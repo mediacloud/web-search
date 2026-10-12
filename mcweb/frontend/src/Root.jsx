@@ -17,6 +17,7 @@ import './style/Application.scss';
 // Components
 import * as Sentry from '@sentry/react';
 import App from './App';
+import ErrorBoundary from './features/ui/ErrorBoundary';
 
 // Store
 import getStore from './app/store';
@@ -95,7 +96,9 @@ function Root() {
         <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
           <Box>
             <BrowserRouter>
-              <App />
+              <ErrorBoundary label="the application">
+                <App />
+              </ErrorBoundary>
             </BrowserRouter>
           </Box>
         </SnackbarProvider>
