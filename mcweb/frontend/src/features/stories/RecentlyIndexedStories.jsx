@@ -8,11 +8,12 @@ import {
   earliestAllowedStartDate,
   latestAllowedEndDate,
 } from '../search/util/platforms';
+import throwApiError from '../ui/apiError';
 
 export default function RecentlyIndexedStories({ sourceId, dayWindow }) {
   // recentlyIndexedStoriesQuery filters indexed_date to the last N days; start/end are the
   // widest publication-date bounds; story-list sorts by indexed_date, newest first.
-  const { data, isLoading } = useGetRecentlyIndexedStoriesQuery({
+  const { data, isLoading, error } = useGetRecentlyIndexedStoriesQuery({
     sourceId,
     dayWindow,
     startDate: earliestAllowedStartDate(PROVIDER_NEWS_MEDIA_CLOUD).format('YYYY-MM-DD'),
@@ -22,6 +23,10 @@ export default function RecentlyIndexedStories({ sourceId, dayWindow }) {
   if (isLoading) {
     return <CircularProgress size="75px" />;
   }
+  // surface fetch failures through the nearest ErrorBoundary rather than
+  // rendering an empty panel with no explanation
+  throwApiError(error);
+
   if (!data) return null;
 
   return (

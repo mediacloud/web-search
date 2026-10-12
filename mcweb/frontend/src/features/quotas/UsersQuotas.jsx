@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
 import { selectCurrentUser } from '../auth/authSlice';
 import { useGetUserQuotasQuery } from '../../app/services/authApi';
+import throwApiError from '../ui/apiError';
 
 function UsersQuotas() {
   const currentUser = useSelector(selectCurrentUser);
@@ -16,7 +17,9 @@ function UsersQuotas() {
     return (<div><CircularProgress size="75px" /></div>);
   }
   if (error) {
-    return <div>{error}</div>;
+    // rendering the error object directly threw "Objects are not valid as a React
+    // child"; send it to the ErrorBoundary with its details intact instead
+    throwApiError(error);
   }
 
   return (
