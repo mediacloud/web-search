@@ -19,6 +19,7 @@ import MediaNotFound from '../ui/MediaNotFound';
 import Monitored from '../ui/Monitored';
 import AdvancedMenu from './util/AdvancedMenu';
 import FeedMenu from './util/FeedMenu';
+import ErrorBoundary from '../ui/ErrorBoundary';
 
 export default function SourceHeader() {
   const params = useParams();
@@ -101,7 +102,10 @@ export default function SourceHeader() {
           <AdvancedMenu source={source} />
         </PermissionedContributor>
       </ControlBar>
-      <Outlet />
+      {/* the entity's own header and tabs stay usable when the page body fails */}
+      <ErrorBoundary label="source-detail">
+        <Outlet />
+      </ErrorBoundary>
     </>
   );
 }
