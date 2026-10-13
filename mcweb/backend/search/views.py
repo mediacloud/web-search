@@ -405,7 +405,7 @@ def sources(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.sources(_qs(pq), pq.start_date, pq.end_date, 10, **pq.provider_props)
+    response = provider.sources(_qs(pq), pq.start_date, pq.end_date, **{"limit": 10, **pq.provider_props})
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"sources": response})
 
@@ -424,7 +424,7 @@ def download_sources_csv(request):
     
     # PB: was passing sample_size=5000
     data = provider.sources(_qs(pq), pq.start_date,
-                            pq.end_date, **pq.provider_props, limit=100)
+                            pq.end_date, **{**pq.provider_props, "limit": 100})
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     data = add_ratios_to_source_counts(data)
 
@@ -469,7 +469,7 @@ def download_languages_csv(request):
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     # PB: was passing sample_size=5000
-    data = provider.languages(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props, limit=100)
+    data = provider.languages(_qs(pq), pq.start_date, pq.end_date, **{**pq.provider_props, "limit": 100})
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     filename = "mc-{}-{}-top-languages".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
