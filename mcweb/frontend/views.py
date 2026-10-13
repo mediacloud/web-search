@@ -50,6 +50,7 @@ def index(request):
         sentry_config={
             "sentry_dsn": (SENTRY_DSN or "null"),
             "sentry_env": (SENTRY_ENV or "null"),
+            "release": VERSION, # match Python sentry_sdk.init release
             "traces_rate": SENTRY_JS_TRACES_RATE,
             "replay_rate": SENTRY_JS_REPLAY_RATE,
         },
