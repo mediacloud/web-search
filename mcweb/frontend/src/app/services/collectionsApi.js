@@ -28,8 +28,8 @@ export const collectionsApi = managerApi.injectEndpoints({
         url: `collections/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
-      providesTags: ({ results }) => (results
-        ? [...results.map(({ id }) => ({ type: 'Collection', id }))] : ['Collection']),
+      providesTags: (result) => (result?.results
+        ? [...result.results.map(({ id }) => ({ type: 'Collection', id }))] : ['Collection']),
     }),
     getGlobalCollections: builder.query({
       query: () => ({

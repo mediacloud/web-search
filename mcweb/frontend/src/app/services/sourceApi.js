@@ -17,9 +17,9 @@ export const sourceApi = managerApi.injectEndpoints({
         url: `sources/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
-      providesTags: ({ results }) => (
-        results
-          ? [...results.map(({ id }) => ({ type: 'Source', id }))] : ['Source']
+      providesTags: (result) => (
+        result?.results
+          ? [...result.results.map(({ id }) => ({ type: 'Source', id }))] : ['Source']
       ),
     }),
     listSourcesFromArray: builder.query({

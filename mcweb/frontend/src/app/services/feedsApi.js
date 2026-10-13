@@ -9,7 +9,7 @@ export const feedsApi = managerApi.injectEndpoints({
         url: `feeds/?${toSearchUrlParams(params)}`,
         method: 'GET',
       }),
-      providesTags: (result, error, id) => (result.results
+      providesTags: (result, error, id) => (result?.results
         ? [{ type: 'Feed', id }]
         : ['Feed']),
     }),
