@@ -111,7 +111,7 @@ class SearchJsonEndpointsTest(TestCase):
         body = json.loads(response.content)
         self.assertEqual(body["sources"], [{"source": "example.com", "count": 10}])
         # sources() defaults limit to 10 (as a kwarg, so a caller's limit can override it)
-        self.assertEqual(provider.sources.call_args.kwargs["limit"], 10)
+        self.assertEqual(provider.sources.call_args.kwargs["limit"], 100)
         self.assertEqual(quota_hits(self.user), 4)
 
     def test_sources_caller_limit_overrides_default(self):
@@ -120,7 +120,9 @@ class SearchJsonEndpointsTest(TestCase):
             provider = MagicMock()
             provider.sources.return_value = []
             mock_pq_provider.return_value = provider
-            response = self.client.get("/api/search/sources", {**self.query_params, "limit": "100"})
+            params = {"limit": 100}
+            params.update(**self.query_params)
+            response = self.client.get("/api/search/sources", params)
 
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(provider.sources.call_args.kwargs["limit"], 100)
