@@ -92,9 +92,11 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
+    // data is stale until re-search if a query was added/removed; skip render
+    // (prepareCountOverTimeData indexes queryState by result position)
+    if (data.length !== queryState.length) return null;
     const preparedData = prepareCountOverTimeData(data, normalized, chartBy, queryState);
     if (!preparedData) return null;
-    if (preparedData.length !== queryState.length) return null;
     const updatedPrepareCountOverTimeData = preparedData.map(
       (originalDataObj, index) => {
         const queryTitleForPreparation = { name: queryState[index].name };

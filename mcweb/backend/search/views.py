@@ -394,6 +394,7 @@ def story_detail(request):
         del story_details['text']
     return json_response({"story": story_details})
 
+
 @api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
@@ -402,10 +403,10 @@ def story_detail(request):
 @handle_429
 @ratelimit(key="user", rate=query_rate)
 def sources(request):
-    pq = parse_query(request)
+    pq = parse_query(request, limit=100)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.sources(_qs(pq), pq.start_date, pq.end_date, 10, **pq.provider_props)
+    response = provider.sources(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"sources": response})
 
@@ -417,14 +418,13 @@ def sources(request):
 @handle_429
 @ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def download_sources_csv(request):
-    queries = parsed_query_state(request) # handles POST!
+    queries = parsed_query_state(request, limit=100) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     
     # PB: was passing sample_size=5000
-    data = provider.sources(_qs(pq), pq.start_date,
-                            pq.end_date, **pq.provider_props, limit=100)
+    data = provider.sources(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     data = add_ratios_to_source_counts(data)
 
@@ -464,12 +464,12 @@ def languages(request):
 @handle_429
 @ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
 def download_languages_csv(request):
-    queries = parsed_query_state(request) # handles POST!
+    queries = parsed_query_state(request, limit=100) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     # PB: was passing sample_size=5000
-    data = provider.languages(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props, limit=100)
+    data = provider.languages(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     filename = "mc-{}-{}-top-languages".format(pq.provider_name, filename_timestamp())
     response = HttpResponse(
@@ -530,7 +530,6 @@ def words(request):
     response = provider.words(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"words": response})
-                        
 
 
 @api_stats  # PLEASE KEEP FIRST!
@@ -557,6 +556,7 @@ def download_words_csv(request):
     cols = ['term', 'term_count', 'term_ratio', 'doc_count', 'doc_ratio', 'sample_size']
     CSVWriterHelper.write_top_words(writer, words, cols)
     return response
+
 
 @api_stats  # PLEASE KEEP FIRST!
 @login_required(login_url='/sign-in')

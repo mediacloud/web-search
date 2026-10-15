@@ -27,6 +27,17 @@ const timeoutAction = (fetchFunc) => new Promise((resolve) => {
   }, TIMEOUT_CONST_MS);
 });
 
+// one result per query; if ANY query failed, report the first error
+// (otherwise callers get a data array with undefined holes).
+// error is the backend error_response() payload ({note, temporary, ...}) when
+// there is one, else RTK's own error (eg. {status: 'FETCH_ERROR', error: '...'})
+const combineResults = (results) => {
+  const failed = results.find((result) => !result.data);
+  return failed
+    ? { error: failed.error.data ?? failed.error }
+    : { data: results.map((result) => result.data) };
+};
+
 export const searchApi = createApi({
   reducerPath: 'searchApi',
   baseQuery: fetchBaseQuery({
@@ -45,12 +56,7 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         })));
-        return Promise.all(promises).then(
-          (results) => (
-            results[0].data
-              ? { data: results.map((result) => (result.data)) }
-              : { error: results[0].error.data }),
-        );
+        return Promise.all(promises).then(combineResults);
       },
     }),
     getCountOverTime: builder.mutation({
@@ -60,12 +66,7 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         })));
-        return Promise.all(promises).then(
-          (results) => (
-            results[0].data
-              ? { data: results.map((result) => (result.data)) }
-              : { error: results[0].error.data }),
-        );
+        return Promise.all(promises).then(combineResults);
       },
     }),
     getSampleStories: builder.mutation({
@@ -75,12 +76,7 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         })));
-        return Promise.all(promises).then(
-          (results) => (
-            results[0].data
-              ? { data: results.map((result) => (result.data)) }
-              : { error: results[0].error.data }),
-        );
+        return Promise.all(promises).then(combineResults);
       },
     }),
     getStoryDetails: builder.query({
@@ -99,12 +95,7 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         })));
-        return Promise.all(promises).then(
-          (results) => (
-            results[0].data
-              ? { data: results.map((result) => (result.data)) }
-              : { error: results[0].error.data }),
-        );
+        return Promise.all(promises).then(combineResults);
       },
     }),
     getTopLanguages: builder.mutation({
@@ -114,11 +105,7 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         })));
-        return Promise.all(promises).then(
-          (results) => (results[0].data
-            ? { data: results.map((result) => (result.data)) }
-            : { error: results[0].error.data }),
-        );
+        return Promise.all(promises).then(combineResults);
       },
     }),
     getTopSources: builder.mutation({
@@ -128,12 +115,7 @@ export const searchApi = createApi({
           method: 'POST',
           body: { queryObject },
         })));
-        return Promise.all(promises).then(
-          (results) => (
-            results[0].data
-              ? { data: results.map((result) => (result.data)) }
-              : { error: results[0].error.data }),
-        );
+        return Promise.all(promises).then(combineResults);
       },
     }),
     sendTotalAttentionDataEmail: builder.mutation({
