@@ -97,7 +97,7 @@ def request_session_id(request) -> str | None:
     else:
         return None
 
-def parse_query_params(request, is_search: bool = True) -> (ParsedQuery, dict):
+def parse_query_params(request, is_search: bool = True, **default_props) -> (ParsedQuery, dict):
     """
     return ParsedQuery plus dict for other params.
 
@@ -121,11 +121,15 @@ def parse_query_params(request, is_search: bool = True) -> (ParsedQuery, dict):
         # allow staff without ado for SourceInspector:
         if cs is None and ss is None and not request.user.is_staff:
             raise UserValueError("Must have at least one of 'ss' or 'cs' parameters")
+        # here we want to combine any defaults and any user-supplied props together and pass them
+        # to the provider to figure out which are valid or invalid for that provider
+        # QueryDict.dict() so values are strings (not lists); user-supplied values win over defaults
+        other_props = default_props | request.GET.dict()
         provider_props = search_props_for_provider(
             provider_name,
             _listify(cs),
             _listify(ss),
-            request.GET
+            other_props
         )
         start_date = _get_parse_date(request.GET, "start")
         end_date = _get_parse_date(request.GET, "end")
@@ -154,12 +158,18 @@ def parse_query_params(request, is_search: bool = True) -> (ParsedQuery, dict):
                      caching=caching, session_id=session_id)
     return (pq, request.GET)
 
-def parse_query(request) -> ParsedQuery:
-    pq, payload = parse_query_params(request)
+def parse_query(request, **defaults) -> ParsedQuery:
+    """
+    Central handler that parses all the search parameters out of the http request
+    :param defaults useful for passing in any params required by the provider that the user might not have
+                    set in an api call
+    """
+    pq, payload = parse_query_params(request, **defaults)
     return pq
 
-def parsed_query_from_dict(payload: dict, session_id: str) -> ParsedQuery:
+def parsed_query_from_dict(payload: dict, session_id: str, **defaults) -> ParsedQuery:
     """
+    Central handler that parses all the search parameters out of a dict that might have been POST'd as JSON
     Takes a queryObject dict, returns ParsedQuery
     """
     provider_name = payload["platform"]
@@ -168,7 +178,10 @@ def parsed_query_from_dict(payload: dict, session_id: str) -> ParsedQuery:
         raise UserValueError("Missing 'query' parameter value")
     collections = payload["collections"]
     sources = payload["sources"]
-    provider_props = search_props_for_provider(provider_name, collections, sources, payload)
+    # ensure that any defaults and user properties are passed in to only return valid ones for
+    # this provider
+    all_props = defaults | payload
+    provider_props = search_props_for_provider(provider_name, collections, sources, all_props)
     start_date = _get_parse_date(payload, "startDate")
     end_date = _get_parse_date(payload, "endDate")
     api_key = _get_api_key(provider_name)
@@ -179,11 +192,13 @@ def parsed_query_from_dict(payload: dict, session_id: str) -> ParsedQuery:
                        caching=caching,
                        session_id=session_id)
 
-def parsed_query_state(request) -> list[ParsedQuery]:
+def parsed_query_state(request, **defaults) -> list[ParsedQuery]:
     """
     return list of parsed queries from "queryState" (list of dicts).
     Expects POST with JSON object with a "queryState" element (download-all-queries)
     or GET with qs=JSON_STRING (many)
+    :param defaults useful for passing in any params required by the provider that the user might not have
+                    set in an api call
     """
     if request.method == 'POST':
         payload = json.loads(request.body)
@@ -192,7 +207,7 @@ def parsed_query_state(request) -> list[ParsedQuery]:
         queries = json.loads(request.GET.get("qS"))
 
     session_id = request_session_id(request)
-    pqs = [parsed_query_from_dict(q, session_id) for q in queries]
+    pqs = [parsed_query_from_dict(q, session_id, **defaults) for q in queries]
     return pqs
 
 def _get_api_key(provider: str) -> str | None:
