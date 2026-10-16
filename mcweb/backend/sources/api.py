@@ -157,7 +157,8 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(source__id=source_id)
         queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
         name = self.request.query_params.get("name")
-        if name is not None:
+        # skip empty/blank name (no words would leave name_query None)
+        if name and name.strip():
             if True: # was constance.config.SRCS_KW_NEWEST_SEARCH
                 # NEW EXPERIMENTAL PG specific keyword search:
                 # Generates name ILIKE '%word1%' ...
@@ -413,7 +414,8 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(collections__id=collection_id)
         queryset = queryset.filter(platform=Source.SourcePlatforms.ONLINE_NEWS)
         name = self.request.query_params.get("name")
-        if name is not None:
+        # skip empty/blank name (no words would leave name_query None)
+        if name and name.strip():
             if True:  # was constance.config.SRCS_KW_NEWEST_SEARCH:
                 # The strategy is to generate:
                 # ((name ILIKE '%word1%' AND name ILIKE '%word2' ....) OR

@@ -28,9 +28,9 @@ class EmailThread(threading.Thread):
     def run(self):
         try:
             self.email.send()
-            logger.info("EmailThread to %r completed", email.to)
+            logger.info("EmailThread to %r completed", self.email.to)
         except:
-            logger.exception("EmailThread to %r exception", email.to)
+            logger.exception("EmailThread to %r exception", self.email.to)
 
 def send_rescrape_email(subject: str, body: str, from_email: str, recipients: list[str]) -> int:
     """

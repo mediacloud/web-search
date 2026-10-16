@@ -1,4 +1,11 @@
 [
+{"version":"v3.2.0",
+ "date":"2026-10-10",
+ "notes":[
+   "Upgraded Python, Django etc",
+   "Source/feed recently indexed stories"
+ ]
+},
 {"version":"v3.1.16",
  "date":"2026-10-02",
  "notes":[

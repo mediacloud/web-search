@@ -92,9 +92,8 @@ export default function CountOverTimeResults() {
       </Alert>
     );
   } else {
-    // `data` is from the last search. If a query has been added or removed since
-    // then it no longer lines up with queryState, so there's no date range to chart
-    // each series against -- blank the panel until the next search.
+    // data is stale until re-search if a query was added/removed; skip render
+    // (prepareCountOverTimeData indexes queryState by result position)
     if (data.length !== queryState.length) return null;
     const preparedData = prepareCountOverTimeData(data, normalized, chartBy, queryState);
     if (!preparedData) return null;
