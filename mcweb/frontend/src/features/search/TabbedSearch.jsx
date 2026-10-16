@@ -59,6 +59,14 @@ export default function TabbedSearch() {
     setTextFieldValues(queryState.map((query) => query.name));
   }, [queryState, edit]);
 
+  // a shrinking query set can leave the selected tab index past the end of the list,
+  // which hides the whole query configuration panel; pull it back into range
+  useEffect(() => {
+    setValue((current) => (
+      current >= queryState.length ? Math.max(queryState.length - 1, 0) : current
+    ));
+  }, [queryState.length]);
+
   document.title = 'Media Cloud Search';
 
   const handleShare = () => {
@@ -91,6 +99,10 @@ export default function TabbedSearch() {
   const handleAddQuery = () => {
     const qsLength = queryState.length;
 
+    // the cached results belong to the previous set of queries, so drop them --
+    // the panels stay blank until the user runs a new search
+    dispatch(searchApi.util.resetApiState());
+
     setColor(() => [...color, 'White']);
     setEdit(() => [...edit, false]);
     dispatch(addQuery({ platform, advanced }));
@@ -106,6 +118,10 @@ export default function TabbedSearch() {
   };
 
   const handleRemoveQuery = async (index) => {
+    // the cached results belong to the previous set of queries, so drop them --
+    // the panels stay blank until the user runs a new search
+    dispatch(searchApi.util.resetApiState());
+
     const updatedColor = color.filter((_, i) => i !== index);
     const updatedEdit = edit.filter((_, i) => i !== index);
 
@@ -145,6 +161,10 @@ export default function TabbedSearch() {
   };
 
   const handleComparative = (i, type) => {
+    // the cached results belong to the previous set of queries, so drop them --
+    // the panels stay blank until the user runs a new search
+    dispatch(searchApi.util.resetApiState());
+
     if (type === PARTISAN) {
       dispatch(addComparativeQuery({ type: PARTISAN, query: queryState[i] }));
     }
@@ -223,7 +243,13 @@ export default function TabbedSearch() {
                           sx={{
                             color: '#d24527', marginLeft: '.5rem',
                           }}
-                          onClick={() => handleRemoveQuery(i)}
+                          onClick={(event) => {
+                            // this icon is inside the <Tab>, so without this the click
+                            // also fires the Tabs onChange and re-selects the tab we are
+                            // deleting, clobbering the index handleRemoveQuery just set
+                            event.stopPropagation();
+                            handleRemoveQuery(i);
+                          }}
                           variant="contained"
                         />
                       )}
