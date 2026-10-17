@@ -12,6 +12,7 @@ import CSVDialog from '../util/CSVDialog';
 import { WORDS } from '../util/getDownloadUrl';
 import { PROVIDER_NEWS_WAYBACK_MACHINE, PROVIDER_NEWS_MEDIA_CLOUD } from '../util/platforms';
 import prepareQueries from '../util/prepareQueries';
+import throwApiError from '../../ui/apiError';
 import OrderedWordCloud from './OrderedWordCloud';
 import TabPanelHelper from '../../ui/TabPanelHelper';
 
@@ -71,13 +72,14 @@ export default function TopWords() {
   // them with -- blank the panel until the next search.
   if (data && data.length !== queryState.length) return null;
 
-  if (error || !data[0].words[0]) {
+  // let API failures (including transient ones, eg. no route to Elasticsearch) reach
+  // the ErrorBoundary around this panel, which shows copyable details and tells Sentry
+  throwApiError(error);
+
+  if (!data[0].words[0]) {
     content = (
-      <Alert severity="warning">
-        Sorry, but something went wrong.
-        (
-        {error ? error.note : 'No results please try a different query'}
-        )
+      <Alert severity="info">
+        No results, please try a different query.
       </Alert>
     );
   } else {

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import CircularProgress from '@mui/material/CircularProgress';
 import dayjs from 'dayjs';
 import { useGetPendingTasksQuery, useGetCompletedTasksQuery } from '../../app/services/sourceApi';
+import throwApiError from '../ui/apiError';
 
 export default function TaskList({ completed }) {
   const title = completed ? 'Completed Tasks' : 'Tasks in Progress';
@@ -10,7 +11,12 @@ export default function TaskList({ completed }) {
   const {
     data,
     isLoading: tasksLoading,
+    error,
   } = completed ? useGetCompletedTasksQuery() : useGetPendingTasksQuery();
+
+  // surface fetch failures through the nearest ErrorBoundary rather than
+  // rendering an empty panel with no explanation
+  throwApiError(error);
 
   if (!data) return null;
 

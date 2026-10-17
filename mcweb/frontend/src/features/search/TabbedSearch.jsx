@@ -25,6 +25,7 @@ import TopLanguages from './results/TopLanguages';
 import SampleStories from './results/SampleStories';
 import TopSources from './results/TopSources';
 import TabPanelHelper from '../ui/TabPanelHelper';
+import ErrorBoundary from '../ui/ErrorBoundary';
 import { searchApi } from '../../app/services/searchApi';
 import { PARTISAN, GLOBAL } from './util/generateComparativeQuery';
 import deactivateButton from './util/deactivateButton';
@@ -278,12 +279,14 @@ export default function TabbedSearch() {
           </Tabs>
         </Box>
 
-        {queryState.map((query, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <TabPanelHelper key={i} value={value} index={i}>
-            <Search queryIndex={i} />
-          </TabPanelHelper>
-        ))}
+        <ErrorBoundary label="search-query">
+          {queryState.map((query, i) => (
+            // eslint-disable-next-line react/no-array-index-key
+            <TabPanelHelper key={i} value={value} index={i}>
+              <Search queryIndex={i} />
+            </TabPanelHelper>
+          ))}
+        </ErrorBoundary>
       </Box>
 
       <div className="search-button-wrapper">
@@ -347,12 +350,17 @@ export default function TabbedSearch() {
       </div>
       <div className="search-results-wrapper">
         <div className="container">
-          <CountOverTimeResults />
-          <TotalAttentionResults />
-          <SampleStories />
-          <TopLanguages />
-          <TopSources />
-          <TopWords />
+          {/* one boundary for the whole results area: a backend outage fails every
+              panel at once, so per-panel boundaries only produced six identical
+              error boxes. The query configuration above is never taken down. */}
+          <ErrorBoundary label="search-results">
+            <CountOverTimeResults />
+            <TotalAttentionResults />
+            <SampleStories />
+            <TopLanguages />
+            <TopSources />
+            <TopWords />
+          </ErrorBoundary>
         </div>
       </div>
     </div>

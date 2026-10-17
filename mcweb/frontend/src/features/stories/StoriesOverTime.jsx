@@ -6,6 +6,7 @@ import { useGetCountOverTimeMutation } from '../../app/services/searchApi';
 import CountOverTimeChart from '../search/results/CountOverTimeChart';
 import { prepareCountOverTimeData, MONTH } from '../search/util/prepareCountOverTimeData';
 import prepareQueries from '../search/util/prepareQueries';
+import throwApiError from '../ui/apiError';
 import { PROVIDER_NEWS_MEDIA_CLOUD, latestAllowedEndDate, earliestAllowedStartDate } from '../search/util/platforms';
 
 export default function StoriesOverTime({ collectionId, sourceId }) {
@@ -41,6 +42,9 @@ export default function StoriesOverTime({ collectionId, sourceId }) {
   }
 
   if (!data && !error) return null;
+  // let API failures reach the ErrorBoundary around this chart rather than rendering
+  // nothing at all (prepareCountOverTimeData returns null for an undefined `data`)
+  throwApiError(error);
 
   // grouped by month -- this chart spans the whole archive, so daily buckets are too fine
   const preparedData = prepareCountOverTimeData(data, false, MONTH, query);

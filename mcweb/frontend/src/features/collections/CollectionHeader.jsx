@@ -26,6 +26,7 @@ import AlertDialog from '../ui/AlertDialog';
 import Monitored from '../ui/Monitored';
 import CopyCollectionDialog from './util/CopyCollectionDialog';
 import MediaNotFound from '../ui/MediaNotFound';
+import ErrorBoundary from '../ui/ErrorBoundary';
 
 export default function CollectionHeader() {
   const params = useParams();
@@ -175,7 +176,10 @@ export default function CollectionHeader() {
         </PermissionedStaff>
 
       </ControlBar>
-      <Outlet />
+      {/* the entity's own header and tabs stay usable when the page body fails */}
+      <ErrorBoundary label="collection-detail">
+        <Outlet />
+      </ErrorBoundary>
     </>
   );
 }
