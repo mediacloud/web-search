@@ -15,7 +15,6 @@ urlpatterns = [
     path('count-by-source-over-interval', views.count_by_source_over_interval),
     path('download-counts-over-time-csv', views.download_counts_over_time_csv),
     path('download-all-content-csv', views.download_all_content_csv),
-    path('download-all-queries', views.download_all_queries_csv),
     path('story', views.story_detail),
     path('languages', views.languages),    
     path('sources', views.sources),    

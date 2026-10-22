@@ -40,14 +40,14 @@ clean-deploy:
 ################ Django backend related
 
 BACKEND_REQ=requirements.txt
-BACKEND_VENV=venv
+BACKEND_VENV=.venv
 BACKEND_VENV_BIN=$(BACKEND_VENV)/bin
 BACKEND_VENV_DONE=$(BACKEND_VENV)/.done
 BACKEND_VENV_PYTHON=$(BACKEND_VENV_BIN)/$(PYTHON)
 
 $(BACKEND_VENV_DONE): $(BACKEND_REQ)
-	test -d $(BACKEND_VENV) || $(PYTHON) -mvenv $(BACKEND_VENV)
-	$(BACKEND_VENV_PYTHON) -mpip install -r $(BACKEND_REQ)
+	test -d $(BACKEND_VENV) || uv venv --python `cat .python-version`
+	uv pip install -r $(BACKEND_REQ)
 	touch $(BACKEND_VENV_DONE)
 
 install-backend: $(BACKEND_VENV_DONE)
