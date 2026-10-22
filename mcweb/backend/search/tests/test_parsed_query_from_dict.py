@@ -33,7 +33,7 @@ class ParsedQueryFromDictTest(TestCase):
         }
         pq = parsed_query_from_dict(payload, session_id="user@example.com")
         self.assertEqual(pq.provider_name, "onlinenews-mediacloud")
-        self.assertEqual(pq.query_str, "robots")
+        self.assertEqual(pq.query, "robots")
         self.assertEqual(pq.start_date, dt.datetime(2026, 8, 1))
         self.assertEqual(pq.end_date, dt.datetime(2026, 9, 1))
         self.assertEqual(pq.session_id, "user@example.com")

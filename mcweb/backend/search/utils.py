@@ -4,7 +4,8 @@ import json
 import logging
 import time
 from collections import defaultdict
-from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional, Tuple
+from enum import Enum
+from typing import Any, Callable, Dict, Generator, Iterable, List, Mapping, NamedTuple, Optional
 
 # PyPI
 import constance
@@ -28,35 +29,35 @@ from util.exceptions import UserValueError
 
 logger = logging.getLogger(__name__)
 
+class FileType(Enum):
+    """
+    types of generated CSV files for pq_basename()
+    .value is used in filename
+    """
+    ALL_CONTENT = "content"     # all hits/URLs
+    COUNTS = "counts"
+    TOP_LANGUAGES = "top-languages"
+    TOP_SOURCES = "top-sources"
+    TOP_WORDS = "top-words"
+
 class ParsedQuery(NamedTuple):
+    """
+    If at any point it becomes necessary to mangle the user query in
+    some way (ie; wrap in parens) again before passing to
+    mc-providers, either do it in the process of creating the
+    ParsedQuery (two places, in this file), or replace the query
+    member below with _query (and hit those two places) and define a
+    query @property that does the mangling.
+    """
+
     start_date: dt.datetime
     end_date: dt.datetime
-    query_str: str
+    query: str
     provider_props: dict
     provider_name: str
     api_key: str | None
     caching: bool = True
     session_id: str | None = None
-
-# not used?
-def fill_in_dates(start_date, end_date, existing_counts):
-    delta = (end_date + dt.timedelta(1)) - start_date
-    date_count_dict = {k['date']: k['count'] for k in existing_counts}
-
-    # whether or not the dates in existing_counts are string types
-    dates_as_strings = (len(date_count_dict.keys()) == 0) or (isinstance(next(iter(date_count_dict.keys())), str))
-    if not dates_as_strings:
-        date_count_dict = {dt.datetime.strftime(k, "%Y-%m-%d %H:%M:%S"): v for k, v in date_count_dict.items()}
-
-    filled_counts = []
-    for i in range(delta.days):
-        day = start_date + dt.timedelta(days=i)
-        day_string = dt.datetime.strftime(day, "%Y-%m-%d %H:%M:%S")
-        if day_string not in date_count_dict.keys():
-            filled_counts.append({"count": 0, "date": day_string})
-        else:
-            filled_counts.append({'count': date_count_dict[day_string], 'date': day_string})
-    return filled_counts
 
 def pq_provider(pq: ParsedQuery, platform: Optional[str] = None) -> ContentProvider:
     """
@@ -153,7 +154,7 @@ def parse_query_params(request, is_search: bool = True, **default_props) -> (Par
             caching = 1
 
     pq = ParsedQuery(start_date=start_date, end_date=end_date,
-                     query_str=query_str, provider_props=provider_props,
+                     query=query_str, provider_props=provider_props,
                      provider_name=provider_name, api_key=api_key,
                      caching=caching, session_id=session_id)
     return (pq, request.GET)
@@ -187,7 +188,7 @@ def parsed_query_from_dict(payload: dict, session_id: str, **defaults) -> Parsed
     api_key = _get_api_key(provider_name)
     caching = payload.get("caching", True)
     return ParsedQuery(start_date=start_date, end_date=end_date,
-                       query_str=query_str, provider_props=provider_props,
+                       query=query_str, provider_props=provider_props,
                        provider_name=provider_name, api_key=api_key,
                        caching=caching,
                        session_id=session_id)
@@ -394,26 +395,24 @@ def _for_media_cloud(collections: list[str], sources: list[str], all_params: dic
 
     return props
 
-def filename_timestamp() -> str:
-    """
-    used for CSV & ZIP filenames in both views.py and tasks.py
-    """
-    return time.strftime("%Y%m%d%H%M%S", time.localtime())
-
 def all_content_csv_generator(pqs: list[ParsedQuery], user_id, is_staff, delay = 0.0) -> Callable[[],Generator[list, None, None]]:
     """
-    returns function returning generator for "total attention" CSV file
-    with rows from all queries.
+    returns function returning generator for "all content" CSV file
+    with URLs from all queries.
+
     used for both immediate CSV download (download_all_content_csv)
     and emailed CSV (download_all_large_content_csv).
+
+    NOTE!!! passing delay for "interactive" use would tie up the server process!!
     """
     def data_generator() -> Generator[list, None, None]:
         # phil: moved outside per-query loop (so headers appear once)
         first_page = True
         for pq in pqs:
             provider = pq_provider(pq)
-            result = provider.all_items(f"({pq.query_str})", pq.start_date, pq.end_date, **pq.provider_props)
+            result = provider.all_items(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
             for page in result:
+                # NOTE! QuotaHistory.check_quota call should be done first by caller!
                 QuotaHistory.increment(user_id, is_staff, pq.provider_name)
                 if first_page:  # send back column names, which differ by platform
                     yield sorted(page[0].keys())
@@ -424,9 +423,12 @@ def all_content_csv_generator(pqs: list[ParsedQuery], user_id, is_staff, delay =
                     time.sleep(delay)
     return data_generator
 
-def all_content_csv_basename(pqs: list[ParsedQuery]) -> str:
+def pq_basename(pq: ParsedQuery, file_type: FileType) -> str:
     """
-    returns a base filename for CSV and ZIP filenames
+    ONE place to generate base file names (without .csv/txt/zip)
+    (so one place to add or remove provider_name!)
     """
-    base_filename = "mc-{}-{}-content".format(pqs[-1].provider_name, filename_timestamp())
-    return base_filename
+    # NOTE: server is running in UTC, so calling gmtime
+    # (maybe add "Z" or "GMT"?)
+    ts = time.strftime("%Y%m%d%H%M%S", time.gmtime())
+    return f"mc-{pq.provider_name}-{ts}-{file_type.value}"
