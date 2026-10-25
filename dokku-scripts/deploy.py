@@ -30,7 +30,7 @@ class WebSearchDeploy(
     # map of plugin name to Service (requires mc-deploy 0.17)
     DOKKU_SERVICES = {
         "postgres": Service(suffix="-db", version="16"),
-        "redis": Service(suffix="-cache", version="8.10.0"),
+        "redis": Service(suffix="-cache", version="8.10"),
         "storage": Service()    # no suffix, image or version!
     }
 
