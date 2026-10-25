@@ -35,18 +35,18 @@ from util.ratelimit_callables import query_rate
 
 # mcweb/backend/search (local dir)
 from .utils import (
+    FileType,
     ParsedQuery,
-    all_content_csv_basename,
     all_content_csv_generator,
-    filename_timestamp,
     parse_query,
     parse_query_params,
     parsed_query_from_dict,
     parsed_query_state,
+    pq_basename,
     pq_provider,
     request_session_id
 )
-from .tasks import download_all_large_content_csv, download_all_queries_csv_task
+from .tasks import download_all_large_content_csv
 from .read_requests import read_requests, make_table
 
 # mcweb/backend/users
@@ -224,17 +224,6 @@ def handle_429(func):
             )
     return _handler
 
-def _qs(pq: ParsedQuery) -> str:
-    """
-    removed paren wrapping (should not be needed with providers 3.0)
-    because it confusifies parser error messages!
-
-    function used to access query_str,
-    in case reverting to paren wrapping needed in a hurry.
-    _qs(pq) is shorter than _p(pq.query_str)
-    """
-    return pq.query_str
-
 @api_stats  # PLEASE KEEP FIRST!
 @handle_provider_errors
 @api_view(['GET', 'POST'])
@@ -246,7 +235,7 @@ def total_count(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    relevant_count = provider.count(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    relevant_count = provider.count(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     try:
         total_content_count = provider.count(provider.everything_query(), pq.start_date, pq.end_date, **pq.provider_props)
     except QueryingEverythingUnsupportedQuery as e:
@@ -268,10 +257,10 @@ def count_over_time(request):
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
-        results = provider.normalized_count_over_time(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+        results = provider.normalized_count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     except UnsupportedOperationException:
         # for platforms that don't support querying over time
-        results = provider.count_over_time(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+        results = provider.count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     response = results
     QuotaHistory.increment(
         request.user.id, request.user.is_staff, pq.provider_name)
@@ -326,7 +315,7 @@ def count_by_source_over_interval(request):
         )
 
     matching = provider.two_d_aggregation(
-        query=_qs(pq),
+        query=pq.query,
         start_date=pq.start_date,
         outer_field="publish_date",
         inner_field="media_name",
@@ -371,7 +360,7 @@ def sample(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.sample(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    response = provider.sample(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
     return json_response({"sample": response})
 
@@ -406,7 +395,7 @@ def sources(request):
     pq = parse_query(request, limit=100)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.sources(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    response = provider.sources(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"sources": response})
 
@@ -424,11 +413,11 @@ def download_sources_csv(request):
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     
     # PB: was passing sample_size=5000
-    data = provider.sources(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    data = provider.sources(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     data = add_ratios_to_source_counts(data)
 
-    filename = "mc-{}-{}-top-sources".format(pq.provider_name, filename_timestamp())
+    filename = pq_basename(pq, FileType.TOP_SOURCES)
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -451,7 +440,7 @@ def languages(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.languages(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    response = provider.languages(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     return json_response({"languages": response})
 
@@ -469,9 +458,9 @@ def download_languages_csv(request):
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     # PB: was passing sample_size=5000
-    data = provider.languages(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    data = provider.languages(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
-    filename = "mc-{}-{}-top-languages".format(pq.provider_name, filename_timestamp())
+    filename = pq_basename(pq, FileType.TOP_LANGUAGES)
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -511,7 +500,7 @@ def story_list(request):
     # strictly necessary, *BUT* it's presense here means users cannot pass it in
     # as an parameter.  This MAY be a feature, as it's possible to imagine that
     # some untested value(s) of sort_field might cause pathological behavior!
-    page, pagination_token = provider.paged_items(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
+    page, pagination_token = provider.paged_items(pq.query, pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 1)
     return json_response({"stories": page, "pagination_token": pagination_token})
 
@@ -527,7 +516,7 @@ def words(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.words(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    response = provider.words(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"words": response})
 
@@ -545,9 +534,9 @@ def download_words_csv(request):
     provider = pq_provider(pq)
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     # PB: was passing sample_size=5000
-    words = provider.words(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+    words = provider.words(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
-    filename = "mc-{}-{}-top-words".format(pq.provider_name, filename_timestamp())
+    filename = pq_basename(pq, FileType.TOP_WORDS)
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -572,14 +561,13 @@ def download_counts_over_time_csv(request):
     QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
         data = provider.normalized_count_over_time(
-            _qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+            pq.query, pq.start_date, pq.end_date, **pq.provider_props)
         normalized = True
     except UnsupportedOperationException:
-        data = provider.count_over_time(pq.query_str, pq.start_date, pq.end_date, **pq.provider_props)
+        data = provider.count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
         normalized = False
     QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
-    filename = "mc-{}-{}-counts".format(
-        pq.provider_name, filename_timestamp())
+    filename = pq_basename(pq, FileType.COUNTS)
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': f"attachment; filename={filename}.csv"},
@@ -607,9 +595,10 @@ def download_all_content_csv(request):
         # maybe check user has enough remaining quota to retrieve count/pagesize pages????
         # for now, just check they're not already over quota (no charge for the count)
         QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
+        # NOTE! QuotaHistory.increment calls done in all_content_csv_generator
         provider = pq_provider(pq)
         try:
-            total += provider.count(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+            total += provider.count(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
         except UnsupportedOperationException:
             return error_response(f"Can't count results for download for {pq.provider_name}",
                                   request=request)
@@ -623,7 +612,7 @@ def download_all_content_csv(request):
                               request=request)
 
     data_generator = all_content_csv_generator(parsed_queries, request.user.id, request.user.is_staff)
-    filename = all_content_csv_basename(parsed_queries)
+    filename = pq_basename(parsed_queries[-1], FileType.ALL_CONTENT)
     return csv_stream.streaming_csv_response(data_generator, filename)
 
 
@@ -649,7 +638,7 @@ def send_email_large_download_csv(request):
         pq = parsed_query_from_dict(query, session_id)
         provider = pq_provider(pq)
         try:
-            total += provider.count(_qs(pq), pq.start_date, pq.end_date, **pq.provider_props)
+            total += provider.count(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
         except UnsupportedOperationException:
             # said "continuing anyway", but didn't!
             return error_response("Can't count results for download in {}".format(pq.provider_name))
@@ -664,21 +653,6 @@ def send_email_large_download_csv(request):
         return error_response("Total {} not between {} and {}".format(
             total, ALL_URLS_CSV_EMAIL_MIN, ALL_URLS_CSV_EMAIL_MAX))
 
-@api_stats  # PLEASE KEEP FIRST!
-@login_required(login_url='/sign-in')
-@handle_provider_errors
-@require_http_methods(["POST"])
-@action(detail=False)
-@handle_429
-@ratelimit(key="user", rate=CSV_RATE_LIMIT) # TEMP
-def download_all_queries_csv(request):
-    queries = parsed_query_state(request) # handles GET with qS=JSON
-
-    # make background task to fetch each query and zip into file then send email
-    download_all_queries_csv_task(queries, request)
-    # was: return HttpResponse(content_type="application/json", status=200)
-    return json_response("")
-
 # PB 9/26: IS THIS USED???  It works, but only if supplied
 # "Authorization" as a ***QUERY PARAMETER***, with value "Token
 # <TOKEN>"!!!  NONETHELESS, I've fixed it to honor AVAILABLE_PROVIDERS
@@ -689,6 +663,7 @@ def download_all_queries_csv(request):
 @authentication_classes([TokenAuthentication]) #API only method for now
 @permission_classes([IsAuthenticated])
 def providers(request):
+    logger.warning("views.providers called!") # 2026-10-21
     token = request.GET.get('Authorization', None)
     if token:
         user = _user_from_token(token)
@@ -707,7 +682,6 @@ def add_ratios_to_source_counts(data):
         item['ratio'] = item['count'] / total_count if total_count > 0 else 0
     return data
 
-## TEMP?
 @api_stats  # PLEASE KEEP FIRST!
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication, SessionAuthentication])

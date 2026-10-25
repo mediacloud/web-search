@@ -7,7 +7,7 @@ if [ "x$_BASE_DIR" = x ]; then
     exit 1
 fi
 _WEB_SEARCH=$_BASE_DIR/../..
-_VENV_DIR=$_WEB_SEARCH/venv
+_VENV_DIR=$_WEB_SEARCH/.venv
 _VENV_BIN=$_VENV_DIR/bin
 _PYTHON=$_VENV_BIN/python
 
