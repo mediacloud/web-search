@@ -12,7 +12,7 @@ gunicorn==26.*
 whitenoise==6.12.*
 sentry-sdk==2.70.*
 requests  # let the other dependencies sort out which is the right version
-mc-providers @ git+https://github.com/mediacloud/mc-providers@v5.0.latest
+mc-providers @ git+https://github.com/mediacloud/mc-providers@v5.1.latest
 pycountry==26.2.16  # that these aren't semantic version numbers... they are YY.mm.dd dates so pin to exact!
 django-background-tasks==1.2.*  # django-background-tasks-updated deprecated now
 django-cors-headers==4.9.*
