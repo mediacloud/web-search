@@ -4,7 +4,6 @@
  "notes":[
    "Fix search deletion",
    "Improve error handling",
-   "Upgraded Python, Django etc",
    "Sample 5K stories for words"
  ]
 },
