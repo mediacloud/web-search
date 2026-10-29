@@ -1,4 +1,13 @@
 [
+{"version":"v3.2.1",
+ "date":"2026-10-30",
+ "notes":[
+   "Fix search deletion",
+   "Improve error handling",
+   "Upgraded Python, Django etc",
+   "Sample 5K stories for words"
+ ]
+},
 {"version":"v3.2.0",
  "date":"2026-10-10",
  "notes":[
