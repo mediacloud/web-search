@@ -156,10 +156,8 @@ def stats_quota(f):
     @api_stats
     def wrapper(viewset, request, *args, **kws):
         try:
-            QuotaHistory.check_quota(request.user.id, request.user.is_staff, provider)
-            ret = f(viewset, request, *args, **kws)
-            QuotaHistory.increment(request.user.id, request.user.is_staff, provider, DIRECTORY_HITS)
-            return ret
+            with QuotaHistory.context(request.user, provider, DIRECTORY_HITS):
+                return f(viewset, request, *args, **kws)
         except OverQuotaException as e:
             return quota_exceeded(e, request)
     return wrapper

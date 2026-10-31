@@ -1,3 +1,6 @@
+import time
+import types
+
 import constance
 from django import db
 from django.db import models
@@ -98,7 +101,10 @@ class QuotaHistory(models.Model):
         if (quota <= matching.hits) and not is_staff:
             raise OverQuotaException(provider, quota)
         return matching.hits
-    
+
+    @classmethod
+    def context(cls, user: User, provider: str, incr: int = 1) -> "_QuotaContext":
+        return _QuotaContext(user, provider, incr)
 
 class ResetCodes(models.Model):
     email = models.EmailField()
@@ -112,3 +118,30 @@ class ResetCodes(models.Model):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+class _QuotaContext:
+    def __init__(self, user: User, provider: str, incr: int = 1):
+        self.user = user
+        self.provider = provider
+        self.incr = incr
+
+    def __enter__(self) -> "_QuotaContext":
+        # XXX maybe check if usage + incr <= quota??
+        QuotaHistory.check_quota(self.user.id,
+                                 self.user.is_staff,
+                                 self.provider)
+        #self.t0 = time.monotonic()
+        return self
+
+    def __exit__(self,
+                 exc_type: type[BaseException],
+                 value: BaseException,
+                 traceback_: types.TracebackType) -> bool:
+        if exc_type is None:
+            # FUTURE: pass elapsed time to update time used column?
+            #elapsed = time.monotonic() - self.t0
+            QuotaHistory.increment(self.user.id,
+                                   self.user.is_staff,
+                                   self.provider,
+                                   self.incr)
+        return False            # propagate exceptions
