@@ -5,7 +5,8 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from ..models import ActionHistory, Feed, Source
-
+from ..api import DIRECTORY_HITS
+from ...users.models import QuotaHistory
 
 class FeedsViewSetCrudTest(APITestCase):
     """
@@ -28,6 +29,9 @@ class FeedsViewSetCrudTest(APITestCase):
             username="feeds_staff", password="pw", is_staff=True)
         self.non_staff_user = User.objects.create_user(
             username="feeds_contributor", password="pw")
+
+        self.quota_user = self.non_staff_user
+        QuotaHistory.objects.filter(user=self.quota_user, provider="onlinenews-mediacloud").delete()
 
     def _response_ids(self, response):
         body = response.data
@@ -106,3 +110,11 @@ class FeedsViewSetCrudTest(APITestCase):
         before_ids = self._response_ids(before_response)
         self.assertIn(old_feed.id, before_ids)
         self.assertNotIn(recent_feed.id, before_ids)
+
+    def test_retrieve_increments_hits(self):
+        self.client.force_login(self.quota_user)
+        response = self.client.get(f"{self.URL}{self.feed.id}/")
+
+        self.assertEqual(response.status_code, 200, response.content)
+        hits = QuotaHistory.objects.get(user=self.quota_user, provider="onlinenews-mediacloud").hits
+        self.assertEqual(hits, DIRECTORY_HITS)

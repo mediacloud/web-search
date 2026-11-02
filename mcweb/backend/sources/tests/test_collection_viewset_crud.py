@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase
 
 from ...users.models import Profile, QuotaHistory
 from ..models import ActionHistory, Collection, Source
+from ..api import DIRECTORY_HITS
 
 URL = "/api/sources/collections/"
 
@@ -74,7 +75,7 @@ class CollectionViewSetCrudTest(APITestCase):
 
         self.assertEqual(response.status_code, 200, response.content)
         hits = QuotaHistory.objects.get(user=self.user, provider="onlinenews-mediacloud").hits
-        self.assertEqual(hits, 1)
+        self.assertEqual(hits, DIRECTORY_HITS)
 
     def test_source_count_reflects_membership(self):
         collection = Collection.objects.create(name="Counted Collection")

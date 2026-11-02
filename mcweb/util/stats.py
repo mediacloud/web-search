@@ -57,49 +57,46 @@ def gauge(path: list[str], value: float, labels: list[Label] = []) -> None:
 
 def path_stats(path: str, elapsed: float, status: int) -> None:
     """
-    called from logging_middleware
+    called from api_stats decorator.
+    was once called from middleware, which meant many extraneous paths
+    (admin, home, static content)
     """
     # handle double and trailing slashes, numeric arguments
     elements = [elt for elt in path.split("/")
                 if elt and not elt.isdigit()]
 
-    if not elements:
-        app = "home"
-        elements = ["home"]     # want timing
-    elif elements[0] == "api":
-        elements.pop(0)
-        if not elements:
-            logger.info("path_stats %s", path)
-            return
-        app = elements[0]
-    elif elements[0].startswith("admin"):
-        elements = ["admin"]    # too many variations
-    else:
-        # not home page, not api, not admin
-        logger.info("path_stats2 %s", path)
+    nelt = len(elements)
+    if nelt < 2 or elements[0] != "api":
+        logger.warning("path_stats %s", path)
         return
 
-    # counters are cheap (two files per name)
-    if elements:
-        count(["api", "calls"] + elements, labels=[("status", status)])
+    # 2026-10-30: only report app and top level viewset/op
+    # (too many variations in sources, and variable length a pain)
+    app = elements[1]
+    if nelt >= 3:
+        what = elements[2]      # ViewSet or search type
+    else:
+        what = "none"           # /api/version
+
+    count(["api", "calls"], labels=[("app", app), ("what", what)])
+
+    # 2026-10-30 report status by app
+    count(["api", "status"], labels=[("app", app), ("status", status)])
 
     # timers are expensive (MANY disk files per name),
     # so only report by app, for successes for now
     if status == 200:
-        app = elements[0]
         timing(["api", "success"], elapsed*1000, labels=[("app", app)])
 
 def api_stats(api_func):
     """
     decorator for *ALL* API calls for stats reporting.
-    should be first decorator used!!!
 
     Can be used to decorate a rest_api handler (request first arg)
-    or a class method (request second arg)
+    or a class (ViewSet) method (request second arg)
 
-    For now, just a wrapper around path_stats
-    (originally called from logging_middleware
-    but it saw EVERY random path requested!!!)
+    originally called from logging_middleware
+    but it saw EVERY random path requested!!!
     """
     @wraps(api_func)
     def decorator(*args, **kwargs):

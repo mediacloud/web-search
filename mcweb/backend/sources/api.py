@@ -4,6 +4,7 @@ import json
 import os
 import time
 from typing import List, Optional
+from functools import wraps
 
 # PyPI
 import mcmetadata.urls as urls
@@ -28,9 +29,13 @@ from util.cache import cache_by_kwargs
 from util.send_emails import send_source_upload_email
 from util.stats import api_stats
 
+# mcweb/backend/users
+from backend.users.exceptions import OverQuotaException
+
 # mcweb/backend/util
 from backend.util import csv_stream
 from backend.util.tasks import get_completed_tasks, get_pending_tasks
+from backend.util.response import quota_exceeded
 
 # local directory (mcweb/backend/sources)
 from .serializer import CollectionSerializer, FeedSerializer, SourceSerializer, SourcesViewSerializer, CollectionWriteSerializer, AlternativeDomainSerializer
@@ -42,6 +47,13 @@ from .tasks import schedule_scrape_source, schedule_scrape_collection
 
 # mcweb/backend/users
 from backend.users.models import QuotaHistory
+
+# mcweb/backend/util
+from backend.util.response import error_response
+
+
+# most users are likely to make more search calls than directory calls
+DIRECTORY_HITS = 2              # no rate control; punish scrapers
 
 # Need to directly use "ILIKE" to allow Postgres to use trigram index,
 # and they seem disinclined to remedy this:
@@ -128,6 +140,28 @@ def _cached_serialized_featured_collections(platform) -> str:
     serializer = CollectionViewSet.serializer_class(fc, many=True)
     return serializer.data
 
+def stats_quota(f):
+    """
+    one-stop wrapper, handles:
+    * stats (counts and timing)
+    * quota check & increment
+    * over quota response
+    does NOT (currently) handle rate limiting (leave it to quotas)
+
+    MAYBE declare as a function that takes an increment and returns a
+    decorator function?? *OR* just use api_stats in places that should
+    have zero cost?
+    """
+    @wraps(f)
+    @api_stats
+    def wrapper(viewset, request, *args, **kws):
+        try:
+            with QuotaHistory.context(request.user, provider, DIRECTORY_HITS):
+                return f(viewset, request, *args, **kws)
+        except OverQuotaException as e:
+            return quota_exceeded(e, request)
+    return wrapper
+
 class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     action_history_object_model = ActionHistory.ModelType.COLLECTION
     # use this queryset, so we ensure that every result has `source_count` included
@@ -176,16 +210,12 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if self.request.method != 'GET':
             serializer_class = CollectionWriteSerializer
         return serializer_class
-    
+
+    @stats_quota
     def retrieve(self, request, *args, **kwargs):
-        # Check quota before serving the request
-        QuotaHistory.check_quota(request.user.id, request.user.is_staff, provider)
-
-        # Increment quota hit
-        QuotaHistory.increment(request.user.id, request.user.is_staff, provider)
-
         return super().retrieve(request, *args, **kwargs)
 
+    @stats_quota
     @action(detail=False)
     def featured(self, request):
         data = _cached_serialized_featured_collections(
@@ -197,7 +227,7 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         response.render()
         return response
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['GET'], detail=False)
     def geo_collections(self, request):
         this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -206,7 +236,7 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         deserial_data = json.load(json_data)
         return Response({"countries": deserial_data})
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['GET'], detail=False, url_path='collections-from-list')
     def collections_from_list(self, request):
         collection_ids_param = request.query_params.get('c')
@@ -218,7 +248,7 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         serializer = CollectionWriteSerializer(collections, many=True)
         return Response({"collections": serializer.data})
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['GET'], detail=False, url_path='collections-from-nested-list')
     def collections_from_nested_list(self, request):
         nested_list = request.query_params
@@ -235,7 +265,7 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         names = [[item['name'] for item in sublist] for sublist in names]
         return Response({"collection": names})
     
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['post'], detail=False, url_path='copy-collection')
     def copy_collection(self, request):
         collection_id = request.data.get("collection_id")
@@ -262,7 +292,7 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['post'], detail=False, url_path='rescrape-collection')
     def rescrape_feeds(self, request):
         collection_id = int(request.data["collection_id"])
@@ -320,21 +350,21 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 
         return queryset
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(detail=False)
     def details(self, request):
         source_id = int(self.request.query_params.get("source_id"))
         with _rss_fetcher_api() as rss:
             return Response({"feeds": rss.source_feeds(source_id)})
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(detail=False, url_path='feed-details')
     def feed_details(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
         with _rss_fetcher_api() as rss:
             return Response({"feed": rss.feed(feed_id)})
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(detail=False)
     def stories(self, request):
         feed_id = self.request.query_params.get("feed_id", None)
@@ -351,7 +381,7 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 
         return Response({"stories": stories})
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(detail=False)
     def history(self, request):
         feed_id = int(self.request.query_params.get("feed_id"))
@@ -361,7 +391,7 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 feed_history, key=lambda d: d['created_at'], reverse=True)
             return Response({"feed": feed_history})
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(detail=False)
     def fetch(self, request):
         feed_id = self.request.query_params.get("feed_id", None)
@@ -455,12 +485,12 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         return queryset
     
     
+    @stats_quota
     def retrieve(self, request, *args, **kwargs):
-        QuotaHistory.check_quota(request.user.id, request.user.is_staff, provider)
-        QuotaHistory.increment(request.user.id, request.user.is_staff, provider)
         return super().retrieve(request, *args, **kwargs)
 
 
+    @stats_quota
     def create(self, request):
         cleaned_data = Source._clean_source(request.data)
         if cleaned_data:
@@ -476,6 +506,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         else:
             raise APIException("No homepage, homepage required")
 
+    @stats_quota
     def partial_update(self, request, pk=None):
         instance = self.get_object()
         serializer = SourceSerializer(instance, data=request.data, partial=True)
@@ -487,7 +518,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
             error_string = serializer.errors
             raise APIException(f"{error_string}")
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['post'], detail=False)
     def upload_sources(self, request):
         collection = Collection.objects.get(pk=request.data['collection_id'])
@@ -614,7 +645,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         send_source_upload_email(email_title, email_text, request.user.email)
         return Response(counts)
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['GET'], detail=False)
     def download_csv(self, request):
         collection_id = request.query_params.get('collection_id')
@@ -636,7 +667,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
             collection_id, collection.name, _filename_timestamp())
         return csv_stream.streaming_csv_response(data_generator, filename)
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['GET'], detail=False, url_path='sources-from-list')
     def sources_from_list(self, request):
         source_ids_param = request.query_params.get('s', None)  # decode
@@ -649,7 +680,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         return Response({"sources": serializer.data})
 
     # NOTE!!!! returns a "Task" object! Maybe belongs in a TaskView??
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['post'], detail=False, url_path='rescrape-feeds')
     def rescrape_feeds(self, request):
         # maybe take multiple ids?  Or just add a method to rescrape a source
@@ -664,7 +695,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
     # directory/sources specific (list all background tasks)!!
 
     # returns list of CompletedTasks (maybe belongs in a CompletedTaskView?)
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(detail=False, url_path='completed-tasks')
     def completed_tasks(self, request):
         """
@@ -674,7 +705,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         return Response(get_completed_tasks(request.user))
 
     # returns list of Tasks (maybe belongs in a TaskView?)
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(detail=False, url_path='pending-tasks')
     def pending_tasks(self, request):
         """
@@ -683,7 +714,7 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         # lists all tasks for user (None lists all tasks)
         return Response(get_pending_tasks(request.user))
 
-    @api_stats  # PLEASE KEEP FIRST
+    @stats_quota
     @action(methods=['post'], detail=False, url_path='with-feeds')
     def with_feeds(self, request):
         """
@@ -705,6 +736,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         IsGetOrIsStaffOrContributor
     ]
 
+    @stats_quota
     def retrieve(self, request, pk=None):
         collection_bool = request.query_params.get('collection')
         if (collection_bool == 'true'):
@@ -721,6 +753,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
                 collection_associations, many=True)
             return Response({'collections': serializer.data})
 
+    @stats_quota
     def destroy(self, request, pk=None):
         collection_bool = request.query_params.get('collection')
         if (collection_bool == 'true'):
@@ -759,6 +792,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
                 source.collections.remove(collection)
             return Response({'collection_id': collection_id, 'source_id': pk})
 
+    @stats_quota
     def create(self, request):
         source_id = request.data['source_id']
         sources_queryset = Source.objects.all()
@@ -789,6 +823,7 @@ class AlternativeDomainViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet)
 
     serializer_class = AlternativeDomainSerializer
 
+    @stats_quota
     def create(self, request):
         source_id = request.data.get("source_id", None)
         alternative_domain_id = request.data.get("alternative_domain_id", None)
