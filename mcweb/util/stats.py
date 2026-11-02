@@ -65,14 +65,18 @@ def path_stats(path: str, elapsed: float, status: int) -> None:
     elements = [elt for elt in path.split("/")
                 if elt and not elt.isdigit()]
 
-    if len(elements) < 3 or elements[0] != "api":
+    nelt = len(elements)
+    if nelt < 2 or elements[0] != "api":
         logger.warning("path_stats %s", path)
         return
 
     # 2026-10-30: only report app and top level viewset/op
     # (too many variations in sources, and variable length a pain)
     app = elements[1]
-    what = elements[2]          # ViewSet or search type
+    if nelt >= 3:
+        what = elements[2]      # ViewSet or search type
+    else:
+        what = "none"           # /api/version
 
     count(["api", "calls"], labels=[("app", app), ("what", what)])
 
