@@ -351,6 +351,10 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         return queryset
 
     @stats_quota
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @stats_quota
     @action(detail=False)
     def details(self, request):
         source_id = int(self.request.query_params.get("source_id"))
