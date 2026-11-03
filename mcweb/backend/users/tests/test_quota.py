@@ -1,3 +1,5 @@
+import time
+
 import constance
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -88,26 +90,69 @@ class QuotaHistoryIncrementTest(TestCase):
         self.user = User.objects.create_user(username="increment_user")
         Profile.objects.create(user=self.user, quota_mediacloud=10)
 
-    def test_increments_hits_by_the_given_amount(self):
-        result = QuotaHistory.increment(self.user.id, False, MEDIACLOUD, amount=3)
+    def test_increments_hits_ms(self):
+        with QuotaHistory.context(self.user, MEDIACLOUD):
+            time.sleep(0.05)
 
-        self.assertEqual(result, 3)
+        curr = QuotaHistory.current_for(self.user.id, MEDIACLOUD)
+        self.assertEqual(curr.hits, 1)
+        self.assertGreaterEqual(curr.ms, 50)
+
+    def test_increments_hits_by_the_given_amount(self):
+        with QuotaHistory.context(self.user, MEDIACLOUD, incr=3):
+            pass
         self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 3)
 
-    def test_crossing_the_quota_raises_but_still_persists_the_increment(self):
+    def test_up_to_quota(self):
+        QuotaHistory.objects.create(
+            user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=9)
+
+        with QuotaHistory.context(self.user, MEDIACLOUD):
+            pass
+
+        self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 10)
+
+    def test_over_quota(self):
+        QuotaHistory.objects.create(
+            user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=10)
+
+        with self.assertRaises(OverQuotaException):
+            with QuotaHistory.context(self.user, MEDIACLOUD):
+                pass
+
+        # error from context __enter__: no increment
+        self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 10)
+
+    def test_crosses_quota(self):
         QuotaHistory.objects.create(
             user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=9)
 
         with self.assertRaises(OverQuotaException):
-            QuotaHistory.increment(self.user.id, False, MEDIACLOUD)
+            with QuotaHistory.context(self.user, MEDIACLOUD, incr=2):
+                pass
 
-        # the hit that pushed them over quota must still be recorded
-        self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 10)
+        # error from context __enter__: no increment
+        self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 9)
 
     def test_staff_bypasses_the_quota_but_still_increments(self):
         QuotaHistory.objects.create(
             user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=99)
 
-        result = QuotaHistory.increment(self.user.id, True, MEDIACLOUD)
+        with QuotaHistory.id_context(self.user.id, True, MEDIACLOUD):
+            time.sleep(0.05)
 
-        self.assertEqual(result, 100)
+        # still incremented:
+        curr = QuotaHistory.current_for(self.user.id, MEDIACLOUD)
+        self.assertEqual(curr.hits, 100)
+        self.assertGreaterEqual(curr.ms, 50)
+
+    def test_exception_no_increment(self):
+        QuotaHistory.objects.create(
+            user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=9)
+
+        with self.assertRaises(Exception):
+            with QuotaHistory.context(self.user, MEDIACLOUD, incr=2):
+                raise Exception("foo")
+
+        # no increment on exception:
+        self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 9)
