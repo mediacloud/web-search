@@ -101,7 +101,6 @@ class QuotaHistory(models.Model):
         """
         now private: called from QuotaContext
         """
-        # XXX use update_or_create for atomic update??
         week = cls._this_week()
         matching, created = QuotaHistory.objects.update_or_create(
             user_id=user_id, provider=provider, week=week,
@@ -117,10 +116,6 @@ class QuotaHistory(models.Model):
                 "ms": ms
             }
         )
-        #matching = cls.current_for(user_id, provider)
-        #matching.hits += amount
-        #matching.ms += ms
-        #matching.save()
 
     @classmethod
     def context(cls, user: User, provider: str, incr: int = 1) -> "_QuotaContext":
