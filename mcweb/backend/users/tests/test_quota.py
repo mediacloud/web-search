@@ -90,13 +90,24 @@ class QuotaHistoryIncrementTest(TestCase):
         self.user = User.objects.create_user(username="increment_user")
         Profile.objects.create(user=self.user, quota_mediacloud=10)
 
-    def test_increments_hits_ms(self):
+    def test_new_row(self):
         with QuotaHistory.context(self.user, MEDIACLOUD):
             time.sleep(0.05)
 
         curr = QuotaHistory.current_for(self.user.id, MEDIACLOUD)
         self.assertEqual(curr.hits, 1)
         self.assertGreaterEqual(curr.ms, 50)
+
+    def test_increment_existing_row(self):
+        QuotaHistory.objects.create(
+            user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=1, ms=10)
+
+        with QuotaHistory.context(self.user, MEDIACLOUD):
+            time.sleep(0.05)
+
+        curr = QuotaHistory.current_for(self.user.id, MEDIACLOUD)
+        self.assertEqual(curr.hits, 2)
+        self.assertGreaterEqual(curr.ms, 60)
 
     def test_increments_hits_by_the_given_amount(self):
         with QuotaHistory.context(self.user, MEDIACLOUD, incr=3):
