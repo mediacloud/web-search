@@ -61,6 +61,15 @@ from backend.util.response import json_response, error_response, quota_exceeded,
 # TEMP: enforce SOME limit on csv endpoints!
 CSV_RATE_LIMIT = "6/m"
 
+# quota increment values, for consistency.
+# changing costs may break unit tests!!
+COST_ITEM = 1                   # Currently expensive?
+COST_LANG = 2
+COST_SRCS = 4                   # why so expensive?
+COST_TIME = 2                   # count over time
+COST_TWOD = 4                   # 2-D
+COST_WRDS = 4
+
 logger = logging.getLogger(__name__)
 
 # enable caching for mc_providers results (explicitly referencing pkg for clarity)
@@ -156,13 +165,12 @@ def handle_429(func):
 def total_count(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    relevant_count = provider.count(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    try:
-        total_content_count = provider.count(provider.everything_query(), pq.start_date, pq.end_date, **pq.provider_props)
-    except QueryingEverythingUnsupportedQuery as e:
-        total_content_count = None
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
+    with QuotaHistory.context(request.user, pq.provider_name):
+        relevant_count = provider.count(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
+        try:
+            total_content_count = provider.count(provider.everything_query(), pq.start_date, pq.end_date, **pq.provider_props)
+        except QueryingEverythingUnsupportedQuery as e:
+            total_content_count = None
     return json_response({"count": {"relevant": relevant_count, "total": total_content_count}})
 
 
@@ -177,16 +185,13 @@ def total_count(request):
 def count_over_time(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    try:
-        results = provider.normalized_count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    except UnsupportedOperationException:
-        # for platforms that don't support querying over time
-        results = provider.count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    response = results
-    QuotaHistory.increment(
-        request.user.id, request.user.is_staff, pq.provider_name)
-    return json_response({"count_over_time": response})
+    with QuotaHistory.context(request.user, pq.provider_name):
+        try:
+            results = provider.normalized_count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
+        except UnsupportedOperationException:
+            # for platforms that don't support querying over time
+            results = provider.count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
+    return json_response({"count_over_time": results})
 
 
 @api_stats  # PLEASE KEEP FIRST!
@@ -236,24 +241,25 @@ def count_by_source_over_interval(request):
             f"Too many sources*time-buckets selected for this query (max {max_buckets})"
         )
 
-    matching = provider.two_d_aggregation(
-        query=pq.query,
-        start_date=pq.start_date,
-        outer_field="publish_date",
-        inner_field="media_name",
-        interval=interval,
-        num_intervals=num_intervals,
-        domains=domains
-    )
-    totals = provider.two_d_aggregation(
-        query='*',
-        start_date=pq.start_date,
-        outer_field="publish_date",
-        inner_field="media_name",
-        interval=interval,
-        num_intervals=num_intervals,
-        domains=domains
-    )
+    with QuotaHistory.context(request.user, pq.provider_name, incr=COST_TWOD):
+        matching = provider.two_d_aggregation(
+            query=pq.query,
+            start_date=pq.start_date,
+            outer_field="publish_date",
+            inner_field="media_name",
+            interval=interval,
+            num_intervals=num_intervals,
+            domains=domains
+        )
+        totals = provider.two_d_aggregation(
+            query='*',
+            start_date=pq.start_date,
+            outer_field="publish_date",
+            inner_field="media_name",
+            interval=interval,
+            num_intervals=num_intervals,
+            domains=domains
+        )
 
     shaped_data = []
     for media in domains:
@@ -268,7 +274,6 @@ def count_by_source_over_interval(request):
                 "total_stories": total,
                 "ratio": (count / total) if total > 0 else 0
             })
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
     return json_response({"source-interval-attention": shaped_data})
 
 @api_stats  # PLEASE KEEP FIRST!
@@ -281,9 +286,8 @@ def count_by_source_over_interval(request):
 def sample(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.sample(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
+    with QuotaHistory.context(request.user, pq.provider_name):
+        response = provider.sample(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     return json_response({"sample": response})
 
 @api_stats  # PLEASE KEEP FIRST!
@@ -295,12 +299,11 @@ def sample(request):
 @ratelimit(key="user", rate=query_rate)
 def story_detail(request):
     pq, params = parse_query_params(request, is_search=False) # unlikely to handle POST!
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     story_id = params.get("storyId")
     platform = params.get("platform")
     provider = pq_provider(pq, platform)
-    story_details = provider.item(story_id)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name)
+    with QuotaHistory.context(request.user, pq.provider_name, incr=COST_ITEM):
+        story_details = provider.item(story_id)
     if not request.user.is_staff: # maybe some group membership?
         del story_details['text']
     return json_response({"story": story_details})
@@ -316,9 +319,8 @@ def story_detail(request):
 def sources(request):
     pq = parse_query(request, limit=100)
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.sources(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
+    with QuotaHistory.context(request.user, pq.provider_name, incr=COST_SRCS):
+        response = provider.sources(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     return json_response({"sources": response})
 
 @api_stats  # PLEASE KEEP FIRST!
@@ -332,11 +334,8 @@ def download_sources_csv(request):
     queries = parsed_query_state(request, limit=100) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    
-    # PB: was passing sample_size=5000
-    data = provider.sources(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
+    with QuotaHistory.context(request.user, pq.provider_name, incr=COST_SRCS):
+        data = provider.sources(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     data = add_ratios_to_source_counts(data)
 
     filename = pq_basename(pq, FileType.TOP_SOURCES)
@@ -361,9 +360,8 @@ def download_sources_csv(request):
 def languages(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.languages(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
+    with QuotaHistory.context(request.user, pq.provider_name, incr=COST_LANG):
+        response = provider.languages(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     return json_response({"languages": response})
 
 
@@ -378,10 +376,8 @@ def download_languages_csv(request):
     queries = parsed_query_state(request, limit=100) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    # PB: was passing sample_size=5000
-    data = provider.languages(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
+    with QuotaHistory.context(request.user, pq.provider_name, incr=COST_LANG):
+        data = provider.languages(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     filename = pq_basename(pq, FileType.TOP_LANGUAGES)
     response = HttpResponse(
         content_type='text/csv',
@@ -403,7 +399,6 @@ def download_languages_csv(request):
 def story_list(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
 
     # support returning text content for staff only
     if pq.provider_props.get('expanded') is not None:
@@ -422,8 +417,8 @@ def story_list(request):
     # strictly necessary, *BUT* it's presense here means users cannot pass it in
     # as an parameter.  This MAY be a feature, as it's possible to imagine that
     # some untested value(s) of sort_field might cause pathological behavior!
-    page, pagination_token = provider.paged_items(pq.query, pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 1)
+    with QuotaHistory.context(request.user, pq.provider_name):
+        page, pagination_token = provider.paged_items(pq.query, pq.start_date, pq.end_date, **pq.provider_props, sort_field="indexed_date")
     return json_response({"stories": page, "pagination_token": pagination_token})
 
 
@@ -437,9 +432,8 @@ def story_list(request):
 def words(request):
     pq = parse_query(request)
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    response = provider.words(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
+    with QuotaHistory.context(request.user, pq.provider_name, incr=COST_WRDS):
+        response = provider.words(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     return json_response({"words": response})
 
 
@@ -454,10 +448,8 @@ def download_words_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-    # PB: was passing sample_size=5000
-    words = provider.words(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 4)
+    with QuotaHistory.context(request.user, pq.provider_name, incr=COST_WRDS):
+        words = provider.words(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
     filename = pq_basename(pq, FileType.TOP_WORDS)
     response = HttpResponse(
         content_type='text/csv',
@@ -480,15 +472,15 @@ def download_counts_over_time_csv(request):
     queries = parsed_query_state(request) # handles POST!
     pq = queries[0]
     provider = pq_provider(pq)
-    QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
     try:
-        data = provider.normalized_count_over_time(
-            pq.query, pq.start_date, pq.end_date, **pq.provider_props)
+        with QuotaHistory.context(request.user, pq.provider_name, incr=COST_TIME):
+            data = provider.normalized_count_over_time(
+                pq.query, pq.start_date, pq.end_date, **pq.provider_props)
         normalized = True
     except UnsupportedOperationException:
-        data = provider.count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
+        with QuotaHistory.context(request.user, pq.provider_name, incr=COST_TIME):
+            data = provider.count_over_time(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
         normalized = False
-    QuotaHistory.increment(request.user.id, request.user.is_staff, pq.provider_name, 2)
     filename = pq_basename(pq, FileType.COUNTS)
     response = HttpResponse(
         content_type='text/csv',
@@ -517,7 +509,6 @@ def download_all_content_csv(request):
         # maybe check user has enough remaining quota to retrieve count/pagesize pages????
         # for now, just check they're not already over quota (no charge for the count)
         QuotaHistory.check_quota(request.user.id, request.user.is_staff, pq.provider_name)
-        # NOTE! QuotaHistory.increment calls done in all_content_csv_generator
         provider = pq_provider(pq)
         try:
             total += provider.count(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
