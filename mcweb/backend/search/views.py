@@ -477,7 +477,7 @@ def download_counts_over_time_csv(request):
     CSVWriterHelper.write_attn_over_time(writer, data, cols)
     return response
 
-def _total_for_all_queries(parsed_queries):
+def _total_for_all_queries(request, parsed_queries):
     total = 0
     for pq in parsed_queries:
         # XXX maybe sum totals by provider_name and check user has
@@ -498,7 +498,7 @@ def download_all_content_csv(request):
 
     # get result total to verify in range:
     try:
-        total = _total_for_all_queries(parsed_queries)
+        total = _total_for_all_queries(request, parsed_queries)
     except UnsupportedOperationException:
         return error_response(f"Can't count results for download", request=request)
 
@@ -531,8 +531,11 @@ def send_email_large_download_csv(request):
     # applying range check to sum of all queries!
     session_id = request_session_id(request)
     try:
-        total = _total_for_all_queries(parsed_query_from_dict(query, session_id)
-                                       for query in queryState)
+        total = _total_for_all_queries(
+            request,
+            (parsed_query_from_dict(query, session_id)
+            for query in queryState)
+        )
     except UnsupportedOperationException:
         return error_response(f"Can't count results for emailed csv", request=request)
 
