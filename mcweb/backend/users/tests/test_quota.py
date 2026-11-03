@@ -91,7 +91,7 @@ class QuotaHistoryIncrementTest(TestCase):
         Profile.objects.create(user=self.user, quota_mediacloud=10)
 
     def test_new_row(self):
-        with QuotaHistory.context(self.user, MEDIACLOUD):
+        with QuotaHistory.context(self.user, MEDIACLOUD, incr=1):
             time.sleep(0.05)
 
         curr = QuotaHistory.current_for(self.user.id, MEDIACLOUD)
@@ -102,7 +102,7 @@ class QuotaHistoryIncrementTest(TestCase):
         QuotaHistory.objects.create(
             user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=1, ms=10)
 
-        with QuotaHistory.context(self.user, MEDIACLOUD):
+        with QuotaHistory.context(self.user, MEDIACLOUD, incr=1):
             time.sleep(0.05)
 
         curr = QuotaHistory.current_for(self.user.id, MEDIACLOUD)
@@ -118,7 +118,7 @@ class QuotaHistoryIncrementTest(TestCase):
         QuotaHistory.objects.create(
             user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=9)
 
-        with QuotaHistory.context(self.user, MEDIACLOUD):
+        with QuotaHistory.context(self.user, MEDIACLOUD, incr=1):
             pass
 
         self.assertEqual(QuotaHistory.current_for(self.user.id, MEDIACLOUD).hits, 10)
@@ -128,7 +128,7 @@ class QuotaHistoryIncrementTest(TestCase):
             user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=10)
 
         with self.assertRaises(OverQuotaException):
-            with QuotaHistory.context(self.user, MEDIACLOUD):
+            with QuotaHistory.context(self.user, MEDIACLOUD, 1):
                 pass
 
         # error from context __enter__: no increment
@@ -149,7 +149,7 @@ class QuotaHistoryIncrementTest(TestCase):
         QuotaHistory.objects.create(
             user=self.user, provider=MEDIACLOUD, week=QuotaHistory._this_week(), hits=99)
 
-        with QuotaHistory.id_context(self.user.id, True, MEDIACLOUD):
+        with QuotaHistory.id_context(self.user.id, True, MEDIACLOUD, 1):
             time.sleep(0.05)
 
         # still incremented:
