@@ -118,11 +118,11 @@ class QuotaHistory(models.Model):
         )
 
     @classmethod
-    def context(cls, user: User, provider: str, incr: int = 1) -> "_QuotaContext":
+    def context(cls, user: User, provider: str, incr: int) -> "_QuotaContext":
         return cls.id_context(user.id, user.is_staff, provider, incr)
 
     @classmethod
-    def id_context(cls, user_id: int, is_staff: bool, provider: str, incr: int = 1) -> "_QuotaContext":
+    def id_context(cls, user_id: int, is_staff: bool, provider: str, incr: int) -> "_QuotaContext":
         return _QuotaContext(user_id, is_staff, provider, incr)
 
     @classmethod
@@ -157,7 +157,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 class _QuotaContext:
-    def __init__(self, user_id: int, is_staff: bool, provider: str, incr: int = 1):
+    def __init__(self, user_id: int, is_staff: bool, provider: str, incr: int):
         self.user_id = user_id
         self.is_staff = is_staff
         self.provider = provider
