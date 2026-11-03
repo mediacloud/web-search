@@ -12,6 +12,8 @@ from typing import Type
 
 from django.http import HttpResponseBadRequest, HttpResponse, HttpRequest
 
+from util.exceptions import HttpResponseRatelimited
+
 TRACE_JSON_RESPONSE = False
 
 def json_response(value: dict | str | None, *, _class: Type[HttpResponse] = HttpResponse) -> HttpResponse:
