@@ -134,7 +134,7 @@ class QuotaHistory(models.Model):
         This avoids charging the user for time spent sleeping in
         background tasks.
         """
-        context = cls.id_context(user_id, is_staff, provider)
+        context = cls.id_context(user_id, is_staff, provider, 1)
         while True:
             try:
                 with context:
