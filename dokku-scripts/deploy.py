@@ -65,6 +65,8 @@ class WebSearchDeploy(
 
         # from push.sh, config.sh:
         if self.is_prod_staging():
+            self.settings_load_management_config()  # AIRTABLE, SENTRY
+
             files = ["common.sh"]
             if self.is_prod():
                 files.append("prod.sh")
