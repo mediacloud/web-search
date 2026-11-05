@@ -29,7 +29,7 @@ logger = logging.getLogger(__file__)
 # validate with
 # "jq . < mcweb/frontend/src/features/about/release_history.json"
 # (JSON reader doesn't handle trailing commas in lists/dicts)
-VERSION = "3.2.1"
+VERSION = "3.2.2"
 
 class Groups:
     CONTRIBUTOR = "contributor"

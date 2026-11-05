@@ -1,4 +1,10 @@
 [
+{"version":"v3.2.2",
+ "date":"2026-11-06",
+ "notes":[
+   "Count directory access"
+ ]
+},
 {"version":"v3.2.1",
  "date":"2026-10-30",
  "notes":[
