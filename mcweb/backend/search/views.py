@@ -71,8 +71,6 @@ class Cost:
     """
     quota increment values, for consistency.
     in an object for easy import by test files.
-    (if you change a cost, the test will present itself,
-     and you can fix the test to use this)
     """
     ITEM = 1
     LANG = 2
