@@ -8,6 +8,7 @@ from backend.sources.models import Source
 from backend.users.models import Profile
 
 from .helpers import quota_hits
+from ..views import Cost
 
 
 class CountBySourceOverIntervalTest(TestCase):
@@ -109,7 +110,7 @@ class CountBySourceOverIntervalTest(TestCase):
             "total_stories": 10,
             "ratio": 0.3,
         }])
-        self.assertEqual(quota_hits(self.user), 4)
+        self.assertEqual(quota_hits(self.user), Cost.TWO_D)
 
     def test_zero_total_stories_gives_zero_ratio_not_division_error(self):
         provider = MagicMock()
