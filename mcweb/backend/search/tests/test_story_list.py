@@ -9,6 +9,7 @@ from backend.sources.models import Source
 from backend.users.models import Profile
 
 from .helpers import quota_hits
+from ..views import Cost
 
 
 class StoryListTest(TestCase):
@@ -48,7 +49,7 @@ class StoryListTest(TestCase):
         body = json.loads(response.content)
         self.assertEqual(body["stories"], [{"id": 1}])
         self.assertEqual(body["pagination_token"], "next-page-token")
-        self.assertEqual(quota_hits(user), 1)
+        self.assertEqual(quota_hits(user), Cost.ITEM)
 
     def test_session_authenticated_non_staff_can_request_stories(self):
         user = self._make_user("story_list_session", is_staff=False)
@@ -65,7 +66,7 @@ class StoryListTest(TestCase):
         body = json.loads(response.content)
         self.assertEqual(body["stories"], [{"id": 1}])
         self.assertEqual(body["pagination_token"], "next-page-token")
-        self.assertEqual(quota_hits(user), 1)
+        self.assertEqual(quota_hits(user), Cost.ITEM)
 
     def test_session_authenticated_non_staff_cannot_request_expanded_stories(self):
         user = self._make_user("story_list_session_expanded", is_staff=False)
@@ -138,3 +139,4 @@ class StoryListTest(TestCase):
 
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(provider.paged_items.call_args.kwargs["randomize"], True)
+        self.assertEqual(quota_hits(user), Cost.RANDOM)
