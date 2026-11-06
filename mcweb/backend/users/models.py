@@ -1,5 +1,6 @@
 import time
 import types
+from typing import Iterable
 
 import constance
 from django import db
@@ -7,6 +8,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import datetime as dt
 from django.conf import settings
+from django.db.models import F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
@@ -56,6 +58,8 @@ class QuotaHistory(models.Model):
     hits = models.IntegerField(default=0, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     modified_at = models.DateTimeField(auto_now=True, null=True)
+    # elapsed query time: signed 32-bit int can hold over 24 days of ms.
+    ms = models.IntegerField(default=0, null=False, blank=False)
 
     class Meta:
         indexes = [
@@ -84,27 +88,60 @@ class QuotaHistory(models.Model):
 
 
     @classmethod
-    def check_quota(cls, user_id: int, is_staff:bool, provider:str):
+    def check_quota(cls, user_id: int, is_staff:bool, provider:str, amount: int = 1):
         matching = cls.current_for(user_id, provider)
         quota = Profile.user_provider_quota(user_id, provider)
-        if (quota <= matching.hits) and not is_staff:
+        if (matching.hits + amount > quota) and not is_staff:
             raise OverQuotaException(provider, quota)
         return matching.hits
 
     @classmethod
-    def increment(cls, user_id: int, is_staff: bool, provider: str, amount: int = 1) -> int:
-        matching = cls.current_for(user_id, provider)
-        matching.hits += amount
-        matching.save()
-        # raise an error if they are at quota
-        quota = Profile.user_provider_quota(user_id, provider)
-        if (quota <= matching.hits) and not is_staff:
-            raise OverQuotaException(provider, quota)
-        return matching.hits
+    def _increment(cls, user_id: int, is_staff: bool, provider: str,
+                   amount: int, ms: int) -> None:
+        """
+        now private: called from QuotaContext
+        """
+        week = cls._this_week()
+        matching, created = QuotaHistory.objects.update_or_create(
+            user_id=user_id, provider=provider, week=week,
+            defaults={
+                "hits": F("hits") + amount,
+                "ms": F("ms") + ms
+            },
+            create_defaults={
+                "user_id": user_id,
+                "provider": provider,
+                "week": week,
+                "hits": amount,
+                "ms": ms
+            }
+        )
 
     @classmethod
-    def context(cls, user: User, provider: str, incr: int = 1) -> "_QuotaContext":
-        return _QuotaContext(user, provider, incr)
+    def context(cls, user: User, provider: str, incr: int) -> "_QuotaContext":
+        return cls.id_context(user.id, user.is_staff, provider, incr)
+
+    @classmethod
+    def id_context(cls, user_id: int, is_staff: bool, provider: str, incr: int) -> "_QuotaContext":
+        return _QuotaContext(user_id, is_staff, provider, incr)
+
+    @classmethod
+    def quota_iterate(cls, iterable: Iterable, user_id: int, is_staff: bool, provider: str) -> Iterable:
+        """
+        iterate over an iterable (generator, like providers.all_items)
+        wrapping each fetch in quota/timing checks.
+
+        This avoids charging the user for time spent sleeping in
+        background tasks.
+        """
+        context = cls.id_context(user_id, is_staff, provider, 1)
+        while True:
+            try:
+                with context:
+                    item = next(iterable)
+            except StopIteration:
+                break
+            yield item
 
 class ResetCodes(models.Model):
     email = models.EmailField()
@@ -120,28 +157,28 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 class _QuotaContext:
-    def __init__(self, user: User, provider: str, incr: int = 1):
-        self.user = user
+    def __init__(self, user_id: int, is_staff: bool, provider: str, incr: int):
+        self.user_id = user_id
+        self.is_staff = is_staff
         self.provider = provider
         self.incr = incr
+        self.t0 = 0
 
     def __enter__(self) -> "_QuotaContext":
-        # XXX maybe check if usage + incr <= quota??
-        QuotaHistory.check_quota(self.user.id,
-                                 self.user.is_staff,
-                                 self.provider)
-        #self.t0 = time.monotonic()
+        QuotaHistory.check_quota(self.user_id, self.is_staff, self.provider, self.incr)
+        self.t0 = time.monotonic()
         return self
 
     def __exit__(self,
                  exc_type: type[BaseException],
                  value: BaseException,
                  traceback_: types.TracebackType) -> bool:
+
+        # only count quota on success (as before)
         if exc_type is None:
-            # FUTURE: pass elapsed time to update time used column?
-            #elapsed = time.monotonic() - self.t0
-            QuotaHistory.increment(self.user.id,
-                                   self.user.is_staff,
-                                   self.provider,
-                                   self.incr)
+            seconds = time.monotonic() - self.t0
+            ms = round(seconds * 1000)
+            QuotaHistory._increment(self.user_id, self.is_staff, self.provider,
+                                    self.incr, ms)
+
         return False            # propagate exceptions

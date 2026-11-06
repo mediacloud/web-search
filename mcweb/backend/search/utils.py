@@ -410,10 +410,9 @@ def all_content_csv_generator(pqs: list[ParsedQuery], user_id, is_staff, delay =
         first_page = True
         for pq in pqs:
             provider = pq_provider(pq)
-            result = provider.all_items(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
-            for page in result:
-                # NOTE! QuotaHistory.check_quota call should be done first by caller!
-                QuotaHistory.increment(user_id, is_staff, pq.provider_name)
+            generator = provider.all_items(pq.query, pq.start_date, pq.end_date, **pq.provider_props)
+            # wrap all_items generator in an iterator that tracks quota usage:
+            for page in QuotaHistory.quota_iterate(generator, user_id, is_staff, pq.provider_name):
                 if first_page:  # send back column names, which differ by platform
                     yield sorted(page[0].keys())
                     first_page = False
