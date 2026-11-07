@@ -124,12 +124,11 @@ class UpdateSourceLanguage(UpdateTask):
 
         agg = self.p.two_d_aggregation(start_date=yesterday(LANG_COUNT_DAYS),
                                        end_date=yesterday(),
-                                       url_search_strings=url_search_strings,
                                        outer_field="media_name",
                                        inner_field="language",
                                        max_inner_buckets=1,
                                        domains=domains,
-                                       filters=url_search_strings)
+                                       url_search_strings=url_search_strings)
 
         # dict indexed by domain name,
         # of ordered dict indexed by language,
