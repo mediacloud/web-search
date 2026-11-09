@@ -162,7 +162,22 @@ def stats_quota(f):
             return quota_exceeded(e, request)
     return wrapper
 
-class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+class StatsQuotaModelViewSet(viewsets.ModelViewSet):
+    """
+    Base for ModelViewsets:
+    decorate GET methods by default
+    """
+
+    @stats_quota
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @stats_quota
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+
+class CollectionViewSet(ActionHistoryViewSetMixin, StatsQuotaModelViewSet):
     action_history_object_model = ActionHistory.ModelType.COLLECTION
     # use this queryset, so we ensure that every result has `source_count` included
     queryset = Collection.objects.\
@@ -210,10 +225,6 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         if self.request.method != 'GET':
             serializer_class = CollectionWriteSerializer
         return serializer_class
-
-    @stats_quota
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
 
     @stats_quota
     @action(detail=False)
@@ -305,7 +316,7 @@ class CollectionViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
 def _rss_fetcher_api():
     return RssFetcherApi(RSS_FETCHER_URL, RSS_FETCHER_USER, RSS_FETCHER_PASS)
 
-class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+class FeedsViewSet(ActionHistoryViewSetMixin, StatsQuotaModelViewSet):
     action_history_object_model = ActionHistory.ModelType.FEED
     queryset = Feed.objects.all()
     permission_classes = [
@@ -349,10 +360,6 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
                 queryset = queryset.order_by('modified_at', 'id')
 
         return queryset
-
-    @stats_quota
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
 
     @stats_quota
     @action(detail=False)
@@ -411,7 +418,7 @@ class FeedsViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         return Response({"fetch_response": total})
 
 
-class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+class SourcesViewSet(ActionHistoryViewSetMixin, StatsQuotaModelViewSet):
     # private class variable used in queryset AND against union query:
     _ordering = F('stories_per_week').desc(nulls_last=True)
     action_history_object_model = ActionHistory.ModelType.SOURCE
@@ -489,11 +496,6 @@ class SourcesViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
         return queryset
     
     
-    @stats_quota
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-
-
     @stats_quota
     def create(self, request):
         cleaned_data = Source._clean_source(request.data)
@@ -817,7 +819,7 @@ class SourcesCollectionsViewSet(viewsets.ViewSet):
         return Response({'source_id': source_id, 'collection_id': collection_id})
     
 
-class AlternativeDomainViewSet(ActionHistoryViewSetMixin, viewsets.ModelViewSet):
+class AlternativeDomainViewSet(ActionHistoryViewSetMixin, StatsQuotaModelViewSet):
     action_history_object_model = ActionHistory.ModelType.ALTERNATIVE_DOMAIN
     permission_classes = [
         IsGetOrIsStaffOrContributor
