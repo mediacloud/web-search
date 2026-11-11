@@ -1,4 +1,11 @@
 [
+{"version":"v3.2.3",
+ "date":"2026-11-12",
+ "notes":[
+   "Directory list counting",
+   "Fix language update task"
+ ]
+},
 {"version":"v3.2.2",
  "date":"2026-11-06",
  "notes":[
