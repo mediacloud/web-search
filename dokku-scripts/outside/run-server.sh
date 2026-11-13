@@ -14,4 +14,5 @@ cd $_WEB_SEARCH
 echo "open URL http://$ALLOWED_HOSTS:$_OUTSIDE_PORT"
 $_VENV_BIN/gunicorn --pythonpath mcweb \
 		    --bind 0.0.0.0:$_OUTSIDE_PORT \
+		    --timeout 0 \
 		    mcweb.wsgi

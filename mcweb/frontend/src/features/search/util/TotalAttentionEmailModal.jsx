@@ -25,7 +25,8 @@ export default function TotalAttentionEmailModal({
       encodeURIComponent(JSON.stringify(prepareQueries([querySlice])))}`;
   };
 
-  // download button is hit but the count is less than 25k, no need to ask for an email it will download
+  // download button is hit but the count is less than email threshold request immediate CSV,
+  // if total is above limit for an emailed CSV tell them now.
   const handleClickOpen = () => {
     if (totalCountOfQuery < document.settings.allUrlsCsvEmailMin) {
       enqueueSnackbar('Downloading your data!', { variant: 'success' });

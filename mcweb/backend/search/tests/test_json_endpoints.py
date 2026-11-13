@@ -8,7 +8,7 @@ from mc_providers.exceptions import UnsupportedOperationException
 from backend.users.models import Profile
 
 from .helpers import quota_hits
-
+from ..views import Cost
 
 class SearchJsonEndpointsTest(TestCase):
     """
@@ -48,7 +48,7 @@ class SearchJsonEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         body = json.loads(response.content)
         self.assertEqual(body["count"], {"relevant": 10, "total": 50})
-        self.assertEqual(quota_hits(self.user), 1)
+        self.assertEqual(quota_hits(self.user), Cost.TOTAL)
 
     def test_sample_happy_path_and_quota(self):
         with patch("backend.search.views.pq_provider") as mock_pq_provider:
@@ -60,7 +60,7 @@ class SearchJsonEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         body = json.loads(response.content)
         self.assertEqual(body["sample"], [{"id": 1, "title": "a story"}])
-        self.assertEqual(quota_hits(self.user), 1)
+        self.assertEqual(quota_hits(self.user), Cost.SAMPLE)
 
     def test_count_over_time_uses_normalized_counts_when_supported(self):
         with patch("backend.search.views.pq_provider") as mock_pq_provider:
@@ -73,7 +73,7 @@ class SearchJsonEndpointsTest(TestCase):
         body = json.loads(response.content)
         self.assertEqual(body["count_over_time"], {"counts": [{"date": "2026-08-01", "count": 3}]})
         provider.count_over_time.assert_not_called()
-        self.assertEqual(quota_hits(self.user), 1)
+        self.assertEqual(quota_hits(self.user), Cost.COT)
 
     def test_count_over_time_falls_back_when_normalized_unsupported(self):
         with patch("backend.search.views.pq_provider") as mock_pq_provider:
@@ -86,7 +86,7 @@ class SearchJsonEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         body = json.loads(response.content)
         self.assertEqual(body["count_over_time"], {"counts": [{"date": "2026-08-01", "count": 3}]})
-        self.assertEqual(quota_hits(self.user), 1)
+        self.assertEqual(quota_hits(self.user), Cost.COT)
 
     def test_languages_happy_path_and_quota(self):
         with patch("backend.search.views.pq_provider") as mock_pq_provider:
@@ -98,7 +98,7 @@ class SearchJsonEndpointsTest(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         body = json.loads(response.content)
         self.assertEqual(body["languages"], [{"language": "en", "value": 5, "ratio": 1.0}])
-        self.assertEqual(quota_hits(self.user), 2)
+        self.assertEqual(quota_hits(self.user), Cost.LANG)
 
     def test_sources_happy_path_and_quota(self):
         with patch("backend.search.views.pq_provider") as mock_pq_provider:
@@ -112,7 +112,7 @@ class SearchJsonEndpointsTest(TestCase):
         self.assertEqual(body["sources"], [{"source": "example.com", "count": 10}])
         # sources() defaults limit to 10 (as a kwarg, so a caller's limit can override it)
         self.assertEqual(provider.sources.call_args.kwargs["limit"], 100)
-        self.assertEqual(quota_hits(self.user), 4)
+        self.assertEqual(quota_hits(self.user), Cost.SRCS)
 
     def test_sources_caller_limit_overrides_default(self):
         # API users passing ?limit= used to get "multiple values for argument 'limit'"
