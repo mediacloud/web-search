@@ -1,0 +1,9 @@
+-- run after mc-deploy clone command
+
+-- disable non-staff accounts leave select non-staff accounts
+--  (ie; test accounts used by staff) active:
+\echo Disable non-staff accounts:
+UPDATE auth_user
+SET is_active = FALSE
+WHERE NOT is_staff AND email NOT IN ('phil@regressive.org', 'rahulbot@gmail.com')
+;
