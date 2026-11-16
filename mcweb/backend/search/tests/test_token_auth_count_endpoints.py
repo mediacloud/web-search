@@ -8,6 +8,7 @@ from rest_framework.authtoken.models import Token
 from backend.users.models import Profile
 
 from .helpers import quota_hits
+from ..views import Cost
 
 """
 total_count/count_over_time/count_by_source_over_interval are decorated
@@ -44,7 +45,7 @@ class TotalCountTokenAuthTest(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         body = json.loads(response.content)
         self.assertEqual(body["count"], {"relevant": 10, "total": 50})
-        self.assertEqual(quota_hits(self.user), 1)
+        self.assertEqual(quota_hits(self.user), Cost.TOTAL)
 
     def test_invalid_token_is_rejected(self):
         response = self.client.get(

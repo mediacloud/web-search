@@ -124,6 +124,7 @@ class CustomUserAdmin(BaseUserAdmin):
         "quota_used_pct",
         "last_use",
         "high_rate_limit",
+        "sec",
     )
     list_filter = BaseUserAdmin.list_filter + (
         IncreasedQuotaFilter,
@@ -151,6 +152,11 @@ class CustomUserAdmin(BaseUserAdmin):
             provider=provider,
             hits__gt=0,
         ).order_by("-week").values("modified_at")[:1]
+        current_week_ms = QuotaHistory.objects.filter(
+            user_id=OuterRef("pk"),
+            provider=provider,
+            week=QuotaHistory._this_week()
+        ).values("ms")[:1]
 
         queryset = queryset.annotate(
             quota_limit=Coalesce(
@@ -167,7 +173,8 @@ class CustomUserAdmin(BaseUserAdmin):
                 default=Value(False),
                 output_field=BooleanField(),
             ),
-            last_use=Cast(last_use, output_field=DateField())
+            last_use=Cast(last_use, output_field=DateField()),
+            ms=current_week_ms,
         )
 
         return queryset.annotate(
@@ -204,6 +211,13 @@ class CustomUserAdmin(BaseUserAdmin):
                    description="last use")
     def last_use(self, obj):
         return obj.last_use
+
+    @admin.display(ordering=F("ms").desc(nulls_last=True),
+                   description="sec")
+    def sec(self, obj):
+        if obj.ms is None:
+            return None
+        return (obj.ms + 500) // 1000
 
     def current_collection_permissions(self, obj):
         """Display the collection IDs this user can edit, as a table with remove buttons."""

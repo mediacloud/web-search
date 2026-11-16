@@ -124,8 +124,12 @@ def _download_all_large_content_csv(queryState: list[dict], user_id: int, is_sta
     # so information present after unzipping.
     zipfile_obj.writestr(descr_filename, description)
 
-    # 250000 URLs in pages of 1000 at 120/minute is 2 minutes
-    data_generator = all_content_csv_generator(parsed_queries, user_id, is_staff, delay=0.5)
+    # current max size for emailed CSV is 250000 URLs, queried in
+    # pages of 1000 that's 250 queries.  At 25 queries per minute
+    # (more than 10x the current API limit of 2/min) that's 10 min.
+    # XXX Coordinate this with throttling on request endpoint!!!
+    qpm = 25                    # queries per minute
+    data_generator = all_content_csv_generator(parsed_queries, user_id, is_staff, delay=qpm/60)
 
     # write uncompressed CSV to a temp file to avoid swelling VM footprint
     # of web worker processes
