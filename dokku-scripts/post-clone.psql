@@ -1,6 +1,6 @@
 -- run after mc-deploy clone command
 
--- disable non-staff accounts leave select non-staff accounts
+-- disable non-staff accounts; leave select non-staff accounts
 --  (ie; test accounts used by staff) active:
 \echo Disable non-staff accounts:
 UPDATE auth_user
